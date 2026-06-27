@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, BarChart2, Link } from 'lucide-react';
+import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import SearchBar from '@/components/common/SearchBar';
@@ -306,20 +306,6 @@ export default function OwnerContest() {
       className: 'text-right',
       cell: (contest) => (
         <div className="flex justify-end gap-2">
-          <button
-            onClick={() => {
-              const url = `${window.location.origin}/public/contests/${contest.id}`;
-              navigator.clipboard.writeText(url).then(() => {
-                toast.success('Public link copied to clipboard!');
-              }).catch(() => {
-                toast.error('Failed to copy link');
-              });
-            }}
-            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
-            title="Copy Public Link"
-          >
-            <Link className="h-4 w-4" />
-          </button>
           <button
             onClick={() => navigate(`/instructor/contests/${contest.id}/analytics`)}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"

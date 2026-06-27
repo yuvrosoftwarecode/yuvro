@@ -272,10 +272,6 @@ class BaseUserSubmission(BaseTimestampedModel):
     user_agent = models.TextField(blank=True)
     marks = models.FloatField(null=True, blank=True)
 
-    # Post-exam AI Proctoring verification
-    proctoring_passed = models.BooleanField(default=True)
-    anomalies_detected = models.JSONField(default=list, blank=True)
-
     class Meta:
         abstract = True
 
@@ -323,8 +319,6 @@ class MockInterviewSubmission(BaseUserSubmission):
         MockInterview,
         on_delete=models.CASCADE,
         related_name="mock_interview_submissions",
-        null=True,
-        blank=True,
     )
     experience_level = models.CharField(
         max_length=20,
@@ -354,18 +348,12 @@ class MockInterviewSubmission(BaseUserSubmission):
         choices=[("predefined", "Predefined"), ("full_ai", "Full AI")],
         default="full_ai"
     )
-    state_data = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="In-progress state data for AI-powered mock interview",
-    )
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
-        title = self.mock_interview.title if self.mock_interview else "JD/Resume AI Mock Interview"
-        return f"{self.user.username} - {title} ({self.get_experience_level_display()})"
+        return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
 
 
 class UserInterviewProgress(BaseTimestampedModel):

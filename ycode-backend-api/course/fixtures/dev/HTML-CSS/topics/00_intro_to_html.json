@@ -1,2153 +1,2097 @@
 {
-    "name": "Intro to HTML",
-    "course_short_code": "HTMLCSS100",
-    "order_index": 0,
-    "subtopics": [
+  "name": "Intro to HTML",
+  "course_short_code": "HTMLCSS100",
+  "order_index": 0,
+  "subtopics": [
+    {
+      "name": "What is HTML?",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "What is HTML?",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to What is HTML?",
-                    "video_link": "https://www.youtube.com/results?search_query=What+is+HTML?+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of What is HTML? in HTML/CSS."
-                },
-                {
-                    "title": "Advanced What is HTML? Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=What+is+HTML?+html+css",
-                    "ai_context": "In-depth explanation and practical examples for What is HTML?."
-                }
-            ]
+          "title": "Introduction to What is HTML?",
+          "video_link": "https://www.youtube.com/results?search_query=What+is+HTML?+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of What is HTML? in HTML/CSS."
         },
         {
-            "name": "Setting Up Environment",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Setting Up Environment",
-                    "video_link": "https://www.youtube.com/results?search_query=Setting+Up+Environment+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Setting Up Environment in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Setting Up Environment Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Setting+Up+Environment+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Setting Up Environment."
-                }
-            ]
-        },
-        {
-            "name": "HTML Document Structure",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to HTML Document Structure",
-                    "video_link": "https://www.youtube.com/results?search_query=HTML+Document+Structure+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of HTML Document Structure in HTML/CSS."
-                },
-                {
-                    "title": "Advanced HTML Document Structure Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=HTML+Document+Structure+html+css",
-                    "ai_context": "In-depth explanation and practical examples for HTML Document Structure."
-                }
-            ]
-        },
-        {
-            "name": "First Web Page",
-            "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
-            "order_index": 3,
-            "videos": [
-                {
-                    "title": "Introduction to First Web Page",
-                    "video_link": "https://www.youtube.com/results?search_query=First+Web+Page+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of First Web Page in HTML/CSS."
-                },
-                {
-                    "title": "Advanced First Web Page Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=First+Web+Page+html+css",
-                    "ai_context": "In-depth explanation and practical examples for First Web Page."
-                }
-            ]
+          "title": "Advanced What is HTML? Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=What+is+HTML?+html+css",
+          "ai_context": "In-depth explanation and practical examples for What is HTML?."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Setting Up Environment",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "HTML Full Form",
-            "content": "What does HTML stand for?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HyperText Markup Language",
-                    "is_correct": true
-                },
-                {
-                    "text": "HighText Machine Language",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hyper Transfer Markup Language",
-                    "is_correct": false
-                },
-                {
-                    "text": "Home Tool Markup Language",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Setting Up Environment",
+          "video_link": "https://www.youtube.com/results?search_query=Setting+Up+Environment+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Setting Up Environment in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "Purpose of HTML",
-            "content": "What is the main purpose of HTML in web development?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To structure web page content",
-                    "is_correct": true
-                },
-                {
-                    "text": "To style web pages",
-                    "is_correct": false
-                },
-                {
-                    "text": "To connect databases",
-                    "is_correct": false
-                },
-                {
-                    "text": "To perform server-side processing",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "CSS Role",
-            "content": "What is the primary role of CSS in a website?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Styling and designing web pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "Creating database tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "Handling server requests",
-                    "is_correct": false
-                },
-                {
-                    "text": "Managing file systems",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "JavaScript Purpose",
-            "content": "Why is JavaScript used in websites?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To add interactivity and dynamic behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "To only structure content",
-                    "is_correct": false
-                },
-                {
-                    "text": "To replace HTML completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "To store files permanently",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Client-Server Model",
-            "content": "In the client-server model, what does the client usually represent?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The user's web browser",
-                    "is_correct": true
-                },
-                {
-                    "text": "The database server",
-                    "is_correct": false
-                },
-                {
-                    "text": "The hosting company",
-                    "is_correct": false
-                },
-                {
-                    "text": "The operating system",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Website Loading Process",
-            "content": "What happens first when a user visits a website?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The browser sends a request to the server",
-                    "is_correct": true
-                },
-                {
-                    "text": "The database creates HTML automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "CSS files execute first",
-                    "is_correct": false
-                },
-                {
-                    "text": "JavaScript installs on the computer",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HTML History",
-            "content": "Who is known as the creator of HTML?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Tim Berners-Lee",
-                    "is_correct": true
-                },
-                {
-                    "text": "Bill Gates",
-                    "is_correct": false
-                },
-                {
-                    "text": "Dennis Ritchie",
-                    "is_correct": false
-                },
-                {
-                    "text": "James Gosling",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "VS Code Purpose",
-            "content": "What is Visual Studio Code commonly used for in web development?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Writing and editing code",
-                    "is_correct": true
-                },
-                {
-                    "text": "Hosting websites",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creating databases",
-                    "is_correct": false
-                },
-                {
-                    "text": "Managing servers only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HTML File Extension",
-            "content": "Which file extension is used for HTML files?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ".html",
-                    "is_correct": true
-                },
-                {
-                    "text": ".ht",
-                    "is_correct": false
-                },
-                {
-                    "text": ".web",
-                    "is_correct": false
-                },
-                {
-                    "text": ".xml",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Browser Developer Tools",
-            "content": "What are browser developer tools mainly used for?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Inspecting and debugging web pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "Creating databases",
-                    "is_correct": false
-                },
-                {
-                    "text": "Compiling Java code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Installing operating systems",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Recommended Extension",
-            "content": "Which VS Code extension is commonly used for live HTML preview?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Live Server",
-                    "is_correct": true
-                },
-                {
-                    "text": "Python Debugger",
-                    "is_correct": false
-                },
-                {
-                    "text": "Git History",
-                    "is_correct": false
-                },
-                {
-                    "text": "Code Runner",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Opening HTML File",
-            "content": "How can you open an HTML file in a browser?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Double-click the HTML file",
-                    "is_correct": true
-                },
-                {
-                    "text": "Compile it with Python",
-                    "is_correct": false
-                },
-                {
-                    "text": "Run it in terminal only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Convert it into PDF first",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Inspect Element Shortcut",
-            "content": "Which key is commonly used to open browser developer tools?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "F12",
-                    "is_correct": true
-                },
-                {
-                    "text": "F1",
-                    "is_correct": false
-                },
-                {
-                    "text": "F5",
-                    "is_correct": false
-                },
-                {
-                    "text": "Esc",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Basic HTML Structure",
-            "content": "Which tag is the root element of an HTML document?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "Setting Up Environment",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<html>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<body>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<head>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<title>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "DOCTYPE Declaration",
-            "content": "What is the purpose of <!DOCTYPE html> in an HTML document?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It tells the browser the document uses HTML5",
-                    "is_correct": true
-                },
-                {
-                    "text": "It creates the page title",
-                    "is_correct": false
-                },
-                {
-                    "text": "It adds styles to the page",
-                    "is_correct": false
-                },
-                {
-                    "text": "It connects JavaScript files",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Root HTML Element",
-            "content": "Which tag is the root element of an HTML document?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<html>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<body>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<head>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<meta>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Body Tag Purpose",
-            "content": "What is placed inside the <body> tag?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Visible content of the webpage",
-                    "is_correct": true
-                },
-                {
-                    "text": "Browser settings",
-                    "is_correct": false
-                },
-                {
-                    "text": "Metadata only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Server configuration",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Head Section",
-            "content": "Which tag contains metadata and page information?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<head>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<footer>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<section>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<article>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Meta Tag Usage",
-            "content": "What is the purpose of the <meta> tag?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To provide metadata about the webpage",
-                    "is_correct": true
-                },
-                {
-                    "text": "To display images",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "To play videos",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Page Title Display",
-            "content": "Which tag defines the title shown on the browser tab?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<title>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<header>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<caption>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<meta>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Metadata Character Encoding",
-            "content": "Which meta tag is commonly used to define character encoding in HTML5?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<meta charset=\"UTF-8\">",
-                    "is_correct": true
-                },
-                {
-                    "text": "<meta html=\"UTF-8\">",
-                    "is_correct": false
-                },
-                {
-                    "text": "<charset UTF-8>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<encoding=\"UTF-8\">",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Hello World Content",
-            "content": "What is commonly displayed in a beginner's first HTML page?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Hello World",
-                    "is_correct": true
-                },
-                {
-                    "text": "404 Error",
-                    "is_correct": false
-                },
-                {
-                    "text": "Database Connected",
-                    "is_correct": false
-                },
-                {
-                    "text": "Server Started",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HTML File Saving",
-            "content": "Which extension should be used when saving an HTML file?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ".html",
-                    "is_correct": true
-                },
-                {
-                    "text": ".txt",
-                    "is_correct": false
-                },
-                {
-                    "text": ".js",
-                    "is_correct": false
-                },
-                {
-                    "text": ".css",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Running HTML File",
-            "content": "How can you run an HTML file after saving it?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Open it in a web browser",
-                    "is_correct": true
-                },
-                {
-                    "text": "Compile it with Python",
-                    "is_correct": false
-                },
-                {
-                    "text": "Run it in terminal only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Upload it to database",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Basic HTML Tag",
-            "content": "Which tag is commonly used to display a heading like 'Hello World'?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<h1>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<title>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<meta>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<link>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Browser Rendering",
-            "content": "What does a browser do with an HTML file?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Renders and displays the webpage",
-                    "is_correct": true
-                },
-                {
-                    "text": "Converts it into Java",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stores it in database automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Encrypts the file",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Incorrect File Extension",
-            "content": "What may happen if an HTML file is saved as .txt instead of .html?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The browser may display raw text instead of rendering HTML",
-                    "is_correct": true
-                },
-                {
-                    "text": "The file becomes a CSS file",
-                    "is_correct": false
-                },
-                {
-                    "text": "The browser crashes",
-                    "is_correct": false
-                },
-                {
-                    "text": "JavaScript stops working globally",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Live Preview Tool",
-            "content": "Which VS Code extension helps automatically refresh the browser when HTML changes?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Live Server",
-                    "is_correct": true
-                },
-                {
-                    "text": "Prettier",
-                    "is_correct": false
-                },
-                {
-                    "text": "ESLint",
-                    "is_correct": false
-                },
-                {
-                    "text": "Debugger",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "HTML Basics",
-            "content": "Which of the following statements about HTML are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HTML stands for HyperText Markup Language",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML is used to structure web pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML is a programming language",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browsers interpret HTML to display content",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "History of HTML",
-            "content": "Which of the following statements about the history of HTML are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HTML was created by Tim Berners-Lee",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML was developed for sharing documents on the web",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML was introduced after CSS and JavaScript",
-                    "is_correct": false
-                },
-                {
-                    "text": "HTML has evolved through multiple versions",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "HTML vs CSS vs JavaScript",
-            "content": "Which of the following statements correctly compare HTML, CSS, and JavaScript?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HTML defines structure of web pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "CSS is used for styling web pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "JavaScript is used for adding interactivity",
-                    "is_correct": true
-                },
-                {
-                    "text": "CSS handles server-side programming",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "How Websites Work",
-            "content": "Which of the following statements about how websites work are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Browsers request web pages from servers",
-                    "is_correct": true
-                },
-                {
-                    "text": "Servers send HTML files to browsers",
-                    "is_correct": true
-                },
-                {
-                    "text": "Websites can work without any server",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browsers render HTML into visual pages",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Client-Server Basics",
-            "content": "Which of the following statements about client-server architecture are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A browser acts as a client",
-                    "is_correct": true
-                },
-                {
-                    "text": "A server stores and delivers website resources",
-                    "is_correct": true
-                },
-                {
-                    "text": "Clients and servers are always the same machine",
-                    "is_correct": false
-                },
-                {
-                    "text": "HTTP is commonly used for communication between client and server",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Web Concepts",
-            "content": "Which of the following statements about advanced web concepts are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HTML is interpreted by browsers, not compiled",
-                    "is_correct": true
-                },
-                {
-                    "text": "The DOM represents the structure of an HTML page",
-                    "is_correct": true
-                },
-                {
-                    "text": "JavaScript cannot interact with HTML elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "CSS and JavaScript can be linked externally to HTML",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Real-world Website Architecture",
-            "content": "Which of the following are true in real-world website architecture?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "What is HTML?",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Web servers handle requests from multiple clients",
-                    "is_correct": true
-                },
-                {
-                    "text": "Frontend technologies include HTML, CSS, and JavaScript",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML alone can manage databases directly",
-                    "is_correct": false
-                },
-                {
-                    "text": "Backend systems process business logic and data",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "DOCTYPE Basics",
-            "content": "Which of the following statements about <!DOCTYPE html> are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<!DOCTYPE html> declares the document as HTML5",
-                    "is_correct": true
-                },
-                {
-                    "text": "DOCTYPE helps browsers render pages correctly",
-                    "is_correct": true
-                },
-                {
-                    "text": "<!DOCTYPE html> is an HTML tag",
-                    "is_correct": false
-                },
-                {
-                    "text": "DOCTYPE is written at the top of the HTML document",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "HTML Root Structure",
-            "content": "Which of the following statements about the basic HTML structure are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<html> is the root element of an HTML page",
-                    "is_correct": true
-                },
-                {
-                    "text": "<body> contains visible webpage content",
-                    "is_correct": true
-                },
-                {
-                    "text": "<head> is displayed directly on the webpage",
-                    "is_correct": false
-                },
-                {
-                    "text": "<head> stores metadata and resource links",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Head and Body Elements",
-            "content": "Which of the following statements about <head> and <body> are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<title> tag is usually placed inside <head>",
-                    "is_correct": true
-                },
-                {
-                    "text": "Paragraphs and headings are placed inside <body>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<body> cannot contain images",
-                    "is_correct": false
-                },
-                {
-                    "text": "Scripts and styles can be linked in <head>",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Metadata Basics",
-            "content": "Which of the following statements about metadata in HTML are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Metadata provides information about the webpage",
-                    "is_correct": true
-                },
-                {
-                    "text": "<meta> tags are generally placed inside <head>",
-                    "is_correct": true
-                },
-                {
-                    "text": "Metadata is directly visible on the webpage",
-                    "is_correct": false
-                },
-                {
-                    "text": "Metadata can define character encoding and viewport settings",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "HTML Document Rules",
-            "content": "Which of the following statements about HTML document rules are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A valid HTML document should contain html, head, and body elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Browsers can still render pages with missing tags in some cases",
-                    "is_correct": true
-                },
-                {
-                    "text": "DOCTYPE is optional for standards mode rendering",
-                    "is_correct": false
-                },
-                {
-                    "text": "HTML documents follow a hierarchical structure",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Structure Concepts",
-            "content": "Which of the following statements about advanced HTML structure concepts are correct?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The DOM tree is generated from the HTML structure",
-                    "is_correct": true
-                },
-                {
-                    "text": "Metadata can affect SEO and browser behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "<head> content is rendered as visible page text automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "External CSS and JavaScript files are commonly linked in <head>",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices in HTML Structure",
-            "content": "Which of the following are considered best practices for HTML document structure?",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Using semantic structure improves maintainability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Proper metadata improves mobile responsiveness",
-                    "is_correct": true
-                },
-                {
-                    "text": "All webpage content should be placed inside <head>",
-                    "is_correct": false
-                },
-                {
-                    "text": "Correct structure helps accessibility tools interpret pages",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Create Basic HTML Document",
-            "content": "Write a basic HTML document containing <!DOCTYPE html>, html, head, and body tags.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Valid HTML document structure"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "DOCTYPE, html, head, and body tags present"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<!DOCTYPE html><html><head></head><body></body></html>",
-                    "explanation": "A minimal HTML document requires these main tags."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "A valid HTML document.",
-            "solutions": [
-                {
-                    "title": "Basic Structure",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Hello World</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Start with <!DOCTYPE html>.",
-                "Place visible content inside the body tag."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Add Page Title",
-            "content": "Create an HTML document with a title displayed in the browser tab.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Title visible in browser tab"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Title tag inside head section"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<title>My Website</title>",
-                    "explanation": "The title tag defines browser tab text."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with title.",
-            "solutions": [
-                {
-                    "title": "HTML Title",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Website</title>\n</head>\n<body>\n    <p>Welcome to my website</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use the title tag inside head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Add Metadata Description",
-            "content": "Create an HTML page with meta description and charset information.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Meta charset and description tags present"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Valid metadata tags inside head"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<meta charset=\"UTF-8\">",
-                    "explanation": "Metadata provides page information."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML document with metadata.",
-            "solutions": [
-                {
-                    "title": "Metadata Basics",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"description\" content=\"Sample HTML Page\">\n    <title>Metadata Example</title>\n</head>\n<body>\n    <h1>HTML Metadata</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use meta tags inside head section."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Structured Portfolio Page",
-            "content": "Create a portfolio webpage with proper HTML structure, metadata, title, and body content.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Structured portfolio HTML page"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper document structure with metadata"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Portfolio webpage with heading and about section",
-                    "explanation": "Combines document structure and metadata."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Complete HTML page.",
-            "solutions": [
-                {
-                    "title": "Portfolio Structure",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Portfolio</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Include viewport metadata.",
-                "Use semantic content inside body."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Responsive HTML Skeleton",
-            "content": "Create a responsive HTML page using proper metadata for mobile support.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Responsive HTML page"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Viewport meta tag correctly used"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
-                    "explanation": "Viewport metadata helps responsive layouts."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Responsive HTML structure.",
-            "solutions": [
-                {
-                    "title": "Responsive HTML",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Responsive Page</title>\n</head>\n<body>\n    <h1>Responsive Website</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use viewport meta tag."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "SEO Optimized HTML Document",
-            "content": "Create an SEO-friendly HTML page using metadata such as description, keywords, and author.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "SEO meta tags present"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper SEO metadata and structure"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<meta name=\"keywords\" content=\"HTML, CSS\">",
-                    "explanation": "SEO metadata improves search visibility."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "SEO-friendly HTML page.",
-            "solutions": [
-                {
-                    "title": "SEO Metadata",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"description\" content=\"Learn HTML basics\">\n    <meta name=\"keywords\" content=\"HTML, CSS, Web Development\">\n    <meta name=\"author\" content=\"John Doe\">\n    <title>SEO HTML Page</title>\n</head>\n<body>\n    <h1>Learn HTML</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use multiple meta tags for SEO.",
-                "Keep metadata inside head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Multi-section HTML Layout",
-            "content": "Create a complete HTML document with header, main content, and footer using proper document structure.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "HTML Document Structure",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Header, main, and footer sections"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Valid semantic HTML structure"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Semantic webpage layout",
-                    "explanation": "Uses semantic HTML tags within document structure."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Structured semantic HTML page.",
-            "solutions": [
-                {
-                    "title": "Semantic Structure",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Semantic Layout</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n\n    <main>\n        <p>Main content goes here.</p>\n    </main>\n\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use semantic tags like header and footer.",
-                "Maintain proper indentation."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Hello World Webpage",
-            "content": "Create a simple HTML webpage that displays 'Hello World' in the browser.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Hello World displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Valid HTML page with Hello World"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<h1>Hello World</h1>",
-                    "explanation": "Basic webpage displaying Hello World."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML webpage.",
-            "solutions": [
-                {
-                    "title": "Hello World Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hello World</title>\n</head>\n<body>\n    <h1>Hello World</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use h1 tag for heading.",
-                "Save the file with .html extension."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Display Welcome Message",
-            "content": "Create an HTML page that displays a welcome message using heading and paragraph tags.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Heading and paragraph displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Valid webpage with welcome content"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<h1>Welcome</h1><p>This is my first webpage.</p>",
-                    "explanation": "Uses heading and paragraph tags."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with content.",
-            "solutions": [
-                {
-                    "title": "Welcome Webpage",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Welcome</title>\n</head>\n<body>\n    <h1>Welcome</h1>\n    <p>This is my first webpage.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use paragraph tag for text.",
-                "Place content inside body."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Personal Introduction Page",
-            "content": "Create a webpage introducing yourself with your name and a short description.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Personal introduction displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Name and description visible"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<h1>John Doe</h1><p>I am learning HTML.</p>",
-                    "explanation": "Simple introduction webpage."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Introduction webpage.",
-            "solutions": [
-                {
-                    "title": "Introduction Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>About Me</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>I am learning HTML.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use heading for name.",
-                "Use paragraph for description."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Multi-line Webpage",
-            "content": "Create a webpage with multiple headings and paragraphs demonstrating proper HTML structure and formatting.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Multiple headings and paragraphs displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Well-structured webpage"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Webpage with multiple sections",
-                    "explanation": "Demonstrates webpage structure."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted HTML page.",
-            "solutions": [
-                {
-                    "title": "Structured Webpage",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Webpage</title>\n</head>\n<body>\n    <h1>Main Heading</h1>\n    <p>This is the first paragraph.</p>\n\n    <h2>Sub Heading</h2>\n    <p>This is another paragraph.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use multiple heading tags.",
-                "Keep indentation clean."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create and Save HTML File",
-            "content": "Write an HTML page and explain how to save it correctly as an HTML file and run it in a browser.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "HTML file saved and opened in browser"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Correct .html extension used"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "index.html",
-                    "explanation": "HTML files should be saved with .html extension."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML file instructions and webpage.",
-            "solutions": [
-                {
-                    "title": "Save and Run HTML",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Run HTML</title>\n</head>\n<body>\n    <h1>My First HTML File</h1>\n</body>\n</html>\n\n<!-- Save this file as index.html and open it in a browser -->",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Save file using .html extension.",
-                "Open file in browser to run it."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Beginner Portfolio Homepage",
-            "content": "Create a beginner portfolio homepage with title, introduction, and multiple sections.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Portfolio homepage created"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Structured homepage with sections"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Homepage with About and Skills section",
-                    "explanation": "Demonstrates building a complete webpage."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Portfolio homepage.",
-            "solutions": [
-                {
-                    "title": "Portfolio Homepage",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Portfolio</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n\n    <h2>About Me</h2>\n    <p>I love web development.</p>\n\n    <h2>Skills</h2>\n    <p>HTML, CSS, JavaScript</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use multiple sections.",
-                "Organize content clearly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Styled Information Page",
-            "content": "Create a webpage containing headings, paragraphs, and horizontal lines to organize information clearly.",
-            "level": "subtopic",
-            "topic_name": "Intro to HTML",
-            "subtopic_name": "First Web Page",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Information sections separated clearly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Readable and organized webpage"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Sections separated using hr tag",
-                    "explanation": "Improves page readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Structured information webpage.",
-            "solutions": [
-                {
-                    "title": "Information Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Information Page</title>\n</head>\n<body>\n    <h1>HTML Learning</h1>\n    <hr>\n\n    <h2>Introduction</h2>\n    <p>HTML is used to create webpages.</p>\n\n    <hr>\n\n    <h2>Advantages</h2>\n    <p>Easy to learn and widely used.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use hr tag for separation.",
-                "Structure sections with headings."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Setting Up Environment Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Setting+Up+Environment+html+css",
+          "ai_context": "In-depth explanation and practical examples for Setting Up Environment."
         }
-    ]
+      ]
+    },
+    {
+      "name": "HTML Document Structure",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to HTML Document Structure",
+          "video_link": "https://www.youtube.com/results?search_query=HTML+Document+Structure+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of HTML Document Structure in HTML/CSS."
+        },
+        {
+          "title": "Advanced HTML Document Structure Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=HTML+Document+Structure+html+css",
+          "ai_context": "In-depth explanation and practical examples for HTML Document Structure."
+        }
+      ]
+    },
+    {
+      "name": "First Web Page",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane’s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to First Web Page",
+          "video_link": "https://www.youtube.com/results?search_query=First+Web+Page+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of First Web Page in HTML/CSS."
+        },
+        {
+          "title": "Advanced First Web Page Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=First+Web+Page+html+css",
+          "ai_context": "In-depth explanation and practical examples for First Web Page."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "HTML Full Form",
+      "content": "What does HTML stand for?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HyperText Markup Language",
+          "is_correct": true
+        },
+        {
+          "text": "HighText Machine Language",
+          "is_correct": false
+        },
+        {
+          "text": "Hyper Transfer Markup Language",
+          "is_correct": false
+        },
+        {
+          "text": "Home Tool Markup Language",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of HTML",
+      "content": "What is the main purpose of HTML in web development?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To structure web page content",
+          "is_correct": true
+        },
+        {
+          "text": "To style web pages",
+          "is_correct": false
+        },
+        {
+          "text": "To connect databases",
+          "is_correct": false
+        },
+        {
+          "text": "To perform server-side processing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Role",
+      "content": "What is the primary role of CSS in a website?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Styling and designing web pages",
+          "is_correct": true
+        },
+        {
+          "text": "Creating database tables",
+          "is_correct": false
+        },
+        {
+          "text": "Handling server requests",
+          "is_correct": false
+        },
+        {
+          "text": "Managing file systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "JavaScript Purpose",
+      "content": "Why is JavaScript used in websites?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To add interactivity and dynamic behavior",
+          "is_correct": true
+        },
+        {
+          "text": "To only structure content",
+          "is_correct": false
+        },
+        {
+          "text": "To replace HTML completely",
+          "is_correct": false
+        },
+        {
+          "text": "To store files permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Client-Server Model",
+      "content": "In the client-server model, what does the client usually represent?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The user's web browser",
+          "is_correct": true
+        },
+        {
+          "text": "The database server",
+          "is_correct": false
+        },
+        {
+          "text": "The hosting company",
+          "is_correct": false
+        },
+        {
+          "text": "The operating system",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Website Loading Process",
+      "content": "What happens first when a user visits a website?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The browser sends a request to the server",
+          "is_correct": true
+        },
+        {
+          "text": "The database creates HTML automatically",
+          "is_correct": false
+        },
+        {
+          "text": "CSS files execute first",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript installs on the computer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HTML History",
+      "content": "Who is known as the creator of HTML?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tim Berners-Lee",
+          "is_correct": true
+        },
+        {
+          "text": "Bill Gates",
+          "is_correct": false
+        },
+        {
+          "text": "Dennis Ritchie",
+          "is_correct": false
+        },
+        {
+          "text": "James Gosling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "VS Code Purpose",
+      "content": "What is Visual Studio Code commonly used for in web development?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Writing and editing code",
+          "is_correct": true
+        },
+        {
+          "text": "Hosting websites",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases",
+          "is_correct": false
+        },
+        {
+          "text": "Managing servers only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HTML File Extension",
+      "content": "Which file extension is used for HTML files?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ".html",
+          "is_correct": true
+        },
+        {
+          "text": ".ht",
+          "is_correct": false
+        },
+        {
+          "text": ".web",
+          "is_correct": false
+        },
+        {
+          "text": ".xml",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Browser Developer Tools",
+      "content": "What are browser developer tools mainly used for?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inspecting and debugging web pages",
+          "is_correct": true
+        },
+        {
+          "text": "Creating databases",
+          "is_correct": false
+        },
+        {
+          "text": "Compiling Java code",
+          "is_correct": false
+        },
+        {
+          "text": "Installing operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Recommended Extension",
+      "content": "Which VS Code extension is commonly used for live HTML preview?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Live Server",
+          "is_correct": true
+        },
+        {
+          "text": "Python Debugger",
+          "is_correct": false
+        },
+        {
+          "text": "Git History",
+          "is_correct": false
+        },
+        {
+          "text": "Code Runner",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Opening HTML File",
+      "content": "How can you open an HTML file in a browser?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Double-click the HTML file",
+          "is_correct": true
+        },
+        {
+          "text": "Compile it with Python",
+          "is_correct": false
+        },
+        {
+          "text": "Run it in terminal only",
+          "is_correct": false
+        },
+        {
+          "text": "Convert it into PDF first",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inspect Element Shortcut",
+      "content": "Which key is commonly used to open browser developer tools?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "F12",
+          "is_correct": true
+        },
+        {
+          "text": "F1",
+          "is_correct": false
+        },
+        {
+          "text": "F5",
+          "is_correct": false
+        },
+        {
+          "text": "Esc",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Basic HTML Structure",
+      "content": "Which tag is the root element of an HTML document?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "Setting Up Environment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<html>",
+          "is_correct": true
+        },
+        {
+          "text": "<body>",
+          "is_correct": false
+        },
+        {
+          "text": "<head>",
+          "is_correct": false
+        },
+        {
+          "text": "<title>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DOCTYPE Declaration",
+      "content": "What is the purpose of <!DOCTYPE html> in an HTML document?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It tells the browser the document uses HTML5",
+          "is_correct": true
+        },
+        {
+          "text": "It creates the page title",
+          "is_correct": false
+        },
+        {
+          "text": "It adds styles to the page",
+          "is_correct": false
+        },
+        {
+          "text": "It connects JavaScript files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Root HTML Element",
+      "content": "Which tag is the root element of an HTML document?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<html>",
+          "is_correct": true
+        },
+        {
+          "text": "<body>",
+          "is_correct": false
+        },
+        {
+          "text": "<head>",
+          "is_correct": false
+        },
+        {
+          "text": "<meta>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Body Tag Purpose",
+      "content": "What is placed inside the <body> tag?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Visible content of the webpage",
+          "is_correct": true
+        },
+        {
+          "text": "Browser settings",
+          "is_correct": false
+        },
+        {
+          "text": "Metadata only",
+          "is_correct": false
+        },
+        {
+          "text": "Server configuration",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Head Section",
+      "content": "Which tag contains metadata and page information?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<head>",
+          "is_correct": true
+        },
+        {
+          "text": "<footer>",
+          "is_correct": false
+        },
+        {
+          "text": "<section>",
+          "is_correct": false
+        },
+        {
+          "text": "<article>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Meta Tag Usage",
+      "content": "What is the purpose of the <meta> tag?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To provide metadata about the webpage",
+          "is_correct": true
+        },
+        {
+          "text": "To display images",
+          "is_correct": false
+        },
+        {
+          "text": "To create tables",
+          "is_correct": false
+        },
+        {
+          "text": "To play videos",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Page Title Display",
+      "content": "Which tag defines the title shown on the browser tab?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<title>",
+          "is_correct": true
+        },
+        {
+          "text": "<header>",
+          "is_correct": false
+        },
+        {
+          "text": "<caption>",
+          "is_correct": false
+        },
+        {
+          "text": "<meta>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Metadata Character Encoding",
+      "content": "Which meta tag is commonly used to define character encoding in HTML5?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<meta charset=\"UTF-8\">",
+          "is_correct": true
+        },
+        {
+          "text": "<meta html=\"UTF-8\">",
+          "is_correct": false
+        },
+        {
+          "text": "<charset UTF-8>",
+          "is_correct": false
+        },
+        {
+          "text": "<encoding=\"UTF-8\">",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hello World Content",
+      "content": "What is commonly displayed in a beginner's first HTML page?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hello World",
+          "is_correct": true
+        },
+        {
+          "text": "404 Error",
+          "is_correct": false
+        },
+        {
+          "text": "Database Connected",
+          "is_correct": false
+        },
+        {
+          "text": "Server Started",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HTML File Saving",
+      "content": "Which extension should be used when saving an HTML file?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ".html",
+          "is_correct": true
+        },
+        {
+          "text": ".txt",
+          "is_correct": false
+        },
+        {
+          "text": ".js",
+          "is_correct": false
+        },
+        {
+          "text": ".css",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Running HTML File",
+      "content": "How can you run an HTML file after saving it?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Open it in a web browser",
+          "is_correct": true
+        },
+        {
+          "text": "Compile it with Python",
+          "is_correct": false
+        },
+        {
+          "text": "Run it in terminal only",
+          "is_correct": false
+        },
+        {
+          "text": "Upload it to database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Basic HTML Tag",
+      "content": "Which tag is commonly used to display a heading like 'Hello World'?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<h1>",
+          "is_correct": true
+        },
+        {
+          "text": "<title>",
+          "is_correct": false
+        },
+        {
+          "text": "<meta>",
+          "is_correct": false
+        },
+        {
+          "text": "<link>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Browser Rendering",
+      "content": "What does a browser do with an HTML file?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Renders and displays the webpage",
+          "is_correct": true
+        },
+        {
+          "text": "Converts it into Java",
+          "is_correct": false
+        },
+        {
+          "text": "Stores it in database automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Encrypts the file",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Incorrect File Extension",
+      "content": "What may happen if an HTML file is saved as .txt instead of .html?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The browser may display raw text instead of rendering HTML",
+          "is_correct": true
+        },
+        {
+          "text": "The file becomes a CSS file",
+          "is_correct": false
+        },
+        {
+          "text": "The browser crashes",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript stops working globally",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Live Preview Tool",
+      "content": "Which VS Code extension helps automatically refresh the browser when HTML changes?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Live Server",
+          "is_correct": true
+        },
+        {
+          "text": "Prettier",
+          "is_correct": false
+        },
+        {
+          "text": "ESLint",
+          "is_correct": false
+        },
+        {
+          "text": "Debugger",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "HTML Basics",
+      "content": "Which of the following statements about HTML are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML stands for HyperText Markup Language",
+          "is_correct": true
+        },
+        {
+          "text": "HTML is used to structure web pages",
+          "is_correct": true
+        },
+        {
+          "text": "HTML is a programming language",
+          "is_correct": false
+        },
+        {
+          "text": "Browsers interpret HTML to display content",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "History of HTML",
+      "content": "Which of the following statements about the history of HTML are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML was created by Tim Berners-Lee",
+          "is_correct": true
+        },
+        {
+          "text": "HTML was developed for sharing documents on the web",
+          "is_correct": true
+        },
+        {
+          "text": "HTML was introduced after CSS and JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "HTML has evolved through multiple versions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "HTML vs CSS vs JavaScript",
+      "content": "Which of the following statements correctly compare HTML, CSS, and JavaScript?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML defines structure of web pages",
+          "is_correct": true
+        },
+        {
+          "text": "CSS is used for styling web pages",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript is used for adding interactivity",
+          "is_correct": true
+        },
+        {
+          "text": "CSS handles server-side programming",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "How Websites Work",
+      "content": "Which of the following statements about how websites work are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Browsers request web pages from servers",
+          "is_correct": true
+        },
+        {
+          "text": "Servers send HTML files to browsers",
+          "is_correct": true
+        },
+        {
+          "text": "Websites can work without any server",
+          "is_correct": false
+        },
+        {
+          "text": "Browsers render HTML into visual pages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Client-Server Basics",
+      "content": "Which of the following statements about client-server architecture are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A browser acts as a client",
+          "is_correct": true
+        },
+        {
+          "text": "A server stores and delivers website resources",
+          "is_correct": true
+        },
+        {
+          "text": "Clients and servers are always the same machine",
+          "is_correct": false
+        },
+        {
+          "text": "HTTP is commonly used for communication between client and server",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Web Concepts",
+      "content": "Which of the following statements about advanced web concepts are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML is interpreted by browsers, not compiled",
+          "is_correct": true
+        },
+        {
+          "text": "The DOM represents the structure of an HTML page",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript cannot interact with HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "CSS and JavaScript can be linked externally to HTML",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Website Architecture",
+      "content": "Which of the following are true in real-world website architecture?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "What is HTML?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Web servers handle requests from multiple clients",
+          "is_correct": true
+        },
+        {
+          "text": "Frontend technologies include HTML, CSS, and JavaScript",
+          "is_correct": true
+        },
+        {
+          "text": "HTML alone can manage databases directly",
+          "is_correct": false
+        },
+        {
+          "text": "Backend systems process business logic and data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DOCTYPE Basics",
+      "content": "Which of the following statements about <!DOCTYPE html> are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<!DOCTYPE html> declares the document as HTML5",
+          "is_correct": true
+        },
+        {
+          "text": "DOCTYPE helps browsers render pages correctly",
+          "is_correct": true
+        },
+        {
+          "text": "<!DOCTYPE html> is an HTML tag",
+          "is_correct": false
+        },
+        {
+          "text": "DOCTYPE is written at the top of the HTML document",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "HTML Root Structure",
+      "content": "Which of the following statements about the basic HTML structure are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<html> is the root element of an HTML page",
+          "is_correct": true
+        },
+        {
+          "text": "<body> contains visible webpage content",
+          "is_correct": true
+        },
+        {
+          "text": "<head> is displayed directly on the webpage",
+          "is_correct": false
+        },
+        {
+          "text": "<head> stores metadata and resource links",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Head and Body Elements",
+      "content": "Which of the following statements about <head> and <body> are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<title> tag is usually placed inside <head>",
+          "is_correct": true
+        },
+        {
+          "text": "Paragraphs and headings are placed inside <body>",
+          "is_correct": true
+        },
+        {
+          "text": "<body> cannot contain images",
+          "is_correct": false
+        },
+        {
+          "text": "Scripts and styles can be linked in <head>",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Metadata Basics",
+      "content": "Which of the following statements about metadata in HTML are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Metadata provides information about the webpage",
+          "is_correct": true
+        },
+        {
+          "text": "<meta> tags are generally placed inside <head>",
+          "is_correct": true
+        },
+        {
+          "text": "Metadata is directly visible on the webpage",
+          "is_correct": false
+        },
+        {
+          "text": "Metadata can define character encoding and viewport settings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "HTML Document Rules",
+      "content": "Which of the following statements about HTML document rules are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A valid HTML document should contain html, head, and body elements",
+          "is_correct": true
+        },
+        {
+          "text": "Browsers can still render pages with missing tags in some cases",
+          "is_correct": true
+        },
+        {
+          "text": "DOCTYPE is optional for standards mode rendering",
+          "is_correct": false
+        },
+        {
+          "text": "HTML documents follow a hierarchical structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Structure Concepts",
+      "content": "Which of the following statements about advanced HTML structure concepts are correct?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The DOM tree is generated from the HTML structure",
+          "is_correct": true
+        },
+        {
+          "text": "Metadata can affect SEO and browser behavior",
+          "is_correct": true
+        },
+        {
+          "text": "<head> content is rendered as visible page text automatically",
+          "is_correct": false
+        },
+        {
+          "text": "External CSS and JavaScript files are commonly linked in <head>",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices in HTML Structure",
+      "content": "Which of the following are considered best practices for HTML document structure?",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using semantic structure improves maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "Proper metadata improves mobile responsiveness",
+          "is_correct": true
+        },
+        {
+          "text": "All webpage content should be placed inside <head>",
+          "is_correct": false
+        },
+        {
+          "text": "Correct structure helps accessibility tools interpret pages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Basic HTML Document",
+      "content": "Write a basic HTML document containing <!DOCTYPE html>, html, head, and body tags.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Valid HTML document structure"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "DOCTYPE, html, head, and body tags present"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<!DOCTYPE html><html><head></head><body></body></html>",
+          "explanation": "A minimal HTML document requires these main tags."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "A valid HTML document.",
+      "solutions": [
+        {
+          "title": "Basic Structure",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Hello World</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Start with <!DOCTYPE html>.",
+        "Place visible content inside the body tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Add Page Title",
+      "content": "Create an HTML document with a title displayed in the browser tab.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Title visible in browser tab"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Title tag inside head section"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<title>My Website</title>",
+          "explanation": "The title tag defines browser tab text."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with title.",
+      "solutions": [
+        {
+          "title": "HTML Title",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Website</title>\n</head>\n<body>\n    <p>Welcome to my website</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use the title tag inside head."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Add Metadata Description",
+      "content": "Create an HTML page with meta description and charset information.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Meta charset and description tags present"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Valid metadata tags inside head"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<meta charset=\"UTF-8\">",
+          "explanation": "Metadata provides page information."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML document with metadata.",
+      "solutions": [
+        {
+          "title": "Metadata Basics",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"description\" content=\"Sample HTML Page\">\n    <title>Metadata Example</title>\n</head>\n<body>\n    <h1>HTML Metadata</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use meta tags inside head section."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Structured Portfolio Page",
+      "content": "Create a portfolio webpage with proper HTML structure, metadata, title, and body content.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Structured portfolio HTML page"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper document structure with metadata"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Portfolio webpage with heading and about section",
+          "explanation": "Combines document structure and metadata."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Complete HTML page.",
+      "solutions": [
+        {
+          "title": "Portfolio Structure",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Portfolio</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Include viewport metadata.",
+        "Use semantic content inside body."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Responsive HTML Skeleton",
+      "content": "Create a responsive HTML page using proper metadata for mobile support.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Responsive HTML page"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Viewport meta tag correctly used"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+          "explanation": "Viewport metadata helps responsive layouts."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Responsive HTML structure.",
+      "solutions": [
+        {
+          "title": "Responsive HTML",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Responsive Page</title>\n</head>\n<body>\n    <h1>Responsive Website</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use viewport meta tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "SEO Optimized HTML Document",
+      "content": "Create an SEO-friendly HTML page using metadata such as description, keywords, and author.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "SEO meta tags present"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper SEO metadata and structure"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<meta name=\"keywords\" content=\"HTML, CSS\">",
+          "explanation": "SEO metadata improves search visibility."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "SEO-friendly HTML page.",
+      "solutions": [
+        {
+          "title": "SEO Metadata",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"description\" content=\"Learn HTML basics\">\n    <meta name=\"keywords\" content=\"HTML, CSS, Web Development\">\n    <meta name=\"author\" content=\"John Doe\">\n    <title>SEO HTML Page</title>\n</head>\n<body>\n    <h1>Learn HTML</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use multiple meta tags for SEO.",
+        "Keep metadata inside head."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Multi-section HTML Layout",
+      "content": "Create a complete HTML document with header, main content, and footer using proper document structure.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "HTML Document Structure",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Header, main, and footer sections"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Valid semantic HTML structure"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Semantic webpage layout",
+          "explanation": "Uses semantic HTML tags within document structure."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Structured semantic HTML page.",
+      "solutions": [
+        {
+          "title": "Semantic Structure",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Semantic Layout</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n\n    <main>\n        <p>Main content goes here.</p>\n    </main>\n\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use semantic tags like header and footer.",
+        "Maintain proper indentation."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Hello World Webpage",
+      "content": "Create a simple HTML webpage that displays 'Hello World' in the browser.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello World displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Valid HTML page with Hello World"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<h1>Hello World</h1>",
+          "explanation": "Basic webpage displaying Hello World."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML webpage.",
+      "solutions": [
+        {
+          "title": "Hello World Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hello World</title>\n</head>\n<body>\n    <h1>Hello World</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use h1 tag for heading.",
+        "Save the file with .html extension."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Display Welcome Message",
+      "content": "Create an HTML page that displays a welcome message using heading and paragraph tags.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Heading and paragraph displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Valid webpage with welcome content"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<h1>Welcome</h1><p>This is my first webpage.</p>",
+          "explanation": "Uses heading and paragraph tags."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with content.",
+      "solutions": [
+        {
+          "title": "Welcome Webpage",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Welcome</title>\n</head>\n<body>\n    <h1>Welcome</h1>\n    <p>This is my first webpage.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use paragraph tag for text.",
+        "Place content inside body."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Personal Introduction Page",
+      "content": "Create a webpage introducing yourself with your name and a short description.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Personal introduction displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Name and description visible"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<h1>John Doe</h1><p>I am learning HTML.</p>",
+          "explanation": "Simple introduction webpage."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Introduction webpage.",
+      "solutions": [
+        {
+          "title": "Introduction Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>About Me</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>I am learning HTML.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use heading for name.",
+        "Use paragraph for description."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Multi-line Webpage",
+      "content": "Create a webpage with multiple headings and paragraphs demonstrating proper HTML structure and formatting.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Multiple headings and paragraphs displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Well-structured webpage"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Webpage with multiple sections",
+          "explanation": "Demonstrates webpage structure."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted HTML page.",
+      "solutions": [
+        {
+          "title": "Structured Webpage",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>My Webpage</title>\n</head>\n<body>\n    <h1>Main Heading</h1>\n    <p>This is the first paragraph.</p>\n\n    <h2>Sub Heading</h2>\n    <p>This is another paragraph.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use multiple heading tags.",
+        "Keep indentation clean."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create and Save HTML File",
+      "content": "Write an HTML page and explain how to save it correctly as an HTML file and run it in a browser.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "HTML file saved and opened in browser"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Correct .html extension used"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "index.html",
+          "explanation": "HTML files should be saved with .html extension."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML file instructions and webpage.",
+      "solutions": [
+        {
+          "title": "Save and Run HTML",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Run HTML</title>\n</head>\n<body>\n    <h1>My First HTML File</h1>\n</body>\n</html>\n\n<!-- Save this file as index.html and open it in a browser -->",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Save file using .html extension.",
+        "Open file in browser to run it."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Beginner Portfolio Homepage",
+      "content": "Create a beginner portfolio homepage with title, introduction, and multiple sections.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Portfolio homepage created"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Structured homepage with sections"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Homepage with About and Skills section",
+          "explanation": "Demonstrates building a complete webpage."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Portfolio homepage.",
+      "solutions": [
+        {
+          "title": "Portfolio Homepage",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Portfolio</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n\n    <h2>About Me</h2>\n    <p>I love web development.</p>\n\n    <h2>Skills</h2>\n    <p>HTML, CSS, JavaScript</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use multiple sections.",
+        "Organize content clearly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Styled Information Page",
+      "content": "Create a webpage containing headings, paragraphs, and horizontal lines to organize information clearly.",
+      "level": "subtopic",
+      "topic_name": "Intro to HTML",
+      "subtopic_name": "First Web Page",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Information sections separated clearly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Readable and organized webpage"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Sections separated using hr tag",
+          "explanation": "Improves page readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Structured information webpage.",
+      "solutions": [
+        {
+          "title": "Information Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Information Page</title>\n</head>\n<body>\n    <h1>HTML Learning</h1>\n    <hr>\n\n    <h2>Introduction</h2>\n    <p>HTML is used to create webpages.</p>\n\n    <hr>\n\n    <h2>Advantages</h2>\n    <p>Easy to learn and widely used.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use hr tag for separation.",
+        "Structure sections with headings."
+      ]
+    }
+  ]
 }

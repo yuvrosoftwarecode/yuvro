@@ -117,11 +117,7 @@
                 "Everyone can buy one ticket and then move to the end of the line if they still need more.",
                 "You can simulate this directly using a queue, or use a mathematical approach by iterating once.",
                 "Person 'k' finishes when they have bought all their tickets; calculate how many tickets others bought in the meantime."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -205,11 +201,7 @@
                 "Students are in a queue while sandwiches are in a stack.",
                 "If the front student likes the top sandwich, they take it; otherwise, they go to the back of the queue.",
                 "The process stops if the queue cycles completely without anyone taking the top sandwich."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -301,11 +293,7 @@
                 "Think about the process in reverse: start with the last card and simulate the 'move to bottom' operation backwards.",
                 "Alternatively, use a queue of indices to track which positions in the result array will be filled next.",
                 "Sort the deck first, then place cards one by one into the indices provided by the simulated queue process."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -397,11 +385,7 @@
                 "This is a classic 'Josephus Problem'.",
                 "You can simulate it using a queue: rotate the queue 'k-1' times and then pop the front element.",
                 "Alternatively, there is a recursive mathematical formula to find the winner in O(N) time without simulation."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -493,11 +477,7 @@
                 "Use two separate queues to store the indices of Radiant and Dire senators.",
                 "In each round, compare the front of both queues; the one with the smaller index bans the other.",
                 "The winning senator transitions to the next round by adding 'N' (total senators) to their index and re-entering their queue."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -581,11 +561,7 @@
                 "Calculate the net petrol (petrol - distance) at each pump and use a sliding window/queue concept.",
                 "If the current total petrol becomes negative, the current starting pump cannot be the solution.",
                 "Reset the starting point to the next pump and continue; you only need one or two passes through the array."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -669,11 +645,7 @@
                 "This is a shortest path problem on a grid, which suggests using Breadth-First Search (BFS).",
                 "In each BFS step, explore all possible cells in all four directions until you hit an 'X' or the grid boundary.",
                 "Keep track of visited cells and the minimum distance from the starting point."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -765,11 +737,7 @@
                 "To implement FIFO using LIFO, you'll need two stacks: 'inStack' and 'outStack'.",
                 "Push everything to 'inStack'. For pop operations, if 'outStack' is empty, move all elements from 'inStack' to 'outStack'.",
                 "The 'outStack' effectively reverses the elements back into the correct queue order."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -861,11 +829,7 @@
                 "To implement FIFO using LIFO, you'll need two stacks: 'inStack' and 'outStack'.",
                 "Push everything to 'inStack'. For pop operations, if 'outStack' is empty, move all elements from 'inStack' to 'outStack'.",
                 "The 'outStack' effectively reverses the elements back into the correct queue order."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -957,11 +921,7 @@
                 "In a 'Push efficient' approach, you can simply append to one queue.",
                 "For a 'Pop efficient' approach, you'll need to move elements between two queues during the push operation.",
                 "Remember that a stack is LIFO while a queue is FIFO; you need to reverse the order using two queues."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1053,11 +1013,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1149,11 +1105,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1245,11 +1197,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1334,11 +1282,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1430,11 +1374,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1526,11 +1466,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1615,11 +1551,7 @@
                 "Use Breadth-First Search (BFS) to simulate the rotting process minute by minute.",
                 "Initially, add all rotten oranges coordinates to a queue. For each minute, process all oranges currently in the queue.",
                 "Count the total number of fresh oranges and decrement it as they rot; if it reaches 0, you've found the time."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1711,11 +1643,7 @@
                 "This problem can be modeled as finding the shortest path between '0000' and the target code.",
                 "Use BFS with a queue to explore all possible 1-digit turn combinations (8 for each code).",
                 "Keep a 'visited' set that includes the 'deadends' to avoid invalid states during exploration."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1800,11 +1728,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1896,11 +1820,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1978,11 +1898,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2074,11 +1990,7 @@
                 "Use a frequency map (or array) to count occurrences and a queue to store the order of characters.",
                 "When processing a character, update its frequency in the map.",
                 "To find the first unique, pop from the queue's front as long as the frequency of the front character is > 1."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2170,11 +2082,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2266,11 +2174,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2362,11 +2266,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2458,11 +2358,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2554,11 +2450,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2650,11 +2542,7 @@
                 "Use a Deque to maintain the indices of elements in the current window in strictly decreasing order of their values.",
                 "The front of the Deque will always contain the index of the maximum element for the current window.",
                 "Remove indices from the front that fall outside the current window and indices from the back whose values are <= current element."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2746,11 +2634,7 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2842,12 +2726,9 @@
                 "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
                 "Consider if the problem requires a Breadth-First Search (BFS) approach.",
                 "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
+        
         {
             "type": "mcq_single",
             "title": "FIFO Principle",
@@ -4399,6 +4280,7 @@
                 }
             ]
         },
+        
         {
             "type": "mcq_multiple",
             "title": "Queue Operations",
@@ -4498,6 +4380,7 @@
                 }
             ]
         },
+        
         {
             "type": "mcq_multiple",
             "title": "Queue Implementation Methods",
@@ -4630,6 +4513,7 @@
                 }
             ]
         },
+        
         {
             "type": "mcq_multiple",
             "title": "Queue vs Stack Behavior",
@@ -4696,6 +4580,7 @@
                 }
             ]
         },
+        
         {
             "type": "mcq_multiple",
             "title": "Deque Edge Cases",

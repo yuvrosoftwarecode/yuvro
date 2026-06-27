@@ -91,7 +91,6 @@ const CertificationExam: React.FC = () => {
                     violation_threshold: startRes.violation_threshold,
                     initial_violations: startRes.violation_count ?? 0,
                     initial_tab_switches: startRes.tab_switch_count ?? 0,
-                    started_at: startRes.started_at,
                 });
 
             } catch (err: any) {

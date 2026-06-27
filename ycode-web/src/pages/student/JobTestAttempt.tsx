@@ -27,7 +27,6 @@ interface StartTestResponse {
   violation_threshold?: number;
   violation_count?: number;
   tab_switch_count?: number;
-  started_at?: string;
 }
 
 export default function JobTestAttempt() {
@@ -53,7 +52,6 @@ export default function JobTestAttempt() {
   const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
   const [initialViolations, setInitialViolations] = useState(0);
   const [initialTabSwitches, setInitialTabSwitches] = useState(0);
-  const [startedAt, setStartedAt] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchTestData = async () => {
@@ -68,7 +66,6 @@ export default function JobTestAttempt() {
         setViolationThreshold(data.violation_threshold ?? 5);
         setInitialViolations(data.violation_count ?? 0);
         setInitialTabSwitches(data.tab_switch_count ?? 0);
-        setStartedAt(data.started_at);
         
         // Calculate total duration (sum of question durations or default to 60)
         const totalDuration = data.questions.reduce((acc, q) => acc + (q.duration || 1), 0);
@@ -196,7 +193,6 @@ export default function JobTestAttempt() {
         violation_threshold: violationThreshold,
         initial_violations: initialViolations,
         initial_tab_switches: initialTabSwitches,
-        started_at: startedAt,
       }}
       questions={questions}
       submissionId={applicationId || ''}

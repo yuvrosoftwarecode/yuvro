@@ -1,11 +1,10 @@
 import { useState, createContext, useContext, ReactNode } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { Bell } from "lucide-react";
 import { CollabProvider, useCollab } from "@/lib/collab/store";
 import { NotificationsPanel } from "@/components/collab/NotificationsPanel";
 import { UserProfileDrawer } from "@/components/collab/UserProfileDrawer";
-import { CollabSidebar } from "@/components/collab/CollabSidebar";
 
 interface UIState {
   openNotifications: () => void;
@@ -38,10 +37,7 @@ export function CollabShell({ children }: { children: ReactNode }) {
       <UICtx.Provider value={{ openNotifications: () => setNotifOpen(true), openProfile: setProfileId }}>
         <div className="min-h-screen flex flex-col">
           <TopNav rightSlot={<HeaderBell />} activeOverride={path.startsWith("/collaboration") ? "/collaboration" : undefined} />
-          <div className="flex flex-1 overflow-hidden">
-            <CollabSidebar />
-            <div className="flex-1 overflow-y-auto">{children}</div>
-          </div>
+          <div className="flex-1">{children}</div>
           <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
           <UserProfileDrawer userId={profileId} onClose={() => setProfileId(null)} />
         </div>

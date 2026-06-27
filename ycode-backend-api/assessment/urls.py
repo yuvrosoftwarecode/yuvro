@@ -11,7 +11,6 @@ from .views import (
     CertificationSubmissionViewSet,
     CertificateViewSet,
     JobTestViewSet,
-    FaceEnrollView,
 )
 
 router = DefaultRouter()
@@ -40,6 +39,5 @@ router.register(r"certificates", CertificateViewSet, basename="certificates")
 
 
 urlpatterns = [
-    path("assessment/face-enroll/", FaceEnrollView.as_view(), name="face-enroll"),
     path("assessment/", include(router.urls)),
 ]

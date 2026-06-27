@@ -10,7 +10,7 @@ const MockInterviewReportView = () => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        navigate('/instructor/mock-interview');
+        navigate('/instructor/mock-interview/reports');
     };
 
     if (!sessionId) {

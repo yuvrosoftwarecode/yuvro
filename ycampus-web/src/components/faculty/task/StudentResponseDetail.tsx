@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskSubmission, TaskComment } from '@/services/taskService';
 import { format } from 'date-fns';
 import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
-import CodeExecutionPanel from '@/components/code-editor/CodeExecutionPanel';
+import { CodeEditor } from '@/components/ui/code-editor';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -208,13 +208,18 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
               {response.answer && (
                 <div className="space-y-3">
                   <h4 className="text-[13px] font-bold  px-1 ">Submitted answer</h4>
-                  <CodeExecutionPanel 
-                    problem={{ id: response.task, title: 'Submitted Answer', description: '' }}
+                  <CodeEditor 
                     initialCode={response.answer}
                     readOnly={true}
+                    language="markdown"
+                    onLineClick={handleLineClick}
+                    onTextSelect={handleTextSelect}
+                    highlightLine={activeHighlight?.line}
+                    highlightText={activeHighlight?.text}
                     className="border-slate-200 shadow-sm rounded-xl overflow-hidden"
-                    showSubmitButton={false}
-                    showRunButton={true}
+                    showLanguageSelector={false}
+                    showCopyButton={true}
+                    showRunButton={false}
                   />
                 </div>
               )}

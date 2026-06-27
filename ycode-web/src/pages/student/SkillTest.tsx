@@ -137,7 +137,6 @@ const SkillTest: React.FC = () => {
   const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
   const [initialViolations, setInitialViolations] = useState(0);
   const [initialTabSwitches, setInitialTabSwitches] = useState(0);
-  const [startedAt, setStartedAt] = useState<string | undefined>();
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -257,7 +256,6 @@ const SkillTest: React.FC = () => {
       setViolationThreshold(response.violation_threshold ?? 5);
       setInitialViolations(response.violation_count ?? 0);
       setInitialTabSwitches(response.tab_switch_count ?? 0);
-      setStartedAt(response.started_at);
       setCurrentView("test");
       setHideNavigation(true);
     } catch (error: any) {
@@ -372,7 +370,6 @@ const SkillTest: React.FC = () => {
           violation_threshold: violationThreshold,
           initial_violations: initialViolations,
           initial_tab_switches: initialTabSwitches,
-          started_at: startedAt,
         }}
         questions={questions}
         submissionId={currentSubmissionId || ""}

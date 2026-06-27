@@ -92,7 +92,8 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
     
     // Validations based on source mode
     if (source === 'manual') {
-      if (!initialData && !description.trim() && !attachment) return;
+      if (!description.trim() && !attachment) return;
+      if (!selectedSubUnit) return;
     }
     
     if (source === 'bank' && selectedQuestions.length === 0) {
@@ -173,9 +174,10 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">
-                Sub Unit <span className="text-xs font-normal text-slate-400 ml-1">(Optional)</span>
+                Sub Unit {source === 'manual' && <span className="text-red-500">*</span>}
+                {source === 'bank' && <span className="text-xs font-normal text-slate-400 ml-1">(Optional)</span>}
               </label>
-              <Select value={selectedSubUnit} onValueChange={setSelectedSubUnit} disabled={!selectedUnit}>
+              <Select value={selectedSubUnit} onValueChange={setSelectedSubUnit} disabled={!selectedUnit} required={source === 'manual'}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Sub Unit" />
                 </SelectTrigger>
@@ -222,13 +224,13 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
           {source === 'manual' ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">Task Description {(!initialData && !attachment) && <span className="text-red-500">*</span>}</label>
+                <label className="text-sm font-semibold text-slate-700">Task Description {!attachment && <span className="text-red-500">*</span>}</label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter detailed task description and requirements"
                   rows={5}
-                  required={source === 'manual' && !initialData && !attachment}
+                  required={source === 'manual' && !attachment}
                 />
               </div>
               <div className="space-y-2">
@@ -243,19 +245,6 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
                   className="cursor-pointer"
                 />
                 <p className="text-xs text-slate-500">Upload an optional file for clear understanding if the task description is too long.</p>
-                {initialData?.attachment && !attachment && (
-                  <div className="mt-3 flex items-center gap-2 p-2.5 bg-slate-50/80 border border-slate-200 rounded-md">
-                    <span className="text-sm font-medium text-slate-700">Current file:</span>
-                    <a 
-                      href={initialData.attachment} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-sm text-primary hover:text-primary/80 hover:underline truncate font-medium"
-                    >
-                      {initialData.attachment.split('/').pop()}
-                    </a>
-                  </div>
-                )}
               </div>
             </div>
           ) : (

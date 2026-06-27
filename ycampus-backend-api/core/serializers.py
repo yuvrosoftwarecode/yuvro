@@ -24,7 +24,7 @@ from .models import (
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
-from core.storage import build_public_url
+
 User = get_user_model()
 
 
@@ -326,13 +326,6 @@ class TaskSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "faculty", "created_at", "updated_at"]
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        
-        if instance.attachment:
-            ret['attachment'] = build_public_url(instance.attachment.name)
-        return ret
 
     def get_faculty_details(self, obj):
         return FacultyProfileSerializer(obj.faculty, context=self.context).data

@@ -11,8 +11,6 @@ RUN bun install --frozen-lockfile
 
 # Development stage — Vite dev server with HMR
 FROM base as development
-# Cache-bust: forces COPY . . to always run with latest code
-ARG CACHEBUST=1
 COPY . .
 EXPOSE 3000
 CMD ["bunx", "vite", "dev", "--host", "0.0.0.0", "--port", "3000"]
@@ -29,8 +27,6 @@ ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 ENV VITE_DEPLOY_COMMIT_SHA=$VITE_DEPLOY_COMMIT_SHA
 ENV VITE_DEPLOY_BRANCH=$VITE_DEPLOY_BRANCH
 ENV VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
-# Cache-bust: forces COPY . . to always run with latest code
-ARG CACHEBUST=1
 COPY . .
 RUN bun run build
 

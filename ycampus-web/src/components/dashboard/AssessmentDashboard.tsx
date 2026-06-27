@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Code, BrainCircuit, Mic, Trophy, Users, Coins } from 'lucide-react';
+import { BookOpen, Code, BrainCircuit, Mic, Trophy, Users } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';
 import { AssessmentsPerformance } from './AssessmentsPerformance';
 import { useQuery } from '@tanstack/react-query';
@@ -9,8 +9,7 @@ import { mockInterviewService } from '@/services/mockInterviewService';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjects, fetchSubjectsByCollege } from '@/services/subjectService';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 
 export function AssessmentDashboard() {
   const { user } = useAuth();
@@ -91,31 +90,11 @@ export function AssessmentDashboard() {
   const codePracticeProgress = totalProblems > 0 ? Math.round((solvedProblems / totalProblems) * 100) : 0;
   const aptitudeProgress = assessments?.avgScore || 0;
 
-  const navigate = useNavigate();
-
-  const handleUpgradeClick = () => {
-    const isAssessmentsPath = location.pathname.includes('/student/assessments');
-    const targetPath = isAssessmentsPath ? '/student/assessments/upgrade' : '/student/campus/upgrade';
-    navigate(targetPath);
-  };
-
-  const creditsAction = (
-    <Button 
-      onClick={handleUpgradeClick}
-      variant="outline"
-      className="gap-2 font-semibold text-xs border-[hsl(174,64%,33%)]/20 hover:border-[hsl(174,64%,33%)] hover:bg-[hsl(174,64%,33%)]/5 transition-all text-[hsl(174,64%,33%)] rounded-xl h-9 px-3.5 shadow-sm"
-    >
-      <Coins className="h-4 w-4 text-amber-500 animate-pulse" />
-      <span>Credits: 55</span>
-    </Button>
-  );
-
   return (
     <div className="space-y-6">
       <PageHeader 
         title="Assessment Dashboard Overview" 
         subtitle="Monitor your progress across Code Practice, Skill Tests, Aptitude & Reasoning, and Mock Interviews" 
-        actions={creditsAction}
       />
 
       {/* Top Metrics Row */}

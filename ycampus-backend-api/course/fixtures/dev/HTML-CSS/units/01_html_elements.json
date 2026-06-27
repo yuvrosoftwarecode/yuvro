@@ -1,2874 +1,2762 @@
 {
-    "name": "HTML Elements",
-    "subject_short_code": "HTMLCSS100",
-    "order_index": 1,
-    "sub_units": [
+  "name": "HTML Elements",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 1,
+  "sub_units": [
+    {
+      "name": "Headings & Paragraphs",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Headings & Paragraphs",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Headings & Paragraphs",
-                    "video_link": "https://www.youtube.com/results?search_query=Headings+%26+Paragraphs+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Headings & Paragraphs in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Headings & Paragraphs Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Headings+%26+Paragraphs+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Headings & Paragraphs."
-                }
-            ]
+          "title": "Introduction to Headings & Paragraphs",
+          "video_link": "https://www.youtube.com/results?search_query=Headings+%26+Paragraphs+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Headings & Paragraphs in HTML/CSS."
         },
         {
-            "name": "Text Formatting",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Text Formatting",
-                    "video_link": "https://www.youtube.com/results?search_query=Text+Formatting+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Text Formatting in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Text Formatting Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Text+Formatting+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Text Formatting."
-                }
-            ]
-        },
-        {
-            "name": "Line & Spacing Elements",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Line & Spacing Elements",
-                    "video_link": "https://www.youtube.com/results?search_query=Line+%26+Spacing+Elements+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Line & Spacing Elements in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Line & Spacing Elements Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Line+%26+Spacing+Elements+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Line & Spacing Elements."
-                }
-            ]
-        },
-        {
-            "name": "Comments",
-            "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
-            "order_index": 3,
-            "videos": [
-                {
-                    "title": "Introduction to Comments",
-                    "video_link": "https://www.youtube.com/results?search_query=Comments+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Comments in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Comments Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Comments+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Comments."
-                }
-            ]
+          "title": "Advanced Headings & Paragraphs Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Headings+%26+Paragraphs+html+css",
+          "ai_context": "In-depth explanation and practical examples for Headings & Paragraphs."
         }
-    ],
-    "questions": [
-        {
-            "type": "mcq_single",
-            "title": "Largest Heading Tag",
-            "content": "Which HTML tag represents the largest heading?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<h1>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<h6>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<head>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<p>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Paragraph Tag",
-            "content": "Which HTML tag is used to create a paragraph?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<p>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<para>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<text>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<h1>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Heading Levels",
-            "content": "How many heading levels are available in HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "6",
-                    "is_correct": true
-                },
-                {
-                    "text": "5",
-                    "is_correct": false
-                },
-                {
-                    "text": "7",
-                    "is_correct": false
-                },
-                {
-                    "text": "4",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Text Hierarchy Purpose",
-            "content": "Why are heading tags important in HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "They create a structured content hierarchy",
-                    "is_correct": true
-                },
-                {
-                    "text": "They connect databases",
-                    "is_correct": false
-                },
-                {
-                    "text": "They execute JavaScript",
-                    "is_correct": false
-                },
-                {
-                    "text": "They replace CSS styling",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Smallest Heading",
-            "content": "Which heading tag represents the smallest heading size by default?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<h6>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<h1>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<p>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<small>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Improper Heading Usage",
-            "content": "What is a potential issue with using multiple <h1> tags incorrectly on a webpage?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It can reduce semantic clarity and accessibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "It prevents the page from loading",
-                    "is_correct": false
-                },
-                {
-                    "text": "It disables CSS",
-                    "is_correct": false
-                },
-                {
-                    "text": "It converts headings into paragraphs",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nested Text Structure",
-            "content": "Which sequence best represents proper text hierarchy in HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<h1> \u2192 <h2> \u2192 <p>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<p> \u2192 <h6> \u2192 <h1>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<h4> \u2192 <h1> \u2192 <h2>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<p> \u2192 <title> \u2192 <h3>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Bold Text Tag",
-            "content": "Which HTML tag is used to display bold text without semantic importance?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<b>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<strong>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<em>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<mark>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Italic Emphasis",
-            "content": "Which tag adds semantic emphasis to italic text?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<em>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<i>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<small>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<sub>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Highlighted Text",
-            "content": "Which HTML tag is used to highlight text?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<mark>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<strong>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<sup>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<small>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Superscript Usage",
-            "content": "Which tag is commonly used to display exponents like x\u00b2?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<sup>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<sub>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<small>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<em>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Subscript Example",
-            "content": "Which tag is used for chemical formulas like H\u2082O?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<sub>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<sup>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<mark>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<strong>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Semantic Formatting",
-            "content": "Why is <strong> preferred over <b> in modern HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It adds semantic importance for accessibility and SEO",
-                    "is_correct": true
-                },
-                {
-                    "text": "It creates larger text only",
-                    "is_correct": false
-                },
-                {
-                    "text": "It automatically changes text color",
-                    "is_correct": false
-                },
-                {
-                    "text": "It replaces CSS completely",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nested Formatting",
-            "content": "Which HTML snippet correctly applies emphasis and bold importance together?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<strong><em>Important</em></strong>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<bold><italic>Important</italic></bold>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<important><i>Important</i></important>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<strong><sub>Important</sub></strong>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Line Break Tag",
-            "content": "Which HTML tag is used to insert a line break?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<br>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<hr>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<p>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<space>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Horizontal Rule",
-            "content": "What does the <hr> tag create in an HTML page?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A horizontal line or thematic break",
-                    "is_correct": true
-                },
-                {
-                    "text": "A line break only",
-                    "is_correct": false
-                },
-                {
-                    "text": "A heading",
-                    "is_correct": false
-                },
-                {
-                    "text": "A hyperlink",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Whitespace in HTML",
-            "content": "How does HTML normally handle multiple spaces between words?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It collapses them into a single space",
-                    "is_correct": true
-                },
-                {
-                    "text": "It preserves all spaces exactly",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes all spaces",
-                    "is_correct": false
-                },
-                {
-                    "text": "It converts spaces into tabs",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Self-closing Elements",
-            "content": "Which of the following tags does not require a closing tag?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<br>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<p>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<div>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<span>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Using Line Breaks",
-            "content": "When is the <br> tag most appropriately used?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To break lines within content like poems or addresses",
-                    "is_correct": true
-                },
-                {
-                    "text": "To create page layouts",
-                    "is_correct": false
-                },
-                {
-                    "text": "To style text color",
-                    "is_correct": false
-                },
-                {
-                    "text": "To define headings",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Whitespace Preservation",
-            "content": "Which HTML tag preserves whitespace and line breaks exactly as written?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<pre>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<hr>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<br>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<p>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Semantic Usage of hr",
-            "content": "What is the semantic meaning of the <hr> tag in HTML5?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A thematic break between sections of content",
-                    "is_correct": true
-                },
-                {
-                    "text": "A decorative border only",
-                    "is_correct": false
-                },
-                {
-                    "text": "A page margin",
-                    "is_correct": false
-                },
-                {
-                    "text": "A text formatting tag",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HTML Comment Syntax",
-            "content": "Which syntax is used to write comments in HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<!-- Comment -->",
-                    "is_correct": true
-                },
-                {
-                    "text": "// Comment",
-                    "is_correct": false
-                },
-                {
-                    "text": "/* Comment */",
-                    "is_correct": false
-                },
-                {
-                    "text": "# Comment",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Purpose of Comments",
-            "content": "Why are comments used in HTML?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To add notes or explanations in code",
-                    "is_correct": true
-                },
-                {
-                    "text": "To display text on the webpage",
-                    "is_correct": false
-                },
-                {
-                    "text": "To style elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create hyperlinks",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Comment Visibility",
-            "content": "How do HTML comments appear in the browser?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "They are not displayed on the webpage",
-                    "is_correct": true
-                },
-                {
-                    "text": "They appear as plain text",
-                    "is_correct": false
-                },
-                {
-                    "text": "They become headings",
-                    "is_correct": false
-                },
-                {
-                    "text": "They appear as hidden links",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Best Practice for Comments",
-            "content": "Which is considered a good practice when writing HTML comments?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use comments to explain complex sections of code",
-                    "is_correct": true
-                },
-                {
-                    "text": "Comment every single line unnecessarily",
-                    "is_correct": false
-                },
-                {
-                    "text": "Place comments inside tag names",
-                    "is_correct": false
-                },
-                {
-                    "text": "Use comments instead of proper HTML structure",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Commenting Out Code",
-            "content": "What happens when HTML code is placed inside a comment?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The browser ignores that code",
-                    "is_correct": true
-                },
-                {
-                    "text": "The browser executes it normally",
-                    "is_correct": false
-                },
-                {
-                    "text": "The code becomes visible text",
-                    "is_correct": false
-                },
-                {
-                    "text": "The webpage crashes",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Sensitive Information",
-            "content": "Why should sensitive information not be placed in HTML comments?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Users can still view comments through page source",
-                    "is_correct": true
-                },
-                {
-                    "text": "Comments are automatically encrypted",
-                    "is_correct": false
-                },
-                {
-                    "text": "Comments are deleted by browsers",
-                    "is_correct": false
-                },
-                {
-                    "text": "Comments improve security",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Incorrect Comment Syntax",
-            "content": "Which of the following is NOT valid HTML comment syntax?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<! Comment >",
-                    "is_correct": true
-                },
-                {
-                    "text": "<!-- Comment -->",
-                    "is_correct": false
-                },
-                {
-                    "text": "<!-- Header Section -->",
-                    "is_correct": false
-                },
-                {
-                    "text": "<!-- Navigation Menu -->",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Heading Tags Basics",
-            "content": "Which of the following statements about HTML heading tags are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<h1> to <h6> are used for headings",
-                    "is_correct": true
-                },
-                {
-                    "text": "<h1> represents the highest level heading",
-                    "is_correct": true
-                },
-                {
-                    "text": "<h6> is larger than <h1>",
-                    "is_correct": false
-                },
-                {
-                    "text": "Heading tags help organize webpage content",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Paragraph Tag Basics",
-            "content": "Which of the following statements about the <p> tag are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<p> is used to define a paragraph",
-                    "is_correct": true
-                },
-                {
-                    "text": "Browsers automatically add spacing around paragraphs",
-                    "is_correct": true
-                },
-                {
-                    "text": "<p> can only contain images",
-                    "is_correct": false
-                },
-                {
-                    "text": "Paragraphs are block-level elements",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Text Hierarchy",
-            "content": "Which of the following statements about text hierarchy in HTML are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Headings create structure and hierarchy in content",
-                    "is_correct": true
-                },
-                {
-                    "text": "<h1> is generally used for the main title",
-                    "is_correct": true
-                },
-                {
-                    "text": "All headings should be the same level",
-                    "is_correct": false
-                },
-                {
-                    "text": "Proper hierarchy improves readability",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Semantic Importance of Headings",
-            "content": "Which of the following statements about semantic importance of headings are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Heading tags help search engines understand page structure",
-                    "is_correct": true
-                },
-                {
-                    "text": "Screen readers use headings for navigation",
-                    "is_correct": true
-                },
-                {
-                    "text": "Headings are only for styling text",
-                    "is_correct": false
-                },
-                {
-                    "text": "Semantic headings improve accessibility",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Paragraph and Heading Behavior",
-            "content": "Which of the following statements about heading and paragraph behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Heading and paragraph tags are block-level elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Browsers apply default styling to headings",
-                    "is_correct": true
-                },
-                {
-                    "text": "Paragraphs preserve multiple spaces automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "CSS can customize heading and paragraph appearance",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Heading Concepts",
-            "content": "Which of the following statements about advanced heading concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Skipping heading levels may affect accessibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "Multiple <h1> tags can exist depending on document structure",
-                    "is_correct": true
-                },
-                {
-                    "text": "Heading tags automatically improve page speed",
-                    "is_correct": false
-                },
-                {
-                    "text": "Logical heading order improves user experience",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for Text Structure",
-            "content": "Which of the following are best practices for using headings and paragraphs?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use headings in hierarchical order",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use paragraphs to separate blocks of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use heading tags only for increasing text size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Maintain semantic structure for accessibility and SEO",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Bold and Strong Tags",
-            "content": "Which of the following statements about <b> and <strong> tags are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<b> makes text visually bold",
-                    "is_correct": true
-                },
-                {
-                    "text": "<strong> indicates important text semantically",
-                    "is_correct": true
-                },
-                {
-                    "text": "<strong> has no semantic meaning",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browsers usually display both tags in bold",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Italic and Emphasis Tags",
-            "content": "Which of the following statements about <i> and <em> tags are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<i> is used for italic text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<em> adds semantic emphasis to text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<em> cannot affect accessibility",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browsers usually render <em> text in italics",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Mark and Small Tags",
-            "content": "Which of the following statements about <mark> and <small> tags are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<mark> highlights text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<small> displays smaller text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<mark> removes text formatting",
-                    "is_correct": false
-                },
-                {
-                    "text": "<small> is often used for side notes or legal text",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Superscript and Subscript",
-            "content": "Which of the following statements about <sup> and <sub> tags are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<sup> displays superscript text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<sub> displays subscript text",
-                    "is_correct": true
-                },
-                {
-                    "text": "<sup> and <sub> are mainly used for equations and formulas",
-                    "is_correct": true
-                },
-                {
-                    "text": "<sub> creates bold text",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Semantic Formatting",
-            "content": "Which of the following statements about semantic text formatting are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Semantic tags improve accessibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "<strong> and <em> provide meaning beyond styling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Search engines can use semantic tags for understanding content",
-                    "is_correct": true
-                },
-                {
-                    "text": "<b> and <i> always provide semantic meaning",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Formatting Concepts",
-            "content": "Which of the following statements about advanced text formatting concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CSS can override default formatting of text tags",
-                    "is_correct": true
-                },
-                {
-                    "text": "Semantic tags help assistive technologies interpret content",
-                    "is_correct": true
-                },
-                {
-                    "text": "<mark> automatically improves SEO ranking",
-                    "is_correct": false
-                },
-                {
-                    "text": "Formatting tags can be nested together",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices in Text Formatting",
-            "content": "Which of the following are best practices when using text formatting tags?",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use semantic tags when meaning is important",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use <strong> instead of <b> for important text",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use formatting tags only for layout design",
-                    "is_correct": false
-                },
-                {
-                    "text": "Combine HTML structure with CSS for better presentation",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Display All Heading Tags",
-            "content": "Create an HTML page displaying all heading tags from h1 to h6.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "All heading tags displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "h1 to h6 tags used correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<h1>Main Heading</h1>",
-                    "explanation": "Heading tags define text importance."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with headings.",
-            "solutions": [
-                {
-                    "title": "Heading Tags Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Headings</title>\n</head>\n<body>\n    <h1>Heading 1</h1>\n    <h2>Heading 2</h2>\n    <h3>Heading 3</h3>\n    <h4>Heading 4</h4>\n    <h5>Heading 5</h5>\n    <h6>Heading 6</h6>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use heading tags from h1 to h6."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Paragraph Content",
-            "content": "Create an HTML page with multiple paragraphs explaining HTML basics.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Paragraphs displayed properly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Valid paragraph tags used"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<p>HTML is a markup language.</p>",
-                    "explanation": "Paragraph tag is used for text blocks."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with paragraphs.",
-            "solutions": [
-                {
-                    "title": "Paragraph Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Paragraphs</title>\n</head>\n<body>\n    <p>HTML is used to create webpages.</p>\n    <p>Paragraph tags organize content.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use p tag for paragraphs."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Text Hierarchy Page",
-            "content": "Create a webpage demonstrating proper text hierarchy using headings and paragraphs.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Proper heading hierarchy displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Headings arranged by importance"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Main heading with subheadings",
-                    "explanation": "Text hierarchy improves readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Structured webpage.",
-            "solutions": [
-                {
-                    "title": "Text Hierarchy",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hierarchy</title>\n</head>\n<body>\n    <h1>HTML Tutorial</h1>\n    <p>Learn HTML basics.</p>\n\n    <h2>Introduction</h2>\n    <p>HTML structures webpages.</p>\n\n    <h3>Advantages</h3>\n    <p>Easy to learn.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use larger headings for important titles."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Article Layout",
-            "content": "Create an article webpage using multiple heading levels and descriptive paragraphs.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Article structure created"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Logical heading hierarchy followed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Article with title and sections",
-                    "explanation": "Uses headings and paragraphs for structure."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Article webpage.",
-            "solutions": [
-                {
-                    "title": "Article Structure",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Article</title>\n</head>\n<body>\n    <h1>Technology Trends</h1>\n    <p>Technology is evolving rapidly.</p>\n\n    <h2>Artificial Intelligence</h2>\n    <p>AI is transforming industries.</p>\n\n    <h2>Web Development</h2>\n    <p>Modern websites are interactive.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use h1 for main title.",
-                "Use h2 for sections."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design Educational Notes Page",
-            "content": "Create a notes webpage using headings, subheadings, and paragraphs to organize study material.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Notes webpage displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Well-organized text hierarchy"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Notes with multiple heading levels",
-                    "explanation": "Educational content uses hierarchy."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Notes webpage.",
-            "solutions": [
-                {
-                    "title": "Notes Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Study Notes</title>\n</head>\n<body>\n    <h1>Python Notes</h1>\n\n    <h2>Variables</h2>\n    <p>Variables store values.</p>\n\n    <h2>Functions</h2>\n    <p>Functions improve reusability.</p>\n\n    <h3>Arguments</h3>\n    <p>Arguments pass data to functions.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Organize topics using heading levels."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create News Webpage Layout",
-            "content": "Build a news webpage using proper heading hierarchy and detailed paragraphs for different news sections.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "News webpage created"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Multiple news sections organized properly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "News page with categories",
-                    "explanation": "Headings organize large content."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "News webpage.",
-            "solutions": [
-                {
-                    "title": "News Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Daily News</title>\n</head>\n<body>\n    <h1>Daily News</h1>\n\n    <h2>Technology</h2>\n    <p>New AI tools are emerging rapidly.</p>\n\n    <h2>Sports</h2>\n    <p>The local team won the championship.</p>\n\n    <h2>Entertainment</h2>\n    <p>A new movie was released this week.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use sections with headings.",
-                "Keep paragraphs descriptive."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Documentation Style Page",
-            "content": "Create a documentation-style webpage using nested heading hierarchy and explanatory paragraphs.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Headings & Paragraphs",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Documentation page structure created"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Nested hierarchy implemented correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Technical documentation layout",
-                    "explanation": "Documentation uses structured headings."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Documentation webpage.",
-            "solutions": [
-                {
-                    "title": "Documentation Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation</title>\n</head>\n<body>\n    <h1>HTML Documentation</h1>\n    <p>Learn HTML basics.</p>\n\n    <h2>Headings</h2>\n    <p>Headings define content importance.</p>\n\n    <h3>h1 Tag</h3>\n    <p>Used for main title.</p>\n\n    <h3>h2 Tag</h3>\n    <p>Used for section titles.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use nested heading levels carefully.",
-                "Maintain readability."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Use Bold and Strong Tags",
-            "content": "Create an HTML page demonstrating the use of <b> and <strong> tags.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Bold text displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Both b and strong tags used correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<b>Bold</b> <strong>Important</strong>",
-                    "explanation": "b and strong tags highlight text."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted HTML text.",
-            "solutions": [
-                {
-                    "title": "Bold Formatting",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Bold Tags</title>\n</head>\n<body>\n    <p><b>This text is bold.</b></p>\n    <p><strong>This text is important.</strong></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use b and strong tags inside paragraph tags."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Italic and Emphasized Text",
-            "content": "Create a webpage using <i> and <em> tags for italic and emphasized text.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Italic text displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "i and em tags used correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<i>Italic</i> <em>Emphasized</em>",
-                    "explanation": "Italic and emphasis formatting."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted HTML page.",
-            "solutions": [
-                {
-                    "title": "Italic Formatting",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Italic Tags</title>\n</head>\n<body>\n    <p><i>This text is italic.</i></p>\n    <p><em>This text is emphasized.</em></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use em tag for emphasized meaning."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Highlight and Small Text",
-            "content": "Create an HTML page using <mark> and <small> tags.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Highlighted and small text displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "mark and small tags used properly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<mark>Important</mark>",
-                    "explanation": "mark highlights text."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted webpage.",
-            "solutions": [
-                {
-                    "title": "Mark and Small Tags",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Text Formatting</title>\n</head>\n<body>\n    <p><mark>Highlighted text</mark></p>\n    <p><small>Small note text</small></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use mark tag for highlighting."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Superscript and Subscript Example",
-            "content": "Create an HTML page showing mathematical and chemical formulas using <sup> and <sub> tags.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Superscript and subscript displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Correct formatting for formulas"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "H<sub>2</sub>O and x<sup>2</sup>",
-                    "explanation": "sub and sup tags format text position."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted formulas.",
-            "solutions": [
-                {
-                    "title": "Superscript & Subscript",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Sup and Sub</title>\n</head>\n<body>\n    <p>Water Formula: H<sub>2</sub>O</p>\n    <p>Equation: x<sup>2</sup> + y<sup>2</sup></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use sub for lower text.",
-                "Use sup for upper text."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Formatted Article",
-            "content": "Create an article webpage using bold, italic, highlighted, and emphasized text formatting tags.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Formatted article displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Multiple formatting tags used correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Article with formatted text",
-                    "explanation": "Combines various formatting tags."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Formatted article webpage.",
-            "solutions": [
-                {
-                    "title": "Formatted Article",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Formatted Article</title>\n</head>\n<body>\n    <h1><strong>Technology News</strong></h1>\n    <p><i>Artificial Intelligence</i> is growing rapidly.</p>\n    <p><mark>Breaking News:</mark> AI tools are improving productivity.</p>\n    <p><small>Published on May 2026</small></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Combine multiple formatting tags."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Scientific Report Page",
-            "content": "Build a scientific report webpage using superscript, subscript, emphasis, and highlighted notes.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Scientific report displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Scientific formulas formatted correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "CO<sub>2</sub> and E = mc<sup>2</sup>",
-                    "explanation": "Scientific notations require subscript and superscript."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Scientific report webpage.",
-            "solutions": [
-                {
-                    "title": "Scientific Report",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Scientific Report</title>\n</head>\n<body>\n    <h1><strong>Physics Report</strong></h1>\n    <p>Einstein's equation: E = mc<sup>2</sup></p>\n    <p>Carbon dioxide formula: CO<sub>2</sub></p>\n    <p><mark>Important:</mark> Energy and mass are related.</p>\n    <p><em>Scientific discoveries changed the world.</em></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use sup and sub for formulas.",
-                "Highlight important information."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design Educational Content Page",
-            "content": "Create an educational webpage using all text formatting tags to improve readability and structure.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Text Formatting",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Educational content formatted properly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All formatting tags implemented"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Formatted educational webpage",
-                    "explanation": "Formatting improves readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Educational webpage.",
-            "solutions": [
-                {
-                    "title": "Educational Formatting",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Educational Page</title>\n</head>\n<body>\n    <h1><strong>HTML Text Formatting</strong></h1>\n    <p><b>Bold text</b> is used for attention.</p>\n    <p><i>Italic text</i> represents alternate voice.</p>\n    <p><em>Emphasized text</em> adds importance.</p>\n    <p><mark>Highlighted notes</mark> improve visibility.</p>\n    <p>Chemical Formula: H<sub>2</sub>SO<sub>4</sub></p>\n    <p>Math Formula: a<sup>2</sup> + b<sup>2</sup></p>\n    <p><small>End of lesson notes.</small></p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use all formatting tags meaningfully.",
-                "Maintain proper readability."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Insert Line Breaks",
-            "content": "Create an HTML page using the <br> tag to display text on multiple lines.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Text displayed on separate lines"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "br tag used correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Hello<br>World",
-                    "explanation": "The br tag creates a line break."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with line breaks.",
-            "solutions": [
-                {
-                    "title": "Line Break Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Line Break</title>\n</head>\n<body>\n    Hello<br>\n    World\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use br tag to move text to the next line."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Horizontal Divider",
-            "content": "Create an HTML page using the <hr> tag to separate sections.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Horizontal line displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "hr tag separates sections correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<hr>",
-                    "explanation": "The hr tag creates a horizontal line."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with horizontal divider.",
-            "solutions": [
-                {
-                    "title": "Horizontal Rule Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Horizontal Rule</title>\n</head>\n<body>\n    <h1>Section One</h1>\n    <hr>\n    <h1>Section Two</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use hr tag between sections."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Demonstrate Whitespace Behavior",
-            "content": "Create an HTML page demonstrating how multiple spaces and line breaks behave in HTML.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Collapsed whitespace visible"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "HTML whitespace behavior demonstrated"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Extra spaces appear as one space",
-                    "explanation": "HTML ignores extra whitespace."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page showing whitespace behavior.",
-            "solutions": [
-                {
-                    "title": "Whitespace Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Whitespace</title>\n</head>\n<body>\n    <p>Hello     World</p>\n    <p>HTML ignores extra spaces.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Observe how browsers handle multiple spaces."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Contact Information Page",
-            "content": "Create a contact information webpage using line breaks and horizontal rules for formatting.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Formatted contact page displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper spacing and section separation"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Contact details displayed line by line",
-                    "explanation": "Uses br and hr tags for formatting."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Contact webpage.",
-            "solutions": [
-                {
-                    "title": "Contact Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Contact Page</title>\n</head>\n<body>\n    <h1>Contact Information</h1>\n    <hr>\n    Name: John Doe<br>\n    Email: john@example.com<br>\n    Phone: 9876543210\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use br for each line of contact information."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Poetry Webpage",
-            "content": "Create a poetry webpage where each line of the poem appears correctly using line break tags.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Poem lines displayed correctly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Each poem line separated properly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Poem with visible line breaks",
-                    "explanation": "Poems require explicit line breaks."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Poetry webpage.",
-            "solutions": [
-                {
-                    "title": "Poetry Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Poem</title>\n</head>\n<body>\n    Roses are red,<br>\n    Violets are blue,<br>\n    HTML is fun,<br>\n    And coding is too.\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use br after every line of the poem."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design Structured Information Page",
-            "content": "Create a webpage containing multiple sections separated by horizontal rules and formatted using line breaks.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Structured webpage with sections"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Sections separated properly using hr"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Information webpage with dividers",
-                    "explanation": "hr improves section readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Structured HTML webpage.",
-            "solutions": [
-                {
-                    "title": "Structured Information",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Information Page</title>\n</head>\n<body>\n    <h1>About Us</h1>\n    <p>We provide web development services.</p>\n\n    <hr>\n\n    <h1>Services</h1>\n    Web Design<br>\n    Frontend Development<br>\n    Backend Development\n\n    <hr>\n\n    <h1>Contact</h1>\n    Email: info@example.com<br>\n    Phone: 1234567890\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use hr to separate sections.",
-                "Use br for line-by-line information."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Resume Layout Page",
-            "content": "Create a resume-style webpage using line breaks, horizontal rules, and proper spacing for readability.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Line & Spacing Elements",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Resume layout displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Cleanly formatted resume webpage"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Resume with sections and spacing",
-                    "explanation": "Spacing elements improve readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Resume webpage.",
-            "solutions": [
-                {
-                    "title": "Resume Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Resume</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    Email: john@example.com<br>\n    Phone: 9876543210\n\n    <hr>\n\n    <h2>Education</h2>\n    B.Tech in Computer Science<br>\n    XYZ University\n\n    <hr>\n\n    <h2>Skills</h2>\n    HTML<br>\n    CSS<br>\n    JavaScript\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Separate resume sections using hr.",
-                "Use br for listing details."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Add Basic HTML Comments",
-            "content": "Create an HTML page containing comments explaining different sections of the code.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "HTML comments added successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Comments not visible in browser"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<!-- This is a comment -->",
-                    "explanation": "HTML comments are ignored by browsers."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with comments.",
-            "solutions": [
-                {
-                    "title": "Basic Comments Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Comments Example</title>\n</head>\n<body>\n    <!-- Main Heading -->\n    <h1>Welcome</h1>\n\n    <!-- Introduction Paragraph -->\n    <p>This is a sample webpage.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Comments start with <!-- and end with -->."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Comment Out HTML Content",
-            "content": "Create a webpage where one paragraph is commented out and does not appear in the browser.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Commented content hidden"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Only visible content rendered"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<!-- <p>Hidden Text</p> -->",
-                    "explanation": "Commented HTML code does not display."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with hidden content.",
-            "solutions": [
-                {
-                    "title": "Comment Out Content",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hidden Content</title>\n</head>\n<body>\n    <h1>Visible Heading</h1>\n\n    <!-- <p>This paragraph is hidden.</p> -->\n\n    <p>This paragraph is visible.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Wrap code inside comment tags to hide it."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Use Section Comments",
-            "content": "Create an HTML page with comments marking the header, content, and footer sections.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Section comments added"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Code sections clearly organized"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<!-- Header Section -->",
-                    "explanation": "Comments improve code readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Organized HTML page.",
-            "solutions": [
-                {
-                    "title": "Section Comments",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Section Comments</title>\n</head>\n<body>\n    <!-- Header Section -->\n    <h1>My Website</h1>\n\n    <!-- Content Section -->\n    <p>Welcome to the website.</p>\n\n    <!-- Footer Section -->\n    <footer>Copyright 2026</footer>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use comments to separate sections logically."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Maintainable HTML Page",
-            "content": "Build an HTML page with proper comments following best practices for readability and maintenance.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Readable commented code"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Comments clearly explain sections"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Organized webpage with meaningful comments",
-                    "explanation": "Best practices improve maintainability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Well-commented HTML page.",
-            "solutions": [
-                {
-                    "title": "Maintainable HTML",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Page Title -->\n    <title>Maintainable Page</title>\n</head>\n<body>\n    <!-- Navigation Section -->\n    <nav>\n        <a href=\"#\">Home</a>\n    </nav>\n\n    <!-- Main Content -->\n    <main>\n        <h1>Welcome</h1>\n        <p>This page demonstrates HTML comments.</p>\n    </main>\n\n    <!-- Footer -->\n    <footer>Footer Content</footer>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Keep comments meaningful and concise."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Document a Portfolio Page",
-            "content": "Create a portfolio webpage with comments explaining every major section and purpose.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Portfolio page documented"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All major sections explained"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Comments for About and Skills sections",
-                    "explanation": "Documentation comments help developers."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Documented portfolio webpage.",
-            "solutions": [
-                {
-                    "title": "Portfolio Documentation",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Portfolio Title -->\n    <title>My Portfolio</title>\n</head>\n<body>\n    <!-- About Me Section -->\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n\n    <!-- Skills Section -->\n    <h2>Skills</h2>\n    <p>HTML, CSS, JavaScript</p>\n\n    <!-- Contact Section -->\n    <h2>Contact</h2>\n    <p>Email: john@example.com</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Add comments before every major section."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Team Collaboration Webpage",
-            "content": "Create a multi-section webpage with detailed comments to help team members understand the structure.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Collaborative webpage structure created"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Detailed comments improve readability"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Webpage with section explanations",
-                    "explanation": "Comments help team collaboration."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Team-friendly HTML page.",
-            "solutions": [
-                {
-                    "title": "Team Collaboration Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Website Metadata -->\n    <title>Team Project</title>\n</head>\n<body>\n    <!-- Header Section: Displays website branding -->\n    <header>\n        <h1>Team Project</h1>\n    </header>\n\n    <!-- Navigation Menu -->\n    <nav>\n        <a href=\"#\">Home</a>\n        <a href=\"#\">About</a>\n    </nav>\n\n    <!-- Main Content Area -->\n    <main>\n        <p>This project demonstrates HTML comments.</p>\n    </main>\n\n    <!-- Footer Information -->\n    <footer>\n        Team Project 2026\n    </footer>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Write comments as explanations for other developers."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Debug-Friendly HTML Page",
-            "content": "Build a webpage with comments used for debugging and temporarily disabling sections of code.",
-            "level": "subtopic",
-            "unit_name": "HTML Elements",
-            "subunit_name": "Comments",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Debug comments implemented"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Unused sections hidden using comments"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<!-- Temporary Section Disabled -->",
-                    "explanation": "Comments can disable HTML blocks temporarily."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Debug-friendly webpage.",
-            "solutions": [
-                {
-                    "title": "Debugging with Comments",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Debug Page</title>\n</head>\n<body>\n    <!-- Active Section -->\n    <h1>Website Homepage</h1>\n\n    <!-- Temporary Section Disabled -->\n    <!--\n    <section>\n        <h2>Upcoming Features</h2>\n        <p>New features coming soon.</p>\n    </section>\n    -->\n\n    <!-- Footer -->\n    <footer>Footer Content</footer>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use comments to disable code temporarily.",
-                "Keep debugging comments meaningful."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+      ]
+    },
+    {
+      "name": "Text Formatting",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Text Formatting",
+          "video_link": "https://www.youtube.com/results?search_query=Text+Formatting+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Text Formatting in HTML/CSS."
+        },
+        {
+          "title": "Advanced Text Formatting Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Text+Formatting+html+css",
+          "ai_context": "In-depth explanation and practical examples for Text Formatting."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Line & Spacing Elements",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Line & Spacing Elements",
+          "video_link": "https://www.youtube.com/results?search_query=Line+%26+Spacing+Elements+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Line & Spacing Elements in HTML/CSS."
+        },
+        {
+          "title": "Advanced Line & Spacing Elements Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Line+%26+Spacing+Elements+html+css",
+          "ai_context": "In-depth explanation and practical examples for Line & Spacing Elements."
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Comments",
+          "video_link": "https://www.youtube.com/results?search_query=Comments+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Comments in HTML/CSS."
+        },
+        {
+          "title": "Advanced Comments Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Comments+html+css",
+          "ai_context": "In-depth explanation and practical examples for Comments."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Largest Heading Tag",
+      "content": "Which HTML tag represents the largest heading?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<h1>",
+          "is_correct": true
+        },
+        {
+          "text": "<h6>",
+          "is_correct": false
+        },
+        {
+          "text": "<head>",
+          "is_correct": false
+        },
+        {
+          "text": "<p>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Paragraph Tag",
+      "content": "Which HTML tag is used to create a paragraph?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<p>",
+          "is_correct": true
+        },
+        {
+          "text": "<para>",
+          "is_correct": false
+        },
+        {
+          "text": "<text>",
+          "is_correct": false
+        },
+        {
+          "text": "<h1>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Heading Levels",
+      "content": "How many heading levels are available in HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "6",
+          "is_correct": true
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "7",
+          "is_correct": false
+        },
+        {
+          "text": "4",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Hierarchy Purpose",
+      "content": "Why are heading tags important in HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They create a structured content hierarchy",
+          "is_correct": true
+        },
+        {
+          "text": "They connect databases",
+          "is_correct": false
+        },
+        {
+          "text": "They execute JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "They replace CSS styling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Smallest Heading",
+      "content": "Which heading tag represents the smallest heading size by default?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<h6>",
+          "is_correct": true
+        },
+        {
+          "text": "<h1>",
+          "is_correct": false
+        },
+        {
+          "text": "<p>",
+          "is_correct": false
+        },
+        {
+          "text": "<small>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Improper Heading Usage",
+      "content": "What is a potential issue with using multiple <h1> tags incorrectly on a webpage?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can reduce semantic clarity and accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents the page from loading",
+          "is_correct": false
+        },
+        {
+          "text": "It disables CSS",
+          "is_correct": false
+        },
+        {
+          "text": "It converts headings into paragraphs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Text Structure",
+      "content": "Which sequence best represents proper text hierarchy in HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<h1> \u2192 <h2> \u2192 <p>",
+          "is_correct": true
+        },
+        {
+          "text": "<p> \u2192 <h6> \u2192 <h1>",
+          "is_correct": false
+        },
+        {
+          "text": "<h4> \u2192 <h1> \u2192 <h2>",
+          "is_correct": false
+        },
+        {
+          "text": "<p> \u2192 <title> \u2192 <h3>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Bold Text Tag",
+      "content": "Which HTML tag is used to display bold text without semantic importance?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<b>",
+          "is_correct": true
+        },
+        {
+          "text": "<strong>",
+          "is_correct": false
+        },
+        {
+          "text": "<em>",
+          "is_correct": false
+        },
+        {
+          "text": "<mark>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Italic Emphasis",
+      "content": "Which tag adds semantic emphasis to italic text?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<em>",
+          "is_correct": true
+        },
+        {
+          "text": "<i>",
+          "is_correct": false
+        },
+        {
+          "text": "<small>",
+          "is_correct": false
+        },
+        {
+          "text": "<sub>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Highlighted Text",
+      "content": "Which HTML tag is used to highlight text?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<mark>",
+          "is_correct": true
+        },
+        {
+          "text": "<strong>",
+          "is_correct": false
+        },
+        {
+          "text": "<sup>",
+          "is_correct": false
+        },
+        {
+          "text": "<small>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Superscript Usage",
+      "content": "Which tag is commonly used to display exponents like x\u00b2?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<sup>",
+          "is_correct": true
+        },
+        {
+          "text": "<sub>",
+          "is_correct": false
+        },
+        {
+          "text": "<small>",
+          "is_correct": false
+        },
+        {
+          "text": "<em>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Subscript Example",
+      "content": "Which tag is used for chemical formulas like H\u2082O?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<sub>",
+          "is_correct": true
+        },
+        {
+          "text": "<sup>",
+          "is_correct": false
+        },
+        {
+          "text": "<mark>",
+          "is_correct": false
+        },
+        {
+          "text": "<strong>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Semantic Formatting",
+      "content": "Why is <strong> preferred over <b> in modern HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It adds semantic importance for accessibility and SEO",
+          "is_correct": true
+        },
+        {
+          "text": "It creates larger text only",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces CSS completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Formatting",
+      "content": "Which HTML snippet correctly applies emphasis and bold importance together?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<strong><em>Important</em></strong>",
+          "is_correct": true
+        },
+        {
+          "text": "<bold><italic>Important</italic></bold>",
+          "is_correct": false
+        },
+        {
+          "text": "<important><i>Important</i></important>",
+          "is_correct": false
+        },
+        {
+          "text": "<strong><sub>Important</sub></strong>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Line Break Tag",
+      "content": "Which HTML tag is used to insert a line break?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<br>",
+          "is_correct": true
+        },
+        {
+          "text": "<hr>",
+          "is_correct": false
+        },
+        {
+          "text": "<p>",
+          "is_correct": false
+        },
+        {
+          "text": "<space>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Horizontal Rule",
+      "content": "What does the <hr> tag create in an HTML page?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A horizontal line or thematic break",
+          "is_correct": true
+        },
+        {
+          "text": "A line break only",
+          "is_correct": false
+        },
+        {
+          "text": "A heading",
+          "is_correct": false
+        },
+        {
+          "text": "A hyperlink",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Whitespace in HTML",
+      "content": "How does HTML normally handle multiple spaces between words?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It collapses them into a single space",
+          "is_correct": true
+        },
+        {
+          "text": "It preserves all spaces exactly",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all spaces",
+          "is_correct": false
+        },
+        {
+          "text": "It converts spaces into tabs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Self-closing Elements",
+      "content": "Which of the following tags does not require a closing tag?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<br>",
+          "is_correct": true
+        },
+        {
+          "text": "<p>",
+          "is_correct": false
+        },
+        {
+          "text": "<div>",
+          "is_correct": false
+        },
+        {
+          "text": "<span>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Using Line Breaks",
+      "content": "When is the <br> tag most appropriately used?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To break lines within content like poems or addresses",
+          "is_correct": true
+        },
+        {
+          "text": "To create page layouts",
+          "is_correct": false
+        },
+        {
+          "text": "To style text color",
+          "is_correct": false
+        },
+        {
+          "text": "To define headings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Whitespace Preservation",
+      "content": "Which HTML tag preserves whitespace and line breaks exactly as written?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<pre>",
+          "is_correct": true
+        },
+        {
+          "text": "<hr>",
+          "is_correct": false
+        },
+        {
+          "text": "<br>",
+          "is_correct": false
+        },
+        {
+          "text": "<p>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Semantic Usage of hr",
+      "content": "What is the semantic meaning of the <hr> tag in HTML5?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A thematic break between sections of content",
+          "is_correct": true
+        },
+        {
+          "text": "A decorative border only",
+          "is_correct": false
+        },
+        {
+          "text": "A page margin",
+          "is_correct": false
+        },
+        {
+          "text": "A text formatting tag",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HTML Comment Syntax",
+      "content": "Which syntax is used to write comments in HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<!-- Comment -->",
+          "is_correct": true
+        },
+        {
+          "text": "// Comment",
+          "is_correct": false
+        },
+        {
+          "text": "/* Comment */",
+          "is_correct": false
+        },
+        {
+          "text": "# Comment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Comments",
+      "content": "Why are comments used in HTML?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To add notes or explanations in code",
+          "is_correct": true
+        },
+        {
+          "text": "To display text on the webpage",
+          "is_correct": false
+        },
+        {
+          "text": "To style elements",
+          "is_correct": false
+        },
+        {
+          "text": "To create hyperlinks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Comment Visibility",
+      "content": "How do HTML comments appear in the browser?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They are not displayed on the webpage",
+          "is_correct": true
+        },
+        {
+          "text": "They appear as plain text",
+          "is_correct": false
+        },
+        {
+          "text": "They become headings",
+          "is_correct": false
+        },
+        {
+          "text": "They appear as hidden links",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Best Practice for Comments",
+      "content": "Which is considered a good practice when writing HTML comments?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use comments to explain complex sections of code",
+          "is_correct": true
+        },
+        {
+          "text": "Comment every single line unnecessarily",
+          "is_correct": false
+        },
+        {
+          "text": "Place comments inside tag names",
+          "is_correct": false
+        },
+        {
+          "text": "Use comments instead of proper HTML structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Commenting Out Code",
+      "content": "What happens when HTML code is placed inside a comment?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The browser ignores that code",
+          "is_correct": true
+        },
+        {
+          "text": "The browser executes it normally",
+          "is_correct": false
+        },
+        {
+          "text": "The code becomes visible text",
+          "is_correct": false
+        },
+        {
+          "text": "The webpage crashes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sensitive Information",
+      "content": "Why should sensitive information not be placed in HTML comments?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Users can still view comments through page source",
+          "is_correct": true
+        },
+        {
+          "text": "Comments are automatically encrypted",
+          "is_correct": false
+        },
+        {
+          "text": "Comments are deleted by browsers",
+          "is_correct": false
+        },
+        {
+          "text": "Comments improve security",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Incorrect Comment Syntax",
+      "content": "Which of the following is NOT valid HTML comment syntax?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<! Comment >",
+          "is_correct": true
+        },
+        {
+          "text": "<!-- Comment -->",
+          "is_correct": false
+        },
+        {
+          "text": "<!-- Header Section -->",
+          "is_correct": false
+        },
+        {
+          "text": "<!-- Navigation Menu -->",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Heading Tags Basics",
+      "content": "Which of the following statements about HTML heading tags are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<h1> to <h6> are used for headings",
+          "is_correct": true
+        },
+        {
+          "text": "<h1> represents the highest level heading",
+          "is_correct": true
+        },
+        {
+          "text": "<h6> is larger than <h1>",
+          "is_correct": false
+        },
+        {
+          "text": "Heading tags help organize webpage content",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Paragraph Tag Basics",
+      "content": "Which of the following statements about the <p> tag are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<p> is used to define a paragraph",
+          "is_correct": true
+        },
+        {
+          "text": "Browsers automatically add spacing around paragraphs",
+          "is_correct": true
+        },
+        {
+          "text": "<p> can only contain images",
+          "is_correct": false
+        },
+        {
+          "text": "Paragraphs are block-level elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Text Hierarchy",
+      "content": "Which of the following statements about text hierarchy in HTML are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Headings create structure and hierarchy in content",
+          "is_correct": true
+        },
+        {
+          "text": "<h1> is generally used for the main title",
+          "is_correct": true
+        },
+        {
+          "text": "All headings should be the same level",
+          "is_correct": false
+        },
+        {
+          "text": "Proper hierarchy improves readability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Semantic Importance of Headings",
+      "content": "Which of the following statements about semantic importance of headings are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Heading tags help search engines understand page structure",
+          "is_correct": true
+        },
+        {
+          "text": "Screen readers use headings for navigation",
+          "is_correct": true
+        },
+        {
+          "text": "Headings are only for styling text",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic headings improve accessibility",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Paragraph and Heading Behavior",
+      "content": "Which of the following statements about heading and paragraph behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Heading and paragraph tags are block-level elements",
+          "is_correct": true
+        },
+        {
+          "text": "Browsers apply default styling to headings",
+          "is_correct": true
+        },
+        {
+          "text": "Paragraphs preserve multiple spaces automatically",
+          "is_correct": false
+        },
+        {
+          "text": "CSS can customize heading and paragraph appearance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Heading Concepts",
+      "content": "Which of the following statements about advanced heading concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Skipping heading levels may affect accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple <h1> tags can exist depending on document structure",
+          "is_correct": true
+        },
+        {
+          "text": "Heading tags automatically improve page speed",
+          "is_correct": false
+        },
+        {
+          "text": "Logical heading order improves user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Text Structure",
+      "content": "Which of the following are best practices for using headings and paragraphs?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use headings in hierarchical order",
+          "is_correct": true
+        },
+        {
+          "text": "Use paragraphs to separate blocks of text",
+          "is_correct": true
+        },
+        {
+          "text": "Use heading tags only for increasing text size",
+          "is_correct": false
+        },
+        {
+          "text": "Maintain semantic structure for accessibility and SEO",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Bold and Strong Tags",
+      "content": "Which of the following statements about <b> and <strong> tags are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<b> makes text visually bold",
+          "is_correct": true
+        },
+        {
+          "text": "<strong> indicates important text semantically",
+          "is_correct": true
+        },
+        {
+          "text": "<strong> has no semantic meaning",
+          "is_correct": false
+        },
+        {
+          "text": "Browsers usually display both tags in bold",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Italic and Emphasis Tags",
+      "content": "Which of the following statements about <i> and <em> tags are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<i> is used for italic text",
+          "is_correct": true
+        },
+        {
+          "text": "<em> adds semantic emphasis to text",
+          "is_correct": true
+        },
+        {
+          "text": "<em> cannot affect accessibility",
+          "is_correct": false
+        },
+        {
+          "text": "Browsers usually render <em> text in italics",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Mark and Small Tags",
+      "content": "Which of the following statements about <mark> and <small> tags are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<mark> highlights text",
+          "is_correct": true
+        },
+        {
+          "text": "<small> displays smaller text",
+          "is_correct": true
+        },
+        {
+          "text": "<mark> removes text formatting",
+          "is_correct": false
+        },
+        {
+          "text": "<small> is often used for side notes or legal text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Superscript and Subscript",
+      "content": "Which of the following statements about <sup> and <sub> tags are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<sup> displays superscript text",
+          "is_correct": true
+        },
+        {
+          "text": "<sub> displays subscript text",
+          "is_correct": true
+        },
+        {
+          "text": "<sup> and <sub> are mainly used for equations and formulas",
+          "is_correct": true
+        },
+        {
+          "text": "<sub> creates bold text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Semantic Formatting",
+      "content": "Which of the following statements about semantic text formatting are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Semantic tags improve accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "<strong> and <em> provide meaning beyond styling",
+          "is_correct": true
+        },
+        {
+          "text": "Search engines can use semantic tags for understanding content",
+          "is_correct": true
+        },
+        {
+          "text": "<b> and <i> always provide semantic meaning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Formatting Concepts",
+      "content": "Which of the following statements about advanced text formatting concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS can override default formatting of text tags",
+          "is_correct": true
+        },
+        {
+          "text": "Semantic tags help assistive technologies interpret content",
+          "is_correct": true
+        },
+        {
+          "text": "<mark> automatically improves SEO ranking",
+          "is_correct": false
+        },
+        {
+          "text": "Formatting tags can be nested together",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices in Text Formatting",
+      "content": "Which of the following are best practices when using text formatting tags?",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use semantic tags when meaning is important",
+          "is_correct": true
+        },
+        {
+          "text": "Use <strong> instead of <b> for important text",
+          "is_correct": true
+        },
+        {
+          "text": "Use formatting tags only for layout design",
+          "is_correct": false
+        },
+        {
+          "text": "Combine HTML structure with CSS for better presentation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Display All Heading Tags",
+      "content": "Create an HTML page displaying all heading tags from h1 to h6.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "All heading tags displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "h1 to h6 tags used correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<h1>Main Heading</h1>",
+          "explanation": "Heading tags define text importance."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with headings.",
+      "solutions": [
+        {
+          "title": "Heading Tags Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Headings</title>\n</head>\n<body>\n    <h1>Heading 1</h1>\n    <h2>Heading 2</h2>\n    <h3>Heading 3</h3>\n    <h4>Heading 4</h4>\n    <h5>Heading 5</h5>\n    <h6>Heading 6</h6>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use heading tags from h1 to h6."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Paragraph Content",
+      "content": "Create an HTML page with multiple paragraphs explaining HTML basics.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Paragraphs displayed properly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Valid paragraph tags used"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<p>HTML is a markup language.</p>",
+          "explanation": "Paragraph tag is used for text blocks."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with paragraphs.",
+      "solutions": [
+        {
+          "title": "Paragraph Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Paragraphs</title>\n</head>\n<body>\n    <p>HTML is used to create webpages.</p>\n    <p>Paragraph tags organize content.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use p tag for paragraphs."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Text Hierarchy Page",
+      "content": "Create a webpage demonstrating proper text hierarchy using headings and paragraphs.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Proper heading hierarchy displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Headings arranged by importance"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Main heading with subheadings",
+          "explanation": "Text hierarchy improves readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Structured webpage.",
+      "solutions": [
+        {
+          "title": "Text Hierarchy",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hierarchy</title>\n</head>\n<body>\n    <h1>HTML Tutorial</h1>\n    <p>Learn HTML basics.</p>\n\n    <h2>Introduction</h2>\n    <p>HTML structures webpages.</p>\n\n    <h3>Advantages</h3>\n    <p>Easy to learn.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use larger headings for important titles."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Article Layout",
+      "content": "Create an article webpage using multiple heading levels and descriptive paragraphs.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Article structure created"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Logical heading hierarchy followed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Article with title and sections",
+          "explanation": "Uses headings and paragraphs for structure."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Article webpage.",
+      "solutions": [
+        {
+          "title": "Article Structure",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Article</title>\n</head>\n<body>\n    <h1>Technology Trends</h1>\n    <p>Technology is evolving rapidly.</p>\n\n    <h2>Artificial Intelligence</h2>\n    <p>AI is transforming industries.</p>\n\n    <h2>Web Development</h2>\n    <p>Modern websites are interactive.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use h1 for main title.",
+        "Use h2 for sections."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design Educational Notes Page",
+      "content": "Create a notes webpage using headings, subheadings, and paragraphs to organize study material.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Notes webpage displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Well-organized text hierarchy"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Notes with multiple heading levels",
+          "explanation": "Educational content uses hierarchy."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Notes webpage.",
+      "solutions": [
+        {
+          "title": "Notes Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Study Notes</title>\n</head>\n<body>\n    <h1>Python Notes</h1>\n\n    <h2>Variables</h2>\n    <p>Variables store values.</p>\n\n    <h2>Functions</h2>\n    <p>Functions improve reusability.</p>\n\n    <h3>Arguments</h3>\n    <p>Arguments pass data to functions.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Organize topics using heading levels."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create News Webpage Layout",
+      "content": "Build a news webpage using proper heading hierarchy and detailed paragraphs for different news sections.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "News webpage created"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Multiple news sections organized properly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "News page with categories",
+          "explanation": "Headings organize large content."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "News webpage.",
+      "solutions": [
+        {
+          "title": "News Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Daily News</title>\n</head>\n<body>\n    <h1>Daily News</h1>\n\n    <h2>Technology</h2>\n    <p>New AI tools are emerging rapidly.</p>\n\n    <h2>Sports</h2>\n    <p>The local team won the championship.</p>\n\n    <h2>Entertainment</h2>\n    <p>A new movie was released this week.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use sections with headings.",
+        "Keep paragraphs descriptive."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Documentation Style Page",
+      "content": "Create a documentation-style webpage using nested heading hierarchy and explanatory paragraphs.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Headings & Paragraphs",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Documentation page structure created"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Nested hierarchy implemented correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Technical documentation layout",
+          "explanation": "Documentation uses structured headings."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Documentation webpage.",
+      "solutions": [
+        {
+          "title": "Documentation Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation</title>\n</head>\n<body>\n    <h1>HTML Documentation</h1>\n    <p>Learn HTML basics.</p>\n\n    <h2>Headings</h2>\n    <p>Headings define content importance.</p>\n\n    <h3>h1 Tag</h3>\n    <p>Used for main title.</p>\n\n    <h3>h2 Tag</h3>\n    <p>Used for section titles.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use nested heading levels carefully.",
+        "Maintain readability."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Use Bold and Strong Tags",
+      "content": "Create an HTML page demonstrating the use of <b> and <strong> tags.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Bold text displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Both b and strong tags used correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<b>Bold</b> <strong>Important</strong>",
+          "explanation": "b and strong tags highlight text."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted HTML text.",
+      "solutions": [
+        {
+          "title": "Bold Formatting",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Bold Tags</title>\n</head>\n<body>\n    <p><b>This text is bold.</b></p>\n    <p><strong>This text is important.</strong></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use b and strong tags inside paragraph tags."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Italic and Emphasized Text",
+      "content": "Create a webpage using <i> and <em> tags for italic and emphasized text.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Italic text displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "i and em tags used correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<i>Italic</i> <em>Emphasized</em>",
+          "explanation": "Italic and emphasis formatting."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted HTML page.",
+      "solutions": [
+        {
+          "title": "Italic Formatting",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Italic Tags</title>\n</head>\n<body>\n    <p><i>This text is italic.</i></p>\n    <p><em>This text is emphasized.</em></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use em tag for emphasized meaning."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Highlight and Small Text",
+      "content": "Create an HTML page using <mark> and <small> tags.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Highlighted and small text displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "mark and small tags used properly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<mark>Important</mark>",
+          "explanation": "mark highlights text."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted webpage.",
+      "solutions": [
+        {
+          "title": "Mark and Small Tags",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Text Formatting</title>\n</head>\n<body>\n    <p><mark>Highlighted text</mark></p>\n    <p><small>Small note text</small></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use mark tag for highlighting."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Superscript and Subscript Example",
+      "content": "Create an HTML page showing mathematical and chemical formulas using <sup> and <sub> tags.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Superscript and subscript displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Correct formatting for formulas"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "H<sub>2</sub>O and x<sup>2</sup>",
+          "explanation": "sub and sup tags format text position."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted formulas.",
+      "solutions": [
+        {
+          "title": "Superscript & Subscript",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Sup and Sub</title>\n</head>\n<body>\n    <p>Water Formula: H<sub>2</sub>O</p>\n    <p>Equation: x<sup>2</sup> + y<sup>2</sup></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use sub for lower text.",
+        "Use sup for upper text."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Formatted Article",
+      "content": "Create an article webpage using bold, italic, highlighted, and emphasized text formatting tags.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Formatted article displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Multiple formatting tags used correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Article with formatted text",
+          "explanation": "Combines various formatting tags."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Formatted article webpage.",
+      "solutions": [
+        {
+          "title": "Formatted Article",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Formatted Article</title>\n</head>\n<body>\n    <h1><strong>Technology News</strong></h1>\n    <p><i>Artificial Intelligence</i> is growing rapidly.</p>\n    <p><mark>Breaking News:</mark> AI tools are improving productivity.</p>\n    <p><small>Published on May 2026</small></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine multiple formatting tags."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Scientific Report Page",
+      "content": "Build a scientific report webpage using superscript, subscript, emphasis, and highlighted notes.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Scientific report displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Scientific formulas formatted correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "CO<sub>2</sub> and E = mc<sup>2</sup>",
+          "explanation": "Scientific notations require subscript and superscript."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Scientific report webpage.",
+      "solutions": [
+        {
+          "title": "Scientific Report",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Scientific Report</title>\n</head>\n<body>\n    <h1><strong>Physics Report</strong></h1>\n    <p>Einstein's equation: E = mc<sup>2</sup></p>\n    <p>Carbon dioxide formula: CO<sub>2</sub></p>\n    <p><mark>Important:</mark> Energy and mass are related.</p>\n    <p><em>Scientific discoveries changed the world.</em></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use sup and sub for formulas.",
+        "Highlight important information."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design Educational Content Page",
+      "content": "Create an educational webpage using all text formatting tags to improve readability and structure.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Text Formatting",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Educational content formatted properly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All formatting tags implemented"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Formatted educational webpage",
+          "explanation": "Formatting improves readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Educational webpage.",
+      "solutions": [
+        {
+          "title": "Educational Formatting",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Educational Page</title>\n</head>\n<body>\n    <h1><strong>HTML Text Formatting</strong></h1>\n    <p><b>Bold text</b> is used for attention.</p>\n    <p><i>Italic text</i> represents alternate voice.</p>\n    <p><em>Emphasized text</em> adds importance.</p>\n    <p><mark>Highlighted notes</mark> improve visibility.</p>\n    <p>Chemical Formula: H<sub>2</sub>SO<sub>4</sub></p>\n    <p>Math Formula: a<sup>2</sup> + b<sup>2</sup></p>\n    <p><small>End of lesson notes.</small></p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use all formatting tags meaningfully.",
+        "Maintain proper readability."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Insert Line Breaks",
+      "content": "Create an HTML page using the <br> tag to display text on multiple lines.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Text displayed on separate lines"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "br tag used correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello<br>World",
+          "explanation": "The br tag creates a line break."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with line breaks.",
+      "solutions": [
+        {
+          "title": "Line Break Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Line Break</title>\n</head>\n<body>\n    Hello<br>\n    World\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use br tag to move text to the next line."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Horizontal Divider",
+      "content": "Create an HTML page using the <hr> tag to separate sections.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Horizontal line displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "hr tag separates sections correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<hr>",
+          "explanation": "The hr tag creates a horizontal line."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with horizontal divider.",
+      "solutions": [
+        {
+          "title": "Horizontal Rule Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Horizontal Rule</title>\n</head>\n<body>\n    <h1>Section One</h1>\n    <hr>\n    <h1>Section Two</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use hr tag between sections."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Whitespace Behavior",
+      "content": "Create an HTML page demonstrating how multiple spaces and line breaks behave in HTML.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Collapsed whitespace visible"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "HTML whitespace behavior demonstrated"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Extra spaces appear as one space",
+          "explanation": "HTML ignores extra whitespace."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page showing whitespace behavior.",
+      "solutions": [
+        {
+          "title": "Whitespace Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Whitespace</title>\n</head>\n<body>\n    <p>Hello     World</p>\n    <p>HTML ignores extra spaces.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Observe how browsers handle multiple spaces."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Contact Information Page",
+      "content": "Create a contact information webpage using line breaks and horizontal rules for formatting.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Formatted contact page displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper spacing and section separation"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Contact details displayed line by line",
+          "explanation": "Uses br and hr tags for formatting."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Contact webpage.",
+      "solutions": [
+        {
+          "title": "Contact Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Contact Page</title>\n</head>\n<body>\n    <h1>Contact Information</h1>\n    <hr>\n    Name: John Doe<br>\n    Email: john@example.com<br>\n    Phone: 9876543210\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use br for each line of contact information."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Poetry Webpage",
+      "content": "Create a poetry webpage where each line of the poem appears correctly using line break tags.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Poem lines displayed correctly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Each poem line separated properly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Poem with visible line breaks",
+          "explanation": "Poems require explicit line breaks."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Poetry webpage.",
+      "solutions": [
+        {
+          "title": "Poetry Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Poem</title>\n</head>\n<body>\n    Roses are red,<br>\n    Violets are blue,<br>\n    HTML is fun,<br>\n    And coding is too.\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use br after every line of the poem."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design Structured Information Page",
+      "content": "Create a webpage containing multiple sections separated by horizontal rules and formatted using line breaks.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Structured webpage with sections"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Sections separated properly using hr"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Information webpage with dividers",
+          "explanation": "hr improves section readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Structured HTML webpage.",
+      "solutions": [
+        {
+          "title": "Structured Information",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Information Page</title>\n</head>\n<body>\n    <h1>About Us</h1>\n    <p>We provide web development services.</p>\n\n    <hr>\n\n    <h1>Services</h1>\n    Web Design<br>\n    Frontend Development<br>\n    Backend Development\n\n    <hr>\n\n    <h1>Contact</h1>\n    Email: info@example.com<br>\n    Phone: 1234567890\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use hr to separate sections.",
+        "Use br for line-by-line information."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Resume Layout Page",
+      "content": "Create a resume-style webpage using line breaks, horizontal rules, and proper spacing for readability.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Line & Spacing Elements",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Resume layout displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Cleanly formatted resume webpage"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Resume with sections and spacing",
+          "explanation": "Spacing elements improve readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Resume webpage.",
+      "solutions": [
+        {
+          "title": "Resume Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Resume</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    Email: john@example.com<br>\n    Phone: 9876543210\n\n    <hr>\n\n    <h2>Education</h2>\n    B.Tech in Computer Science<br>\n    XYZ University\n\n    <hr>\n\n    <h2>Skills</h2>\n    HTML<br>\n    CSS<br>\n    JavaScript\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Separate resume sections using hr.",
+        "Use br for listing details."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Add Basic HTML Comments",
+      "content": "Create an HTML page containing comments explaining different sections of the code.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "HTML comments added successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Comments not visible in browser"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<!-- This is a comment -->",
+          "explanation": "HTML comments are ignored by browsers."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with comments.",
+      "solutions": [
+        {
+          "title": "Basic Comments Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Comments Example</title>\n</head>\n<body>\n    <!-- Main Heading -->\n    <h1>Welcome</h1>\n\n    <!-- Introduction Paragraph -->\n    <p>This is a sample webpage.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Comments start with <!-- and end with -->."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Comment Out HTML Content",
+      "content": "Create a webpage where one paragraph is commented out and does not appear in the browser.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Commented content hidden"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Only visible content rendered"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<!-- <p>Hidden Text</p> -->",
+          "explanation": "Commented HTML code does not display."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with hidden content.",
+      "solutions": [
+        {
+          "title": "Comment Out Content",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hidden Content</title>\n</head>\n<body>\n    <h1>Visible Heading</h1>\n\n    <!-- <p>This paragraph is hidden.</p> -->\n\n    <p>This paragraph is visible.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Wrap code inside comment tags to hide it."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Use Section Comments",
+      "content": "Create an HTML page with comments marking the header, content, and footer sections.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Section comments added"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Code sections clearly organized"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<!-- Header Section -->",
+          "explanation": "Comments improve code readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Organized HTML page.",
+      "solutions": [
+        {
+          "title": "Section Comments",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Section Comments</title>\n</head>\n<body>\n    <!-- Header Section -->\n    <h1>My Website</h1>\n\n    <!-- Content Section -->\n    <p>Welcome to the website.</p>\n\n    <!-- Footer Section -->\n    <footer>Copyright 2026</footer>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use comments to separate sections logically."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Maintainable HTML Page",
+      "content": "Build an HTML page with proper comments following best practices for readability and maintenance.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Readable commented code"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Comments clearly explain sections"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Organized webpage with meaningful comments",
+          "explanation": "Best practices improve maintainability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Well-commented HTML page.",
+      "solutions": [
+        {
+          "title": "Maintainable HTML",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Page Title -->\n    <title>Maintainable Page</title>\n</head>\n<body>\n    <!-- Navigation Section -->\n    <nav>\n        <a href=\"#\">Home</a>\n    </nav>\n\n    <!-- Main Content -->\n    <main>\n        <h1>Welcome</h1>\n        <p>This page demonstrates HTML comments.</p>\n    </main>\n\n    <!-- Footer -->\n    <footer>Footer Content</footer>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Keep comments meaningful and concise."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Document a Portfolio Page",
+      "content": "Create a portfolio webpage with comments explaining every major section and purpose.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Portfolio page documented"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All major sections explained"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Comments for About and Skills sections",
+          "explanation": "Documentation comments help developers."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Documented portfolio webpage.",
+      "solutions": [
+        {
+          "title": "Portfolio Documentation",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Portfolio Title -->\n    <title>My Portfolio</title>\n</head>\n<body>\n    <!-- About Me Section -->\n    <h1>John Doe</h1>\n    <p>Frontend Developer</p>\n\n    <!-- Skills Section -->\n    <h2>Skills</h2>\n    <p>HTML, CSS, JavaScript</p>\n\n    <!-- Contact Section -->\n    <h2>Contact</h2>\n    <p>Email: john@example.com</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Add comments before every major section."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Team Collaboration Webpage",
+      "content": "Create a multi-section webpage with detailed comments to help team members understand the structure.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Collaborative webpage structure created"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Detailed comments improve readability"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Webpage with section explanations",
+          "explanation": "Comments help team collaboration."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Team-friendly HTML page.",
+      "solutions": [
+        {
+          "title": "Team Collaboration Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <!-- Website Metadata -->\n    <title>Team Project</title>\n</head>\n<body>\n    <!-- Header Section: Displays website branding -->\n    <header>\n        <h1>Team Project</h1>\n    </header>\n\n    <!-- Navigation Menu -->\n    <nav>\n        <a href=\"#\">Home</a>\n        <a href=\"#\">About</a>\n    </nav>\n\n    <!-- Main Content Area -->\n    <main>\n        <p>This project demonstrates HTML comments.</p>\n    </main>\n\n    <!-- Footer Information -->\n    <footer>\n        Team Project 2026\n    </footer>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Write comments as explanations for other developers."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Debug-Friendly HTML Page",
+      "content": "Build a webpage with comments used for debugging and temporarily disabling sections of code.",
+      "level": "subtopic",
+      "unit_name": "HTML Elements",
+      "subunit_name": "Comments",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Debug comments implemented"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Unused sections hidden using comments"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<!-- Temporary Section Disabled -->",
+          "explanation": "Comments can disable HTML blocks temporarily."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Debug-friendly webpage.",
+      "solutions": [
+        {
+          "title": "Debugging with Comments",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Debug Page</title>\n</head>\n<body>\n    <!-- Active Section -->\n    <h1>Website Homepage</h1>\n\n    <!-- Temporary Section Disabled -->\n    <!--\n    <section>\n        <h2>Upcoming Features</h2>\n        <p>New features coming soon.</p>\n    </section>\n    -->\n\n    <!-- Footer -->\n    <footer>Footer Content</footer>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use comments to disable code temporarily.",
+        "Keep debugging comments meaningful."
+      ]
+    }
+  ]
 }

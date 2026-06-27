@@ -43,7 +43,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="flex h-screen overflow-hidden bg-background relative">
             <RoleSidebar className={`flex-shrink-0 ${sidebarClassName}`} />
 
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white">
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Render provided custom header, or default RoleHeader if title is provided and not hidden */}
                 {!hideHeader && (
                     roleHeader ? (
@@ -59,7 +59,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     )
                 )}
 
-                <main className={`flex-1 overflow-auto ${!shouldHideFooter ? 'pb-12' : ''} ${contentClassName}`}>
+                <main className={`flex-1 overflow-y-auto ${!shouldHideFooter ? 'pb-12' : ''} ${contentClassName}`}>
                     {children}
                 </main>
             </div>

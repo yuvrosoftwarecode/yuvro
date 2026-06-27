@@ -1464,11 +1464,7 @@
             "hints": [
                 "Start with <!DOCTYPE html>.",
                 "Place visible content inside the body tag."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1515,11 +1511,7 @@
             ],
             "hints": [
                 "Use the title tag inside head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1566,11 +1558,7 @@
             ],
             "hints": [
                 "Use meta tags inside head section."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1619,11 +1607,7 @@
             "hints": [
                 "Include viewport metadata.",
                 "Use semantic content inside body."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1670,11 +1654,7 @@
             ],
             "hints": [
                 "Use viewport meta tag."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1722,11 +1702,7 @@
             "hints": [
                 "Use multiple meta tags for SEO.",
                 "Keep metadata inside head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1775,11 +1751,7 @@
             "hints": [
                 "Use semantic tags like header and footer.",
                 "Maintain proper indentation."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1828,11 +1800,7 @@
             "hints": [
                 "Use h1 tag for heading.",
                 "Save the file with .html extension."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1880,11 +1848,7 @@
             "hints": [
                 "Use paragraph tag for text.",
                 "Place content inside body."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1932,11 +1896,7 @@
             "hints": [
                 "Use heading for name.",
                 "Use paragraph for description."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1985,11 +1945,7 @@
             "hints": [
                 "Use multiple heading tags.",
                 "Keep indentation clean."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2038,11 +1994,7 @@
             "hints": [
                 "Save file using .html extension.",
                 "Open file in browser to run it."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2091,11 +2043,7 @@
             "hints": [
                 "Use multiple sections.",
                 "Organize content clearly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2143,11 +2091,7 @@
             "hints": [
                 "Use hr tag for separation.",
                 "Structure sections with headings."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         }
     ]
 }

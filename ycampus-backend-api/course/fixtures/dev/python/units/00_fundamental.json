@@ -1897,11 +1897,7 @@
             "hints": [
                 "Use print() function.",
                 "Ensure exact spelling and punctuation."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1950,11 +1946,7 @@
             "hints": [
                 "Use print().",
                 "Replace the string with your name."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2012,11 +2004,7 @@
             "hints": [
                 "Use input().split().",
                 "Convert to integers using int()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2064,11 +2052,7 @@
             "hints": [
                 "Import sys module.",
                 "Use sys.version."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2117,11 +2101,7 @@
             "hints": [
                 "Assign a number first.",
                 "Then assign a string to same variable."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2170,11 +2150,7 @@
             "hints": [
                 "Use print() function.",
                 "Match exact output."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2223,11 +2199,7 @@
             "hints": [
                 "Use # for comments.",
                 "Comments are ignored during execution."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2277,11 +2249,7 @@
             "hints": [
                 "Python uses indentation for blocks.",
                 "Use 4 spaces inside loop."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2330,11 +2298,7 @@
             "hints": [
                 "Use loop.",
                 "Multiply string '*'."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2383,11 +2347,7 @@
             "hints": [
                 "Use triple quotes.",
                 "It does not affect execution."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2435,11 +2395,7 @@
             "hints": [
                 "Python throws error for bad indentation.",
                 "Use try-except."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2488,11 +2444,7 @@
             "hints": [
                 "Use type() function.",
                 "Print each on new line."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2545,11 +2497,7 @@
             "hints": [
                 "Convert types properly.",
                 "Use int() and float()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2602,11 +2550,7 @@
             "hints": [
                 "Use comparison operator >.",
                 "Result is boolean."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2659,11 +2603,7 @@
             "hints": [
                 "Use int() conversion.",
                 "Multiply after conversion."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2712,11 +2652,7 @@
             "hints": [
                 "Reassign same variable.",
                 "Python allows dynamic typing."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2765,11 +2701,7 @@
             "hints": [
                 "Convert everything to float.",
                 "Use float()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2821,11 +2753,7 @@
             "hints": [
                 "Use try-except.",
                 "Check int first, then float."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2874,11 +2802,7 @@
             "hints": [
                 "Use +, -, *, / operators.",
                 "Print in order."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2931,11 +2855,7 @@
             "hints": [
                 "Use > operator.",
                 "Result is boolean."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2988,11 +2908,7 @@
             "hints": [
                 "Use % for even check.",
                 "Use and operator."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3040,11 +2956,7 @@
             "hints": [
                 "Use +=, *=, -= operators.",
                 "Follow sequence."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3100,11 +3012,7 @@
             "hints": [
                 "Use XOR logic.",
                 "Only one condition should be true."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3152,11 +3060,7 @@
             "hints": [
                 "Follow operator precedence.",
                 "Multiplication and division first."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3205,11 +3109,7 @@
             "hints": [
                 "Use input().",
                 "Use f-string for formatting."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3258,11 +3158,7 @@
             "hints": [
                 "Use f-string.",
                 "Add numbers first."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3311,11 +3207,7 @@
             "hints": [
                 "Use loop.",
                 "Use f-string formatting."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3363,11 +3255,7 @@
             "hints": [
                 "Use :.2f in f-string.",
                 "Convert input to float."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3415,11 +3303,7 @@
             "hints": [
                 "Use split().",
                 "Use f-string formatting."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3468,11 +3352,7 @@
             "hints": [
                 "Use f-string.",
                 "Insert variables inside {}."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         }
     ]
 }

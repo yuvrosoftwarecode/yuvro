@@ -1,2495 +1,2411 @@
 {
-    "name": "Lists & Tables",
-    "subject_short_code": "HTMLCSS100",
-    "order_index": 4,
-    "sub_units": [
+  "name": "Lists & Tables",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 4,
+  "sub_units": [
+    {
+      "name": "Lists",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Lists",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Lists",
-                    "video_link": "https://www.youtube.com/results?search_query=Lists+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Lists in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Lists Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Lists+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Lists."
-                }
-            ]
+          "title": "Introduction to Lists",
+          "video_link": "https://www.youtube.com/results?search_query=Lists+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Lists in HTML/CSS."
         },
         {
-            "name": "Tables",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Tables",
-                    "video_link": "https://www.youtube.com/results?search_query=Tables+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Tables in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Tables Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Tables+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Tables."
-                }
-            ]
-        },
-        {
-            "name": "Advanced Tables",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Advanced Tables",
-                    "video_link": "https://www.youtube.com/results?search_query=Advanced+Tables+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Tables in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Advanced Tables Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Advanced+Tables+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Advanced Tables."
-                }
-            ]
+          "title": "Advanced Lists Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Lists+html+css",
+          "ai_context": "In-depth explanation and practical examples for Lists."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Tables",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Ordered List Tag",
-            "content": "Which HTML tag is used to create an ordered list?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<ol>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<ul>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<li>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<dl>",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Tables",
+          "video_link": "https://www.youtube.com/results?search_query=Tables+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Tables in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "Unordered List Tag",
-            "content": "Which HTML tag is used to create an unordered list?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<ul>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<ol>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<dl>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<list>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "List Item Tag",
-            "content": "Which HTML tag defines an item inside ordered or unordered lists?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<li>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<dt>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<dd>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<item>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Description List Purpose",
-            "content": "What is a description list mainly used for in HTML?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Displaying terms with their descriptions",
-                    "is_correct": true
-                },
-                {
-                    "text": "Creating numbered lists",
-                    "is_correct": false
-                },
-                {
-                    "text": "Adding hyperlinks",
-                    "is_correct": false
-                },
-                {
-                    "text": "Embedding multimedia",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nested Lists",
-            "content": "What is a nested list in HTML?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A list placed inside another list item",
-                    "is_correct": true
-                },
-                {
-                    "text": "A list with only one item",
-                    "is_correct": false
-                },
-                {
-                    "text": "A hidden list",
-                    "is_correct": false
-                },
-                {
-                    "text": "A table converted into a list",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Description List Tags",
-            "content": "Which pair of tags is used inside a description list?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<dt> and <dd>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<li> and <ul>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tr> and <td>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<head> and <body>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Correct Nested List Structure",
-            "content": "Which structure correctly represents a nested unordered list?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<ul><li>Item<ul><li>Subitem</li></ul></li></ul>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<ul><ul><li>Subitem</li></ul></ul>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<li><ul>Item</ul></li>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<nested><li>Subitem</li></nested>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Table Tag",
-            "content": "Which HTML tag is used to create a table?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<table>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<tr>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<td>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tab>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Table Row Tag",
-            "content": "Which HTML tag defines a row in a table?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<tr>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<td>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<th>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<row>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Table Data Cell",
-            "content": "Which tag is used for regular data cells inside a table?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<td>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<th>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tr>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<data>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Table Header Purpose",
-            "content": "What is the purpose of the <th> tag in HTML tables?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To define header cells in a table",
-                    "is_correct": true
-                },
-                {
-                    "text": "To create hyperlinks in tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "To merge rows automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "To add images to tables",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Columns in Tables",
-            "content": "How are columns formed in an HTML table?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "By placing cells side by side within rows",
-                    "is_correct": true
-                },
-                {
-                    "text": "By using only the <column> tag",
-                    "is_correct": false
-                },
-                {
-                    "text": "By nesting tables inside tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "By adding CSS only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Semantic Importance of th",
-            "content": "Why is using <th> preferred for header cells instead of <td>?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It improves accessibility and semantic meaning",
-                    "is_correct": true
-                },
-                {
-                    "text": "It automatically styles tables with colors",
-                    "is_correct": false
-                },
-                {
-                    "text": "It prevents table borders",
-                    "is_correct": false
-                },
-                {
-                    "text": "It creates responsive layouts",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Correct Table Structure",
-            "content": "Which HTML snippet correctly creates a simple table row with one header and one data cell?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<table><tr><th>Name</th><td>John</td></tr></table>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<table><td>Name</td><th>John</th></table>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tr><table><th>Name</th></table></tr>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<table><row><header>Name</header></row></table>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Colspan Attribute",
-            "content": "Which HTML table attribute is used to make a cell span multiple columns?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "colspan",
-                    "is_correct": true
-                },
-                {
-                    "text": "rowspan",
-                    "is_correct": false
-                },
-                {
-                    "text": "spancols",
-                    "is_correct": false
-                },
-                {
-                    "text": "mergecol",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Rowspan Attribute",
-            "content": "Which attribute allows a table cell to span multiple rows?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "rowspan",
-                    "is_correct": true
-                },
-                {
-                    "text": "colspan",
-                    "is_correct": false
-                },
-                {
-                    "text": "spanrows",
-                    "is_correct": false
-                },
-                {
-                    "text": "mergerow",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Semantic Table Sections",
-            "content": "Which tag is used to define the header section of a table?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<thead>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<tbody>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tfoot>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<header>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Using Colspan",
-            "content": "What happens when colspan=\"2\" is applied to a table cell?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The cell stretches across two columns",
-                    "is_correct": true
-                },
-                {
-                    "text": "The cell stretches across two rows",
-                    "is_correct": false
-                },
-                {
-                    "text": "The table creates two new rows",
-                    "is_correct": false
-                },
-                {
-                    "text": "The table becomes responsive",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Semantic Table Benefits",
-            "content": "Why are semantic table sections like <thead> and <tbody> useful?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "They improve readability and accessibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "They replace CSS styling",
-                    "is_correct": false
-                },
-                {
-                    "text": "They automatically add borders",
-                    "is_correct": false
-                },
-                {
-                    "text": "They prevent tables from loading slowly",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Correct Rowspan Usage",
-            "content": "Which HTML snippet correctly makes a cell span two rows?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<td rowspan=\"2\">Data</td>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<td colspan=\"2\">Data</td>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<rowspan=\"2\">Data</rowspan>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<td rowspan=\"2\">Data</td>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Complete Semantic Structure",
-            "content": "Which combination represents a semantic HTML table structure?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<thead>, <tbody>, <tfoot>",
-                    "is_correct": true
-                },
-                {
-                    "text": "<header>, <main>, <footer>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<rows>, <cols>, <cells>",
-                    "is_correct": false
-                },
-                {
-                    "text": "<tablehead>, <tablebody>, <tablefoot>",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Ordered List Basics",
-            "content": "Which of the following statements about ordered lists are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<ol> is used to create ordered lists",
-                    "is_correct": true
-                },
-                {
-                    "text": "Ordered lists display items with numbers or letters",
-                    "is_correct": true
-                },
-                {
-                    "text": "<ol> cannot contain list items",
-                    "is_correct": false
-                },
-                {
-                    "text": "<li> is used inside ordered lists",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Unordered List Basics",
-            "content": "Which of the following statements about unordered lists are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<ul> is used to create unordered lists",
-                    "is_correct": true
-                },
-                {
-                    "text": "Unordered lists usually display bullet points",
-                    "is_correct": true
-                },
-                {
-                    "text": "<ul> automatically creates numbered items",
-                    "is_correct": false
-                },
-                {
-                    "text": "<li> elements define individual list items",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Description Lists",
-            "content": "Which of the following statements about description lists are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<dl> is used to create description lists",
-                    "is_correct": true
-                },
-                {
-                    "text": "<dt> defines the term in a description list",
-                    "is_correct": true
-                },
-                {
-                    "text": "<dd> defines the description of a term",
-                    "is_correct": true
-                },
-                {
-                    "text": "Description lists only support numbered content",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Nested Lists",
-            "content": "Which of the following statements about nested lists are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A list can contain another list inside an <li> element",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nested lists help represent hierarchical information",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nested lists are not allowed in HTML",
-                    "is_correct": false
-                },
-                {
-                    "text": "Ordered and unordered lists can be combined in nesting",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "List Styling and Structure",
-            "content": "Which of the following statements about list structure and styling are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CSS can change list bullet styles and numbering",
-                    "is_correct": true
-                },
-                {
-                    "text": "Lists improve readability of grouped information",
-                    "is_correct": true
-                },
-                {
-                    "text": "List items can only contain plain text",
-                    "is_correct": false
-                },
-                {
-                    "text": "HTML lists are block-level structures",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced List Concepts",
-            "content": "Which of the following statements about advanced list concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Semantic lists improve accessibility and SEO",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nested lists are useful for menus and navigation structures",
-                    "is_correct": true
-                },
-                {
-                    "text": "Description lists are only for styling purposes",
-                    "is_correct": false
-                },
-                {
-                    "text": "Lists can contain links, images, and other HTML elements",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for Lists",
-            "content": "Which of the following are best practices for using lists in HTML?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use ordered lists when sequence matters",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use unordered lists for non-sequential items",
-                    "is_correct": true
-                },
-                {
-                    "text": "Avoid semantic HTML list structures",
-                    "is_correct": false
-                },
-                {
-                    "text": "Keep nested lists organized for readability",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Table Basics",
-            "content": "Which of the following statements about HTML tables are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<table> is used to create tables in HTML",
-                    "is_correct": true
-                },
-                {
-                    "text": "Tables organize data into rows and columns",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML tables cannot contain text data",
-                    "is_correct": false
-                },
-                {
-                    "text": "Tables are useful for displaying structured information",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Rows and Columns",
-            "content": "Which of the following statements about rows and columns in tables are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<tr> defines a table row",
-                    "is_correct": true
-                },
-                {
-                    "text": "<td> defines a table data cell",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rows cannot contain multiple columns",
-                    "is_correct": false
-                },
-                {
-                    "text": "Columns are formed by cells in the same vertical alignment",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Table Headers",
-            "content": "Which of the following statements about table headers are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<th> is used for table header cells",
-                    "is_correct": true
-                },
-                {
-                    "text": "Table headers are usually displayed in bold by default",
-                    "is_correct": true
-                },
-                {
-                    "text": "<th> cannot be used inside a row",
-                    "is_correct": false
-                },
-                {
-                    "text": "Headers help identify the meaning of table columns or rows",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Table Structure and Semantics",
-            "content": "Which of the following statements about table structure and semantics are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Proper table structure improves readability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Tables can contain header and data rows",
-                    "is_correct": true
-                },
-                {
-                    "text": "HTML tables are only used for webpage layout design",
-                    "is_correct": false
-                },
-                {
-                    "text": "Semantic table markup improves accessibility",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Table Styling and Usage",
-            "content": "Which of the following statements about table styling and usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CSS can be used to style table borders and spacing",
-                    "is_correct": true
-                },
-                {
-                    "text": "Tables are suitable for displaying tabular data",
-                    "is_correct": true
-                },
-                {
-                    "text": "Tables cannot contain images or links",
-                    "is_correct": false
-                },
-                {
-                    "text": "Consistent table formatting improves user experience",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Table Concepts",
-            "content": "Which of the following statements about advanced table concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Tables can include merged cells using colspan and rowspan",
-                    "is_correct": true
-                },
-                {
-                    "text": "Accessible tables use proper header associations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Tables automatically become responsive on all devices",
-                    "is_correct": false
-                },
-                {
-                    "text": "Large tables may require responsive design techniques",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for Tables",
-            "content": "Which of the following are best practices for using tables in HTML?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use tables only for tabular data",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use header cells to describe table data",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use tables for all webpage layouts",
-                    "is_correct": false
-                },
-                {
-                    "text": "Keep table structures clear and accessible",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Colspan Basics",
-            "content": "Which of the following statements about colspan are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "colspan is used to merge multiple columns",
-                    "is_correct": true
-                },
-                {
-                    "text": "colspan is applied to table cells",
-                    "is_correct": true
-                },
-                {
-                    "text": "colspan only works on rows",
-                    "is_correct": false
-                },
-                {
-                    "text": "Merged columns can improve table organization",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Rowspan Basics",
-            "content": "Which of the following statements about rowspan are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "rowspan merges cells vertically across rows",
-                    "is_correct": true
-                },
-                {
-                    "text": "rowspan can be used with <td> or <th>",
-                    "is_correct": true
-                },
-                {
-                    "text": "rowspan merges columns horizontally",
-                    "is_correct": false
-                },
-                {
-                    "text": "rowspan helps create complex table layouts",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Semantic Table Structure",
-            "content": "Which of the following statements about semantic table structure are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "<thead> is used for grouping table header content",
-                    "is_correct": true
-                },
-                {
-                    "text": "<tbody> contains the main table data",
-                    "is_correct": true
-                },
-                {
-                    "text": "<tfoot> cannot be used in tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "Semantic structure improves table readability",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Using Colspan and Rowspan Together",
-            "content": "Which of the following statements about using colspan and rowspan together are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "colspan and rowspan can create complex table layouts",
-                    "is_correct": true
-                },
-                {
-                    "text": "Merged cells can span both rows and columns",
-                    "is_correct": true
-                },
-                {
-                    "text": "Using merged cells incorrectly may break table alignment",
-                    "is_correct": true
-                },
-                {
-                    "text": "colspan and rowspan are only supported in CSS",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Accessibility and Semantic Tables",
-            "content": "Which of the following statements about accessibility in semantic tables are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Semantic table tags improve accessibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "Screen readers can better interpret structured tables",
-                    "is_correct": true
-                },
-                {
-                    "text": "Semantic structure has no effect on usability",
-                    "is_correct": false
-                },
-                {
-                    "text": "Proper headers help users understand table data",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Table Design Concepts",
-            "content": "Which of the following statements about advanced table design concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Responsive tables may require additional CSS techniques",
-                    "is_correct": true
-                },
-                {
-                    "text": "Complex tables should maintain logical reading order",
-                    "is_correct": true
-                },
-                {
-                    "text": "Merged cells always improve responsiveness automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Semantic grouping helps maintain organized table structures",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for Advanced Tables",
-            "content": "Which of the following are best practices for advanced tables?",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use colspan and rowspan only when necessary",
-                    "is_correct": true
-                },
-                {
-                    "text": "Keep table structures clear and understandable",
-                    "is_correct": true
-                },
-                {
-                    "text": "Ignore accessibility when designing tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "Use semantic tags like <thead> and <tbody> for organization",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Create an Unordered Grocery List",
-            "content": "Create an HTML page displaying a grocery list using an unordered list.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Unordered list displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All grocery items displayed correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<ul><li>Milk</li><li>Bread</li></ul>",
-                    "explanation": "Unordered lists use bullet points."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with unordered list.",
-            "solutions": [
-                {
-                    "title": "Unordered Grocery List",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Grocery List</title>\n</head>\n<body>\n    <ul>\n        <li>Milk</li>\n        <li>Bread</li>\n        <li>Eggs</li>\n    </ul>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use the ul tag for unordered lists."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create an Ordered Step-by-Step Guide",
-            "content": "Build an HTML page showing cooking instructions using an ordered list.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Ordered list displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Steps appear in numbered order"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<ol><li>Boil water</li><li>Add pasta</li></ol>",
-                    "explanation": "Ordered lists display numbered items."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with ordered list.",
-            "solutions": [
-                {
-                    "title": "Cooking Instructions",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Cooking Guide</title>\n</head>\n<body>\n    <ol>\n        <li>Boil water</li>\n        <li>Add pasta</li>\n        <li>Cook for 10 minutes</li>\n    </ol>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use the ol tag for ordered lists."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Display a Description List",
-            "content": "Create an HTML page using a description list to define web development terms.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Description list displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Terms and descriptions formatted correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<dl><dt>HTML</dt><dd>Markup language</dd></dl>",
-                    "explanation": "Description lists define terms and meanings."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with description list.",
-            "solutions": [
-                {
-                    "title": "Web Terms Description List",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Description List</title>\n</head>\n<body>\n    <dl>\n        <dt>HTML</dt>\n        <dd>Markup language for webpages</dd>\n\n        <dt>CSS</dt>\n        <dd>Styles webpage appearance</dd>\n    </dl>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use dl, dt, and dd tags."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Nested Study Plan",
-            "content": "Build an HTML page showing a study plan using nested ordered and unordered lists.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Nested list displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Parent and child lists properly nested"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Nested study topics list",
-                    "explanation": "Nested lists organize information hierarchically."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with nested lists.",
-            "solutions": [
-                {
-                    "title": "Nested Study Plan",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Study Plan</title>\n</head>\n<body>\n    <ol>\n        <li>Python\n            <ul>\n                <li>Variables</li>\n                <li>Loops</li>\n            </ul>\n        </li>\n\n        <li>HTML\n            <ul>\n                <li>Tags</li>\n                <li>Forms</li>\n            </ul>\n        </li>\n    </ol>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Place one list inside another list item."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Restaurant Menu",
-            "content": "Create a restaurant menu webpage using ordered, unordered, and description lists.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Restaurant menu displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Menu items and descriptions formatted properly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Menu with categories and descriptions",
-                    "explanation": "Lists are commonly used in menus."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Restaurant menu webpage.",
-            "solutions": [
-                {
-                    "title": "Restaurant Menu",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Restaurant Menu</title>\n</head>\n<body>\n    <h1>Restaurant Menu</h1>\n\n    <ul>\n        <li>Pizza</li>\n        <li>Burger</li>\n    </ul>\n\n    <dl>\n        <dt>Pizza</dt>\n        <dd>Cheesy Italian delight</dd>\n\n        <dt>Burger</dt>\n        <dd>Grilled sandwich with fries</dd>\n    </dl>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Combine different list types on one page."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design a Course Curriculum Page",
-            "content": "Create a course curriculum webpage using deeply nested lists to organize modules, lessons, and exercises.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Course curriculum displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Nested structure organized properly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Curriculum with modules and lessons",
-                    "explanation": "Complex structures are represented using nested lists."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Course curriculum webpage.",
-            "solutions": [
-                {
-                    "title": "Course Curriculum Page",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Course Curriculum</title>\n</head>\n<body>\n    <ol>\n        <li>Module 1: HTML Basics\n            <ul>\n                <li>Introduction</li>\n                <li>Headings</li>\n                <li>Lists\n                    <ul>\n                        <li>Ordered Lists</li>\n                        <li>Unordered Lists</li>\n                    </ul>\n                </li>\n            </ul>\n        </li>\n\n        <li>Module 2: CSS Basics</li>\n    </ol>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use multiple nesting levels carefully.",
-                "Indent nested lists properly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Documentation Sidebar Navigation",
-            "content": "Create a documentation webpage sidebar using nested unordered lists and description lists for navigation and explanations.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Lists",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Sidebar navigation displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Navigation hierarchy displayed correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Documentation sidebar with nested links",
-                    "explanation": "Documentation websites heavily use nested lists."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Documentation sidebar webpage.",
-            "solutions": [
-                {
-                    "title": "Documentation Sidebar",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation Sidebar</title>\n</head>\n<body>\n    <ul>\n        <li>HTML\n            <ul>\n                <li>Introduction</li>\n                <li>Lists</li>\n                <li>Tables</li>\n            </ul>\n        </li>\n\n        <li>CSS\n            <ul>\n                <li>Selectors</li>\n                <li>Flexbox</li>\n            </ul>\n        </li>\n    </ul>\n\n    <dl>\n        <dt>HTML</dt>\n        <dd>Markup language for webpages</dd>\n\n        <dt>CSS</dt>\n        <dd>Styles webpage layout</dd>\n    </dl>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use unordered lists for navigation structure.",
-                "Use description lists for explanations."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Basic HTML Table",
-            "content": "Create an HTML page displaying a simple table with 2 rows and 2 columns.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Basic table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Rows and columns displayed correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<table><tr><td>A</td><td>B</td></tr></table>",
-                    "explanation": "Tables organize data into rows and columns."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with a basic table.",
-            "solutions": [
-                {
-                    "title": "Basic Table Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Basic Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td>Apple</td>\n            <td>Banana</td>\n        </tr>\n        <tr>\n            <td>Mango</td>\n            <td>Orange</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use table, tr, and td tags."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Display Student Marks Table",
-            "content": "Create an HTML page showing student names and marks using table rows and columns.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Student marks table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All student data aligned correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Table with student names and marks",
-                    "explanation": "Tables are commonly used for structured data."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML student marks table.",
-            "solutions": [
-                {
-                    "title": "Student Marks Table",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Student Marks</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td>John</td>\n            <td>85</td>\n        </tr>\n        <tr>\n            <td>Emma</td>\n            <td>92</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Each row is created using the tr tag."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Table with Headers",
-            "content": "Build an HTML table displaying employee data with proper table headers.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Table with headers displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Header row formatted correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<th>Name</th><th>Salary</th>",
-                    "explanation": "Table headers describe table columns."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with table headers.",
-            "solutions": [
-                {
-                    "title": "Employee Table with Headers",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Employee Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Name</th>\n            <th>Salary</th>\n        </tr>\n        <tr>\n            <td>Alice</td>\n            <td>50000</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use the th tag for headers."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Weekly Timetable",
-            "content": "Create a weekly class timetable using an HTML table with headers for days and rows for time slots.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Weekly timetable displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Rows and columns properly organized"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Table with days and subjects",
-                    "explanation": "Timetables are structured using tables."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML weekly timetable.",
-            "solutions": [
-                {
-                    "title": "Weekly Timetable",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Weekly Timetable</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Time</th>\n            <th>Monday</th>\n            <th>Tuesday</th>\n        </tr>\n        <tr>\n            <td>9 AM</td>\n            <td>Math</td>\n            <td>Science</td>\n        </tr>\n        <tr>\n            <td>10 AM</td>\n            <td>English</td>\n            <td>History</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use th for header cells and td for data cells."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Product Comparison Table",
-            "content": "Build a product comparison webpage displaying products, prices, and ratings using a structured table.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Product comparison table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All product information aligned correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Comparison table with product details",
-                    "explanation": "Tables help compare multiple items efficiently."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML product comparison table.",
-            "solutions": [
-                {
-                    "title": "Product Comparison Table",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Product Comparison</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Product</th>\n            <th>Price</th>\n            <th>Rating</th>\n        </tr>\n        <tr>\n            <td>Laptop</td>\n            <td>$1000</td>\n            <td>4.5</td>\n        </tr>\n        <tr>\n            <td>Phone</td>\n            <td>$700</td>\n            <td>4.2</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Create separate columns for each product property."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design a School Report Card",
-            "content": "Create a school report card webpage using multiple rows, columns, and table headers to display subject-wise marks.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Report card table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Marks and subjects aligned correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Report card with subjects and grades",
-                    "explanation": "Report cards are commonly displayed using tables."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "School report card webpage.",
-            "solutions": [
-                {
-                    "title": "School Report Card",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>School Report Card</title>\n</head>\n<body>\n    <h1>Student Report Card</h1>\n\n    <table border=\"1\">\n        <tr>\n            <th>Subject</th>\n            <th>Marks</th>\n            <th>Grade</th>\n        </tr>\n        <tr>\n            <td>Math</td>\n            <td>95</td>\n            <td>A</td>\n        </tr>\n        <tr>\n            <td>Science</td>\n            <td>89</td>\n            <td>B+</td>\n        </tr>\n        <tr>\n            <td>English</td>\n            <td>92</td>\n            <td>A</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use headers for subject, marks, and grade columns.",
-                "Add multiple rows for subjects."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build an Employee Management Dashboard",
-            "content": "Create an employee management dashboard webpage displaying employee information in a structured HTML table.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Tables",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Employee dashboard displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Employee data structured correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Dashboard with employee details",
-                    "explanation": "Management systems use tables for structured records."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Employee dashboard webpage.",
-            "solutions": [
-                {
-                    "title": "Employee Management Dashboard",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Employee Dashboard</title>\n</head>\n<body>\n    <h1>Employee Dashboard</h1>\n\n    <table border=\"1\">\n        <tr>\n            <th>ID</th>\n            <th>Name</th>\n            <th>Department</th>\n            <th>Salary</th>\n        </tr>\n        <tr>\n            <td>101</td>\n            <td>John</td>\n            <td>HR</td>\n            <td>$5000</td>\n        </tr>\n        <tr>\n            <td>102</td>\n            <td>Emma</td>\n            <td>IT</td>\n            <td>$6500</td>\n        </tr>\n        <tr>\n            <td>103</td>\n            <td>David</td>\n            <td>Finance</td>\n            <td>$6000</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Create separate columns for employee attributes.",
-                "Use table headers for clarity."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Table Using colspan",
-            "content": "Create an HTML table where a header cell spans across two columns using the colspan attribute.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Table with colspan displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Header spans multiple columns correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<th colspan=\"2\">Student Details</th>",
-                    "explanation": "The colspan attribute merges columns."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with colspan table.",
-            "solutions": [
-                {
-                    "title": "Basic colspan Table",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Colspan Example</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th colspan=\"2\">Student Details</th>\n        </tr>\n        <tr>\n            <td>John</td>\n            <td>85</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use the colspan attribute inside a table cell."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Table Using rowspan",
-            "content": "Build an HTML table where one cell spans multiple rows using the rowspan attribute.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Table with rowspan displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Cell spans rows correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<td rowspan=\"2\">Math</td>",
-                    "explanation": "The rowspan attribute merges rows."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with rowspan table.",
-            "solutions": [
-                {
-                    "title": "Basic rowspan Table",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Rowspan Example</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td rowspan=\"2\">Math</td>\n            <td>90</td>\n        </tr>\n        <tr>\n            <td>95</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use rowspan to merge cells vertically."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Semantic Table Structure",
-            "content": "Create an HTML table using semantic table tags such as thead, tbody, and tfoot.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Semantic table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Table sections organized correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "<thead><tr><th>Name</th></tr></thead>",
-                    "explanation": "Semantic tags improve table readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with semantic table structure.",
-            "solutions": [
-                {
-                    "title": "Semantic Table Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th>Name</th>\n                <th>Marks</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Emma</td>\n                <td>92</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"2\">End of Report</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use thead, tbody, and tfoot for table organization."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a School Timetable",
-            "content": "Create a school timetable webpage using colspan and rowspan for merged schedule cells.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "School timetable displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Merged cells displayed correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Timetable with merged lunch break cells",
-                    "explanation": "Timetables commonly use rowspan and colspan."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "School timetable webpage.",
-            "solutions": [
-                {
-                    "title": "School Timetable",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>School Timetable</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Time</th>\n            <th>Monday</th>\n            <th>Tuesday</th>\n        </tr>\n        <tr>\n            <td>9 AM</td>\n            <td rowspan=\"2\">Math</td>\n            <td>Science</td>\n        </tr>\n        <tr>\n            <td>10 AM</td>\n            <td>English</td>\n        </tr>\n        <tr>\n            <td colspan=\"3\">Lunch Break</td>\n        </tr>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use rowspan for subjects spanning multiple periods.",
-                "Use colspan for breaks."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Product Pricing Table",
-            "content": "Build a product pricing comparison table using semantic table sections and merged cells.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Pricing table displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Semantic sections and merged cells work correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Pricing table with feature comparison",
-                    "explanation": "Pricing tables often use merged cells and semantic sections."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Product pricing table webpage.",
-            "solutions": [
-                {
-                    "title": "Pricing Comparison Table",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Pricing Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th colspan=\"3\">Pricing Plans</th>\n            </tr>\n            <tr>\n                <th>Plan</th>\n                <th>Price</th>\n                <th>Users</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Basic</td>\n                <td>$10</td>\n                <td>1</td>\n            </tr>\n            <tr>\n                <td>Pro</td>\n                <td>$30</td>\n                <td>5</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"3\">All prices are monthly.</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use semantic tags for better organization.",
-                "Merge header cells using colspan."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design a University Examination Schedule",
-            "content": "Create a university exam schedule webpage using complex rowspan, colspan, and semantic table structures.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Exam schedule displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Complex table structure rendered correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Exam schedule with merged time slots",
-                    "explanation": "Advanced schedules require merged table cells."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "University exam schedule webpage.",
-            "solutions": [
-                {
-                    "title": "University Examination Schedule",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Exam Schedule</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th rowspan=\"2\">Day</th>\n                <th colspan=\"2\">Morning</th>\n                <th colspan=\"2\">Afternoon</th>\n            </tr>\n            <tr>\n                <th>Subject</th>\n                <th>Room</th>\n                <th>Subject</th>\n                <th>Room</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Monday</td>\n                <td>Math</td>\n                <td>101</td>\n                <td>Physics</td>\n                <td>102</td>\n            </tr>\n            <tr>\n                <td>Tuesday</td>\n                <td colspan=\"2\">Computer Science Lab</td>\n                <td>English</td>\n                <td>103</td>\n            </tr>\n        </tbody>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use rowspan for multi-row headers.",
-                "Use colspan for merged sessions."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build an Employee Attendance Dashboard",
-            "content": "Create an employee attendance dashboard using semantic tables with rowspan and colspan for grouped attendance reports.",
-            "level": "subtopic",
-            "unit_name": "Lists & Tables",
-            "subunit_name": "Advanced Tables",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Attendance dashboard displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Grouped reports displayed using merged cells"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Dashboard with grouped attendance data",
-                    "explanation": "Business dashboards often require advanced table layouts."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Employee attendance dashboard webpage.",
-            "solutions": [
-                {
-                    "title": "Employee Attendance Dashboard",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Attendance Dashboard</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th rowspan=\"2\">Department</th>\n                <th colspan=\"2\">Attendance</th>\n            </tr>\n            <tr>\n                <th>Present</th>\n                <th>Absent</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>HR</td>\n                <td>20</td>\n                <td>2</td>\n            </tr>\n            <tr>\n                <td>IT</td>\n                <td>35</td>\n                <td>5</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"3\">Updated Daily</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Group related headers using colspan.",
-                "Use semantic table sections for readability."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Tables Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Tables+html+css",
+          "ai_context": "In-depth explanation and practical examples for Tables."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Advanced Tables",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Advanced Tables",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Tables+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Tables in HTML/CSS."
+        },
+        {
+          "title": "Advanced Advanced Tables Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Tables+html+css",
+          "ai_context": "In-depth explanation and practical examples for Advanced Tables."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Ordered List Tag",
+      "content": "Which HTML tag is used to create an ordered list?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<ol>",
+          "is_correct": true
+        },
+        {
+          "text": "<ul>",
+          "is_correct": false
+        },
+        {
+          "text": "<li>",
+          "is_correct": false
+        },
+        {
+          "text": "<dl>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Unordered List Tag",
+      "content": "Which HTML tag is used to create an unordered list?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<ul>",
+          "is_correct": true
+        },
+        {
+          "text": "<ol>",
+          "is_correct": false
+        },
+        {
+          "text": "<dl>",
+          "is_correct": false
+        },
+        {
+          "text": "<list>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "List Item Tag",
+      "content": "Which HTML tag defines an item inside ordered or unordered lists?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<li>",
+          "is_correct": true
+        },
+        {
+          "text": "<dt>",
+          "is_correct": false
+        },
+        {
+          "text": "<dd>",
+          "is_correct": false
+        },
+        {
+          "text": "<item>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Description List Purpose",
+      "content": "What is a description list mainly used for in HTML?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Displaying terms with their descriptions",
+          "is_correct": true
+        },
+        {
+          "text": "Creating numbered lists",
+          "is_correct": false
+        },
+        {
+          "text": "Adding hyperlinks",
+          "is_correct": false
+        },
+        {
+          "text": "Embedding multimedia",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Lists",
+      "content": "What is a nested list in HTML?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A list placed inside another list item",
+          "is_correct": true
+        },
+        {
+          "text": "A list with only one item",
+          "is_correct": false
+        },
+        {
+          "text": "A hidden list",
+          "is_correct": false
+        },
+        {
+          "text": "A table converted into a list",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Description List Tags",
+      "content": "Which pair of tags is used inside a description list?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<dt> and <dd>",
+          "is_correct": true
+        },
+        {
+          "text": "<li> and <ul>",
+          "is_correct": false
+        },
+        {
+          "text": "<tr> and <td>",
+          "is_correct": false
+        },
+        {
+          "text": "<head> and <body>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Nested List Structure",
+      "content": "Which structure correctly represents a nested unordered list?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<ul><li>Item<ul><li>Subitem</li></ul></li></ul>",
+          "is_correct": true
+        },
+        {
+          "text": "<ul><ul><li>Subitem</li></ul></ul>",
+          "is_correct": false
+        },
+        {
+          "text": "<li><ul>Item</ul></li>",
+          "is_correct": false
+        },
+        {
+          "text": "<nested><li>Subitem</li></nested>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Table Tag",
+      "content": "Which HTML tag is used to create a table?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<table>",
+          "is_correct": true
+        },
+        {
+          "text": "<tr>",
+          "is_correct": false
+        },
+        {
+          "text": "<td>",
+          "is_correct": false
+        },
+        {
+          "text": "<tab>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Table Row Tag",
+      "content": "Which HTML tag defines a row in a table?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<tr>",
+          "is_correct": true
+        },
+        {
+          "text": "<td>",
+          "is_correct": false
+        },
+        {
+          "text": "<th>",
+          "is_correct": false
+        },
+        {
+          "text": "<row>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Table Data Cell",
+      "content": "Which tag is used for regular data cells inside a table?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<td>",
+          "is_correct": true
+        },
+        {
+          "text": "<th>",
+          "is_correct": false
+        },
+        {
+          "text": "<tr>",
+          "is_correct": false
+        },
+        {
+          "text": "<data>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Table Header Purpose",
+      "content": "What is the purpose of the <th> tag in HTML tables?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To define header cells in a table",
+          "is_correct": true
+        },
+        {
+          "text": "To create hyperlinks in tables",
+          "is_correct": false
+        },
+        {
+          "text": "To merge rows automatically",
+          "is_correct": false
+        },
+        {
+          "text": "To add images to tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Columns in Tables",
+      "content": "How are columns formed in an HTML table?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By placing cells side by side within rows",
+          "is_correct": true
+        },
+        {
+          "text": "By using only the <column> tag",
+          "is_correct": false
+        },
+        {
+          "text": "By nesting tables inside tables",
+          "is_correct": false
+        },
+        {
+          "text": "By adding CSS only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Semantic Importance of th",
+      "content": "Why is using <th> preferred for header cells instead of <td>?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves accessibility and semantic meaning",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically styles tables with colors",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents table borders",
+          "is_correct": false
+        },
+        {
+          "text": "It creates responsive layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Table Structure",
+      "content": "Which HTML snippet correctly creates a simple table row with one header and one data cell?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<table><tr><th>Name</th><td>John</td></tr></table>",
+          "is_correct": true
+        },
+        {
+          "text": "<table><td>Name</td><th>John</th></table>",
+          "is_correct": false
+        },
+        {
+          "text": "<tr><table><th>Name</th></table></tr>",
+          "is_correct": false
+        },
+        {
+          "text": "<table><row><header>Name</header></row></table>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Colspan Attribute",
+      "content": "Which HTML table attribute is used to make a cell span multiple columns?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "colspan",
+          "is_correct": true
+        },
+        {
+          "text": "rowspan",
+          "is_correct": false
+        },
+        {
+          "text": "spancols",
+          "is_correct": false
+        },
+        {
+          "text": "mergecol",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rowspan Attribute",
+      "content": "Which attribute allows a table cell to span multiple rows?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "rowspan",
+          "is_correct": true
+        },
+        {
+          "text": "colspan",
+          "is_correct": false
+        },
+        {
+          "text": "spanrows",
+          "is_correct": false
+        },
+        {
+          "text": "mergerow",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Semantic Table Sections",
+      "content": "Which tag is used to define the header section of a table?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<thead>",
+          "is_correct": true
+        },
+        {
+          "text": "<tbody>",
+          "is_correct": false
+        },
+        {
+          "text": "<tfoot>",
+          "is_correct": false
+        },
+        {
+          "text": "<header>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Using Colspan",
+      "content": "What happens when colspan=\"2\" is applied to a table cell?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The cell stretches across two columns",
+          "is_correct": true
+        },
+        {
+          "text": "The cell stretches across two rows",
+          "is_correct": false
+        },
+        {
+          "text": "The table creates two new rows",
+          "is_correct": false
+        },
+        {
+          "text": "The table becomes responsive",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Semantic Table Benefits",
+      "content": "Why are semantic table sections like <thead> and <tbody> useful?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They improve readability and accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "They replace CSS styling",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically add borders",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent tables from loading slowly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Rowspan Usage",
+      "content": "Which HTML snippet correctly makes a cell span two rows?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<td rowspan=\"2\">Data</td>",
+          "is_correct": true
+        },
+        {
+          "text": "<td colspan=\"2\">Data</td>",
+          "is_correct": false
+        },
+        {
+          "text": "<rowspan=\"2\">Data</rowspan>",
+          "is_correct": false
+        },
+        {
+          "text": "<td rowspan=\"2\">Data</td>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Complete Semantic Structure",
+      "content": "Which combination represents a semantic HTML table structure?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<thead>, <tbody>, <tfoot>",
+          "is_correct": true
+        },
+        {
+          "text": "<header>, <main>, <footer>",
+          "is_correct": false
+        },
+        {
+          "text": "<rows>, <cols>, <cells>",
+          "is_correct": false
+        },
+        {
+          "text": "<tablehead>, <tablebody>, <tablefoot>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Ordered List Basics",
+      "content": "Which of the following statements about ordered lists are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<ol> is used to create ordered lists",
+          "is_correct": true
+        },
+        {
+          "text": "Ordered lists display items with numbers or letters",
+          "is_correct": true
+        },
+        {
+          "text": "<ol> cannot contain list items",
+          "is_correct": false
+        },
+        {
+          "text": "<li> is used inside ordered lists",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Unordered List Basics",
+      "content": "Which of the following statements about unordered lists are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<ul> is used to create unordered lists",
+          "is_correct": true
+        },
+        {
+          "text": "Unordered lists usually display bullet points",
+          "is_correct": true
+        },
+        {
+          "text": "<ul> automatically creates numbered items",
+          "is_correct": false
+        },
+        {
+          "text": "<li> elements define individual list items",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Description Lists",
+      "content": "Which of the following statements about description lists are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<dl> is used to create description lists",
+          "is_correct": true
+        },
+        {
+          "text": "<dt> defines the term in a description list",
+          "is_correct": true
+        },
+        {
+          "text": "<dd> defines the description of a term",
+          "is_correct": true
+        },
+        {
+          "text": "Description lists only support numbered content",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Nested Lists",
+      "content": "Which of the following statements about nested lists are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A list can contain another list inside an <li> element",
+          "is_correct": true
+        },
+        {
+          "text": "Nested lists help represent hierarchical information",
+          "is_correct": true
+        },
+        {
+          "text": "Nested lists are not allowed in HTML",
+          "is_correct": false
+        },
+        {
+          "text": "Ordered and unordered lists can be combined in nesting",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Styling and Structure",
+      "content": "Which of the following statements about list structure and styling are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS can change list bullet styles and numbering",
+          "is_correct": true
+        },
+        {
+          "text": "Lists improve readability of grouped information",
+          "is_correct": true
+        },
+        {
+          "text": "List items can only contain plain text",
+          "is_correct": false
+        },
+        {
+          "text": "HTML lists are block-level structures",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced List Concepts",
+      "content": "Which of the following statements about advanced list concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Semantic lists improve accessibility and SEO",
+          "is_correct": true
+        },
+        {
+          "text": "Nested lists are useful for menus and navigation structures",
+          "is_correct": true
+        },
+        {
+          "text": "Description lists are only for styling purposes",
+          "is_correct": false
+        },
+        {
+          "text": "Lists can contain links, images, and other HTML elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Lists",
+      "content": "Which of the following are best practices for using lists in HTML?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use ordered lists when sequence matters",
+          "is_correct": true
+        },
+        {
+          "text": "Use unordered lists for non-sequential items",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid semantic HTML list structures",
+          "is_correct": false
+        },
+        {
+          "text": "Keep nested lists organized for readability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Table Basics",
+      "content": "Which of the following statements about HTML tables are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<table> is used to create tables in HTML",
+          "is_correct": true
+        },
+        {
+          "text": "Tables organize data into rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "HTML tables cannot contain text data",
+          "is_correct": false
+        },
+        {
+          "text": "Tables are useful for displaying structured information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rows and Columns",
+      "content": "Which of the following statements about rows and columns in tables are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<tr> defines a table row",
+          "is_correct": true
+        },
+        {
+          "text": "<td> defines a table data cell",
+          "is_correct": true
+        },
+        {
+          "text": "Rows cannot contain multiple columns",
+          "is_correct": false
+        },
+        {
+          "text": "Columns are formed by cells in the same vertical alignment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Table Headers",
+      "content": "Which of the following statements about table headers are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<th> is used for table header cells",
+          "is_correct": true
+        },
+        {
+          "text": "Table headers are usually displayed in bold by default",
+          "is_correct": true
+        },
+        {
+          "text": "<th> cannot be used inside a row",
+          "is_correct": false
+        },
+        {
+          "text": "Headers help identify the meaning of table columns or rows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Table Structure and Semantics",
+      "content": "Which of the following statements about table structure and semantics are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Proper table structure improves readability",
+          "is_correct": true
+        },
+        {
+          "text": "Tables can contain header and data rows",
+          "is_correct": true
+        },
+        {
+          "text": "HTML tables are only used for webpage layout design",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic table markup improves accessibility",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Table Styling and Usage",
+      "content": "Which of the following statements about table styling and usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS can be used to style table borders and spacing",
+          "is_correct": true
+        },
+        {
+          "text": "Tables are suitable for displaying tabular data",
+          "is_correct": true
+        },
+        {
+          "text": "Tables cannot contain images or links",
+          "is_correct": false
+        },
+        {
+          "text": "Consistent table formatting improves user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Table Concepts",
+      "content": "Which of the following statements about advanced table concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tables can include merged cells using colspan and rowspan",
+          "is_correct": true
+        },
+        {
+          "text": "Accessible tables use proper header associations",
+          "is_correct": true
+        },
+        {
+          "text": "Tables automatically become responsive on all devices",
+          "is_correct": false
+        },
+        {
+          "text": "Large tables may require responsive design techniques",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Tables",
+      "content": "Which of the following are best practices for using tables in HTML?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use tables only for tabular data",
+          "is_correct": true
+        },
+        {
+          "text": "Use header cells to describe table data",
+          "is_correct": true
+        },
+        {
+          "text": "Use tables for all webpage layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Keep table structures clear and accessible",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Colspan Basics",
+      "content": "Which of the following statements about colspan are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "colspan is used to merge multiple columns",
+          "is_correct": true
+        },
+        {
+          "text": "colspan is applied to table cells",
+          "is_correct": true
+        },
+        {
+          "text": "colspan only works on rows",
+          "is_correct": false
+        },
+        {
+          "text": "Merged columns can improve table organization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rowspan Basics",
+      "content": "Which of the following statements about rowspan are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "rowspan merges cells vertically across rows",
+          "is_correct": true
+        },
+        {
+          "text": "rowspan can be used with <td> or <th>",
+          "is_correct": true
+        },
+        {
+          "text": "rowspan merges columns horizontally",
+          "is_correct": false
+        },
+        {
+          "text": "rowspan helps create complex table layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Semantic Table Structure",
+      "content": "Which of the following statements about semantic table structure are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<thead> is used for grouping table header content",
+          "is_correct": true
+        },
+        {
+          "text": "<tbody> contains the main table data",
+          "is_correct": true
+        },
+        {
+          "text": "<tfoot> cannot be used in tables",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic structure improves table readability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using Colspan and Rowspan Together",
+      "content": "Which of the following statements about using colspan and rowspan together are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "colspan and rowspan can create complex table layouts",
+          "is_correct": true
+        },
+        {
+          "text": "Merged cells can span both rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "Using merged cells incorrectly may break table alignment",
+          "is_correct": true
+        },
+        {
+          "text": "colspan and rowspan are only supported in CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Accessibility and Semantic Tables",
+      "content": "Which of the following statements about accessibility in semantic tables are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Semantic table tags improve accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "Screen readers can better interpret structured tables",
+          "is_correct": true
+        },
+        {
+          "text": "Semantic structure has no effect on usability",
+          "is_correct": false
+        },
+        {
+          "text": "Proper headers help users understand table data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Table Design Concepts",
+      "content": "Which of the following statements about advanced table design concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Responsive tables may require additional CSS techniques",
+          "is_correct": true
+        },
+        {
+          "text": "Complex tables should maintain logical reading order",
+          "is_correct": true
+        },
+        {
+          "text": "Merged cells always improve responsiveness automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic grouping helps maintain organized table structures",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Advanced Tables",
+      "content": "Which of the following are best practices for advanced tables?",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use colspan and rowspan only when necessary",
+          "is_correct": true
+        },
+        {
+          "text": "Keep table structures clear and understandable",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore accessibility when designing tables",
+          "is_correct": false
+        },
+        {
+          "text": "Use semantic tags like <thead> and <tbody> for organization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create an Unordered Grocery List",
+      "content": "Create an HTML page displaying a grocery list using an unordered list.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Unordered list displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All grocery items displayed correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<ul><li>Milk</li><li>Bread</li></ul>",
+          "explanation": "Unordered lists use bullet points."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with unordered list.",
+      "solutions": [
+        {
+          "title": "Unordered Grocery List",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Grocery List</title>\n</head>\n<body>\n    <ul>\n        <li>Milk</li>\n        <li>Bread</li>\n        <li>Eggs</li>\n    </ul>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use the ul tag for unordered lists."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create an Ordered Step-by-Step Guide",
+      "content": "Build an HTML page showing cooking instructions using an ordered list.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Ordered list displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Steps appear in numbered order"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<ol><li>Boil water</li><li>Add pasta</li></ol>",
+          "explanation": "Ordered lists display numbered items."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with ordered list.",
+      "solutions": [
+        {
+          "title": "Cooking Instructions",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Cooking Guide</title>\n</head>\n<body>\n    <ol>\n        <li>Boil water</li>\n        <li>Add pasta</li>\n        <li>Cook for 10 minutes</li>\n    </ol>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use the ol tag for ordered lists."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Display a Description List",
+      "content": "Create an HTML page using a description list to define web development terms.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Description list displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Terms and descriptions formatted correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<dl><dt>HTML</dt><dd>Markup language</dd></dl>",
+          "explanation": "Description lists define terms and meanings."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with description list.",
+      "solutions": [
+        {
+          "title": "Web Terms Description List",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Description List</title>\n</head>\n<body>\n    <dl>\n        <dt>HTML</dt>\n        <dd>Markup language for webpages</dd>\n\n        <dt>CSS</dt>\n        <dd>Styles webpage appearance</dd>\n    </dl>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use dl, dt, and dd tags."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Nested Study Plan",
+      "content": "Build an HTML page showing a study plan using nested ordered and unordered lists.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Nested list displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Parent and child lists properly nested"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Nested study topics list",
+          "explanation": "Nested lists organize information hierarchically."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with nested lists.",
+      "solutions": [
+        {
+          "title": "Nested Study Plan",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Study Plan</title>\n</head>\n<body>\n    <ol>\n        <li>Python\n            <ul>\n                <li>Variables</li>\n                <li>Loops</li>\n            </ul>\n        </li>\n\n        <li>HTML\n            <ul>\n                <li>Tags</li>\n                <li>Forms</li>\n            </ul>\n        </li>\n    </ol>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Place one list inside another list item."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Restaurant Menu",
+      "content": "Create a restaurant menu webpage using ordered, unordered, and description lists.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Restaurant menu displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Menu items and descriptions formatted properly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Menu with categories and descriptions",
+          "explanation": "Lists are commonly used in menus."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Restaurant menu webpage.",
+      "solutions": [
+        {
+          "title": "Restaurant Menu",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Restaurant Menu</title>\n</head>\n<body>\n    <h1>Restaurant Menu</h1>\n\n    <ul>\n        <li>Pizza</li>\n        <li>Burger</li>\n    </ul>\n\n    <dl>\n        <dt>Pizza</dt>\n        <dd>Cheesy Italian delight</dd>\n\n        <dt>Burger</dt>\n        <dd>Grilled sandwich with fries</dd>\n    </dl>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine different list types on one page."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Course Curriculum Page",
+      "content": "Create a course curriculum webpage using deeply nested lists to organize modules, lessons, and exercises.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Course curriculum displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Nested structure organized properly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Curriculum with modules and lessons",
+          "explanation": "Complex structures are represented using nested lists."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Course curriculum webpage.",
+      "solutions": [
+        {
+          "title": "Course Curriculum Page",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Course Curriculum</title>\n</head>\n<body>\n    <ol>\n        <li>Module 1: HTML Basics\n            <ul>\n                <li>Introduction</li>\n                <li>Headings</li>\n                <li>Lists\n                    <ul>\n                        <li>Ordered Lists</li>\n                        <li>Unordered Lists</li>\n                    </ul>\n                </li>\n            </ul>\n        </li>\n\n        <li>Module 2: CSS Basics</li>\n    </ol>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use multiple nesting levels carefully.",
+        "Indent nested lists properly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Documentation Sidebar Navigation",
+      "content": "Create a documentation webpage sidebar using nested unordered lists and description lists for navigation and explanations.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Sidebar navigation displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Navigation hierarchy displayed correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Documentation sidebar with nested links",
+          "explanation": "Documentation websites heavily use nested lists."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Documentation sidebar webpage.",
+      "solutions": [
+        {
+          "title": "Documentation Sidebar",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation Sidebar</title>\n</head>\n<body>\n    <ul>\n        <li>HTML\n            <ul>\n                <li>Introduction</li>\n                <li>Lists</li>\n                <li>Tables</li>\n            </ul>\n        </li>\n\n        <li>CSS\n            <ul>\n                <li>Selectors</li>\n                <li>Flexbox</li>\n            </ul>\n        </li>\n    </ul>\n\n    <dl>\n        <dt>HTML</dt>\n        <dd>Markup language for webpages</dd>\n\n        <dt>CSS</dt>\n        <dd>Styles webpage layout</dd>\n    </dl>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use unordered lists for navigation structure.",
+        "Use description lists for explanations."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Basic HTML Table",
+      "content": "Create an HTML page displaying a simple table with 2 rows and 2 columns.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Basic table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Rows and columns displayed correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<table><tr><td>A</td><td>B</td></tr></table>",
+          "explanation": "Tables organize data into rows and columns."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with a basic table.",
+      "solutions": [
+        {
+          "title": "Basic Table Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Basic Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td>Apple</td>\n            <td>Banana</td>\n        </tr>\n        <tr>\n            <td>Mango</td>\n            <td>Orange</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use table, tr, and td tags."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Display Student Marks Table",
+      "content": "Create an HTML page showing student names and marks using table rows and columns.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Student marks table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All student data aligned correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Table with student names and marks",
+          "explanation": "Tables are commonly used for structured data."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML student marks table.",
+      "solutions": [
+        {
+          "title": "Student Marks Table",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Student Marks</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td>John</td>\n            <td>85</td>\n        </tr>\n        <tr>\n            <td>Emma</td>\n            <td>92</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Each row is created using the tr tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Table with Headers",
+      "content": "Build an HTML table displaying employee data with proper table headers.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Table with headers displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Header row formatted correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<th>Name</th><th>Salary</th>",
+          "explanation": "Table headers describe table columns."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with table headers.",
+      "solutions": [
+        {
+          "title": "Employee Table with Headers",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Employee Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Name</th>\n            <th>Salary</th>\n        </tr>\n        <tr>\n            <td>Alice</td>\n            <td>50000</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use the th tag for headers."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Weekly Timetable",
+      "content": "Create a weekly class timetable using an HTML table with headers for days and rows for time slots.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Weekly timetable displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Rows and columns properly organized"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Table with days and subjects",
+          "explanation": "Timetables are structured using tables."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML weekly timetable.",
+      "solutions": [
+        {
+          "title": "Weekly Timetable",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Weekly Timetable</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Time</th>\n            <th>Monday</th>\n            <th>Tuesday</th>\n        </tr>\n        <tr>\n            <td>9 AM</td>\n            <td>Math</td>\n            <td>Science</td>\n        </tr>\n        <tr>\n            <td>10 AM</td>\n            <td>English</td>\n            <td>History</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use th for header cells and td for data cells."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Product Comparison Table",
+      "content": "Build a product comparison webpage displaying products, prices, and ratings using a structured table.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Product comparison table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All product information aligned correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Comparison table with product details",
+          "explanation": "Tables help compare multiple items efficiently."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML product comparison table.",
+      "solutions": [
+        {
+          "title": "Product Comparison Table",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Product Comparison</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Product</th>\n            <th>Price</th>\n            <th>Rating</th>\n        </tr>\n        <tr>\n            <td>Laptop</td>\n            <td>$1000</td>\n            <td>4.5</td>\n        </tr>\n        <tr>\n            <td>Phone</td>\n            <td>$700</td>\n            <td>4.2</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Create separate columns for each product property."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a School Report Card",
+      "content": "Create a school report card webpage using multiple rows, columns, and table headers to display subject-wise marks.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Report card table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Marks and subjects aligned correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Report card with subjects and grades",
+          "explanation": "Report cards are commonly displayed using tables."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "School report card webpage.",
+      "solutions": [
+        {
+          "title": "School Report Card",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>School Report Card</title>\n</head>\n<body>\n    <h1>Student Report Card</h1>\n\n    <table border=\"1\">\n        <tr>\n            <th>Subject</th>\n            <th>Marks</th>\n            <th>Grade</th>\n        </tr>\n        <tr>\n            <td>Math</td>\n            <td>95</td>\n            <td>A</td>\n        </tr>\n        <tr>\n            <td>Science</td>\n            <td>89</td>\n            <td>B+</td>\n        </tr>\n        <tr>\n            <td>English</td>\n            <td>92</td>\n            <td>A</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use headers for subject, marks, and grade columns.",
+        "Add multiple rows for subjects."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build an Employee Management Dashboard",
+      "content": "Create an employee management dashboard webpage displaying employee information in a structured HTML table.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Tables",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Employee dashboard displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Employee data structured correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Dashboard with employee details",
+          "explanation": "Management systems use tables for structured records."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Employee dashboard webpage.",
+      "solutions": [
+        {
+          "title": "Employee Management Dashboard",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Employee Dashboard</title>\n</head>\n<body>\n    <h1>Employee Dashboard</h1>\n\n    <table border=\"1\">\n        <tr>\n            <th>ID</th>\n            <th>Name</th>\n            <th>Department</th>\n            <th>Salary</th>\n        </tr>\n        <tr>\n            <td>101</td>\n            <td>John</td>\n            <td>HR</td>\n            <td>$5000</td>\n        </tr>\n        <tr>\n            <td>102</td>\n            <td>Emma</td>\n            <td>IT</td>\n            <td>$6500</td>\n        </tr>\n        <tr>\n            <td>103</td>\n            <td>David</td>\n            <td>Finance</td>\n            <td>$6000</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Create separate columns for employee attributes.",
+        "Use table headers for clarity."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Table Using colspan",
+      "content": "Create an HTML table where a header cell spans across two columns using the colspan attribute.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Table with colspan displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Header spans multiple columns correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<th colspan=\"2\">Student Details</th>",
+          "explanation": "The colspan attribute merges columns."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with colspan table.",
+      "solutions": [
+        {
+          "title": "Basic colspan Table",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Colspan Example</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th colspan=\"2\">Student Details</th>\n        </tr>\n        <tr>\n            <td>John</td>\n            <td>85</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use the colspan attribute inside a table cell."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Table Using rowspan",
+      "content": "Build an HTML table where one cell spans multiple rows using the rowspan attribute.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Table with rowspan displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Cell spans rows correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<td rowspan=\"2\">Math</td>",
+          "explanation": "The rowspan attribute merges rows."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with rowspan table.",
+      "solutions": [
+        {
+          "title": "Basic rowspan Table",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Rowspan Example</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <td rowspan=\"2\">Math</td>\n            <td>90</td>\n        </tr>\n        <tr>\n            <td>95</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use rowspan to merge cells vertically."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Semantic Table Structure",
+      "content": "Create an HTML table using semantic table tags such as thead, tbody, and tfoot.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Semantic table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Table sections organized correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<thead><tr><th>Name</th></tr></thead>",
+          "explanation": "Semantic tags improve table readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with semantic table structure.",
+      "solutions": [
+        {
+          "title": "Semantic Table Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th>Name</th>\n                <th>Marks</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Emma</td>\n                <td>92</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"2\">End of Report</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use thead, tbody, and tfoot for table organization."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a School Timetable",
+      "content": "Create a school timetable webpage using colspan and rowspan for merged schedule cells.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "School timetable displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Merged cells displayed correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Timetable with merged lunch break cells",
+          "explanation": "Timetables commonly use rowspan and colspan."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "School timetable webpage.",
+      "solutions": [
+        {
+          "title": "School Timetable",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>School Timetable</title>\n</head>\n<body>\n    <table border=\"1\">\n        <tr>\n            <th>Time</th>\n            <th>Monday</th>\n            <th>Tuesday</th>\n        </tr>\n        <tr>\n            <td>9 AM</td>\n            <td rowspan=\"2\">Math</td>\n            <td>Science</td>\n        </tr>\n        <tr>\n            <td>10 AM</td>\n            <td>English</td>\n        </tr>\n        <tr>\n            <td colspan=\"3\">Lunch Break</td>\n        </tr>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use rowspan for subjects spanning multiple periods.",
+        "Use colspan for breaks."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Product Pricing Table",
+      "content": "Build a product pricing comparison table using semantic table sections and merged cells.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Pricing table displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Semantic sections and merged cells work correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Pricing table with feature comparison",
+          "explanation": "Pricing tables often use merged cells and semantic sections."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Product pricing table webpage.",
+      "solutions": [
+        {
+          "title": "Pricing Comparison Table",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Pricing Table</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th colspan=\"3\">Pricing Plans</th>\n            </tr>\n            <tr>\n                <th>Plan</th>\n                <th>Price</th>\n                <th>Users</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Basic</td>\n                <td>$10</td>\n                <td>1</td>\n            </tr>\n            <tr>\n                <td>Pro</td>\n                <td>$30</td>\n                <td>5</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"3\">All prices are monthly.</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use semantic tags for better organization.",
+        "Merge header cells using colspan."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a University Examination Schedule",
+      "content": "Create a university exam schedule webpage using complex rowspan, colspan, and semantic table structures.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Exam schedule displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Complex table structure rendered correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Exam schedule with merged time slots",
+          "explanation": "Advanced schedules require merged table cells."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "University exam schedule webpage.",
+      "solutions": [
+        {
+          "title": "University Examination Schedule",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Exam Schedule</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th rowspan=\"2\">Day</th>\n                <th colspan=\"2\">Morning</th>\n                <th colspan=\"2\">Afternoon</th>\n            </tr>\n            <tr>\n                <th>Subject</th>\n                <th>Room</th>\n                <th>Subject</th>\n                <th>Room</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>Monday</td>\n                <td>Math</td>\n                <td>101</td>\n                <td>Physics</td>\n                <td>102</td>\n            </tr>\n            <tr>\n                <td>Tuesday</td>\n                <td colspan=\"2\">Computer Science Lab</td>\n                <td>English</td>\n                <td>103</td>\n            </tr>\n        </tbody>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use rowspan for multi-row headers.",
+        "Use colspan for merged sessions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build an Employee Attendance Dashboard",
+      "content": "Create an employee attendance dashboard using semantic tables with rowspan and colspan for grouped attendance reports.",
+      "level": "subtopic",
+      "unit_name": "Lists & Tables",
+      "subunit_name": "Advanced Tables",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Attendance dashboard displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Grouped reports displayed using merged cells"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Dashboard with grouped attendance data",
+          "explanation": "Business dashboards often require advanced table layouts."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Employee attendance dashboard webpage.",
+      "solutions": [
+        {
+          "title": "Employee Attendance Dashboard",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Attendance Dashboard</title>\n</head>\n<body>\n    <table border=\"1\">\n        <thead>\n            <tr>\n                <th rowspan=\"2\">Department</th>\n                <th colspan=\"2\">Attendance</th>\n            </tr>\n            <tr>\n                <th>Present</th>\n                <th>Absent</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr>\n                <td>HR</td>\n                <td>20</td>\n                <td>2</td>\n            </tr>\n            <tr>\n                <td>IT</td>\n                <td>35</td>\n                <td>5</td>\n            </tr>\n        </tbody>\n        <tfoot>\n            <tr>\n                <td colspan=\"3\">Updated Daily</td>\n            </tr>\n        </tfoot>\n    </table>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Group related headers using colspan.",
+        "Use semantic table sections for readability."
+      ]
+    }
+  ]
 }

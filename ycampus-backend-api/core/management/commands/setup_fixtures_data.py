@@ -97,18 +97,6 @@ class Command(BaseCommand):
             call_command("seed_jntu_college_data", verbosity=1)
             self.stdout.write("")
 
-            self.stdout.write("🔒 Enabling proctoring for all assessments...")
-            from assessment.models import SkillTest, Contest, JobTest, CertificationExam
-            st_count = SkillTest.objects.all().update(enable_proctoring=True)
-            c_count = Contest.objects.all().update(enable_proctoring=True)
-            jt_count = JobTest.objects.all().update(enable_proctoring=True)
-            ce_count = CertificationExam.objects.all().update(enable_proctoring=True)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"✓ Enabled proctoring for {st_count} skill tests, {c_count} contests, {jt_count} job tests, and {ce_count} exams\n"
-                )
-            )
-
             self.stdout.write(
                 self.style.SUCCESS(
                     "🎉 testing environment setup completed successfully!"

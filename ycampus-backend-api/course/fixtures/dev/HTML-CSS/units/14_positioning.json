@@ -1,1298 +1,1270 @@
 {
-    "name": "Positioning",
-    "subject_short_code": "HTMLCSS100",
-    "order_index": 14,
-    "sub_units": [
+  "name": "Positioning",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 14,
+  "sub_units": [
+    {
+      "name": "Position Types",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Position Types",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Position Types",
-                    "video_link": "https://www.youtube.com/results?search_query=Position+Types+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Position Types in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Position Types Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Position+Types+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Position Types."
-                }
-            ]
+          "title": "Introduction to Position Types",
+          "video_link": "https://www.youtube.com/results?search_query=Position+Types+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Position Types in HTML/CSS."
         },
         {
-            "name": "Z-index",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Z-index",
-                    "video_link": "https://www.youtube.com/results?search_query=Z-index+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Z-index in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Z-index Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Z-index+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Z-index."
-                }
-            ]
+          "title": "Advanced Position Types Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Position+Types+html+css",
+          "ai_context": "In-depth explanation and practical examples for Position Types."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Z-index",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Default Position",
-            "content": "What is the default position value of an HTML element?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "static",
-                    "is_correct": true
-                },
-                {
-                    "text": "relative",
-                    "is_correct": false
-                },
-                {
-                    "text": "absolute",
-                    "is_correct": false
-                },
-                {
-                    "text": "fixed",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Z-index",
+          "video_link": "https://www.youtube.com/results?search_query=Z-index+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Z-index in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "Relative Position",
-            "content": "What does position: relative do?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Moves element relative to its normal position",
-                    "is_correct": true
-                },
-                {
-                    "text": "Removes element from document flow",
-                    "is_correct": false
-                },
-                {
-                    "text": "Fixes element to screen",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hides the element",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Fixed Position",
-            "content": "What happens when position is set to fixed?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element stays fixed relative to the viewport",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element moves with page scroll",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element disappears",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element becomes inline",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Absolute Position Behavior",
-            "content": "What does position: absolute do?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Positions element relative to nearest positioned ancestor",
-                    "is_correct": true
-                },
-                {
-                    "text": "Always relative to viewport",
-                    "is_correct": false
-                },
-                {
-                    "text": "Keeps element in normal flow",
-                    "is_correct": false
-                },
-                {
-                    "text": "Makes element invisible",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Sticky Position",
-            "content": "What is special about position: sticky?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It behaves like relative until a scroll threshold is reached, then becomes fixed",
-                    "is_correct": true
-                },
-                {
-                    "text": "It behaves like absolute always",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes element from layout",
-                    "is_correct": false
-                },
-                {
-                    "text": "It hides element permanently",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Absolute Position Reference",
-            "content": "Which element does an absolutely positioned element refer to if no positioned parent exists?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The document body (viewport)",
-                    "is_correct": true
-                },
-                {
-                    "text": "Its sibling element",
-                    "is_correct": false
-                },
-                {
-                    "text": "The footer element",
-                    "is_correct": false
-                },
-                {
-                    "text": "The nearest text node",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Positioning Comparison",
-            "content": "Which positioning type removes an element from the normal document flow?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "absolute and fixed",
-                    "is_correct": true
-                },
-                {
-                    "text": "static and relative",
-                    "is_correct": false
-                },
-                {
-                    "text": "only static",
-                    "is_correct": false
-                },
-                {
-                    "text": "only sticky",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Z-index Purpose",
-            "content": "What does the z-index property control in CSS?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Stacking order of overlapping elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Font size of text",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Background color",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Stacking Context Meaning",
-            "content": "What is a stacking context in CSS?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A layer system that controls how elements overlap",
-                    "is_correct": true
-                },
-                {
-                    "text": "A type of font styling",
-                    "is_correct": false
-                },
-                {
-                    "text": "A grid layout system",
-                    "is_correct": false
-                },
-                {
-                    "text": "A color palette system",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Higher Z-index Value",
-            "content": "Which element appears on top when z-index is used?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element with higher z-index value",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element with lower z-index value",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element with no position",
-                    "is_correct": false
-                },
-                {
-                    "text": "First element in HTML only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Z-index Requirement",
-            "content": "Which CSS condition is required for z-index to work?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element must have position other than static",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element must be inline only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element must have display:none",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element must be a flex container",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Layering Elements",
-            "content": "What does layering in CSS refer to?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Arranging elements on top of each other using z-index",
-                    "is_correct": true
-                },
-                {
-                    "text": "Aligning text in a row",
-                    "is_correct": false
-                },
-                {
-                    "text": "Changing font styles",
-                    "is_correct": false
-                },
-                {
-                    "text": "Changing background images",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Stacking Context Creation",
-            "content": "Which of the following creates a new stacking context?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "An element with position and z-index set",
-                    "is_correct": true
-                },
-                {
-                    "text": "An element with only color property",
-                    "is_correct": false
-                },
-                {
-                    "text": "An inline text element",
-                    "is_correct": false
-                },
-                {
-                    "text": "A static positioned element without styles",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Z-index Behavior in Contexts",
-            "content": "How does z-index work across different stacking contexts?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index is compared only within the same stacking context",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index always applies globally",
-                    "is_correct": false
-                },
-                {
-                    "text": "z-index ignores stacking contexts",
-                    "is_correct": false
-                },
-                {
-                    "text": "z-index only works on text elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Position Basics",
-            "content": "Which of the following are valid CSS position types?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "static is a default position value",
-                    "is_correct": true
-                },
-                {
-                    "text": "relative allows positioning relative to itself",
-                    "is_correct": true
-                },
-                {
-                    "text": "floating is a CSS position type",
-                    "is_correct": false
-                },
-                {
-                    "text": "absolute allows positioning relative to nearest positioned parent",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Position Types Overview",
-            "content": "Which of the following statements about CSS position types are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "fixed position stays in place during scroll",
-                    "is_correct": true
-                },
-                {
-                    "text": "sticky position combines relative and fixed behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "static position allows top/left positioning",
-                    "is_correct": false
-                },
-                {
-                    "text": "absolute removes element from normal flow",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basic Positioning Behavior",
-            "content": "Which of the following statements about CSS positioning behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "static is the default positioning for all elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "relative moves element relative to its original position",
-                    "is_correct": true
-                },
-                {
-                    "text": "absolute keeps element in normal document flow",
-                    "is_correct": false
-                },
-                {
-                    "text": "fixed positions element relative to viewport",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Positioning Concepts",
-            "content": "Which of the following statements about positioning concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "relative position keeps element in normal flow",
-                    "is_correct": true
-                },
-                {
-                    "text": "absolute removes element from normal flow",
-                    "is_correct": true
-                },
-                {
-                    "text": "static allows use of top/left properties",
-                    "is_correct": false
-                },
-                {
-                    "text": "fixed position stays relative to viewport",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Sticky Position Behavior",
-            "content": "Which of the following statements about sticky positioning are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "sticky behaves like relative until scroll threshold",
-                    "is_correct": true
-                },
-                {
-                    "text": "sticky behaves like fixed after threshold",
-                    "is_correct": true
-                },
-                {
-                    "text": "sticky does not depend on scrolling",
-                    "is_correct": false
-                },
-                {
-                    "text": "sticky is useful for headers and navigation bars",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Positioning Concepts",
-            "content": "Which of the following statements about advanced positioning concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "absolute positioning depends on nearest positioned ancestor",
-                    "is_correct": true
-                },
-                {
-                    "text": "fixed positioning ignores scrolling behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "static position can be moved using top/left",
-                    "is_correct": false
-                },
-                {
-                    "text": "sticky position switches based on scroll position",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Positioning Comparison",
-            "content": "Which of the following statements about positioning comparison are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "relative keeps element in flow but allows offset",
-                    "is_correct": true
-                },
-                {
-                    "text": "absolute removes element from flow completely",
-                    "is_correct": true
-                },
-                {
-                    "text": "static position supports z-index stacking",
-                    "is_correct": false
-                },
-                {
-                    "text": "fixed position stays fixed to viewport",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Z-index Basics",
-            "content": "Which of the following statements about z-index are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index controls the stacking order of elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index works only on positioned elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index changes font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "higher z-index means element appears on top",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Z-index Concept Basics",
-            "content": "Which of the following statements about z-index behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index controls layering of elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index only works with position relative, absolute, fixed, or sticky",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index works on static elements by default",
-                    "is_correct": false
-                },
-                {
-                    "text": "z-index decides which element is in front",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Z-index Layering Basics",
-            "content": "Which of the following statements about layering elements using z-index are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index helps overlap elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "higher z-index appears above lower z-index",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index affects text color",
-                    "is_correct": false
-                },
-                {
-                    "text": "z-index is used for stacking order control",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Stacking Context Basics",
-            "content": "Which of the following statements about stacking context are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "stacking context determines how elements overlap",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index values are relative within a stacking context",
-                    "is_correct": true
-                },
-                {
-                    "text": "stacking context is unrelated to z-index",
-                    "is_correct": false
-                },
-                {
-                    "text": "positioned elements can create stacking context",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Z-index Behavior in Layout",
-            "content": "Which of the following statements about z-index behavior in layouts are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index works only when position is set",
-                    "is_correct": true
-                },
-                {
-                    "text": "higher z-index brings element forward",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index works on all static elements automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "stacking context affects z-index behavior",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Stacking Context",
-            "content": "Which of the following statements about stacking context are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "stacking context isolates z-index values",
-                    "is_correct": true
-                },
-                {
-                    "text": "child elements cannot escape parent stacking context",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index always works globally across the page",
-                    "is_correct": false
-                },
-                {
-                    "text": "opacity and transform can create stacking context",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Layering Concepts",
-            "content": "Which of the following statements about layering elements and z-index are correct?",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Z-index",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "z-index only affects positioned elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "stacking context determines rendering order",
-                    "is_correct": true
-                },
-                {
-                    "text": "z-index changes element visibility property",
-                    "is_correct": false
-                },
-                {
-                    "text": "nested stacking contexts affect layering behavior",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Demonstrate Static Positioning",
-            "content": "Create an HTML page and apply CSS position: static to elements and observe default document flow behavior.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Elements follow normal document flow"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "No positional shift observed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "position: static;",
-                    "explanation": "Static is default positioning."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML layout using static positioning.",
-            "solutions": [
-                {
-                    "title": "Static Position Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    position: static;\n    background: lightblue;\n}\n</style>\n</head>\n<body>\n    <div class=\"box\">Box 1</div>\n    <div class=\"box\">Box 2</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Static is default CSS positioning."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Demonstrate Relative Positioning",
-            "content": "Create an HTML page using position: relative and move an element slightly from its original position.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Element shifted from original position"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Offset applied without affecting layout flow"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "top, left applied",
-                    "explanation": "Relative moves element from its original position."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML with relative positioning.",
-            "solutions": [
-                {
-                    "title": "Relative Position Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    position: relative;\n    top: 20px;\n    left: 30px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"box\">Relative Box</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use top and left with relative positioning."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Demonstrate Fixed Positioning",
-            "content": "Create a webpage where a header stays fixed at the top using position: fixed.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Header stays fixed on scroll"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Element remains visible during scrolling"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "position: fixed;",
-                    "explanation": "Fixed elements stay in viewport."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML page with fixed header.",
-            "solutions": [
-                {
-                    "title": "Fixed Header Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.header {\n    position: fixed;\n    top: 0;\n    width: 100%;\n    background: gray;\n}\n</style>\n</head>\n<body>\n    <div class=\"header\">Fixed Header</div>\n    <p style=\"margin-top:60px;\">Scroll content here...</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Fixed elements stay on screen."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Compare Relative and Absolute Positioning",
-            "content": "Create an HTML page demonstrating both relative and absolute positioning with nested elements.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Relative and absolute elements displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Absolute element positioned inside relative container"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "position: absolute inside relative parent",
-                    "explanation": "Absolute positioning depends on nearest positioned ancestor."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML layout demo.",
-            "solutions": [
-                {
-                    "title": "Relative vs Absolute",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    position: relative;\n    height: 200px;\n    background: lightgray;\n}\n.box {\n    position: absolute;\n    top: 50px;\n    left: 50px;\n    background: red;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">Absolute Box</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Absolute is relative to nearest positioned parent."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Sticky Navigation Bar",
-            "content": "Build a webpage with a navigation bar using position: sticky that stays visible after scrolling.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Sticky navbar appears"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Navbar sticks after scrolling"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "position: sticky;",
-                    "explanation": "Sticky behaves like relative until scroll threshold."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML sticky navbar.",
-            "solutions": [
-                {
-                    "title": "Sticky Navbar",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.nav {\n    position: sticky;\n    top: 0;\n    background: blue;\n    color: white;\n}\n</style>\n</head>\n<body>\n    <div class=\"nav\">Sticky Nav</div>\n    <div style=\"height:1000px;\">Scroll content</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Sticky works with scroll position."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Overlapping Elements Using Absolute Positioning",
-            "content": "Create a layout where multiple elements overlap using absolute positioning inside a relative container.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Overlapping elements displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper layering with positioning"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "z-index and absolute positioning",
-                    "explanation": "Used for overlays and UI layers."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML overlapping layout.",
-            "solutions": [
-                {
-                    "title": "Overlapping Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    position: relative;\n    height: 200px;\n}\n.box1 {\n    position: absolute;\n    top: 20px;\n    left: 20px;\n    background: red;\n}\n.box2 {\n    position: absolute;\n    top: 40px;\n    left: 40px;\n    background: blue;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box1\">Box 1</div>\n        <div class=\"box2\">Box 2</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use absolute positioning inside relative container."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Full Page Layout Using All Position Types",
-            "content": "Create a webpage demonstrating static, relative, absolute, fixed, and sticky positioning in a single layout.",
-            "level": "subtopic",
-            "unit_name": "Positioning",
-            "subunit_name": "Position Types",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "All position types demonstrated"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper behavior of all positioning types"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "static, relative, absolute, fixed, sticky",
-                    "explanation": "Each position type behaves differently."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML layout demo page.",
-            "solutions": [
-                {
-                    "title": "All Position Types Demo",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.fixed {\n    position: fixed;\n    top: 0;\n    background: black;\n    color: white;\n}\n.relative {\n    position: relative;\n    top: 10px;\n}\n.absolute {\n    position: absolute;\n    top: 100px;\n}\n.sticky {\n    position: sticky;\n    top: 50px;\n    background: yellow;\n}\n</style>\n</head>\n<body>\n    <div class=\"fixed\">Fixed</div>\n    <div class=\"relative\">Relative</div>\n    <div class=\"sticky\">Sticky</div>\n    <div class=\"absolute\">Absolute</div>\n    <div style=\"height:1000px;\"></div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine all positioning types in one page.",
-                "Observe scrolling behavior."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Z-index Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Z-index+html+css",
+          "ai_context": "In-depth explanation and practical examples for Z-index."
         }
-    ]
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Default Position",
+      "content": "What is the default position value of an HTML element?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "static",
+          "is_correct": true
+        },
+        {
+          "text": "relative",
+          "is_correct": false
+        },
+        {
+          "text": "absolute",
+          "is_correct": false
+        },
+        {
+          "text": "fixed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relative Position",
+      "content": "What does position: relative do?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Moves element relative to its normal position",
+          "is_correct": true
+        },
+        {
+          "text": "Removes element from document flow",
+          "is_correct": false
+        },
+        {
+          "text": "Fixes element to screen",
+          "is_correct": false
+        },
+        {
+          "text": "Hides the element",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fixed Position",
+      "content": "What happens when position is set to fixed?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element stays fixed relative to the viewport",
+          "is_correct": true
+        },
+        {
+          "text": "Element moves with page scroll",
+          "is_correct": false
+        },
+        {
+          "text": "Element disappears",
+          "is_correct": false
+        },
+        {
+          "text": "Element becomes inline",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Absolute Position Behavior",
+      "content": "What does position: absolute do?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Positions element relative to nearest positioned ancestor",
+          "is_correct": true
+        },
+        {
+          "text": "Always relative to viewport",
+          "is_correct": false
+        },
+        {
+          "text": "Keeps element in normal flow",
+          "is_correct": false
+        },
+        {
+          "text": "Makes element invisible",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sticky Position",
+      "content": "What is special about position: sticky?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It behaves like relative until a scroll threshold is reached, then becomes fixed",
+          "is_correct": true
+        },
+        {
+          "text": "It behaves like absolute always",
+          "is_correct": false
+        },
+        {
+          "text": "It removes element from layout",
+          "is_correct": false
+        },
+        {
+          "text": "It hides element permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Absolute Position Reference",
+      "content": "Which element does an absolutely positioned element refer to if no positioned parent exists?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The document body (viewport)",
+          "is_correct": true
+        },
+        {
+          "text": "Its sibling element",
+          "is_correct": false
+        },
+        {
+          "text": "The footer element",
+          "is_correct": false
+        },
+        {
+          "text": "The nearest text node",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Positioning Comparison",
+      "content": "Which positioning type removes an element from the normal document flow?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "absolute and fixed",
+          "is_correct": true
+        },
+        {
+          "text": "static and relative",
+          "is_correct": false
+        },
+        {
+          "text": "only static",
+          "is_correct": false
+        },
+        {
+          "text": "only sticky",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Z-index Purpose",
+      "content": "What does the z-index property control in CSS?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stacking order of overlapping elements",
+          "is_correct": true
+        },
+        {
+          "text": "Font size of text",
+          "is_correct": false
+        },
+        {
+          "text": "Element alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Background color",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stacking Context Meaning",
+      "content": "What is a stacking context in CSS?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A layer system that controls how elements overlap",
+          "is_correct": true
+        },
+        {
+          "text": "A type of font styling",
+          "is_correct": false
+        },
+        {
+          "text": "A grid layout system",
+          "is_correct": false
+        },
+        {
+          "text": "A color palette system",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Higher Z-index Value",
+      "content": "Which element appears on top when z-index is used?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element with higher z-index value",
+          "is_correct": true
+        },
+        {
+          "text": "Element with lower z-index value",
+          "is_correct": false
+        },
+        {
+          "text": "Element with no position",
+          "is_correct": false
+        },
+        {
+          "text": "First element in HTML only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Z-index Requirement",
+      "content": "Which CSS condition is required for z-index to work?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element must have position other than static",
+          "is_correct": true
+        },
+        {
+          "text": "Element must be inline only",
+          "is_correct": false
+        },
+        {
+          "text": "Element must have display:none",
+          "is_correct": false
+        },
+        {
+          "text": "Element must be a flex container",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Layering Elements",
+      "content": "What does layering in CSS refer to?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Arranging elements on top of each other using z-index",
+          "is_correct": true
+        },
+        {
+          "text": "Aligning text in a row",
+          "is_correct": false
+        },
+        {
+          "text": "Changing font styles",
+          "is_correct": false
+        },
+        {
+          "text": "Changing background images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stacking Context Creation",
+      "content": "Which of the following creates a new stacking context?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An element with position and z-index set",
+          "is_correct": true
+        },
+        {
+          "text": "An element with only color property",
+          "is_correct": false
+        },
+        {
+          "text": "An inline text element",
+          "is_correct": false
+        },
+        {
+          "text": "A static positioned element without styles",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Z-index Behavior in Contexts",
+      "content": "How does z-index work across different stacking contexts?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index is compared only within the same stacking context",
+          "is_correct": true
+        },
+        {
+          "text": "z-index always applies globally",
+          "is_correct": false
+        },
+        {
+          "text": "z-index ignores stacking contexts",
+          "is_correct": false
+        },
+        {
+          "text": "z-index only works on text elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Position Basics",
+      "content": "Which of the following are valid CSS position types?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "static is a default position value",
+          "is_correct": true
+        },
+        {
+          "text": "relative allows positioning relative to itself",
+          "is_correct": true
+        },
+        {
+          "text": "floating is a CSS position type",
+          "is_correct": false
+        },
+        {
+          "text": "absolute allows positioning relative to nearest positioned parent",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Position Types Overview",
+      "content": "Which of the following statements about CSS position types are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "fixed position stays in place during scroll",
+          "is_correct": true
+        },
+        {
+          "text": "sticky position combines relative and fixed behavior",
+          "is_correct": true
+        },
+        {
+          "text": "static position allows top/left positioning",
+          "is_correct": false
+        },
+        {
+          "text": "absolute removes element from normal flow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Positioning Behavior",
+      "content": "Which of the following statements about CSS positioning behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "static is the default positioning for all elements",
+          "is_correct": true
+        },
+        {
+          "text": "relative moves element relative to its original position",
+          "is_correct": true
+        },
+        {
+          "text": "absolute keeps element in normal document flow",
+          "is_correct": false
+        },
+        {
+          "text": "fixed positions element relative to viewport",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Positioning Concepts",
+      "content": "Which of the following statements about positioning concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "relative position keeps element in normal flow",
+          "is_correct": true
+        },
+        {
+          "text": "absolute removes element from normal flow",
+          "is_correct": true
+        },
+        {
+          "text": "static allows use of top/left properties",
+          "is_correct": false
+        },
+        {
+          "text": "fixed position stays relative to viewport",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Sticky Position Behavior",
+      "content": "Which of the following statements about sticky positioning are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "sticky behaves like relative until scroll threshold",
+          "is_correct": true
+        },
+        {
+          "text": "sticky behaves like fixed after threshold",
+          "is_correct": true
+        },
+        {
+          "text": "sticky does not depend on scrolling",
+          "is_correct": false
+        },
+        {
+          "text": "sticky is useful for headers and navigation bars",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Positioning Concepts",
+      "content": "Which of the following statements about advanced positioning concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "absolute positioning depends on nearest positioned ancestor",
+          "is_correct": true
+        },
+        {
+          "text": "fixed positioning ignores scrolling behavior",
+          "is_correct": true
+        },
+        {
+          "text": "static position can be moved using top/left",
+          "is_correct": false
+        },
+        {
+          "text": "sticky position switches based on scroll position",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Positioning Comparison",
+      "content": "Which of the following statements about positioning comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "relative keeps element in flow but allows offset",
+          "is_correct": true
+        },
+        {
+          "text": "absolute removes element from flow completely",
+          "is_correct": true
+        },
+        {
+          "text": "static position supports z-index stacking",
+          "is_correct": false
+        },
+        {
+          "text": "fixed position stays fixed to viewport",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Z-index Basics",
+      "content": "Which of the following statements about z-index are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index controls the stacking order of elements",
+          "is_correct": true
+        },
+        {
+          "text": "z-index works only on positioned elements",
+          "is_correct": true
+        },
+        {
+          "text": "z-index changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "higher z-index means element appears on top",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Z-index Concept Basics",
+      "content": "Which of the following statements about z-index behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index controls layering of elements",
+          "is_correct": true
+        },
+        {
+          "text": "z-index only works with position relative, absolute, fixed, or sticky",
+          "is_correct": true
+        },
+        {
+          "text": "z-index works on static elements by default",
+          "is_correct": false
+        },
+        {
+          "text": "z-index decides which element is in front",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Z-index Layering Basics",
+      "content": "Which of the following statements about layering elements using z-index are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index helps overlap elements",
+          "is_correct": true
+        },
+        {
+          "text": "higher z-index appears above lower z-index",
+          "is_correct": true
+        },
+        {
+          "text": "z-index affects text color",
+          "is_correct": false
+        },
+        {
+          "text": "z-index is used for stacking order control",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Stacking Context Basics",
+      "content": "Which of the following statements about stacking context are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "stacking context determines how elements overlap",
+          "is_correct": true
+        },
+        {
+          "text": "z-index values are relative within a stacking context",
+          "is_correct": true
+        },
+        {
+          "text": "stacking context is unrelated to z-index",
+          "is_correct": false
+        },
+        {
+          "text": "positioned elements can create stacking context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Z-index Behavior in Layout",
+      "content": "Which of the following statements about z-index behavior in layouts are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index works only when position is set",
+          "is_correct": true
+        },
+        {
+          "text": "higher z-index brings element forward",
+          "is_correct": true
+        },
+        {
+          "text": "z-index works on all static elements automatically",
+          "is_correct": false
+        },
+        {
+          "text": "stacking context affects z-index behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Stacking Context",
+      "content": "Which of the following statements about stacking context are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "stacking context isolates z-index values",
+          "is_correct": true
+        },
+        {
+          "text": "child elements cannot escape parent stacking context",
+          "is_correct": true
+        },
+        {
+          "text": "z-index always works globally across the page",
+          "is_correct": false
+        },
+        {
+          "text": "opacity and transform can create stacking context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Layering Concepts",
+      "content": "Which of the following statements about layering elements and z-index are correct?",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Z-index",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "z-index only affects positioned elements",
+          "is_correct": true
+        },
+        {
+          "text": "stacking context determines rendering order",
+          "is_correct": true
+        },
+        {
+          "text": "z-index changes element visibility property",
+          "is_correct": false
+        },
+        {
+          "text": "nested stacking contexts affect layering behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Static Positioning",
+      "content": "Create an HTML page and apply CSS position: static to elements and observe default document flow behavior.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Elements follow normal document flow"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "No positional shift observed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "position: static;",
+          "explanation": "Static is default positioning."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML layout using static positioning.",
+      "solutions": [
+        {
+          "title": "Static Position Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    position: static;\n    background: lightblue;\n}\n</style>\n</head>\n<body>\n    <div class=\"box\">Box 1</div>\n    <div class=\"box\">Box 2</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Static is default CSS positioning."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Relative Positioning",
+      "content": "Create an HTML page using position: relative and move an element slightly from its original position.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Element shifted from original position"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Offset applied without affecting layout flow"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "top, left applied",
+          "explanation": "Relative moves element from its original position."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML with relative positioning.",
+      "solutions": [
+        {
+          "title": "Relative Position Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    position: relative;\n    top: 20px;\n    left: 30px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"box\">Relative Box</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use top and left with relative positioning."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Fixed Positioning",
+      "content": "Create a webpage where a header stays fixed at the top using position: fixed.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Header stays fixed on scroll"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Element remains visible during scrolling"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "position: fixed;",
+          "explanation": "Fixed elements stay in viewport."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with fixed header.",
+      "solutions": [
+        {
+          "title": "Fixed Header Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.header {\n    position: fixed;\n    top: 0;\n    width: 100%;\n    background: gray;\n}\n</style>\n</head>\n<body>\n    <div class=\"header\">Fixed Header</div>\n    <p style=\"margin-top:60px;\">Scroll content here...</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Fixed elements stay on screen."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Compare Relative and Absolute Positioning",
+      "content": "Create an HTML page demonstrating both relative and absolute positioning with nested elements.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Relative and absolute elements displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Absolute element positioned inside relative container"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "position: absolute inside relative parent",
+          "explanation": "Absolute positioning depends on nearest positioned ancestor."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML layout demo.",
+      "solutions": [
+        {
+          "title": "Relative vs Absolute",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    position: relative;\n    height: 200px;\n    background: lightgray;\n}\n.box {\n    position: absolute;\n    top: 50px;\n    left: 50px;\n    background: red;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">Absolute Box</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Absolute is relative to nearest positioned parent."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Sticky Navigation Bar",
+      "content": "Build a webpage with a navigation bar using position: sticky that stays visible after scrolling.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Sticky navbar appears"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Navbar sticks after scrolling"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "position: sticky;",
+          "explanation": "Sticky behaves like relative until scroll threshold."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML sticky navbar.",
+      "solutions": [
+        {
+          "title": "Sticky Navbar",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.nav {\n    position: sticky;\n    top: 0;\n    background: blue;\n    color: white;\n}\n</style>\n</head>\n<body>\n    <div class=\"nav\">Sticky Nav</div>\n    <div style=\"height:1000px;\">Scroll content</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Sticky works with scroll position."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Overlapping Elements Using Absolute Positioning",
+      "content": "Create a layout where multiple elements overlap using absolute positioning inside a relative container.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Overlapping elements displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper layering with positioning"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "z-index and absolute positioning",
+          "explanation": "Used for overlays and UI layers."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML overlapping layout.",
+      "solutions": [
+        {
+          "title": "Overlapping Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    position: relative;\n    height: 200px;\n}\n.box1 {\n    position: absolute;\n    top: 20px;\n    left: 20px;\n    background: red;\n}\n.box2 {\n    position: absolute;\n    top: 40px;\n    left: 40px;\n    background: blue;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box1\">Box 1</div>\n        <div class=\"box2\">Box 2</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use absolute positioning inside relative container."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Full Page Layout Using All Position Types",
+      "content": "Create a webpage demonstrating static, relative, absolute, fixed, and sticky positioning in a single layout.",
+      "level": "subtopic",
+      "unit_name": "Positioning",
+      "subunit_name": "Position Types",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "All position types demonstrated"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper behavior of all positioning types"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "static, relative, absolute, fixed, sticky",
+          "explanation": "Each position type behaves differently."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML layout demo page.",
+      "solutions": [
+        {
+          "title": "All Position Types Demo",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.fixed {\n    position: fixed;\n    top: 0;\n    background: black;\n    color: white;\n}\n.relative {\n    position: relative;\n    top: 10px;\n}\n.absolute {\n    position: absolute;\n    top: 100px;\n}\n.sticky {\n    position: sticky;\n    top: 50px;\n    background: yellow;\n}\n</style>\n</head>\n<body>\n    <div class=\"fixed\">Fixed</div>\n    <div class=\"relative\">Relative</div>\n    <div class=\"sticky\">Sticky</div>\n    <div class=\"absolute\">Absolute</div>\n    <div style=\"height:1000px;\"></div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all positioning types in one page.",
+        "Observe scrolling behavior."
+      ]
+    }
+  ]
 }

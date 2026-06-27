@@ -60,7 +60,7 @@
             "order_index": 3,
             "videos": [
                 {
-                    "title": "Linked List Cycle Detection (Floyd\u2019s Algorithm)",
+                    "title": "Linked List Cycle Detection (Floyd’s Algorithm)",
                     "video_link": "https://www.youtube.com/watch?v=gBTe7lFR3vc",
                     "ai_context": "Using fast and slow pointers to detect cycles in linked lists"
                 },
@@ -222,11 +222,7 @@
                 "Start from the head node and keep moving to the next node until you reach the end.",
                 "At each step, collect or print the current node's value before moving forward.",
                 "The traversal stops when the current pointer becomes null."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -343,11 +339,7 @@
                 "Traverse both linked lists at the same time instead of checking them separately.",
                 "If any pair of corresponding node values is different, the lists are not identical.",
                 "At the end, both pointers must reach null together for the answer to be true."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -464,11 +456,7 @@
                 "Try solving this in one pass instead of counting the nodes first.",
                 "Use two pointers moving at different speeds to find the middle efficiently.",
                 "When the fast pointer reaches the end, the slow pointer will be at the required middle node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -585,11 +573,7 @@
                 "Read the linked list from left to right as a binary number.",
                 "For each node, multiply the current result by 2 and add the node's bit.",
                 "This works the same way as building a decimal value digit by digit from the most significant bit."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -706,11 +690,7 @@
                 "Every node must have the same chance of being selected, even if the length is unknown.",
                 "Think about a method that updates the chosen answer while traversing the list only once.",
                 "Reservoir sampling lets you keep one answer and replace it with probability 1/i at the i-th node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -827,11 +807,7 @@
                 "You need to quickly check whether a node's value belongs to the given subset.",
                 "A connected component continues while consecutive nodes are present in that subset.",
                 "Count a component when the current node is in the set but the next node is missing or not in the set."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -948,11 +924,7 @@
                 "A node is critical only if it has both a previous and a next node.",
                 "Track the positions of nodes that are local minima or local maxima while traversing.",
                 "Use the first and previous critical positions to update the minimum and maximum distances."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1020,12 +992,12 @@
                 {
                     "input": "list: 4 2 8, tree: [1,4,4,null,2,2,null,1,null,6,8]",
                     "expected_output": "true",
-                    "explanation": "A downward path in the tree matches the sequence 4 \u2192 2 \u2192 8."
+                    "explanation": "A downward path in the tree matches the sequence 4 → 2 → 8."
                 },
                 {
                     "input": "list: 1 2 3, tree: [1,2,3]",
                     "expected_output": "true",
-                    "explanation": "Starting from the root, the path 1 \u2192 2 \u2192 3 matches the linked list."
+                    "explanation": "Starting from the root, the path 1 → 2 → 3 matches the linked list."
                 },
                 {
                     "input": "list: 1 4 2 6, tree: [1,4,4,null,2,2,null,1,null,6,8]",
@@ -1069,11 +1041,7 @@
                 "You may need to start matching the linked list from many tree nodes, not just the root.",
                 "Use recursion to check whether the current tree path matches the current linked list node.",
                 "One function can search for a starting point, and another can continue the match downward."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1190,11 +1158,7 @@
                 "Elements are removed in rounds based on their relationship with previous elements.",
                 "A monotonic stack can help track which elements survive and how many rounds each one lasts.",
                 "Store both the value and the number of steps needed before it disappears, then take the maximum."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1311,11 +1275,7 @@
                 "Think about when the sequence is already sorted and when removals are necessary.",
                 "Removing an adjacent pair reduces the size by two, so focus on the bad positions causing disorder.",
                 "Try reasoning greedily about inversions or unsorted parts instead of simulating every removal choice."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1432,11 +1392,7 @@
                 "If the list is empty, the new node itself becomes the head.",
                 "Otherwise, move through the list until you reach the last node.",
                 "Attach the new node by updating the last node's next pointer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1553,11 +1509,7 @@
                 "A new node inserted at the beginning must point to the current head.",
                 "After linking it, that new node becomes the updated head of the list.",
                 "This operation does not require traversing the rest of the list."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1674,11 +1626,7 @@
                 "Look at every pair of consecutive nodes in the list.",
                 "Compute the gcd of their values and create a new node with that result.",
                 "Insert the new node between the current node and its original next node, then continue carefully."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1795,11 +1743,7 @@
                 "Handle position 0 separately because the head changes in that case.",
                 "For other positions, move to the node just before where the new node should be inserted.",
                 "Update pointers in this order: new node points to next, previous node points to new node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1916,11 +1860,7 @@
                 "Because the list is circular, traversal should stop when you return to the starting node.",
                 "There are two insertion cases: normal sorted position or the turning point between maximum and minimum.",
                 "If all values are equal or no exact place is found during one full cycle, insert anywhere after the current node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2037,11 +1977,7 @@
                 "You need to remove a segment from the first list and splice the second list into that gap.",
                 "Find the node just before position a and the node just after position b.",
                 "Connect the first part to list2, then connect the tail of list2 to the remaining part of list1."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2158,11 +2094,7 @@
                 "A skip list uses multiple forward links to speed up search, insertion, and deletion.",
                 "Higher levels act like shortcuts, while the bottom level still stores the full sorted order.",
                 "While moving through levels, keep track of the last node visited at each level so updates become easier."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2279,11 +2211,7 @@
                 "Since the digits are stored from most significant to least significant, addition is harder from the front.",
                 "Think about reversing access order without changing the original meaning of the numbers.",
                 "Stacks help process digits from the end so you can handle carry just like normal addition."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2393,11 +2321,7 @@
                 "If the node to delete is the first node, return the next node as the new head.",
                 "Otherwise, move to the node just before the position that must be removed.",
                 "Skip the target node by linking the previous node directly to the next node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2514,11 +2438,7 @@
                 "Some nodes to remove may appear at the beginning of the list, so the head can change.",
                 "A dummy node before the head makes pointer updates easier.",
                 "Traverse once and unlink every node whose value matches the target."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2635,11 +2555,7 @@
                 "This problem follows a repeating pattern: keep some nodes, then remove some nodes.",
                 "Move forward M nodes while keeping track of the last kept node.",
                 "Then delete the next N nodes by skipping them and reconnecting the kept part to the remaining list."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2756,11 +2672,7 @@
                 "If the list has only one node, removing the middle leaves an empty list.",
                 "Use slow and fast pointers to locate the middle while also tracking the node before it.",
                 "Once the middle is found, unlink it by updating the previous node's next pointer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2877,11 +2789,7 @@
                 "In an unsorted list, duplicates are not necessarily adjacent.",
                 "Use extra memory to remember which values have already been seen.",
                 "As you traverse, remove a node if its value has appeared before; otherwise keep it and record the value."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2998,11 +2906,7 @@
                 "A node should be removed if some larger value appears later in the list.",
                 "This becomes easier if you process nodes from right to left instead of left to right.",
                 "Consider reversing the list, keeping nodes that are at least the maximum seen so far, then reversing again."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3119,11 +3023,7 @@
                 "A zero-sum consecutive segment means the prefix sum repeats at two different positions.",
                 "Store prefix sums in a map so you can detect and remove such segments efficiently.",
                 "A dummy node at the front helps when the zero-sum segment starts from the head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3240,11 +3140,7 @@
                 "Start at the head and move one node at a time while counting positions.",
                 "Stop when your counter reaches the requested index.",
                 "If the traversal ends before that index, handle the position as invalid according to the problem rules."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3361,11 +3257,7 @@
                 "The intersection is based on shared node references, not equal values.",
                 "Two pointers can be used to balance the path lengths of both lists.",
                 "When a pointer reaches the end of one list, move it to the head of the other list."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3450,7 +3342,7 @@
             "outputFormat": "Return true if the linked list contains a cycle; otherwise, return false.",
             "solutions": [
                 {
-                    "title": "Floyd\u2019s Cycle Detection (Two Pointers)",
+                    "title": "Floyd’s Cycle Detection (Two Pointers)",
                     "language": "python",
                     "code": "import sys\nimport re\n\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\nclass Solution:\n    def hasCycle(self, head):\n        slow = head\n        fast = head\n\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n\n            if slow == fast:\n                return True\n\n        return False\n\n\ndef build_list(arr):\n    if not arr:\n        return None\n\n    head = ListNode(arr[0])\n    temp = head\n\n    for num in arr[1:]:\n        temp.next = ListNode(num)\n        temp = temp.next\n\n    return head\n\n\ndef create_cycle(head, pos):\n    if pos < 0 or head is None:\n        return\n\n    tail = head\n    cycle_node = None\n    index = 0\n\n    while tail.next:\n        if index == pos:\n            cycle_node = tail\n        tail = tail.next\n        index += 1\n\n    if index == pos:\n        cycle_node = tail\n\n    if cycle_node:\n        tail.next = cycle_node\n\n\ndef main():\n    input_data = sys.stdin.read()\n\n    nums = list(map(int, re.findall(r'-?\\d+', input_data)))\n\n    if not nums:\n        print(\"false\")\n        return\n\n    pos = nums[-1]\n    arr = nums[:-1]\n\n    head = build_list(arr)\n    create_cycle(head, pos)\n\n    sol = Solution()\n\n    print(\"true\" if sol.hasCycle(head) else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
@@ -3464,14 +3356,14 @@
                     "is_primary": false
                 },
                 {
-                    "title": "Floyd\u2019s Cycle Detection in C",
+                    "title": "Floyd’s Cycle Detection in C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\nstruct ListNode {\n    int val;\n    struct ListNode* next;\n};\n\nstruct ListNode* createNode(int val) {\n    struct ListNode* node = (struct ListNode*)malloc(sizeof(struct ListNode));\n    node->val = val;\n    node->next = NULL;\n    return node;\n}\n\nint extractNumbers(char *str, int arr[]) {\n    int i = 0, count = 0, n = strlen(str);\n\n    while (i < n) {\n        if (isdigit(str[i]) || (str[i] == '-' && i + 1 < n && isdigit(str[i + 1]))) {\n            int sign = 1;\n            if (str[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n            while (i < n && isdigit(str[i])) {\n                num = num * 10 + (str[i] - '0');\n                i++;\n            }\n\n            arr[count++] = sign * num;\n        } else {\n            i++;\n        }\n    }\n\n    return count;\n}\n\nstruct ListNode* buildList(int arr[], int n) {\n    if (n == 0) return NULL;\n\n    struct ListNode* head = createNode(arr[0]);\n    struct ListNode* tail = head;\n\n    for (int i = 1; i < n; i++) {\n        tail->next = createNode(arr[i]);\n        tail = tail->next;\n    }\n\n    return head;\n}\n\nvoid createCycle(struct ListNode* head, int pos) {\n    if (head == NULL || pos < 0) return;\n\n    struct ListNode* tail = head;\n    struct ListNode* cycleNode = NULL;\n    int index = 0;\n\n    while (tail->next != NULL) {\n        if (index == pos) cycleNode = tail;\n        tail = tail->next;\n        index++;\n    }\n\n    if (index == pos) cycleNode = tail;\n\n    if (cycleNode != NULL) {\n        tail->next = cycleNode;\n    }\n}\n\nint hasCycle(struct ListNode *head) {\n    struct ListNode *slow = head, *fast = head;\n\n    while (fast != NULL && fast->next != NULL) {\n        slow = slow->next;\n        fast = fast->next->next;\n\n        if (slow == fast) return 1;\n    }\n\n    return 0;\n}\n\nint main() {\n    char input[2000] = \"\";\n    char line[1000];\n    int nums[500];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    int count = extractNumbers(input, nums);\n\n    if (count == 0) {\n        printf(\"false\");\n        return 0;\n    }\n\n    int pos = nums[count - 1];\n    count--;\n\n    struct ListNode* head = buildList(nums, count);\n    createCycle(head, pos);\n\n    printf(hasCycle(head) ? \"true\" : \"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 },
                 {
-                    "title": "Floyd\u2019s Cycle Detection (C++)",
+                    "title": "Floyd’s Cycle Detection (C++)",
                     "language": "cpp",
                     "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <cctype>\nusing namespace std;\n\nstruct ListNode {\n    int val;\n    ListNode* next;\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nclass Solution {\npublic:\n    bool hasCycle(ListNode *head) {\n        ListNode *slow = head, *fast = head;\n\n        while (fast != nullptr && fast->next != nullptr) {\n            slow = slow->next;\n            fast = fast->next->next;\n\n            if (slow == fast) return true;\n        }\n\n        return false;\n    }\n};\n\nvector<int> extractNumbers(const string& s) {\n    vector<int> nums;\n    int i = 0, n = s.size();\n\n    while (i < n) {\n        if (isdigit(s[i]) || (s[i] == '-' && i + 1 < n && isdigit(s[i + 1]))) {\n            int sign = 1;\n            if (s[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n            while (i < n && isdigit(s[i])) {\n                num = num * 10 + (s[i] - '0');\n                i++;\n            }\n\n            nums.push_back(sign * num);\n        } else {\n            i++;\n        }\n    }\n\n    return nums;\n}\n\nListNode* buildList(const vector<int>& arr) {\n    if (arr.empty()) return nullptr;\n\n    ListNode* head = new ListNode(arr[0]);\n    ListNode* tail = head;\n\n    for (int i = 1; i < (int)arr.size(); i++) {\n        tail->next = new ListNode(arr[i]);\n        tail = tail->next;\n    }\n\n    return head;\n}\n\nvoid createCycle(ListNode* head, int pos) {\n    if (head == nullptr || pos < 0) return;\n\n    ListNode* tail = head;\n    ListNode* cycleNode = nullptr;\n    int index = 0;\n\n    while (tail->next != nullptr) {\n        if (index == pos) cycleNode = tail;\n        tail = tail->next;\n        index++;\n    }\n\n    if (index == pos) cycleNode = tail;\n\n    if (cycleNode != nullptr) {\n        tail->next = cycleNode;\n    }\n}\n\nint main() {\n    string input, line;\n\n    while (getline(cin, line)) {\n        if (!input.empty()) input += \" \";\n        input += line;\n    }\n\n    vector<int> nums = extractNumbers(input);\n\n    if (nums.empty()) {\n        cout << \"false\";\n        return 0;\n    }\n\n    int pos = nums.back();\n    nums.pop_back();\n\n    ListNode* head = buildList(nums);\n    createCycle(head, pos);\n\n    Solution sol;\n    cout << (sol.hasCycle(head) ? \"true\" : \"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
@@ -3482,11 +3374,7 @@
                 "A cycle means some node can be reached again by following next pointers.",
                 "Use two pointers moving at different speeds through the list.",
                 "If the slow and fast pointers ever meet, a cycle exists."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3603,11 +3491,7 @@
                 "Because the list is sorted, duplicates appear next to each other.",
                 "Compare the current node with the next node while traversing.",
                 "When both values match, skip the next node; otherwise move forward."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3692,7 +3576,7 @@
             "outputFormat": "Return the reference to the node where the cycle begins. If there is no cycle, return null.",
             "solutions": [
                 {
-                    "title": "Floyd\u2019s Cycle Detection with Entry Point",
+                    "title": "Floyd’s Cycle Detection with Entry Point",
                     "language": "python",
                     "code": "import sys\nimport re\n\n\nclass ListNode:\n    def __init__(self, val=0):\n        self.val = val\n        self.next = None\n\n\nclass Solution:\n    def detectCycle(self, head):\n        slow = head\n        fast = head\n\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n\n            if slow == fast:\n                entry = head\n                while entry != slow:\n                    entry = entry.next\n                    slow = slow.next\n                return entry\n\n        return None\n\n\ndef build_list(arr):\n    if not arr:\n        return None\n\n    head = ListNode(arr[0])\n    temp = head\n\n    for num in arr[1:]:\n        temp.next = ListNode(num)\n        temp = temp.next\n\n    return head\n\n\ndef create_cycle(head, pos):\n    if pos < 0 or not head:\n        return\n\n    tail = head\n    cycle_node = None\n    index = 0\n\n    while tail.next:\n        if index == pos:\n            cycle_node = tail\n        tail = tail.next\n        index += 1\n\n    if index == pos:\n        cycle_node = tail\n\n    if cycle_node:\n        tail.next = cycle_node\n\n\ndef extract_numbers(text):\n    return list(map(int, re.findall(r'-?\\d+', text)))\n\n\ndef main():\n    input_text = sys.stdin.read()\n\n    nums = extract_numbers(input_text)\n\n    pos = nums[-1]\n    list_vals = nums[:-1]\n\n    head = build_list(list_vals)\n\n    create_cycle(head, pos)\n\n    sol = Solution()\n    result = sol.detectCycle(head)\n\n    if result:\n        print(f\"Node with value {result.val}\")\n    else:\n        print(\"null\")\n\n\nif __name__ == \"__main__\":\n    main()",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
@@ -3706,14 +3590,14 @@
                     "is_primary": false
                 },
                 {
-                    "title": "Floyd\u2019s Cycle Detection in C",
+                    "title": "Floyd’s Cycle Detection in C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\nstruct ListNode {\n    int val;\n    struct ListNode* next;\n};\n\nstruct ListNode* createNode(int val) {\n    struct ListNode* node = (struct ListNode*)malloc(sizeof(struct ListNode));\n    node->val = val;\n    node->next = NULL;\n    return node;\n}\n\nstruct ListNode* buildList(int arr[], int n) {\n    if (n == 0) return NULL;\n\n    struct ListNode* head = createNode(arr[0]);\n    struct ListNode* temp = head;\n\n    for (int i = 1; i < n; i++) {\n        temp->next = createNode(arr[i]);\n        temp = temp->next;\n    }\n\n    return head;\n}\n\nvoid createCycle(struct ListNode* head, int pos) {\n    if (pos < 0 || head == NULL) return;\n\n    struct ListNode* tail = head;\n    struct ListNode* cycleNode = NULL;\n    int index = 0;\n\n    while (tail->next != NULL) {\n        if (index == pos) cycleNode = tail;\n        tail = tail->next;\n        index++;\n    }\n\n    if (index == pos) cycleNode = tail;\n\n    if (cycleNode != NULL)\n        tail->next = cycleNode;\n}\n\nstruct ListNode* detectCycle(struct ListNode* head) {\n\n    struct ListNode *slow = head, *fast = head;\n\n    while (fast && fast->next) {\n\n        slow = slow->next;\n        fast = fast->next->next;\n\n        if (slow == fast) {\n\n            struct ListNode* entry = head;\n\n            while (entry != slow) {\n                entry = entry->next;\n                slow = slow->next;\n            }\n\n            return entry;\n        }\n    }\n\n    return NULL;\n}\n\nint extractNumbers(char *str, int nums[]) {\n    int i = 0, count = 0, len = strlen(str);\n\n    while (i < len) {\n\n        if (isdigit(str[i]) || (str[i] == '-' && isdigit(str[i+1]))) {\n\n            int sign = 1;\n            if (str[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n\n            while (i < len && isdigit(str[i])) {\n                num = num * 10 + (str[i] - '0');\n                i++;\n            }\n\n            nums[count++] = sign * num;\n        }\n        else {\n            i++;\n        }\n    }\n\n    return count;\n}\n\nint main() {\n\n    char input[2000] = \"\";\n    char line[1000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    int nums[1000];\n    int count = extractNumbers(input, nums);\n\n    int pos = nums[count - 1];\n    int listSize = count - 1;\n\n    struct ListNode* head = buildList(nums, listSize);\n\n    createCycle(head, pos);\n\n    struct ListNode* result = detectCycle(head);\n\n    if (result)\n        printf(\"Node with value %d\", result->val);\n    else\n        printf(\"null\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 },
                 {
-                    "title": "Floyd\u2019s Cycle Detection with Entry Point (C++)",
+                    "title": "Floyd’s Cycle Detection with Entry Point (C++)",
                     "language": "cpp",
                     "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <cctype>\nusing namespace std;\n\nstruct ListNode {\n    int val;\n    ListNode* next;\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nclass Solution {\npublic:\n    ListNode* detectCycle(ListNode* head) {\n        ListNode *slow = head, *fast = head;\n\n        while (fast && fast->next) {\n            slow = slow->next;\n            fast = fast->next->next;\n\n            if (slow == fast) {\n                ListNode* entry = head;\n                while (entry != slow) {\n                    entry = entry->next;\n                    slow = slow->next;\n                }\n                return entry;\n            }\n        }\n\n        return nullptr;\n    }\n};\n\nvector<int> extractNumbers(const string& s) {\n    vector<int> nums;\n    int i = 0, n = (int)s.size();\n\n    while (i < n) {\n        if (isdigit(s[i]) || (s[i] == '-' && i + 1 < n && isdigit(s[i + 1]))) {\n            int sign = 1;\n            if (s[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n            while (i < n && isdigit(s[i])) {\n                num = num * 10 + (s[i] - '0');\n                i++;\n            }\n\n            nums.push_back(sign * num);\n        } else {\n            i++;\n        }\n    }\n\n    return nums;\n}\n\nListNode* buildList(const vector<int>& arr) {\n    if (arr.empty()) return nullptr;\n\n    ListNode* head = new ListNode(arr[0]);\n    ListNode* tail = head;\n\n    for (int i = 1; i < (int)arr.size(); i++) {\n        tail->next = new ListNode(arr[i]);\n        tail = tail->next;\n    }\n\n    return head;\n}\n\nvoid createCycle(ListNode* head, int pos) {\n    if (head == nullptr || pos < 0) return;\n\n    ListNode* tail = head;\n    ListNode* cycleNode = nullptr;\n    int index = 0;\n\n    while (tail->next != nullptr) {\n        if (index == pos) cycleNode = tail;\n        tail = tail->next;\n        index++;\n    }\n\n    if (index == pos) cycleNode = tail;\n\n    if (cycleNode != nullptr) {\n        tail->next = cycleNode;\n    }\n}\n\nint main() {\n    string input, line;\n\n    while (getline(cin, line)) {\n        if (!input.empty()) input += \" \";\n        input += line;\n    }\n\n    size_t lb = input.find('[');\n    size_t rb = input.find(']', lb);\n\n    vector<int> listVals;\n    if (lb != string::npos && rb != string::npos && rb > lb) {\n        listVals = extractNumbers(input.substr(lb, rb - lb + 1));\n    }\n\n    string afterList = (rb != string::npos) ? input.substr(rb + 1) : \"\";\n    vector<int> extra = extractNumbers(afterList);\n    int pos = extra.empty() ? -1 : extra[0];\n\n    ListNode* head = buildList(listVals);\n    createCycle(head, pos);\n\n    Solution sol;\n    ListNode* ans = sol.detectCycle(head);\n\n    if (ans) cout << \"Node with value \" << ans->val;\n    else cout << \"null\";\n\n    return 0;\n}",
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
@@ -3724,11 +3608,7 @@
                 "First detect whether a cycle exists using slow and fast pointers.",
                 "After the first meeting point, move one pointer back to the head.",
                 "Advance both pointers one step at a time; the node where they meet again is the cycle start."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3806,7 +3686,7 @@
                 {
                     "input": "list = [1,7,5,1,9,2,5,1]",
                     "expected_output": "[7,9,9,9,0,5,0,0]",
-                    "explanation": "Each node\u2019s next greater value is calculated according to the original list order."
+                    "explanation": "Each node’s next greater value is calculated according to the original list order."
                 }
             ],
             "inputFormat": "Input is the head node of a singly linked list.",
@@ -3845,11 +3725,7 @@
                 "For each node, you need the next node to the right with a strictly larger value.",
                 "It is often easier to convert linked list values into an array first.",
                 "Use a decreasing monotonic stack of indices so you can fill answers when a larger value appears."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3966,11 +3842,7 @@
                 "Twin nodes are paired from the start and end moving inward.",
                 "You need an efficient way to access the second half in reverse order.",
                 "Find the middle, reverse one half of the list, then compare paired sums to get the maximum."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4087,11 +3959,7 @@
                 "You need to identify every node that belongs to a loop, not just whether a cycle exists.",
                 "Track visited nodes so you can detect when traversal returns to a previously seen node.",
                 "Once a repeated node is found, walk the cycle once more to collect all nodes in that loop."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4208,11 +4076,7 @@
                 "A singly linked list only moves forward, so reverse output needs extra help.",
                 "You can either use recursion or push node values onto a stack during traversal.",
                 "After reaching the end, print the stored values in reverse order."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4280,12 +4144,12 @@
                 {
                     "input": "list = [1,2,3]",
                     "expected_output": "[3,2,1]",
-                    "explanation": "The list is reversed: 1\u21922\u21923 becomes 3\u21922\u21921."
+                    "explanation": "The list is reversed: 1→2→3 becomes 3→2→1."
                 },
                 {
                     "input": "list = [5,10,15]",
                     "expected_output": "[15,10,5]",
-                    "explanation": "Reversing the list gives 15\u219210\u21925."
+                    "explanation": "Reversing the list gives 15→10→5."
                 },
                 {
                     "input": "list = [7]",
@@ -4329,11 +4193,7 @@
                 "Reversing means each node should point to its previous node instead of its next node.",
                 "Keep track of three things while traversing: previous, current, and next.",
                 "After the loop finishes, the previous pointer will be the new head."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4401,12 +4261,12 @@
                 {
                     "input": "list = [1,2,3]",
                     "expected_output": "[3,2,1]",
-                    "explanation": "Reversing 1\u21922\u21923 gives 3\u21922\u21921."
+                    "explanation": "Reversing 1→2→3 gives 3→2→1."
                 },
                 {
                     "input": "list = [4,5,6]",
                     "expected_output": "[6,5,4]",
-                    "explanation": "Reversing 4\u21925\u21926 gives 6\u21925\u21924."
+                    "explanation": "Reversing 4→5→6 gives 6→5→4."
                 },
                 {
                     "input": "list = [7]",
@@ -4450,11 +4310,7 @@
                 "Think about changing the direction of links one node at a time.",
                 "Do not lose the rest of the list when you update current.next.",
                 "Store the next node first, reverse the pointer, then move all pointers forward."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4571,11 +4427,7 @@
                 "You need to compare values from the front and back of the list.",
                 "A common way is to find the middle and reverse the second half.",
                 "Then compare both halves node by node to decide whether the sequence reads the same both ways."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4692,16 +4544,12 @@
                 "Only the nodes between the given left and right positions should be reversed.",
                 "Find the node just before the reversal starts so you can reconnect the list later.",
                 "Use pointer rewiring inside the segment, then attach the reversed part back to the untouched nodes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
             "title": "Reorder a Linked List",
-            "content": "Given the head of a singly linked list, reorder the list to follow the pattern: L0 \u2192 Ln \u2192 L1 \u2192 Ln-1 \u2192 L2 \u2192 Ln-2 \u2192 \u2026 and so on. You must do this in-place without altering the node values.",
+            "content": "Given the head of a singly linked list, reorder the list to follow the pattern: L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → … and so on. You must do this in-place without altering the node values.",
             "level": "subtopic",
             "unit_name": "Linked Lists",
             "subunit_name": "Reversal and Two Pointer Techniques",
@@ -4764,12 +4612,12 @@
                 {
                     "input": "list = [1,2,3,4]",
                     "expected_output": "[1,4,2,3]",
-                    "explanation": "After reordering: 1\u21924\u21922\u21923."
+                    "explanation": "After reordering: 1→4→2→3."
                 },
                 {
                     "input": "list = [1,2,3]",
                     "expected_output": "[1,3,2]",
-                    "explanation": "After reordering: 1\u21923\u21922."
+                    "explanation": "After reordering: 1→3→2."
                 },
                 {
                     "input": "list = [1,2]",
@@ -4813,11 +4661,7 @@
                 "The final order alternates between nodes from the front and the back of the list.",
                 "Split the list into two halves, then reverse the second half.",
                 "Merge the two halves by taking one node from the first list, then one from the reversed second list."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4934,11 +4778,7 @@
                 "Decide whether the swap is based on positions, values, or kth nodes from both ends.",
                 "Find the exact nodes that need to be swapped before changing links or values.",
                 "Sometimes swapping node values is simpler than swapping the actual node connections."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5006,17 +4846,17 @@
                 {
                     "input": "list = [1,2,3,4,5], k = 2",
                     "expected_output": "[2,1,4,3,5]",
-                    "explanation": "Reverse every 2 nodes: [1,2]\u2192[2,1], [3,4]\u2192[4,3], last node remains."
+                    "explanation": "Reverse every 2 nodes: [1,2]→[2,1], [3,4]→[4,3], last node remains."
                 },
                 {
                     "input": "list = [1,2,3,4,5], k = 3",
                     "expected_output": "[3,2,1,4,5]",
-                    "explanation": "Reverse first 3 nodes: [1,2,3]\u2192[3,2,1], remaining nodes stay."
+                    "explanation": "Reverse first 3 nodes: [1,2,3]→[3,2,1], remaining nodes stay."
                 },
                 {
                     "input": "list = [1,2,3,4,5,6], k = 3",
                     "expected_output": "[3,2,1,6,5,4]",
-                    "explanation": "Reverse every 3 nodes: [1,2,3]\u2192[3,2,1], [4,5,6]\u2192[6,5,4]."
+                    "explanation": "Reverse every 3 nodes: [1,2,3]→[3,2,1], [4,5,6]→[6,5,4]."
                 }
             ],
             "inputFormat": "The input consists of the head node of a singly linked list and an integer k.",
@@ -5055,11 +4895,7 @@
                 "Process the list in blocks of size k instead of reversing the whole list at once.",
                 "Before reversing, check whether a full group of k nodes is available.",
                 "Reverse each valid group and connect it back to the previous and next parts of the list."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5176,11 +5012,7 @@
                 "The list is divided into groups of length 1, 2, 3, 4 and so on.",
                 "For each group, first determine its actual size because the last group may be shorter.",
                 "Reverse only the groups whose actual length is even, then reconnect everything carefully."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5297,11 +5129,7 @@
                 "Linked lists are not efficient for random access, so avoid array-style sorting logic directly on nodes.",
                 "Merge sort works especially well because splitting and merging can be done with pointers.",
                 "Use slow and fast pointers to split the list, sort both halves recursively, then merge them."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5418,11 +5246,7 @@
                 "Both input lists are already sorted, so compare their current heads each time.",
                 "Attach the smaller node to the answer list and move that list forward.",
                 "A dummy starting node makes the merge logic much cleaner."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5539,11 +5363,7 @@
                 "You need to know how many times each value appears while traversing the list.",
                 "A hash map or dictionary is useful for counting occurrences.",
                 "After counting, output the frequencies in the format expected by the problem."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5660,11 +5480,7 @@
                 "The game result depends on comparing linked list values according to the given rules.",
                 "Traverse the list in the required grouping or pairing pattern and maintain both players' scores.",
                 "After processing all rounds, compare the totals or wins to determine the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5781,11 +5597,7 @@
                 "This is another merge-style problem using the sorted order of both lists.",
                 "At each step, choose the smaller current node from the two lists.",
                 "When one list ends, attach the remaining part of the other list directly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5902,11 +5714,7 @@
                 "Each copied node must preserve both next and random relationships.",
                 "You need a way to connect original nodes to their clones while building the copy.",
                 "A hash map from original node to copied node, or the interleaving method, can help set random pointers correctly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6023,11 +5831,7 @@
                 "A node may have a child list that must be inserted between the node and its next node.",
                 "Depth-first traversal helps flatten child levels before continuing to the next sibling.",
                 "While flattening, remember to update both next and prev pointers correctly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6144,11 +5948,7 @@
                 "Because the linked list is sorted, the middle element should become the tree root.",
                 "Use slow and fast pointers to find the middle node for the current sublist.",
                 "Recursively build the left subtree from the left half and the right subtree from the right half."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6265,11 +6065,7 @@
                 "You need fast lookup by key and fast updates to recency order.",
                 "A hash map gives O(1) access to nodes, and a doubly linked list keeps the usage order.",
                 "Whenever a key is used, move its node to the most recent side; when capacity is full, remove the least recent node."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6386,11 +6182,7 @@
                 "The cache must track both access frequency and recency among keys with the same frequency.",
                 "Think about combining hash maps with linked lists grouped by frequency.",
                 "On every get or put, update the node's frequency and move it to the correct frequency list in O(1)."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6507,11 +6299,7 @@
                 "You need to support increment, decrement, and retrieving min/max keys efficiently.",
                 "Keys with the same count can be grouped together in the same bucket.",
                 "A doubly linked list of count buckets plus a hash map from key to bucket can keep all operations in O(1)."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "mcq_single",
@@ -7420,7 +7208,7 @@
             ],
             "mcq_options": [
                 {
-                    "text": "Copy next node\u2019s data and delete next node",
+                    "text": "Copy next node’s data and delete next node",
                     "is_correct": true
                 },
                 {
@@ -8001,7 +7789,7 @@
         {
             "type": "mcq_single",
             "title": "Reorder List",
-            "content": "Reordering a linked list in pattern L0\u2192Ln\u2192L1\u2192Ln-1\u2192\u2026 requires:",
+            "content": "Reordering a linked list in pattern L0→Ln→L1→Ln-1→… requires:",
             "level": "subtopic",
             "unit_name": "Linked Lists",
             "subunit_name": "Reversal and Two Pointer Techniques",
@@ -8245,7 +8033,7 @@
             ],
             "mcq_options": [
                 {
-                    "text": "Floyd\u2019s Tortoise and Hare (slow and fast pointers)",
+                    "text": "Floyd’s Tortoise and Hare (slow and fast pointers)",
                     "is_correct": true
                 },
                 {
@@ -9367,7 +9155,7 @@
             ],
             "mcq_options": [
                 {
-                    "text": "Use Floyd\u2019s slow and fast pointers",
+                    "text": "Use Floyd’s slow and fast pointers",
                     "is_correct": true
                 },
                 {

@@ -1,2228 +1,2200 @@
 {
-    "name": "Selectors & Specificity",
-    "subject_short_code": "HTMLCSS100",
-    "order_index": 10,
-    "sub_units": [
+  "name": "Selectors & Specificity",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 10,
+  "sub_units": [
+    {
+      "name": "Basic Selectors",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Basic Selectors",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Basic Selectors",
-                    "video_link": "https://www.youtube.com/results?search_query=Basic+Selectors+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Basic Selectors in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Basic Selectors Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Basic+Selectors+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Basic Selectors."
-                }
-            ]
+          "title": "Introduction to Basic Selectors",
+          "video_link": "https://www.youtube.com/results?search_query=Basic+Selectors+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Basic Selectors in HTML/CSS."
         },
         {
-            "name": "Advanced Selectors",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Advanced Selectors",
-                    "video_link": "https://www.youtube.com/results?search_query=Advanced+Selectors+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Selectors in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Advanced Selectors Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Advanced+Selectors+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Advanced Selectors."
-                }
-            ]
-        },
-        {
-            "name": "Combinators",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Combinators",
-                    "video_link": "https://www.youtube.com/results?search_query=Combinators+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Combinators in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Combinators Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Combinators+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Combinators."
-                }
-            ]
-        },
-        {
-            "name": "Specificity & Cascade",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Specificity & Cascade",
-                    "video_link": "https://www.youtube.com/results?search_query=Specificity+%26+Cascade+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Specificity & Cascade in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Specificity & Cascade Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Specificity+%26+Cascade+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Specificity & Cascade."
-                }
-            ]
+          "title": "Advanced Basic Selectors Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Basic+Selectors+html+css",
+          "ai_context": "In-depth explanation and practical examples for Basic Selectors."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Advanced Selectors",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Element Selector",
-            "content": "Which CSS selector is used to target all elements of a specific HTML tag?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "ID selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "Universal selector only",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Advanced Selectors",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Selectors+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Selectors in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "Class Selector Symbol",
-            "content": "Which symbol is used for a class selector in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ".",
-                    "is_correct": true
-                },
-                {
-                    "text": "#",
-                    "is_correct": false
-                },
-                {
-                    "text": "*",
-                    "is_correct": false
-                },
-                {
-                    "text": "@",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "ID Selector Symbol",
-            "content": "Which symbol is used for an ID selector in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "#",
-                    "is_correct": true
-                },
-                {
-                    "text": ".",
-                    "is_correct": false
-                },
-                {
-                    "text": "&",
-                    "is_correct": false
-                },
-                {
-                    "text": "$",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Class Selector Usage",
-            "content": "What does a class selector do in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It selects multiple elements with the same class name",
-                    "is_correct": true
-                },
-                {
-                    "text": "It selects only one unique element",
-                    "is_correct": false
-                },
-                {
-                    "text": "It selects all HTML tags",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes elements from DOM",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "ID Selector Usage",
-            "content": "Why is the ID selector used in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To target a unique element on a page",
-                    "is_correct": true
-                },
-                {
-                    "text": "To select multiple elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "To style all elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create animations",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Specificity Rule Order",
-            "content": "Which CSS selector has the highest specificity?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "ID selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "Universal selector",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Selector Combination",
-            "content": "What happens if an element matches both class and ID selectors?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "ID selector styles take priority",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector always wins",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both cancel each other out",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browser ignores both",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Universal Selector",
-            "content": "Which CSS selector is used to select all elements on a page?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "*",
-                    "is_correct": true
-                },
-                {
-                    "text": "#",
-                    "is_correct": false
-                },
-                {
-                    "text": ".",
-                    "is_correct": false
-                },
-                {
-                    "text": "@",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Group Selector Purpose",
-            "content": "What is the purpose of a group selector in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To apply the same styles to multiple selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "To select only one element",
-                    "is_correct": false
-                },
-                {
-                    "text": "To remove elements from DOM",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create animations",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Pseudo-class Example",
-            "content": "Which of the following is a valid CSS pseudo-class?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ":hover",
-                    "is_correct": true
-                },
-                {
-                    "text": "::div",
-                    "is_correct": false
-                },
-                {
-                    "text": "#hover",
-                    "is_correct": false
-                },
-                {
-                    "text": ".hover()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Attribute Selector Usage",
-            "content": "What does an attribute selector do in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Selects elements based on attribute values",
-                    "is_correct": true
-                },
-                {
-                    "text": "Selects elements by tag name only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Selects elements by ID only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Selects elements randomly",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "nth-child Selector",
-            "content": "What does :nth-child(n) pseudo-class select?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Elements based on their position in a parent",
-                    "is_correct": true
-                },
-                {
-                    "text": "Only first element on page",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only last element on page",
-                    "is_correct": false
-                },
-                {
-                    "text": "Random elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Attribute Selector Example",
-            "content": "Which of the following is a correct attribute selector?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "input[type='text']",
-                    "is_correct": true
-                },
-                {
-                    "text": "input.type.text",
-                    "is_correct": false
-                },
-                {
-                    "text": "input#type=text",
-                    "is_correct": false
-                },
-                {
-                    "text": "input(type-text)",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Pseudo-class Behavior",
-            "content": "What happens when :focus pseudo-class is applied?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It styles an element when it receives focus",
-                    "is_correct": true
-                },
-                {
-                    "text": "It deletes the element",
-                    "is_correct": false
-                },
-                {
-                    "text": "It hides the element permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "It changes HTML structure",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Descendant Selector",
-            "content": "Which CSS selector is used to select elements inside another element?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Descendant selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "Child selector only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Sibling selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "Universal selector",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Child Selector Symbol",
-            "content": "Which symbol is used for the child selector in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ">",
-                    "is_correct": true
-                },
-                {
-                    "text": "+",
-                    "is_correct": false
-                },
-                {
-                    "text": "~",
-                    "is_correct": false
-                },
-                {
-                    "text": "*",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Adjacent Sibling Selector",
-            "content": "Which selector targets the immediately next sibling element?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "+",
-                    "is_correct": true
-                },
-                {
-                    "text": "~",
-                    "is_correct": false
-                },
-                {
-                    "text": ">",
-                    "is_correct": false
-                },
-                {
-                    "text": "#",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Descendant Selector Behavior",
-            "content": "What does the descendant selector (space) do in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Selects all nested elements inside a parent",
-                    "is_correct": true
-                },
-                {
-                    "text": "Selects only direct children",
-                    "is_correct": false
-                },
-                {
-                    "text": "Selects only siblings",
-                    "is_correct": false
-                },
-                {
-                    "text": "Selects only first element",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "General Sibling Selector",
-            "content": "What does the general sibling selector (~) select?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "All siblings after a specified element",
-                    "is_correct": true
-                },
-                {
-                    "text": "Only direct child elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only parent elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only first child element",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Child vs Descendant Selector",
-            "content": "What is the main difference between child (>) and descendant selectors?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Child selects direct children, descendant selects all nested levels",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both work exactly the same",
-                    "is_correct": false
-                },
-                {
-                    "text": "Descendant is faster than child",
-                    "is_correct": false
-                },
-                {
-                    "text": "Child selects siblings only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Sibling Selector Usage",
-            "content": "Which scenario best describes the use of the adjacent sibling selector (+)?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Styling the element immediately after another element",
-                    "is_correct": true
-                },
-                {
-                    "text": "Styling all elements inside a div",
-                    "is_correct": false
-                },
-                {
-                    "text": "Styling parent elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Styling only IDs",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "CSS Specificity Meaning",
-            "content": "What does CSS specificity determine?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Which CSS rule will be applied when multiple rules target the same element",
-                    "is_correct": true
-                },
-                {
-                    "text": "How fast a webpage loads",
-                    "is_correct": false
-                },
-                {
-                    "text": "How HTML is structured",
-                    "is_correct": false
-                },
-                {
-                    "text": "How JavaScript runs",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Inheritance in CSS",
-            "content": "What is inheritance in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Some properties are passed from parent to child elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "All CSS properties are always overridden",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only IDs can be inherited",
-                    "is_correct": false
-                },
-                {
-                    "text": "Inheritance is not used in CSS",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Cascade Behavior",
-            "content": "What does the CSS cascade define?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "How multiple CSS rules are resolved and applied",
-                    "is_correct": true
-                },
-                {
-                    "text": "How HTML is rendered in the browser",
-                    "is_correct": false
-                },
-                {
-                    "text": "How JavaScript executes functions",
-                    "is_correct": false
-                },
-                {
-                    "text": "How images are compressed",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Importance Rule",
-            "content": "What does !important do in CSS?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It overrides other CSS rules for the same property",
-                    "is_correct": true
-                },
-                {
-                    "text": "It disables the CSS rule",
-                    "is_correct": false
-                },
-                {
-                    "text": "It makes HTML invalid",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes specificity rules",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Cascade Priority Order",
-            "content": "Which CSS rule generally has the highest priority?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Inline styles with !important",
-                    "is_correct": true
-                },
-                {
-                    "text": "External CSS always wins",
-                    "is_correct": false
-                },
-                {
-                    "text": "Element selectors always win",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browser default styles",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Specificity Calculation",
-            "content": "Which selector has higher specificity?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "#id over .class over element selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element over ID over class",
-                    "is_correct": false
-                },
-                {
-                    "text": "Class over ID over element",
-                    "is_correct": false
-                },
-                {
-                    "text": "All selectors have equal priority",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Cascade Conflict Resolution",
-            "content": "How does the browser resolve conflicting CSS rules?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "By checking specificity, source order, and importance",
-                    "is_correct": true
-                },
-                {
-                    "text": "By randomly selecting a rule",
-                    "is_correct": false
-                },
-                {
-                    "text": "By ignoring all CSS rules",
-                    "is_correct": false
-                },
-                {
-                    "text": "By using only external CSS",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basic CSS Selectors",
-            "content": "Which of the following are valid basic CSS selectors?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element selector targets HTML tags like p, h1",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector uses . (dot) notation",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selector uses only # in HTML tags",
-                    "is_correct": false
-                },
-                {
-                    "text": "ID selector uses # symbol",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Selector Identification",
-            "content": "Which of the following statements about CSS selectors are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element selector applies styles to all elements of a tag",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector can be reused on multiple elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selector can be used multiple times per page",
-                    "is_correct": false
-                },
-                {
-                    "text": "ID selector is unique per page",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basic Selector Usage",
-            "content": "Which of the following statements about basic CSS selectors are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element selector targets tags like div, p",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector is written using a dot (.)",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selector uses only a period (.) symbol",
-                    "is_correct": false
-                },
-                {
-                    "text": "ID selector is written using # symbol",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Selector Differences",
-            "content": "Which of the following statements about selector differences are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Element selector has lowest specificity",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector has higher specificity than element selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selector has the lowest specificity",
-                    "is_correct": false
-                },
-                {
-                    "text": "ID selector has higher specificity than class selector",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Selector Usage Understanding",
-            "content": "Which of the following statements about CSS selector usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Class selectors are reusable across multiple elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selectors are unique and should not repeat",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element selectors only apply to one element",
-                    "is_correct": false
-                },
-                {
-                    "text": "Class selectors are more flexible than ID selectors",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Selector Concepts",
-            "content": "Which of the following statements about advanced selector concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "ID selector has higher specificity than class and element selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selector can be combined with other selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element selector overrides ID selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "Specificity determines which CSS rule is applied",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for Selectors",
-            "content": "Which of the following are best practices for using CSS selectors?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use class selectors for reusable styling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Avoid overusing ID selectors for styling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Always prefer ID selectors over classes",
-                    "is_correct": false
-                },
-                {
-                    "text": "Understand specificity for predictable styling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced CSS Selectors Basics",
-            "content": "Which of the following are valid advanced CSS selectors?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Group selectors allow styling multiple elements together",
-                    "is_correct": true
-                },
-                {
-                    "text": "Universal selector (*) selects all elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Attribute selectors are used only for JavaScript",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pseudo-classes define element states like hover",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Selector Types",
-            "content": "Which of the following statements about advanced selectors are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Group selector uses comma (,) to combine selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Universal selector applies styles to all elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Attribute selectors work only on IDs",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pseudo-classes represent element states",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Pseudo-class Basics",
-            "content": "Which of the following statements about pseudo-classes are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": ":hover applies when mouse is over an element",
-                    "is_correct": true
-                },
-                {
-                    "text": ":focus applies when an element is selected",
-                    "is_correct": true
-                },
-                {
-                    "text": ":nth-child is used for JavaScript loops",
-                    "is_correct": false
-                },
-                {
-                    "text": ":nth-child selects elements based on position",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Selector Usage",
-            "content": "Which of the following statements about advanced selectors usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Group selectors reduce repetitive CSS code",
-                    "is_correct": true
-                },
-                {
-                    "text": "Attribute selectors target elements based on attributes",
-                    "is_correct": true
-                },
-                {
-                    "text": "Universal selector is used only for debugging JavaScript",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pseudo-classes help in interactive styling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Selector Behavior Understanding",
-            "content": "Which of the following statements about selector behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Group selectors apply same styles to multiple elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Attribute selectors can match partial attribute values",
-                    "is_correct": true
-                },
-                {
-                    "text": ":hover works only on mobile devices",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pseudo-classes respond to user interactions",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Selector Concepts",
-            "content": "Which of the following statements about advanced CSS selector concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Attribute selectors can target elements based on attribute values",
-                    "is_correct": true
-                },
-                {
-                    "text": ":nth-child selects elements based on position in parent",
-                    "is_correct": true
-                },
-                {
-                    "text": "Universal selector overrides all other selectors always",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pseudo-classes enhance interactivity without JavaScript",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Selector Optimization",
-            "content": "Which of the following statements about optimizing selectors are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Advanced Selectors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Group selectors reduce repetition and improve maintainability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Attribute selectors improve dynamic styling capability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Pseudo-classes cannot be combined with other selectors",
-                    "is_correct": false
-                },
-                {
-                    "text": "Efficient selector usage improves CSS performance",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Combinators Basics",
-            "content": "Which of the following are valid CSS combinators?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Descendant selector targets nested elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Child selector uses > symbol",
-                    "is_correct": true
-                },
-                {
-                    "text": "Adjacent sibling uses # symbol",
-                    "is_correct": false
-                },
-                {
-                    "text": "General sibling selector uses ~ symbol",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Combinator Symbols",
-            "content": "Which of the following statements about CSS combinator symbols are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "> is used for direct child selection",
-                    "is_correct": true
-                },
-                {
-                    "text": "+ selects the next adjacent sibling",
-                    "is_correct": true
-                },
-                {
-                    "text": "~ selects only parent elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Space is used for descendant selection",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basic Combinator Usage",
-            "content": "Which of the following statements about combinator usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Descendant selector selects elements inside another element",
-                    "is_correct": true
-                },
-                {
-                    "text": "Child selector selects only direct children",
-                    "is_correct": true
-                },
-                {
-                    "text": "Adjacent sibling selector selects all siblings",
-                    "is_correct": false
-                },
-                {
-                    "text": "General sibling selector selects all matching siblings",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Combinator Differences",
-            "content": "Which of the following statements about combinator differences are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Descendant selector selects all nested elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Child selector selects only direct children",
-                    "is_correct": true
-                },
-                {
-                    "text": "+ selects all siblings after an element",
-                    "is_correct": false
-                },
-                {
-                    "text": "~ selects all siblings after an element",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Combinator Behavior",
-            "content": "Which of the following statements about combinator behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Child selector is more specific than descendant selector",
-                    "is_correct": true
-                },
-                {
-                    "text": "Adjacent sibling selector targets only the next element",
-                    "is_correct": true
-                },
-                {
-                    "text": "General sibling selector selects only one element",
-                    "is_correct": false
-                },
-                {
-                    "text": "Descendant selector applies to all levels of nesting",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Combinator Concepts",
-            "content": "Which of the following statements about advanced combinator concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Descendant selector can target deeply nested elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Child selector only targets direct children",
-                    "is_correct": true
-                },
-                {
-                    "text": "Adjacent sibling selector targets all siblings",
-                    "is_correct": false
-                },
-                {
-                    "text": "General sibling selector targets all following siblings",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Combinator Best Practices",
-            "content": "Which of the following statements about combinator best practices are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Combinators",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use child selector for strict hierarchy styling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use descendant selector for flexible targeting",
-                    "is_correct": true
-                },
-                {
-                    "text": "Avoid using combinators in CSS",
-                    "is_correct": false
-                },
-                {
-                    "text": "Understanding combinators improves CSS control",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Specificity Basics",
-            "content": "Which of the following statements about CSS specificity and cascade are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Specificity determines which CSS rule is applied",
-                    "is_correct": true
-                },
-                {
-                    "text": "Cascade decides how conflicting CSS rules are resolved",
-                    "is_correct": true
-                },
-                {
-                    "text": "CSS specificity is used for database queries",
-                    "is_correct": false
-                },
-                {
-                    "text": "Inheritance allows child elements to get styles from parent",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Cascade Basics",
-            "content": "Which of the following statements about CSS cascade behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Cascade decides final style when multiple rules apply",
-                    "is_correct": true
-                },
-                {
-                    "text": "Specificity is part of cascade rules",
-                    "is_correct": true
-                },
-                {
-                    "text": "Cascade is only used in JavaScript execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Later CSS rules can override earlier ones",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Inheritance Basics",
-            "content": "Which of the following statements about CSS inheritance are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Some CSS properties are inherited by child elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Color and font properties are commonly inherited",
-                    "is_correct": true
-                },
-                {
-                    "text": "All CSS properties are inherited by default",
-                    "is_correct": false
-                },
-                {
-                    "text": "Inheritance reduces need for repeated styling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Specificity Rules",
-            "content": "Which of the following statements about CSS specificity rules are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "ID selectors have higher specificity than class selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Class selectors have higher specificity than element selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Element selectors override ID selectors",
-                    "is_correct": false
-                },
-                {
-                    "text": "Specificity decides which rule is applied in conflicts",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Cascade and Inheritance",
-            "content": "Which of the following statements about cascade and inheritance are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Cascade resolves conflicts between CSS rules",
-                    "is_correct": true
-                },
-                {
-                    "text": "Inheritance passes styles from parent to child",
-                    "is_correct": true
-                },
-                {
-                    "text": "Cascade ignores specificity completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Not all properties are inherited",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Specificity Concepts",
-            "content": "Which of the following statements about advanced CSS specificity concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Inline styles have highest specificity",
-                    "is_correct": true
-                },
-                {
-                    "text": "ID selectors override class and element selectors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Universal selector has highest specificity",
-                    "is_correct": false
-                },
-                {
-                    "text": "Specificity is calculated based on selector types",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Cascade Behavior",
-            "content": "Which of the following statements about advanced cascade behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Specificity & Cascade",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Later CSS rules can override earlier rules if specificity is equal",
-                    "is_correct": true
-                },
-                {
-                    "text": "!important overrides normal specificity rules",
-                    "is_correct": true
-                },
-                {
-                    "text": "Cascade ignores rule order completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Inheritance works only when no explicit style is applied",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Style Elements Using Element Selector",
-            "content": "Create an HTML page and apply CSS using an element selector to style all <p> tags with a specific color and font size.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "All paragraph elements styled"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Element selector applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "p { color: red; }",
-                    "explanation": "Element selector targets all tags of same type."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Element Selector Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            color: blue;\n            font-size: 18px;\n        }\n    </style>\n</head>\n<body>\n    <p>Hello World</p>\n    <p>CSS Element Selector</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use tag name in CSS selector."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Style Elements Using Class Selector",
-            "content": "Create an HTML page and apply CSS using a class selector to style multiple elements with the same class.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Elements with same class styled"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Class selector working correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": ".box { color: green; }",
-                    "explanation": "Class selector targets multiple elements."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Class Selector Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        .box {\n            color: green;\n            font-size: 20px;\n        }\n    </style>\n</head>\n<body>\n    <p class=\"box\">Box 1</p>\n    <p class=\"box\">Box 2</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use dot (.) for class selector."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Style Element Using ID Selector",
-            "content": "Create an HTML page and apply CSS using an ID selector to style a single unique element.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Single element styled using ID"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "ID selector applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "#header { color: red; }",
-                    "explanation": "ID selector targets a unique element."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "ID Selector Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        #main {\n            color: red;\n            font-size: 22px;\n        }\n    </style>\n</head>\n<body>\n    <h1 id=\"main\">Hello ID Selector</h1>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use # for ID selector."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Combine Element and Class Selectors",
-            "content": "Create an HTML page that uses both element and class selectors to style different elements differently.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Multiple selector styles applied"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Element and class styles combined"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "p + .box styles",
-                    "explanation": "Multiple selectors can coexist."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Element + Class Selector",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            color: blue;\n        }\n        .box {\n            color: green;\n        }\n    </style>\n</head>\n<body>\n    <p>Hello Paragraph</p>\n    <p class=\"box\">Hello Class</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Combine tag and class selectors."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Styled Card Using Class Selectors",
-            "content": "Create a card layout using class selectors for multiple reusable components.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Card layout displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Reusable class-based styling applied"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": ".card styling",
-                    "explanation": "Class selectors are reusable."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML card UI.",
-            "solutions": [
-                {
-                    "title": "Card Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        .card {\n            border: 1px solid black;\n            padding: 10px;\n            margin: 10px;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"card\">Card 1</div>\n    <div class=\"card\">Card 2</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use reusable class styles."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Web Page Demonstrating Specificity",
-            "content": "Create an HTML page showing how element, class, and ID selectors behave with different specificity levels.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Different styles applied based on specificity"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Correct CSS priority behavior"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "ID > Class > Element",
-                    "explanation": "Specificity determines CSS priority."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML specificity demo.",
-            "solutions": [
-                {
-                    "title": "Specificity Demo",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p { color: blue; }\n        .text { color: green; }\n        #unique { color: red; }\n    </style>\n</head>\n<body>\n    <p id=\"unique\" class=\"text\">Specificity Test</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Remember ID has highest priority."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Complex Styled Dashboard Using All Selectors",
-            "content": "Create a dashboard using element, class, and ID selectors together and demonstrate CSS specificity in a real layout.",
-            "level": "subtopic",
-            "unit_name": "Selectors & Specificity",
-            "subunit_name": "Basic Selectors",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Dashboard layout displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper selector hierarchy applied"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Combined selectors usage",
-                    "explanation": "Real-world UI uses all selector types."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML dashboard UI.",
-            "solutions": [
-                {
-                    "title": "Dashboard with Selectors",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial; }\n        .panel { background: lightgray; padding: 10px; }\n        #main { color: red; }\n    </style>\n</head>\n<body>\n    <div id=\"main\" class=\"panel\">Dashboard</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine all selector types.",
-                "Observe specificity rules."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Advanced Selectors Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Selectors+html+css",
+          "ai_context": "In-depth explanation and practical examples for Advanced Selectors."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Combinators",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Combinators",
+          "video_link": "https://www.youtube.com/results?search_query=Combinators+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Combinators in HTML/CSS."
+        },
+        {
+          "title": "Advanced Combinators Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Combinators+html+css",
+          "ai_context": "In-depth explanation and practical examples for Combinators."
+        }
+      ]
+    },
+    {
+      "name": "Specificity & Cascade",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Specificity & Cascade",
+          "video_link": "https://www.youtube.com/results?search_query=Specificity+%26+Cascade+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Specificity & Cascade in HTML/CSS."
+        },
+        {
+          "title": "Advanced Specificity & Cascade Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Specificity+%26+Cascade+html+css",
+          "ai_context": "In-depth explanation and practical examples for Specificity & Cascade."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Element Selector",
+      "content": "Which CSS selector is used to target all elements of a specific HTML tag?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element selector",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector",
+          "is_correct": false
+        },
+        {
+          "text": "ID selector",
+          "is_correct": false
+        },
+        {
+          "text": "Universal selector only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Class Selector Symbol",
+      "content": "Which symbol is used for a class selector in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ".",
+          "is_correct": true
+        },
+        {
+          "text": "#",
+          "is_correct": false
+        },
+        {
+          "text": "*",
+          "is_correct": false
+        },
+        {
+          "text": "@",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ID Selector Symbol",
+      "content": "Which symbol is used for an ID selector in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "#",
+          "is_correct": true
+        },
+        {
+          "text": ".",
+          "is_correct": false
+        },
+        {
+          "text": "&",
+          "is_correct": false
+        },
+        {
+          "text": "$",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Class Selector Usage",
+      "content": "What does a class selector do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It selects multiple elements with the same class name",
+          "is_correct": true
+        },
+        {
+          "text": "It selects only one unique element",
+          "is_correct": false
+        },
+        {
+          "text": "It selects all HTML tags",
+          "is_correct": false
+        },
+        {
+          "text": "It removes elements from DOM",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ID Selector Usage",
+      "content": "Why is the ID selector used in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To target a unique element on a page",
+          "is_correct": true
+        },
+        {
+          "text": "To select multiple elements",
+          "is_correct": false
+        },
+        {
+          "text": "To style all elements",
+          "is_correct": false
+        },
+        {
+          "text": "To create animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Specificity Rule Order",
+      "content": "Which CSS selector has the highest specificity?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ID selector",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector",
+          "is_correct": false
+        },
+        {
+          "text": "Element selector",
+          "is_correct": false
+        },
+        {
+          "text": "Universal selector",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Selector Combination",
+      "content": "What happens if an element matches both class and ID selectors?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ID selector styles take priority",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector always wins",
+          "is_correct": false
+        },
+        {
+          "text": "Both cancel each other out",
+          "is_correct": false
+        },
+        {
+          "text": "Browser ignores both",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Universal Selector",
+      "content": "Which CSS selector is used to select all elements on a page?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "*",
+          "is_correct": true
+        },
+        {
+          "text": "#",
+          "is_correct": false
+        },
+        {
+          "text": ".",
+          "is_correct": false
+        },
+        {
+          "text": "@",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Group Selector Purpose",
+      "content": "What is the purpose of a group selector in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To apply the same styles to multiple selectors",
+          "is_correct": true
+        },
+        {
+          "text": "To select only one element",
+          "is_correct": false
+        },
+        {
+          "text": "To remove elements from DOM",
+          "is_correct": false
+        },
+        {
+          "text": "To create animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pseudo-class Example",
+      "content": "Which of the following is a valid CSS pseudo-class?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ":hover",
+          "is_correct": true
+        },
+        {
+          "text": "::div",
+          "is_correct": false
+        },
+        {
+          "text": "#hover",
+          "is_correct": false
+        },
+        {
+          "text": ".hover()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Attribute Selector Usage",
+      "content": "What does an attribute selector do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Selects elements based on attribute values",
+          "is_correct": true
+        },
+        {
+          "text": "Selects elements by tag name only",
+          "is_correct": false
+        },
+        {
+          "text": "Selects elements by ID only",
+          "is_correct": false
+        },
+        {
+          "text": "Selects elements randomly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "nth-child Selector",
+      "content": "What does :nth-child(n) pseudo-class select?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Elements based on their position in a parent",
+          "is_correct": true
+        },
+        {
+          "text": "Only first element on page",
+          "is_correct": false
+        },
+        {
+          "text": "Only last element on page",
+          "is_correct": false
+        },
+        {
+          "text": "Random elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Attribute Selector Example",
+      "content": "Which of the following is a correct attribute selector?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "input[type='text']",
+          "is_correct": true
+        },
+        {
+          "text": "input.type.text",
+          "is_correct": false
+        },
+        {
+          "text": "input#type=text",
+          "is_correct": false
+        },
+        {
+          "text": "input(type-text)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pseudo-class Behavior",
+      "content": "What happens when :focus pseudo-class is applied?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It styles an element when it receives focus",
+          "is_correct": true
+        },
+        {
+          "text": "It deletes the element",
+          "is_correct": false
+        },
+        {
+          "text": "It hides the element permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It changes HTML structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Descendant Selector",
+      "content": "Which CSS selector is used to select elements inside another element?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Descendant selector",
+          "is_correct": true
+        },
+        {
+          "text": "Child selector only",
+          "is_correct": false
+        },
+        {
+          "text": "Sibling selector",
+          "is_correct": false
+        },
+        {
+          "text": "Universal selector",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Child Selector Symbol",
+      "content": "Which symbol is used for the child selector in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ">",
+          "is_correct": true
+        },
+        {
+          "text": "+",
+          "is_correct": false
+        },
+        {
+          "text": "~",
+          "is_correct": false
+        },
+        {
+          "text": "*",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Adjacent Sibling Selector",
+      "content": "Which selector targets the immediately next sibling element?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "+",
+          "is_correct": true
+        },
+        {
+          "text": "~",
+          "is_correct": false
+        },
+        {
+          "text": ">",
+          "is_correct": false
+        },
+        {
+          "text": "#",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Descendant Selector Behavior",
+      "content": "What does the descendant selector (space) do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Selects all nested elements inside a parent",
+          "is_correct": true
+        },
+        {
+          "text": "Selects only direct children",
+          "is_correct": false
+        },
+        {
+          "text": "Selects only siblings",
+          "is_correct": false
+        },
+        {
+          "text": "Selects only first element",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "General Sibling Selector",
+      "content": "What does the general sibling selector (~) select?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All siblings after a specified element",
+          "is_correct": true
+        },
+        {
+          "text": "Only direct child elements",
+          "is_correct": false
+        },
+        {
+          "text": "Only parent elements",
+          "is_correct": false
+        },
+        {
+          "text": "Only first child element",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Child vs Descendant Selector",
+      "content": "What is the main difference between child (>) and descendant selectors?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Child selects direct children, descendant selects all nested levels",
+          "is_correct": true
+        },
+        {
+          "text": "Both work exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "Descendant is faster than child",
+          "is_correct": false
+        },
+        {
+          "text": "Child selects siblings only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sibling Selector Usage",
+      "content": "Which scenario best describes the use of the adjacent sibling selector (+)?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Styling the element immediately after another element",
+          "is_correct": true
+        },
+        {
+          "text": "Styling all elements inside a div",
+          "is_correct": false
+        },
+        {
+          "text": "Styling parent elements",
+          "is_correct": false
+        },
+        {
+          "text": "Styling only IDs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Specificity Meaning",
+      "content": "What does CSS specificity determine?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Which CSS rule will be applied when multiple rules target the same element",
+          "is_correct": true
+        },
+        {
+          "text": "How fast a webpage loads",
+          "is_correct": false
+        },
+        {
+          "text": "How HTML is structured",
+          "is_correct": false
+        },
+        {
+          "text": "How JavaScript runs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inheritance in CSS",
+      "content": "What is inheritance in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Some properties are passed from parent to child elements",
+          "is_correct": true
+        },
+        {
+          "text": "All CSS properties are always overridden",
+          "is_correct": false
+        },
+        {
+          "text": "Only IDs can be inherited",
+          "is_correct": false
+        },
+        {
+          "text": "Inheritance is not used in CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cascade Behavior",
+      "content": "What does the CSS cascade define?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How multiple CSS rules are resolved and applied",
+          "is_correct": true
+        },
+        {
+          "text": "How HTML is rendered in the browser",
+          "is_correct": false
+        },
+        {
+          "text": "How JavaScript executes functions",
+          "is_correct": false
+        },
+        {
+          "text": "How images are compressed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance Rule",
+      "content": "What does !important do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It overrides other CSS rules for the same property",
+          "is_correct": true
+        },
+        {
+          "text": "It disables the CSS rule",
+          "is_correct": false
+        },
+        {
+          "text": "It makes HTML invalid",
+          "is_correct": false
+        },
+        {
+          "text": "It removes specificity rules",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cascade Priority Order",
+      "content": "Which CSS rule generally has the highest priority?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline styles with !important",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS always wins",
+          "is_correct": false
+        },
+        {
+          "text": "Element selectors always win",
+          "is_correct": false
+        },
+        {
+          "text": "Browser default styles",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Specificity Calculation",
+      "content": "Which selector has higher specificity?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "#id over .class over element selector",
+          "is_correct": true
+        },
+        {
+          "text": "Element over ID over class",
+          "is_correct": false
+        },
+        {
+          "text": "Class over ID over element",
+          "is_correct": false
+        },
+        {
+          "text": "All selectors have equal priority",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cascade Conflict Resolution",
+      "content": "How does the browser resolve conflicting CSS rules?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By checking specificity, source order, and importance",
+          "is_correct": true
+        },
+        {
+          "text": "By randomly selecting a rule",
+          "is_correct": false
+        },
+        {
+          "text": "By ignoring all CSS rules",
+          "is_correct": false
+        },
+        {
+          "text": "By using only external CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic CSS Selectors",
+      "content": "Which of the following are valid basic CSS selectors?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element selector targets HTML tags like p, h1",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector uses . (dot) notation",
+          "is_correct": true
+        },
+        {
+          "text": "ID selector uses only # in HTML tags",
+          "is_correct": false
+        },
+        {
+          "text": "ID selector uses # symbol",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Selector Identification",
+      "content": "Which of the following statements about CSS selectors are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element selector applies styles to all elements of a tag",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector can be reused on multiple elements",
+          "is_correct": true
+        },
+        {
+          "text": "ID selector can be used multiple times per page",
+          "is_correct": false
+        },
+        {
+          "text": "ID selector is unique per page",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Selector Usage",
+      "content": "Which of the following statements about basic CSS selectors are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element selector targets tags like div, p",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector is written using a dot (.)",
+          "is_correct": true
+        },
+        {
+          "text": "ID selector uses only a period (.) symbol",
+          "is_correct": false
+        },
+        {
+          "text": "ID selector is written using # symbol",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Selector Differences",
+      "content": "Which of the following statements about selector differences are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element selector has lowest specificity",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector has higher specificity than element selector",
+          "is_correct": true
+        },
+        {
+          "text": "ID selector has the lowest specificity",
+          "is_correct": false
+        },
+        {
+          "text": "ID selector has higher specificity than class selector",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Selector Usage Understanding",
+      "content": "Which of the following statements about CSS selector usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Class selectors are reusable across multiple elements",
+          "is_correct": true
+        },
+        {
+          "text": "ID selectors are unique and should not repeat",
+          "is_correct": true
+        },
+        {
+          "text": "Element selectors only apply to one element",
+          "is_correct": false
+        },
+        {
+          "text": "Class selectors are more flexible than ID selectors",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Selector Concepts",
+      "content": "Which of the following statements about advanced selector concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ID selector has higher specificity than class and element selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Class selector can be combined with other selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Element selector overrides ID selector",
+          "is_correct": false
+        },
+        {
+          "text": "Specificity determines which CSS rule is applied",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Selectors",
+      "content": "Which of the following are best practices for using CSS selectors?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use class selectors for reusable styling",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid overusing ID selectors for styling",
+          "is_correct": true
+        },
+        {
+          "text": "Always prefer ID selectors over classes",
+          "is_correct": false
+        },
+        {
+          "text": "Understand specificity for predictable styling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced CSS Selectors Basics",
+      "content": "Which of the following are valid advanced CSS selectors?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Group selectors allow styling multiple elements together",
+          "is_correct": true
+        },
+        {
+          "text": "Universal selector (*) selects all elements",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute selectors are used only for JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Pseudo-classes define element states like hover",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Selector Types",
+      "content": "Which of the following statements about advanced selectors are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Group selector uses comma (,) to combine selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Universal selector applies styles to all elements",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute selectors work only on IDs",
+          "is_correct": false
+        },
+        {
+          "text": "Pseudo-classes represent element states",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pseudo-class Basics",
+      "content": "Which of the following statements about pseudo-classes are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ":hover applies when mouse is over an element",
+          "is_correct": true
+        },
+        {
+          "text": ":focus applies when an element is selected",
+          "is_correct": true
+        },
+        {
+          "text": ":nth-child is used for JavaScript loops",
+          "is_correct": false
+        },
+        {
+          "text": ":nth-child selects elements based on position",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Selector Usage",
+      "content": "Which of the following statements about advanced selectors usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Group selectors reduce repetitive CSS code",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute selectors target elements based on attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Universal selector is used only for debugging JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Pseudo-classes help in interactive styling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Selector Behavior Understanding",
+      "content": "Which of the following statements about selector behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Group selectors apply same styles to multiple elements",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute selectors can match partial attribute values",
+          "is_correct": true
+        },
+        {
+          "text": ":hover works only on mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "Pseudo-classes respond to user interactions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Selector Concepts",
+      "content": "Which of the following statements about advanced CSS selector concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Attribute selectors can target elements based on attribute values",
+          "is_correct": true
+        },
+        {
+          "text": ":nth-child selects elements based on position in parent",
+          "is_correct": true
+        },
+        {
+          "text": "Universal selector overrides all other selectors always",
+          "is_correct": false
+        },
+        {
+          "text": "Pseudo-classes enhance interactivity without JavaScript",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Selector Optimization",
+      "content": "Which of the following statements about optimizing selectors are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Advanced Selectors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Group selectors reduce repetition and improve maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute selectors improve dynamic styling capability",
+          "is_correct": true
+        },
+        {
+          "text": "Pseudo-classes cannot be combined with other selectors",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient selector usage improves CSS performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Combinators Basics",
+      "content": "Which of the following are valid CSS combinators?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Descendant selector targets nested elements",
+          "is_correct": true
+        },
+        {
+          "text": "Child selector uses > symbol",
+          "is_correct": true
+        },
+        {
+          "text": "Adjacent sibling uses # symbol",
+          "is_correct": false
+        },
+        {
+          "text": "General sibling selector uses ~ symbol",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Combinator Symbols",
+      "content": "Which of the following statements about CSS combinator symbols are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "> is used for direct child selection",
+          "is_correct": true
+        },
+        {
+          "text": "+ selects the next adjacent sibling",
+          "is_correct": true
+        },
+        {
+          "text": "~ selects only parent elements",
+          "is_correct": false
+        },
+        {
+          "text": "Space is used for descendant selection",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Combinator Usage",
+      "content": "Which of the following statements about combinator usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Descendant selector selects elements inside another element",
+          "is_correct": true
+        },
+        {
+          "text": "Child selector selects only direct children",
+          "is_correct": true
+        },
+        {
+          "text": "Adjacent sibling selector selects all siblings",
+          "is_correct": false
+        },
+        {
+          "text": "General sibling selector selects all matching siblings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Combinator Differences",
+      "content": "Which of the following statements about combinator differences are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Descendant selector selects all nested elements",
+          "is_correct": true
+        },
+        {
+          "text": "Child selector selects only direct children",
+          "is_correct": true
+        },
+        {
+          "text": "+ selects all siblings after an element",
+          "is_correct": false
+        },
+        {
+          "text": "~ selects all siblings after an element",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Combinator Behavior",
+      "content": "Which of the following statements about combinator behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Child selector is more specific than descendant selector",
+          "is_correct": true
+        },
+        {
+          "text": "Adjacent sibling selector targets only the next element",
+          "is_correct": true
+        },
+        {
+          "text": "General sibling selector selects only one element",
+          "is_correct": false
+        },
+        {
+          "text": "Descendant selector applies to all levels of nesting",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Combinator Concepts",
+      "content": "Which of the following statements about advanced combinator concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Descendant selector can target deeply nested elements",
+          "is_correct": true
+        },
+        {
+          "text": "Child selector only targets direct children",
+          "is_correct": true
+        },
+        {
+          "text": "Adjacent sibling selector targets all siblings",
+          "is_correct": false
+        },
+        {
+          "text": "General sibling selector targets all following siblings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Combinator Best Practices",
+      "content": "Which of the following statements about combinator best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Combinators",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use child selector for strict hierarchy styling",
+          "is_correct": true
+        },
+        {
+          "text": "Use descendant selector for flexible targeting",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using combinators in CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding combinators improves CSS control",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Specificity Basics",
+      "content": "Which of the following statements about CSS specificity and cascade are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Specificity determines which CSS rule is applied",
+          "is_correct": true
+        },
+        {
+          "text": "Cascade decides how conflicting CSS rules are resolved",
+          "is_correct": true
+        },
+        {
+          "text": "CSS specificity is used for database queries",
+          "is_correct": false
+        },
+        {
+          "text": "Inheritance allows child elements to get styles from parent",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Cascade Basics",
+      "content": "Which of the following statements about CSS cascade behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cascade decides final style when multiple rules apply",
+          "is_correct": true
+        },
+        {
+          "text": "Specificity is part of cascade rules",
+          "is_correct": true
+        },
+        {
+          "text": "Cascade is only used in JavaScript execution",
+          "is_correct": false
+        },
+        {
+          "text": "Later CSS rules can override earlier ones",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Inheritance Basics",
+      "content": "Which of the following statements about CSS inheritance are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Some CSS properties are inherited by child elements",
+          "is_correct": true
+        },
+        {
+          "text": "Color and font properties are commonly inherited",
+          "is_correct": true
+        },
+        {
+          "text": "All CSS properties are inherited by default",
+          "is_correct": false
+        },
+        {
+          "text": "Inheritance reduces need for repeated styling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Specificity Rules",
+      "content": "Which of the following statements about CSS specificity rules are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ID selectors have higher specificity than class selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Class selectors have higher specificity than element selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Element selectors override ID selectors",
+          "is_correct": false
+        },
+        {
+          "text": "Specificity decides which rule is applied in conflicts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Cascade and Inheritance",
+      "content": "Which of the following statements about cascade and inheritance are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cascade resolves conflicts between CSS rules",
+          "is_correct": true
+        },
+        {
+          "text": "Inheritance passes styles from parent to child",
+          "is_correct": true
+        },
+        {
+          "text": "Cascade ignores specificity completely",
+          "is_correct": false
+        },
+        {
+          "text": "Not all properties are inherited",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Specificity Concepts",
+      "content": "Which of the following statements about advanced CSS specificity concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline styles have highest specificity",
+          "is_correct": true
+        },
+        {
+          "text": "ID selectors override class and element selectors",
+          "is_correct": true
+        },
+        {
+          "text": "Universal selector has highest specificity",
+          "is_correct": false
+        },
+        {
+          "text": "Specificity is calculated based on selector types",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Cascade Behavior",
+      "content": "Which of the following statements about advanced cascade behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Specificity & Cascade",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Later CSS rules can override earlier rules if specificity is equal",
+          "is_correct": true
+        },
+        {
+          "text": "!important overrides normal specificity rules",
+          "is_correct": true
+        },
+        {
+          "text": "Cascade ignores rule order completely",
+          "is_correct": false
+        },
+        {
+          "text": "Inheritance works only when no explicit style is applied",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Style Elements Using Element Selector",
+      "content": "Create an HTML page and apply CSS using an element selector to style all <p> tags with a specific color and font size.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "All paragraph elements styled"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Element selector applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "p { color: red; }",
+          "explanation": "Element selector targets all tags of same type."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Element Selector Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            color: blue;\n            font-size: 18px;\n        }\n    </style>\n</head>\n<body>\n    <p>Hello World</p>\n    <p>CSS Element Selector</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use tag name in CSS selector."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Style Elements Using Class Selector",
+      "content": "Create an HTML page and apply CSS using a class selector to style multiple elements with the same class.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Elements with same class styled"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Class selector working correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": ".box { color: green; }",
+          "explanation": "Class selector targets multiple elements."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Class Selector Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        .box {\n            color: green;\n            font-size: 20px;\n        }\n    </style>\n</head>\n<body>\n    <p class=\"box\">Box 1</p>\n    <p class=\"box\">Box 2</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use dot (.) for class selector."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Style Element Using ID Selector",
+      "content": "Create an HTML page and apply CSS using an ID selector to style a single unique element.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Single element styled using ID"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "ID selector applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "#header { color: red; }",
+          "explanation": "ID selector targets a unique element."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "ID Selector Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        #main {\n            color: red;\n            font-size: 22px;\n        }\n    </style>\n</head>\n<body>\n    <h1 id=\"main\">Hello ID Selector</h1>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use # for ID selector."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Combine Element and Class Selectors",
+      "content": "Create an HTML page that uses both element and class selectors to style different elements differently.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Multiple selector styles applied"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Element and class styles combined"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "p + .box styles",
+          "explanation": "Multiple selectors can coexist."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Element + Class Selector",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            color: blue;\n        }\n        .box {\n            color: green;\n        }\n    </style>\n</head>\n<body>\n    <p>Hello Paragraph</p>\n    <p class=\"box\">Hello Class</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine tag and class selectors."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Styled Card Using Class Selectors",
+      "content": "Create a card layout using class selectors for multiple reusable components.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Card layout displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Reusable class-based styling applied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": ".card styling",
+          "explanation": "Class selectors are reusable."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML card UI.",
+      "solutions": [
+        {
+          "title": "Card Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        .card {\n            border: 1px solid black;\n            padding: 10px;\n            margin: 10px;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"card\">Card 1</div>\n    <div class=\"card\">Card 2</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use reusable class styles."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Web Page Demonstrating Specificity",
+      "content": "Create an HTML page showing how element, class, and ID selectors behave with different specificity levels.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Different styles applied based on specificity"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Correct CSS priority behavior"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "ID > Class > Element",
+          "explanation": "Specificity determines CSS priority."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML specificity demo.",
+      "solutions": [
+        {
+          "title": "Specificity Demo",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p { color: blue; }\n        .text { color: green; }\n        #unique { color: red; }\n    </style>\n</head>\n<body>\n    <p id=\"unique\" class=\"text\">Specificity Test</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Remember ID has highest priority."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Complex Styled Dashboard Using All Selectors",
+      "content": "Create a dashboard using element, class, and ID selectors together and demonstrate CSS specificity in a real layout.",
+      "level": "subtopic",
+      "unit_name": "Selectors & Specificity",
+      "subunit_name": "Basic Selectors",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Dashboard layout displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper selector hierarchy applied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Combined selectors usage",
+          "explanation": "Real-world UI uses all selector types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML dashboard UI.",
+      "solutions": [
+        {
+          "title": "Dashboard with Selectors",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial; }\n        .panel { background: lightgray; padding: 10px; }\n        #main { color: red; }\n    </style>\n</head>\n<body>\n    <div id=\"main\" class=\"panel\">Dashboard</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all selector types.",
+        "Observe specificity rules."
+      ]
+    }
+  ]
 }

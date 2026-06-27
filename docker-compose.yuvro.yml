@@ -3,8 +3,6 @@ services:
     build:
       context: ./yuvro-code-executer
       dockerfile: Dockerfile
-      args:
-        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8009:8009"  # Code executor (host: 8009)
       - "9002:9002"  # Prometheus metrics

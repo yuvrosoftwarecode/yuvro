@@ -278,7 +278,6 @@ const SubjectDetail: React.FC = () => {
       return (
         <StudentNotes
           subunitId={selectedTopic}
-          subunitName={selectedTopicTitle || 'Sub Unit'}
           mode="materials"
           sessionId={chatSessionId}
           onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
@@ -292,7 +291,6 @@ const SubjectDetail: React.FC = () => {
       return (
         <StudentNotes
           subunitId={selectedTopic}
-          subunitName={selectedTopicTitle || 'Sub Unit'}
           mode="my-notes"
           sessionId={chatSessionId}
           onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}

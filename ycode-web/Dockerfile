@@ -12,8 +12,6 @@ RUN apk add --no-cache curl && npm install && npm cache clean --force
 
 # Development stage
 FROM base as development
-# Cache-bust: forces COPY . . to always run with latest code
-ARG CACHEBUST=1
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
@@ -27,8 +25,6 @@ ARG VITE_GOOGLE_CLIENT_ID
 ARG VITE_DEPLOY_COMMIT_SHA
 ARG VITE_DEPLOY_BRANCH
 ARG VITE_DEPLOY_APP_VERSION
-# Cache-bust: must come AFTER the VITE_ ARGs so npm install stays cached
-ARG CACHEBUST=1
 # Expose them as env vars so Vite picks them up at build time
 ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL
 ENV VITE_CODE_EXECUTOR_BASE_URL=$VITE_CODE_EXECUTOR_BASE_URL

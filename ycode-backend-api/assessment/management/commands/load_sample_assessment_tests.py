@@ -6,9 +6,8 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from assessment.models import SkillTest, Contest, MockInterview, JobTest, CertificationExam, PredefinedInterviewQuestion
+from assessment.models import SkillTest, Contest, MockInterview, JobTest, CertificationExam
 from course.models import Course, Topic, Question
-from ai_assistant.models import AIAgent
 
 User = get_user_model()
 
@@ -53,17 +52,6 @@ class Command(BaseCommand):
         # Determine fixtures directory based on deploy_env
         here = Path(__file__).resolve()
         fixtures_dir = here.parents[2] / "fixtures" / options["deploy_env"]
-
-        # Ensure at least one AI agent exists for mock interviews (required for ChatSession)
-        if not AIAgent.objects.exists():
-            self.stdout.write("No AI agents found. Creating default Gemini agent for local testing...")
-            AIAgent.objects.create(
-                name="Gemini Pro (Default)",
-                provider="gemini",
-                model_name="gemini-1.5-pro",
-                description="Default agent created for local testing",
-                is_active=True
-            )
 
         skill_file_name = options.get("file")
         primary_skill_file = fixtures_dir / skill_file_name
@@ -400,11 +388,46 @@ class Command(BaseCommand):
                     # Skills configuration
                     "required_skills": mock_interview_data.get("required_skills", []),
                     "optional_skills": mock_interview_data.get("optional_skills", []),
+                    # AI / Voice configuration
+                    "ai_generation_mode": mock_interview_data.get(
+                        "ai_generation_mode", "full_ai"
+                    ),
+                    "ai_context": mock_interview_data.get("ai_context", {}),
+                    "ai_percentage": mock_interview_data.get("ai_percentage", 100),
+                    # Voice configuration
+                    "voice_type": mock_interview_data.get("voice_type", "junnu"),
+                    "interviewer_name": mock_interview_data.get(
+                        "interviewer_name", "Junnu"
+                    ),
+                    "interviewer_voice_id": mock_interview_data.get(
+                        "interviewer_voice_id", ""
+                    ),
+                    "voice_speed": mock_interview_data.get("voice_speed", 1.0),
+                    "audio_settings": mock_interview_data.get("audio_settings", {}),
+                    "questions_random_config": mock_interview_data.get(
+                        "questions_random_config", {}
+                    ),
                     "publish_status": mock_interview_data.get(
                         "publish_status", "draft"
                     ),
                     "created_by": default_user,
                 }
+
+                # Build questions_config
+                q_config = mock_interview_data.get("questions_config") or {}
+                q_random = mock_interview_data.get("questions_random_config") or {}
+                for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+                    if qtype not in q_config:
+                        count = int(q_random.get(qtype, 0))
+                        q_config[qtype] = (
+                            self._select_questions(
+                                qtype, count, "mock_interview", course, topic
+                            )
+                            if count > 0
+                            else []
+                        )
+
+                mock_interview_kwargs["questions_config"] = q_config
 
                 # Sync mock interview (always update if exists)
                 mock_interview, mock_interview_created = MockInterview.objects.update_or_create(
@@ -416,28 +439,6 @@ class Command(BaseCommand):
                     self.stdout.write(f'✓ Created mock interview: {mock_interview.title}')
                 else:
                     self.stdout.write(f'→ Mock interview exists (synced): {mock_interview.title}')
-
-                # --- NEW: Load Predefined Question Tree if present ---
-                tree_data = mock_interview_data.get("predefined_tree")
-                if tree_data and isinstance(tree_data, list):
-                    # Clear existing to avoid duplicates on re-seed
-                    PredefinedInterviewQuestion.objects.filter(mock_interview=mock_interview).delete()
-                    
-                    def _load_node(node_data, parent=None, level=1):
-                        q_obj = PredefinedInterviewQuestion.objects.create(
-                            mock_interview=mock_interview,
-                            text=node_data["text"],
-                            parent=parent,
-                            level=level,
-                            created_by=default_user
-                        )
-                        for f_data in node_data.get("follow_ups", []):
-                            _load_node(f_data, parent=q_obj, level=level + 1)
-                    
-                    for root_data in tree_data:
-                        _load_node(root_data)
-                    
-                    self.stdout.write(f'  ↳ Loaded {len(tree_data)} main questions and their follow-up trees')
 
             except Exception as e:
                 self.stdout.write(

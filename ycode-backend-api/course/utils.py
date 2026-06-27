@@ -49,14 +49,8 @@ class CodeExecutionUtil:
                     test_cases_advanced = question.test_cases_advanced or []
 
                 config = question.code_executor_config or {}
-                if isinstance(config, str):
-                    import json
-                    try:
-                        config = json.loads(config)
-                    except:
-                        config = {}
-                time_limit = int(config.get("time_limit", 10))
-                memory_limit = int(config.get("memory_limit", 256))
+                time_limit = config.get("time_limit", 10)
+                memory_limit = config.get("memory_limit", 256)
             except Question.DoesNotExist:
                 raise Exception(f"Question with id {question_id} not found")
 
@@ -76,18 +70,13 @@ class CodeExecutionUtil:
             "test_cases_advanced": test_cases_advanced,
             "test_cases_custom": test_cases_custom,
             "timeout": time_limit + 5,
-            "time_limit": 60, # Passed generous limit to bypass executor's hard kill
+            "time_limit": time_limit,
             "memory_limit": memory_limit,
         }
 
-        try:
-            executor_response = requests.post(
-                f"{service_url}/execute-with-tests", json=payload, timeout=time_limit + 10
-            )
-            executor_response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Failed to communicate with Code Executor Service: {str(e)}")
-
+        executor_response = requests.post(
+            f"{service_url}/execute-with-tests", json=payload, timeout=15
+        )
         response_data = executor_response.json()
 
         exec_res = response_data.get("execution_result", {})
@@ -100,21 +89,6 @@ class CodeExecutionUtil:
         total_tests = response_data.get("total_tests", 0)
         total_passed = response_data.get("total_passed", 0)
 
-        basic_results = response_data.get("basic_results", [])
-        advanced_results = response_data.get("advanced_results", [])
-        custom_results = response_data.get("custom_results", [])
-
-        # Post-execution TLE comparison: if the executor didn't hard-kill the process,
-        # we manually compare the actual execution time against the performance time limit.
-        for r in (basic_results + advanced_results + custom_results):
-            if r.get("execution_time", 0) > time_limit:
-                if r.get("passed"):
-                    total_passed = max(0, total_passed - 1)
-                r["passed"] = False
-                r["error"] = "Time Limit Exceeded"
-                current_console = r.get("console_output", "")
-                r["console_output"] = (current_console + "\n" if current_console else "") + f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
-
         test_results = {
             "passed": total_passed,
             "total": total_tests,
@@ -126,9 +100,9 @@ class CodeExecutionUtil:
 
         execution_results = {
             "execution_result": exec_res,
-            "basic_results": basic_results,
-            "advanced_results": advanced_results,
-            "custom_results": custom_results,
+            "basic_results": response_data.get("basic_results", []),
+            "advanced_results": response_data.get("advanced_results", []),
+            "custom_results": response_data.get("custom_results", []),
             "test_results": test_results,
         }
 

@@ -95,15 +95,11 @@ class CodeEditorService {
 
       if (request.question_id && request.question_id !== 'practice') {
         try {
-          const response = await restApiAuthUtil.get(`/course/questions/${request.question_id}/?_t=${Date.now()}`);
+          const response = await restApiAuthUtil.get(`/course/questions/${request.question_id}/`);
           const q = response.data;
           if (q && q.code_executor_config) {
-            let config = q.code_executor_config;
-            if (typeof config === 'string') {
-              try { config = JSON.parse(config); } catch (e) {}
-            }
-            timeLimit = Number(config.time_limit) || 10;
-            memoryLimit = Number(config.memory_limit) || 256;
+            timeLimit = q.code_executor_config.time_limit || 10;
+            memoryLimit = q.code_executor_config.memory_limit || 256;
           }
         } catch (e) {
           console.warn('Could not fetch question config for runCode', e);
@@ -123,34 +119,30 @@ class CodeEditorService {
           expected_output: tc.expected_output || '',
           weight: 1
         })),
-        timeout: timeLimit + 5, // Hard kill at configured limit + 5s buffer for infinite loops
-        time_limit: 60, // Passed generous limit to bypass executor's hard kill
+        timeout: timeLimit + 5,
+        time_limit: timeLimit,
         memory_limit: memoryLimit
       });
 
       // The code-executer returns TLE as a 200 with { status: 'tle' } in the body.
-      // We will handle it with the smart check below to distinguish soft TLE from hard timeout.
+      // Normalise it to a proper 400 ApiError so callers handle it uniformly.
+      if (data && data.status === 'tle') {
+        throw new ApiError('Time Limit Exceeded', 400, { status: 'tle', message: 'Time Limit Exceeded' });
+      }
 
       const executionResult = data.execution_result || {};
       const testResults = data.test_results || [];
       const firstTestError = testResults.find((result: any) => result?.error)?.error || '';
 
       let statusVal: any = executionResult.success ? 'completed' : 'error';
-      if (data.status === 'tle') {
-          statusVal = 'timeout';
-      }
       let reasonVal: string | undefined = undefined;
       const performance_warnings: any[] = [];
 
-      // Evaluate test results
-      for (const r of testResults) {
-              // Post-execution TLE comparison: if the executor didn't hard-kill the process,
-              // we manually compare the actual execution time against the performance time limit.
-              if (r.passed && r.execution_time > timeLimit) {
-                  r.error = 'Time Limit Exceeded';
-                  r.console_output = (r.console_output ? r.console_output + '\n' : '') + `Time Limit Exceeded. Solution took ${r.execution_time?.toFixed(2) || 0}s, which exceeds the limit.`;
-              }
-
+      if (executionResult.status === 'timeout') {
+          statusVal = 'timeout';
+          reasonVal = 'Infinite loop detected or execution timed out.';
+      } else {
+          for (const r of testResults) {
               if (r.passed && (r.error === 'Time Limit Exceeded' || r.error === 'Memory Limit Exceeded')) {
                   statusVal = 'failed';
                   performance_warnings.push({
@@ -165,6 +157,7 @@ class CodeEditorService {
                       : `Memory Limit Exceeded. Solution used ${r.memory_usage?.toFixed(2) || 0}MB, which exceeds the limit.`;
                   break;
               }
+          }
       }
 
       return {
@@ -182,7 +175,6 @@ class CodeEditorService {
         memory_usage: executionResult.memory_usage || 0,
         test_cases_passed: data.total_passed || 0,
         total_test_cases: data.total_tests || 0,
-        performance_warnings: performance_warnings,
         plagiarism_score: 0,
         plagiarism_details: null,
         created_at: new Date().toISOString(),
@@ -303,7 +295,6 @@ class CodeEditorService {
           success: response.status === 'completed',
         },
         plagiarism_flagged: response.plagiarism_flagged || false,
-        performance_warnings: response.performance_warnings || [],
       };
     } catch (error) {
       // Re-throw TLE as-is so CodeEditor can handle it

@@ -1,24 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import (
-    User,
-    College,
-    Department,
-)
-
-class DepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Department
-        fields = ["id", "name", "verification_status", "created_at"]
-        read_only_fields = ["id", "created_at"]
-
-
-class CollegeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = College
-        fields = ["id", "name", "verification_status", "created_at"]
-        read_only_fields = ["id", "created_at", "verification_status"]
+from .models import User
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
@@ -27,11 +10,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token["role"] = user.role
         token["username"] = user.username
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
+        token["roles"] = user.roles
 
         return token
 
@@ -45,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
-            "role",
+            "roles",
             "is_active",
             "date_joined",
             "last_login",
@@ -89,21 +72,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "password_confirm",
             "first_name",
             "last_name",
-            "role",
+            "roles",
         ]
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
             raise serializers.ValidationError("Passwords don't match.")
         return attrs
-
-    def validate_role(self, value):
-        allowed_roles = ["student"]
-        if value not in allowed_roles:
-            raise serializers.ValidationError(
-                f"Invalid role. Allowed roles for registration: {', '.join(allowed_roles)}"
-            )
-        return value
 
     def create(self, validated_data):
         validated_data.pop("password_confirm")
@@ -115,14 +90,5 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "role"]
+        fields = ["username", "email", "first_name", "last_name"]
 
-    def validate_role(self, value):
-        request = self.context.get("request")
-        if request and request.user:
-            if not request.user.can_manage_users():
-                if self.instance and self.instance.role != value:
-                    raise serializers.ValidationError(
-                        "You don't have permission to change user roles."
-                    )
-        return value

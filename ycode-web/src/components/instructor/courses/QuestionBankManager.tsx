@@ -335,13 +335,13 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       if (dataToSave.type === 'coding' && dataToSave.code_executor_config) {
         const tl = dataToSave.code_executor_config.time_limit;
         const ml = dataToSave.code_executor_config.memory_limit;
-        if (!tl || isNaN(tl) || tl <= 0) {
-          toast.error('Time limit must be a positive number');
+        if (!tl || isNaN(tl) || tl <= 0 || tl > 300) {
+          toast.error('Time Limit must be between 0.1 and 300 seconds');
           setSaving(false);
           return;
         }
-        if (!ml || isNaN(ml) || ml <= 0) {
-          toast.error('Memory limit must be a positive number');
+        if (!ml || isNaN(ml) || ml <= 0 || ml > 4096) {
+          toast.error('Memory Limit must be between 1 and 4096 MB');
           setSaving(false);
           return;
         }
@@ -1015,6 +1015,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                           type="number"
                           step="0.1"
                           min="0.1"
+                          max="300"
                           value={formData.code_executor_config?.time_limit ?? 10}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value);
@@ -1036,6 +1037,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                           type="number"
                           step="1"
                           min="1"
+                          max="4096"
                           value={formData.code_executor_config?.memory_limit ?? 256}
                           onChange={(e) => {
                             const val = parseInt(e.target.value, 10);

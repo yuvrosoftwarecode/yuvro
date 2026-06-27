@@ -45,7 +45,6 @@ interface Assessment {
   course: string;
   duration: number;
   totalQuestions: number;
-  enable_proctoring?: boolean;
 }
 
 interface Question {
@@ -61,10 +60,6 @@ interface InternalTestInterfaceProps {
   assessment: Assessment;
   onComplete: (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
-  mediaStream?: MediaStream | null;
-  screenStream?: MediaStream | null;
-  preExamPhotoBlob?: Blob | null;
-  preExamScreenshotBlob?: Blob | null;
 }
 
 const DEFAULT_CODING_TEMPLATES = [
@@ -75,15 +70,7 @@ const DEFAULT_CODING_TEMPLATES = [
   '// Write your code here\n',
 ].map((t) => t.trim());
 
-const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
-  assessment,
-  onComplete,
-  onBack,
-  mediaStream,
-  screenStream,
-  preExamPhotoBlob,
-  preExamScreenshotBlob
-}) => {
+const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({ assessment, onComplete, onBack }) => {
   const isCampus = !window.location.pathname.includes('/student/assessments');
   const { toast } = useToast();
 
@@ -92,7 +79,6 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [isLoadingTest, setIsLoadingTest] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [proctoringEnabled, setProctoringEnabled] = useState(true);
   const loadPromiseRef = useRef<Promise<any> | null>(null);
 
   // Answer state
@@ -120,22 +106,6 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
   const [showTabWarningDialog, setShowTabWarningDialog] = useState(false);
   const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
-  const tabSwitchThresholdRef = useRef(3);
-
-  useEffect(() => {
-    // Prevent backward navigation
-    window.history.pushState(null, '', window.location.href);
-    const handlePopState = () => {
-      window.history.pushState(null, '', window.location.href);
-      toast({
-        title: "Navigation Blocked",
-        description: "You cannot go back during an active test.",
-        variant: "destructive"
-      });
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [toast]);
 
   // Camera state
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -160,7 +130,6 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
         const response = await loadPromiseRef.current;
         if (!cancelled) {
           setSubmissionId(response.submission_id);
-          setProctoringEnabled(true);
           const normalized: Question[] = (response.questions || []).map((q: any) => ({
             id: String(q.id),
             type: q.type || 'mcq_single',
@@ -171,26 +140,14 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
           }));
           setQuestions(normalized);
           if (response.duration) {
-            let remainingSeconds = response.duration * 60;
-            if (response.started_at) {
-              const elapsed = Math.floor((Date.now() - new Date(response.started_at).getTime()) / 1000);
-              if (elapsed > 0 && elapsed < remainingSeconds) {
-                remainingSeconds -= elapsed;
-              } else if (elapsed >= remainingSeconds) {
-                remainingSeconds = 0;
-              }
-            }
-            setTimeLeft(remainingSeconds);
+            setTimeLeft(response.duration * 60);
             setTestDuration(response.duration * 60);
-          }
-          if (response.tab_switch_threshold) {
-             tabSwitchThresholdRef.current = response.tab_switch_threshold;
           }
         }
       } catch (err: any) {
         if (!cancelled) {
           const msg = err?.message || `Failed to load ${isCampus ? 'internal test' : 'assessment'} questions. Please try again.`;
-          stopMediaMonitoring();
+          cleanupCamera();
           loadPromiseRef.current = null;
           sessionStorage.setItem('toast_error', msg);
           window.location.reload();
@@ -222,20 +179,6 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
   };
 
   useEffect(() => {
-    if (!proctoringEnabled) return;
-
-    if (mediaStream) {
-      streamRef.current = mediaStream;
-      setHasMediaAccess(true);
-      setVideoTrackEnabled(true);
-      setAudioTrackEnabled(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play().catch(console.error);
-      }
-      return;
-    }
-
     let isActive = true;
     const initMedia = async () => {
       try {
@@ -259,7 +202,7 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
     };
     initMedia();
     return () => { isActive = false; stopMediaMonitoring(); };
-  }, [proctoringEnabled, mediaStream]);
+  }, []);
 
   // Rebind stream when needed
   useEffect(() => {
@@ -280,7 +223,7 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
       setTabSwitchCount((prev) => {
         const next = prev + 1;
         setTabSwitchAlert(true);
-        if (next >= tabSwitchThresholdRef.current) {
+        if (next >= 2) {
           setShowTabWarningDialog(false);
           setShowTabSwitchDialog(true);
         } else {
@@ -294,30 +237,12 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
   const { logActivity } = useProctoring({
     assessmentId: assessment.id,
     assessmentType: 'skill-tests',
-    enabled: proctoringEnabled && !!submissionId,
+    enabled: !!submissionId,
     submissionId,
     questionId: questions[currentQuestion]?.id,
     mediaStream: streamRef.current,
-    screenStream: screenStream,
     onViolation: handleProctoringViolation,
   });
-
-  // Upload setup blobs once submissionId is active
-  const hasUploadedSetupBlobs = useRef(false);
-  useEffect(() => {
-    if (proctoringEnabled && submissionId && !hasUploadedSetupBlobs.current) {
-      hasUploadedSetupBlobs.current = true;
-      const uploadSetupBlobs = async () => {
-        if (preExamPhotoBlob) {
-          await logActivity('passport_photo_captured', {}, preExamPhotoBlob);
-        }
-        if (preExamScreenshotBlob) {
-          await logActivity('initial_screenshot_captured', {}, preExamScreenshotBlob);
-        }
-      };
-      uploadSetupBlobs();
-    }
-  }, [proctoringEnabled, submissionId, preExamPhotoBlob, preExamScreenshotBlob, logActivity]);
 
   const prevQuestionIdRef = useRef<string | null>(null);
 
@@ -428,9 +353,6 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
       }
     }
 
-    if (document.fullscreenElement) {
-        document.exitFullscreen().catch(console.error);
-    }
     onComplete({ answeredCount, totalQuestions: questions.length, timeSpent });
   };
 
@@ -618,7 +540,7 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            {submissionId && proctoringEnabled && (
+            {submissionId && (
               <div className="fixed top-20 left-4 z-[9999] w-32 h-24 sm:w-40 sm:h-30 rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 flex items-center justify-center group transition-all duration-300 hover:scale-[1.03]">
                 {hasMediaAccess ? (
                   <>
@@ -642,7 +564,7 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
                 )}
               </div>
             )}
-            {!submissionId && proctoringEnabled && (
+            {!submissionId && (
               <video
                 ref={videoRef}
                 autoPlay
@@ -771,18 +693,16 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
                 </div>
 
                 {/* Monitoring status */}
-                {proctoringEnabled && (
-                  <div className="mt-6 p-3 bg-muted/30 rounded-lg">
-                    <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
-                      <Shield className="h-3.5 w-3.5 text-primary" /> Monitoring
-                    </h4>
-                    <div className="space-y-1 text-xs">
-                      <div className="flex justify-between"><span>Camera</span><span className={videoTrackEnabled ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>{videoTrackEnabled ? 'Active' : 'Inactive'}</span></div>
-                      <div className="flex justify-between"><span>Microphone</span><span className={audioTrackEnabled ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>{audioTrackEnabled ? 'Active' : 'Inactive'}</span></div>
-                      <div className="flex justify-between"><span>Tab Violations</span><span className={tabSwitchCount > 0 ? 'text-orange-600 font-semibold' : 'text-muted-foreground'}>{tabSwitchCount}</span></div>
-                    </div>
+                <div className="mt-6 p-3 bg-muted/30 rounded-lg">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <Shield className="h-3.5 w-3.5 text-primary" /> Monitoring
+                  </h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between"><span>Camera</span><span className={videoTrackEnabled ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>{videoTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                    <div className="flex justify-between"><span>Microphone</span><span className={audioTrackEnabled ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>{audioTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                    <div className="flex justify-between"><span>Tab Violations</span><span className={tabSwitchCount > 0 ? 'text-orange-600 font-semibold' : 'text-muted-foreground'}>{tabSwitchCount}</span></div>
                   </div>
-                )}
+                </div>
               </>
             ) : (
               <div className="space-y-1">

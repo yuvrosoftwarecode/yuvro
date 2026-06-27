@@ -5,7 +5,7 @@
     "sub_units": [
         {
             "name": "Basic Array Traversal & Operations",
-            "content": "Arrays are one of the most fundamental and widely used data structures in computer science. An array is a linear data structure that stores multiple elements of the same data type in contiguous memory locations. Because the elements are stored continuously in memory, arrays provide fast and efficient access to data.\n\nEach element inside an array is identified using an index. Indexing starts from 0 because the index represents the offset from the starting memory address. For example:\n\n[\"Song A\", \"Song B\", \"Song C\"]\n\n\u2022 Song A \u2192 Index 0  \n\u2022 Song B \u2192 Index 1  \n\u2022 Song C \u2192 Index 2  \n\nArrays support several important operations such as traversal, access, update, insertion, and deletion.\n\nArray traversal means visiting each element one by one to perform operations like printing values, calculating sums, finding maximum values, or updating elements. Traversal can happen in two ways:\n\n1. Forward Traversal  \nElements are visited from beginning to end.\n\n2. Backward Traversal  \nElements are visited from end to beginning.\n\nArrays provide Random Access, meaning any element can be directly accessed using its index without traversing previous elements. This operation takes O(1) time complexity.\n\nFor example:\nnumbers[2]\n\ndirectly accesses the third element.\n\nUpdate operation means replacing an existing element with a new value. Since the position is already known, update operations also take O(1) time.\n\nInsertion and deletion operations depend on position:\n\n\u2022 Insertion at the end is usually fast.  \n\u2022 Insertion at the beginning or middle requires shifting elements to the right.  \n\u2022 Deletion from the middle requires shifting elements to the left.  \n\nBecause of shifting, insertion and deletion in the middle generally take O(n) time complexity.\n\nReal-Life Example:\nA music playlist is a simple real-world example of arrays. Songs are stored one after another, and users can directly access any song using its position in the playlist.",
+            "content": "Arrays are one of the most fundamental and widely used data structures in computer science. An array is a linear data structure that stores multiple elements of the same data type in contiguous memory locations. Because the elements are stored continuously in memory, arrays provide fast and efficient access to data.\n\nEach element inside an array is identified using an index. Indexing starts from 0 because the index represents the offset from the starting memory address. For example:\n\n[\"Song A\", \"Song B\", \"Song C\"]\n\n• Song A → Index 0  \n• Song B → Index 1  \n• Song C → Index 2  \n\nArrays support several important operations such as traversal, access, update, insertion, and deletion.\n\nArray traversal means visiting each element one by one to perform operations like printing values, calculating sums, finding maximum values, or updating elements. Traversal can happen in two ways:\n\n1. Forward Traversal  \nElements are visited from beginning to end.\n\n2. Backward Traversal  \nElements are visited from end to beginning.\n\nArrays provide Random Access, meaning any element can be directly accessed using its index without traversing previous elements. This operation takes O(1) time complexity.\n\nFor example:\nnumbers[2]\n\ndirectly accesses the third element.\n\nUpdate operation means replacing an existing element with a new value. Since the position is already known, update operations also take O(1) time.\n\nInsertion and deletion operations depend on position:\n\n• Insertion at the end is usually fast.  \n• Insertion at the beginning or middle requires shifting elements to the right.  \n• Deletion from the middle requires shifting elements to the left.  \n\nBecause of shifting, insertion and deletion in the middle generally take O(n) time complexity.\n\nReal-Life Example:\nA music playlist is a simple real-world example of arrays. Songs are stored one after another, and users can directly access any song using its position in the playlist.",
             "order_index": 0,
             "videos": [
                 {
@@ -22,7 +22,7 @@
         },
         {
             "name": "Searching in Arrays",
-            "content": "Searching in arrays means finding the position or index of a specific element inside an array. Searching is one of the most important operations because many applications require locating data quickly and efficiently.\n\nThe most basic searching technique is Linear Search.\n\nIn Linear Search:\n\u2022 Elements are checked one by one from beginning to end.  \n\u2022 The search continues until the target element is found.  \n\u2022 If the element is not found, the algorithm returns -1.\n\nExample:\nArray = [10, 20, 30, 40]  \nTarget = 30\n\nThe algorithm checks:\n\u2022 10 \u2192 not match  \n\u2022 20 \u2192 not match  \n\u2022 30 \u2192 match found  \n\nOutput:\n2\n\nLinear Search has a time complexity of O(n) because in the worst case every element may need to be checked.\n\nArrays also support direct element access using indexes because memory addresses are calculated mathematically using:\n\nAddress(i) = Base + (i \u00d7 Size)\n\nWhere:\n\u2022 Base = starting memory address  \n\u2022 i = index  \n\u2022 Size = size of each element  \n\nThis direct calculation helps arrays achieve fast random access.\n\nReal-Life Examples:\n\u2022 Searching for a student name in an attendance sheet  \n\u2022 Finding a song in a playlist  \n\u2022 Searching for a contact number in a contact list  \n\u2022 Locating records in a database  \n\nSearching operations are very important in software development because efficient searching improves overall application performance.",
+            "content": "Searching in arrays means finding the position or index of a specific element inside an array. Searching is one of the most important operations because many applications require locating data quickly and efficiently.\n\nThe most basic searching technique is Linear Search.\n\nIn Linear Search:\n• Elements are checked one by one from beginning to end.  \n• The search continues until the target element is found.  \n• If the element is not found, the algorithm returns -1.\n\nExample:\nArray = [10, 20, 30, 40]  \nTarget = 30\n\nThe algorithm checks:\n• 10 → not match  \n• 20 → not match  \n• 30 → match found  \n\nOutput:\n2\n\nLinear Search has a time complexity of O(n) because in the worst case every element may need to be checked.\n\nArrays also support direct element access using indexes because memory addresses are calculated mathematically using:\n\nAddress(i) = Base + (i × Size)\n\nWhere:\n• Base = starting memory address  \n• i = index  \n• Size = size of each element  \n\nThis direct calculation helps arrays achieve fast random access.\n\nReal-Life Examples:\n• Searching for a student name in an attendance sheet  \n• Finding a song in a playlist  \n• Searching for a contact number in a contact list  \n• Locating records in a database  \n\nSearching operations are very important in software development because efficient searching improves overall application performance.",
             "order_index": 1,
             "videos": [
                 {
@@ -39,7 +39,7 @@
         },
         {
             "name": "Array Rearrangement",
-            "content": "Array rearrangement refers to changing the order or position of elements inside an array based on certain conditions. Rearrangement techniques are widely used in problem solving, optimization, and data organization.\n\nCommon rearrangement operations include:\n\u2022 Reversing arrays  \n\u2022 Shifting elements  \n\u2022 Moving zeros to the end  \n\u2022 Swapping elements  \n\u2022 Inserting elements at specific positions  \n\u2022 Deleting elements  \n\nInsertion Operation:\nWhen an element is inserted in the middle or beginning of an array, existing elements must shift one position to the right.\n\nExample:\nBefore insertion:\n[A] [B] [C] [D]\n\nInsert X at index 1:\n[A] [X] [B] [C] [D]\n\nThis shifting process takes O(n) time complexity.\n\nDeletion Operation:\nWhen an element is deleted from the middle, remaining elements shift left to fill the empty space.\n\nExample:\nBefore deletion:\n[A] [B] [C] [D]\n\nDelete B:\n[A] [C] [D]\n\nDeletion from the middle also takes O(n) time complexity.\n\nArray reversing is another common rearrangement problem where elements from both ends are swapped repeatedly until the array is reversed.\n\nReal-Life Examples:\n\u2022 Rearranging books on a shelf  \n\u2022 Adjusting students in a classroom row  \n\u2022 Organizing songs in a playlist  \n\u2022 Sorting products in an online store  \n\nRearrangement problems help improve logical thinking and strengthen understanding of in-place array manipulation techniques.",
+            "content": "Array rearrangement refers to changing the order or position of elements inside an array based on certain conditions. Rearrangement techniques are widely used in problem solving, optimization, and data organization.\n\nCommon rearrangement operations include:\n• Reversing arrays  \n• Shifting elements  \n• Moving zeros to the end  \n• Swapping elements  \n• Inserting elements at specific positions  \n• Deleting elements  \n\nInsertion Operation:\nWhen an element is inserted in the middle or beginning of an array, existing elements must shift one position to the right.\n\nExample:\nBefore insertion:\n[A] [B] [C] [D]\n\nInsert X at index 1:\n[A] [X] [B] [C] [D]\n\nThis shifting process takes O(n) time complexity.\n\nDeletion Operation:\nWhen an element is deleted from the middle, remaining elements shift left to fill the empty space.\n\nExample:\nBefore deletion:\n[A] [B] [C] [D]\n\nDelete B:\n[A] [C] [D]\n\nDeletion from the middle also takes O(n) time complexity.\n\nArray reversing is another common rearrangement problem where elements from both ends are swapped repeatedly until the array is reversed.\n\nReal-Life Examples:\n• Rearranging books on a shelf  \n• Adjusting students in a classroom row  \n• Organizing songs in a playlist  \n• Sorting products in an online store  \n\nRearrangement problems help improve logical thinking and strengthen understanding of in-place array manipulation techniques.",
             "order_index": 2,
             "videos": [
                 {
@@ -56,13 +56,13 @@
         },
         {
             "name": "Subarray Problems",
-            "content": "A subarray is a contiguous portion of an array. Subarray problems are extremely important in data structures and algorithms because many real-world problems involve working with continuous segments of data.\n\nExample:\nArray = [1, 2, 3, 4]\n\nPossible subarrays:\n[1]\n[1,2]\n[2,3]\n[2,3,4]\n\nSubarray problems commonly involve:\n\u2022 Finding maximum sum subarray  \n\u2022 Finding minimum sum subarray  \n\u2022 Range sum queries  \n\u2022 Fixed-size window calculations  \n\u2022 Continuous segment optimization  \n\nOne of the most important concepts used in subarray problems is the Prefix Sum Array.\n\nA Prefix Sum Array stores cumulative sums.\n\nFormula:\nprefix[i] = prefix[i\u22121] + arr[i]\n\nExample:\nOriginal array:\n[2, 3, 4, 5]\n\nPrefix sum array:\n[2, 5, 9, 14]\n\nUsing prefix sums, range sums can be calculated efficiently using:\n\nSum(L,R) = prefix[R] \u2212 prefix[L\u22121]\n\nThis avoids repeated addition and improves performance significantly.\n\nReal-Life Example:\nSuppose a bank records daily deposits:\n[100, 200, 300, 400]\n\nIf the manager wants the total deposits from Day 2 to Day 4, prefix sums allow the result to be calculated instantly without repeatedly adding values.\n\nSubarray concepts are widely used in:\n\u2022 Financial systems  \n\u2022 Data analytics  \n\u2022 Competitive programming  \n\u2022 Signal processing  \n\u2022 Performance optimization problems",
+            "content": "A subarray is a contiguous portion of an array. Subarray problems are extremely important in data structures and algorithms because many real-world problems involve working with continuous segments of data.\n\nExample:\nArray = [1, 2, 3, 4]\n\nPossible subarrays:\n[1]\n[1,2]\n[2,3]\n[2,3,4]\n\nSubarray problems commonly involve:\n• Finding maximum sum subarray  \n• Finding minimum sum subarray  \n• Range sum queries  \n• Fixed-size window calculations  \n• Continuous segment optimization  \n\nOne of the most important concepts used in subarray problems is the Prefix Sum Array.\n\nA Prefix Sum Array stores cumulative sums.\n\nFormula:\nprefix[i] = prefix[i−1] + arr[i]\n\nExample:\nOriginal array:\n[2, 3, 4, 5]\n\nPrefix sum array:\n[2, 5, 9, 14]\n\nUsing prefix sums, range sums can be calculated efficiently using:\n\nSum(L,R) = prefix[R] − prefix[L−1]\n\nThis avoids repeated addition and improves performance significantly.\n\nReal-Life Example:\nSuppose a bank records daily deposits:\n[100, 200, 300, 400]\n\nIf the manager wants the total deposits from Day 2 to Day 4, prefix sums allow the result to be calculated instantly without repeatedly adding values.\n\nSubarray concepts are widely used in:\n• Financial systems  \n• Data analytics  \n• Competitive programming  \n• Signal processing  \n• Performance optimization problems",
             "order_index": 3,
             "videos": [
                 {
                     "title": "Kadane's Algorithm - Maximum Subarray Sum",
                     "video_link": "https://www.youtube.com/watch?v=86CQq3pKSUw",
-                    "ai_context": "Explains Kadane\u2019s algorithm for efficiently finding the maximum subarray sum"
+                    "ai_context": "Explains Kadane’s algorithm for efficiently finding the maximum subarray sum"
                 },
                 {
                     "title": "Prefix Sum Technique Explained",
@@ -73,7 +73,7 @@
         },
         {
             "name": "Two Pointer / Sliding Window",
-            "content": "The Two Pointer and Sliding Window techniques are advanced optimization approaches used to solve array and string problems efficiently. These methods help reduce unnecessary computations and improve time complexity.\n\nTwo Pointer Technique:\nThe two pointer approach uses two indexes that move through the array simultaneously.\n\nIt is commonly used for:\n\u2022 Reversing arrays  \n\u2022 Pair sum problems  \n\u2022 Sorted array problems  \n\u2022 Removing duplicates  \n\u2022 Comparing elements from both ends  \n\nExample:\nTo reverse an array:\n\u2022 One pointer starts from the beginning  \n\u2022 Another pointer starts from the end  \n\u2022 Elements are swapped while pointers move toward each other  \n\nThis approach improves efficiency and reduces extra memory usage.\n\nSliding Window Technique:\nSliding window is used for problems involving continuous subarrays or ranges.\n\nInstead of recalculating values repeatedly:\n\u2022 A window of elements is maintained  \n\u2022 Elements are added and removed dynamically  \n\u2022 Calculations are updated efficiently  \n\nThis technique is very useful for:\n\u2022 Maximum sum subarray problems  \n\u2022 Fixed-size subarray problems  \n\u2022 Longest substring problems  \n\u2022 Continuous segment analysis  \n\nAdvantages:\n\u2022 Reduces unnecessary traversal  \n\u2022 Improves performance  \n\u2022 Optimizes repeated calculations  \n\u2022 Useful for large datasets  \n\nReal-Life Examples:\n\u2022 Monitoring temperature changes over consecutive days  \n\u2022 Calculating moving averages in finance  \n\u2022 Analyzing continuous user activity in applications  \n\u2022 Processing streaming data efficiently  \n\nThese techniques are widely used in competitive programming, interviews, and real-world software systems because they provide highly optimized solutions.",
+            "content": "The Two Pointer and Sliding Window techniques are advanced optimization approaches used to solve array and string problems efficiently. These methods help reduce unnecessary computations and improve time complexity.\n\nTwo Pointer Technique:\nThe two pointer approach uses two indexes that move through the array simultaneously.\n\nIt is commonly used for:\n• Reversing arrays  \n• Pair sum problems  \n• Sorted array problems  \n• Removing duplicates  \n• Comparing elements from both ends  \n\nExample:\nTo reverse an array:\n• One pointer starts from the beginning  \n• Another pointer starts from the end  \n• Elements are swapped while pointers move toward each other  \n\nThis approach improves efficiency and reduces extra memory usage.\n\nSliding Window Technique:\nSliding window is used for problems involving continuous subarrays or ranges.\n\nInstead of recalculating values repeatedly:\n• A window of elements is maintained  \n• Elements are added and removed dynamically  \n• Calculations are updated efficiently  \n\nThis technique is very useful for:\n• Maximum sum subarray problems  \n• Fixed-size subarray problems  \n• Longest substring problems  \n• Continuous segment analysis  \n\nAdvantages:\n• Reduces unnecessary traversal  \n• Improves performance  \n• Optimizes repeated calculations  \n• Useful for large datasets  \n\nReal-Life Examples:\n• Monitoring temperature changes over consecutive days  \n• Calculating moving averages in finance  \n• Analyzing continuous user activity in applications  \n• Processing streaming data efficiently  \n\nThese techniques are widely used in competitive programming, interviews, and real-world software systems because they provide highly optimized solutions.",
             "order_index": 4,
             "videos": [
                 {
@@ -2759,11 +2759,7 @@
                 "Iterate through the array and keep track of the maximum element found so far.",
                 "Initialize the maximum element with the first element of the array.",
                 "Compare each element with the current maximum element and update it if the current element is greater."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2874,11 +2870,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2989,11 +2981,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3104,11 +3092,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3219,11 +3203,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3334,11 +3314,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3448,11 +3424,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3562,11 +3534,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3676,11 +3644,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3791,11 +3755,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3906,11 +3866,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4021,11 +3977,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4136,11 +4088,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4251,11 +4199,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4366,11 +4310,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4481,11 +4421,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4596,11 +4532,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4711,11 +4643,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4826,11 +4754,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4941,11 +4865,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5056,11 +4976,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5171,11 +5087,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5286,11 +5198,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5401,11 +5309,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5516,11 +5420,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5631,11 +5531,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5746,11 +5642,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5861,11 +5753,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5976,11 +5864,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6091,11 +5975,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6206,11 +6086,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6321,11 +6197,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6436,11 +6308,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6551,11 +6419,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6666,11 +6530,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6773,11 +6633,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6880,11 +6736,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6987,11 +6839,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7094,11 +6942,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7201,11 +7045,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7316,11 +7156,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7431,11 +7267,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7546,11 +7378,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7661,11 +7489,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7776,11 +7600,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7891,11 +7711,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8006,11 +7822,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8121,11 +7933,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8236,11 +8044,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8351,16 +8155,12 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
-            "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum)",
-            "content": "Given an array of integers, find the maximum possible sum of a contiguous subarray using Kadane\u2019s Algorithm.\n\n**Example:**\nInput:\n5\n-2 1 -3 4 -1\nOutput:\n4",
+            "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum)",
+            "content": "Given an array of integers, find the maximum possible sum of a contiguous subarray using Kadane’s Algorithm.\n\n**Example:**\nInput:\n5\n-2 1 -3 4 -1\nOutput:\n4",
             "level": "subtopic",
             "unit_name": "Arrays",
             "subunit_name": "Subarray Problems",
@@ -8423,14 +8223,14 @@
                 {
                     "input": "5\n-2 1 -3 4 -1",
                     "expected_output": "4",
-                    "explanation": "Kadane\u2019s algorithm finds the maximum sum subarray efficiently."
+                    "explanation": "Kadane’s algorithm finds the maximum sum subarray efficiently."
                 }
             ],
             "inputFormat": "The first line contains integer N.\nThe second line contains N space-separated integers.",
             "outputFormat": "Print the maximum sum of a contiguous subarray.",
             "solutions": [
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - Python",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - Python",
                     "language": "python",
                     "code": "import sys\ninput=sys.stdin.read\nn,*a=map(int,input().split())\ncur=mx=a[0]\nfor x in a[1:]:\n cur=max(x,cur+x)\n mx=max(mx,cur)\nprint(mx)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8438,7 +8238,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - Java",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] a=new int[n];\n  for(int i=0;i<n;i++) a[i]=sc.nextInt();\n  int cur=a[0],max=a[0];\n  for(int i=1;i<n;i++){\n   cur=Math.max(a[i],cur+a[i]);\n   max=Math.max(max,cur);\n  }\n  System.out.print(max);\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8446,7 +8246,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - C++",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n;cin>>n;\n vector<int>a(n);\n for(int i=0;i<n;i++)cin>>a[i];\n int cur=a[0],mx=a[0];\n for(int i=1;i<n;i++){\n  cur=max(a[i],cur+a[i]);\n  mx=max(mx,cur);\n }\n cout<<mx;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8454,7 +8254,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - C",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n\nint max(int a, int b) {\n    return a > b ? a : b;\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int a[n];\n    for (int i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n\n    int cur = a[0], mx = a[0];\n\n    for (int i = 1; i < n; i++) {\n        cur = max(a[i], cur + a[i]);\n        mx = max(mx, cur);\n    }\n\n    printf(\"%d\", mx);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8466,11 +8266,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8581,11 +8377,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8696,11 +8488,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8811,11 +8599,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8926,11 +8710,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9041,11 +8821,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9156,11 +8932,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9271,11 +9043,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9386,11 +9154,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9501,11 +9265,7 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9616,11 +9376,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9731,11 +9487,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9846,11 +9598,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9961,11 +9709,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10076,11 +9820,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10191,11 +9931,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10306,11 +10042,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10421,11 +10153,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10536,16 +10264,12 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
             "title": "Count Pairs With Difference K",
-            "content": "Given an array of integers and an integer K, count the number of pairs (i, j) such that i < j and |arr[i] \u2212 arr[j]| = K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
+            "content": "Given an array of integers and an integer K, count the number of pairs (i, j) such that i < j and |arr[i] − arr[j]| = K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
             "level": "subtopic",
             "unit_name": "Arrays",
             "subunit_name": "Two Pointer / Sliding Window",
@@ -10651,11 +10375,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10766,11 +10486,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10881,11 +10597,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10996,11 +10708,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -11111,11 +10819,7 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -11226,16 +10930,12 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
             "title": "Sort an Array of 0s, 1s, and 2s",
-            "content": "Given an array containing only 0s, 1s, and 2s, sort it in-place without using any built-in sort function. The relative order of equal elements does not matter.\n\nThis is also known as the **Dutch National Flag Problem**.\n\n**Constraints:**\n- 1 <= n <= 10^5\n- arr[i] \u2208 {0, 1, 2}",
+            "content": "Given an array containing only 0s, 1s, and 2s, sort it in-place without using any built-in sort function. The relative order of equal elements does not matter.\n\nThis is also known as the **Dutch National Flag Problem**.\n\n**Constraints:**\n- 1 <= n <= 10^5\n- arr[i] ∈ {0, 1, 2}",
             "difficulty": "easy",
             "marks": 5,
             "categories": [
@@ -11300,7 +11000,7 @@
             "hints": [
                 "Use three pointers: low (left boundary for 0s), mid (current element), high (right boundary for 2s).",
                 "If arr[mid]=0 swap with arr[low] and advance both low and mid. If arr[mid]=2 swap with arr[high] and decrease high. If arr[mid]=1 just advance mid.",
-                "The algorithm runs in O(n) time with O(1) extra space \u2014 a single pass through the array."
+                "The algorithm runs in O(n) time with O(1) extra space — a single pass through the array."
             ],
             "solutions": [
                 {
@@ -11338,16 +11038,12 @@
             ],
             "level": "subtopic",
             "unit_name": "Arrays",
-            "subunit_name": "Array Rearrangement",
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            "subunit_name": "Array Rearrangement"
         },
         {
             "type": "coding",
             "title": "Maximum Product Subarray",
-            "content": "Given an integer array nums, find a subarray that has the largest product and return the product.\n\nThe test cases are generated so that the answer will fit in a 32-bit integer.\n\n**Constraints:**\n- 1 <= nums.length <= 2 \u00d7 10^4\n- -10 <= nums[i] <= 10",
+            "content": "Given an integer array nums, find a subarray that has the largest product and return the product.\n\nThe test cases are generated so that the answer will fit in a 32-bit integer.\n\n**Constraints:**\n- 1 <= nums.length <= 2 × 10^4\n- -10 <= nums[i] <= 10",
             "difficulty": "medium",
             "marks": 10,
             "categories": [
@@ -11406,7 +11102,7 @@
                 }
             ],
             "hints": [
-                "Track both the maximum and minimum product ending at the current position \u2014 a negative number can flip min to max.",
+                "Track both the maximum and minimum product ending at the current position — a negative number can flip min to max.",
                 "At each position: max_prod = max(num, max_prev*num, min_prev*num), min_prod = min(num, max_prev*num, min_prev*num).",
                 "A zero resets both max and min product to 0 (or the number itself)."
             ],
@@ -11446,11 +11142,7 @@
             ],
             "level": "subtopic",
             "unit_name": "Arrays",
-            "subunit_name": "Subarray Problems",
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            "subunit_name": "Subarray Problems"
         }
     ]
 }

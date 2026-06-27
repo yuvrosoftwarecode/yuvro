@@ -1,2483 +1,2399 @@
 {
-    "name": "Flexbox",
-    "course_short_code": "HTMLCSS100",
-    "order_index": 15,
-    "subtopics": [
+  "name": "Flexbox",
+  "course_short_code": "HTMLCSS100",
+  "order_index": 15,
+  "subtopics": [
+    {
+      "name": "Flex Container",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Flex Container",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Flex Container",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Container+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Flex Container in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Flex Container Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Container+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Flex Container."
-                }
-            ]
+          "title": "Introduction to Flex Container",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Container+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Flex Container in HTML/CSS."
         },
         {
-            "name": "Flex Properties",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Flex Properties",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Properties+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Flex Properties in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Flex Properties Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Properties+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Flex Properties."
-                }
-            ]
-        },
-        {
-            "name": "Flex Items",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Flex Items",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Items+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Flex Items in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Flex Items Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Flex+Items+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Flex Items."
-                }
-            ]
+          "title": "Advanced Flex Container Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Container+html+css",
+          "ai_context": "In-depth explanation and practical examples for Flex Container."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Flex Properties",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Flex Container Definition",
-            "content": "What makes an element a flex container in CSS?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "display: flex",
-                    "is_correct": true
-                },
-                {
-                    "text": "display: block",
-                    "is_correct": false
-                },
-                {
-                    "text": "position: flex",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex: container",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Flex Properties",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Properties+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Flex Properties in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "Flex Direction Purpose",
-            "content": "What does the flex-direction property control?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Direction of flex items inside container",
-                    "is_correct": true
-                },
-                {
-                    "text": "Text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font direction",
-                    "is_correct": false
-                },
-                {
-                    "text": "Border direction",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Container Role",
-            "content": "What is a flex container?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "An element with display: flex applied",
-                    "is_correct": true
-                },
-                {
-                    "text": "Any HTML element with text",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only div elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "An image container only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Direction Row",
-            "content": "What does flex-direction: row do?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Aligns items horizontally from left to right",
-                    "is_correct": true
-                },
-                {
-                    "text": "Aligns items vertically top to bottom",
-                    "is_correct": false
-                },
-                {
-                    "text": "Centers items only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hides flex items",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Direction Column",
-            "content": "What does flex-direction: column do?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Aligns items vertically from top to bottom",
-                    "is_correct": true
-                },
-                {
-                    "text": "Aligns items horizontally",
-                    "is_correct": false
-                },
-                {
-                    "text": "Overlaps all items",
-                    "is_correct": false
-                },
-                {
-                    "text": "Removes flex behavior",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Container Behavior",
-            "content": "What happens when display: flex is applied?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Child elements become flex items and align in a flexible layout",
-                    "is_correct": true
-                },
-                {
-                    "text": "All elements become hidden",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only text becomes bold",
-                    "is_correct": false
-                },
-                {
-                    "text": "Layout breaks completely",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Direction Impact",
-            "content": "How does flex-direction affect main axis in flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It defines whether main axis is horizontal or vertical",
-                    "is_correct": true
-                },
-                {
-                    "text": "It changes font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes flex behavior",
-                    "is_correct": false
-                },
-                {
-                    "text": "It affects only borders",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Justify Content Purpose",
-            "content": "What does justify-content do in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Aligns items along the main axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "Aligns items vertically only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Changes font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hides elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Align Items Purpose",
-            "content": "What does align-items control in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Alignment along the cross axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "Horizontal spacing only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Border spacing",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Gap Property",
-            "content": "What does the gap property do in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Creates space between flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "Changes font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Aligns items vertically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Removes elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Align Content Usage",
-            "content": "When is align-content used in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "When there are multiple lines of flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "For single-line alignment only",
-                    "is_correct": false
-                },
-                {
-                    "text": "For text styling",
-                    "is_correct": false
-                },
-                {
-                    "text": "For font spacing",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Main Axis Alignment",
-            "content": "Which property aligns flex items along the main axis?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-content",
-                    "is_correct": false
-                },
-                {
-                    "text": "gap",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Align Items vs Align Content",
-            "content": "What is the key difference between align-items and align-content?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "align-items is for single line, align-content is for multiple lines",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both work only on main axis",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both are for text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both behave exactly the same",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Gap Behavior",
-            "content": "How does the gap property behave in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It creates consistent spacing between flex items without margins",
-                    "is_correct": true
-                },
-                {
-                    "text": "It removes all spacing",
-                    "is_correct": false
-                },
-                {
-                    "text": "It affects only font spacing",
-                    "is_correct": false
-                },
-                {
-                    "text": "It hides elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Item Definition",
-            "content": "What is a flex item?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A child element inside a flex container",
-                    "is_correct": true
-                },
-                {
-                    "text": "A CSS property",
-                    "is_correct": false
-                },
-                {
-                    "text": "A type of selector",
-                    "is_correct": false
-                },
-                {
-                    "text": "A layout container only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Grow Purpose",
-            "content": "What does flex-grow control?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "How much a flex item grows relative to others",
-                    "is_correct": true
-                },
-                {
-                    "text": "Item color",
-                    "is_correct": false
-                },
-                {
-                    "text": "Text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Border width",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Order Property",
-            "content": "What does the order property do in Flexbox?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Changes the visual order of flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "Changes font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hides elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Aligns items vertically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Basis Meaning",
-            "content": "What does flex-basis define?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Initial size of a flex item before space distribution",
-                    "is_correct": true
-                },
-                {
-                    "text": "Final position of item",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font weight",
-                    "is_correct": false
-                },
-                {
-                    "text": "Gap between items",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Shrink Purpose",
-            "content": "What does flex-shrink control?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "How much a flex item shrinks when space is limited",
-                    "is_correct": true
-                },
-                {
-                    "text": "How much item grows",
-                    "is_correct": false
-                },
-                {
-                    "text": "Text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "Border spacing",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Grow Behavior",
-            "content": "If flex-grow is set to 0, what happens?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The item will not grow to fill extra space",
-                    "is_correct": true
-                },
-                {
-                    "text": "The item becomes invisible",
-                    "is_correct": false
-                },
-                {
-                    "text": "The item shrinks automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "The item moves to center",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Flex Items Distribution",
-            "content": "How are remaining space distributed when multiple flex items have flex-grow values?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Based on the ratio of their flex-grow values",
-                    "is_correct": true
-                },
-                {
-                    "text": "Equally among all items always",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only first item gets space",
-                    "is_correct": false
-                },
-                {
-                    "text": "Space is ignored",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Container Basics",
-            "content": "Which of the following statements about Flexbox container are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "display: flex enables flexbox on a container",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction defines the direction of flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "display: flex makes elements invisible",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-direction controls layout flow inside flex container",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Container Basics Understanding",
-            "content": "Which of the following statements about flex container properties are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-direction can be row or column",
-                    "is_correct": true
-                },
-                {
-                    "text": "display: flex activates flex layout",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction changes text color",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex container controls child alignment",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Container Introduction",
-            "content": "Which of the following statements about flex container setup are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "display: flex turns a block into flex container",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction controls layout direction",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction affects font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex container organizes child elements",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Direction Behavior",
-            "content": "Which of the following statements about flex-direction behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-direction can be row or column",
-                    "is_correct": true
-                },
-                {
-                    "text": "row places items horizontally",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction changes element visibility",
-                    "is_correct": false
-                },
-                {
-                    "text": "column stacks items vertically",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Container Layout Control",
-            "content": "Which of the following statements about flex container layout control are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "display: flex enables flexible layout system",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction defines main axis direction",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction affects only text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex container controls arrangement of children",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Flex Container Concepts",
-            "content": "Which of the following statements about advanced flex container concepts are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-direction determines main axis of layout",
-                    "is_correct": true
-                },
-                {
-                    "text": "display: flex creates a flex formatting context",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-direction affects only background styling",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex container controls alignment of child items",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Container Behavior Deep Dive",
-            "content": "Which of the following statements about flex container behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-direction changes layout flow direction",
-                    "is_correct": true
-                },
-                {
-                    "text": "display: flex enables flexible alignment system",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex container removes block/inline behavior entirely",
-                    "is_correct": false
-                },
-                {
-                    "text": "main axis is defined by flex-direction",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Properties Basics",
-            "content": "Which of the following are valid Flexbox properties?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content is used to align items horizontally",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items controls cross-axis alignment",
-                    "is_correct": true
-                },
-                {
-                    "text": "gap is used to change font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-content works with multiple flex lines",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flexbox Alignment Basics",
-            "content": "Which of the following statements about Flexbox alignment properties are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content aligns items along main axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items aligns items along cross axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "gap changes element visibility",
-                    "is_correct": false
-                },
-                {
-                    "text": "gap controls spacing between flex items",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Properties Overview",
-            "content": "Which of the following statements about flex properties are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content controls horizontal spacing",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items controls vertical alignment",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-content works with single-line flex container",
-                    "is_correct": false
-                },
-                {
-                    "text": "gap defines spacing between flex items",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Alignment Behavior",
-            "content": "Which of the following statements about flex alignment behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content works on main axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items works on cross axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "gap affects only text spacing",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-content works when there are multiple rows",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Gap and Alignment",
-            "content": "Which of the following statements about gap and alignment are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "gap controls spacing between flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "justify-content distributes space along main axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items controls spacing between rows",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-content works with wrapped flex lines",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Flexbox Alignment",
-            "content": "Which of the following statements about advanced flex alignment are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-content controls distribution of space along main axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-items aligns items along cross axis",
-                    "is_correct": true
-                },
-                {
-                    "text": "gap replaces justify-content functionality",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-content affects multi-line flex containers",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flexbox Layout Behavior",
-            "content": "Which of the following statements about flexbox layout behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "gap simplifies spacing between flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-content works only when flex-wrap is enabled",
-                    "is_correct": true
-                },
-                {
-                    "text": "justify-content works on cross axis",
-                    "is_correct": false
-                },
-                {
-                    "text": "align-items aligns items inside flex container",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Items Basics",
-            "content": "Which of the following are valid Flexbox item properties?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-grow controls how much an item grows",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-shrink controls how much an item shrinks",
-                    "is_correct": true
-                },
-                {
-                    "text": "order controls text color",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-basis defines initial size of an item",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Item Properties Overview",
-            "content": "Which of the following statements about flex item properties are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "order changes the visual order of flex items",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-grow allows items to take extra space",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-basis controls font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-shrink allows items to shrink when needed",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Item Basics",
-            "content": "Which of the following statements about flex items are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-grow affects how items expand",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-shrink affects how items reduce size",
-                    "is_correct": true
-                },
-                {
-                    "text": "order affects layout direction of container",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-basis sets initial size of item",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Item Behavior",
-            "content": "Which of the following statements about flex item behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-grow distributes extra space among items",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-shrink determines how items shrink in small screens",
-                    "is_correct": true
-                },
-                {
-                    "text": "order changes container direction",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-basis defines starting size of flex item",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Item Sizing Concepts",
-            "content": "Which of the following statements about flex item sizing are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-basis sets initial size before flexing",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-grow increases available space usage",
-                    "is_correct": true
-                },
-                {
-                    "text": "order changes item size automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-shrink controls reduction of item size",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Flex Item Control",
-            "content": "Which of the following statements about advanced flex item control are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "flex-grow determines how extra space is distributed",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-shrink controls how items behave in overflow",
-                    "is_correct": true
-                },
-                {
-                    "text": "order changes physical DOM structure",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-basis defines initial main size of item",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Flex Items Layout Behavior",
-            "content": "Which of the following statements about flex item layout behavior are correct?",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "order changes visual arrangement without changing HTML",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-grow allows dynamic resizing based on space",
-                    "is_correct": true
-                },
-                {
-                    "text": "flex-basis controls stacking order",
-                    "is_correct": false
-                },
-                {
-                    "text": "flex-shrink handles shrinking behavior in limited space",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Create a Flex Container",
-            "content": "Create an HTML page and apply display: flex to a container and observe how child elements align horizontally by default.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items aligned in a row using flex"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Flex container layout applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "display: flex;",
-                    "explanation": "Flex container arranges items in a row by default."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML flex layout.",
-            "solutions": [
-                {
-                    "title": "Basic Flex Container",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    background: lightgray;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: steelblue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use display: flex on parent container."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Arrange Items Using Flex Container",
-            "content": "Create a flex container and add multiple items to observe default horizontal alignment behavior.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items arranged in row"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Flex layout applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "default row direction",
-                    "explanation": "Flexbox arranges items horizontally by default."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Flex container layout.",
-            "solutions": [
-                {
-                    "title": "Flex Row Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.item {\n    padding: 10px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"item\">1</div>\n        <div class=\"item\">2</div>\n        <div class=\"item\">3</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Flex container controls child alignment."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Vertical Flex Layout Using Column Direction",
-            "content": "Create a flex container and set flex-direction: column to arrange items vertically.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items arranged vertically"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Column layout applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-direction: column;",
-                    "explanation": "Changes direction from row to column."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Vertical flex layout.",
-            "solutions": [
-                {
-                    "title": "Flex Column Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-direction: column;\n}\n.item {\n    margin: 5px;\n    padding: 10px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"item\">A</div>\n        <div class=\"item\">B</div>\n        <div class=\"item\">C</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use flex-direction property."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Responsive Navigation Bar Using Flexbox",
-            "content": "Create a navigation bar using display: flex and flex-direction to align items properly.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Navigation bar displayed horizontally"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper flex alignment of menu items"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex layout nav",
-                    "explanation": "Flexbox is used in modern navbars."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML navigation bar.",
-            "solutions": [
-                {
-                    "title": "Flex Navbar",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.nav {\n    display: flex;\n    background: black;\n    color: white;\n}\n.nav div {\n    padding: 10px;\n}\n</style>\n</head>\n<body>\n    <div class=\"nav\">\n        <div>Home</div>\n        <div>About</div>\n        <div>Contact</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use flex for horizontal alignment."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Column-Based Dashboard Layout Using Flexbox",
-            "content": "Create a dashboard layout using flex-direction: column with multiple sections stacked vertically.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Dashboard sections stacked vertically"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper column-based layout structure"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-direction: column",
-                    "explanation": "Used for vertical layouts."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Dashboard layout.",
-            "solutions": [
-                {
-                    "title": "Flex Column Dashboard",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.dashboard {\n    display: flex;\n    flex-direction: column;\n}\n.section {\n    padding: 20px;\n    margin: 5px;\n    background: lightblue;\n}\n</style>\n</head>\n<body>\n    <div class=\"dashboard\">\n        <div class=\"section\">Header</div>\n        <div class=\"section\">Content</div>\n        <div class=\"section\">Footer</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use column direction for stacking layout."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Advanced Flex Layout with Mixed Direction Changes",
-            "content": "Create a layout where different containers use row and column flex-direction to simulate a complex UI.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Mixed flex layouts rendered"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper combination of row and column layouts"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "nested flex containers",
-                    "explanation": "Real UI uses mixed flex directions."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Complex flex layout page.",
-            "solutions": [
-                {
-                    "title": "Mixed Flex Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.row {\n    display: flex;\n}\n.column {\n    display: flex;\n    flex-direction: column;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n    background: orange;\n}\n</style>\n</head>\n<body>\n    <div class=\"row\">\n        <div class=\"box\">A</div>\n        <div class=\"column\">\n            <div class=\"box\">B1</div>\n            <div class=\"box\">B2</div>\n        </div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine multiple flex containers.",
-                "Use row and column together."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design a Complex UI Layout Using Flex Direction Strategy",
-            "content": "Create a full page layout combining multiple flex containers with different flex-direction values.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Container",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Structured UI layout"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper alignment of all sections"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-based UI system",
-                    "explanation": "Modern layouts rely on nested flexboxes."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Full webpage layout.",
-            "solutions": [
-                {
-                    "title": "Advanced Flex UI",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.header, .footer {\n    display: flex;\n    justify-content: center;\n    background: gray;\n}\n.main {\n    display: flex;\n}\n.sidebar {\n    display: flex;\n    flex-direction: column;\n}\n.content {\n    display: flex;\n}\n.box {\n    margin: 5px;\n    padding: 10px;\n    background: lightcoral;\n}\n</style>\n</head>\n<body>\n    <div class=\"header\">Header</div>\n    <div class=\"main\">\n        <div class=\"sidebar\">\n            <div class=\"box\">Menu</div>\n            <div class=\"box\">Links</div>\n        </div>\n        <div class=\"content\">\n            <div class=\"box\">Content Area</div>\n        </div>\n    </div>\n    <div class=\"footer\">Footer</div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use multiple nested flex containers.",
-                "Combine row and column layouts strategically."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Center Items Using justify-content",
-            "content": "Create an HTML page using Flexbox and apply justify-content to align items horizontally in the center.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items centered horizontally"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Flex items aligned at center"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "justify-content: center;",
-                    "explanation": "Centers items along main axis."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Centered flex layout.",
-            "solutions": [
-                {
-                    "title": "Justify Content Center",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    justify-content: center;\n    background: lightgray;\n    height: 100px;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: steelblue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use justify-content on flex container."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Align Items Vertically Using align-items",
-            "content": "Create a Flexbox layout and use align-items to vertically center items inside a container.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items vertically centered"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper vertical alignment achieved"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "align-items: center;",
-                    "explanation": "Aligns items along cross axis."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Vertically centered layout.",
-            "solutions": [
-                {
-                    "title": "Align Items Center",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    align-items: center;\n    height: 150px;\n    background: lightblue;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "align-items controls vertical alignment."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Spaced Layout Using gap Property",
-            "content": "Build a Flexbox container and use the gap property to add spacing between items.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items spaced evenly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Consistent gap between flex items"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "gap: 10px;",
-                    "explanation": "gap adds spacing between flex items."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Flex layout with spacing.",
-            "solutions": [
-                {
-                    "title": "Flex Gap Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    gap: 10px;\n    background: #eee;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: green;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "gap works only in flex/grid containers."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Combine justify-content and align-items for Centered Layout",
-            "content": "Create a Flexbox container that centers items both horizontally and vertically using justify-content and align-items.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items fully centered"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Perfect center alignment both axes"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "center alignment",
-                    "explanation": "Both properties used together."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Centered flex layout.",
-            "solutions": [
-                {
-                    "title": "Center Alignment",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    height: 200px;\n    background: lightgray;\n}\n.box {\n    width: 60px;\n    height: 60px;\n    background: red;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use both justify-content and align-items."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Multi-Line Flex Layout Using align-content",
-            "content": "Create a flex container with wrapped items and use align-content to control spacing between rows.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Multiple rows aligned properly"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Row spacing controlled using align-content"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-wrap + align-content",
-                    "explanation": "Aligns multiple flex lines."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Multi-line flex layout.",
-            "solutions": [
-                {
-                    "title": "Align Content Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    align-content: space-between;\n    height: 200px;\n    background: #ddd;\n}\n.box {\n    width: 60px;\n    height: 40px;\n    background: blue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "align-content works only with wrapped flex items."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Advanced Dashboard Layout Using All Flex Properties",
-            "content": "Build a dashboard layout using justify-content, align-items, align-content, and gap together.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Structured dashboard layout"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper spacing and alignment in all directions"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "full flex system usage",
-                    "explanation": "Combines all flex properties."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Dashboard UI layout.",
-            "solutions": [
-                {
-                    "title": "Advanced Flex Dashboard",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: space-between;\n    align-items: center;\n    align-content: space-around;\n    gap: 10px;\n    height: 300px;\n    background: #f0f0f0;\n}\n.box {\n    width: 80px;\n    height: 60px;\n    background: purple;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine all flex properties together.",
-                "Use wrap for align-content effect."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design Responsive Card Layout Using Flex Properties",
-            "content": "Create a responsive card layout using justify-content, align-items, and gap for spacing and alignment.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Properties",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Responsive card layout displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper spacing and alignment across screen sizes"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex card system",
-                    "explanation": "Real UI uses flex properties for responsiveness."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Responsive card layout.",
-            "solutions": [
-                {
-                    "title": "Flex Cards Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: center;\n    align-items: center;\n    gap: 15px;\n}\n.card {\n    width: 120px;\n    height: 100px;\n    background: teal;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"card\"></div>\n        <div class=\"card\"></div>\n        <div class=\"card\"></div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use gap for spacing.",
-                "Combine alignment properties for responsiveness."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Understand flex-grow Basic Behavior",
-            "content": "Create a flex container and apply flex-grow to child items to observe how they expand to fill available space.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items expand based on flex-grow"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Space distributed among flex items"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-grow: 1;",
-                    "explanation": "Items grow proportionally."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Flex layout with growing items.",
-            "solutions": [
-                {
-                    "title": "Flex Grow Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-grow: 1;\n    background: lightblue;\n    margin: 5px;\n    height: 50px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">1</div>\n        <div class=\"box\">2</div>\n        <div class=\"box\">3</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "flex-grow distributes extra space."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Control Item Size Using flex-basis",
-            "content": "Create a flex container and set different flex-basis values for items to control their initial size.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items with different base sizes"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Initial size controlled by flex-basis"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-basis: 100px;",
-                    "explanation": "Defines initial size before growing."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Flex layout with basis control.",
-            "solutions": [
-                {
-                    "title": "Flex Basis Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-basis: 100px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">A</div>\n        <div class=\"box\">B</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "flex-basis sets initial width."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Change Item Order Using order Property",
-            "content": "Create a flex container and rearrange items using the order property in CSS.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items displayed in custom order"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Visual order different from HTML order"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "order: 1;",
-                    "explanation": "Controls visual arrangement."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Reordered flex items.",
-            "solutions": [
-                {
-                    "title": "Order Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 2;\n    background: red;\n}\n.box2 {\n    order: 1;\n    background: blue;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">1</div>\n        <div class=\"box box2\">2</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Lower order appears first."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Control Space Distribution Using flex-grow and flex-shrink",
-            "content": "Create a flex layout where items grow and shrink based on available space using flex-grow and flex-shrink.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items resize dynamically"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper space distribution and shrinking"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-grow + flex-shrink",
-                    "explanation": "Controls expansion and contraction."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Responsive flex layout.",
-            "solutions": [
-                {
-                    "title": "Grow and Shrink Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-grow: 1;\n    flex-shrink: 1;\n    flex-basis: 100px;\n    margin: 5px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">A</div>\n        <div class=\"box\">B</div>\n        <div class=\"box\">C</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "flex-grow expands, flex-shrink reduces size."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Responsive Card Layout Using Flex Basis and Grow",
-            "content": "Create a responsive card layout where cards adjust size using flex-basis and flex-grow.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Responsive cards displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Cards adjust based on screen size"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "flex-basis + flex-grow",
-                    "explanation": "Used for responsive layouts."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Responsive card UI.",
-            "solutions": [
-                {
-                    "title": "Responsive Cards",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n}\n.card {\n    flex: 1 1 150px;\n    margin: 10px;\n    background: skyblue;\n    padding: 20px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"card\">Card 1</div>\n        <div class=\"card\">Card 2</div>\n        <div class=\"card\">Card 3</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use flex shorthand: flex: grow shrink basis."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build Advanced Layout Using Order and Flex Properties",
-            "content": "Create a complex layout where items are rearranged using order and resized using flex-grow and flex-basis.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Items reordered and resized"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper layout with custom ordering"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "order + flex-grow combination",
-                    "explanation": "Used for advanced UI layouts."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Advanced flex layout.",
-            "solutions": [
-                {
-                    "title": "Order + Flex Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 3;\n    flex-grow: 1;\n    background: red;\n}\n.box2 {\n    order: 1;\n    flex-grow: 2;\n    background: blue;\n}\n.box3 {\n    order: 2;\n    flex-grow: 1;\n    background: green;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">1</div>\n        <div class=\"box box2\">2</div>\n        <div class=\"box box3\">3</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine order and flex-grow for layout control."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Dynamic UI Layout Using All Flex Item Properties",
-            "content": "Build a full flex layout using flex-grow, flex-shrink, flex-basis, and order together.",
-            "level": "subtopic",
-            "topic_name": "Flexbox",
-            "subtopic_name": "Flex Items",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Fully flexible layout rendered"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Responsive and reordered layout"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "complete flex item control",
-                    "explanation": "All flex item properties combined."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Advanced responsive layout.",
-            "solutions": [
-                {
-                    "title": "Complete Flex Items Demo",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 2;\n    flex: 2 1 150px;\n    background: pink;\n}\n.box2 {\n    order: 1;\n    flex: 1 1 100px;\n    background: orange;\n}\n.box3 {\n    order: 3;\n    flex: 1 1 120px;\n    background: purple;\n}\n.box {\n    margin: 5px;\n    padding: 10px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">A</div>\n        <div class=\"box box2\">B</div>\n        <div class=\"box box3\">C</div>\n    </div>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use flex shorthand for better control.",
-                "Combine order and sizing properties."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Flex Properties Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Properties+html+css",
+          "ai_context": "In-depth explanation and practical examples for Flex Properties."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Flex Items",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Flex Items",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Items+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Flex Items in HTML/CSS."
+        },
+        {
+          "title": "Advanced Flex Items Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Flex+Items+html+css",
+          "ai_context": "In-depth explanation and practical examples for Flex Items."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Flex Container Definition",
+      "content": "What makes an element a flex container in CSS?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: flex",
+          "is_correct": true
+        },
+        {
+          "text": "display: block",
+          "is_correct": false
+        },
+        {
+          "text": "position: flex",
+          "is_correct": false
+        },
+        {
+          "text": "flex: container",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Direction Purpose",
+      "content": "What does the flex-direction property control?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Direction of flex items inside container",
+          "is_correct": true
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Font direction",
+          "is_correct": false
+        },
+        {
+          "text": "Border direction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Container Role",
+      "content": "What is a flex container?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An element with display: flex applied",
+          "is_correct": true
+        },
+        {
+          "text": "Any HTML element with text",
+          "is_correct": false
+        },
+        {
+          "text": "Only div elements",
+          "is_correct": false
+        },
+        {
+          "text": "An image container only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Direction Row",
+      "content": "What does flex-direction: row do?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aligns items horizontally from left to right",
+          "is_correct": true
+        },
+        {
+          "text": "Aligns items vertically top to bottom",
+          "is_correct": false
+        },
+        {
+          "text": "Centers items only",
+          "is_correct": false
+        },
+        {
+          "text": "Hides flex items",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Direction Column",
+      "content": "What does flex-direction: column do?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aligns items vertically from top to bottom",
+          "is_correct": true
+        },
+        {
+          "text": "Aligns items horizontally",
+          "is_correct": false
+        },
+        {
+          "text": "Overlaps all items",
+          "is_correct": false
+        },
+        {
+          "text": "Removes flex behavior",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Container Behavior",
+      "content": "What happens when display: flex is applied?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Child elements become flex items and align in a flexible layout",
+          "is_correct": true
+        },
+        {
+          "text": "All elements become hidden",
+          "is_correct": false
+        },
+        {
+          "text": "Only text becomes bold",
+          "is_correct": false
+        },
+        {
+          "text": "Layout breaks completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Direction Impact",
+      "content": "How does flex-direction affect main axis in flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It defines whether main axis is horizontal or vertical",
+          "is_correct": true
+        },
+        {
+          "text": "It changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "It removes flex behavior",
+          "is_correct": false
+        },
+        {
+          "text": "It affects only borders",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Justify Content Purpose",
+      "content": "What does justify-content do in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aligns items along the main axis",
+          "is_correct": true
+        },
+        {
+          "text": "Aligns items vertically only",
+          "is_correct": false
+        },
+        {
+          "text": "Changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Hides elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Align Items Purpose",
+      "content": "What does align-items control in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Alignment along the cross axis",
+          "is_correct": true
+        },
+        {
+          "text": "Horizontal spacing only",
+          "is_correct": false
+        },
+        {
+          "text": "Font alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Border spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gap Property",
+      "content": "What does the gap property do in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creates space between flex items",
+          "is_correct": true
+        },
+        {
+          "text": "Changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Aligns items vertically",
+          "is_correct": false
+        },
+        {
+          "text": "Removes elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Align Content Usage",
+      "content": "When is align-content used in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When there are multiple lines of flex items",
+          "is_correct": true
+        },
+        {
+          "text": "For single-line alignment only",
+          "is_correct": false
+        },
+        {
+          "text": "For text styling",
+          "is_correct": false
+        },
+        {
+          "text": "For font spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Main Axis Alignment",
+      "content": "Which property aligns flex items along the main axis?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content",
+          "is_correct": true
+        },
+        {
+          "text": "align-items",
+          "is_correct": false
+        },
+        {
+          "text": "align-content",
+          "is_correct": false
+        },
+        {
+          "text": "gap",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Align Items vs Align Content",
+      "content": "What is the key difference between align-items and align-content?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "align-items is for single line, align-content is for multiple lines",
+          "is_correct": true
+        },
+        {
+          "text": "Both work only on main axis",
+          "is_correct": false
+        },
+        {
+          "text": "Both are for text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Both behave exactly the same",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gap Behavior",
+      "content": "How does the gap property behave in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It creates consistent spacing between flex items without margins",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all spacing",
+          "is_correct": false
+        },
+        {
+          "text": "It affects only font spacing",
+          "is_correct": false
+        },
+        {
+          "text": "It hides elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Item Definition",
+      "content": "What is a flex item?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A child element inside a flex container",
+          "is_correct": true
+        },
+        {
+          "text": "A CSS property",
+          "is_correct": false
+        },
+        {
+          "text": "A type of selector",
+          "is_correct": false
+        },
+        {
+          "text": "A layout container only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Grow Purpose",
+      "content": "What does flex-grow control?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How much a flex item grows relative to others",
+          "is_correct": true
+        },
+        {
+          "text": "Item color",
+          "is_correct": false
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Border width",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Order Property",
+      "content": "What does the order property do in Flexbox?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Changes the visual order of flex items",
+          "is_correct": true
+        },
+        {
+          "text": "Changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Hides elements",
+          "is_correct": false
+        },
+        {
+          "text": "Aligns items vertically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Basis Meaning",
+      "content": "What does flex-basis define?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Initial size of a flex item before space distribution",
+          "is_correct": true
+        },
+        {
+          "text": "Final position of item",
+          "is_correct": false
+        },
+        {
+          "text": "Font weight",
+          "is_correct": false
+        },
+        {
+          "text": "Gap between items",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Shrink Purpose",
+      "content": "What does flex-shrink control?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How much a flex item shrinks when space is limited",
+          "is_correct": true
+        },
+        {
+          "text": "How much item grows",
+          "is_correct": false
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Border spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Grow Behavior",
+      "content": "If flex-grow is set to 0, what happens?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The item will not grow to fill extra space",
+          "is_correct": true
+        },
+        {
+          "text": "The item becomes invisible",
+          "is_correct": false
+        },
+        {
+          "text": "The item shrinks automatically",
+          "is_correct": false
+        },
+        {
+          "text": "The item moves to center",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flex Items Distribution",
+      "content": "How are remaining space distributed when multiple flex items have flex-grow values?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Based on the ratio of their flex-grow values",
+          "is_correct": true
+        },
+        {
+          "text": "Equally among all items always",
+          "is_correct": false
+        },
+        {
+          "text": "Only first item gets space",
+          "is_correct": false
+        },
+        {
+          "text": "Space is ignored",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Container Basics",
+      "content": "Which of the following statements about Flexbox container are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: flex enables flexbox on a container",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction defines the direction of flex items",
+          "is_correct": true
+        },
+        {
+          "text": "display: flex makes elements invisible",
+          "is_correct": false
+        },
+        {
+          "text": "flex-direction controls layout flow inside flex container",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Container Basics Understanding",
+      "content": "Which of the following statements about flex container properties are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-direction can be row or column",
+          "is_correct": true
+        },
+        {
+          "text": "display: flex activates flex layout",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "flex container controls child alignment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Container Introduction",
+      "content": "Which of the following statements about flex container setup are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: flex turns a block into flex container",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction controls layout direction",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction affects font size",
+          "is_correct": false
+        },
+        {
+          "text": "flex container organizes child elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Direction Behavior",
+      "content": "Which of the following statements about flex-direction behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-direction can be row or column",
+          "is_correct": true
+        },
+        {
+          "text": "row places items horizontally",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction changes element visibility",
+          "is_correct": false
+        },
+        {
+          "text": "column stacks items vertically",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Container Layout Control",
+      "content": "Which of the following statements about flex container layout control are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: flex enables flexible layout system",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction defines main axis direction",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction affects only text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "flex container controls arrangement of children",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Flex Container Concepts",
+      "content": "Which of the following statements about advanced flex container concepts are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-direction determines main axis of layout",
+          "is_correct": true
+        },
+        {
+          "text": "display: flex creates a flex formatting context",
+          "is_correct": true
+        },
+        {
+          "text": "flex-direction affects only background styling",
+          "is_correct": false
+        },
+        {
+          "text": "flex container controls alignment of child items",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Container Behavior Deep Dive",
+      "content": "Which of the following statements about flex container behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-direction changes layout flow direction",
+          "is_correct": true
+        },
+        {
+          "text": "display: flex enables flexible alignment system",
+          "is_correct": true
+        },
+        {
+          "text": "flex container removes block/inline behavior entirely",
+          "is_correct": false
+        },
+        {
+          "text": "main axis is defined by flex-direction",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Properties Basics",
+      "content": "Which of the following are valid Flexbox properties?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content is used to align items horizontally",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls cross-axis alignment",
+          "is_correct": true
+        },
+        {
+          "text": "gap is used to change font size",
+          "is_correct": false
+        },
+        {
+          "text": "align-content works with multiple flex lines",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flexbox Alignment Basics",
+      "content": "Which of the following statements about Flexbox alignment properties are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content aligns items along main axis",
+          "is_correct": true
+        },
+        {
+          "text": "align-items aligns items along cross axis",
+          "is_correct": true
+        },
+        {
+          "text": "gap changes element visibility",
+          "is_correct": false
+        },
+        {
+          "text": "gap controls spacing between flex items",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Properties Overview",
+      "content": "Which of the following statements about flex properties are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content controls horizontal spacing",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls vertical alignment",
+          "is_correct": true
+        },
+        {
+          "text": "align-content works with single-line flex container",
+          "is_correct": false
+        },
+        {
+          "text": "gap defines spacing between flex items",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Alignment Behavior",
+      "content": "Which of the following statements about flex alignment behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content works on main axis",
+          "is_correct": true
+        },
+        {
+          "text": "align-items works on cross axis",
+          "is_correct": true
+        },
+        {
+          "text": "gap affects only text spacing",
+          "is_correct": false
+        },
+        {
+          "text": "align-content works when there are multiple rows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Gap and Alignment",
+      "content": "Which of the following statements about gap and alignment are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "gap controls spacing between flex items",
+          "is_correct": true
+        },
+        {
+          "text": "justify-content distributes space along main axis",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls spacing between rows",
+          "is_correct": false
+        },
+        {
+          "text": "align-content works with wrapped flex lines",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Flexbox Alignment",
+      "content": "Which of the following statements about advanced flex alignment are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-content controls distribution of space along main axis",
+          "is_correct": true
+        },
+        {
+          "text": "align-items aligns items along cross axis",
+          "is_correct": true
+        },
+        {
+          "text": "gap replaces justify-content functionality",
+          "is_correct": false
+        },
+        {
+          "text": "align-content affects multi-line flex containers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flexbox Layout Behavior",
+      "content": "Which of the following statements about flexbox layout behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "gap simplifies spacing between flex items",
+          "is_correct": true
+        },
+        {
+          "text": "align-content works only when flex-wrap is enabled",
+          "is_correct": true
+        },
+        {
+          "text": "justify-content works on cross axis",
+          "is_correct": false
+        },
+        {
+          "text": "align-items aligns items inside flex container",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Items Basics",
+      "content": "Which of the following are valid Flexbox item properties?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-grow controls how much an item grows",
+          "is_correct": true
+        },
+        {
+          "text": "flex-shrink controls how much an item shrinks",
+          "is_correct": true
+        },
+        {
+          "text": "order controls text color",
+          "is_correct": false
+        },
+        {
+          "text": "flex-basis defines initial size of an item",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Item Properties Overview",
+      "content": "Which of the following statements about flex item properties are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "order changes the visual order of flex items",
+          "is_correct": true
+        },
+        {
+          "text": "flex-grow allows items to take extra space",
+          "is_correct": true
+        },
+        {
+          "text": "flex-basis controls font size",
+          "is_correct": false
+        },
+        {
+          "text": "flex-shrink allows items to shrink when needed",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Item Basics",
+      "content": "Which of the following statements about flex items are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-grow affects how items expand",
+          "is_correct": true
+        },
+        {
+          "text": "flex-shrink affects how items reduce size",
+          "is_correct": true
+        },
+        {
+          "text": "order affects layout direction of container",
+          "is_correct": false
+        },
+        {
+          "text": "flex-basis sets initial size of item",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Item Behavior",
+      "content": "Which of the following statements about flex item behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-grow distributes extra space among items",
+          "is_correct": true
+        },
+        {
+          "text": "flex-shrink determines how items shrink in small screens",
+          "is_correct": true
+        },
+        {
+          "text": "order changes container direction",
+          "is_correct": false
+        },
+        {
+          "text": "flex-basis defines starting size of flex item",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Item Sizing Concepts",
+      "content": "Which of the following statements about flex item sizing are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-basis sets initial size before flexing",
+          "is_correct": true
+        },
+        {
+          "text": "flex-grow increases available space usage",
+          "is_correct": true
+        },
+        {
+          "text": "order changes item size automatically",
+          "is_correct": false
+        },
+        {
+          "text": "flex-shrink controls reduction of item size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Flex Item Control",
+      "content": "Which of the following statements about advanced flex item control are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "flex-grow determines how extra space is distributed",
+          "is_correct": true
+        },
+        {
+          "text": "flex-shrink controls how items behave in overflow",
+          "is_correct": true
+        },
+        {
+          "text": "order changes physical DOM structure",
+          "is_correct": false
+        },
+        {
+          "text": "flex-basis defines initial main size of item",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Flex Items Layout Behavior",
+      "content": "Which of the following statements about flex item layout behavior are correct?",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "order changes visual arrangement without changing HTML",
+          "is_correct": true
+        },
+        {
+          "text": "flex-grow allows dynamic resizing based on space",
+          "is_correct": true
+        },
+        {
+          "text": "flex-basis controls stacking order",
+          "is_correct": false
+        },
+        {
+          "text": "flex-shrink handles shrinking behavior in limited space",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Flex Container",
+      "content": "Create an HTML page and apply display: flex to a container and observe how child elements align horizontally by default.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items aligned in a row using flex"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Flex container layout applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display: flex;",
+          "explanation": "Flex container arranges items in a row by default."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML flex layout.",
+      "solutions": [
+        {
+          "title": "Basic Flex Container",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    background: lightgray;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: steelblue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use display: flex on parent container."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Arrange Items Using Flex Container",
+      "content": "Create a flex container and add multiple items to observe default horizontal alignment behavior.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items arranged in row"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Flex layout applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "default row direction",
+          "explanation": "Flexbox arranges items horizontally by default."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Flex container layout.",
+      "solutions": [
+        {
+          "title": "Flex Row Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.item {\n    padding: 10px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"item\">1</div>\n        <div class=\"item\">2</div>\n        <div class=\"item\">3</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Flex container controls child alignment."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Vertical Flex Layout Using Column Direction",
+      "content": "Create a flex container and set flex-direction: column to arrange items vertically.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items arranged vertically"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Column layout applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-direction: column;",
+          "explanation": "Changes direction from row to column."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Vertical flex layout.",
+      "solutions": [
+        {
+          "title": "Flex Column Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-direction: column;\n}\n.item {\n    margin: 5px;\n    padding: 10px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"item\">A</div>\n        <div class=\"item\">B</div>\n        <div class=\"item\">C</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use flex-direction property."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Responsive Navigation Bar Using Flexbox",
+      "content": "Create a navigation bar using display: flex and flex-direction to align items properly.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Navigation bar displayed horizontally"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper flex alignment of menu items"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex layout nav",
+          "explanation": "Flexbox is used in modern navbars."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML navigation bar.",
+      "solutions": [
+        {
+          "title": "Flex Navbar",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.nav {\n    display: flex;\n    background: black;\n    color: white;\n}\n.nav div {\n    padding: 10px;\n}\n</style>\n</head>\n<body>\n    <div class=\"nav\">\n        <div>Home</div>\n        <div>About</div>\n        <div>Contact</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use flex for horizontal alignment."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Column-Based Dashboard Layout Using Flexbox",
+      "content": "Create a dashboard layout using flex-direction: column with multiple sections stacked vertically.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Dashboard sections stacked vertically"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper column-based layout structure"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-direction: column",
+          "explanation": "Used for vertical layouts."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Dashboard layout.",
+      "solutions": [
+        {
+          "title": "Flex Column Dashboard",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.dashboard {\n    display: flex;\n    flex-direction: column;\n}\n.section {\n    padding: 20px;\n    margin: 5px;\n    background: lightblue;\n}\n</style>\n</head>\n<body>\n    <div class=\"dashboard\">\n        <div class=\"section\">Header</div>\n        <div class=\"section\">Content</div>\n        <div class=\"section\">Footer</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use column direction for stacking layout."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Advanced Flex Layout with Mixed Direction Changes",
+      "content": "Create a layout where different containers use row and column flex-direction to simulate a complex UI.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Mixed flex layouts rendered"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper combination of row and column layouts"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "nested flex containers",
+          "explanation": "Real UI uses mixed flex directions."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Complex flex layout page.",
+      "solutions": [
+        {
+          "title": "Mixed Flex Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.row {\n    display: flex;\n}\n.column {\n    display: flex;\n    flex-direction: column;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n    background: orange;\n}\n</style>\n</head>\n<body>\n    <div class=\"row\">\n        <div class=\"box\">A</div>\n        <div class=\"column\">\n            <div class=\"box\">B1</div>\n            <div class=\"box\">B2</div>\n        </div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine multiple flex containers.",
+        "Use row and column together."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Complex UI Layout Using Flex Direction Strategy",
+      "content": "Create a full page layout combining multiple flex containers with different flex-direction values.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Container",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Structured UI layout"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper alignment of all sections"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-based UI system",
+          "explanation": "Modern layouts rely on nested flexboxes."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Full webpage layout.",
+      "solutions": [
+        {
+          "title": "Advanced Flex UI",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.header, .footer {\n    display: flex;\n    justify-content: center;\n    background: gray;\n}\n.main {\n    display: flex;\n}\n.sidebar {\n    display: flex;\n    flex-direction: column;\n}\n.content {\n    display: flex;\n}\n.box {\n    margin: 5px;\n    padding: 10px;\n    background: lightcoral;\n}\n</style>\n</head>\n<body>\n    <div class=\"header\">Header</div>\n    <div class=\"main\">\n        <div class=\"sidebar\">\n            <div class=\"box\">Menu</div>\n            <div class=\"box\">Links</div>\n        </div>\n        <div class=\"content\">\n            <div class=\"box\">Content Area</div>\n        </div>\n    </div>\n    <div class=\"footer\">Footer</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use multiple nested flex containers.",
+        "Combine row and column layouts strategically."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Center Items Using justify-content",
+      "content": "Create an HTML page using Flexbox and apply justify-content to align items horizontally in the center.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items centered horizontally"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Flex items aligned at center"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "justify-content: center;",
+          "explanation": "Centers items along main axis."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Centered flex layout.",
+      "solutions": [
+        {
+          "title": "Justify Content Center",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    justify-content: center;\n    background: lightgray;\n    height: 100px;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: steelblue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use justify-content on flex container."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Align Items Vertically Using align-items",
+      "content": "Create a Flexbox layout and use align-items to vertically center items inside a container.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items vertically centered"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper vertical alignment achieved"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "align-items: center;",
+          "explanation": "Aligns items along cross axis."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Vertically centered layout.",
+      "solutions": [
+        {
+          "title": "Align Items Center",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    align-items: center;\n    height: 150px;\n    background: lightblue;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "align-items controls vertical alignment."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Spaced Layout Using gap Property",
+      "content": "Build a Flexbox container and use the gap property to add spacing between items.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items spaced evenly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Consistent gap between flex items"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "gap: 10px;",
+          "explanation": "gap adds spacing between flex items."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Flex layout with spacing.",
+      "solutions": [
+        {
+          "title": "Flex Gap Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    gap: 10px;\n    background: #eee;\n}\n.box {\n    width: 50px;\n    height: 50px;\n    background: green;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "gap works only in flex/grid containers."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Combine justify-content and align-items for Centered Layout",
+      "content": "Create a Flexbox container that centers items both horizontally and vertically using justify-content and align-items.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items fully centered"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Perfect center alignment both axes"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "center alignment",
+          "explanation": "Both properties used together."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Centered flex layout.",
+      "solutions": [
+        {
+          "title": "Center Alignment",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    height: 200px;\n    background: lightgray;\n}\n.box {\n    width: 60px;\n    height: 60px;\n    background: red;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use both justify-content and align-items."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Multi-Line Flex Layout Using align-content",
+      "content": "Create a flex container with wrapped items and use align-content to control spacing between rows.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Multiple rows aligned properly"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Row spacing controlled using align-content"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-wrap + align-content",
+          "explanation": "Aligns multiple flex lines."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Multi-line flex layout.",
+      "solutions": [
+        {
+          "title": "Align Content Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    align-content: space-between;\n    height: 200px;\n    background: #ddd;\n}\n.box {\n    width: 60px;\n    height: 40px;\n    background: blue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "align-content works only with wrapped flex items."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Advanced Dashboard Layout Using All Flex Properties",
+      "content": "Build a dashboard layout using justify-content, align-items, align-content, and gap together.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Structured dashboard layout"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper spacing and alignment in all directions"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "full flex system usage",
+          "explanation": "Combines all flex properties."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Dashboard UI layout.",
+      "solutions": [
+        {
+          "title": "Advanced Flex Dashboard",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: space-between;\n    align-items: center;\n    align-content: space-around;\n    gap: 10px;\n    height: 300px;\n    background: #f0f0f0;\n}\n.box {\n    width: 80px;\n    height: 60px;\n    background: purple;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n        <div class=\"box\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all flex properties together.",
+        "Use wrap for align-content effect."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design Responsive Card Layout Using Flex Properties",
+      "content": "Create a responsive card layout using justify-content, align-items, and gap for spacing and alignment.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Properties",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Responsive card layout displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper spacing and alignment across screen sizes"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex card system",
+          "explanation": "Real UI uses flex properties for responsiveness."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Responsive card layout.",
+      "solutions": [
+        {
+          "title": "Flex Cards Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: center;\n    align-items: center;\n    gap: 15px;\n}\n.card {\n    width: 120px;\n    height: 100px;\n    background: teal;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"card\"></div>\n        <div class=\"card\"></div>\n        <div class=\"card\"></div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use gap for spacing.",
+        "Combine alignment properties for responsiveness."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Understand flex-grow Basic Behavior",
+      "content": "Create a flex container and apply flex-grow to child items to observe how they expand to fill available space.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items expand based on flex-grow"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Space distributed among flex items"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-grow: 1;",
+          "explanation": "Items grow proportionally."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Flex layout with growing items.",
+      "solutions": [
+        {
+          "title": "Flex Grow Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-grow: 1;\n    background: lightblue;\n    margin: 5px;\n    height: 50px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">1</div>\n        <div class=\"box\">2</div>\n        <div class=\"box\">3</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "flex-grow distributes extra space."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Control Item Size Using flex-basis",
+      "content": "Create a flex container and set different flex-basis values for items to control their initial size.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items with different base sizes"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Initial size controlled by flex-basis"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-basis: 100px;",
+          "explanation": "Defines initial size before growing."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Flex layout with basis control.",
+      "solutions": [
+        {
+          "title": "Flex Basis Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-basis: 100px;\n    background: orange;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">A</div>\n        <div class=\"box\">B</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "flex-basis sets initial width."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Change Item Order Using order Property",
+      "content": "Create a flex container and rearrange items using the order property in CSS.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items displayed in custom order"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Visual order different from HTML order"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "order: 1;",
+          "explanation": "Controls visual arrangement."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Reordered flex items.",
+      "solutions": [
+        {
+          "title": "Order Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 2;\n    background: red;\n}\n.box2 {\n    order: 1;\n    background: blue;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">1</div>\n        <div class=\"box box2\">2</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Lower order appears first."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Control Space Distribution Using flex-grow and flex-shrink",
+      "content": "Create a flex layout where items grow and shrink based on available space using flex-grow and flex-shrink.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items resize dynamically"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper space distribution and shrinking"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-grow + flex-shrink",
+          "explanation": "Controls expansion and contraction."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Responsive flex layout.",
+      "solutions": [
+        {
+          "title": "Grow and Shrink Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box {\n    flex-grow: 1;\n    flex-shrink: 1;\n    flex-basis: 100px;\n    margin: 5px;\n    background: lightgreen;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box\">A</div>\n        <div class=\"box\">B</div>\n        <div class=\"box\">C</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "flex-grow expands, flex-shrink reduces size."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Responsive Card Layout Using Flex Basis and Grow",
+      "content": "Create a responsive card layout where cards adjust size using flex-basis and flex-grow.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Responsive cards displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Cards adjust based on screen size"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "flex-basis + flex-grow",
+          "explanation": "Used for responsive layouts."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Responsive card UI.",
+      "solutions": [
+        {
+          "title": "Responsive Cards",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n    flex-wrap: wrap;\n}\n.card {\n    flex: 1 1 150px;\n    margin: 10px;\n    background: skyblue;\n    padding: 20px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"card\">Card 1</div>\n        <div class=\"card\">Card 2</div>\n        <div class=\"card\">Card 3</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use flex shorthand: flex: grow shrink basis."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Advanced Layout Using Order and Flex Properties",
+      "content": "Create a complex layout where items are rearranged using order and resized using flex-grow and flex-basis.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Items reordered and resized"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper layout with custom ordering"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "order + flex-grow combination",
+          "explanation": "Used for advanced UI layouts."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Advanced flex layout.",
+      "solutions": [
+        {
+          "title": "Order + Flex Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 3;\n    flex-grow: 1;\n    background: red;\n}\n.box2 {\n    order: 1;\n    flex-grow: 2;\n    background: blue;\n}\n.box3 {\n    order: 2;\n    flex-grow: 1;\n    background: green;\n}\n.box {\n    padding: 10px;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">1</div>\n        <div class=\"box box2\">2</div>\n        <div class=\"box box3\">3</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine order and flex-grow for layout control."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Dynamic UI Layout Using All Flex Item Properties",
+      "content": "Build a full flex layout using flex-grow, flex-shrink, flex-basis, and order together.",
+      "level": "subtopic",
+      "topic_name": "Flexbox",
+      "subtopic_name": "Flex Items",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Fully flexible layout rendered"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Responsive and reordered layout"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "complete flex item control",
+          "explanation": "All flex item properties combined."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Advanced responsive layout.",
+      "solutions": [
+        {
+          "title": "Complete Flex Items Demo",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.container {\n    display: flex;\n}\n.box1 {\n    order: 2;\n    flex: 2 1 150px;\n    background: pink;\n}\n.box2 {\n    order: 1;\n    flex: 1 1 100px;\n    background: orange;\n}\n.box3 {\n    order: 3;\n    flex: 1 1 120px;\n    background: purple;\n}\n.box {\n    margin: 5px;\n    padding: 10px;\n}\n</style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"box box1\">A</div>\n        <div class=\"box box2\">B</div>\n        <div class=\"box box3\">C</div>\n    </div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use flex shorthand for better control.",
+        "Combine order and sizing properties."
+      ]
+    }
+  ]
 }

@@ -1,1998 +1,1950 @@
 {
-    "name": "ES6+ Features",
-    "subject_short_code": "JS100",
-    "order_index": 9,
-    "sub_units": [
+  "name": "ES6+ Features",
+  "subject_short_code": "JS100",
+  "order_index": 9,
+  "sub_units": [
+    {
+      "name": "let & const deep dive",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "let & const deep dive",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to let & const deep dive",
-                    "video_link": "https://www.youtube.com/results?search_query=let+%26+const+deep+dive+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of let & const deep dive in JavaScript."
-                },
-                {
-                    "title": "Advanced let & const deep dive Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=let+%26+const+deep+dive+javascript",
-                    "ai_context": "In-depth explanation and practical examples for let & const deep dive."
-                }
-            ]
+          "title": "Introduction to let & const deep dive",
+          "video_link": "https://www.youtube.com/results?search_query=let+%26+const+deep+dive+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of let & const deep dive in JavaScript."
         },
         {
-            "name": "Destructuring",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Destructuring",
-                    "video_link": "https://www.youtube.com/results?search_query=Destructuring+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Destructuring in JavaScript."
-                },
-                {
-                    "title": "Advanced Destructuring Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Destructuring+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Destructuring."
-                }
-            ]
-        },
-        {
-            "name": "Spread & Rest",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Spread & Rest",
-                    "video_link": "https://www.youtube.com/results?search_query=Spread+%26+Rest+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Spread & Rest in JavaScript."
-                },
-                {
-                    "title": "Advanced Spread & Rest Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Spread+%26+Rest+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Spread & Rest."
-                }
-            ]
-        },
-        {
-            "name": "Modules",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 3,
-            "videos": [
-                {
-                    "title": "Introduction to Modules",
-                    "video_link": "https://www.youtube.com/results?search_query=Modules+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Modules in JavaScript."
-                },
-                {
-                    "title": "Advanced Modules Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Modules+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Modules."
-                }
-            ]
-        },
-        {
-            "name": "Optional Chaining & Nullish Coalescing",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 4,
-            "videos": [
-                {
-                    "title": "Introduction to Optional Chaining & Nullish Coalescing",
-                    "video_link": "https://www.youtube.com/results?search_query=Optional+Chaining+%26+Nullish+Coalescing+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Optional Chaining & Nullish Coalescing in JavaScript."
-                },
-                {
-                    "title": "Advanced Optional Chaining & Nullish Coalescing Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Optional+Chaining+%26+Nullish+Coalescing+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Optional Chaining & Nullish Coalescing."
-                }
-            ]
+          "title": "Advanced let & const deep dive Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=let+%26+const+deep+dive+javascript",
+          "ai_context": "In-depth explanation and practical examples for let & const deep dive."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Destructuring",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "let Keyword Basics",
-            "content": "What is a key feature of variables declared with let?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "They are block-scoped",
-                    "is_correct": true
-                },
-                {
-                    "text": "They are function-scoped only",
-                    "is_correct": false
-                },
-                {
-                    "text": "They are global by default",
-                    "is_correct": false
-                },
-                {
-                    "text": "They cannot store values",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Destructuring",
+          "video_link": "https://www.youtube.com/results?search_query=Destructuring+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Destructuring in JavaScript."
         },
         {
-            "type": "mcq_single",
-            "title": "const Keyword Behavior",
-            "content": "What does const mean in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A variable whose value cannot be reassigned",
-                    "is_correct": true
-                },
-                {
-                    "text": "A variable that can only be used in loops",
-                    "is_correct": false
-                },
-                {
-                    "text": "A variable that is always global",
-                    "is_correct": false
-                },
-                {
-                    "text": "A function declaration type",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "let vs var Scope",
-            "content": "What is a key difference between let and var?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "let is block-scoped, var is function-scoped",
-                    "is_correct": true
-                },
-                {
-                    "text": "var is block-scoped, let is global-scoped",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both are function-scoped",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both behave exactly the same",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Temporal Dead Zone Concept",
-            "content": "What is the Temporal Dead Zone in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The time between entering scope and variable declaration where let/const cannot be accessed",
-                    "is_correct": true
-                },
-                {
-                    "text": "A memory leak in JavaScript engine",
-                    "is_correct": false
-                },
-                {
-                    "text": "A type of loop in JavaScript",
-                    "is_correct": false
-                },
-                {
-                    "text": "A feature of var only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Array Destructuring Basics",
-            "content": "What is array destructuring used for in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Extracting values from arrays into variables",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deleting elements from arrays",
-                    "is_correct": false
-                },
-                {
-                    "text": "Sorting arrays automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Converting arrays into strings",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Object Destructuring Purpose",
-            "content": "What is object destructuring used for?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Extracting properties from objects into variables",
-                    "is_correct": true
-                },
-                {
-                    "text": "Combining multiple objects into one",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deleting object properties",
-                    "is_correct": false
-                },
-                {
-                    "text": "Looping through arrays",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Array Destructuring Example",
-            "content": "What will this code return? let [a, b] = [10, 20];",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "a = 10, b = 20",
-                    "is_correct": true
-                },
-                {
-                    "text": "a = 20, b = 10",
-                    "is_correct": false
-                },
-                {
-                    "text": "a = undefined, b = undefined",
-                    "is_correct": false
-                },
-                {
-                    "text": "Error",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nested Object Destructuring",
-            "content": "What will this code return? let user = { name: 'Sam', age: 25 }; let { name } = user;",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Sam",
-                    "is_correct": true
-                },
-                {
-                    "text": "25",
-                    "is_correct": false
-                },
-                {
-                    "text": "user",
-                    "is_correct": false
-                },
-                {
-                    "text": "undefined",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Spread Operator Basics",
-            "content": "What does the spread operator (...) do in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Expands elements of an array or object",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deletes elements from an array",
-                    "is_correct": false
-                },
-                {
-                    "text": "Sorts arrays automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creates loops in functions",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Rest Operator Usage",
-            "content": "What is the rest operator used for in function arguments?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Collects multiple arguments into an array",
-                    "is_correct": true
-                },
-                {
-                    "text": "Splits a string into characters",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deletes extra arguments",
-                    "is_correct": false
-                },
-                {
-                    "text": "Converts numbers into strings",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Spread in Arrays",
-            "content": "What will this code return? let arr = [1, 2]; let newArr = [...arr, 3];",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "[1, 2, 3]",
-                    "is_correct": true
-                },
-                {
-                    "text": "[[1, 2], 3]",
-                    "is_correct": false
-                },
-                {
-                    "text": "[3, 1, 2]",
-                    "is_correct": false
-                },
-                {
-                    "text": "[1, 2]",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Rest Parameters in Function",
-            "content": "What will this function return? function sum(...nums) { return nums.length; } sum(1, 2, 3, 4);",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "4",
-                    "is_correct": true
-                },
-                {
-                    "text": "10",
-                    "is_correct": false
-                },
-                {
-                    "text": "undefined",
-                    "is_correct": false
-                },
-                {
-                    "text": "3",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "ES6 Modules Basics",
-            "content": "What is the purpose of ES6 modules in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To organize code into reusable files",
-                    "is_correct": true
-                },
-                {
-                    "text": "To style web pages",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create HTML elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "To run loops faster",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Import Keyword",
-            "content": "Which keyword is used to bring functionality from another module?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "import",
-                    "is_correct": true
-                },
-                {
-                    "text": "export",
-                    "is_correct": false
-                },
-                {
-                    "text": "requireAll",
-                    "is_correct": false
-                },
-                {
-                    "text": "include",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Export Usage",
-            "content": "What does the export keyword do in ES6 modules?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Makes variables/functions available to other files",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deletes variables from memory",
-                    "is_correct": false
-                },
-                {
-                    "text": "Runs code only in the browser",
-                    "is_correct": false
-                },
-                {
-                    "text": "Converts code into HTML",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Module Structure",
-            "content": "What is a key benefit of using modular code structure?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Better code organization and reusability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Slower execution of code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Increases duplicate code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Removes need for functions",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Optional Chaining Operator",
-            "content": "What does the ?. operator do in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Safely accesses nested object properties",
-                    "is_correct": true
-                },
-                {
-                    "text": "Adds two numbers",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creates a loop",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deletes object properties",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nullish Coalescing Operator",
-            "content": "What does the ?? operator do in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Returns right-hand value if left is null or undefined",
-                    "is_correct": true
-                },
-                {
-                    "text": "Always returns false",
-                    "is_correct": false
-                },
-                {
-                    "text": "Adds two strings",
-                    "is_correct": false
-                },
-                {
-                    "text": "Checks if value is an array",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Optional Chaining Use Case",
-            "content": "What happens when you use optional chaining on a missing property?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It returns undefined instead of throwing an error",
-                    "is_correct": true
-                },
-                {
-                    "text": "It throws a syntax error",
-                    "is_correct": false
-                },
-                {
-                    "text": "It returns null always",
-                    "is_correct": false
-                },
-                {
-                    "text": "It deletes the object",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nullish vs OR Operator",
-            "content": "What is the key difference between ?? and || operators?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "?? only checks null and undefined, || checks all falsy values",
-                    "is_correct": true
-                },
-                {
-                    "text": "|| only checks null and undefined",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both behave exactly the same",
-                    "is_correct": false
-                },
-                {
-                    "text": "?? works only with numbers",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding let and const",
-            "content": "Which of the following statements about let and const are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "let and const are block-scoped variables",
-                    "is_correct": true
-                },
-                {
-                    "text": "const is used to declare constants",
-                    "is_correct": true
-                },
-                {
-                    "text": "let and const are function-scoped only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both let and const are part of ES6",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Temporal Dead Zone",
-            "content": "Which statements about the Temporal Dead Zone (TDZ) are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "TDZ is the time between entering scope and variable declaration",
-                    "is_correct": true
-                },
-                {
-                    "text": "Variables declared with let and const are affected by TDZ",
-                    "is_correct": true
-                },
-                {
-                    "text": "TDZ allows variables to be used before declaration safely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Accessing variables in TDZ results in a ReferenceError",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "let vs const Behavior",
-            "content": "Which of the following statements correctly describe let and const behavior?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "let allows reassignment of values",
-                    "is_correct": true
-                },
-                {
-                    "text": "const does not allow reassignment after declaration",
-                    "is_correct": true
-                },
-                {
-                    "text": "const variables can be redeclared in the same scope",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both let and const are block scoped",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Temporal Dead Zone Concepts",
-            "content": "Which of the following statements about Temporal Dead Zone are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "TDZ exists because let and const are hoisted but not initialized",
-                    "is_correct": true
-                },
-                {
-                    "text": "Variables in TDZ cannot be accessed before declaration",
-                    "is_correct": true
-                },
-                {
-                    "text": "var variables are also affected by Temporal Dead Zone",
-                    "is_correct": false
-                },
-                {
-                    "text": "TDZ helps prevent accidental use of uninitialized variables",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Array Destructuring",
-            "content": "Which of the following statements about array destructuring are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Array destructuring allows extracting values from arrays into variables",
-                    "is_correct": true
-                },
-                {
-                    "text": "Square brackets [] are used for array destructuring",
-                    "is_correct": true
-                },
-                {
-                    "text": "Array destructuring modifies the original array",
-                    "is_correct": false
-                },
-                {
-                    "text": "Variables are assigned based on position in the array",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Object Destructuring",
-            "content": "Which statements about object destructuring are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Object destructuring extracts properties into variables",
-                    "is_correct": true
-                },
-                {
-                    "text": "Curly braces {} are used for object destructuring",
-                    "is_correct": true
-                },
-                {
-                    "text": "Object destructuring changes the original object",
-                    "is_correct": false
-                },
-                {
-                    "text": "Variable names must match object property names by default",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basic Differences in Destructuring",
-            "content": "Which of the following statements correctly compare array and object destructuring?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Array destructuring is position-based",
-                    "is_correct": true
-                },
-                {
-                    "text": "Object destructuring is key-based",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both array and object destructuring require exact order of values",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both can be used to extract multiple values at once",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Destructuring Concepts",
-            "content": "Which of the following statements about advanced destructuring concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Default values can be assigned in both array and object destructuring",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nested destructuring is possible for both arrays and objects",
-                    "is_correct": true
-                },
-                {
-                    "text": "Destructuring always creates deep copies of objects and arrays",
-                    "is_correct": false
-                },
-                {
-                    "text": "Destructuring helps write cleaner and more readable code",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Spread Operator",
-            "content": "Which of the following statements about the spread operator are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The spread operator uses three dots (...) syntax",
-                    "is_correct": true
-                },
-                {
-                    "text": "Spread syntax can expand array elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Spread operator permanently modifies the original array",
-                    "is_correct": false
-                },
-                {
-                    "text": "Spread operator can be used while copying arrays",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Rest Parameters",
-            "content": "Which statements about rest parameters are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Rest parameters collect multiple arguments into an array",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rest parameters use the same three dots (...) syntax",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rest parameters can only collect one argument",
-                    "is_correct": false
-                },
-                {
-                    "text": "Rest parameters are useful for functions with variable arguments",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Using Spread and Rest in Functions",
-            "content": "Which of the following statements about spread and rest in functions are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Spread syntax can pass array elements as individual function arguments",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rest parameters gather remaining arguments into an array",
-                    "is_correct": true
-                },
-                {
-                    "text": "Spread and rest operators perform exactly the same task",
-                    "is_correct": false
-                },
-                {
-                    "text": "Spread and rest improve flexibility in function handling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Spread & Rest Concepts",
-            "content": "Which of the following statements about advanced spread and rest concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Spread syntax creates shallow copies of arrays and objects",
-                    "is_correct": true
-                },
-                {
-                    "text": "Spread operator can merge multiple arrays or objects",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rest parameters must always appear before normal parameters",
-                    "is_correct": false
-                },
-                {
-                    "text": "Spread and rest syntax improve code readability and reduce repetitive code",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding import and export",
-            "content": "Which of the following statements about import and export are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "export is used to make variables or functions available to other files",
-                    "is_correct": true
-                },
-                {
-                    "text": "import is used to use exported code from another module",
-                    "is_correct": true
-                },
-                {
-                    "text": "Modules can only contain one function",
-                    "is_correct": false
-                },
-                {
-                    "text": "Modules help organize JavaScript code",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Modular Code Structure",
-            "content": "Which statements about modular code structure are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Modules help separate code into reusable parts",
-                    "is_correct": true
-                },
-                {
-                    "text": "Using modules improves code maintainability",
-                    "is_correct": true
-                },
-                {
-                    "text": "All code must exist in a single file when using modules",
-                    "is_correct": false
-                },
-                {
-                    "text": "Modules support better project organization",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Working with ES6 Modules",
-            "content": "Which of the following statements about ES6 modules are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A module can have both named and default exports",
-                    "is_correct": true
-                },
-                {
-                    "text": "Imported values can be reused across different files",
-                    "is_correct": true
-                },
-                {
-                    "text": "Modules automatically make all variables global",
-                    "is_correct": false
-                },
-                {
-                    "text": "Modules encourage reusable and scalable code architecture",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Module Concepts",
-            "content": "Which of the following statements about advanced module concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Modules",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Modules have their own scope and do not pollute the global namespace",
-                    "is_correct": true
-                },
-                {
-                    "text": "Named exports must be imported using the exact exported names unless aliased",
-                    "is_correct": true
-                },
-                {
-                    "text": "Default exports require curly braces during import",
-                    "is_correct": false
-                },
-                {
-                    "text": "Modular architecture improves scalability in large applications",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Optional Chaining",
-            "content": "Which of the following statements about optional chaining are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Optional chaining uses the ?. operator",
-                    "is_correct": true
-                },
-                {
-                    "text": "Optional chaining helps safely access nested properties",
-                    "is_correct": true
-                },
-                {
-                    "text": "Optional chaining throws an error when a property is undefined",
-                    "is_correct": false
-                },
-                {
-                    "text": "Optional chaining can reduce repetitive null checks",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Nullish Coalescing",
-            "content": "Which statements about the nullish coalescing operator are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The nullish coalescing operator uses ?? syntax",
-                    "is_correct": true
-                },
-                {
-                    "text": "?? returns the right-hand value when the left-hand value is null or undefined",
-                    "is_correct": true
-                },
-                {
-                    "text": "?? treats 0 and false as nullish values",
-                    "is_correct": false
-                },
-                {
-                    "text": "?? is useful for setting default values",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Using ?. and ?? Together",
-            "content": "Which of the following statements about using optional chaining and nullish coalescing together are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Optional chaining can prevent errors when accessing nested properties",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nullish coalescing can provide fallback values for null or undefined",
-                    "is_correct": true
-                },
-                {
-                    "text": "Optional chaining automatically creates missing properties",
-                    "is_correct": false
-                },
-                {
-                    "text": "?. and ?? together improve safer data access in JavaScript",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Optional Chaining Concepts",
-            "content": "Which of the following statements about advanced optional chaining and nullish coalescing concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Optional Chaining & Nullish Coalescing",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Optional chaining short-circuits evaluation when encountering null or undefined",
-                    "is_correct": true
-                },
-                {
-                    "text": "?? differs from || because it only checks for null and undefined",
-                    "is_correct": true
-                },
-                {
-                    "text": "The ?? operator replaces all falsy values automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Using ?. and ?? can make deeply nested object handling cleaner and safer",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Access Variable Before Declaration",
-            "content": "Write a JavaScript program to demonstrate the Temporal Dead Zone by trying to access a let variable before declaration.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Cannot access variable before initialization"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError",
-                    "explanation": "Variables declared with let stay in Temporal Dead Zone until initialized."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "ReferenceError message.",
-            "solutions": [
-                {
-                    "title": "TDZ Example with let",
-                    "language": "javascript",
-                    "code": "console.log(a);\nlet a = 10;",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Try accessing variable before declaration.",
-                "Use let keyword."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Temporal Dead Zone with const",
-            "content": "Write a JavaScript program to demonstrate Temporal Dead Zone behavior using const.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Cannot access variable before initialization"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError",
-                    "explanation": "const variables are also affected by Temporal Dead Zone."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "ReferenceError message.",
-            "solutions": [
-                {
-                    "title": "TDZ Example with const",
-                    "language": "javascript",
-                    "code": "console.log(value);\nconst value = 100;",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use const declaration.",
-                "Access variable before initialization."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Fix Temporal Dead Zone Error",
-            "content": "Write a JavaScript program to fix a Temporal Dead Zone error by correctly placing variable declaration before usage.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "10"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Variable initialized successfully"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "20",
-                    "explanation": "Declaring variable before usage avoids TDZ errors."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Variable value.",
-            "solutions": [
-                {
-                    "title": "Correct TDZ Usage",
-                    "language": "javascript",
-                    "code": "let num = 10;\nconsole.log(num);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Declare variable before accessing it.",
-                "Use let keyword properly."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Temporal Dead Zone Inside Block Scope",
-            "content": "Write a JavaScript program to demonstrate how Temporal Dead Zone works inside a block scope using nested variables.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "let & const deep dive",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Block scope TDZ demonstrated"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "ReferenceError",
-                    "explanation": "Block-scoped variables remain in TDZ within their own block."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Error or output message.",
-            "solutions": [
-                {
-                    "title": "TDZ in Block Scope",
-                    "language": "javascript",
-                    "code": "let value = 5;\n\n{\n  console.log(value);\n  let value = 10;\n}",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use nested block scope.",
-                "Declare same variable name inside block."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Array Destructuring Basics",
-            "content": "Write a JavaScript program to extract the first two values from an array using array destructuring.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "[10, 20, 30]",
-                    "expected_output": "10 20"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "[1, 2, 3, 4]",
-                    "expected_output": "1 2"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "[5, 6, 7]",
-                    "expected_output": "5 6",
-                    "explanation": "Array destructuring extracts values into variables."
-                }
-            ],
-            "inputFormat": "An array of numbers.",
-            "outputFormat": "First two array values.",
-            "solutions": [
-                {
-                    "title": "Basic Array Destructuring",
-                    "language": "javascript",
-                    "code": "const arr = [10, 20, 30];\nconst [a, b] = arr;\nconsole.log(a, b);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use square brackets for array destructuring.",
-                "Assign values directly into variables."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Object Destructuring Basics",
-            "content": "Write a JavaScript program to extract name and age properties from an object using object destructuring.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{name:'John', age:25}",
-                    "expected_output": "John 25"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{name:'Alice', age:30}",
-                    "expected_output": "Alice 30"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "{name:'Sam', age:22}",
-                    "expected_output": "Sam 22",
-                    "explanation": "Object destructuring extracts properties into variables."
-                }
-            ],
-            "inputFormat": "An object.",
-            "outputFormat": "Extracted object values.",
-            "solutions": [
-                {
-                    "title": "Basic Object Destructuring",
-                    "language": "javascript",
-                    "code": "const user = { name: 'John', age: 25 };\nconst { name, age } = user;\nconsole.log(name, age);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use curly braces for object destructuring.",
-                "Property names must match variable names."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Nested Object Destructuring",
-            "content": "Write a JavaScript program to extract city from a nested address object using destructuring.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{address:{city:'Delhi'}}",
-                    "expected_output": "Delhi"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{address:{city:'Mumbai'}}",
-                    "expected_output": "Mumbai"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "{address:{city:'Hyderabad'}}",
-                    "expected_output": "Hyderabad",
-                    "explanation": "Nested destructuring extracts deeply nested properties."
-                }
-            ],
-            "inputFormat": "Nested object.",
-            "outputFormat": "Extracted city value.",
-            "solutions": [
-                {
-                    "title": "Nested Object Destructuring",
-                    "language": "javascript",
-                    "code": "const user = {\n  address: {\n    city: 'Delhi'\n  }\n};\n\nconst {\n  address: { city }\n} = user;\n\nconsole.log(city);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Destructure nested objects carefully.",
-                "Match object structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Swap Variables Using Array Destructuring",
-            "content": "Write a JavaScript program to swap two variables without using a temporary variable by using array destructuring.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Destructuring",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "a=5, b=10",
-                    "expected_output": "10 5"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "a=1, b=2",
-                    "expected_output": "2 1"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "a=7, b=9",
-                    "expected_output": "9 7",
-                    "explanation": "Array destructuring can swap values efficiently."
-                }
-            ],
-            "inputFormat": "Two variable values.",
-            "outputFormat": "Swapped values.",
-            "solutions": [
-                {
-                    "title": "Swap Using Destructuring",
-                    "language": "javascript",
-                    "code": "let a = 5;\nlet b = 10;\n\n[a, b] = [b, a];\n\nconsole.log(a, b);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use array destructuring assignment.",
-                "No temporary variable is needed."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Copy Array Using Spread Operator",
-            "content": "Write a JavaScript program to create a copy of an array using the spread operator.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "[1,2,3]",
-                    "expected_output": "[1,2,3]"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "['a','b']",
-                    "expected_output": "['a','b']"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "[5,6,7]",
-                    "expected_output": "[5,6,7]",
-                    "explanation": "Spread operator creates a shallow copy of arrays."
-                }
-            ],
-            "inputFormat": "An array.",
-            "outputFormat": "Copied array.",
-            "solutions": [
-                {
-                    "title": "Array Copy with Spread",
-                    "language": "javascript",
-                    "code": "const arr = [1, 2, 3];\nconst copy = [...arr];\nconsole.log(copy);",
-                    "complexity_analysis": "Time: O(n), Space: O(n)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use spread operator (...).",
-                "Place array elements inside new array."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Pass Function Arguments Using Spread",
-            "content": "Write a JavaScript program to pass array values as function arguments using the spread operator.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "[2,3]",
-                    "expected_output": "5"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "[10,15]",
-                    "expected_output": "25"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "[4,6]",
-                    "expected_output": "10",
-                    "explanation": "Spread operator expands array elements into arguments."
-                }
-            ],
-            "inputFormat": "An array of numbers.",
-            "outputFormat": "Function result.",
-            "solutions": [
-                {
-                    "title": "Function Arguments with Spread",
-                    "language": "javascript",
-                    "code": "function add(a, b) {\n  return a + b;\n}\n\nconst nums = [2, 3];\nconsole.log(add(...nums));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use spread operator when calling function.",
-                "Expand array into arguments."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Collect Function Arguments Using Rest Parameters",
-            "content": "Write a JavaScript program to create a function that accepts any number of arguments using rest parameters and returns their sum.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "1,2,3",
-                    "expected_output": "6"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "5,10,15,20",
-                    "expected_output": "50"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "2,4,6",
-                    "expected_output": "12",
-                    "explanation": "Rest parameters collect multiple arguments into an array."
-                }
-            ],
-            "inputFormat": "Multiple numeric arguments.",
-            "outputFormat": "Sum of all arguments.",
-            "solutions": [
-                {
-                    "title": "Rest Parameter Sum",
-                    "language": "javascript",
-                    "code": "function sum(...nums) {\n  return nums.reduce((total, num) => total + num, 0);\n}\n\nconsole.log(sum(1, 2, 3));",
-                    "complexity_analysis": "Time: O(n), Space: O(n)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use rest parameter syntax (...args).",
-                "Loop or reduce values."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Merge and Copy Objects Using Spread Operator",
-            "content": "Write a JavaScript program to merge two objects and create a new copied object using the spread operator.",
-            "level": "subtopic",
-            "unit_name": "ES6+ Features",
-            "subunit_name": "Spread & Rest",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{a:1}, {b:2}",
-                    "expected_output": "{a:1,b:2}"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{name:'John'}, {age:25}",
-                    "expected_output": "{name:'John',age:25}"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "{x:10}, {y:20}",
-                    "expected_output": "{x:10,y:20}",
-                    "explanation": "Spread operator merges and copies object properties."
-                }
-            ],
-            "inputFormat": "Two objects.",
-            "outputFormat": "Merged object.",
-            "solutions": [
-                {
-                    "title": "Object Merge with Spread",
-                    "language": "javascript",
-                    "code": "const obj1 = { a: 1 };\nconst obj2 = { b: 2 };\n\nconst merged = { ...obj1, ...obj2 };\n\nconsole.log(merged);",
-                    "complexity_analysis": "Time: O(n), Space: O(n)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use spread operator inside object literals.",
-                "Merge objects into a new object."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Destructuring Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Destructuring+javascript",
+          "ai_context": "In-depth explanation and practical examples for Destructuring."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Spread & Rest",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Spread & Rest",
+          "video_link": "https://www.youtube.com/results?search_query=Spread+%26+Rest+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Spread & Rest in JavaScript."
+        },
+        {
+          "title": "Advanced Spread & Rest Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Spread+%26+Rest+javascript",
+          "ai_context": "In-depth explanation and practical examples for Spread & Rest."
+        }
+      ]
+    },
+    {
+      "name": "Modules",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Modules",
+          "video_link": "https://www.youtube.com/results?search_query=Modules+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Modules in JavaScript."
+        },
+        {
+          "title": "Advanced Modules Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Modules+javascript",
+          "ai_context": "In-depth explanation and practical examples for Modules."
+        }
+      ]
+    },
+    {
+      "name": "Optional Chaining & Nullish Coalescing",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "Introduction to Optional Chaining & Nullish Coalescing",
+          "video_link": "https://www.youtube.com/results?search_query=Optional+Chaining+%26+Nullish+Coalescing+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Optional Chaining & Nullish Coalescing in JavaScript."
+        },
+        {
+          "title": "Advanced Optional Chaining & Nullish Coalescing Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Optional+Chaining+%26+Nullish+Coalescing+javascript",
+          "ai_context": "In-depth explanation and practical examples for Optional Chaining & Nullish Coalescing."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "let Keyword Basics",
+      "content": "What is a key feature of variables declared with let?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They are block-scoped",
+          "is_correct": true
+        },
+        {
+          "text": "They are function-scoped only",
+          "is_correct": false
+        },
+        {
+          "text": "They are global by default",
+          "is_correct": false
+        },
+        {
+          "text": "They cannot store values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "const Keyword Behavior",
+      "content": "What does const mean in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A variable whose value cannot be reassigned",
+          "is_correct": true
+        },
+        {
+          "text": "A variable that can only be used in loops",
+          "is_correct": false
+        },
+        {
+          "text": "A variable that is always global",
+          "is_correct": false
+        },
+        {
+          "text": "A function declaration type",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "let vs var Scope",
+      "content": "What is a key difference between let and var?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "let is block-scoped, var is function-scoped",
+          "is_correct": true
+        },
+        {
+          "text": "var is block-scoped, let is global-scoped",
+          "is_correct": false
+        },
+        {
+          "text": "Both are function-scoped",
+          "is_correct": false
+        },
+        {
+          "text": "Both behave exactly the same",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Temporal Dead Zone Concept",
+      "content": "What is the Temporal Dead Zone in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The time between entering scope and variable declaration where let/const cannot be accessed",
+          "is_correct": true
+        },
+        {
+          "text": "A memory leak in JavaScript engine",
+          "is_correct": false
+        },
+        {
+          "text": "A type of loop in JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "A feature of var only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Destructuring Basics",
+      "content": "What is array destructuring used for in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Extracting values from arrays into variables",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting elements from arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting arrays automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays into strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Object Destructuring Purpose",
+      "content": "What is object destructuring used for?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Extracting properties from objects into variables",
+          "is_correct": true
+        },
+        {
+          "text": "Combining multiple objects into one",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting object properties",
+          "is_correct": false
+        },
+        {
+          "text": "Looping through arrays",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Destructuring Example",
+      "content": "What will this code return? let [a, b] = [10, 20];",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "a = 10, b = 20",
+          "is_correct": true
+        },
+        {
+          "text": "a = 20, b = 10",
+          "is_correct": false
+        },
+        {
+          "text": "a = undefined, b = undefined",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Object Destructuring",
+      "content": "What will this code return? let user = { name: 'Sam', age: 25 }; let { name } = user;",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sam",
+          "is_correct": true
+        },
+        {
+          "text": "25",
+          "is_correct": false
+        },
+        {
+          "text": "user",
+          "is_correct": false
+        },
+        {
+          "text": "undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Spread Operator Basics",
+      "content": "What does the spread operator (...) do in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Expands elements of an array or object",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes elements from an array",
+          "is_correct": false
+        },
+        {
+          "text": "Sorts arrays automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Creates loops in functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rest Operator Usage",
+      "content": "What is the rest operator used for in function arguments?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Collects multiple arguments into an array",
+          "is_correct": true
+        },
+        {
+          "text": "Splits a string into characters",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes extra arguments",
+          "is_correct": false
+        },
+        {
+          "text": "Converts numbers into strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Spread in Arrays",
+      "content": "What will this code return? let arr = [1, 2]; let newArr = [...arr, 3];",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": true
+        },
+        {
+          "text": "[[1, 2], 3]",
+          "is_correct": false
+        },
+        {
+          "text": "[3, 1, 2]",
+          "is_correct": false
+        },
+        {
+          "text": "[1, 2]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rest Parameters in Function",
+      "content": "What will this function return? function sum(...nums) { return nums.length; } sum(1, 2, 3, 4);",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "4",
+          "is_correct": true
+        },
+        {
+          "text": "10",
+          "is_correct": false
+        },
+        {
+          "text": "undefined",
+          "is_correct": false
+        },
+        {
+          "text": "3",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ES6 Modules Basics",
+      "content": "What is the purpose of ES6 modules in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To organize code into reusable files",
+          "is_correct": true
+        },
+        {
+          "text": "To style web pages",
+          "is_correct": false
+        },
+        {
+          "text": "To create HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "To run loops faster",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Import Keyword",
+      "content": "Which keyword is used to bring functionality from another module?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "import",
+          "is_correct": true
+        },
+        {
+          "text": "export",
+          "is_correct": false
+        },
+        {
+          "text": "requireAll",
+          "is_correct": false
+        },
+        {
+          "text": "include",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Export Usage",
+      "content": "What does the export keyword do in ES6 modules?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Makes variables/functions available to other files",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes variables from memory",
+          "is_correct": false
+        },
+        {
+          "text": "Runs code only in the browser",
+          "is_correct": false
+        },
+        {
+          "text": "Converts code into HTML",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Module Structure",
+      "content": "What is a key benefit of using modular code structure?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better code organization and reusability",
+          "is_correct": true
+        },
+        {
+          "text": "Slower execution of code",
+          "is_correct": false
+        },
+        {
+          "text": "Increases duplicate code",
+          "is_correct": false
+        },
+        {
+          "text": "Removes need for functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Optional Chaining Operator",
+      "content": "What does the ?. operator do in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Safely accesses nested object properties",
+          "is_correct": true
+        },
+        {
+          "text": "Adds two numbers",
+          "is_correct": false
+        },
+        {
+          "text": "Creates a loop",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes object properties",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nullish Coalescing Operator",
+      "content": "What does the ?? operator do in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Returns right-hand value if left is null or undefined",
+          "is_correct": true
+        },
+        {
+          "text": "Always returns false",
+          "is_correct": false
+        },
+        {
+          "text": "Adds two strings",
+          "is_correct": false
+        },
+        {
+          "text": "Checks if value is an array",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Optional Chaining Use Case",
+      "content": "What happens when you use optional chaining on a missing property?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It returns undefined instead of throwing an error",
+          "is_correct": true
+        },
+        {
+          "text": "It throws a syntax error",
+          "is_correct": false
+        },
+        {
+          "text": "It returns null always",
+          "is_correct": false
+        },
+        {
+          "text": "It deletes the object",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nullish vs OR Operator",
+      "content": "What is the key difference between ?? and || operators?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "?? only checks null and undefined, || checks all falsy values",
+          "is_correct": true
+        },
+        {
+          "text": "|| only checks null and undefined",
+          "is_correct": false
+        },
+        {
+          "text": "Both behave exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "?? works only with numbers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding let and const",
+      "content": "Which of the following statements about let and const are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "let and const are block-scoped variables",
+          "is_correct": true
+        },
+        {
+          "text": "const is used to declare constants",
+          "is_correct": true
+        },
+        {
+          "text": "let and const are function-scoped only",
+          "is_correct": false
+        },
+        {
+          "text": "Both let and const are part of ES6",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Temporal Dead Zone",
+      "content": "Which statements about the Temporal Dead Zone (TDZ) are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TDZ is the time between entering scope and variable declaration",
+          "is_correct": true
+        },
+        {
+          "text": "Variables declared with let and const are affected by TDZ",
+          "is_correct": true
+        },
+        {
+          "text": "TDZ allows variables to be used before declaration safely",
+          "is_correct": false
+        },
+        {
+          "text": "Accessing variables in TDZ results in a ReferenceError",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "let vs const Behavior",
+      "content": "Which of the following statements correctly describe let and const behavior?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "let allows reassignment of values",
+          "is_correct": true
+        },
+        {
+          "text": "const does not allow reassignment after declaration",
+          "is_correct": true
+        },
+        {
+          "text": "const variables can be redeclared in the same scope",
+          "is_correct": false
+        },
+        {
+          "text": "Both let and const are block scoped",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Temporal Dead Zone Concepts",
+      "content": "Which of the following statements about Temporal Dead Zone are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TDZ exists because let and const are hoisted but not initialized",
+          "is_correct": true
+        },
+        {
+          "text": "Variables in TDZ cannot be accessed before declaration",
+          "is_correct": true
+        },
+        {
+          "text": "var variables are also affected by Temporal Dead Zone",
+          "is_correct": false
+        },
+        {
+          "text": "TDZ helps prevent accidental use of uninitialized variables",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Array Destructuring",
+      "content": "Which of the following statements about array destructuring are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Array destructuring allows extracting values from arrays into variables",
+          "is_correct": true
+        },
+        {
+          "text": "Square brackets [] are used for array destructuring",
+          "is_correct": true
+        },
+        {
+          "text": "Array destructuring modifies the original array",
+          "is_correct": false
+        },
+        {
+          "text": "Variables are assigned based on position in the array",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Object Destructuring",
+      "content": "Which statements about object destructuring are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Object destructuring extracts properties into variables",
+          "is_correct": true
+        },
+        {
+          "text": "Curly braces {} are used for object destructuring",
+          "is_correct": true
+        },
+        {
+          "text": "Object destructuring changes the original object",
+          "is_correct": false
+        },
+        {
+          "text": "Variable names must match object property names by default",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Differences in Destructuring",
+      "content": "Which of the following statements correctly compare array and object destructuring?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Array destructuring is position-based",
+          "is_correct": true
+        },
+        {
+          "text": "Object destructuring is key-based",
+          "is_correct": true
+        },
+        {
+          "text": "Both array and object destructuring require exact order of values",
+          "is_correct": false
+        },
+        {
+          "text": "Both can be used to extract multiple values at once",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Destructuring Concepts",
+      "content": "Which of the following statements about advanced destructuring concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Default values can be assigned in both array and object destructuring",
+          "is_correct": true
+        },
+        {
+          "text": "Nested destructuring is possible for both arrays and objects",
+          "is_correct": true
+        },
+        {
+          "text": "Destructuring always creates deep copies of objects and arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Destructuring helps write cleaner and more readable code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Spread Operator",
+      "content": "Which of the following statements about the spread operator are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The spread operator uses three dots (...) syntax",
+          "is_correct": true
+        },
+        {
+          "text": "Spread syntax can expand array elements",
+          "is_correct": true
+        },
+        {
+          "text": "Spread operator permanently modifies the original array",
+          "is_correct": false
+        },
+        {
+          "text": "Spread operator can be used while copying arrays",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Rest Parameters",
+      "content": "Which statements about rest parameters are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rest parameters collect multiple arguments into an array",
+          "is_correct": true
+        },
+        {
+          "text": "Rest parameters use the same three dots (...) syntax",
+          "is_correct": true
+        },
+        {
+          "text": "Rest parameters can only collect one argument",
+          "is_correct": false
+        },
+        {
+          "text": "Rest parameters are useful for functions with variable arguments",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using Spread and Rest in Functions",
+      "content": "Which of the following statements about spread and rest in functions are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Spread syntax can pass array elements as individual function arguments",
+          "is_correct": true
+        },
+        {
+          "text": "Rest parameters gather remaining arguments into an array",
+          "is_correct": true
+        },
+        {
+          "text": "Spread and rest operators perform exactly the same task",
+          "is_correct": false
+        },
+        {
+          "text": "Spread and rest improve flexibility in function handling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Spread & Rest Concepts",
+      "content": "Which of the following statements about advanced spread and rest concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Spread syntax creates shallow copies of arrays and objects",
+          "is_correct": true
+        },
+        {
+          "text": "Spread operator can merge multiple arrays or objects",
+          "is_correct": true
+        },
+        {
+          "text": "Rest parameters must always appear before normal parameters",
+          "is_correct": false
+        },
+        {
+          "text": "Spread and rest syntax improve code readability and reduce repetitive code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding import and export",
+      "content": "Which of the following statements about import and export are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "export is used to make variables or functions available to other files",
+          "is_correct": true
+        },
+        {
+          "text": "import is used to use exported code from another module",
+          "is_correct": true
+        },
+        {
+          "text": "Modules can only contain one function",
+          "is_correct": false
+        },
+        {
+          "text": "Modules help organize JavaScript code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Modular Code Structure",
+      "content": "Which statements about modular code structure are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Modules help separate code into reusable parts",
+          "is_correct": true
+        },
+        {
+          "text": "Using modules improves code maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "All code must exist in a single file when using modules",
+          "is_correct": false
+        },
+        {
+          "text": "Modules support better project organization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with ES6 Modules",
+      "content": "Which of the following statements about ES6 modules are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A module can have both named and default exports",
+          "is_correct": true
+        },
+        {
+          "text": "Imported values can be reused across different files",
+          "is_correct": true
+        },
+        {
+          "text": "Modules automatically make all variables global",
+          "is_correct": false
+        },
+        {
+          "text": "Modules encourage reusable and scalable code architecture",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Module Concepts",
+      "content": "Which of the following statements about advanced module concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Modules",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Modules have their own scope and do not pollute the global namespace",
+          "is_correct": true
+        },
+        {
+          "text": "Named exports must be imported using the exact exported names unless aliased",
+          "is_correct": true
+        },
+        {
+          "text": "Default exports require curly braces during import",
+          "is_correct": false
+        },
+        {
+          "text": "Modular architecture improves scalability in large applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Optional Chaining",
+      "content": "Which of the following statements about optional chaining are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optional chaining uses the ?. operator",
+          "is_correct": true
+        },
+        {
+          "text": "Optional chaining helps safely access nested properties",
+          "is_correct": true
+        },
+        {
+          "text": "Optional chaining throws an error when a property is undefined",
+          "is_correct": false
+        },
+        {
+          "text": "Optional chaining can reduce repetitive null checks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Nullish Coalescing",
+      "content": "Which statements about the nullish coalescing operator are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The nullish coalescing operator uses ?? syntax",
+          "is_correct": true
+        },
+        {
+          "text": "?? returns the right-hand value when the left-hand value is null or undefined",
+          "is_correct": true
+        },
+        {
+          "text": "?? treats 0 and false as nullish values",
+          "is_correct": false
+        },
+        {
+          "text": "?? is useful for setting default values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using ?. and ?? Together",
+      "content": "Which of the following statements about using optional chaining and nullish coalescing together are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optional chaining can prevent errors when accessing nested properties",
+          "is_correct": true
+        },
+        {
+          "text": "Nullish coalescing can provide fallback values for null or undefined",
+          "is_correct": true
+        },
+        {
+          "text": "Optional chaining automatically creates missing properties",
+          "is_correct": false
+        },
+        {
+          "text": "?. and ?? together improve safer data access in JavaScript",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Optional Chaining Concepts",
+      "content": "Which of the following statements about advanced optional chaining and nullish coalescing concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Optional Chaining & Nullish Coalescing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optional chaining short-circuits evaluation when encountering null or undefined",
+          "is_correct": true
+        },
+        {
+          "text": "?? differs from || because it only checks for null and undefined",
+          "is_correct": true
+        },
+        {
+          "text": "The ?? operator replaces all falsy values automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Using ?. and ?? can make deeply nested object handling cleaner and safer",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Access Variable Before Declaration",
+      "content": "Write a JavaScript program to demonstrate the Temporal Dead Zone by trying to access a let variable before declaration.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Cannot access variable before initialization"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError",
+          "explanation": "Variables declared with let stay in Temporal Dead Zone until initialized."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "ReferenceError message.",
+      "solutions": [
+        {
+          "title": "TDZ Example with let",
+          "language": "javascript",
+          "code": "console.log(a);\nlet a = 10;",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Try accessing variable before declaration.",
+        "Use let keyword."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Temporal Dead Zone with const",
+      "content": "Write a JavaScript program to demonstrate Temporal Dead Zone behavior using const.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Cannot access variable before initialization"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError",
+          "explanation": "const variables are also affected by Temporal Dead Zone."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "ReferenceError message.",
+      "solutions": [
+        {
+          "title": "TDZ Example with const",
+          "language": "javascript",
+          "code": "console.log(value);\nconst value = 100;",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use const declaration.",
+        "Access variable before initialization."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fix Temporal Dead Zone Error",
+      "content": "Write a JavaScript program to fix a Temporal Dead Zone error by correctly placing variable declaration before usage.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Variable initialized successfully"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "20",
+          "explanation": "Declaring variable before usage avoids TDZ errors."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Variable value.",
+      "solutions": [
+        {
+          "title": "Correct TDZ Usage",
+          "language": "javascript",
+          "code": "let num = 10;\nconsole.log(num);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Declare variable before accessing it.",
+        "Use let keyword properly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Temporal Dead Zone Inside Block Scope",
+      "content": "Write a JavaScript program to demonstrate how Temporal Dead Zone works inside a block scope using nested variables.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "let & const deep dive",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Block scope TDZ demonstrated"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "ReferenceError",
+          "explanation": "Block-scoped variables remain in TDZ within their own block."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Error or output message.",
+      "solutions": [
+        {
+          "title": "TDZ in Block Scope",
+          "language": "javascript",
+          "code": "let value = 5;\n\n{\n  console.log(value);\n  let value = 10;\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use nested block scope.",
+        "Declare same variable name inside block."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Array Destructuring Basics",
+      "content": "Write a JavaScript program to extract the first two values from an array using array destructuring.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "[10, 20, 30]",
+          "expected_output": "10 20"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "[1, 2, 3, 4]",
+          "expected_output": "1 2"
+        }
+      ],
+      "examples": [
+        {
+          "input": "[5, 6, 7]",
+          "expected_output": "5 6",
+          "explanation": "Array destructuring extracts values into variables."
+        }
+      ],
+      "inputFormat": "An array of numbers.",
+      "outputFormat": "First two array values.",
+      "solutions": [
+        {
+          "title": "Basic Array Destructuring",
+          "language": "javascript",
+          "code": "const arr = [10, 20, 30];\nconst [a, b] = arr;\nconsole.log(a, b);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use square brackets for array destructuring.",
+        "Assign values directly into variables."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Object Destructuring Basics",
+      "content": "Write a JavaScript program to extract name and age properties from an object using object destructuring.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{name:'John', age:25}",
+          "expected_output": "John 25"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{name:'Alice', age:30}",
+          "expected_output": "Alice 30"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{name:'Sam', age:22}",
+          "expected_output": "Sam 22",
+          "explanation": "Object destructuring extracts properties into variables."
+        }
+      ],
+      "inputFormat": "An object.",
+      "outputFormat": "Extracted object values.",
+      "solutions": [
+        {
+          "title": "Basic Object Destructuring",
+          "language": "javascript",
+          "code": "const user = { name: 'John', age: 25 };\nconst { name, age } = user;\nconsole.log(name, age);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use curly braces for object destructuring.",
+        "Property names must match variable names."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Nested Object Destructuring",
+      "content": "Write a JavaScript program to extract city from a nested address object using destructuring.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{address:{city:'Delhi'}}",
+          "expected_output": "Delhi"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{address:{city:'Mumbai'}}",
+          "expected_output": "Mumbai"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{address:{city:'Hyderabad'}}",
+          "expected_output": "Hyderabad",
+          "explanation": "Nested destructuring extracts deeply nested properties."
+        }
+      ],
+      "inputFormat": "Nested object.",
+      "outputFormat": "Extracted city value.",
+      "solutions": [
+        {
+          "title": "Nested Object Destructuring",
+          "language": "javascript",
+          "code": "const user = {\n  address: {\n    city: 'Delhi'\n  }\n};\n\nconst {\n  address: { city }\n} = user;\n\nconsole.log(city);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Destructure nested objects carefully.",
+        "Match object structure."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Swap Variables Using Array Destructuring",
+      "content": "Write a JavaScript program to swap two variables without using a temporary variable by using array destructuring.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Destructuring",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "a=5, b=10",
+          "expected_output": "10 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "a=1, b=2",
+          "expected_output": "2 1"
+        }
+      ],
+      "examples": [
+        {
+          "input": "a=7, b=9",
+          "expected_output": "9 7",
+          "explanation": "Array destructuring can swap values efficiently."
+        }
+      ],
+      "inputFormat": "Two variable values.",
+      "outputFormat": "Swapped values.",
+      "solutions": [
+        {
+          "title": "Swap Using Destructuring",
+          "language": "javascript",
+          "code": "let a = 5;\nlet b = 10;\n\n[a, b] = [b, a];\n\nconsole.log(a, b);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use array destructuring assignment.",
+        "No temporary variable is needed."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Copy Array Using Spread Operator",
+      "content": "Write a JavaScript program to create a copy of an array using the spread operator.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "[1,2,3]",
+          "expected_output": "[1,2,3]"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "['a','b']",
+          "expected_output": "['a','b']"
+        }
+      ],
+      "examples": [
+        {
+          "input": "[5,6,7]",
+          "expected_output": "[5,6,7]",
+          "explanation": "Spread operator creates a shallow copy of arrays."
+        }
+      ],
+      "inputFormat": "An array.",
+      "outputFormat": "Copied array.",
+      "solutions": [
+        {
+          "title": "Array Copy with Spread",
+          "language": "javascript",
+          "code": "const arr = [1, 2, 3];\nconst copy = [...arr];\nconsole.log(copy);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use spread operator (...).",
+        "Place array elements inside new array."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Pass Function Arguments Using Spread",
+      "content": "Write a JavaScript program to pass array values as function arguments using the spread operator.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "[2,3]",
+          "expected_output": "5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "[10,15]",
+          "expected_output": "25"
+        }
+      ],
+      "examples": [
+        {
+          "input": "[4,6]",
+          "expected_output": "10",
+          "explanation": "Spread operator expands array elements into arguments."
+        }
+      ],
+      "inputFormat": "An array of numbers.",
+      "outputFormat": "Function result.",
+      "solutions": [
+        {
+          "title": "Function Arguments with Spread",
+          "language": "javascript",
+          "code": "function add(a, b) {\n  return a + b;\n}\n\nconst nums = [2, 3];\nconsole.log(add(...nums));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use spread operator when calling function.",
+        "Expand array into arguments."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Collect Function Arguments Using Rest Parameters",
+      "content": "Write a JavaScript program to create a function that accepts any number of arguments using rest parameters and returns their sum.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "1,2,3",
+          "expected_output": "6"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5,10,15,20",
+          "expected_output": "50"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2,4,6",
+          "expected_output": "12",
+          "explanation": "Rest parameters collect multiple arguments into an array."
+        }
+      ],
+      "inputFormat": "Multiple numeric arguments.",
+      "outputFormat": "Sum of all arguments.",
+      "solutions": [
+        {
+          "title": "Rest Parameter Sum",
+          "language": "javascript",
+          "code": "function sum(...nums) {\n  return nums.reduce((total, num) => total + num, 0);\n}\n\nconsole.log(sum(1, 2, 3));",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use rest parameter syntax (...args).",
+        "Loop or reduce values."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Merge and Copy Objects Using Spread Operator",
+      "content": "Write a JavaScript program to merge two objects and create a new copied object using the spread operator.",
+      "level": "subtopic",
+      "unit_name": "ES6+ Features",
+      "subunit_name": "Spread & Rest",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{a:1}, {b:2}",
+          "expected_output": "{a:1,b:2}"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{name:'John'}, {age:25}",
+          "expected_output": "{name:'John',age:25}"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{x:10}, {y:20}",
+          "expected_output": "{x:10,y:20}",
+          "explanation": "Spread operator merges and copies object properties."
+        }
+      ],
+      "inputFormat": "Two objects.",
+      "outputFormat": "Merged object.",
+      "solutions": [
+        {
+          "title": "Object Merge with Spread",
+          "language": "javascript",
+          "code": "const obj1 = { a: 1 };\nconst obj2 = { b: 2 };\n\nconst merged = { ...obj1, ...obj2 };\n\nconsole.log(merged);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use spread operator inside object literals.",
+        "Merge objects into a new object."
+      ]
+    }
+  ]
 }

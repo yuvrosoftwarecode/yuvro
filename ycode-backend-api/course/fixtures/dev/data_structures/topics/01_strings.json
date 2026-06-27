@@ -2819,11 +2819,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2934,11 +2930,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3049,11 +3041,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3164,11 +3152,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3279,11 +3263,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3394,11 +3374,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3509,11 +3485,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3624,11 +3596,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3739,11 +3707,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3854,11 +3818,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3969,11 +3929,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4084,11 +4040,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4199,11 +4151,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4314,11 +4262,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4429,11 +4373,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4544,11 +4484,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4659,11 +4595,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4774,11 +4706,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -4889,11 +4817,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5004,11 +4928,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5119,11 +5039,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5234,11 +5150,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5349,11 +5261,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5464,11 +5372,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5579,11 +5483,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5694,11 +5594,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5809,11 +5705,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -5924,11 +5816,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6039,11 +5927,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6154,11 +6038,7 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6269,11 +6149,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6384,11 +6260,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6499,11 +6371,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6614,11 +6482,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6729,11 +6593,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6844,11 +6704,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -6959,11 +6815,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7074,11 +6926,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7189,11 +7037,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7304,11 +7148,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7419,11 +7259,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7534,11 +7370,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7649,11 +7481,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7764,11 +7592,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7879,11 +7703,7 @@
                 "Think about carefully aligning the characters of the pattern against the text.",
                 "Look for edge cases where the pattern might partially match but fail later.",
                 "Consider using an established algorithm (like KMP) or dynamic programming for efficiency."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -7994,11 +7814,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8109,11 +7925,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8224,11 +8036,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8339,11 +8147,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8454,11 +8258,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8569,11 +8369,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8684,11 +8480,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8799,11 +8591,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -8914,11 +8702,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9029,11 +8813,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9144,11 +8924,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9259,11 +9035,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9374,11 +9146,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9489,11 +9257,7 @@
                 "Recall that a palindrome reads the same forwards and backwards.",
                 "You can often use two pointers starting from the ends and moving towards the center to check for palindromes.",
                 "For subproblems, consider expanding from the center of possible palindromes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9604,11 +9368,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9719,11 +9479,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9834,11 +9590,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -9949,11 +9701,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10064,11 +9812,7 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10159,11 +9903,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10254,11 +9994,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10349,11 +10085,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10464,11 +10196,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10579,11 +10307,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -10694,11 +10418,7 @@
                 "Iterate through the string character by character.",
                 "Use built-in string functions or ASCII values to transform characters as required.",
                 "Build the result step by step and handle any edge cases like empty strings or special characters."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         }
     ]
 }

@@ -22,7 +22,6 @@ export default function ContestAttempt() {
     const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
     const [initialViolations, setInitialViolations] = useState(0);
     const [initialTabSwitches, setInitialTabSwitches] = useState(0);
-    const [startedAt, setStartedAt] = useState<string | undefined>();
 
     useEffect(() => {
         const start = async () => {
@@ -36,7 +35,6 @@ export default function ContestAttempt() {
                 setViolationThreshold(data.violation_threshold ?? 5);
                 setInitialViolations(data.violation_count ?? 0);
                 setInitialTabSwitches(data.tab_switch_count ?? 0);
-                setStartedAt(data.started_at);
 
                 // Trust the backend-calculated duration (already adjusted for late entry)
                 const duration = data.duration || 60;
@@ -110,7 +108,6 @@ export default function ContestAttempt() {
                 violation_threshold: violationThreshold,
                 initial_violations: initialViolations,
                 initial_tab_switches: initialTabSwitches,
-                started_at: startedAt,
             }}
             questions={questions}
             submissionId={submissionId || ""}

@@ -148,14 +148,14 @@ export default function MockInterviewAnalytics() {
                                             <TableCell className="text-right">
                                                 <button
                                                     onClick={() => {
-                                                        if (sub.id) {
-                                                            navigate(`/instructor/mock-interview/reports/${sub.id}`);
+                                                        if (sub.interview_session_id) {
+                                                            navigate(`/instructor/mock-interview/reports/${sub.interview_session_id}`);
                                                         } else {
                                                             toast.error('Report details not available');
                                                         }
                                                     }}
-                                                    disabled={!sub.id}
-                                                    className={`p-2 rounded-md transition-colors ${sub.id
+                                                    disabled={!sub.interview_session_id}
+                                                    className={`p-2 rounded-md transition-colors ${sub.interview_session_id
                                                         ? 'text-blue-600 hover:bg-blue-50'
                                                         : 'text-gray-300 cursor-not-allowed'
                                                         }`}

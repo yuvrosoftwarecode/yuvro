@@ -73,6 +73,8 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
   const [totalMarks, setTotalMarks] = useState<number>(0);
   const [completedAt, setCompletedAt] = useState<string>('');
   const [submissionTestTitle, setSubmissionTestTitle] = useState<string>('');
+  const [submissionDifficulty, setSubmissionDifficulty] = useState<string>('');
+  const [submissionDuration, setSubmissionDuration] = useState<number>(0);
   const [hasSubmission, setHasSubmission] = useState<boolean>(false);
   const [skillTestTotalMarks, setSkillTestTotalMarks] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,7 +125,7 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
 
   // Computed display values — prefer backend data where available
   const displayTestName = submissionTestTitle || testName;
-  const displayDifficulty = difficulty;
+  const displayDifficulty = submissionDifficulty || difficulty;
 
   // Derived stats from real question_activities
   const correctAnswers = questionActivities.filter(a => a.is_correct).length;
@@ -481,8 +483,8 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                       const options = getMcqOptions(activity);
 
                       // Student's answer(s)
-                      const studentAnswerVal = activity.answer_data?.answer !== undefined ? activity.answer_data.answer : activity.answer_data;
-                      const studentAnswerStr = Array.isArray(studentAnswerVal) ? studentAnswerVal.join(', ') : (studentAnswerVal?.toString() || '');
+                      const studentAnswer = activity.answer_data;
+                      const studentAnswerStr = Array.isArray(studentAnswer) ? studentAnswer.join(', ') : (studentAnswer?.toString() || '');
 
                       return (
                         <div
@@ -519,27 +521,23 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                           {isExpanded && (
                             <div className="border-t border-gray-100 p-5 space-y-4 bg-white">
                               {/* MCQ Options */}
-                              {qTypeNorm === 'mcq' && (activity.mcq_options || options).length > 0 && (
+                              {qTypeNorm === 'mcq' && options.length > 0 && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                  {(activity.mcq_options || options).map((optObj: any, optIndex: number) => {
-                                    const optText = typeof optObj === 'string' ? optObj : (optObj.text || optObj.option_text || '');
-                                    const isOptCorrect = typeof optObj === 'string' ? false : Boolean(optObj.is_correct);
-
-                                    const isSelected = Array.isArray(studentAnswerVal)
-                                      ? studentAnswerVal.some((ans: any) => String(ans).trim() === String(optText).trim())
-                                      : String(studentAnswerVal || '').trim() === String(optText).trim();
-
-                                    const style = isOptCorrect
-                                      ? 'border-green-200 bg-green-50 text-green-800 font-medium'
-                                      : isSelected && !isOptCorrect
-                                        ? 'border-red-200 bg-red-50 text-red-800 font-medium'
+                                  {options.map((option, optIndex) => {
+                                    const isSelected = Array.isArray(studentAnswer)
+                                      ? studentAnswer.includes(option)
+                                      : studentAnswer === option;
+                                    const isOptionCorrect = isCorrect && isSelected;
+                                    const style = isOptionCorrect
+                                      ? 'border-green-200 bg-green-50 text-green-800'
+                                      : isSelected && !isCorrect
+                                        ? 'border-red-200 bg-red-50 text-red-800'
                                         : 'border-gray-200 bg-white text-gray-600';
-
                                     return (
                                       <div key={optIndex} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
-                                        <span>{optText}</span>
-                                        {isOptCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
-                                        {isSelected && !isOptCorrect && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
+                                        <span>{option}</span>
+                                        {isOptionCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
+                                        {isSelected && !isOptionCorrect && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
                                       </div>
                                     );
                                   })}
@@ -569,16 +567,6 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                                   <div className="bg-white rounded-lg p-3 border border-gray-200">
                                     <pre className="text-sm whitespace-pre-wrap text-gray-800">{studentAnswerStr || 'No answer provided'}</pre>
                                   </div>
-                                </div>
-                              )}
-
-                              {/* Explanation */}
-                              {activity.answer_data?.explanation && (
-                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                                  <h4 className="text-sm font-bold text-blue-800 mb-1 flex items-center gap-2">
-                                    <BookOpen className="h-4 w-4 text-blue-600" /> Explanation
-                                  </h4>
-                                  <p className="text-sm text-blue-900/80">{activity.answer_data.explanation}</p>
                                 </div>
                               )}
 

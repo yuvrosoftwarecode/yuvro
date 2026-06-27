@@ -1916,11 +1916,7 @@
             "hints": [
                 "Use if-elif-else.",
                 "Check >0, <0, else case."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -1969,11 +1965,7 @@
             "hints": [
                 "Compare two numbers.",
                 "Use if-else."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2022,11 +2014,7 @@
             "hints": [
                 "Use modulus operator.",
                 "n % 2 == 0 means even."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2075,11 +2063,7 @@
             "hints": [
                 "Use if-elif ladder.",
                 "Check highest condition first."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2127,11 +2111,7 @@
             "hints": [
                 "Compare step by step.",
                 "Use nested if."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2183,11 +2163,7 @@
             "hints": [
                 "Check divisibility rules carefully.",
                 "Use nested conditions."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2239,11 +2215,7 @@
             "hints": [
                 "Check triangle validity first.",
                 "Then classify based on equality."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2292,11 +2264,7 @@
             "hints": [
                 "Use range(1, n+1).",
                 "Loop through numbers."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2345,11 +2313,7 @@
             "hints": [
                 "Initialize counter.",
                 "Use while loop."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2397,11 +2361,7 @@
             "hints": [
                 "Use % operator.",
                 "Check i % 2 == 0."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2450,11 +2410,7 @@
             "hints": [
                 "Multiply numbers.",
                 "Use loop."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2502,11 +2458,7 @@
             "hints": [
                 "Use % 10 to get digit.",
                 "Use // 10 to remove digit."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2554,11 +2506,7 @@
             "hints": [
                 "Check up to sqrt(n).",
                 "Use break."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2606,11 +2554,7 @@
             "hints": [
                 "Use two variables.",
                 "Update in each iteration."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2659,11 +2603,7 @@
             "hints": [
                 "Use break statement.",
                 "Check divisibility."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2712,11 +2652,7 @@
             "hints": [
                 "Use continue.",
                 "Skip unwanted values."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2764,11 +2700,7 @@
             "hints": [
                 "pass does nothing.",
                 "Use else block."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2817,11 +2749,7 @@
             "hints": [
                 "Use break.",
                 "Check condition inside loop."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2869,11 +2797,7 @@
             "hints": [
                 "Skip multiples of 5.",
                 "Count others."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2921,11 +2845,7 @@
             "hints": [
                 "Use nested loops.",
                 "Use break carefully."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -2973,11 +2893,7 @@
             "hints": [
                 "Order matters.",
                 "Check break before continue."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3026,11 +2942,7 @@
             "hints": [
                 "Use nested loops.",
                 "Inner loop runs till i."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3079,11 +2991,7 @@
             "hints": [
                 "Use string multiplication.",
                 "Loop from 1 to N."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3131,11 +3039,7 @@
             "hints": [
                 "Loop backwards.",
                 "Inner loop from 1 to i."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3184,11 +3088,7 @@
             "hints": [
                 "Handle spaces first.",
                 "Then increasing and decreasing numbers."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3236,11 +3136,7 @@
             "hints": [
                 "Use counter variable.",
                 "Increase after print."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3288,11 +3184,7 @@
             "hints": [
                 "Two parts: upper + lower.",
                 "Use symmetry."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         },
         {
             "type": "coding",
@@ -3340,11 +3232,7 @@
             "hints": [
                 "Use formula for binomial coefficient.",
                 "Avoid factorial."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+            ]
         }
     ]
 }

@@ -1,2569 +1,2497 @@
 {
-    "name": "Asynchronous JavaScript",
-    "subject_short_code": "JS100",
-    "order_index": 10,
-    "sub_units": [
+  "name": "Asynchronous JavaScript",
+  "subject_short_code": "JS100",
+  "order_index": 10,
+  "sub_units": [
+    {
+      "name": "Synchronous vs Asynchronous",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Synchronous vs Asynchronous",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Synchronous vs Asynchronous",
-                    "video_link": "https://www.youtube.com/results?search_query=Synchronous+vs+Asynchronous+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Synchronous vs Asynchronous in JavaScript."
-                },
-                {
-                    "title": "Advanced Synchronous vs Asynchronous Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Synchronous+vs+Asynchronous+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Synchronous vs Asynchronous."
-                }
-            ]
+          "title": "Introduction to Synchronous vs Asynchronous",
+          "video_link": "https://www.youtube.com/results?search_query=Synchronous+vs+Asynchronous+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Synchronous vs Asynchronous in JavaScript."
         },
         {
-            "name": "Callbacks",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Callbacks",
-                    "video_link": "https://www.youtube.com/results?search_query=Callbacks+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Callbacks in JavaScript."
-                },
-                {
-                    "title": "Advanced Callbacks Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Callbacks+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Callbacks."
-                }
-            ]
-        },
-        {
-            "name": "Promises",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Promises",
-                    "video_link": "https://www.youtube.com/results?search_query=Promises+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Promises in JavaScript."
-                },
-                {
-                    "title": "Advanced Promises Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Promises+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Promises."
-                }
-            ]
-        },
-        {
-            "name": "Async/Await",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 3,
-            "videos": [
-                {
-                    "title": "Introduction to Async/Await",
-                    "video_link": "https://www.youtube.com/results?search_query=Async/Await+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Async/Await in JavaScript."
-                },
-                {
-                    "title": "Advanced Async/Await Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Async/Await+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Async/Await."
-                }
-            ]
-        },
-        {
-            "name": "Fetch API",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 4,
-            "videos": [
-                {
-                    "title": "Introduction to Fetch API",
-                    "video_link": "https://www.youtube.com/results?search_query=Fetch+API+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Fetch API in JavaScript."
-                },
-                {
-                    "title": "Advanced Fetch API Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Fetch+API+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Fetch API."
-                }
-            ]
+          "title": "Advanced Synchronous vs Asynchronous Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Synchronous+vs+Asynchronous+javascript",
+          "ai_context": "In-depth explanation and practical examples for Synchronous vs Asynchronous."
         }
-    ],
-    "questions": [
-        {
-            "type": "mcq_single",
-            "title": "Synchronous Code Basics",
-            "content": "What does synchronous code execution mean?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Code runs one line at a time in order",
-                    "is_correct": true
-                },
-                {
-                    "text": "Code runs randomly",
-                    "is_correct": false
-                },
-                {
-                    "text": "All functions run together",
-                    "is_correct": false
-                },
-                {
-                    "text": "Code skips delays automatically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Asynchronous Code Meaning",
-            "content": "What is asynchronous programming mainly used for?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Handling tasks without blocking other operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Stopping all code execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Replacing HTML elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creating CSS styles",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Blocking Behavior",
-            "content": "What happens in blocking code execution?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Next operations wait until current task finishes",
-                    "is_correct": true
-                },
-                {
-                    "text": "All tasks execute at the same time",
-                    "is_correct": false
-                },
-                {
-                    "text": "Tasks are ignored",
-                    "is_correct": false
-                },
-                {
-                    "text": "Execution moves backward",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Non-blocking Execution",
-            "content": "What is a benefit of non-blocking asynchronous operations?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Other tasks can continue while waiting for long operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "The browser freezes completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Functions stop permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "It removes all delays from code",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Synchronous vs Asynchronous Logic",
-            "content": "Which statement best describes asynchronous JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Long-running tasks can execute without stopping the main program flow",
-                    "is_correct": true
-                },
-                {
-                    "text": "Every task must complete before the next one starts",
-                    "is_correct": false
-                },
-                {
-                    "text": "JavaScript executes multiple threads by default",
-                    "is_correct": false
-                },
-                {
-                    "text": "Asynchronous code cannot use functions",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Callback Function Basics",
-            "content": "What is a callback function in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A function passed as an argument to another function",
-                    "is_correct": true
-                },
-                {
-                    "text": "A function that only works with arrays",
-                    "is_correct": false
-                },
-                {
-                    "text": "A built-in browser event",
-                    "is_correct": false
-                },
-                {
-                    "text": "A CSS animation function",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Callback Usage",
-            "content": "Why are callbacks commonly used in asynchronous JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To execute code after a task completes",
-                    "is_correct": true
-                },
-                {
-                    "text": "To stop all functions",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create HTML pages",
-                    "is_correct": false
-                },
-                {
-                    "text": "To style web applications",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Understanding Callback Hell",
-            "content": "What is callback hell?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Deeply nested callbacks that make code hard to read",
-                    "is_correct": true
-                },
-                {
-                    "text": "A browser error related to CSS",
-                    "is_correct": false
-                },
-                {
-                    "text": "A type of JavaScript loop",
-                    "is_correct": false
-                },
-                {
-                    "text": "A syntax rule in ES6",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Nested Callback Problem",
-            "content": "What is a major issue caused by callback hell?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Code becomes difficult to maintain and debug",
-                    "is_correct": true
-                },
-                {
-                    "text": "Functions stop working completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Variables become global automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "JavaScript cannot run asynchronously",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Callback Execution Flow",
-            "content": "What will happen in asynchronous code using callbacks?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The callback executes after the asynchronous task finishes",
-                    "is_correct": true
-                },
-                {
-                    "text": "The callback always executes before the main function",
-                    "is_correct": false
-                },
-                {
-                    "text": "Callbacks stop asynchronous execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Callbacks only work with loops",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Promise Basics",
-            "content": "What is a Promise in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "An object representing the eventual completion or failure of an asynchronous task",
-                    "is_correct": true
-                },
-                {
-                    "text": "A type of JavaScript loop",
-                    "is_correct": false
-                },
-                {
-                    "text": "A CSS styling method",
-                    "is_correct": false
-                },
-                {
-                    "text": "A DOM selection API",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "then Method Usage",
-            "content": "What is the purpose of the then() method in a Promise?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To handle successful promise resolution",
-                    "is_correct": true
-                },
-                {
-                    "text": "To stop promise execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create a new loop",
-                    "is_correct": false
-                },
-                {
-                    "text": "To delete asynchronous tasks",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "catch and finally",
-            "content": "What is the role of catch() in a Promise chain?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Handles errors or rejected promises",
-                    "is_correct": true
-                },
-                {
-                    "text": "Executes before then()",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creates synchronous code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stops all JavaScript execution",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Promise Lifecycle",
-            "content": "Which statement about finally() is correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It executes regardless of promise success or failure",
-                    "is_correct": true
-                },
-                {
-                    "text": "It only executes after catch()",
-                    "is_correct": false
-                },
-                {
-                    "text": "It replaces then() completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "It only works with resolved promises",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Async Function Basics",
-            "content": "What does the async keyword do in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Makes a function return a Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "Stops asynchronous execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creates a loop automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Converts code into synchronous code",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Await Keyword Usage",
-            "content": "What is the purpose of the await keyword?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Pauses execution until a Promise is resolved",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deletes a Promise",
-                    "is_correct": false
-                },
-                {
-                    "text": "Runs multiple functions together",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stops all JavaScript execution",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Async Error Handling",
-            "content": "Which statement is commonly used to handle errors in async/await?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "try...catch",
-                    "is_correct": true
-                },
-                {
-                    "text": "if...else only",
-                    "is_correct": false
-                },
-                {
-                    "text": "switch statement",
-                    "is_correct": false
-                },
-                {
-                    "text": "for loop",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Async Function Execution",
-            "content": "What happens when an awaited Promise is rejected inside an async function without a try...catch block?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The async function returns a rejected Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "The Promise automatically resolves",
-                    "is_correct": false
-                },
-                {
-                    "text": "JavaScript stops running permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "The error is ignored completely",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Fetch API Purpose",
-            "content": "What is the Fetch API mainly used for in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Making HTTP requests to servers",
-                    "is_correct": true
-                },
-                {
-                    "text": "Styling HTML elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creating database tables",
-                    "is_correct": false
-                },
-                {
-                    "text": "Running synchronous loops",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "GET Request Basics",
-            "content": "Which HTTP method is commonly used to retrieve data from an API?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "GET",
-                    "is_correct": true
-                },
-                {
-                    "text": "POST",
-                    "is_correct": false
-                },
-                {
-                    "text": "DELETE",
-                    "is_correct": false
-                },
-                {
-                    "text": "PATCH",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "POST Request Purpose",
-            "content": "What is the main purpose of a POST request?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Sending data to a server",
-                    "is_correct": true
-                },
-                {
-                    "text": "Retrieving data only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Styling a webpage",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deleting browser history",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Handling API Responses",
-            "content": "Which method is commonly used to convert a Fetch API response into JSON format?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "response.json()",
-                    "is_correct": true
-                },
-                {
-                    "text": "response.parse()",
-                    "is_correct": false
-                },
-                {
-                    "text": "response.textToJson()",
-                    "is_correct": false
-                },
-                {
-                    "text": "JSON.fetch()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Fetch API Error Handling",
-            "content": "What is a recommended way to handle errors while using the Fetch API with async/await?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Using try...catch blocks",
-                    "is_correct": true
-                },
-                {
-                    "text": "Using only console.log()",
-                    "is_correct": false
-                },
-                {
-                    "text": "Using setInterval()",
-                    "is_correct": false
-                },
-                {
-                    "text": "Using document.write()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Synchronous Code",
-            "content": "Which of the following statements about synchronous JavaScript are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Synchronous code executes line by line",
-                    "is_correct": true
-                },
-                {
-                    "text": "In synchronous execution, one task completes before the next starts",
-                    "is_correct": true
-                },
-                {
-                    "text": "Synchronous code always runs multiple tasks at the same time",
-                    "is_correct": false
-                },
-                {
-                    "text": "Synchronous operations can block further execution",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Asynchronous JavaScript",
-            "content": "Which statements about asynchronous JavaScript are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Asynchronous code allows tasks to run without blocking execution",
-                    "is_correct": true
-                },
-                {
-                    "text": "JavaScript can continue executing other code during asynchronous operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Asynchronous code always stops the entire program until completion",
-                    "is_correct": false
-                },
-                {
-                    "text": "Timers and API calls are common examples of asynchronous operations",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Blocking vs Non-Blocking Behavior",
-            "content": "Which of the following statements about blocking and non-blocking behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Blocking operations prevent other code from executing temporarily",
-                    "is_correct": true
-                },
-                {
-                    "text": "Non-blocking operations allow other code to continue running",
-                    "is_correct": true
-                },
-                {
-                    "text": "All JavaScript operations are blocking by default",
-                    "is_correct": false
-                },
-                {
-                    "text": "Asynchronous programming helps create non-blocking behavior",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Execution Flow",
-            "content": "Which statements correctly describe synchronous and asynchronous execution flow?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Synchronous tasks are executed in sequence",
-                    "is_correct": true
-                },
-                {
-                    "text": "Asynchronous tasks can complete later while other code continues running",
-                    "is_correct": true
-                },
-                {
-                    "text": "Non-blocking code means tasks are ignored completely",
-                    "is_correct": false
-                },
-                {
-                    "text": "Asynchronous behavior improves responsiveness in applications",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Blocking and Non-Blocking Concepts",
-            "content": "Which of the following statements about advanced blocking and non-blocking concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Synchronous vs Asynchronous",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Long-running synchronous tasks can freeze the user interface",
-                    "is_correct": true
-                },
-                {
-                    "text": "JavaScript uses an event loop to manage asynchronous operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Asynchronous operations execute in completely random order",
-                    "is_correct": false
-                },
-                {
-                    "text": "Non-blocking behavior is important for responsive web applications",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Callbacks",
-            "content": "Which of the following statements about callbacks are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A callback is a function passed as an argument to another function",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callbacks are commonly used in asynchronous JavaScript",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callbacks can only be used with synchronous code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Callbacks can run after an operation is completed",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Asynchronous Callbacks",
-            "content": "Which statements about asynchronous callbacks are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Callbacks help handle tasks that take time to complete",
-                    "is_correct": true
-                },
-                {
-                    "text": "Functions like setTimeout commonly use callbacks",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callbacks stop JavaScript execution permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "Callbacks can improve responsiveness in applications",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Callback Hell",
-            "content": "Which of the following statements about callback hell are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Callback hell happens when many nested callbacks make code difficult to read",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deeply nested callbacks can reduce code maintainability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callback hell improves code readability",
-                    "is_correct": false
-                },
-                {
-                    "text": "Promises and async/await can help avoid callback hell",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Working with Callback Functions",
-            "content": "Which statements correctly describe callback functions and their usage?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Callbacks can execute after asynchronous operations finish",
-                    "is_correct": true
-                },
-                {
-                    "text": "Nested callbacks may make debugging harder",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callbacks eliminate the need for asynchronous programming",
-                    "is_correct": false
-                },
-                {
-                    "text": "Callbacks are an important part of JavaScript event handling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Callback Concepts",
-            "content": "Which of the following statements about advanced callback concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Callback hell often results in pyramid-shaped nested code",
-                    "is_correct": true
-                },
-                {
-                    "text": "Error handling becomes more difficult with deeply nested callbacks",
-                    "is_correct": true
-                },
-                {
-                    "text": "Callbacks always execute immediately after being defined",
-                    "is_correct": false
-                },
-                {
-                    "text": "Modern JavaScript features like Promises improve asynchronous code structure",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Promises",
-            "content": "Which of the following statements about Promises are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "A Promise represents the eventual completion or failure of an asynchronous operation",
-                    "is_correct": true
-                },
-                {
-                    "text": "Promises help manage asynchronous code more cleanly",
-                    "is_correct": true
-                },
-                {
-                    "text": "Promises only work with synchronous operations",
-                    "is_correct": false
-                },
-                {
-                    "text": "A Promise can be in pending, fulfilled, or rejected state",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of then, catch, and finally",
-            "content": "Which statements about then(), catch(), and finally() are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "then() is used to handle successful Promise resolution",
-                    "is_correct": true
-                },
-                {
-                    "text": "catch() is used to handle Promise errors",
-                    "is_correct": true
-                },
-                {
-                    "text": "finally() only runs when a Promise is rejected",
-                    "is_correct": false
-                },
-                {
-                    "text": "finally() executes regardless of Promise success or failure",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Creating and Handling Promises",
-            "content": "Which of the following statements about creating and handling Promises are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Promises are created using the Promise constructor",
-                    "is_correct": true
-                },
-                {
-                    "text": "A Promise can resolve or reject based on operation outcome",
-                    "is_correct": true
-                },
-                {
-                    "text": "then() can only be called once on a Promise",
-                    "is_correct": false
-                },
-                {
-                    "text": "Promises improve readability compared to deeply nested callbacks",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Promise Concepts",
-            "content": "Which of the following statements about advanced Promise concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Promise chaining allows sequential asynchronous operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Errors thrown inside then() can be caught using catch()",
-                    "is_correct": true
-                },
-                {
-                    "text": "A Promise can switch from fulfilled back to pending state",
-                    "is_correct": false
-                },
-                {
-                    "text": "finally() is useful for cleanup operations regardless of Promise outcome",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding async Functions",
-            "content": "Which of the following statements about async functions are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "An async function always returns a Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "The async keyword is used to define asynchronous functions",
-                    "is_correct": true
-                },
-                {
-                    "text": "Async functions can only contain synchronous code",
-                    "is_correct": false
-                },
-                {
-                    "text": "Async functions help simplify asynchronous programming",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of await",
-            "content": "Which statements about the await keyword are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "await pauses execution until a Promise is resolved",
-                    "is_correct": true
-                },
-                {
-                    "text": "await can only be used inside async functions",
-                    "is_correct": true
-                },
-                {
-                    "text": "await blocks the entire JavaScript runtime permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "await makes asynchronous code easier to read",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Error Handling with Async/Await",
-            "content": "Which of the following statements about error handling in async/await are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "try...catch can be used to handle errors in async functions",
-                    "is_correct": true
-                },
-                {
-                    "text": "Rejected Promises can be caught using catch blocks",
-                    "is_correct": true
-                },
-                {
-                    "text": "Errors in async functions cannot be handled",
-                    "is_correct": false
-                },
-                {
-                    "text": "Error handling improves reliability of asynchronous code",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Working with Async and Await",
-            "content": "Which statements correctly describe async and await behavior?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Async/await is built on top of Promises",
-                    "is_correct": true
-                },
-                {
-                    "text": "await can be used with Promise-returning functions",
-                    "is_correct": true
-                },
-                {
-                    "text": "Async/await removes the need for Promises internally",
-                    "is_correct": false
-                },
-                {
-                    "text": "Async/await syntax can reduce callback nesting",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Async Error Handling",
-            "content": "Which of the following statements about advanced async error handling are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Errors thrown inside async functions reject the returned Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "Multiple await statements can be wrapped in a single try block",
-                    "is_correct": true
-                },
-                {
-                    "text": "await automatically ignores all Promise rejections",
-                    "is_correct": false
-                },
-                {
-                    "text": "Proper error handling prevents application crashes in async code",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Async/Await Concepts",
-            "content": "Which of the following statements about advanced async/await concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Async functions always return Promises, even when returning plain values",
-                    "is_correct": true
-                },
-                {
-                    "text": "Using await sequentially may slow execution when tasks are independent",
-                    "is_correct": true
-                },
-                {
-                    "text": "await can only work with callback functions directly",
-                    "is_correct": false
-                },
-                {
-                    "text": "Promise.all can improve performance for parallel asynchronous tasks",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Fetch API",
-            "content": "Which of the following statements about the Fetch API are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Fetch API is used to make HTTP requests",
-                    "is_correct": true
-                },
-                {
-                    "text": "fetch() returns a Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fetch API only works for local files",
-                    "is_correct": false
-                },
-                {
-                    "text": "Fetch API supports asynchronous communication with servers",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of GET Requests",
-            "content": "Which statements about GET requests using Fetch API are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "GET requests are commonly used to retrieve data from a server",
-                    "is_correct": true
-                },
-                {
-                    "text": "fetch() uses GET as the default HTTP method",
-                    "is_correct": true
-                },
-                {
-                    "text": "GET requests are mainly used to delete server data",
-                    "is_correct": false
-                },
-                {
-                    "text": "GET requests can fetch API responses in JSON format",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding POST Requests",
-            "content": "Which of the following statements about POST requests are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "POST requests are commonly used to send data to a server",
-                    "is_correct": true
-                },
-                {
-                    "text": "POST requests can include data in the request body",
-                    "is_correct": true
-                },
-                {
-                    "text": "POST requests cannot send JSON data",
-                    "is_correct": false
-                },
-                {
-                    "text": "POST requests often require specifying headers like Content-Type",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Handling API Responses",
-            "content": "Which statements correctly describe API handling with Fetch API?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "API responses can be converted to JSON using response.json()",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fetch API supports handling successful and failed requests",
-                    "is_correct": true
-                },
-                {
-                    "text": "fetch() automatically throws errors for all HTTP status codes",
-                    "is_correct": false
-                },
-                {
-                    "text": "Promises are commonly used while handling API responses",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Fetch API Concepts",
-            "content": "Which of the following statements about advanced Fetch API concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Fetch API works asynchronously using Promises",
-                    "is_correct": true
-                },
-                {
-                    "text": "Error handling with fetch often uses try...catch or .catch()",
-                    "is_correct": true
-                },
-                {
-                    "text": "fetch() blocks the browser until the request completes",
-                    "is_correct": false
-                },
-                {
-                    "text": "Proper API handling improves application reliability and user experience",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Simple Callback Function",
-            "content": "Write a JavaScript program to execute a callback function after printing a message.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Task completed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Callback executed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Task completed",
-                    "explanation": "A callback function runs after another function completes."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Printed messages.",
-            "solutions": [
-                {
-                    "title": "Basic Callback Example",
-                    "language": "javascript",
-                    "code": "function greet(callback) {\n  console.log('Task completed');\n  callback();\n}\n\nfunction done() {\n  console.log('Callback executed');\n}\n\ngreet(done);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Pass a function as an argument.",
-                "Call the callback inside another function."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Asynchronous Callback with setTimeout",
-            "content": "Write a JavaScript program to execute a callback function after a delay using setTimeout.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Finished after delay"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Callback completed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Finished after delay",
-                    "explanation": "Callbacks are commonly used with asynchronous operations."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Delayed callback execution.",
-            "solutions": [
-                {
-                    "title": "Callback with setTimeout",
-                    "language": "javascript",
-                    "code": "function process(callback) {\n  setTimeout(() => {\n    console.log('Finished after delay');\n    callback();\n  }, 1000);\n}\n\nprocess(() => {\n  console.log('Callback completed');\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use setTimeout for async behavior.",
-                "Execute callback after delay."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Nested Callbacks Example",
-            "content": "Write a JavaScript program that demonstrates callback hell using nested asynchronous callbacks.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Nested callbacks executed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3",
-                    "explanation": "Callback hell occurs when callbacks are deeply nested."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Sequential async output.",
-            "solutions": [
-                {
-                    "title": "Callback Hell Demo",
-                    "language": "javascript",
-                    "code": "setTimeout(() => {\n  console.log('Step 1');\n\n  setTimeout(() => {\n    console.log('Step 2');\n\n    setTimeout(() => {\n      console.log('Step 3');\n    }, 1000);\n\n  }, 1000);\n\n}, 1000);",
-                    "complexity_analysis": "Time: O(n), Space: O(n)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Nest multiple callbacks.",
-                "Use setTimeout inside another callback."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Simulate User Login Flow with Callback Hell",
-            "content": "Write a JavaScript program to simulate a login flow using nested callbacks for login, fetching profile, and loading posts.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Callbacks",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Login successful Profile loaded Posts loaded"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All async tasks completed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Login successful Profile loaded Posts loaded",
-                    "explanation": "Multiple dependent async operations create callback hell."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Sequential async process output.",
-            "solutions": [
-                {
-                    "title": "Login Flow Callback Hell",
-                    "language": "javascript",
-                    "code": "setTimeout(() => {\n  console.log('Login successful');\n\n  setTimeout(() => {\n    console.log('Profile loaded');\n\n    setTimeout(() => {\n      console.log('Posts loaded');\n    }, 1000);\n\n  }, 1000);\n\n}, 1000);",
-                    "complexity_analysis": "Time: O(n), Space: O(n)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Create dependent async tasks.",
-                "Nest callbacks step by step."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Simple Promise",
-            "content": "Write a JavaScript program to create a Promise that resolves successfully and prints a success message using then().",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Promise Resolved"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Success"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Promise Resolved",
-                    "explanation": "Promises handle asynchronous operations."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Resolved promise message.",
-            "solutions": [
-                {
-                    "title": "Basic Promise Example",
-                    "language": "javascript",
-                    "code": "const promise = new Promise((resolve, reject) => {\n  resolve('Promise Resolved');\n});\n\npromise.then(result => {\n  console.log(result);\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use new Promise().",
-                "Handle resolved value with then()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Handle Promise Rejection",
-            "content": "Write a JavaScript program to create a Promise that rejects with an error message and handle it using catch().",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Error occurred"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Promise rejected"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Error occurred",
-                    "explanation": "catch() handles rejected promises."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Error message.",
-            "solutions": [
-                {
-                    "title": "Promise Rejection Example",
-                    "language": "javascript",
-                    "code": "const promise = new Promise((resolve, reject) => {\n  reject('Error occurred');\n});\n\npromise.catch(error => {\n  console.log(error);\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use reject() inside Promise.",
-                "Handle errors using catch()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Use then, catch and finally Together",
-            "content": "Write a JavaScript program to create a Promise and handle success, failure, and cleanup using then(), catch(), and finally().",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "resolve",
-                    "expected_output": "Success Cleanup done"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "reject",
-                    "expected_output": "Failed Cleanup done"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "resolve",
-                    "expected_output": "Success Cleanup done",
-                    "explanation": "finally() executes regardless of Promise result."
-                }
-            ],
-            "inputFormat": "Promise status.",
-            "outputFormat": "Promise handling messages.",
-            "solutions": [
-                {
-                    "title": "Promise with finally",
-                    "language": "javascript",
-                    "code": "const success = true;\n\nconst promise = new Promise((resolve, reject) => {\n  if (success) {\n    resolve('Success');\n  } else {\n    reject('Failed');\n  }\n});\n\npromise\n  .then(result => console.log(result))\n  .catch(error => console.log(error))\n  .finally(() => console.log('Cleanup done'));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use then() for success.",
-                "Use finally() for cleanup tasks."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Chain Multiple Promises",
-            "content": "Write a JavaScript program to chain multiple Promises using then() and handle errors using catch().",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Promises",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Promise chain completed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3",
-                    "explanation": "Promise chaining avoids callback hell."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Sequential promise output.",
-            "solutions": [
-                {
-                    "title": "Promise Chaining",
-                    "language": "javascript",
-                    "code": "new Promise((resolve) => {\n  resolve('Step 1');\n})\n  .then(result => {\n    console.log(result);\n    return 'Step 2';\n  })\n  .then(result => {\n    console.log(result);\n    return 'Step 3';\n  })\n  .then(result => {\n    console.log(result);\n  })\n  .catch(error => {\n    console.log(error);\n  });",
-                    "complexity_analysis": "Time: O(n), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Return values from then().",
-                "Chain multiple then() methods."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Simple Async Function",
-            "content": "Write a JavaScript program to create an async function that returns a greeting message.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Hello Async"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Async function executed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Hello Async",
-                    "explanation": "An async function automatically returns a Promise."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Greeting message.",
-            "solutions": [
-                {
-                    "title": "Basic Async Function",
-                    "language": "javascript",
-                    "code": "async function greet() {\n  return 'Hello Async';\n}\n\ngreet().then(result => console.log(result));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use async keyword before function.",
-                "Async functions return Promises."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Use await with Promise",
-            "content": "Write a JavaScript program to use await inside an async function to resolve a Promise.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Promise Resolved"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Await completed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Promise Resolved",
-                    "explanation": "await pauses execution until the Promise resolves."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Resolved Promise value.",
-            "solutions": [
-                {
-                    "title": "Await Example",
-                    "language": "javascript",
-                    "code": "function getData() {\n  return new Promise(resolve => {\n    resolve('Promise Resolved');\n  });\n}\n\nasync function fetchData() {\n  const result = await getData();\n  console.log(result);\n}\n\nfetchData();",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use await inside async function.",
-                "Wait for Promise resolution."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Handle Errors with try...catch",
-            "content": "Write a JavaScript program to handle Promise rejection using async/await and try...catch.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Error handled"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Promise rejected"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Error handled",
-                    "explanation": "try...catch handles async errors cleanly."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Error handling message.",
-            "solutions": [
-                {
-                    "title": "Async Error Handling",
-                    "language": "javascript",
-                    "code": "function getError() {\n  return new Promise((resolve, reject) => {\n    reject('Error handled');\n  });\n}\n\nasync function run() {\n  try {\n    const result = await getError();\n    console.log(result);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nrun();",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Wrap await inside try block.",
-                "Use catch block for errors."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Fetch Multiple Async Results Sequentially",
-            "content": "Write a JavaScript program using async/await to fetch multiple asynchronous results sequentially with proper error handling.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Async/Await",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "All async tasks completed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Step 1 Step 2 Step 3",
-                    "explanation": "async/await simplifies sequential asynchronous operations."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Sequential async outputs.",
-            "solutions": [
-                {
-                    "title": "Sequential Async Tasks",
-                    "language": "javascript",
-                    "code": "function task(message) {\n  return new Promise(resolve => {\n    setTimeout(() => {\n      resolve(message);\n    }, 1000);\n  });\n}\n\nasync function runTasks() {\n  try {\n    const step1 = await task('Step 1');\n    console.log(step1);\n\n    const step2 = await task('Step 2');\n    console.log(step2);\n\n    const step3 = await task('Step 3');\n    console.log(step3);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nrunTasks();",
-                    "complexity_analysis": "Time: O(n), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Create Promise-based async tasks.",
-                "Use await sequentially.",
-                "Handle errors with try...catch."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Fetch Data Using GET Request",
-            "content": "Write a JavaScript program to fetch user data from a public API using a GET request and display the response.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "User data fetched"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "JSON response displayed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "User object",
-                    "explanation": "GET requests retrieve data from APIs."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Fetched API response.",
-            "solutions": [
-                {
-                    "title": "Simple GET Request",
-                    "language": "javascript",
-                    "code": "fetch('https://jsonplaceholder.typicode.com/users/1')\n  .then(response => response.json())\n  .then(data => console.log(data));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use fetch() with API URL.",
-                "Convert response using json()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Send Data Using POST Request",
-            "content": "Write a JavaScript program to send data to an API using a POST request.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{title:'Test'}",
-                    "expected_output": "Data posted successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{title:'Hello'}",
-                    "expected_output": "Response received"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "{title:'Sample'}",
-                    "expected_output": "Posted successfully",
-                    "explanation": "POST requests send data to APIs."
-                }
-            ],
-            "inputFormat": "JSON object data.",
-            "outputFormat": "POST request response.",
-            "solutions": [
-                {
-                    "title": "Basic POST Request",
-                    "language": "javascript",
-                    "code": "fetch('https://jsonplaceholder.typicode.com/posts', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({\n    title: 'Test'\n  })\n})\n  .then(response => response.json())\n  .then(data => console.log(data));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Set method to POST.",
-                "Convert object into JSON string."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Handle API Errors",
-            "content": "Write a JavaScript program to handle API request errors using catch() in Fetch API.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Error handled"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Failed to fetch data"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Network error",
-                    "explanation": "catch() handles fetch request failures."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Error message.",
-            "solutions": [
-                {
-                    "title": "Fetch Error Handling",
-                    "language": "javascript",
-                    "code": "fetch('https://invalid-api-url.com/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => {\n    console.log('Error handled');\n  });",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use catch() for handling errors.",
-                "Provide invalid URL for testing."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Fetch and Display API Data",
-            "content": "Write a JavaScript program to fetch data from an API and display specific fields in the DOM.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Title displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "API content rendered"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Sample Todo",
-                    "explanation": "Fetched API data can update the DOM dynamically."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Displayed API data.",
-            "solutions": [
-                {
-                    "title": "Fetch and Update DOM",
-                    "language": "javascript",
-                    "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(response => response.json())\n  .then(data => {\n    document.getElementById('output').textContent = data.title;\n  });",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use DOM methods after fetching data.",
-                "Access fields from JSON response."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create Reusable API Handler Function",
-            "content": "Write a JavaScript program to create a reusable async function that handles GET API requests with error handling.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "Valid API URL",
-                    "expected_output": "Data fetched successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Invalid API URL",
-                    "expected_output": "API request failed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "https://jsonplaceholder.typicode.com/posts/1",
-                    "expected_output": "Post data object",
-                    "explanation": "Reusable API handlers simplify fetch operations."
-                }
-            ],
-            "inputFormat": "API URL string.",
-            "outputFormat": "Fetched API data or error message.",
-            "solutions": [
-                {
-                    "title": "Reusable Fetch Handler",
-                    "language": "javascript",
-                    "code": "async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n\n    if (!response.ok) {\n      throw new Error('API request failed');\n    }\n\n    const data = await response.json();\n    console.log(data);\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nfetchData('https://jsonplaceholder.typicode.com/posts/1');",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Create reusable async function.",
-                "Check response.ok.",
-                "Handle errors using try...catch."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Submit Form Data to API",
-            "content": "Write a JavaScript program to collect form data and send it to an API using a POST request with async/await.",
-            "level": "subtopic",
-            "unit_name": "Asynchronous JavaScript",
-            "subunit_name": "Fetch API",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{name:'John'}",
-                    "expected_output": "Form submitted successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{email:'test@example.com'}",
-                    "expected_output": "API response received"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "{title:'Feedback'}",
-                    "expected_output": "Submission successful",
-                    "explanation": "POST requests can send form data asynchronously."
-                }
-            ],
-            "inputFormat": "Form data object.",
-            "outputFormat": "Submission response.",
-            "solutions": [
-                {
-                    "title": "Async Form Submission",
-                    "language": "javascript",
-                    "code": "async function submitForm() {\n  const formData = {\n    name: 'John',\n    email: 'john@example.com'\n  };\n\n  try {\n    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(formData)\n    });\n\n    const data = await response.json();\n    console.log('Form submitted successfully');\n    console.log(data);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nsubmitForm();",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use async/await with fetch.",
-                "Convert form object using JSON.stringify().",
-                "Handle API response."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+      ]
+    },
+    {
+      "name": "Callbacks",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Callbacks",
+          "video_link": "https://www.youtube.com/results?search_query=Callbacks+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Callbacks in JavaScript."
+        },
+        {
+          "title": "Advanced Callbacks Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Callbacks+javascript",
+          "ai_context": "In-depth explanation and practical examples for Callbacks."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Promises",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Promises",
+          "video_link": "https://www.youtube.com/results?search_query=Promises+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Promises in JavaScript."
+        },
+        {
+          "title": "Advanced Promises Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Promises+javascript",
+          "ai_context": "In-depth explanation and practical examples for Promises."
+        }
+      ]
+    },
+    {
+      "name": "Async/Await",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Async/Await",
+          "video_link": "https://www.youtube.com/results?search_query=Async/Await+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Async/Await in JavaScript."
+        },
+        {
+          "title": "Advanced Async/Await Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Async/Await+javascript",
+          "ai_context": "In-depth explanation and practical examples for Async/Await."
+        }
+      ]
+    },
+    {
+      "name": "Fetch API",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "Introduction to Fetch API",
+          "video_link": "https://www.youtube.com/results?search_query=Fetch+API+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Fetch API in JavaScript."
+        },
+        {
+          "title": "Advanced Fetch API Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Fetch+API+javascript",
+          "ai_context": "In-depth explanation and practical examples for Fetch API."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Synchronous Code Basics",
+      "content": "What does synchronous code execution mean?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Code runs one line at a time in order",
+          "is_correct": true
+        },
+        {
+          "text": "Code runs randomly",
+          "is_correct": false
+        },
+        {
+          "text": "All functions run together",
+          "is_correct": false
+        },
+        {
+          "text": "Code skips delays automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Asynchronous Code Meaning",
+      "content": "What is asynchronous programming mainly used for?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling tasks without blocking other operations",
+          "is_correct": true
+        },
+        {
+          "text": "Stopping all code execution",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "Creating CSS styles",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Blocking Behavior",
+      "content": "What happens in blocking code execution?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Next operations wait until current task finishes",
+          "is_correct": true
+        },
+        {
+          "text": "All tasks execute at the same time",
+          "is_correct": false
+        },
+        {
+          "text": "Tasks are ignored",
+          "is_correct": false
+        },
+        {
+          "text": "Execution moves backward",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Non-blocking Execution",
+      "content": "What is a benefit of non-blocking asynchronous operations?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Other tasks can continue while waiting for long operations",
+          "is_correct": true
+        },
+        {
+          "text": "The browser freezes completely",
+          "is_correct": false
+        },
+        {
+          "text": "Functions stop permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all delays from code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Synchronous vs Asynchronous Logic",
+      "content": "Which statement best describes asynchronous JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Long-running tasks can execute without stopping the main program flow",
+          "is_correct": true
+        },
+        {
+          "text": "Every task must complete before the next one starts",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript executes multiple threads by default",
+          "is_correct": false
+        },
+        {
+          "text": "Asynchronous code cannot use functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Callback Function Basics",
+      "content": "What is a callback function in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A function passed as an argument to another function",
+          "is_correct": true
+        },
+        {
+          "text": "A function that only works with arrays",
+          "is_correct": false
+        },
+        {
+          "text": "A built-in browser event",
+          "is_correct": false
+        },
+        {
+          "text": "A CSS animation function",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Callback Usage",
+      "content": "Why are callbacks commonly used in asynchronous JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To execute code after a task completes",
+          "is_correct": true
+        },
+        {
+          "text": "To stop all functions",
+          "is_correct": false
+        },
+        {
+          "text": "To create HTML pages",
+          "is_correct": false
+        },
+        {
+          "text": "To style web applications",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Understanding Callback Hell",
+      "content": "What is callback hell?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Deeply nested callbacks that make code hard to read",
+          "is_correct": true
+        },
+        {
+          "text": "A browser error related to CSS",
+          "is_correct": false
+        },
+        {
+          "text": "A type of JavaScript loop",
+          "is_correct": false
+        },
+        {
+          "text": "A syntax rule in ES6",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Callback Problem",
+      "content": "What is a major issue caused by callback hell?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Code becomes difficult to maintain and debug",
+          "is_correct": true
+        },
+        {
+          "text": "Functions stop working completely",
+          "is_correct": false
+        },
+        {
+          "text": "Variables become global automatically",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript cannot run asynchronously",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Callback Execution Flow",
+      "content": "What will happen in asynchronous code using callbacks?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The callback executes after the asynchronous task finishes",
+          "is_correct": true
+        },
+        {
+          "text": "The callback always executes before the main function",
+          "is_correct": false
+        },
+        {
+          "text": "Callbacks stop asynchronous execution",
+          "is_correct": false
+        },
+        {
+          "text": "Callbacks only work with loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Promise Basics",
+      "content": "What is a Promise in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An object representing the eventual completion or failure of an asynchronous task",
+          "is_correct": true
+        },
+        {
+          "text": "A type of JavaScript loop",
+          "is_correct": false
+        },
+        {
+          "text": "A CSS styling method",
+          "is_correct": false
+        },
+        {
+          "text": "A DOM selection API",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "then Method Usage",
+      "content": "What is the purpose of the then() method in a Promise?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To handle successful promise resolution",
+          "is_correct": true
+        },
+        {
+          "text": "To stop promise execution",
+          "is_correct": false
+        },
+        {
+          "text": "To create a new loop",
+          "is_correct": false
+        },
+        {
+          "text": "To delete asynchronous tasks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "catch and finally",
+      "content": "What is the role of catch() in a Promise chain?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handles errors or rejected promises",
+          "is_correct": true
+        },
+        {
+          "text": "Executes before then()",
+          "is_correct": false
+        },
+        {
+          "text": "Creates synchronous code",
+          "is_correct": false
+        },
+        {
+          "text": "Stops all JavaScript execution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Promise Lifecycle",
+      "content": "Which statement about finally() is correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It executes regardless of promise success or failure",
+          "is_correct": true
+        },
+        {
+          "text": "It only executes after catch()",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces then() completely",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with resolved promises",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Function Basics",
+      "content": "What does the async keyword do in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Makes a function return a Promise",
+          "is_correct": true
+        },
+        {
+          "text": "Stops asynchronous execution",
+          "is_correct": false
+        },
+        {
+          "text": "Creates a loop automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Converts code into synchronous code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Await Keyword Usage",
+      "content": "What is the purpose of the await keyword?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pauses execution until a Promise is resolved",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes a Promise",
+          "is_correct": false
+        },
+        {
+          "text": "Runs multiple functions together",
+          "is_correct": false
+        },
+        {
+          "text": "Stops all JavaScript execution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Error Handling",
+      "content": "Which statement is commonly used to handle errors in async/await?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "try...catch",
+          "is_correct": true
+        },
+        {
+          "text": "if...else only",
+          "is_correct": false
+        },
+        {
+          "text": "switch statement",
+          "is_correct": false
+        },
+        {
+          "text": "for loop",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Function Execution",
+      "content": "What happens when an awaited Promise is rejected inside an async function without a try...catch block?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The async function returns a rejected Promise",
+          "is_correct": true
+        },
+        {
+          "text": "The Promise automatically resolves",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript stops running permanently",
+          "is_correct": false
+        },
+        {
+          "text": "The error is ignored completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fetch API Purpose",
+      "content": "What is the Fetch API mainly used for in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Making HTTP requests to servers",
+          "is_correct": true
+        },
+        {
+          "text": "Styling HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "Creating database tables",
+          "is_correct": false
+        },
+        {
+          "text": "Running synchronous loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GET Request Basics",
+      "content": "Which HTTP method is commonly used to retrieve data from an API?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GET",
+          "is_correct": true
+        },
+        {
+          "text": "POST",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        },
+        {
+          "text": "PATCH",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "POST Request Purpose",
+      "content": "What is the main purpose of a POST request?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sending data to a server",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieving data only",
+          "is_correct": false
+        },
+        {
+          "text": "Styling a webpage",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting browser history",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Handling API Responses",
+      "content": "Which method is commonly used to convert a Fetch API response into JSON format?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "response.json()",
+          "is_correct": true
+        },
+        {
+          "text": "response.parse()",
+          "is_correct": false
+        },
+        {
+          "text": "response.textToJson()",
+          "is_correct": false
+        },
+        {
+          "text": "JSON.fetch()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fetch API Error Handling",
+      "content": "What is a recommended way to handle errors while using the Fetch API with async/await?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using try...catch blocks",
+          "is_correct": true
+        },
+        {
+          "text": "Using only console.log()",
+          "is_correct": false
+        },
+        {
+          "text": "Using setInterval()",
+          "is_correct": false
+        },
+        {
+          "text": "Using document.write()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Synchronous Code",
+      "content": "Which of the following statements about synchronous JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Synchronous code executes line by line",
+          "is_correct": true
+        },
+        {
+          "text": "In synchronous execution, one task completes before the next starts",
+          "is_correct": true
+        },
+        {
+          "text": "Synchronous code always runs multiple tasks at the same time",
+          "is_correct": false
+        },
+        {
+          "text": "Synchronous operations can block further execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Asynchronous JavaScript",
+      "content": "Which statements about asynchronous JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Asynchronous code allows tasks to run without blocking execution",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript can continue executing other code during asynchronous operations",
+          "is_correct": true
+        },
+        {
+          "text": "Asynchronous code always stops the entire program until completion",
+          "is_correct": false
+        },
+        {
+          "text": "Timers and API calls are common examples of asynchronous operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Blocking vs Non-Blocking Behavior",
+      "content": "Which of the following statements about blocking and non-blocking behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Blocking operations prevent other code from executing temporarily",
+          "is_correct": true
+        },
+        {
+          "text": "Non-blocking operations allow other code to continue running",
+          "is_correct": true
+        },
+        {
+          "text": "All JavaScript operations are blocking by default",
+          "is_correct": false
+        },
+        {
+          "text": "Asynchronous programming helps create non-blocking behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Execution Flow",
+      "content": "Which statements correctly describe synchronous and asynchronous execution flow?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Synchronous tasks are executed in sequence",
+          "is_correct": true
+        },
+        {
+          "text": "Asynchronous tasks can complete later while other code continues running",
+          "is_correct": true
+        },
+        {
+          "text": "Non-blocking code means tasks are ignored completely",
+          "is_correct": false
+        },
+        {
+          "text": "Asynchronous behavior improves responsiveness in applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Blocking and Non-Blocking Concepts",
+      "content": "Which of the following statements about advanced blocking and non-blocking concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Synchronous vs Asynchronous",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Long-running synchronous tasks can freeze the user interface",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript uses an event loop to manage asynchronous operations",
+          "is_correct": true
+        },
+        {
+          "text": "Asynchronous operations execute in completely random order",
+          "is_correct": false
+        },
+        {
+          "text": "Non-blocking behavior is important for responsive web applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Callbacks",
+      "content": "Which of the following statements about callbacks are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A callback is a function passed as an argument to another function",
+          "is_correct": true
+        },
+        {
+          "text": "Callbacks are commonly used in asynchronous JavaScript",
+          "is_correct": true
+        },
+        {
+          "text": "Callbacks can only be used with synchronous code",
+          "is_correct": false
+        },
+        {
+          "text": "Callbacks can run after an operation is completed",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Asynchronous Callbacks",
+      "content": "Which statements about asynchronous callbacks are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Callbacks help handle tasks that take time to complete",
+          "is_correct": true
+        },
+        {
+          "text": "Functions like setTimeout commonly use callbacks",
+          "is_correct": true
+        },
+        {
+          "text": "Callbacks stop JavaScript execution permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Callbacks can improve responsiveness in applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Callback Hell",
+      "content": "Which of the following statements about callback hell are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Callback hell happens when many nested callbacks make code difficult to read",
+          "is_correct": true
+        },
+        {
+          "text": "Deeply nested callbacks can reduce code maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "Callback hell improves code readability",
+          "is_correct": false
+        },
+        {
+          "text": "Promises and async/await can help avoid callback hell",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Callback Functions",
+      "content": "Which statements correctly describe callback functions and their usage?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Callbacks can execute after asynchronous operations finish",
+          "is_correct": true
+        },
+        {
+          "text": "Nested callbacks may make debugging harder",
+          "is_correct": true
+        },
+        {
+          "text": "Callbacks eliminate the need for asynchronous programming",
+          "is_correct": false
+        },
+        {
+          "text": "Callbacks are an important part of JavaScript event handling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Callback Concepts",
+      "content": "Which of the following statements about advanced callback concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Callback hell often results in pyramid-shaped nested code",
+          "is_correct": true
+        },
+        {
+          "text": "Error handling becomes more difficult with deeply nested callbacks",
+          "is_correct": true
+        },
+        {
+          "text": "Callbacks always execute immediately after being defined",
+          "is_correct": false
+        },
+        {
+          "text": "Modern JavaScript features like Promises improve asynchronous code structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Promises",
+      "content": "Which of the following statements about Promises are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A Promise represents the eventual completion or failure of an asynchronous operation",
+          "is_correct": true
+        },
+        {
+          "text": "Promises help manage asynchronous code more cleanly",
+          "is_correct": true
+        },
+        {
+          "text": "Promises only work with synchronous operations",
+          "is_correct": false
+        },
+        {
+          "text": "A Promise can be in pending, fulfilled, or rejected state",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of then, catch, and finally",
+      "content": "Which statements about then(), catch(), and finally() are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "then() is used to handle successful Promise resolution",
+          "is_correct": true
+        },
+        {
+          "text": "catch() is used to handle Promise errors",
+          "is_correct": true
+        },
+        {
+          "text": "finally() only runs when a Promise is rejected",
+          "is_correct": false
+        },
+        {
+          "text": "finally() executes regardless of Promise success or failure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Creating and Handling Promises",
+      "content": "Which of the following statements about creating and handling Promises are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Promises are created using the Promise constructor",
+          "is_correct": true
+        },
+        {
+          "text": "A Promise can resolve or reject based on operation outcome",
+          "is_correct": true
+        },
+        {
+          "text": "then() can only be called once on a Promise",
+          "is_correct": false
+        },
+        {
+          "text": "Promises improve readability compared to deeply nested callbacks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Promise Concepts",
+      "content": "Which of the following statements about advanced Promise concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Promise chaining allows sequential asynchronous operations",
+          "is_correct": true
+        },
+        {
+          "text": "Errors thrown inside then() can be caught using catch()",
+          "is_correct": true
+        },
+        {
+          "text": "A Promise can switch from fulfilled back to pending state",
+          "is_correct": false
+        },
+        {
+          "text": "finally() is useful for cleanup operations regardless of Promise outcome",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding async Functions",
+      "content": "Which of the following statements about async functions are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An async function always returns a Promise",
+          "is_correct": true
+        },
+        {
+          "text": "The async keyword is used to define asynchronous functions",
+          "is_correct": true
+        },
+        {
+          "text": "Async functions can only contain synchronous code",
+          "is_correct": false
+        },
+        {
+          "text": "Async functions help simplify asynchronous programming",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of await",
+      "content": "Which statements about the await keyword are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "await pauses execution until a Promise is resolved",
+          "is_correct": true
+        },
+        {
+          "text": "await can only be used inside async functions",
+          "is_correct": true
+        },
+        {
+          "text": "await blocks the entire JavaScript runtime permanently",
+          "is_correct": false
+        },
+        {
+          "text": "await makes asynchronous code easier to read",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Error Handling with Async/Await",
+      "content": "Which of the following statements about error handling in async/await are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "try...catch can be used to handle errors in async functions",
+          "is_correct": true
+        },
+        {
+          "text": "Rejected Promises can be caught using catch blocks",
+          "is_correct": true
+        },
+        {
+          "text": "Errors in async functions cannot be handled",
+          "is_correct": false
+        },
+        {
+          "text": "Error handling improves reliability of asynchronous code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Async and Await",
+      "content": "Which statements correctly describe async and await behavior?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Async/await is built on top of Promises",
+          "is_correct": true
+        },
+        {
+          "text": "await can be used with Promise-returning functions",
+          "is_correct": true
+        },
+        {
+          "text": "Async/await removes the need for Promises internally",
+          "is_correct": false
+        },
+        {
+          "text": "Async/await syntax can reduce callback nesting",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Async Error Handling",
+      "content": "Which of the following statements about advanced async error handling are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Errors thrown inside async functions reject the returned Promise",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple await statements can be wrapped in a single try block",
+          "is_correct": true
+        },
+        {
+          "text": "await automatically ignores all Promise rejections",
+          "is_correct": false
+        },
+        {
+          "text": "Proper error handling prevents application crashes in async code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Async/Await Concepts",
+      "content": "Which of the following statements about advanced async/await concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Async functions always return Promises, even when returning plain values",
+          "is_correct": true
+        },
+        {
+          "text": "Using await sequentially may slow execution when tasks are independent",
+          "is_correct": true
+        },
+        {
+          "text": "await can only work with callback functions directly",
+          "is_correct": false
+        },
+        {
+          "text": "Promise.all can improve performance for parallel asynchronous tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Fetch API",
+      "content": "Which of the following statements about the Fetch API are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fetch API is used to make HTTP requests",
+          "is_correct": true
+        },
+        {
+          "text": "fetch() returns a Promise",
+          "is_correct": true
+        },
+        {
+          "text": "Fetch API only works for local files",
+          "is_correct": false
+        },
+        {
+          "text": "Fetch API supports asynchronous communication with servers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of GET Requests",
+      "content": "Which statements about GET requests using Fetch API are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GET requests are commonly used to retrieve data from a server",
+          "is_correct": true
+        },
+        {
+          "text": "fetch() uses GET as the default HTTP method",
+          "is_correct": true
+        },
+        {
+          "text": "GET requests are mainly used to delete server data",
+          "is_correct": false
+        },
+        {
+          "text": "GET requests can fetch API responses in JSON format",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding POST Requests",
+      "content": "Which of the following statements about POST requests are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "POST requests are commonly used to send data to a server",
+          "is_correct": true
+        },
+        {
+          "text": "POST requests can include data in the request body",
+          "is_correct": true
+        },
+        {
+          "text": "POST requests cannot send JSON data",
+          "is_correct": false
+        },
+        {
+          "text": "POST requests often require specifying headers like Content-Type",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Handling API Responses",
+      "content": "Which statements correctly describe API handling with Fetch API?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "API responses can be converted to JSON using response.json()",
+          "is_correct": true
+        },
+        {
+          "text": "Fetch API supports handling successful and failed requests",
+          "is_correct": true
+        },
+        {
+          "text": "fetch() automatically throws errors for all HTTP status codes",
+          "is_correct": false
+        },
+        {
+          "text": "Promises are commonly used while handling API responses",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Fetch API Concepts",
+      "content": "Which of the following statements about advanced Fetch API concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fetch API works asynchronously using Promises",
+          "is_correct": true
+        },
+        {
+          "text": "Error handling with fetch often uses try...catch or .catch()",
+          "is_correct": true
+        },
+        {
+          "text": "fetch() blocks the browser until the request completes",
+          "is_correct": false
+        },
+        {
+          "text": "Proper API handling improves application reliability and user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Simple Callback Function",
+      "content": "Write a JavaScript program to execute a callback function after printing a message.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Task completed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Callback executed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Task completed",
+          "explanation": "A callback function runs after another function completes."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Printed messages.",
+      "solutions": [
+        {
+          "title": "Basic Callback Example",
+          "language": "javascript",
+          "code": "function greet(callback) {\n  console.log('Task completed');\n  callback();\n}\n\nfunction done() {\n  console.log('Callback executed');\n}\n\ngreet(done);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Pass a function as an argument.",
+        "Call the callback inside another function."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Asynchronous Callback with setTimeout",
+      "content": "Write a JavaScript program to execute a callback function after a delay using setTimeout.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Finished after delay"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Callback completed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Finished after delay",
+          "explanation": "Callbacks are commonly used with asynchronous operations."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Delayed callback execution.",
+      "solutions": [
+        {
+          "title": "Callback with setTimeout",
+          "language": "javascript",
+          "code": "function process(callback) {\n  setTimeout(() => {\n    console.log('Finished after delay');\n    callback();\n  }, 1000);\n}\n\nprocess(() => {\n  console.log('Callback completed');\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use setTimeout for async behavior.",
+        "Execute callback after delay."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Nested Callbacks Example",
+      "content": "Write a JavaScript program that demonstrates callback hell using nested asynchronous callbacks.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Nested callbacks executed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3",
+          "explanation": "Callback hell occurs when callbacks are deeply nested."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Sequential async output.",
+      "solutions": [
+        {
+          "title": "Callback Hell Demo",
+          "language": "javascript",
+          "code": "setTimeout(() => {\n  console.log('Step 1');\n\n  setTimeout(() => {\n    console.log('Step 2');\n\n    setTimeout(() => {\n      console.log('Step 3');\n    }, 1000);\n\n  }, 1000);\n\n}, 1000);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Nest multiple callbacks.",
+        "Use setTimeout inside another callback."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Simulate User Login Flow with Callback Hell",
+      "content": "Write a JavaScript program to simulate a login flow using nested callbacks for login, fetching profile, and loading posts.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Callbacks",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Login successful Profile loaded Posts loaded"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All async tasks completed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Login successful Profile loaded Posts loaded",
+          "explanation": "Multiple dependent async operations create callback hell."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Sequential async process output.",
+      "solutions": [
+        {
+          "title": "Login Flow Callback Hell",
+          "language": "javascript",
+          "code": "setTimeout(() => {\n  console.log('Login successful');\n\n  setTimeout(() => {\n    console.log('Profile loaded');\n\n    setTimeout(() => {\n      console.log('Posts loaded');\n    }, 1000);\n\n  }, 1000);\n\n}, 1000);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Create dependent async tasks.",
+        "Nest callbacks step by step."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple Promise",
+      "content": "Write a JavaScript program to create a Promise that resolves successfully and prints a success message using then().",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Promise Resolved"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Success"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Promise Resolved",
+          "explanation": "Promises handle asynchronous operations."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Resolved promise message.",
+      "solutions": [
+        {
+          "title": "Basic Promise Example",
+          "language": "javascript",
+          "code": "const promise = new Promise((resolve, reject) => {\n  resolve('Promise Resolved');\n});\n\npromise.then(result => {\n  console.log(result);\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use new Promise().",
+        "Handle resolved value with then()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Handle Promise Rejection",
+      "content": "Write a JavaScript program to create a Promise that rejects with an error message and handle it using catch().",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Error occurred"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Promise rejected"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Error occurred",
+          "explanation": "catch() handles rejected promises."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Error message.",
+      "solutions": [
+        {
+          "title": "Promise Rejection Example",
+          "language": "javascript",
+          "code": "const promise = new Promise((resolve, reject) => {\n  reject('Error occurred');\n});\n\npromise.catch(error => {\n  console.log(error);\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use reject() inside Promise.",
+        "Handle errors using catch()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Use then, catch and finally Together",
+      "content": "Write a JavaScript program to create a Promise and handle success, failure, and cleanup using then(), catch(), and finally().",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "resolve",
+          "expected_output": "Success Cleanup done"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "reject",
+          "expected_output": "Failed Cleanup done"
+        }
+      ],
+      "examples": [
+        {
+          "input": "resolve",
+          "expected_output": "Success Cleanup done",
+          "explanation": "finally() executes regardless of Promise result."
+        }
+      ],
+      "inputFormat": "Promise status.",
+      "outputFormat": "Promise handling messages.",
+      "solutions": [
+        {
+          "title": "Promise with finally",
+          "language": "javascript",
+          "code": "const success = true;\n\nconst promise = new Promise((resolve, reject) => {\n  if (success) {\n    resolve('Success');\n  } else {\n    reject('Failed');\n  }\n});\n\npromise\n  .then(result => console.log(result))\n  .catch(error => console.log(error))\n  .finally(() => console.log('Cleanup done'));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use then() for success.",
+        "Use finally() for cleanup tasks."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Chain Multiple Promises",
+      "content": "Write a JavaScript program to chain multiple Promises using then() and handle errors using catch().",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Promises",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Promise chain completed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3",
+          "explanation": "Promise chaining avoids callback hell."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Sequential promise output.",
+      "solutions": [
+        {
+          "title": "Promise Chaining",
+          "language": "javascript",
+          "code": "new Promise((resolve) => {\n  resolve('Step 1');\n})\n  .then(result => {\n    console.log(result);\n    return 'Step 2';\n  })\n  .then(result => {\n    console.log(result);\n    return 'Step 3';\n  })\n  .then(result => {\n    console.log(result);\n  })\n  .catch(error => {\n    console.log(error);\n  });",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Return values from then().",
+        "Chain multiple then() methods."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple Async Function",
+      "content": "Write a JavaScript program to create an async function that returns a greeting message.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello Async"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Async function executed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello Async",
+          "explanation": "An async function automatically returns a Promise."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Greeting message.",
+      "solutions": [
+        {
+          "title": "Basic Async Function",
+          "language": "javascript",
+          "code": "async function greet() {\n  return 'Hello Async';\n}\n\ngreet().then(result => console.log(result));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use async keyword before function.",
+        "Async functions return Promises."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Use await with Promise",
+      "content": "Write a JavaScript program to use await inside an async function to resolve a Promise.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Promise Resolved"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Await completed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Promise Resolved",
+          "explanation": "await pauses execution until the Promise resolves."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Resolved Promise value.",
+      "solutions": [
+        {
+          "title": "Await Example",
+          "language": "javascript",
+          "code": "function getData() {\n  return new Promise(resolve => {\n    resolve('Promise Resolved');\n  });\n}\n\nasync function fetchData() {\n  const result = await getData();\n  console.log(result);\n}\n\nfetchData();",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use await inside async function.",
+        "Wait for Promise resolution."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Handle Errors with try...catch",
+      "content": "Write a JavaScript program to handle Promise rejection using async/await and try...catch.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Error handled"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Promise rejected"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Error handled",
+          "explanation": "try...catch handles async errors cleanly."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Error handling message.",
+      "solutions": [
+        {
+          "title": "Async Error Handling",
+          "language": "javascript",
+          "code": "function getError() {\n  return new Promise((resolve, reject) => {\n    reject('Error handled');\n  });\n}\n\nasync function run() {\n  try {\n    const result = await getError();\n    console.log(result);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nrun();",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Wrap await inside try block.",
+        "Use catch block for errors."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fetch Multiple Async Results Sequentially",
+      "content": "Write a JavaScript program using async/await to fetch multiple asynchronous results sequentially with proper error handling.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Async/Await",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All async tasks completed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Step 1 Step 2 Step 3",
+          "explanation": "async/await simplifies sequential asynchronous operations."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Sequential async outputs.",
+      "solutions": [
+        {
+          "title": "Sequential Async Tasks",
+          "language": "javascript",
+          "code": "function task(message) {\n  return new Promise(resolve => {\n    setTimeout(() => {\n      resolve(message);\n    }, 1000);\n  });\n}\n\nasync function runTasks() {\n  try {\n    const step1 = await task('Step 1');\n    console.log(step1);\n\n    const step2 = await task('Step 2');\n    console.log(step2);\n\n    const step3 = await task('Step 3');\n    console.log(step3);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nrunTasks();",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Create Promise-based async tasks.",
+        "Use await sequentially.",
+        "Handle errors with try...catch."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fetch Data Using GET Request",
+      "content": "Write a JavaScript program to fetch user data from a public API using a GET request and display the response.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "User data fetched"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "JSON response displayed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "User object",
+          "explanation": "GET requests retrieve data from APIs."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Fetched API response.",
+      "solutions": [
+        {
+          "title": "Simple GET Request",
+          "language": "javascript",
+          "code": "fetch('https://jsonplaceholder.typicode.com/users/1')\n  .then(response => response.json())\n  .then(data => console.log(data));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use fetch() with API URL.",
+        "Convert response using json()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Send Data Using POST Request",
+      "content": "Write a JavaScript program to send data to an API using a POST request.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{title:'Test'}",
+          "expected_output": "Data posted successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{title:'Hello'}",
+          "expected_output": "Response received"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{title:'Sample'}",
+          "expected_output": "Posted successfully",
+          "explanation": "POST requests send data to APIs."
+        }
+      ],
+      "inputFormat": "JSON object data.",
+      "outputFormat": "POST request response.",
+      "solutions": [
+        {
+          "title": "Basic POST Request",
+          "language": "javascript",
+          "code": "fetch('https://jsonplaceholder.typicode.com/posts', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({\n    title: 'Test'\n  })\n})\n  .then(response => response.json())\n  .then(data => console.log(data));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Set method to POST.",
+        "Convert object into JSON string."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Handle API Errors",
+      "content": "Write a JavaScript program to handle API request errors using catch() in Fetch API.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Error handled"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Failed to fetch data"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Network error",
+          "explanation": "catch() handles fetch request failures."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Error message.",
+      "solutions": [
+        {
+          "title": "Fetch Error Handling",
+          "language": "javascript",
+          "code": "fetch('https://invalid-api-url.com/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => {\n    console.log('Error handled');\n  });",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use catch() for handling errors.",
+        "Provide invalid URL for testing."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fetch and Display API Data",
+      "content": "Write a JavaScript program to fetch data from an API and display specific fields in the DOM.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Title displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "API content rendered"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Sample Todo",
+          "explanation": "Fetched API data can update the DOM dynamically."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Displayed API data.",
+      "solutions": [
+        {
+          "title": "Fetch and Update DOM",
+          "language": "javascript",
+          "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(response => response.json())\n  .then(data => {\n    document.getElementById('output').textContent = data.title;\n  });",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use DOM methods after fetching data.",
+        "Access fields from JSON response."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Reusable API Handler Function",
+      "content": "Write a JavaScript program to create a reusable async function that handles GET API requests with error handling.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "Valid API URL",
+          "expected_output": "Data fetched successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Invalid API URL",
+          "expected_output": "API request failed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "https://jsonplaceholder.typicode.com/posts/1",
+          "expected_output": "Post data object",
+          "explanation": "Reusable API handlers simplify fetch operations."
+        }
+      ],
+      "inputFormat": "API URL string.",
+      "outputFormat": "Fetched API data or error message.",
+      "solutions": [
+        {
+          "title": "Reusable Fetch Handler",
+          "language": "javascript",
+          "code": "async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n\n    if (!response.ok) {\n      throw new Error('API request failed');\n    }\n\n    const data = await response.json();\n    console.log(data);\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nfetchData('https://jsonplaceholder.typicode.com/posts/1');",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Create reusable async function.",
+        "Check response.ok.",
+        "Handle errors using try...catch."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Submit Form Data to API",
+      "content": "Write a JavaScript program to collect form data and send it to an API using a POST request with async/await.",
+      "level": "subtopic",
+      "unit_name": "Asynchronous JavaScript",
+      "subunit_name": "Fetch API",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{name:'John'}",
+          "expected_output": "Form submitted successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{email:'test@example.com'}",
+          "expected_output": "API response received"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{title:'Feedback'}",
+          "expected_output": "Submission successful",
+          "explanation": "POST requests can send form data asynchronously."
+        }
+      ],
+      "inputFormat": "Form data object.",
+      "outputFormat": "Submission response.",
+      "solutions": [
+        {
+          "title": "Async Form Submission",
+          "language": "javascript",
+          "code": "async function submitForm() {\n  const formData = {\n    name: 'John',\n    email: 'john@example.com'\n  };\n\n  try {\n    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(formData)\n    });\n\n    const data = await response.json();\n    console.log('Form submitted successfully');\n    console.log(data);\n  } catch (error) {\n    console.log(error);\n  }\n}\n\nsubmitForm();",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use async/await with fetch.",
+        "Convert form object using JSON.stringify().",
+        "Handle API response."
+      ]
+    }
+  ]
 }

@@ -1,1933 +1,1869 @@
 {
-    "name": "Advanced DOM & Browser APIs",
-    "subject_short_code": "JS100",
-    "order_index": 8,
-    "sub_units": [
+  "name": "Advanced DOM & Browser APIs",
+  "subject_short_code": "JS100",
+  "order_index": 8,
+  "sub_units": [
+    {
+      "name": "Forms Handling",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Forms Handling",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Forms Handling",
-                    "video_link": "https://www.youtube.com/results?search_query=Forms+Handling+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Forms Handling in JavaScript."
-                },
-                {
-                    "title": "Advanced Forms Handling Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Forms+Handling+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Forms Handling."
-                }
-            ]
+          "title": "Introduction to Forms Handling",
+          "video_link": "https://www.youtube.com/results?search_query=Forms+Handling+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Forms Handling in JavaScript."
         },
         {
-            "name": "Local Storage & Session Storage",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Local Storage & Session Storage",
-                    "video_link": "https://www.youtube.com/results?search_query=Local+Storage+%26+Session+Storage+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Local Storage & Session Storage in JavaScript."
-                },
-                {
-                    "title": "Advanced Local Storage & Session Storage Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Local+Storage+%26+Session+Storage+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Local Storage & Session Storage."
-                }
-            ]
-        },
-        {
-            "name": "Timers",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Timers",
-                    "video_link": "https://www.youtube.com/results?search_query=Timers+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Timers in JavaScript."
-                },
-                {
-                    "title": "Advanced Timers Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Timers+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Timers."
-                }
-            ]
-        },
-        {
-            "name": "Browser APIs",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 3,
-            "videos": [
-                {
-                    "title": "Introduction to Browser APIs",
-                    "video_link": "https://www.youtube.com/results?search_query=Browser+APIs+javascript",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Browser APIs in JavaScript."
-                },
-                {
-                    "title": "Advanced Browser APIs Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Browser+APIs+javascript",
-                    "ai_context": "In-depth explanation and practical examples for Browser APIs."
-                }
-            ]
+          "title": "Advanced Forms Handling Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Forms+Handling+javascript",
+          "ai_context": "In-depth explanation and practical examples for Forms Handling."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Local Storage & Session Storage",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Form Validation Basics",
-            "content": "What is form validation in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Checking if user input is correct or not",
-                    "is_correct": true
-                },
-                {
-                    "text": "Styling form elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Sending data to CSS file",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creating new HTML pages",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Local Storage & Session Storage",
+          "video_link": "https://www.youtube.com/results?search_query=Local+Storage+%26+Session+Storage+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Local Storage & Session Storage in JavaScript."
         },
         {
-            "type": "mcq_single",
-            "title": "Prevent Default Usage",
-            "content": "What does event.preventDefault() do in a form?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Stops the default form submission behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deletes the form from DOM",
-                    "is_correct": false
-                },
-                {
-                    "text": "Refreshes the page automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Clears all input fields permanently",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Validation Purpose",
-            "content": "Why is form validation important?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To ensure correct and complete user input",
-                    "is_correct": true
-                },
-                {
-                    "text": "To style forms automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "To increase page reload speed",
-                    "is_correct": false
-                },
-                {
-                    "text": "To disable JavaScript",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Prevent Default Behavior",
-            "content": "What happens when preventDefault() is used on a form submit event?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The form does not submit and page does not reload",
-                    "is_correct": true
-                },
-                {
-                    "text": "The form is deleted",
-                    "is_correct": false
-                },
-                {
-                    "text": "The browser crashes",
-                    "is_correct": false
-                },
-                {
-                    "text": "The input values are cleared automatically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Local Storage Purpose",
-            "content": "What is the main purpose of localStorage in the browser?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To store data in the browser permanently",
-                    "is_correct": true
-                },
-                {
-                    "text": "To style web pages",
-                    "is_correct": false
-                },
-                {
-                    "text": "To run JavaScript faster",
-                    "is_correct": false
-                },
-                {
-                    "text": "To create HTML elements",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Session Storage Behavior",
-            "content": "What happens to sessionStorage data when the browser tab is closed?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It gets deleted",
-                    "is_correct": true
-                },
-                {
-                    "text": "It stays forever",
-                    "is_correct": false
-                },
-                {
-                    "text": "It moves to localStorage",
-                    "is_correct": false
-                },
-                {
-                    "text": "It becomes encrypted",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Saving Data in Local Storage",
-            "content": "Which method is used to store data in localStorage?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "localStorage.setItem()",
-                    "is_correct": true
-                },
-                {
-                    "text": "localStorage.save()",
-                    "is_correct": false
-                },
-                {
-                    "text": "localStorage.addData()",
-                    "is_correct": false
-                },
-                {
-                    "text": "localStorage.store()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Persisting Data Behavior",
-            "content": "What does persistence mean in localStorage?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Data remains even after browser is closed and reopened",
-                    "is_correct": true
-                },
-                {
-                    "text": "Data is deleted every second",
-                    "is_correct": false
-                },
-                {
-                    "text": "Data is only stored in memory temporarily",
-                    "is_correct": false
-                },
-                {
-                    "text": "Data is sent to the server automatically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "setTimeout Purpose",
-            "content": "What does setTimeout() do in JavaScript?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Executes a function after a delay",
-                    "is_correct": true
-                },
-                {
-                    "text": "Repeats a function continuously",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stops all JavaScript execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creates a loop automatically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "setInterval Purpose",
-            "content": "What does setInterval() do?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Repeats a function at fixed time intervals",
-                    "is_correct": true
-                },
-                {
-                    "text": "Runs a function only once immediately",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deletes a function",
-                    "is_correct": false
-                },
-                {
-                    "text": "Pauses the browser permanently",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "setTimeout Delay",
-            "content": "What will setTimeout(function, 2000) do?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Execute the function after 2 seconds",
-                    "is_correct": true
-                },
-                {
-                    "text": "Execute the function immediately",
-                    "is_correct": false
-                },
-                {
-                    "text": "Repeat the function every 2 seconds",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stop the function after 2 seconds",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Clearing Intervals",
-            "content": "What is used to stop a setInterval execution?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "clearInterval()",
-                    "is_correct": true
-                },
-                {
-                    "text": "stopInterval()",
-                    "is_correct": false
-                },
-                {
-                    "text": "removeTimeout()",
-                    "is_correct": false
-                },
-                {
-                    "text": "endTimer()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Geolocation API Purpose",
-            "content": "What does the Geolocation API allow you to do?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Get the user's location",
-                    "is_correct": true
-                },
-                {
-                    "text": "Store files in browser",
-                    "is_correct": false
-                },
-                {
-                    "text": "Style web pages",
-                    "is_correct": false
-                },
-                {
-                    "text": "Create animations",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Clipboard API Usage",
-            "content": "What is the Clipboard API mainly used for?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Copying and pasting data",
-                    "is_correct": true
-                },
-                {
-                    "text": "Drawing graphics",
-                    "is_correct": false
-                },
-                {
-                    "text": "Managing cookies",
-                    "is_correct": false
-                },
-                {
-                    "text": "Handling server requests",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Fetch API Purpose",
-            "content": "What is the Fetch API used for?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Making network requests to servers",
-                    "is_correct": true
-                },
-                {
-                    "text": "Styling HTML elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Creating animations",
-                    "is_correct": false
-                },
-                {
-                    "text": "Manipulating DOM structure only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Geolocation Data Access",
-            "content": "Which object is commonly used to access geolocation data in the browser?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "navigator.geolocation",
-                    "is_correct": true
-                },
-                {
-                    "text": "window.locationData",
-                    "is_correct": false
-                },
-                {
-                    "text": "document.geo",
-                    "is_correct": false
-                },
-                {
-                    "text": "browser.locationAPI",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Form Validation",
-            "content": "Which of the following statements about form validation are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Form validation is used to check user input before submission",
-                    "is_correct": true
-                },
-                {
-                    "text": "Form validation helps ensure correct and complete data entry",
-                    "is_correct": true
-                },
-                {
-                    "text": "Form validation only happens on the server side",
-                    "is_correct": false
-                },
-                {
-                    "text": "Form validation can be done using JavaScript",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Prevent Default",
-            "content": "Which statements about preventDefault() are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "preventDefault() stops default browser behavior",
-                    "is_correct": true
-                },
-                {
-                    "text": "It is commonly used in form submission handling",
-                    "is_correct": true
-                },
-                {
-                    "text": "preventDefault() deletes the form permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "It is a method available on the event object",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Form Validation Behavior",
-            "content": "Which of the following statements about form validation behavior are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Form validation can be both client-side and server-side",
-                    "is_correct": true
-                },
-                {
-                    "text": "JavaScript can be used to validate form inputs before submission",
-                    "is_correct": true
-                },
-                {
-                    "text": "Form validation is only possible after form submission",
-                    "is_correct": false
-                },
-                {
-                    "text": "Validation helps improve user experience by preventing invalid data",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Form Handling Concepts",
-            "content": "Which of the following statements about advanced form handling are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "preventDefault() is commonly used to stop form submission reload",
-                    "is_correct": true
-                },
-                {
-                    "text": "Custom validation logic can be implemented using JavaScript events",
-                    "is_correct": true
-                },
-                {
-                    "text": "Form validation cannot be customized by developers",
-                    "is_correct": false
-                },
-                {
-                    "text": "Combining validation and preventDefault() enables controlled form handling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Local Storage",
-            "content": "Which of the following statements about saving data in local storage are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Local storage is used to store data in the browser",
-                    "is_correct": true
-                },
-                {
-                    "text": "Data in local storage persists even after page refresh",
-                    "is_correct": true
-                },
-                {
-                    "text": "Local storage data is automatically deleted when the page reloads",
-                    "is_correct": false
-                },
-                {
-                    "text": "Local storage stores data as key-value pairs",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Session Storage",
-            "content": "Which statements about session storage are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Session storage stores data for a single session",
-                    "is_correct": true
-                },
-                {
-                    "text": "Session storage data is cleared when the tab is closed",
-                    "is_correct": true
-                },
-                {
-                    "text": "Session storage persists forever like a database",
-                    "is_correct": false
-                },
-                {
-                    "text": "Session storage is also based on key-value pairs",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Persisting State with Storage",
-            "content": "Which of the following statements about persisting state using storage are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Local storage can be used to persist application state",
-                    "is_correct": true
-                },
-                {
-                    "text": "Session storage is useful for temporary state management",
-                    "is_correct": true
-                },
-                {
-                    "text": "Storage APIs automatically sync data between devices",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both local and session storage store data as strings",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Storage Concepts",
-            "content": "Which of the following statements about advanced storage concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Data stored in localStorage remains until manually cleared",
-                    "is_correct": true
-                },
-                {
-                    "text": "JSON.stringify() is often used to store objects in storage",
-                    "is_correct": true
-                },
-                {
-                    "text": "Local storage can store complex objects without conversion",
-                    "is_correct": false
-                },
-                {
-                    "text": "Session storage is scoped per tab or window",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding setTimeout",
-            "content": "Which of the following statements about setTimeout are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "setTimeout executes a function after a delay",
-                    "is_correct": true
-                },
-                {
-                    "text": "setTimeout runs a function only once by default",
-                    "is_correct": true
-                },
-                {
-                    "text": "setTimeout runs a function repeatedly forever",
-                    "is_correct": false
-                },
-                {
-                    "text": "setTimeout is used to delay code execution",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of setInterval",
-            "content": "Which statements about setInterval are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "setInterval repeatedly executes a function",
-                    "is_correct": true
-                },
-                {
-                    "text": "setInterval runs code at fixed time intervals",
-                    "is_correct": true
-                },
-                {
-                    "text": "setInterval runs a function only once",
-                    "is_correct": false
-                },
-                {
-                    "text": "setInterval is useful for creating repeated actions",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Comparing Timers",
-            "content": "Which of the following statements about setTimeout and setInterval are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "setTimeout executes a function once after a delay",
-                    "is_correct": true
-                },
-                {
-                    "text": "setInterval executes a function repeatedly",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both setTimeout and setInterval execute code immediately",
-                    "is_correct": false
-                },
-                {
-                    "text": "Both can take a delay time as an argument",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Timer Concepts",
-            "content": "Which of the following statements about advanced timer usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "setTimeout and setInterval return an ID that can be used to clear them",
-                    "is_correct": true
-                },
-                {
-                    "text": "clearTimeout can be used to cancel a setTimeout call",
-                    "is_correct": true
-                },
-                {
-                    "text": "Timers run on a separate thread and block JavaScript execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "clearInterval can stop repeated execution of setInterval",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Understanding Geolocation API",
-            "content": "Which of the following statements about the Geolocation API are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Geolocation API is used to get the user's location",
-                    "is_correct": true
-                },
-                {
-                    "text": "It can provide latitude and longitude coordinates",
-                    "is_correct": true
-                },
-                {
-                    "text": "Geolocation API works only on server-side applications",
-                    "is_correct": false
-                },
-                {
-                    "text": "It requires user permission in most browsers",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Basics of Clipboard API",
-            "content": "Which statements about the Clipboard API are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Clipboard API allows copying and pasting data programmatically",
-                    "is_correct": true
-                },
-                {
-                    "text": "It can be used to copy text to the clipboard",
-                    "is_correct": true
-                },
-                {
-                    "text": "Clipboard API is only used for storing files permanently",
-                    "is_correct": false
-                },
-                {
-                    "text": "It helps improve user interaction in web apps",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Introduction to Fetch API",
-            "content": "Which of the following statements about the Fetch API are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Fetch API is used to make HTTP requests",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fetch returns a Promise",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fetch API only works for synchronous requests",
-                    "is_correct": false
-                },
-                {
-                    "text": "Fetch can be used to get data from servers",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Browser APIs Concepts",
-            "content": "Which of the following statements about advanced Browser APIs are correct?",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Geolocation API requires user permission for privacy reasons",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fetch API uses Promises to handle asynchronous operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Clipboard API can access system files directly without permission",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browser APIs allow web applications to interact with device features",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Check Empty Input Field",
-            "content": "Write a JavaScript program to validate a form input field and show a message if it is empty.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Field is required"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "John",
-                    "expected_output": "Valid input"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Field is required",
-                    "explanation": "Basic form validation checks empty input."
-                }
-            ],
-            "inputFormat": "Single input field.",
-            "outputFormat": "Validation message.",
-            "solutions": [
-                {
-                    "title": "Empty Field Validation",
-                    "language": "javascript",
-                    "code": "const input = document.querySelector('input');\nconst msg = document.querySelector('p');\n\nif (!input.value) {\n  msg.textContent = 'Field is required';\n} else {\n  msg.textContent = 'Valid input';\n}",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Check input.value",
-                "Use if condition"
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Email Format Validation",
-            "content": "Write a JavaScript program to validate an email field using simple form validation.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "test@gmail.com",
-                    "expected_output": "Valid Email"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "invalidemail",
-                    "expected_output": "Invalid Email"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "abc@domain.com",
-                    "expected_output": "Valid Email",
-                    "explanation": "Basic validation checks presence of '@'."
-                }
-            ],
-            "inputFormat": "Email input field.",
-            "outputFormat": "Validation result.",
-            "solutions": [
-                {
-                    "title": "Email Validation",
-                    "language": "javascript",
-                    "code": "const email = document.querySelector('input').value;\n\nif (email.includes('@')) {\n  console.log('Valid Email');\n} else {\n  console.log('Invalid Email');\n}",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Check for '@' symbol",
-                "Use includes() method"
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Prevent Form Submission",
-            "content": "Write a JavaScript program to prevent form submission using preventDefault() if the input field is empty.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Form not submitted"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "data",
-                    "expected_output": "Form submitted"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Form not submitted",
-                    "explanation": "preventDefault() stops default form submission."
-                }
-            ],
-            "inputFormat": "Form input field.",
-            "outputFormat": "Submission status.",
-            "solutions": [
-                {
-                    "title": "Prevent Default Example",
-                    "language": "javascript",
-                    "code": "document.querySelector('form').addEventListener('submit', (e) => {\n  const input = document.querySelector('input').value;\n  if (!input) {\n    e.preventDefault();\n    console.log('Form not submitted');\n  } else {\n    console.log('Form submitted');\n  }\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use submit event",
-                "Use preventDefault()"
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Real-Time Form Validator",
-            "content": "Write a JavaScript program to validate a form in real-time and prevent submission if validation fails using preventDefault().",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Forms Handling",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "empty",
-                    "expected_output": "Invalid form"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "valid data",
-                    "expected_output": "Form submitted"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Invalid form",
-                    "explanation": "Combining validation with preventDefault for real-time checks."
-                }
-            ],
-            "inputFormat": "Form with input field.",
-            "outputFormat": "Validation and submission result.",
-            "solutions": [
-                {
-                    "title": "Advanced Form Validation",
-                    "language": "javascript",
-                    "code": "document.querySelector('form').addEventListener('submit', (e) => {\n  const input = document.querySelector('input').value;\n\n  if (!input || input.length < 3) {\n    e.preventDefault();\n    console.log('Invalid form');\n  } else {\n    console.log('Form submitted');\n  }\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Check input length",
-                "Combine validation with preventDefault"
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Save Data to Local Storage",
-            "content": "Write a JavaScript program to save a username into localStorage.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "John",
-                    "expected_output": "Saved"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Alice",
-                    "expected_output": "Saved"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "Sam",
-                    "expected_output": "Saved",
-                    "explanation": "localStorage stores data permanently in the browser."
-                }
-            ],
-            "inputFormat": "A username string.",
-            "outputFormat": "Confirmation of saved data.",
-            "solutions": [
-                {
-                    "title": "Save to Local Storage",
-                    "language": "javascript",
-                    "code": "localStorage.setItem('username', 'John');\nconsole.log('Saved');",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use localStorage.setItem().",
-                "Provide key and value."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Save Theme Preference",
-            "content": "Write a JavaScript program to save a theme preference (dark/light) using localStorage.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "dark",
-                    "expected_output": "Theme saved"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "light",
-                    "expected_output": "Theme saved"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "dark",
-                    "expected_output": "Theme saved",
-                    "explanation": "Useful for persisting UI preferences."
-                }
-            ],
-            "inputFormat": "Theme string.",
-            "outputFormat": "Save confirmation.",
-            "solutions": [
-                {
-                    "title": "Theme Storage",
-                    "language": "javascript",
-                    "code": "localStorage.setItem('theme', 'dark');\nconsole.log('Theme saved');",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use key 'theme'.",
-                "Store value using setItem."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Retrieve and Display Stored Data",
-            "content": "Write a JavaScript program to retrieve a stored username from localStorage and display it.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "John",
-                    "expected_output": "Hello John"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Alice",
-                    "expected_output": "Hello Alice"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "Sam",
-                    "expected_output": "Hello Sam",
-                    "explanation": "Data is retrieved using getItem()."
-                }
-            ],
-            "inputFormat": "Stored username.",
-            "outputFormat": "Displayed greeting.",
-            "solutions": [
-                {
-                    "title": "Retrieve from Local Storage",
-                    "language": "javascript",
-                    "code": "const user = localStorage.getItem('username');\nconsole.log(`Hello ${user}`);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use localStorage.getItem().",
-                "Combine with template literals."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Persist User Login State",
-            "content": "Write a JavaScript program to store login status in localStorage and persist user login state across page reloads.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Local Storage & Session Storage",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "login",
-                    "expected_output": "User logged in"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "reload",
-                    "expected_output": "User still logged in"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "login",
-                    "expected_output": "User logged in",
-                    "explanation": "State is preserved using localStorage."
-                }
-            ],
-            "inputFormat": "Login action.",
-            "outputFormat": "Persisted login state.",
-            "solutions": [
-                {
-                    "title": "Persist Login State",
-                    "language": "javascript",
-                    "code": "localStorage.setItem('isLoggedIn', 'true');\n\nconst status = localStorage.getItem('isLoggedIn');\n\nif (status === 'true') {\n  console.log('User still logged in');\n}",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Store boolean as string.",
-                "Check value on page load."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Execute Code After Delay Using setTimeout",
-            "content": "Write a JavaScript program to display a message after 2 seconds using setTimeout.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Hello after delay"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Hello after delay"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Hello after delay",
-                    "explanation": "setTimeout runs code once after a delay."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Delayed message output.",
-            "solutions": [
-                {
-                    "title": "setTimeout Example",
-                    "language": "javascript",
-                    "code": "setTimeout(() => {\n  console.log('Hello after delay');\n}, 2000);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use setTimeout function.",
-                "Delay is in milliseconds."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Show Alert After Delay",
-            "content": "Write a JavaScript program to show an alert message after 3 seconds using setTimeout.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Alert shown"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Alert shown"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Alert shown",
-                    "explanation": "setTimeout can trigger browser alerts."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Alert popup.",
-            "solutions": [
-                {
-                    "title": "Alert with setTimeout",
-                    "language": "javascript",
-                    "code": "setTimeout(() => {\n  alert('Hello User');\n}, 3000);",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use alert() inside setTimeout.",
-                "Delay is 3000ms."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Repeated Counter Using setInterval",
-            "content": "Write a JavaScript program to print numbers from 1 to 5 using setInterval.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "1 2 3 4 5"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "1 2 3 4 5"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "1 2 3 4 5",
-                    "explanation": "setInterval runs repeatedly at fixed intervals."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Printed numbers.",
-            "solutions": [
-                {
-                    "title": "setInterval Counter",
-                    "language": "javascript",
-                    "code": "let count = 1;\nconst interval = setInterval(() => {\n  console.log(count);\n  if (count === 5) clearInterval(interval);\n  count++;\n}, 1000);",
-                    "complexity_analysis": "Time: O(n), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use setInterval.",
-                "Stop using clearInterval."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Live Clock Using setInterval",
-            "content": "Write a JavaScript program to display current time every second using setInterval.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Timers",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Updated time every second"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Live clock running"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "12:30:45",
-                    "explanation": "setInterval can be used for real-time updates."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Live time display.",
-            "solutions": [
-                {
-                    "title": "Live Clock",
-                    "language": "javascript",
-                    "code": "setInterval(() => {\n  const now = new Date();\n  console.log(now.toLocaleTimeString());\n}, 1000);",
-                    "complexity_analysis": "Time: O(n), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use Date object.",
-                "Run function every 1000ms."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Get Browser Geolocation Permission",
-            "content": "Write a JavaScript program to request the user's current location using the Geolocation API and log latitude and longitude.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Latitude and Longitude"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Coordinates fetched"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Lat: 12.34, Lng: 56.78",
-                    "explanation": "Geolocation API fetches user position."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Coordinates.",
-            "solutions": [
-                {
-                    "title": "Geolocation API Example",
-                    "language": "javascript",
-                    "code": "navigator.geolocation.getCurrentPosition((position) => {\n  console.log('Lat:', position.coords.latitude);\n  console.log('Lng:', position.coords.longitude);\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use navigator.geolocation",
-                "Access coords.latitude and coords.longitude"
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Copy Text to Clipboard",
-            "content": "Write a JavaScript program to copy a given text to the clipboard using Clipboard API.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "Hello",
-                    "expected_output": "Copied"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "JavaScript",
-                    "expected_output": "Copied"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "Test",
-                    "expected_output": "Copied",
-                    "explanation": "Clipboard API allows copying text programmatically."
-                }
-            ],
-            "inputFormat": "Text string.",
-            "outputFormat": "Copy confirmation.",
-            "solutions": [
-                {
-                    "title": "Clipboard API Example",
-                    "language": "javascript",
-                    "code": "navigator.clipboard.writeText('Hello World').then(() => {\n  console.log('Copied');\n});",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use navigator.clipboard.writeText().",
-                "It returns a Promise."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Fetch Data from API",
-            "content": "Write a JavaScript program to fetch data from a sample API using Fetch API and log the response.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Data fetched"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "JSON response"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Object data",
-                    "explanation": "Fetch API is used for HTTP requests."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Fetched data.",
-            "solutions": [
-                {
-                    "title": "Fetch API Example",
-                    "language": "javascript",
-                    "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(response => response.json())\n  .then(data => console.log(data));",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use fetch() method.",
-                "Convert response to JSON."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Save Fetched Data and Display",
-            "content": "Write a JavaScript program to fetch API data, store it in a variable, and display a specific field on the page.",
-            "level": "subtopic",
-            "unit_name": "Advanced DOM & Browser APIs",
-            "subunit_name": "Browser APIs",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Title displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Dynamic content shown"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Sample Title",
-                    "explanation": "Combines Fetch API with DOM manipulation."
-                }
-            ],
-            "inputFormat": "No input required.",
-            "outputFormat": "Displayed API data.",
-            "solutions": [
-                {
-                    "title": "Fetch + DOM Update",
-                    "language": "javascript",
-                    "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(res => res.json())\n  .then(data => {\n    const title = data.title;\n    document.getElementById('output').textContent = title;\n  });",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Store response in variable.",
-                "Update DOM after fetch resolves."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Local Storage & Session Storage Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Local+Storage+%26+Session+Storage+javascript",
+          "ai_context": "In-depth explanation and practical examples for Local Storage & Session Storage."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Timers",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Timers",
+          "video_link": "https://www.youtube.com/results?search_query=Timers+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Timers in JavaScript."
+        },
+        {
+          "title": "Advanced Timers Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Timers+javascript",
+          "ai_context": "In-depth explanation and practical examples for Timers."
+        }
+      ]
+    },
+    {
+      "name": "Browser APIs",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Browser APIs",
+          "video_link": "https://www.youtube.com/results?search_query=Browser+APIs+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Browser APIs in JavaScript."
+        },
+        {
+          "title": "Advanced Browser APIs Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Browser+APIs+javascript",
+          "ai_context": "In-depth explanation and practical examples for Browser APIs."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Form Validation Basics",
+      "content": "What is form validation in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Checking if user input is correct or not",
+          "is_correct": true
+        },
+        {
+          "text": "Styling form elements",
+          "is_correct": false
+        },
+        {
+          "text": "Sending data to CSS file",
+          "is_correct": false
+        },
+        {
+          "text": "Creating new HTML pages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Prevent Default Usage",
+      "content": "What does event.preventDefault() do in a form?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stops the default form submission behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes the form from DOM",
+          "is_correct": false
+        },
+        {
+          "text": "Refreshes the page automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Clears all input fields permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Validation Purpose",
+      "content": "Why is form validation important?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To ensure correct and complete user input",
+          "is_correct": true
+        },
+        {
+          "text": "To style forms automatically",
+          "is_correct": false
+        },
+        {
+          "text": "To increase page reload speed",
+          "is_correct": false
+        },
+        {
+          "text": "To disable JavaScript",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Prevent Default Behavior",
+      "content": "What happens when preventDefault() is used on a form submit event?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The form does not submit and page does not reload",
+          "is_correct": true
+        },
+        {
+          "text": "The form is deleted",
+          "is_correct": false
+        },
+        {
+          "text": "The browser crashes",
+          "is_correct": false
+        },
+        {
+          "text": "The input values are cleared automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Local Storage Purpose",
+      "content": "What is the main purpose of localStorage in the browser?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store data in the browser permanently",
+          "is_correct": true
+        },
+        {
+          "text": "To style web pages",
+          "is_correct": false
+        },
+        {
+          "text": "To run JavaScript faster",
+          "is_correct": false
+        },
+        {
+          "text": "To create HTML elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Session Storage Behavior",
+      "content": "What happens to sessionStorage data when the browser tab is closed?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It gets deleted",
+          "is_correct": true
+        },
+        {
+          "text": "It stays forever",
+          "is_correct": false
+        },
+        {
+          "text": "It moves to localStorage",
+          "is_correct": false
+        },
+        {
+          "text": "It becomes encrypted",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Saving Data in Local Storage",
+      "content": "Which method is used to store data in localStorage?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "localStorage.setItem()",
+          "is_correct": true
+        },
+        {
+          "text": "localStorage.save()",
+          "is_correct": false
+        },
+        {
+          "text": "localStorage.addData()",
+          "is_correct": false
+        },
+        {
+          "text": "localStorage.store()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Persisting Data Behavior",
+      "content": "What does persistence mean in localStorage?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data remains even after browser is closed and reopened",
+          "is_correct": true
+        },
+        {
+          "text": "Data is deleted every second",
+          "is_correct": false
+        },
+        {
+          "text": "Data is only stored in memory temporarily",
+          "is_correct": false
+        },
+        {
+          "text": "Data is sent to the server automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "setTimeout Purpose",
+      "content": "What does setTimeout() do in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Executes a function after a delay",
+          "is_correct": true
+        },
+        {
+          "text": "Repeats a function continuously",
+          "is_correct": false
+        },
+        {
+          "text": "Stops all JavaScript execution",
+          "is_correct": false
+        },
+        {
+          "text": "Creates a loop automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "setInterval Purpose",
+      "content": "What does setInterval() do?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Repeats a function at fixed time intervals",
+          "is_correct": true
+        },
+        {
+          "text": "Runs a function only once immediately",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes a function",
+          "is_correct": false
+        },
+        {
+          "text": "Pauses the browser permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "setTimeout Delay",
+      "content": "What will setTimeout(function, 2000) do?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Execute the function after 2 seconds",
+          "is_correct": true
+        },
+        {
+          "text": "Execute the function immediately",
+          "is_correct": false
+        },
+        {
+          "text": "Repeat the function every 2 seconds",
+          "is_correct": false
+        },
+        {
+          "text": "Stop the function after 2 seconds",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Clearing Intervals",
+      "content": "What is used to stop a setInterval execution?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "clearInterval()",
+          "is_correct": true
+        },
+        {
+          "text": "stopInterval()",
+          "is_correct": false
+        },
+        {
+          "text": "removeTimeout()",
+          "is_correct": false
+        },
+        {
+          "text": "endTimer()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Geolocation API Purpose",
+      "content": "What does the Geolocation API allow you to do?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Get the user's location",
+          "is_correct": true
+        },
+        {
+          "text": "Store files in browser",
+          "is_correct": false
+        },
+        {
+          "text": "Style web pages",
+          "is_correct": false
+        },
+        {
+          "text": "Create animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Clipboard API Usage",
+      "content": "What is the Clipboard API mainly used for?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Copying and pasting data",
+          "is_correct": true
+        },
+        {
+          "text": "Drawing graphics",
+          "is_correct": false
+        },
+        {
+          "text": "Managing cookies",
+          "is_correct": false
+        },
+        {
+          "text": "Handling server requests",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fetch API Purpose",
+      "content": "What is the Fetch API used for?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Making network requests to servers",
+          "is_correct": true
+        },
+        {
+          "text": "Styling HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "Creating animations",
+          "is_correct": false
+        },
+        {
+          "text": "Manipulating DOM structure only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Geolocation Data Access",
+      "content": "Which object is commonly used to access geolocation data in the browser?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "navigator.geolocation",
+          "is_correct": true
+        },
+        {
+          "text": "window.locationData",
+          "is_correct": false
+        },
+        {
+          "text": "document.geo",
+          "is_correct": false
+        },
+        {
+          "text": "browser.locationAPI",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Form Validation",
+      "content": "Which of the following statements about form validation are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Form validation is used to check user input before submission",
+          "is_correct": true
+        },
+        {
+          "text": "Form validation helps ensure correct and complete data entry",
+          "is_correct": true
+        },
+        {
+          "text": "Form validation only happens on the server side",
+          "is_correct": false
+        },
+        {
+          "text": "Form validation can be done using JavaScript",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Prevent Default",
+      "content": "Which statements about preventDefault() are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "preventDefault() stops default browser behavior",
+          "is_correct": true
+        },
+        {
+          "text": "It is commonly used in form submission handling",
+          "is_correct": true
+        },
+        {
+          "text": "preventDefault() deletes the form permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It is a method available on the event object",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Form Validation Behavior",
+      "content": "Which of the following statements about form validation behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Form validation can be both client-side and server-side",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript can be used to validate form inputs before submission",
+          "is_correct": true
+        },
+        {
+          "text": "Form validation is only possible after form submission",
+          "is_correct": false
+        },
+        {
+          "text": "Validation helps improve user experience by preventing invalid data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Form Handling Concepts",
+      "content": "Which of the following statements about advanced form handling are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "preventDefault() is commonly used to stop form submission reload",
+          "is_correct": true
+        },
+        {
+          "text": "Custom validation logic can be implemented using JavaScript events",
+          "is_correct": true
+        },
+        {
+          "text": "Form validation cannot be customized by developers",
+          "is_correct": false
+        },
+        {
+          "text": "Combining validation and preventDefault() enables controlled form handling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Local Storage",
+      "content": "Which of the following statements about saving data in local storage are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Local storage is used to store data in the browser",
+          "is_correct": true
+        },
+        {
+          "text": "Data in local storage persists even after page refresh",
+          "is_correct": true
+        },
+        {
+          "text": "Local storage data is automatically deleted when the page reloads",
+          "is_correct": false
+        },
+        {
+          "text": "Local storage stores data as key-value pairs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Session Storage",
+      "content": "Which statements about session storage are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Session storage stores data for a single session",
+          "is_correct": true
+        },
+        {
+          "text": "Session storage data is cleared when the tab is closed",
+          "is_correct": true
+        },
+        {
+          "text": "Session storage persists forever like a database",
+          "is_correct": false
+        },
+        {
+          "text": "Session storage is also based on key-value pairs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Persisting State with Storage",
+      "content": "Which of the following statements about persisting state using storage are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Local storage can be used to persist application state",
+          "is_correct": true
+        },
+        {
+          "text": "Session storage is useful for temporary state management",
+          "is_correct": true
+        },
+        {
+          "text": "Storage APIs automatically sync data between devices",
+          "is_correct": false
+        },
+        {
+          "text": "Both local and session storage store data as strings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Storage Concepts",
+      "content": "Which of the following statements about advanced storage concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data stored in localStorage remains until manually cleared",
+          "is_correct": true
+        },
+        {
+          "text": "JSON.stringify() is often used to store objects in storage",
+          "is_correct": true
+        },
+        {
+          "text": "Local storage can store complex objects without conversion",
+          "is_correct": false
+        },
+        {
+          "text": "Session storage is scoped per tab or window",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding setTimeout",
+      "content": "Which of the following statements about setTimeout are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "setTimeout executes a function after a delay",
+          "is_correct": true
+        },
+        {
+          "text": "setTimeout runs a function only once by default",
+          "is_correct": true
+        },
+        {
+          "text": "setTimeout runs a function repeatedly forever",
+          "is_correct": false
+        },
+        {
+          "text": "setTimeout is used to delay code execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of setInterval",
+      "content": "Which statements about setInterval are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "setInterval repeatedly executes a function",
+          "is_correct": true
+        },
+        {
+          "text": "setInterval runs code at fixed time intervals",
+          "is_correct": true
+        },
+        {
+          "text": "setInterval runs a function only once",
+          "is_correct": false
+        },
+        {
+          "text": "setInterval is useful for creating repeated actions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Timers",
+      "content": "Which of the following statements about setTimeout and setInterval are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "setTimeout executes a function once after a delay",
+          "is_correct": true
+        },
+        {
+          "text": "setInterval executes a function repeatedly",
+          "is_correct": true
+        },
+        {
+          "text": "Both setTimeout and setInterval execute code immediately",
+          "is_correct": false
+        },
+        {
+          "text": "Both can take a delay time as an argument",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Timer Concepts",
+      "content": "Which of the following statements about advanced timer usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "setTimeout and setInterval return an ID that can be used to clear them",
+          "is_correct": true
+        },
+        {
+          "text": "clearTimeout can be used to cancel a setTimeout call",
+          "is_correct": true
+        },
+        {
+          "text": "Timers run on a separate thread and block JavaScript execution",
+          "is_correct": false
+        },
+        {
+          "text": "clearInterval can stop repeated execution of setInterval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Geolocation API",
+      "content": "Which of the following statements about the Geolocation API are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Geolocation API is used to get the user's location",
+          "is_correct": true
+        },
+        {
+          "text": "It can provide latitude and longitude coordinates",
+          "is_correct": true
+        },
+        {
+          "text": "Geolocation API works only on server-side applications",
+          "is_correct": false
+        },
+        {
+          "text": "It requires user permission in most browsers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Clipboard API",
+      "content": "Which statements about the Clipboard API are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clipboard API allows copying and pasting data programmatically",
+          "is_correct": true
+        },
+        {
+          "text": "It can be used to copy text to the clipboard",
+          "is_correct": true
+        },
+        {
+          "text": "Clipboard API is only used for storing files permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It helps improve user interaction in web apps",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Fetch API",
+      "content": "Which of the following statements about the Fetch API are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fetch API is used to make HTTP requests",
+          "is_correct": true
+        },
+        {
+          "text": "Fetch returns a Promise",
+          "is_correct": true
+        },
+        {
+          "text": "Fetch API only works for synchronous requests",
+          "is_correct": false
+        },
+        {
+          "text": "Fetch can be used to get data from servers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Browser APIs Concepts",
+      "content": "Which of the following statements about advanced Browser APIs are correct?",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Geolocation API requires user permission for privacy reasons",
+          "is_correct": true
+        },
+        {
+          "text": "Fetch API uses Promises to handle asynchronous operations",
+          "is_correct": true
+        },
+        {
+          "text": "Clipboard API can access system files directly without permission",
+          "is_correct": false
+        },
+        {
+          "text": "Browser APIs allow web applications to interact with device features",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Empty Input Field",
+      "content": "Write a JavaScript program to validate a form input field and show a message if it is empty.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Field is required"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "John",
+          "expected_output": "Valid input"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Field is required",
+          "explanation": "Basic form validation checks empty input."
+        }
+      ],
+      "inputFormat": "Single input field.",
+      "outputFormat": "Validation message.",
+      "solutions": [
+        {
+          "title": "Empty Field Validation",
+          "language": "javascript",
+          "code": "const input = document.querySelector('input');\nconst msg = document.querySelector('p');\n\nif (!input.value) {\n  msg.textContent = 'Field is required';\n} else {\n  msg.textContent = 'Valid input';\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Check input.value",
+        "Use if condition"
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Email Format Validation",
+      "content": "Write a JavaScript program to validate an email field using simple form validation.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "test@gmail.com",
+          "expected_output": "Valid Email"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "invalidemail",
+          "expected_output": "Invalid Email"
+        }
+      ],
+      "examples": [
+        {
+          "input": "abc@domain.com",
+          "expected_output": "Valid Email",
+          "explanation": "Basic validation checks presence of '@'."
+        }
+      ],
+      "inputFormat": "Email input field.",
+      "outputFormat": "Validation result.",
+      "solutions": [
+        {
+          "title": "Email Validation",
+          "language": "javascript",
+          "code": "const email = document.querySelector('input').value;\n\nif (email.includes('@')) {\n  console.log('Valid Email');\n} else {\n  console.log('Invalid Email');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Check for '@' symbol",
+        "Use includes() method"
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Prevent Form Submission",
+      "content": "Write a JavaScript program to prevent form submission using preventDefault() if the input field is empty.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Form not submitted"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "data",
+          "expected_output": "Form submitted"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form not submitted",
+          "explanation": "preventDefault() stops default form submission."
+        }
+      ],
+      "inputFormat": "Form input field.",
+      "outputFormat": "Submission status.",
+      "solutions": [
+        {
+          "title": "Prevent Default Example",
+          "language": "javascript",
+          "code": "document.querySelector('form').addEventListener('submit', (e) => {\n  const input = document.querySelector('input').value;\n  if (!input) {\n    e.preventDefault();\n    console.log('Form not submitted');\n  } else {\n    console.log('Form submitted');\n  }\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use submit event",
+        "Use preventDefault()"
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Real-Time Form Validator",
+      "content": "Write a JavaScript program to validate a form in real-time and prevent submission if validation fails using preventDefault().",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Forms Handling",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "empty",
+          "expected_output": "Invalid form"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "valid data",
+          "expected_output": "Form submitted"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Invalid form",
+          "explanation": "Combining validation with preventDefault for real-time checks."
+        }
+      ],
+      "inputFormat": "Form with input field.",
+      "outputFormat": "Validation and submission result.",
+      "solutions": [
+        {
+          "title": "Advanced Form Validation",
+          "language": "javascript",
+          "code": "document.querySelector('form').addEventListener('submit', (e) => {\n  const input = document.querySelector('input').value;\n\n  if (!input || input.length < 3) {\n    e.preventDefault();\n    console.log('Invalid form');\n  } else {\n    console.log('Form submitted');\n  }\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Check input length",
+        "Combine validation with preventDefault"
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Save Data to Local Storage",
+      "content": "Write a JavaScript program to save a username into localStorage.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John",
+          "expected_output": "Saved"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice",
+          "expected_output": "Saved"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam",
+          "expected_output": "Saved",
+          "explanation": "localStorage stores data permanently in the browser."
+        }
+      ],
+      "inputFormat": "A username string.",
+      "outputFormat": "Confirmation of saved data.",
+      "solutions": [
+        {
+          "title": "Save to Local Storage",
+          "language": "javascript",
+          "code": "localStorage.setItem('username', 'John');\nconsole.log('Saved');",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use localStorage.setItem().",
+        "Provide key and value."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Save Theme Preference",
+      "content": "Write a JavaScript program to save a theme preference (dark/light) using localStorage.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "dark",
+          "expected_output": "Theme saved"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "light",
+          "expected_output": "Theme saved"
+        }
+      ],
+      "examples": [
+        {
+          "input": "dark",
+          "expected_output": "Theme saved",
+          "explanation": "Useful for persisting UI preferences."
+        }
+      ],
+      "inputFormat": "Theme string.",
+      "outputFormat": "Save confirmation.",
+      "solutions": [
+        {
+          "title": "Theme Storage",
+          "language": "javascript",
+          "code": "localStorage.setItem('theme', 'dark');\nconsole.log('Theme saved');",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use key 'theme'.",
+        "Store value using setItem."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Retrieve and Display Stored Data",
+      "content": "Write a JavaScript program to retrieve a stored username from localStorage and display it.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John",
+          "expected_output": "Hello John"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice",
+          "expected_output": "Hello Alice"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam",
+          "expected_output": "Hello Sam",
+          "explanation": "Data is retrieved using getItem()."
+        }
+      ],
+      "inputFormat": "Stored username.",
+      "outputFormat": "Displayed greeting.",
+      "solutions": [
+        {
+          "title": "Retrieve from Local Storage",
+          "language": "javascript",
+          "code": "const user = localStorage.getItem('username');\nconsole.log(`Hello ${user}`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use localStorage.getItem().",
+        "Combine with template literals."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Persist User Login State",
+      "content": "Write a JavaScript program to store login status in localStorage and persist user login state across page reloads.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Local Storage & Session Storage",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "login",
+          "expected_output": "User logged in"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "reload",
+          "expected_output": "User still logged in"
+        }
+      ],
+      "examples": [
+        {
+          "input": "login",
+          "expected_output": "User logged in",
+          "explanation": "State is preserved using localStorage."
+        }
+      ],
+      "inputFormat": "Login action.",
+      "outputFormat": "Persisted login state.",
+      "solutions": [
+        {
+          "title": "Persist Login State",
+          "language": "javascript",
+          "code": "localStorage.setItem('isLoggedIn', 'true');\n\nconst status = localStorage.getItem('isLoggedIn');\n\nif (status === 'true') {\n  console.log('User still logged in');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Store boolean as string.",
+        "Check value on page load."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Execute Code After Delay Using setTimeout",
+      "content": "Write a JavaScript program to display a message after 2 seconds using setTimeout.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello after delay"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hello after delay"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello after delay",
+          "explanation": "setTimeout runs code once after a delay."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Delayed message output.",
+      "solutions": [
+        {
+          "title": "setTimeout Example",
+          "language": "javascript",
+          "code": "setTimeout(() => {\n  console.log('Hello after delay');\n}, 2000);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use setTimeout function.",
+        "Delay is in milliseconds."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Show Alert After Delay",
+      "content": "Write a JavaScript program to show an alert message after 3 seconds using setTimeout.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Alert shown"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Alert shown"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Alert shown",
+          "explanation": "setTimeout can trigger browser alerts."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Alert popup.",
+      "solutions": [
+        {
+          "title": "Alert with setTimeout",
+          "language": "javascript",
+          "code": "setTimeout(() => {\n  alert('Hello User');\n}, 3000);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use alert() inside setTimeout.",
+        "Delay is 3000ms."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Repeated Counter Using setInterval",
+      "content": "Write a JavaScript program to print numbers from 1 to 5 using setInterval.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "setInterval runs repeatedly at fixed intervals."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Printed numbers.",
+      "solutions": [
+        {
+          "title": "setInterval Counter",
+          "language": "javascript",
+          "code": "let count = 1;\nconst interval = setInterval(() => {\n  console.log(count);\n  if (count === 5) clearInterval(interval);\n  count++;\n}, 1000);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use setInterval.",
+        "Stop using clearInterval."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Live Clock Using setInterval",
+      "content": "Write a JavaScript program to display current time every second using setInterval.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Timers",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Updated time every second"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Live clock running"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "12:30:45",
+          "explanation": "setInterval can be used for real-time updates."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Live time display.",
+      "solutions": [
+        {
+          "title": "Live Clock",
+          "language": "javascript",
+          "code": "setInterval(() => {\n  const now = new Date();\n  console.log(now.toLocaleTimeString());\n}, 1000);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Date object.",
+        "Run function every 1000ms."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Get Browser Geolocation Permission",
+      "content": "Write a JavaScript program to request the user's current location using the Geolocation API and log latitude and longitude.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Latitude and Longitude"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Coordinates fetched"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Lat: 12.34, Lng: 56.78",
+          "explanation": "Geolocation API fetches user position."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Coordinates.",
+      "solutions": [
+        {
+          "title": "Geolocation API Example",
+          "language": "javascript",
+          "code": "navigator.geolocation.getCurrentPosition((position) => {\n  console.log('Lat:', position.coords.latitude);\n  console.log('Lng:', position.coords.longitude);\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use navigator.geolocation",
+        "Access coords.latitude and coords.longitude"
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Copy Text to Clipboard",
+      "content": "Write a JavaScript program to copy a given text to the clipboard using Clipboard API.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "Hello",
+          "expected_output": "Copied"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "JavaScript",
+          "expected_output": "Copied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Test",
+          "expected_output": "Copied",
+          "explanation": "Clipboard API allows copying text programmatically."
+        }
+      ],
+      "inputFormat": "Text string.",
+      "outputFormat": "Copy confirmation.",
+      "solutions": [
+        {
+          "title": "Clipboard API Example",
+          "language": "javascript",
+          "code": "navigator.clipboard.writeText('Hello World').then(() => {\n  console.log('Copied');\n});",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use navigator.clipboard.writeText().",
+        "It returns a Promise."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fetch Data from API",
+      "content": "Write a JavaScript program to fetch data from a sample API using Fetch API and log the response.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Data fetched"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "JSON response"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Object data",
+          "explanation": "Fetch API is used for HTTP requests."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Fetched data.",
+      "solutions": [
+        {
+          "title": "Fetch API Example",
+          "language": "javascript",
+          "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(response => response.json())\n  .then(data => console.log(data));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use fetch() method.",
+        "Convert response to JSON."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Save Fetched Data and Display",
+      "content": "Write a JavaScript program to fetch API data, store it in a variable, and display a specific field on the page.",
+      "level": "subtopic",
+      "unit_name": "Advanced DOM & Browser APIs",
+      "subunit_name": "Browser APIs",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Title displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Dynamic content shown"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Sample Title",
+          "explanation": "Combines Fetch API with DOM manipulation."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Displayed API data.",
+      "solutions": [
+        {
+          "title": "Fetch + DOM Update",
+          "language": "javascript",
+          "code": "fetch('https://jsonplaceholder.typicode.com/todos/1')\n  .then(res => res.json())\n  .then(data => {\n    const title = data.title;\n    document.getElementById('output').textContent = title;\n  });",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Store response in variable.",
+        "Update DOM after fetch resolves."
+      ]
+    }
+  ]
 }

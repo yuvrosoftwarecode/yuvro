@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Shield, Camera, Mic, Monitor, CheckCircle2, XCircle, AlertCircle, Loader2, Maximize, User, CheckSquare, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import restApiAuthUtil from '@/utils/RestApiAuthUtil';
-import { toast } from 'sonner';
 
 export interface ProctoringData {
     cameraStream: MediaStream;
@@ -32,7 +30,6 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
     const [micCheck, setMicCheck] = useState<CheckState>({ status: 'idle' });
     const [cameraCheck, setCameraCheck] = useState<CheckState>({ status: 'idle' });
     const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
-    const [faceEnrollCheck, setFaceEnrollCheck] = useState<CheckState>({ status: 'idle' });
     const [tabsClosed, setTabsClosed] = useState(false);
     const [screenCheck, setScreenCheck] = useState<CheckState>({ status: 'idle' });
     const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
@@ -44,7 +41,7 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
     const currentStep = 
         micCheck.status !== 'passed' ? 1 :
         cameraCheck.status !== 'passed' ? 2 :
-        faceEnrollCheck.status !== 'passed' ? 3 :
+        !photoBlob ? 3 :
         !tabsClosed ? 4 :
         (screenCheck.status !== 'passed' || !screenshotBlob) ? 5 :
         fullscreenCheck.status !== 'passed' ? 6 : 7;
@@ -83,7 +80,7 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
     };
 
     // --- Step 3: Identity Photo ---
-    const capturePhoto = useCallback(async () => {
+    const capturePhoto = useCallback(() => {
         if (!videoRef.current || !canvasRef.current || !cameraStream) return;
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -97,43 +94,12 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.drawImage(video, startX, startY, size, size, 0, 0, size, size);
-        const imageB64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-
-        setFaceEnrollCheck({ status: 'checking', message: 'Enrolling face...' });
-        
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                setFaceEnrollCheck({ status: 'failed', message: 'Failed to capture image.' });
-                return;
-            }
-            try {
-                const response = await restApiAuthUtil.post<any>('/assessment/face-enroll/', {
-                    image: imageB64,
-                });
-                
-                if (response?.enrolled || response?.status === 'stub') {
-                    setPhotoBlob(blob);
-                    setFaceEnrollCheck({ status: 'passed', message: 'Face enrolled successfully.' });
-                    toast.success('Face enrolled successfully.');
-                } else {
-                    setFaceEnrollCheck({ 
-                        status: 'failed', 
-                        message: response?.message || 'Face detection failed. Make sure your face is clearly visible.' 
-                    });
-                    toast.error(response?.message || 'Face detection failed. Please try again.');
-                }
-            } catch (err: any) {
-                console.error('Face enrollment error:', err);
-                setFaceEnrollCheck({ 
-                    status: 'failed', 
-                    message: 'Connection error during face enrollment.' 
-                });
-                toast.error('Connection error during face enrollment.');
-            }
-        }, 'image/jpeg', 0.9);
+        if (ctx) {
+            ctx.drawImage(video, startX, startY, size, size, 0, 0, size, size);
+            canvas.toBlob((blob) => {
+                if (blob) setPhotoBlob(blob);
+            }, 'image/jpeg', 0.9);
+        }
     }, [cameraStream]);
 
     // --- Step 4: Tab Closure ---
@@ -315,33 +281,22 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
 
                         {/* Step 3: Photo */}
                         <div className={`flex gap-4 items-start ${currentStep < 3 ? 'opacity-40' : ''} relative py-1`}>
-                            <div className={`mt-0.5 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 bg-slate-900 relative z-10 transition-colors ${faceEnrollCheck.status === 'passed' ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' : currentStep === 3 ? 'border-violet-500 text-violet-400 bg-violet-500/10 shadow-[0_0_10px_rgba(139,92,246,0.2)]' : 'border-slate-800 text-slate-500'}`}>
+                            <div className={`mt-0.5 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 bg-slate-900 relative z-10 transition-colors ${photoBlob ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' : currentStep === 3 ? 'border-violet-500 text-violet-400 bg-violet-500/10 shadow-[0_0_10px_rgba(139,92,246,0.2)]' : 'border-slate-800 text-slate-500'}`}>
                                 <User className="h-4 w-4" />
                             </div>
                             <div className="flex-1 flex flex-col pt-1 pb-3">
                                 <div className="flex justify-between items-center mb-1">
                                     <h3 className="text-slate-200 font-medium text-[15px]">3. Identity Photo</h3>
-                                    <StatusIcon status={faceEnrollCheck.status} />
+                                    <StatusIcon status={photoBlob ? 'passed' : 'idle'} />
                                 </div>
-                                {faceEnrollCheck.status === 'idle' || faceEnrollCheck.status === 'failed' ? (
-                                    <>
-                                        <Button onClick={capturePhoto} disabled={currentStep !== 3} className="w-fit bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 h-7 text-[12px] rounded-full px-4 border border-violet-500/30 mt-1 shadow-sm transition-all" size="sm">
-                                            Capture Photo
-                                        </Button>
-                                        {faceEnrollCheck.status === 'failed' && (
-                                            <p className="text-red-400 text-[11px] mt-1.5 font-medium flex items-center gap-1">
-                                                <AlertCircle className="w-3 h-3" /> {faceEnrollCheck.message || 'Verification failed. Try again.'}
-                                            </p>
-                                        )}
-                                    </>
-                                ) : faceEnrollCheck.status === 'checking' ? (
-                                    <Button disabled className="w-fit bg-slate-800 text-slate-400 h-7 text-[12px] rounded-full px-4 border border-slate-700 mt-1 shadow-sm" size="sm">
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> Enrolling face...
+                                {!photoBlob ? (
+                                    <Button onClick={capturePhoto} disabled={currentStep !== 3} className="w-fit bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 h-7 text-[12px] rounded-full px-4 border border-violet-500/30 mt-1 shadow-sm transition-all" size="sm">
+                                        Capture Photo
                                     </Button>
                                 ) : (
                                     <div className="flex items-center gap-4 mt-0.5">
-                                        <p className="text-emerald-400 text-[12px] font-medium flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Enrolled & Verified</p>
-                                        <Button variant="link" className="text-violet-400/80 hover:text-violet-300 h-auto p-0 text-[11px]" onClick={() => { setPhotoBlob(null); setFaceEnrollCheck({ status: 'idle' }); }}>Retake</Button>
+                                        <p className="text-emerald-400 text-[12px] font-medium flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Captured</p>
+                                        <Button variant="link" className="text-violet-400/80 hover:text-violet-300 h-auto p-0 text-[11px]" onClick={() => setPhotoBlob(null)}>Retake</Button>
                                     </div>
                                 )}
                             </div>
@@ -408,7 +363,7 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
                         <div className="w-1/3 flex-shrink-0 px-3 overflow-y-auto custom-scrollbar">
                             <div className="space-y-4 pt-2">
                                 <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center shadow-inner">
-                            <video ref={videoRef} muted className={`w-full h-full object-cover ${!cameraStream ? 'opacity-0' : 'opacity-100'}`} />
+                            <video ref={videoRef} className={`w-full h-full object-cover ${!cameraStream ? 'opacity-0' : 'opacity-100'}`} />
                             {!cameraStream && <Camera className="absolute h-6 w-6 text-slate-700" />}
                         </div>
 

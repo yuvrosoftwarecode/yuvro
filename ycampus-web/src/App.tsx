@@ -54,7 +54,6 @@ import CollegeAdminPracticeTest from "./pages/college-admin/PracticeTest";
 import PrincipalFaculty from "./pages/principal/Faculty";
 import PrincipalStudents from "./pages/principal/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
-import StudentUpgrade from "./pages/student/StudentUpgrade";
 import StudentTask from "./pages/student/Task";
 import StudentTest from "./pages/student/Test";
 import StudentInternalTest from "./pages/student/InternalTest";
@@ -302,7 +301,6 @@ const App = () => (
 
                       {/* Campus/Academic prefix routes */}
                       <Route path="campus/dashboard" element={<StudentDashboard />} />
-                      <Route path="campus/upgrade" element={<StudentUpgrade />} />
                       <Route path="campus/task" element={<StudentTask />} />
                       <Route path="campus/contest" element={<Contest />} />
                       <Route path="campus/contests" element={<Contest />} />
@@ -325,7 +323,6 @@ const App = () => (
 
                       {/* Assessments prefix routes */}
                       <Route path="assessments/dashboard" element={<StudentDashboard />} />
-                      <Route path="assessments/upgrade" element={<StudentUpgrade />} />
                       <Route path="assessments/task" element={<StudentTask />} />
                       <Route path="assessments/contest" element={<Contest />} />
                       <Route path="assessments/contests" element={<Contest />} />

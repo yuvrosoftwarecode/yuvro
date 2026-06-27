@@ -93,13 +93,6 @@ class AssessmentMixin:
         
         # Shuffle final list
         random.shuffle(questions_to_send)
-        
-        for q in questions_to_send:
-            if q.get('mcq_options') and isinstance(q['mcq_options'], list):
-                for opt in q['mcq_options']:
-                    if isinstance(opt, dict):
-                        opt.pop('is_correct', None)
-                        
         return questions_to_send
 
     @classmethod

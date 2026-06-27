@@ -1,1655 +1,1599 @@
 {
-    "name": "File Handling & Exceptions",
-    "course_short_code": "PY101",
-    "order_index": 4,
-    "subtopics": [
+  "name": "File Handling & Exceptions",
+  "course_short_code": "PY101",
+  "order_index": 4,
+  "subtopics": [
+    {
+      "name": "File Handling",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "File Handling",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to File Handling",
-                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of File Handling in Python."
-                },
-                {
-                    "title": "Advanced File Handling Techniques",
-                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-                    "ai_context": "In-depth explanation and practical examples for File Handling."
-                }
-            ]
+          "title": "Introduction to File Handling",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of File Handling in Python."
         },
         {
-            "name": "Exception Handling",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to Exception Handling",
-                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Exception Handling in Python."
-                },
-                {
-                    "title": "Advanced Exception Handling Techniques",
-                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-                    "ai_context": "In-depth explanation and practical examples for Exception Handling."
-                }
-            ]
+          "title": "Advanced File Handling Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for File Handling."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "Exception Handling",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Open File Mode",
-            "content": "Which mode is used to open a file for reading in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "r",
-                    "is_correct": true
-                },
-                {
-                    "text": "w",
-                    "is_correct": false
-                },
-                {
-                    "text": "a",
-                    "is_correct": false
-                },
-                {
-                    "text": "x",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to Exception Handling",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Exception Handling in Python."
         },
         {
-            "type": "mcq_single",
-            "title": "Writing to File",
-            "content": "What does the write() method do in file handling?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Writes data to a file",
-                    "is_correct": true
-                },
-                {
-                    "text": "Reads data from file",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deletes a file",
-                    "is_correct": false
-                },
-                {
-                    "text": "Closes a file",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "File Close Method",
-            "content": "Which method is used to close a file in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "close()",
-                    "is_correct": true
-                },
-                {
-                    "text": "end()",
-                    "is_correct": false
-                },
-                {
-                    "text": "stop()",
-                    "is_correct": false
-                },
-                {
-                    "text": "exit()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "CSV File Usage",
-            "content": "Which module is used to handle CSV files in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "csv",
-                    "is_correct": true
-                },
-                {
-                    "text": "json",
-                    "is_correct": false
-                },
-                {
-                    "text": "file",
-                    "is_correct": false
-                },
-                {
-                    "text": "os",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "JSON Module",
-            "content": "Which module is used to work with JSON data in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "json",
-                    "is_correct": true
-                },
-                {
-                    "text": "csv",
-                    "is_correct": false
-                },
-                {
-                    "text": "pickle",
-                    "is_correct": false
-                },
-                {
-                    "text": "data",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Reading File Content",
-            "content": "What will be the output?\n\nf = open('file.txt', 'r')\nprint(f.read())",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Prints file content",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deletes file",
-                    "is_correct": false
-                },
-                {
-                    "text": "Returns file name",
-                    "is_correct": false
-                },
-                {
-                    "text": "Error always occurs",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "JSON Load Function",
-            "content": "What does json.load() do?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Reads JSON from a file",
-                    "is_correct": true
-                },
-                {
-                    "text": "Writes JSON to a file",
-                    "is_correct": false
-                },
-                {
-                    "text": "Deletes JSON data",
-                    "is_correct": false
-                },
-                {
-                    "text": "Converts CSV to JSON",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Try-Except Purpose",
-            "content": "What is the purpose of try-except block in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "To handle runtime errors",
-                    "is_correct": true
-                },
-                {
-                    "text": "To create loops",
-                    "is_correct": false
-                },
-                {
-                    "text": "To define functions",
-                    "is_correct": false
-                },
-                {
-                    "text": "To import modules",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Finally Block",
-            "content": "What is the purpose of the finally block?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It always executes",
-                    "is_correct": true
-                },
-                {
-                    "text": "It runs only when error occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "It skips execution",
-                    "is_correct": false
-                },
-                {
-                    "text": "It stops the program",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Else in Exception Handling",
-            "content": "When does the else block execute in try-except?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "When no exception occurs",
-                    "is_correct": true
-                },
-                {
-                    "text": "When exception occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "Always executes",
-                    "is_correct": false
-                },
-                {
-                    "text": "Never executes",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Except Block Execution",
-            "content": "What will be the output?\n\ntry:\n    print(10/0)\nexcept ZeroDivisionError:\n    print('Error handled')",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Error handled",
-                    "is_correct": true
-                },
-                {
-                    "text": "ZeroDivisionError",
-                    "is_correct": false
-                },
-                {
-                    "text": "0",
-                    "is_correct": false
-                },
-                {
-                    "text": "Program crashes",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Try-Else Flow",
-            "content": "When will the else block execute?\n\ntry:\n    print(5)\nexcept:\n    print('error')\nelse:\n    print('no error')",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "When no exception occurs",
-                    "is_correct": true
-                },
-                {
-                    "text": "When exception occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "Always executes first",
-                    "is_correct": false
-                },
-                {
-                    "text": "Never executes",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Custom Exception Raise",
-            "content": "What will happen?\n\nraise ValueError('Invalid input')",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Raises a ValueError exception",
-                    "is_correct": true
-                },
-                {
-                    "text": "Prints message only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Ignores error",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stops only loop",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Exception Flow Order",
-            "content": "What is the correct order of execution in try-except-finally?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "try \u2192 except/else \u2192 finally",
-                    "is_correct": true
-                },
-                {
-                    "text": "try \u2192 finally \u2192 except",
-                    "is_correct": false
-                },
-                {
-                    "text": "except \u2192 try \u2192 finally",
-                    "is_correct": false
-                },
-                {
-                    "text": "finally \u2192 try \u2192 except",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "File Handling Basics",
-            "content": "Which of the following statements about file handling in Python are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Python can read and write files using built-in functions",
-                    "is_correct": true
-                },
-                {
-                    "text": "Files can be opened using open() function",
-                    "is_correct": true
-                },
-                {
-                    "text": "Files cannot be handled in Python",
-                    "is_correct": false
-                },
-                {
-                    "text": "File handling is used for persistent storage",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "File Opening Modes",
-            "content": "Which of the following are valid file opening modes in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "r (read mode)",
-                    "is_correct": true
-                },
-                {
-                    "text": "w (write mode)",
-                    "is_correct": true
-                },
-                {
-                    "text": "a (append mode)",
-                    "is_correct": true
-                },
-                {
-                    "text": "x++ (execute mode)",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "File Writing Basics",
-            "content": "Which of the following statements about writing to files are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "write() is used to write content to a file",
-                    "is_correct": true
-                },
-                {
-                    "text": "A file must be opened in write mode to write data",
-                    "is_correct": true
-                },
-                {
-                    "text": "Reading mode allows writing data",
-                    "is_correct": false
-                },
-                {
-                    "text": "write() overwrites content in write mode",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Reading Files",
-            "content": "Which of the following are correct ways to read files in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "read() reads the entire file",
-                    "is_correct": true
-                },
-                {
-                    "text": "readline() reads one line at a time",
-                    "is_correct": true
-                },
-                {
-                    "text": "readlines() returns a list of lines",
-                    "is_correct": true
-                },
-                {
-                    "text": "read() deletes file content",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "File Handling Safety",
-            "content": "Which of the following statements about safe file handling are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Using 'with open()' ensures automatic file closing",
-                    "is_correct": true
-                },
-                {
-                    "text": "Files should be closed after operations",
-                    "is_correct": true
-                },
-                {
-                    "text": "Not closing files has no impact",
-                    "is_correct": false
-                },
-                {
-                    "text": "Context manager helps prevent resource leaks",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Working with CSV and JSON Files",
-            "content": "Which of the following statements about CSV and JSON file handling are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CSV module is used to handle CSV files",
-                    "is_correct": true
-                },
-                {
-                    "text": "JSON module is used to handle JSON files",
-                    "is_correct": true
-                },
-                {
-                    "text": "CSV files store data in key-value format only",
-                    "is_correct": false
-                },
-                {
-                    "text": "JSON data can be converted to Python dictionaries",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced File Handling Concepts",
-            "content": "Which of the following statements about advanced file handling are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Binary mode is used for non-text files",
-                    "is_correct": true
-                },
-                {
-                    "text": "Files can be read in both text and binary modes",
-                    "is_correct": true
-                },
-                {
-                    "text": "Text mode is used only for images",
-                    "is_correct": false
-                },
-                {
-                    "text": "JSON files are internally stored as plain text",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Exception Handling Basics",
-            "content": "Which of the following statements about exception handling in Python are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "try block is used to write risky code",
-                    "is_correct": true
-                },
-                {
-                    "text": "except block handles errors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Exception handling is not supported in Python",
-                    "is_correct": false
-                },
-                {
-                    "text": "finally block always executes",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Try-Except Structure",
-            "content": "Which of the following are correct about try and except blocks?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "try block can raise exceptions",
-                    "is_correct": true
-                },
-                {
-                    "text": "except block catches errors from try block",
-                    "is_correct": true
-                },
-                {
-                    "text": "except block runs even if no error occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "Multiple except blocks are allowed",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Else and Finally",
-            "content": "Which of the following statements about else and finally blocks are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "else block runs if no exception occurs",
-                    "is_correct": true
-                },
-                {
-                    "text": "finally block always runs",
-                    "is_correct": true
-                },
-                {
-                    "text": "else runs only when exception occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "finally is optional but always executes if present",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Exception Flow",
-            "content": "Which of the following statements correctly describe exception flow in Python?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "If no exception occurs, else block executes",
-                    "is_correct": true
-                },
-                {
-                    "text": "If exception occurs, except block executes",
-                    "is_correct": true
-                },
-                {
-                    "text": "finally block runs only when error occurs",
-                    "is_correct": false
-                },
-                {
-                    "text": "Execution continues after try-except-finally",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Multiple Exceptions",
-            "content": "Which of the following are correct about handling multiple exceptions?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Multiple except blocks can handle different errors",
-                    "is_correct": true
-                },
-                {
-                    "text": "A single except block can handle multiple exception types",
-                    "is_correct": true
-                },
-                {
-                    "text": "Only one exception type can exist in Python",
-                    "is_correct": false
-                },
-                {
-                    "text": "Exception hierarchy helps in handling errors",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Custom Exceptions",
-            "content": "Which of the following statements about custom exceptions are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Custom exceptions are created by inheriting Exception class",
-                    "is_correct": true
-                },
-                {
-                    "text": "Custom exceptions help define application-specific errors",
-                    "is_correct": true
-                },
-                {
-                    "text": "Custom exceptions cannot be raised manually",
-                    "is_correct": false
-                },
-                {
-                    "text": "raise keyword is used to trigger custom exceptions",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Exception Handling",
-            "content": "Which of the following statements about advanced exception handling are correct?",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Exceptions can be caught and re-raised",
-                    "is_correct": true
-                },
-                {
-                    "text": "finally block executes even after return statement",
-                    "is_correct": true
-                },
-                {
-                    "text": "Exceptions stop program execution permanently without handling",
-                    "is_correct": false
-                },
-                {
-                    "text": "Logging is often used with exception handling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Write Text to File",
-            "content": "Write a program to write a given string into a text file named 'output.txt'.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "Hello World",
-                    "expected_output": "File written successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Python File Handling",
-                    "expected_output": "File written successfully"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "Hello World",
-                    "expected_output": "File written successfully",
-                    "explanation": "String is written to a text file."
-                }
-            ],
-            "inputFormat": "A single string.",
-            "outputFormat": "Confirmation message.",
-            "solutions": [
-                {
-                    "title": "Write File",
-                    "language": "python",
-                    "code": "text = input()\nwith open('output.txt', 'w') as f:\n    f.write(text)\nprint('File written successfully')",
-                    "complexity_analysis": "Time: O(N), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use open() in write mode."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Read File Content",
-            "content": "Write a program to read and print the content of a text file named 'input.txt'.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "file content",
-                    "expected_output": "file content"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Hello Python",
-                    "expected_output": "Hello Python"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "File content printed",
-                    "explanation": "Reading file using open()."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "File content.",
-            "solutions": [
-                {
-                    "title": "Read File",
-                    "language": "python",
-                    "code": "with open('input.txt', 'r') as f:\n    print(f.read())",
-                    "complexity_analysis": "Time: O(N), Space: O(N)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use read() method."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Append to File",
-            "content": "Write a program to append a string to an existing file.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "New Line",
-                    "expected_output": "Appended successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "Another Line",
-                    "expected_output": "Appended successfully"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "New Line",
-                    "expected_output": "Appended successfully",
-                    "explanation": "Append mode adds content."
-                }
-            ],
-            "inputFormat": "String input.",
-            "outputFormat": "Success message.",
-            "solutions": [
-                {
-                    "title": "Append File",
-                    "language": "python",
-                    "code": "text = input()\nwith open('output.txt', 'a') as f:\n    f.write('\\n' + text)\nprint('Appended successfully')",
-                    "complexity_analysis": "Time: O(N), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use 'a' mode in file handling."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Count Words in File",
-            "content": "Write a program to count number of words in a text file.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "Hello world python",
-                    "expected_output": "3"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "File handling in python is easy",
-                    "expected_output": "6"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Word count",
-                    "explanation": "Split file content."
-                }
-            ],
-            "inputFormat": "File content.",
-            "outputFormat": "Word count.",
-            "solutions": [
-                {
-                    "title": "Word Count",
-                    "language": "python",
-                    "code": "with open('input.txt', 'r') as f:\n    content = f.read()\n    print(len(content.split()))",
-                    "complexity_analysis": "Time: O(N), Space: O(N)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use split() function."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Copy File Content",
-            "content": "Write a program to copy content from one file to another.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "file1.txt -> file2.txt",
-                    "expected_output": "Copied successfully"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "a.txt -> b.txt",
-                    "expected_output": "Copied successfully"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "File copied",
-                    "explanation": "Read and write operations."
-                }
-            ],
-            "inputFormat": "Source file.",
-            "outputFormat": "Success message.",
-            "solutions": [
-                {
-                    "title": "File Copy",
-                    "language": "python",
-                    "code": "with open('input.txt', 'r') as f1:\n    data = f1.read()\nwith open('output.txt', 'w') as f2:\n    f2.write(data)\nprint('Copied successfully')",
-                    "complexity_analysis": "Time: O(N), Space: O(N)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Read then write."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Read JSON File",
-            "content": "Write a program to read a JSON file and print its content.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "{\"name\": \"John\"}",
-                    "expected_output": "John"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "{\"city\": \"Delhi\"}",
-                    "expected_output": "Delhi"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "JSON parsed",
-                    "explanation": "Use json module."
-                }
-            ],
-            "inputFormat": "JSON file.",
-            "outputFormat": "Parsed output.",
-            "solutions": [
-                {
-                    "title": "JSON Read",
-                    "language": "python",
-                    "code": "import json\nwith open('data.json', 'r') as f:\n    data = json.load(f)\nprint(data)",
-                    "complexity_analysis": "Time: O(N), Space: O(N)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use json.load()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "CSV File Reader",
-            "content": "Write a program to read a CSV file and print each row.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "File Handling",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "a,b\n1,2",
-                    "expected_output": "['a', 'b'] ['1', '2']"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "x,y\n10,20",
-                    "expected_output": "['x', 'y'] ['10', '20']"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "CSV rows printed",
-                    "explanation": "Use csv module."
-                }
-            ],
-            "inputFormat": "CSV file.",
-            "outputFormat": "Rows.",
-            "solutions": [
-                {
-                    "title": "CSV Reader",
-                    "language": "python",
-                    "code": "import csv\nwith open('data.csv', 'r') as f:\n    reader = csv.reader(f)\n    for row in reader:\n        print(row)",
-                    "complexity_analysis": "Time: O(N), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use csv.reader()."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Basic Try-Except for Division",
-            "content": "Write a program that takes two numbers as input and performs division using try-except to handle division by zero.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "10 2",
-                    "expected_output": "5.0"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "10 0",
-                    "expected_output": "Cannot divide by zero"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "10 2",
-                    "expected_output": "5.0",
-                    "explanation": "Normal division inside try block."
-                }
-            ],
-            "inputFormat": "Two integers a and b.",
-            "outputFormat": "Result or error message.",
-            "solutions": [
-                {
-                    "title": "Try-Except Division",
-                    "language": "python",
-                    "code": "try:\n    a, b = map(int, input().split())\n    print(a / b)\nexcept ZeroDivisionError:\n    print('Cannot divide by zero')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use ZeroDivisionError exception."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Handle Invalid Input Exception",
-            "content": "Write a program to take integer input and handle invalid input using try-except.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "10",
-                    "expected_output": "Valid input: 10"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "abc",
-                    "expected_output": "Invalid input"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "10",
-                    "expected_output": "Valid input: 10",
-                    "explanation": "Integer input handled safely."
-                }
-            ],
-            "inputFormat": "Single value.",
-            "outputFormat": "Valid or error message.",
-            "solutions": [
-                {
-                    "title": "ValueError Handling",
-                    "language": "python",
-                    "code": "try:\n    n = int(input())\n    print('Valid input:', n)\nexcept ValueError:\n    print('Invalid input')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use ValueError."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Try-Except-Else Example",
-            "content": "Write a program that divides two numbers using try-except-else blocks.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "8 2",
-                    "expected_output": "4.0 Done"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "9 3",
-                    "expected_output": "3.0 Done"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "8 2",
-                    "expected_output": "4.0 Done",
-                    "explanation": "Else runs if no exception."
-                }
-            ],
-            "inputFormat": "Two integers.",
-            "outputFormat": "Result and status.",
-            "solutions": [
-                {
-                    "title": "Try-Except-Else",
-                    "language": "python",
-                    "code": "try:\n    a, b = map(int, input().split())\n    res = a / b\nexcept ZeroDivisionError:\n    print('Error')\nelse:\n    print(res, 'Done')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use else block after try."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Finally Block Execution",
-            "content": "Write a program to demonstrate finally block execution even when exception occurs.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "10 0",
-                    "expected_output": "Error Finally executed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "10 2",
-                    "expected_output": "5.0 Finally executed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "10 2",
-                    "expected_output": "5.0 Finally executed",
-                    "explanation": "Finally always runs."
-                }
-            ],
-            "inputFormat": "Two integers.",
-            "outputFormat": "Result and finally message.",
-            "solutions": [
-                {
-                    "title": "Finally Example",
-                    "language": "python",
-                    "code": "try:\n    a, b = map(int, input().split())\n    print(a / b)\nexcept:\n    print('Error')\nfinally:\n    print('Finally executed')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Finally always executes."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Multiple Exception Handling",
-            "content": "Write a program that handles both ValueError and ZeroDivisionError.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "10 0",
-                    "expected_output": "Division error"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "abc 2",
-                    "expected_output": "Input error"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "10 0",
-                    "expected_output": "Division error",
-                    "explanation": "Multiple exception handling."
-                }
-            ],
-            "inputFormat": "Two inputs.",
-            "outputFormat": "Error type or result.",
-            "solutions": [
-                {
-                    "title": "Multiple Except",
-                    "language": "python",
-                    "code": "try:\n    a, b = input().split()\n    a, b = int(a), int(b)\n    print(a / b)\nexcept ZeroDivisionError:\n    print('Division error')\nexcept ValueError:\n    print('Input error')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use multiple except blocks."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Custom Exception for Age Validation",
-            "content": "Create a custom exception that checks if age is less than 18 and raises an error.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "20",
-                    "expected_output": "Valid Age"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "15",
-                    "expected_output": "Age not allowed"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "15",
-                    "expected_output": "Age not allowed",
-                    "explanation": "Custom exception triggered."
-                }
-            ],
-            "inputFormat": "Single integer age.",
-            "outputFormat": "Validation result.",
-            "solutions": [
-                {
-                    "title": "Custom Exception",
-                    "language": "python",
-                    "code": "class AgeError(Exception):\n    pass\n\ntry:\n    age = int(input())\n    if age < 18:\n        raise AgeError\n    print('Valid Age')\nexcept AgeError:\n    print('Age not allowed')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Use class Exception."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Custom Exception for Negative Number",
-            "content": "Write a program that raises a custom exception if the input number is negative.",
-            "level": "subtopic",
-            "topic_name": "File Handling & Exceptions",
-            "subtopic_name": "Exception Handling",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "-5",
-                    "expected_output": "Negative number not allowed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "10",
-                    "expected_output": "Valid number"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "-5",
-                    "expected_output": "Negative number not allowed",
-                    "explanation": "Custom exception raised."
-                }
-            ],
-            "inputFormat": "Single integer.",
-            "outputFormat": "Validation result.",
-            "solutions": [
-                {
-                    "title": "Negative Number Exception",
-                    "language": "python",
-                    "code": "class NegativeError(Exception):\n    pass\n\ntry:\n    n = int(input())\n    if n < 0:\n        raise NegativeError\n    print('Valid number')\nexcept NegativeError:\n    print('Negative number not allowed')",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Raise custom exception."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced Exception Handling Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Exception Handling."
         }
-    ]
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Open File Mode",
+      "content": "Which mode is used to open a file for reading in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "r",
+          "is_correct": true
+        },
+        {
+          "text": "w",
+          "is_correct": false
+        },
+        {
+          "text": "a",
+          "is_correct": false
+        },
+        {
+          "text": "x",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Writing to File",
+      "content": "What does the write() method do in file handling?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Writes data to a file",
+          "is_correct": true
+        },
+        {
+          "text": "Reads data from file",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes a file",
+          "is_correct": false
+        },
+        {
+          "text": "Closes a file",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "File Close Method",
+      "content": "Which method is used to close a file in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "close()",
+          "is_correct": true
+        },
+        {
+          "text": "end()",
+          "is_correct": false
+        },
+        {
+          "text": "stop()",
+          "is_correct": false
+        },
+        {
+          "text": "exit()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSV File Usage",
+      "content": "Which module is used to handle CSV files in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "csv",
+          "is_correct": true
+        },
+        {
+          "text": "json",
+          "is_correct": false
+        },
+        {
+          "text": "file",
+          "is_correct": false
+        },
+        {
+          "text": "os",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "JSON Module",
+      "content": "Which module is used to work with JSON data in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "json",
+          "is_correct": true
+        },
+        {
+          "text": "csv",
+          "is_correct": false
+        },
+        {
+          "text": "pickle",
+          "is_correct": false
+        },
+        {
+          "text": "data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reading File Content",
+      "content": "What will be the output?\n\nf = open('file.txt', 'r')\nprint(f.read())",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Prints file content",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes file",
+          "is_correct": false
+        },
+        {
+          "text": "Returns file name",
+          "is_correct": false
+        },
+        {
+          "text": "Error always occurs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "JSON Load Function",
+      "content": "What does json.load() do?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reads JSON from a file",
+          "is_correct": true
+        },
+        {
+          "text": "Writes JSON to a file",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes JSON data",
+          "is_correct": false
+        },
+        {
+          "text": "Converts CSV to JSON",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Try-Except Purpose",
+      "content": "What is the purpose of try-except block in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To handle runtime errors",
+          "is_correct": true
+        },
+        {
+          "text": "To create loops",
+          "is_correct": false
+        },
+        {
+          "text": "To define functions",
+          "is_correct": false
+        },
+        {
+          "text": "To import modules",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Finally Block",
+      "content": "What is the purpose of the finally block?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It always executes",
+          "is_correct": true
+        },
+        {
+          "text": "It runs only when error occurs",
+          "is_correct": false
+        },
+        {
+          "text": "It skips execution",
+          "is_correct": false
+        },
+        {
+          "text": "It stops the program",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Else in Exception Handling",
+      "content": "When does the else block execute in try-except?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When no exception occurs",
+          "is_correct": true
+        },
+        {
+          "text": "When exception occurs",
+          "is_correct": false
+        },
+        {
+          "text": "Always executes",
+          "is_correct": false
+        },
+        {
+          "text": "Never executes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Except Block Execution",
+      "content": "What will be the output?\n\ntry:\n    print(10/0)\nexcept ZeroDivisionError:\n    print('Error handled')",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Error handled",
+          "is_correct": true
+        },
+        {
+          "text": "ZeroDivisionError",
+          "is_correct": false
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        },
+        {
+          "text": "Program crashes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Try-Else Flow",
+      "content": "When will the else block execute?\n\ntry:\n    print(5)\nexcept:\n    print('error')\nelse:\n    print('no error')",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When no exception occurs",
+          "is_correct": true
+        },
+        {
+          "text": "When exception occurs",
+          "is_correct": false
+        },
+        {
+          "text": "Always executes first",
+          "is_correct": false
+        },
+        {
+          "text": "Never executes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Custom Exception Raise",
+      "content": "What will happen?\n\nraise ValueError('Invalid input')",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Raises a ValueError exception",
+          "is_correct": true
+        },
+        {
+          "text": "Prints message only",
+          "is_correct": false
+        },
+        {
+          "text": "Ignores error",
+          "is_correct": false
+        },
+        {
+          "text": "Stops only loop",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Exception Flow Order",
+      "content": "What is the correct order of execution in try-except-finally?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "try \u2192 except/else \u2192 finally",
+          "is_correct": true
+        },
+        {
+          "text": "try \u2192 finally \u2192 except",
+          "is_correct": false
+        },
+        {
+          "text": "except \u2192 try \u2192 finally",
+          "is_correct": false
+        },
+        {
+          "text": "finally \u2192 try \u2192 except",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Handling Basics",
+      "content": "Which of the following statements about file handling in Python are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Python can read and write files using built-in functions",
+          "is_correct": true
+        },
+        {
+          "text": "Files can be opened using open() function",
+          "is_correct": true
+        },
+        {
+          "text": "Files cannot be handled in Python",
+          "is_correct": false
+        },
+        {
+          "text": "File handling is used for persistent storage",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Opening Modes",
+      "content": "Which of the following are valid file opening modes in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "r (read mode)",
+          "is_correct": true
+        },
+        {
+          "text": "w (write mode)",
+          "is_correct": true
+        },
+        {
+          "text": "a (append mode)",
+          "is_correct": true
+        },
+        {
+          "text": "x++ (execute mode)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Writing Basics",
+      "content": "Which of the following statements about writing to files are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "write() is used to write content to a file",
+          "is_correct": true
+        },
+        {
+          "text": "A file must be opened in write mode to write data",
+          "is_correct": true
+        },
+        {
+          "text": "Reading mode allows writing data",
+          "is_correct": false
+        },
+        {
+          "text": "write() overwrites content in write mode",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Reading Files",
+      "content": "Which of the following are correct ways to read files in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "read() reads the entire file",
+          "is_correct": true
+        },
+        {
+          "text": "readline() reads one line at a time",
+          "is_correct": true
+        },
+        {
+          "text": "readlines() returns a list of lines",
+          "is_correct": true
+        },
+        {
+          "text": "read() deletes file content",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Handling Safety",
+      "content": "Which of the following statements about safe file handling are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using 'with open()' ensures automatic file closing",
+          "is_correct": true
+        },
+        {
+          "text": "Files should be closed after operations",
+          "is_correct": true
+        },
+        {
+          "text": "Not closing files has no impact",
+          "is_correct": false
+        },
+        {
+          "text": "Context manager helps prevent resource leaks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with CSV and JSON Files",
+      "content": "Which of the following statements about CSV and JSON file handling are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSV module is used to handle CSV files",
+          "is_correct": true
+        },
+        {
+          "text": "JSON module is used to handle JSON files",
+          "is_correct": true
+        },
+        {
+          "text": "CSV files store data in key-value format only",
+          "is_correct": false
+        },
+        {
+          "text": "JSON data can be converted to Python dictionaries",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced File Handling Concepts",
+      "content": "Which of the following statements about advanced file handling are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Binary mode is used for non-text files",
+          "is_correct": true
+        },
+        {
+          "text": "Files can be read in both text and binary modes",
+          "is_correct": true
+        },
+        {
+          "text": "Text mode is used only for images",
+          "is_correct": false
+        },
+        {
+          "text": "JSON files are internally stored as plain text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Exception Handling Basics",
+      "content": "Which of the following statements about exception handling in Python are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "try block is used to write risky code",
+          "is_correct": true
+        },
+        {
+          "text": "except block handles errors",
+          "is_correct": true
+        },
+        {
+          "text": "Exception handling is not supported in Python",
+          "is_correct": false
+        },
+        {
+          "text": "finally block always executes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Try-Except Structure",
+      "content": "Which of the following are correct about try and except blocks?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "try block can raise exceptions",
+          "is_correct": true
+        },
+        {
+          "text": "except block catches errors from try block",
+          "is_correct": true
+        },
+        {
+          "text": "except block runs even if no error occurs",
+          "is_correct": false
+        },
+        {
+          "text": "Multiple except blocks are allowed",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Else and Finally",
+      "content": "Which of the following statements about else and finally blocks are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "else block runs if no exception occurs",
+          "is_correct": true
+        },
+        {
+          "text": "finally block always runs",
+          "is_correct": true
+        },
+        {
+          "text": "else runs only when exception occurs",
+          "is_correct": false
+        },
+        {
+          "text": "finally is optional but always executes if present",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Exception Flow",
+      "content": "Which of the following statements correctly describe exception flow in Python?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "If no exception occurs, else block executes",
+          "is_correct": true
+        },
+        {
+          "text": "If exception occurs, except block executes",
+          "is_correct": true
+        },
+        {
+          "text": "finally block runs only when error occurs",
+          "is_correct": false
+        },
+        {
+          "text": "Execution continues after try-except-finally",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multiple Exceptions",
+      "content": "Which of the following are correct about handling multiple exceptions?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple except blocks can handle different errors",
+          "is_correct": true
+        },
+        {
+          "text": "A single except block can handle multiple exception types",
+          "is_correct": true
+        },
+        {
+          "text": "Only one exception type can exist in Python",
+          "is_correct": false
+        },
+        {
+          "text": "Exception hierarchy helps in handling errors",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Custom Exceptions",
+      "content": "Which of the following statements about custom exceptions are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Custom exceptions are created by inheriting Exception class",
+          "is_correct": true
+        },
+        {
+          "text": "Custom exceptions help define application-specific errors",
+          "is_correct": true
+        },
+        {
+          "text": "Custom exceptions cannot be raised manually",
+          "is_correct": false
+        },
+        {
+          "text": "raise keyword is used to trigger custom exceptions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Exception Handling",
+      "content": "Which of the following statements about advanced exception handling are correct?",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Exceptions can be caught and re-raised",
+          "is_correct": true
+        },
+        {
+          "text": "finally block executes even after return statement",
+          "is_correct": true
+        },
+        {
+          "text": "Exceptions stop program execution permanently without handling",
+          "is_correct": false
+        },
+        {
+          "text": "Logging is often used with exception handling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Write Text to File",
+      "content": "Write a program to write a given string into a text file named 'output.txt'.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "Hello World",
+          "expected_output": "File written successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Python File Handling",
+          "expected_output": "File written successfully"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Hello World",
+          "expected_output": "File written successfully",
+          "explanation": "String is written to a text file."
+        }
+      ],
+      "inputFormat": "A single string.",
+      "outputFormat": "Confirmation message.",
+      "solutions": [
+        {
+          "title": "Write File",
+          "language": "python",
+          "code": "text = input()\nwith open('output.txt', 'w') as f:\n    f.write(text)\nprint('File written successfully')",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use open() in write mode."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Read File Content",
+      "content": "Write a program to read and print the content of a text file named 'input.txt'.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "file content",
+          "expected_output": "file content"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Hello Python",
+          "expected_output": "Hello Python"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "File content printed",
+          "explanation": "Reading file using open()."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "File content.",
+      "solutions": [
+        {
+          "title": "Read File",
+          "language": "python",
+          "code": "with open('input.txt', 'r') as f:\n    print(f.read())",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use read() method."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Append to File",
+      "content": "Write a program to append a string to an existing file.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "New Line",
+          "expected_output": "Appended successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Another Line",
+          "expected_output": "Appended successfully"
+        }
+      ],
+      "examples": [
+        {
+          "input": "New Line",
+          "expected_output": "Appended successfully",
+          "explanation": "Append mode adds content."
+        }
+      ],
+      "inputFormat": "String input.",
+      "outputFormat": "Success message.",
+      "solutions": [
+        {
+          "title": "Append File",
+          "language": "python",
+          "code": "text = input()\nwith open('output.txt', 'a') as f:\n    f.write('\\n' + text)\nprint('Appended successfully')",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use 'a' mode in file handling."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Count Words in File",
+      "content": "Write a program to count number of words in a text file.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "Hello world python",
+          "expected_output": "3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "File handling in python is easy",
+          "expected_output": "6"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Word count",
+          "explanation": "Split file content."
+        }
+      ],
+      "inputFormat": "File content.",
+      "outputFormat": "Word count.",
+      "solutions": [
+        {
+          "title": "Word Count",
+          "language": "python",
+          "code": "with open('input.txt', 'r') as f:\n    content = f.read()\n    print(len(content.split()))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use split() function."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Copy File Content",
+      "content": "Write a program to copy content from one file to another.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "file1.txt -> file2.txt",
+          "expected_output": "Copied successfully"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "a.txt -> b.txt",
+          "expected_output": "Copied successfully"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "File copied",
+          "explanation": "Read and write operations."
+        }
+      ],
+      "inputFormat": "Source file.",
+      "outputFormat": "Success message.",
+      "solutions": [
+        {
+          "title": "File Copy",
+          "language": "python",
+          "code": "with open('input.txt', 'r') as f1:\n    data = f1.read()\nwith open('output.txt', 'w') as f2:\n    f2.write(data)\nprint('Copied successfully')",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Read then write."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Read JSON File",
+      "content": "Write a program to read a JSON file and print its content.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{\"name\": \"John\"}",
+          "expected_output": "John"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{\"city\": \"Delhi\"}",
+          "expected_output": "Delhi"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "JSON parsed",
+          "explanation": "Use json module."
+        }
+      ],
+      "inputFormat": "JSON file.",
+      "outputFormat": "Parsed output.",
+      "solutions": [
+        {
+          "title": "JSON Read",
+          "language": "python",
+          "code": "import json\nwith open('data.json', 'r') as f:\n    data = json.load(f)\nprint(data)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use json.load()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "CSV File Reader",
+      "content": "Write a program to read a CSV file and print each row.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "File Handling",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "a,b\n1,2",
+          "expected_output": "['a', 'b'] ['1', '2']"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "x,y\n10,20",
+          "expected_output": "['x', 'y'] ['10', '20']"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "CSV rows printed",
+          "explanation": "Use csv module."
+        }
+      ],
+      "inputFormat": "CSV file.",
+      "outputFormat": "Rows.",
+      "solutions": [
+        {
+          "title": "CSV Reader",
+          "language": "python",
+          "code": "import csv\nwith open('data.csv', 'r') as f:\n    reader = csv.reader(f)\n    for row in reader:\n        print(row)",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use csv.reader()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Basic Try-Except for Division",
+      "content": "Write a program that takes two numbers as input and performs division using try-except to handle division by zero.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 2",
+          "expected_output": "5.0"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "10 0",
+          "expected_output": "Cannot divide by zero"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10 2",
+          "expected_output": "5.0",
+          "explanation": "Normal division inside try block."
+        }
+      ],
+      "inputFormat": "Two integers a and b.",
+      "outputFormat": "Result or error message.",
+      "solutions": [
+        {
+          "title": "Try-Except Division",
+          "language": "python",
+          "code": "try:\n    a, b = map(int, input().split())\n    print(a / b)\nexcept ZeroDivisionError:\n    print('Cannot divide by zero')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use ZeroDivisionError exception."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Handle Invalid Input Exception",
+      "content": "Write a program to take integer input and handle invalid input using try-except.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10",
+          "expected_output": "Valid input: 10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "abc",
+          "expected_output": "Invalid input"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10",
+          "expected_output": "Valid input: 10",
+          "explanation": "Integer input handled safely."
+        }
+      ],
+      "inputFormat": "Single value.",
+      "outputFormat": "Valid or error message.",
+      "solutions": [
+        {
+          "title": "ValueError Handling",
+          "language": "python",
+          "code": "try:\n    n = int(input())\n    print('Valid input:', n)\nexcept ValueError:\n    print('Invalid input')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use ValueError."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Try-Except-Else Example",
+      "content": "Write a program that divides two numbers using try-except-else blocks.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "8 2",
+          "expected_output": "4.0 Done"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "9 3",
+          "expected_output": "3.0 Done"
+        }
+      ],
+      "examples": [
+        {
+          "input": "8 2",
+          "expected_output": "4.0 Done",
+          "explanation": "Else runs if no exception."
+        }
+      ],
+      "inputFormat": "Two integers.",
+      "outputFormat": "Result and status.",
+      "solutions": [
+        {
+          "title": "Try-Except-Else",
+          "language": "python",
+          "code": "try:\n    a, b = map(int, input().split())\n    res = a / b\nexcept ZeroDivisionError:\n    print('Error')\nelse:\n    print(res, 'Done')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use else block after try."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Finally Block Execution",
+      "content": "Write a program to demonstrate finally block execution even when exception occurs.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 0",
+          "expected_output": "Error Finally executed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "10 2",
+          "expected_output": "5.0 Finally executed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10 2",
+          "expected_output": "5.0 Finally executed",
+          "explanation": "Finally always runs."
+        }
+      ],
+      "inputFormat": "Two integers.",
+      "outputFormat": "Result and finally message.",
+      "solutions": [
+        {
+          "title": "Finally Example",
+          "language": "python",
+          "code": "try:\n    a, b = map(int, input().split())\n    print(a / b)\nexcept:\n    print('Error')\nfinally:\n    print('Finally executed')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Finally always executes."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Multiple Exception Handling",
+      "content": "Write a program that handles both ValueError and ZeroDivisionError.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 0",
+          "expected_output": "Division error"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "abc 2",
+          "expected_output": "Input error"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10 0",
+          "expected_output": "Division error",
+          "explanation": "Multiple exception handling."
+        }
+      ],
+      "inputFormat": "Two inputs.",
+      "outputFormat": "Error type or result.",
+      "solutions": [
+        {
+          "title": "Multiple Except",
+          "language": "python",
+          "code": "try:\n    a, b = input().split()\n    a, b = int(a), int(b)\n    print(a / b)\nexcept ZeroDivisionError:\n    print('Division error')\nexcept ValueError:\n    print('Input error')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use multiple except blocks."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Custom Exception for Age Validation",
+      "content": "Create a custom exception that checks if age is less than 18 and raises an error.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "20",
+          "expected_output": "Valid Age"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "15",
+          "expected_output": "Age not allowed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "15",
+          "expected_output": "Age not allowed",
+          "explanation": "Custom exception triggered."
+        }
+      ],
+      "inputFormat": "Single integer age.",
+      "outputFormat": "Validation result.",
+      "solutions": [
+        {
+          "title": "Custom Exception",
+          "language": "python",
+          "code": "class AgeError(Exception):\n    pass\n\ntry:\n    age = int(input())\n    if age < 18:\n        raise AgeError\n    print('Valid Age')\nexcept AgeError:\n    print('Age not allowed')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use class Exception."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Custom Exception for Negative Number",
+      "content": "Write a program that raises a custom exception if the input number is negative.",
+      "level": "subtopic",
+      "topic_name": "File Handling & Exceptions",
+      "subtopic_name": "Exception Handling",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "-5",
+          "expected_output": "Negative number not allowed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "10",
+          "expected_output": "Valid number"
+        }
+      ],
+      "examples": [
+        {
+          "input": "-5",
+          "expected_output": "Negative number not allowed",
+          "explanation": "Custom exception raised."
+        }
+      ],
+      "inputFormat": "Single integer.",
+      "outputFormat": "Validation result.",
+      "solutions": [
+        {
+          "title": "Negative Number Exception",
+          "language": "python",
+          "code": "class NegativeError(Exception):\n    pass\n\ntry:\n    n = int(input())\n    if n < 0:\n        raise NegativeError\n    print('Valid number')\nexcept NegativeError:\n    print('Negative number not allowed')",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Raise custom exception."
+      ]
+    }
+  ]
 }

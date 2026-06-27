@@ -9,7 +9,6 @@ import TestInterface from '@/components/student/TestInterface';
 import TestInstructions from '@/components/student/TestInstructions';
 import TestResultsScreen from '@/components/student/TestResultsScreen';
 import TestThankYou from '@/components/student/TestThankYou';
-import ProctoringGate from '@/components/student/ProctoringGate';
 import { fetchSkillTests, SkillTest, getUserSubmissions } from '@/services/skillTestService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -20,7 +19,6 @@ interface Topic {
   questions: number;
   totalMarks?: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  enable_proctoring?: boolean;
 }
 
 interface Course {
@@ -52,13 +50,6 @@ const StudentInternalTestDetail = () => {
     totalQuestions: number;
     timeSpent: number;
   } | null>(null);
-
-  const [gateActive, setGateActive] = useState(false);
-  const [gatePassed, setGatePassed] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
-  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
-  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
 
   // Load user submissions to find completed tests
   useEffect(() => {
@@ -116,12 +107,7 @@ const StudentInternalTestDetail = () => {
 
   const handleStartTest = () => {
     setShowInstructions(false);
-    if (selectedTopic?.enable_proctoring) {
-      setGatePassed(false);
-      setGateActive(true);
-    } else {
-      setShowTest(true);
-    }
+    setShowTest(true);
   };
 
   const handleTestComplete = (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
@@ -165,18 +151,6 @@ const StudentInternalTestDetail = () => {
     setSelectedTopic(null);
     setShowInstructions(false);
     setShowTest(false);
-    setGatePassed(false);
-    setGateActive(false);
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-    }
-    if (screenStream) {
-      screenStream.getTracks().forEach(track => track.stop());
-    }
-    setCameraStream(null);
-    setScreenStream(null);
-    setPhotoBlob(null);
-    setScreenshotBlob(null);
   };
 
   if (showThankYou && selectedTopic && testStats) {
@@ -206,35 +180,11 @@ const StudentInternalTestDetail = () => {
     );
   }
 
-  if (gateActive && !gatePassed && selectedTopic) {
-    return (
-      <ProctoringGate
-        onReady={(data) => {
-          setCameraStream(data.cameraStream);
-          setScreenStream(data.screenStream);
-          setPhotoBlob(data.photoBlob);
-          setScreenshotBlob(data.screenshotBlob);
-          setGatePassed(true);
-          setGateActive(false);
-          setShowTest(true);
-        }}
-        onCancel={() => {
-          setGateActive(false);
-          setShowInstructions(true);
-        }}
-      />
-    );
-  }
-
   if (showTest && selectedTopic) {
     return (
       <TestInterface
         topic={selectedTopic}
         course={{ id: subjectId, name: displaySubjectName } as Course}
-        mediaStream={cameraStream}
-        screenStream={screenStream}
-        preExamPhotoBlob={photoBlob}
-        preExamScreenshotBlob={screenshotBlob}
         onComplete={handleTestComplete}
         onBack={handleBackToCourses}
       />
@@ -364,8 +314,7 @@ const StudentInternalTestDetail = () => {
                             duration: assessment.duration,
                             questions: assessment.total_questions || 0,
                             totalMarks: assessment.total_marks || 0,
-                            difficulty: assessment.difficulty === 'easy' ? 'Easy' : assessment.difficulty === 'medium' ? 'Medium' : 'Hard',
-                            enable_proctoring: assessment.enable_proctoring
+                            difficulty: assessment.difficulty === 'easy' ? 'Easy' : assessment.difficulty === 'medium' ? 'Medium' : 'Hard'
                           };
 
                           if (completedTests.has(assessment.id)) {

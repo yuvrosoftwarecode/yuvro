@@ -17,7 +17,6 @@ interface InterviewRoleCardProps {
   buttonType?: 'start' | 'report';
   user_progress?: { completed_count: number; is_master: boolean };
   my_submissions?: any[];
-  hidePractice?: boolean;
 }
 
 const getCategoryBadgeClass = (category: string) => {
@@ -44,10 +43,9 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
   buttonType = 'start',
   user_progress,
   my_submissions = [],
-  hidePractice = false,
 }) => {
   const completedCount = user_progress?.completed_count || 0;
-  const isMasterAvailable = !hidePractice && completedCount >= 5;
+  const isMasterAvailable = completedCount >= 5;
   const currentTitle = isMasterAvailable ? `Master ${title}` : `${title}`;
   
   // Progress indicators - 5 steps
@@ -111,7 +109,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
             <CardDescription className="line-clamp-2 text-sm font-medium text-slate-500 leading-relaxed min-h-[40px] mt-2">
               {description}
             </CardDescription>
-            {!hidePractice && renderProgress()}
+            {renderProgress()}
           </div>
         </div>
       </CardHeader>
@@ -155,11 +153,6 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
                   <Play className="h-3.5 w-3.5 fill-current" /> 
                   Master Session
                 </>
-              ) : hidePractice ? (
-                <>
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  Start Now
-                </>
               ) : (
                 <>
                   <Play className="h-3.5 w-3.5 fill-current" />
@@ -183,7 +176,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
              className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all group/report cursor-pointer"
              onClick={(e) => {
                e.stopPropagation();
-               window.location.href = `/student/assessments/mock-interview/report/${sub.id}`;
+               window.location.href = `/student/mock-interview/report/${sub.id}`;
              }}
            >
              <div className="flex items-center gap-2.5">

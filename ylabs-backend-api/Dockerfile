@@ -20,16 +20,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Development stage
 FROM base as development
-# Cache-bust: forces COPY . . to always run with latest code
-ARG CACHEBUST=1
 COPY . .
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
-# Production stage — no collectstatic (auth-only, no static files)
+# Production stage
 FROM base as production
-# Cache-bust: forces COPY . . to always run with latest code
-ARG CACHEBUST=1
 COPY . .
+RUN mkdir -p /app/staticfiles \
+    && SECRET_KEY=build-placeholder DATABASE_URL=sqlite:///tmp/build.db python manage.py collectstatic --noinput
 EXPOSE 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "ylabs-backend-api.wsgi:application"]

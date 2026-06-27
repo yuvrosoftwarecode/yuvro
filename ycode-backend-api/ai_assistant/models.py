@@ -190,12 +190,6 @@ class InterviewSession(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="started")
     resume_file = models.FileField(upload_to="resumes/", null=True, blank=True)
     
-    state_data = models.JSONField(
-        default=dict, 
-        blank=True, 
-        help_text='{"current_main_index": int, "current_node_id": UUID, "planned_questions": [UUIDs]}'
-    )
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)

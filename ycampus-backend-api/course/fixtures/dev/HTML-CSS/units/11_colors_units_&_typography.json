@@ -1,2148 +1,2120 @@
 {
-    "name": "Colors, Units & Typography",
-    "subject_short_code": "HTMLCSS100",
-    "order_index": 11,
-    "sub_units": [
+  "name": "Colors, Units & Typography",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 11,
+  "sub_units": [
+    {
+      "name": "Colors",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
         {
-            "name": "Colors",
-            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-            "order_index": 0,
-            "videos": [
-                {
-                    "title": "Introduction to Colors",
-                    "video_link": "https://www.youtube.com/results?search_query=Colors+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Colors in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Colors Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Colors+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Colors."
-                }
-            ]
+          "title": "Introduction to Colors",
+          "video_link": "https://www.youtube.com/results?search_query=Colors+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Colors in HTML/CSS."
         },
         {
-            "name": "CSS Units",
-            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-            "order_index": 1,
-            "videos": [
-                {
-                    "title": "Introduction to CSS Units",
-                    "video_link": "https://www.youtube.com/results?search_query=CSS+Units+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of CSS Units in HTML/CSS."
-                },
-                {
-                    "title": "Advanced CSS Units Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=CSS+Units+html+css",
-                    "ai_context": "In-depth explanation and practical examples for CSS Units."
-                }
-            ]
-        },
-        {
-            "name": "Typography",
-            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-            "order_index": 2,
-            "videos": [
-                {
-                    "title": "Introduction to Typography",
-                    "video_link": "https://www.youtube.com/results?search_query=Typography+html+css",
-                    "ai_context": "Comprehensive tutorial covering basic concepts of Typography in HTML/CSS."
-                },
-                {
-                    "title": "Advanced Typography Techniques",
-                    "video_link": "https://www.youtube.com/results?search_query=Typography+html+css",
-                    "ai_context": "In-depth explanation and practical examples for Typography."
-                }
-            ]
+          "title": "Advanced Colors Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Colors+html+css",
+          "ai_context": "In-depth explanation and practical examples for Colors."
         }
-    ],
-    "questions": [
+      ]
+    },
+    {
+      "name": "CSS Units",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
         {
-            "type": "mcq_single",
-            "title": "Named Colors in CSS",
-            "content": "Which of the following is a named color in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "red",
-                    "is_correct": true
-                },
-                {
-                    "text": "#ff0000",
-                    "is_correct": false
-                },
-                {
-                    "text": "rgb(255,0,0)",
-                    "is_correct": false
-                },
-                {
-                    "text": "hsl(0,100%,50%)",
-                    "is_correct": false
-                }
-            ]
+          "title": "Introduction to CSS Units",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Units+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of CSS Units in HTML/CSS."
         },
         {
-            "type": "mcq_single",
-            "title": "HEX Color Format",
-            "content": "Which format represents a HEX color in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "#ff5733",
-                    "is_correct": true
-                },
-                {
-                    "text": "rgb(255,87,51)",
-                    "is_correct": false
-                },
-                {
-                    "text": "hsl(9,100%,60%)",
-                    "is_correct": false
-                },
-                {
-                    "text": "color:orange()",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "RGBA Meaning",
-            "content": "What does the 'A' in RGBA stand for?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Alpha (opacity)",
-                    "is_correct": true
-                },
-                {
-                    "text": "Angle",
-                    "is_correct": false
-                },
-                {
-                    "text": "Addition",
-                    "is_correct": false
-                },
-                {
-                    "text": "Adjustment",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "RGB Color Model",
-            "content": "Which color model uses Red, Green, and Blue values?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "RGB",
-                    "is_correct": true
-                },
-                {
-                    "text": "HSL",
-                    "is_correct": false
-                },
-                {
-                    "text": "CMYK",
-                    "is_correct": false
-                },
-                {
-                    "text": "HEX only",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "RGBA Usage",
-            "content": "What does RGBA add to the RGB color model?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Transparency (opacity)",
-                    "is_correct": true
-                },
-                {
-                    "text": "Brightness control only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font styling",
-                    "is_correct": false
-                },
-                {
-                    "text": "Border radius",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HSL Color Model",
-            "content": "What does HSL stand for in CSS colors?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Hue, Saturation, Lightness",
-                    "is_correct": true
-                },
-                {
-                    "text": "Height, Style, Layout",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hex, Shade, Level",
-                    "is_correct": false
-                },
-                {
-                    "text": "Hue, Scale, Length",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "HSL Advantage",
-            "content": "Why is HSL often preferred over RGB for design adjustments?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It is easier to adjust brightness and saturation",
-                    "is_correct": true
-                },
-                {
-                    "text": "It uses fewer characters",
-                    "is_correct": false
-                },
-                {
-                    "text": "It works only in mobile browsers",
-                    "is_correct": false
-                },
-                {
-                    "text": "It replaces HEX completely",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Pixel Unit",
-            "content": "Which CSS unit represents fixed size in pixels?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "px",
-                    "is_correct": true
-                },
-                {
-                    "text": "%",
-                    "is_correct": false
-                },
-                {
-                    "text": "em",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Percentage Unit",
-            "content": "What does % unit represent in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Relative to parent element size",
-                    "is_correct": true
-                },
-                {
-                    "text": "Fixed pixel size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Viewport width only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font family size",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "em Unit",
-            "content": "What is the em unit relative to?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Parent element font size",
-                    "is_correct": true
-                },
-                {
-                    "text": "Viewport width",
-                    "is_correct": false
-                },
-                {
-                    "text": "Screen resolution",
-                    "is_correct": false
-                },
-                {
-                    "text": "Browser version",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "rem Unit Reference",
-            "content": "What does rem unit depend on?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Root (html) font size",
-                    "is_correct": true
-                },
-                {
-                    "text": "Parent element only",
-                    "is_correct": false
-                },
-                {
-                    "text": "Image size",
-                    "is_correct": false
-                },
-                {
-                    "text": "Screen height",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Viewport Height Unit",
-            "content": "What does vh stand for in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Viewport Height",
-                    "is_correct": true
-                },
-                {
-                    "text": "Vertical Height",
-                    "is_correct": false
-                },
-                {
-                    "text": "Variable Height",
-                    "is_correct": false
-                },
-                {
-                    "text": "View Helper",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "vh and vw Usage",
-            "content": "Which units are based on the viewport size?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "vh and vw",
-                    "is_correct": true
-                },
-                {
-                    "text": "px and em",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem and %",
-                    "is_correct": false
-                },
-                {
-                    "text": "pt and cm",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Best Use of rem",
-            "content": "When is rem unit most useful?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "For consistent scaling across the entire page",
-                    "is_correct": true
-                },
-                {
-                    "text": "For random sizing of images",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only for borders",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only for colors",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "em vs rem Difference",
-            "content": "What is the main difference between em and rem?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "em is relative to parent, rem is relative to root",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both are absolute units",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem depends on parent only",
-                    "is_correct": false
-                },
-                {
-                    "text": "em depends on viewport",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Viewport Units Behavior",
-            "content": "What happens when viewport size changes?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "vh and vw values adjust dynamically",
-                    "is_correct": true
-                },
-                {
-                    "text": "px values change automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "em becomes fixed",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem becomes static",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Choosing Units",
-            "content": "Which unit is best for responsive layouts?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Relative units like %, em, rem, vh, vw",
-                    "is_correct": true
-                },
-                {
-                    "text": "Only px",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only cm",
-                    "is_correct": false
-                },
-                {
-                    "text": "Only mm",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Font Family Property",
-            "content": "Which CSS property is used to define the font of text?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-family",
-                    "is_correct": true
-                },
-                {
-                    "text": "text-style",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-type",
-                    "is_correct": false
-                },
-                {
-                    "text": "text-font",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Font Size Property",
-            "content": "Which CSS property controls the size of text?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-size",
-                    "is_correct": true
-                },
-                {
-                    "text": "text-size",
-                    "is_correct": false
-                },
-                {
-                    "text": "size-font",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-style",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Font Weight",
-            "content": "Which property is used to make text bold or light?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-weight",
-                    "is_correct": true
-                },
-                {
-                    "text": "text-bold",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-boldness",
-                    "is_correct": false
-                },
-                {
-                    "text": "weight-text",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Line Height",
-            "content": "What does the line-height property control?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Space between lines of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "Font color",
-                    "is_correct": false
-                },
-                {
-                    "text": "Font style",
-                    "is_correct": false
-                },
-                {
-                    "text": "Text alignment",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Text Alignment Property",
-            "content": "Which CSS property is used to align text?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "text-align",
-                    "is_correct": true
-                },
-                {
-                    "text": "align-text",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-align",
-                    "is_correct": false
-                },
-                {
-                    "text": "text-position",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Font Family Usage",
-            "content": "What does font-family define in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "The typeface of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "The size of text",
-                    "is_correct": false
-                },
-                {
-                    "text": "The spacing between letters",
-                    "is_correct": false
-                },
-                {
-                    "text": "The color of text",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Line Height Behavior",
-            "content": "What happens when line-height is increased?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Space between lines increases",
-                    "is_correct": true
-                },
-                {
-                    "text": "Font size increases",
-                    "is_correct": false
-                },
-                {
-                    "text": "Text becomes bold",
-                    "is_correct": false
-                },
-                {
-                    "text": "Text color changes",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Font Weight Values",
-            "content": "Which value represents bold text in CSS font-weight?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "700 or bold",
-                    "is_correct": true
-                },
-                {
-                    "text": "100",
-                    "is_correct": false
-                },
-                {
-                    "text": "normal only",
-                    "is_correct": false
-                },
-                {
-                    "text": "italic",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Text Alignment Options",
-            "content": "Which of the following is NOT a valid text-align value?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "justify-all",
-                    "is_correct": true
-                },
-                {
-                    "text": "center",
-                    "is_correct": false
-                },
-                {
-                    "text": "left",
-                    "is_correct": false
-                },
-                {
-                    "text": "right",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Typography Best Practice",
-            "content": "What is a good practice for line-height in web typography?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use unitless values like 1.5 for better scalability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Always use px for line-height",
-                    "is_correct": false
-                },
-                {
-                    "text": "Avoid using line-height",
-                    "is_correct": false
-                },
-                {
-                    "text": "Use only % values",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Color Basics",
-            "content": "Which of the following are valid ways to define colors in CSS?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Named colors like red and blue can be used in CSS",
-                    "is_correct": true
-                },
-                {
-                    "text": "HEX values are used to define colors",
-                    "is_correct": true
-                },
-                {
-                    "text": "CSS colors can only be defined using images",
-                    "is_correct": false
-                },
-                {
-                    "text": "RGB values can define colors using red, green, blue",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Color Formats Basics",
-            "content": "Which of the following statements about CSS color formats are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HEX colors start with # symbol",
-                    "is_correct": true
-                },
-                {
-                    "text": "RGB uses values from 0 to 255",
-                    "is_correct": true
-                },
-                {
-                    "text": "RGBA does not support transparency",
-                    "is_correct": false
-                },
-                {
-                    "text": "Named colors are predefined in CSS",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "HSL Basics",
-            "content": "Which of the following statements about HSL color model are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HSL stands for Hue, Saturation, Lightness",
-                    "is_correct": true
-                },
-                {
-                    "text": "HSL is another way to define colors in CSS",
-                    "is_correct": true
-                },
-                {
-                    "text": "HSL is used for database connections",
-                    "is_correct": false
-                },
-                {
-                    "text": "Lightness controls brightness of color",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Color Formats Comparison",
-            "content": "Which of the following statements about CSS color formats comparison are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HEX and RGB are commonly used color formats",
-                    "is_correct": true
-                },
-                {
-                    "text": "RGBA supports transparency using alpha value",
-                    "is_correct": true
-                },
-                {
-                    "text": "Named colors are more flexible than HEX always",
-                    "is_correct": false
-                },
-                {
-                    "text": "HSL allows intuitive color adjustments",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Color Usage in CSS",
-            "content": "Which of the following statements about color usage in CSS are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "RGBA can create semi-transparent colors",
-                    "is_correct": true
-                },
-                {
-                    "text": "HEX colors are widely supported in browsers",
-                    "is_correct": true
-                },
-                {
-                    "text": "RGB cannot be used in CSS",
-                    "is_correct": false
-                },
-                {
-                    "text": "HSL helps in adjusting color shades easily",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Color Concepts",
-            "content": "Which of the following statements about advanced CSS color concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "RGBA includes alpha channel for transparency control",
-                    "is_correct": true
-                },
-                {
-                    "text": "HSL makes color manipulation more intuitive",
-                    "is_correct": true
-                },
-                {
-                    "text": "HEX cannot represent RGB colors",
-                    "is_correct": false
-                },
-                {
-                    "text": "All color formats ultimately render as RGB values",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Color Model Understanding",
-            "content": "Which of the following statements about CSS color models are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Colors",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "HSL is useful for creating color variations",
-                    "is_correct": true
-                },
-                {
-                    "text": "RGB defines colors using red, green, and blue channels",
-                    "is_correct": true
-                },
-                {
-                    "text": "Named colors offer unlimited customization",
-                    "is_correct": false
-                },
-                {
-                    "text": "HEX is a shorthand representation of RGB values",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Units Basics",
-            "content": "Which of the following are valid CSS units?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "px is a fixed unit used in CSS",
-                    "is_correct": true
-                },
-                {
-                    "text": "% represents relative size based on parent",
-                    "is_correct": true
-                },
-                {
-                    "text": "em is used only for images",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem is relative to root element font size",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Relative Units Basics",
-            "content": "Which of the following statements about CSS relative units are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "em is relative to parent font size",
-                    "is_correct": true
-                },
-                {
-                    "text": "rem is relative to root font size",
-                    "is_correct": true
-                },
-                {
-                    "text": "px is a relative unit",
-                    "is_correct": false
-                },
-                {
-                    "text": "% is relative to parent element",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Viewport Units Basics",
-            "content": "Which of the following statements about viewport units are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "vh represents viewport height",
-                    "is_correct": true
-                },
-                {
-                    "text": "vw represents viewport width",
-                    "is_correct": true
-                },
-                {
-                    "text": "vh is relative to font size",
-                    "is_correct": false
-                },
-                {
-                    "text": "vw adapts to screen width",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Unit Usage",
-            "content": "Which of the following statements about CSS unit usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "px is commonly used for fixed layouts",
-                    "is_correct": true
-                },
-                {
-                    "text": "% is used for responsive design",
-                    "is_correct": true
-                },
-                {
-                    "text": "em is only used for colors",
-                    "is_correct": false
-                },
-                {
-                    "text": "rem helps maintain consistent scaling",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Units Overview",
-            "content": "Which of the following statements about CSS units are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CSS uses both absolute and relative units",
-                    "is_correct": true
-                },
-                {
-                    "text": "px is an absolute unit",
-                    "is_correct": true
-                },
-                {
-                    "text": "vw is used for font styling only",
-                    "is_correct": false
-                },
-                {
-                    "text": "vh is based on viewport height",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "CSS Units Comparison",
-            "content": "Which of the following statements about CSS units comparison are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "em depends on parent element size",
-                    "is_correct": true
-                },
-                {
-                    "text": "rem depends on root element size",
-                    "is_correct": true
-                },
-                {
-                    "text": "px always scales automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "% is relative to parent container",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Viewport Unit Usage",
-            "content": "Which of the following statements about viewport units usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "vh is useful for full-screen layouts",
-                    "is_correct": true
-                },
-                {
-                    "text": "vw adapts to screen width",
-                    "is_correct": true
-                },
-                {
-                    "text": "vh is fixed like px",
-                    "is_correct": false
-                },
-                {
-                    "text": "viewport units are responsive units",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "When to Use CSS Units",
-            "content": "Which of the following statements about when to use CSS units are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "px is good for precise control",
-                    "is_correct": true
-                },
-                {
-                    "text": "rem is good for scalable typography",
-                    "is_correct": true
-                },
-                {
-                    "text": "% is never used in layouts",
-                    "is_correct": false
-                },
-                {
-                    "text": "vh and vw are useful for responsive design",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced CSS Unit Concepts",
-            "content": "Which of the following statements about advanced CSS unit concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "rem helps maintain consistent scaling across pages",
-                    "is_correct": true
-                },
-                {
-                    "text": "em can compound in nested elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "px is always best for responsive design",
-                    "is_correct": false
-                },
-                {
-                    "text": "viewport units depend on screen size",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Best Practices for CSS Units",
-            "content": "Which of the following statements about best practices for CSS units are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "CSS Units",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use rem for scalable typography",
-                    "is_correct": true
-                },
-                {
-                    "text": "Use vh/vw for responsive layouts",
-                    "is_correct": true
-                },
-                {
-                    "text": "Avoid using relative units in modern CSS",
-                    "is_correct": false
-                },
-                {
-                    "text": "Mixing units should be done carefully",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Typography Basics",
-            "content": "Which of the following CSS properties are related to typography?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-family defines the typeface of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size controls the size of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight is used to control image size",
-                    "is_correct": false
-                },
-                {
-                    "text": "text alignment controls positioning of text",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Font Properties Basics",
-            "content": "Which of the following statements about font properties are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-family specifies the font style like Arial or Times",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size defines how large the text appears",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight controls background color",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-weight controls thickness of text",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Text Alignment Basics",
-            "content": "Which of the following statements about text alignment are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "text-align controls horizontal alignment",
-                    "is_correct": true
-                },
-                {
-                    "text": "text-align can be left, right, center, or justify",
-                    "is_correct": true
-                },
-                {
-                    "text": "text-align controls font color",
-                    "is_correct": false
-                },
-                {
-                    "text": "text-align affects positioning of text inside elements",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Typography Usage",
-            "content": "Which of the following statements about typography usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-family improves readability and design",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size affects text visibility",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight changes background layout",
-                    "is_correct": false
-                },
-                {
-                    "text": "line-height improves text spacing",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Line Height Basics",
-            "content": "Which of the following statements about line-height are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "line-height controls space between lines of text",
-                    "is_correct": true
-                },
-                {
-                    "text": "line-height improves readability",
-                    "is_correct": true
-                },
-                {
-                    "text": "line-height controls font color",
-                    "is_correct": false
-                },
-                {
-                    "text": "line-height can be set using numbers or units",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Typography Comparison",
-            "content": "Which of the following statements about typography properties comparison are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "font-family defines typeface style",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size controls text scaling",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight changes text alignment",
-                    "is_correct": false
-                },
-                {
-                    "text": "text-align controls text positioning",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Typography Usage",
-            "content": "Which of the following statements about typography usage are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "line-height improves readability of paragraphs",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight is useful for emphasis",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-family affects only layout structure",
-                    "is_correct": false
-                },
-                {
-                    "text": "text-align can center text horizontally",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Typography Design Concepts",
-            "content": "Which of the following statements about typography design concepts are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Good typography improves readability",
-                    "is_correct": true
-                },
-                {
-                    "text": "line-height helps prevent text clutter",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size does not affect readability",
-                    "is_correct": false
-                },
-                {
-                    "text": "font-family impacts design consistency",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Advanced Typography Control",
-            "content": "Which of the following statements about advanced typography control are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "line-height affects readability in long text blocks",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-weight is used to create visual hierarchy",
-                    "is_correct": true
-                },
-                {
-                    "text": "font-size has no impact on UX design",
-                    "is_correct": false
-                },
-                {
-                    "text": "text alignment improves content structure",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Typography Best Practices",
-            "content": "Which of the following statements about typography best practices are correct?",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Use readable font families for better UX",
-                    "is_correct": true
-                },
-                {
-                    "text": "Maintain proper line-height for readability",
-                    "is_correct": true
-                },
-                {
-                    "text": "Avoid using font-size in responsive design",
-                    "is_correct": false
-                },
-                {
-                    "text": "Use font-weight to highlight important text",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Apply Basic Font Family Styling",
-            "content": "Create an HTML page and use CSS to apply different font-family values to headings and paragraphs.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Text displayed with custom fonts"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Different font families applied correctly"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "font-family: Arial, serif;",
-                    "explanation": "Font-family changes text style."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Font Family Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-family: Arial;\n        }\n        p {\n            font-family: Georgia;\n        }\n    </style>\n</head>\n<body>\n    <h1>Heading</h1>\n    <p>Paragraph text</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use font-family property in CSS."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Adjust Font Size for Headings and Paragraphs",
-            "content": "Create an HTML page and use CSS to set different font sizes for headings and paragraphs.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Different font sizes applied"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Readable text hierarchy created"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "font-size: 24px;",
-                    "explanation": "Font size controls text visibility."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Font Size Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-size: 30px;\n        }\n        p {\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Title</h1>\n    <p>Sample paragraph</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use px or em units for font-size."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Apply Font Weight for Emphasis",
-            "content": "Create an HTML page and use CSS font-weight property to emphasize headings and important text.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Bold and normal text displayed"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper emphasis using font-weight"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "font-weight: bold;",
-                    "explanation": "Font-weight controls thickness."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled HTML page.",
-            "solutions": [
-                {
-                    "title": "Font Weight Example",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-weight: bold;\n        }\n        p {\n            font-weight: normal;\n        }\n    </style>\n</head>\n<body>\n    <h1>Bold Heading</h1>\n    <p>Normal paragraph</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "basic"
-                }
-            ],
-            "hints": [
-                "Use numeric values like 400, 700 or keywords."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Styled Article Using Typography Properties",
-            "content": "Create a styled article using font-family, font-size, and font-weight to create proper text hierarchy.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Readable article layout"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Proper typography hierarchy applied"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Styled article page",
-                    "explanation": "Typography improves readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML article layout.",
-            "solutions": [
-                {
-                    "title": "Article Styling",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-family: Arial;\n            font-size: 28px;\n            font-weight: bold;\n        }\n        p {\n            font-family: Georgia;\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Article Title</h1>\n    <p>This is sample article content.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Combine multiple typography properties."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Create a Readable Blog Layout with Line Height",
-            "content": "Design a blog page using line-height and text alignment to improve readability.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "practice"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Readable blog layout"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Improved spacing and alignment"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "line-height: 1.6;",
-                    "explanation": "Line-height improves readability."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML blog layout.",
-            "solutions": [
-                {
-                    "title": "Blog Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            line-height: 1.8;\n            text-align: justify;\n        }\n    </style>\n</head>\n<body>\n    <p>This is a blog paragraph with improved readability using line height and alignment.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "intermediate"
-                }
-            ],
-            "hints": [
-                "Use line-height for spacing between lines."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Build a Typography System for a Web Page",
-            "content": "Create a complete typography system using font-family, font-size, font-weight, line-height, and text alignment.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Fully styled typography page"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Consistent typography system applied"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Complete CSS typography system",
-                    "explanation": "All typography properties combined."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "Styled webpage.",
-            "solutions": [
-                {
-                    "title": "Typography System",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body {\n            font-family: Arial;\n            line-height: 1.6;\n            text-align: justify;\n        }\n        h1 {\n            font-size: 32px;\n            font-weight: bold;\n        }\n        p {\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Typography System</h1>\n    <p>This is a fully styled typography example.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Combine all typography properties.",
-                "Maintain consistency across elements."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
-        },
-        {
-            "type": "coding",
-            "title": "Design a Professional Article Layout with Typography Rules",
-            "content": "Create a professional article layout using advanced typography techniques including alignment and spacing.",
-            "level": "subtopic",
-            "unit_name": "Colors, Units & Typography",
-            "subunit_name": "Typography",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "",
-                    "expected_output": "Professional article layout"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "",
-                    "expected_output": "Perfect readability and structure"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "",
-                    "expected_output": "Advanced typography usage",
-                    "explanation": "Professional websites use typography systems."
-                }
-            ],
-            "inputFormat": "No input.",
-            "outputFormat": "HTML article page.",
-            "solutions": [
-                {
-                    "title": "Professional Typography Layout",
-                    "language": "html",
-                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body {\n            font-family: Georgia;\n            line-height: 1.8;\n            text-align: justify;\n        }\n        h1 {\n            font-size: 34px;\n            font-weight: bold;\n            text-align: center;\n        }\n        p {\n            font-size: 17px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Professional Article</h1>\n    <p>This article demonstrates advanced typography usage for real-world layouts.</p>\n</body>\n</html>",
-                    "complexity_analysis": "Time: O(1), Space: O(1)",
-                    "is_primary": true,
-                    "approach": "advanced"
-                }
-            ],
-            "hints": [
-                "Focus on readability and alignment.",
-                "Use consistent spacing and font hierarchy."
-            ],
-            "code_executor_config": {
-                "time_limit": 10,
-                "memory_limit": 256
-            }
+          "title": "Advanced CSS Units Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Units+html+css",
+          "ai_context": "In-depth explanation and practical examples for CSS Units."
         }
-    ]
+      ]
+    },
+    {
+      "name": "Typography",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Typography",
+          "video_link": "https://www.youtube.com/results?search_query=Typography+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Typography in HTML/CSS."
+        },
+        {
+          "title": "Advanced Typography Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Typography+html+css",
+          "ai_context": "In-depth explanation and practical examples for Typography."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Named Colors in CSS",
+      "content": "Which of the following is a named color in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "red",
+          "is_correct": true
+        },
+        {
+          "text": "#ff0000",
+          "is_correct": false
+        },
+        {
+          "text": "rgb(255,0,0)",
+          "is_correct": false
+        },
+        {
+          "text": "hsl(0,100%,50%)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HEX Color Format",
+      "content": "Which format represents a HEX color in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "#ff5733",
+          "is_correct": true
+        },
+        {
+          "text": "rgb(255,87,51)",
+          "is_correct": false
+        },
+        {
+          "text": "hsl(9,100%,60%)",
+          "is_correct": false
+        },
+        {
+          "text": "color:orange()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RGBA Meaning",
+      "content": "What does the 'A' in RGBA stand for?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Alpha (opacity)",
+          "is_correct": true
+        },
+        {
+          "text": "Angle",
+          "is_correct": false
+        },
+        {
+          "text": "Addition",
+          "is_correct": false
+        },
+        {
+          "text": "Adjustment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RGB Color Model",
+      "content": "Which color model uses Red, Green, and Blue values?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RGB",
+          "is_correct": true
+        },
+        {
+          "text": "HSL",
+          "is_correct": false
+        },
+        {
+          "text": "CMYK",
+          "is_correct": false
+        },
+        {
+          "text": "HEX only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RGBA Usage",
+      "content": "What does RGBA add to the RGB color model?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transparency (opacity)",
+          "is_correct": true
+        },
+        {
+          "text": "Brightness control only",
+          "is_correct": false
+        },
+        {
+          "text": "Font styling",
+          "is_correct": false
+        },
+        {
+          "text": "Border radius",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HSL Color Model",
+      "content": "What does HSL stand for in CSS colors?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hue, Saturation, Lightness",
+          "is_correct": true
+        },
+        {
+          "text": "Height, Style, Layout",
+          "is_correct": false
+        },
+        {
+          "text": "Hex, Shade, Level",
+          "is_correct": false
+        },
+        {
+          "text": "Hue, Scale, Length",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "HSL Advantage",
+      "content": "Why is HSL often preferred over RGB for design adjustments?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It is easier to adjust brightness and saturation",
+          "is_correct": true
+        },
+        {
+          "text": "It uses fewer characters",
+          "is_correct": false
+        },
+        {
+          "text": "It works only in mobile browsers",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces HEX completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pixel Unit",
+      "content": "Which CSS unit represents fixed size in pixels?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "px",
+          "is_correct": true
+        },
+        {
+          "text": "%",
+          "is_correct": false
+        },
+        {
+          "text": "em",
+          "is_correct": false
+        },
+        {
+          "text": "rem",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Percentage Unit",
+      "content": "What does % unit represent in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relative to parent element size",
+          "is_correct": true
+        },
+        {
+          "text": "Fixed pixel size",
+          "is_correct": false
+        },
+        {
+          "text": "Viewport width only",
+          "is_correct": false
+        },
+        {
+          "text": "Font family size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "em Unit",
+      "content": "What is the em unit relative to?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Parent element font size",
+          "is_correct": true
+        },
+        {
+          "text": "Viewport width",
+          "is_correct": false
+        },
+        {
+          "text": "Screen resolution",
+          "is_correct": false
+        },
+        {
+          "text": "Browser version",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "rem Unit Reference",
+      "content": "What does rem unit depend on?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Root (html) font size",
+          "is_correct": true
+        },
+        {
+          "text": "Parent element only",
+          "is_correct": false
+        },
+        {
+          "text": "Image size",
+          "is_correct": false
+        },
+        {
+          "text": "Screen height",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Height Unit",
+      "content": "What does vh stand for in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Viewport Height",
+          "is_correct": true
+        },
+        {
+          "text": "Vertical Height",
+          "is_correct": false
+        },
+        {
+          "text": "Variable Height",
+          "is_correct": false
+        },
+        {
+          "text": "View Helper",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "vh and vw Usage",
+      "content": "Which units are based on the viewport size?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "vh and vw",
+          "is_correct": true
+        },
+        {
+          "text": "px and em",
+          "is_correct": false
+        },
+        {
+          "text": "rem and %",
+          "is_correct": false
+        },
+        {
+          "text": "pt and cm",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Best Use of rem",
+      "content": "When is rem unit most useful?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "For consistent scaling across the entire page",
+          "is_correct": true
+        },
+        {
+          "text": "For random sizing of images",
+          "is_correct": false
+        },
+        {
+          "text": "Only for borders",
+          "is_correct": false
+        },
+        {
+          "text": "Only for colors",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "em vs rem Difference",
+      "content": "What is the main difference between em and rem?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "em is relative to parent, rem is relative to root",
+          "is_correct": true
+        },
+        {
+          "text": "Both are absolute units",
+          "is_correct": false
+        },
+        {
+          "text": "rem depends on parent only",
+          "is_correct": false
+        },
+        {
+          "text": "em depends on viewport",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Units Behavior",
+      "content": "What happens when viewport size changes?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "vh and vw values adjust dynamically",
+          "is_correct": true
+        },
+        {
+          "text": "px values change automatically",
+          "is_correct": false
+        },
+        {
+          "text": "em becomes fixed",
+          "is_correct": false
+        },
+        {
+          "text": "rem becomes static",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Units",
+      "content": "Which unit is best for responsive layouts?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relative units like %, em, rem, vh, vw",
+          "is_correct": true
+        },
+        {
+          "text": "Only px",
+          "is_correct": false
+        },
+        {
+          "text": "Only cm",
+          "is_correct": false
+        },
+        {
+          "text": "Only mm",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Font Family Property",
+      "content": "Which CSS property is used to define the font of text?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-family",
+          "is_correct": true
+        },
+        {
+          "text": "text-style",
+          "is_correct": false
+        },
+        {
+          "text": "font-type",
+          "is_correct": false
+        },
+        {
+          "text": "text-font",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Font Size Property",
+      "content": "Which CSS property controls the size of text?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-size",
+          "is_correct": true
+        },
+        {
+          "text": "text-size",
+          "is_correct": false
+        },
+        {
+          "text": "size-font",
+          "is_correct": false
+        },
+        {
+          "text": "font-style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Font Weight",
+      "content": "Which property is used to make text bold or light?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-weight",
+          "is_correct": true
+        },
+        {
+          "text": "text-bold",
+          "is_correct": false
+        },
+        {
+          "text": "font-boldness",
+          "is_correct": false
+        },
+        {
+          "text": "weight-text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Line Height",
+      "content": "What does the line-height property control?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space between lines of text",
+          "is_correct": true
+        },
+        {
+          "text": "Font color",
+          "is_correct": false
+        },
+        {
+          "text": "Font style",
+          "is_correct": false
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Alignment Property",
+      "content": "Which CSS property is used to align text?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "text-align",
+          "is_correct": true
+        },
+        {
+          "text": "align-text",
+          "is_correct": false
+        },
+        {
+          "text": "font-align",
+          "is_correct": false
+        },
+        {
+          "text": "text-position",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Font Family Usage",
+      "content": "What does font-family define in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The typeface of text",
+          "is_correct": true
+        },
+        {
+          "text": "The size of text",
+          "is_correct": false
+        },
+        {
+          "text": "The spacing between letters",
+          "is_correct": false
+        },
+        {
+          "text": "The color of text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Line Height Behavior",
+      "content": "What happens when line-height is increased?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space between lines increases",
+          "is_correct": true
+        },
+        {
+          "text": "Font size increases",
+          "is_correct": false
+        },
+        {
+          "text": "Text becomes bold",
+          "is_correct": false
+        },
+        {
+          "text": "Text color changes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Font Weight Values",
+      "content": "Which value represents bold text in CSS font-weight?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "700 or bold",
+          "is_correct": true
+        },
+        {
+          "text": "100",
+          "is_correct": false
+        },
+        {
+          "text": "normal only",
+          "is_correct": false
+        },
+        {
+          "text": "italic",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Alignment Options",
+      "content": "Which of the following is NOT a valid text-align value?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-all",
+          "is_correct": true
+        },
+        {
+          "text": "center",
+          "is_correct": false
+        },
+        {
+          "text": "left",
+          "is_correct": false
+        },
+        {
+          "text": "right",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Typography Best Practice",
+      "content": "What is a good practice for line-height in web typography?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use unitless values like 1.5 for better scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Always use px for line-height",
+          "is_correct": false
+        },
+        {
+          "text": "Avoid using line-height",
+          "is_correct": false
+        },
+        {
+          "text": "Use only % values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Color Basics",
+      "content": "Which of the following are valid ways to define colors in CSS?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Named colors like red and blue can be used in CSS",
+          "is_correct": true
+        },
+        {
+          "text": "HEX values are used to define colors",
+          "is_correct": true
+        },
+        {
+          "text": "CSS colors can only be defined using images",
+          "is_correct": false
+        },
+        {
+          "text": "RGB values can define colors using red, green, blue",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Color Formats Basics",
+      "content": "Which of the following statements about CSS color formats are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HEX colors start with # symbol",
+          "is_correct": true
+        },
+        {
+          "text": "RGB uses values from 0 to 255",
+          "is_correct": true
+        },
+        {
+          "text": "RGBA does not support transparency",
+          "is_correct": false
+        },
+        {
+          "text": "Named colors are predefined in CSS",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "HSL Basics",
+      "content": "Which of the following statements about HSL color model are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HSL stands for Hue, Saturation, Lightness",
+          "is_correct": true
+        },
+        {
+          "text": "HSL is another way to define colors in CSS",
+          "is_correct": true
+        },
+        {
+          "text": "HSL is used for database connections",
+          "is_correct": false
+        },
+        {
+          "text": "Lightness controls brightness of color",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Color Formats Comparison",
+      "content": "Which of the following statements about CSS color formats comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HEX and RGB are commonly used color formats",
+          "is_correct": true
+        },
+        {
+          "text": "RGBA supports transparency using alpha value",
+          "is_correct": true
+        },
+        {
+          "text": "Named colors are more flexible than HEX always",
+          "is_correct": false
+        },
+        {
+          "text": "HSL allows intuitive color adjustments",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Color Usage in CSS",
+      "content": "Which of the following statements about color usage in CSS are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RGBA can create semi-transparent colors",
+          "is_correct": true
+        },
+        {
+          "text": "HEX colors are widely supported in browsers",
+          "is_correct": true
+        },
+        {
+          "text": "RGB cannot be used in CSS",
+          "is_correct": false
+        },
+        {
+          "text": "HSL helps in adjusting color shades easily",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Color Concepts",
+      "content": "Which of the following statements about advanced CSS color concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RGBA includes alpha channel for transparency control",
+          "is_correct": true
+        },
+        {
+          "text": "HSL makes color manipulation more intuitive",
+          "is_correct": true
+        },
+        {
+          "text": "HEX cannot represent RGB colors",
+          "is_correct": false
+        },
+        {
+          "text": "All color formats ultimately render as RGB values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Color Model Understanding",
+      "content": "Which of the following statements about CSS color models are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Colors",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HSL is useful for creating color variations",
+          "is_correct": true
+        },
+        {
+          "text": "RGB defines colors using red, green, and blue channels",
+          "is_correct": true
+        },
+        {
+          "text": "Named colors offer unlimited customization",
+          "is_correct": false
+        },
+        {
+          "text": "HEX is a shorthand representation of RGB values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Units Basics",
+      "content": "Which of the following are valid CSS units?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "px is a fixed unit used in CSS",
+          "is_correct": true
+        },
+        {
+          "text": "% represents relative size based on parent",
+          "is_correct": true
+        },
+        {
+          "text": "em is used only for images",
+          "is_correct": false
+        },
+        {
+          "text": "rem is relative to root element font size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Relative Units Basics",
+      "content": "Which of the following statements about CSS relative units are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "em is relative to parent font size",
+          "is_correct": true
+        },
+        {
+          "text": "rem is relative to root font size",
+          "is_correct": true
+        },
+        {
+          "text": "px is a relative unit",
+          "is_correct": false
+        },
+        {
+          "text": "% is relative to parent element",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Viewport Units Basics",
+      "content": "Which of the following statements about viewport units are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "vh represents viewport height",
+          "is_correct": true
+        },
+        {
+          "text": "vw represents viewport width",
+          "is_correct": true
+        },
+        {
+          "text": "vh is relative to font size",
+          "is_correct": false
+        },
+        {
+          "text": "vw adapts to screen width",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Unit Usage",
+      "content": "Which of the following statements about CSS unit usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "px is commonly used for fixed layouts",
+          "is_correct": true
+        },
+        {
+          "text": "% is used for responsive design",
+          "is_correct": true
+        },
+        {
+          "text": "em is only used for colors",
+          "is_correct": false
+        },
+        {
+          "text": "rem helps maintain consistent scaling",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Units Overview",
+      "content": "Which of the following statements about CSS units are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS uses both absolute and relative units",
+          "is_correct": true
+        },
+        {
+          "text": "px is an absolute unit",
+          "is_correct": true
+        },
+        {
+          "text": "vw is used for font styling only",
+          "is_correct": false
+        },
+        {
+          "text": "vh is based on viewport height",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Units Comparison",
+      "content": "Which of the following statements about CSS units comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "em depends on parent element size",
+          "is_correct": true
+        },
+        {
+          "text": "rem depends on root element size",
+          "is_correct": true
+        },
+        {
+          "text": "px always scales automatically",
+          "is_correct": false
+        },
+        {
+          "text": "% is relative to parent container",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Viewport Unit Usage",
+      "content": "Which of the following statements about viewport units usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "vh is useful for full-screen layouts",
+          "is_correct": true
+        },
+        {
+          "text": "vw adapts to screen width",
+          "is_correct": true
+        },
+        {
+          "text": "vh is fixed like px",
+          "is_correct": false
+        },
+        {
+          "text": "viewport units are responsive units",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "When to Use CSS Units",
+      "content": "Which of the following statements about when to use CSS units are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "px is good for precise control",
+          "is_correct": true
+        },
+        {
+          "text": "rem is good for scalable typography",
+          "is_correct": true
+        },
+        {
+          "text": "% is never used in layouts",
+          "is_correct": false
+        },
+        {
+          "text": "vh and vw are useful for responsive design",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced CSS Unit Concepts",
+      "content": "Which of the following statements about advanced CSS unit concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "rem helps maintain consistent scaling across pages",
+          "is_correct": true
+        },
+        {
+          "text": "em can compound in nested elements",
+          "is_correct": true
+        },
+        {
+          "text": "px is always best for responsive design",
+          "is_correct": false
+        },
+        {
+          "text": "viewport units depend on screen size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for CSS Units",
+      "content": "Which of the following statements about best practices for CSS units are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "CSS Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use rem for scalable typography",
+          "is_correct": true
+        },
+        {
+          "text": "Use vh/vw for responsive layouts",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using relative units in modern CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Mixing units should be done carefully",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Typography Basics",
+      "content": "Which of the following CSS properties are related to typography?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-family defines the typeface of text",
+          "is_correct": true
+        },
+        {
+          "text": "font-size controls the size of text",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight is used to control image size",
+          "is_correct": false
+        },
+        {
+          "text": "text alignment controls positioning of text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Font Properties Basics",
+      "content": "Which of the following statements about font properties are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-family specifies the font style like Arial or Times",
+          "is_correct": true
+        },
+        {
+          "text": "font-size defines how large the text appears",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight controls background color",
+          "is_correct": false
+        },
+        {
+          "text": "font-weight controls thickness of text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Text Alignment Basics",
+      "content": "Which of the following statements about text alignment are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "text-align controls horizontal alignment",
+          "is_correct": true
+        },
+        {
+          "text": "text-align can be left, right, center, or justify",
+          "is_correct": true
+        },
+        {
+          "text": "text-align controls font color",
+          "is_correct": false
+        },
+        {
+          "text": "text-align affects positioning of text inside elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Typography Usage",
+      "content": "Which of the following statements about typography usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-family improves readability and design",
+          "is_correct": true
+        },
+        {
+          "text": "font-size affects text visibility",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight changes background layout",
+          "is_correct": false
+        },
+        {
+          "text": "line-height improves text spacing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Line Height Basics",
+      "content": "Which of the following statements about line-height are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "line-height controls space between lines of text",
+          "is_correct": true
+        },
+        {
+          "text": "line-height improves readability",
+          "is_correct": true
+        },
+        {
+          "text": "line-height controls font color",
+          "is_correct": false
+        },
+        {
+          "text": "line-height can be set using numbers or units",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Typography Comparison",
+      "content": "Which of the following statements about typography properties comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "font-family defines typeface style",
+          "is_correct": true
+        },
+        {
+          "text": "font-size controls text scaling",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight changes text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "text-align controls text positioning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Typography Usage",
+      "content": "Which of the following statements about typography usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "line-height improves readability of paragraphs",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight is useful for emphasis",
+          "is_correct": true
+        },
+        {
+          "text": "font-family affects only layout structure",
+          "is_correct": false
+        },
+        {
+          "text": "text-align can center text horizontally",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Typography Design Concepts",
+      "content": "Which of the following statements about typography design concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Good typography improves readability",
+          "is_correct": true
+        },
+        {
+          "text": "line-height helps prevent text clutter",
+          "is_correct": true
+        },
+        {
+          "text": "font-size does not affect readability",
+          "is_correct": false
+        },
+        {
+          "text": "font-family impacts design consistency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Typography Control",
+      "content": "Which of the following statements about advanced typography control are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "line-height affects readability in long text blocks",
+          "is_correct": true
+        },
+        {
+          "text": "font-weight is used to create visual hierarchy",
+          "is_correct": true
+        },
+        {
+          "text": "font-size has no impact on UX design",
+          "is_correct": false
+        },
+        {
+          "text": "text alignment improves content structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Typography Best Practices",
+      "content": "Which of the following statements about typography best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use readable font families for better UX",
+          "is_correct": true
+        },
+        {
+          "text": "Maintain proper line-height for readability",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using font-size in responsive design",
+          "is_correct": false
+        },
+        {
+          "text": "Use font-weight to highlight important text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Apply Basic Font Family Styling",
+      "content": "Create an HTML page and use CSS to apply different font-family values to headings and paragraphs.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Text displayed with custom fonts"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Different font families applied correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "font-family: Arial, serif;",
+          "explanation": "Font-family changes text style."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Font Family Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-family: Arial;\n        }\n        p {\n            font-family: Georgia;\n        }\n    </style>\n</head>\n<body>\n    <h1>Heading</h1>\n    <p>Paragraph text</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use font-family property in CSS."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Adjust Font Size for Headings and Paragraphs",
+      "content": "Create an HTML page and use CSS to set different font sizes for headings and paragraphs.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Different font sizes applied"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Readable text hierarchy created"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "font-size: 24px;",
+          "explanation": "Font size controls text visibility."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Font Size Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-size: 30px;\n        }\n        p {\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Title</h1>\n    <p>Sample paragraph</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use px or em units for font-size."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Apply Font Weight for Emphasis",
+      "content": "Create an HTML page and use CSS font-weight property to emphasize headings and important text.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Bold and normal text displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper emphasis using font-weight"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "font-weight: bold;",
+          "explanation": "Font-weight controls thickness."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled HTML page.",
+      "solutions": [
+        {
+          "title": "Font Weight Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-weight: bold;\n        }\n        p {\n            font-weight: normal;\n        }\n    </style>\n</head>\n<body>\n    <h1>Bold Heading</h1>\n    <p>Normal paragraph</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use numeric values like 400, 700 or keywords."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Styled Article Using Typography Properties",
+      "content": "Create a styled article using font-family, font-size, and font-weight to create proper text hierarchy.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Readable article layout"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper typography hierarchy applied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Styled article page",
+          "explanation": "Typography improves readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML article layout.",
+      "solutions": [
+        {
+          "title": "Article Styling",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        h1 {\n            font-family: Arial;\n            font-size: 28px;\n            font-weight: bold;\n        }\n        p {\n            font-family: Georgia;\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Article Title</h1>\n    <p>This is sample article content.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine multiple typography properties."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Readable Blog Layout with Line Height",
+      "content": "Design a blog page using line-height and text alignment to improve readability.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Readable blog layout"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Improved spacing and alignment"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "line-height: 1.6;",
+          "explanation": "Line-height improves readability."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML blog layout.",
+      "solutions": [
+        {
+          "title": "Blog Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        p {\n            line-height: 1.8;\n            text-align: justify;\n        }\n    </style>\n</head>\n<body>\n    <p>This is a blog paragraph with improved readability using line height and alignment.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use line-height for spacing between lines."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Typography System for a Web Page",
+      "content": "Create a complete typography system using font-family, font-size, font-weight, line-height, and text alignment.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Fully styled typography page"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Consistent typography system applied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Complete CSS typography system",
+          "explanation": "All typography properties combined."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Styled webpage.",
+      "solutions": [
+        {
+          "title": "Typography System",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body {\n            font-family: Arial;\n            line-height: 1.6;\n            text-align: justify;\n        }\n        h1 {\n            font-size: 32px;\n            font-weight: bold;\n        }\n        p {\n            font-size: 16px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Typography System</h1>\n    <p>This is a fully styled typography example.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all typography properties.",
+        "Maintain consistency across elements."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Professional Article Layout with Typography Rules",
+      "content": "Create a professional article layout using advanced typography techniques including alignment and spacing.",
+      "level": "subtopic",
+      "unit_name": "Colors, Units & Typography",
+      "subunit_name": "Typography",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Professional article layout"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Perfect readability and structure"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Advanced typography usage",
+          "explanation": "Professional websites use typography systems."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML article page.",
+      "solutions": [
+        {
+          "title": "Professional Typography Layout",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body {\n            font-family: Georgia;\n            line-height: 1.8;\n            text-align: justify;\n        }\n        h1 {\n            font-size: 34px;\n            font-weight: bold;\n            text-align: center;\n        }\n        p {\n            font-size: 17px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Professional Article</h1>\n    <p>This article demonstrates advanced typography usage for real-world layouts.</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Focus on readability and alignment.",
+        "Use consistent spacing and font hierarchy."
+      ]
+    }
+  ]
 }

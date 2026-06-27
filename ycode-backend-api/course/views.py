@@ -947,6 +947,20 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         }
 
         if question_id and language and code:
+            exec_res = execution_results.get("execution_result", {})
+            if exec_res.get("status") == "timeout":
+                return Response(
+                    {
+                        "status": "timeout",
+                        "reason": "Infinite loop detected or execution timed out.",
+                        "message": "Infinite loop detected or execution timed out.",
+                        "execution_time": exec_res.get("execution_time", 0),
+                        "memory_usage": exec_res.get("memory_usage", 0),
+                        "test_cases_passed": 0,
+                        "total_test_cases": execution_results.get("total_tests", 0),
+                    }
+                )
+
             basic_results = execution_results.get("basic_results", [])
             advanced_results = execution_results.get("advanced_results", [])
             custom_results = execution_results.get("custom_results", [])
@@ -957,23 +971,13 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
             status_val = "completed"
             reason_val = ""
-            performance_warnings = []
-            if response_data.get("status") == "tle":
-                status_val = "timeout"
-                reason_val = "Execution Timed Out"
             for r in (basic_results + advanced_results + custom_results):
                 if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                     status_val = "failed"
-                    err_type = r.get("error")
-                    if err_type == "Time Limit Exceeded":
+                    if r.get("error") == "Time Limit Exceeded":
                         reason_val = f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
                     else:
                         reason_val = f"Memory Limit Exceeded. Solution used {r.get('memory_usage', 0):.2f}MB, which exceeds the limit."
-                    performance_warnings.append({
-                        "type": err_type,
-                        "execution_time": r.get("execution_time", 0),
-                        "memory_usage": r.get("memory_usage", 0)
-                    })
                     break
 
             response_data.update(
@@ -994,7 +998,6 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     "memory_usage": exec_res.get("memory_usage", 0),
                     "test_cases_passed": test_results.get("passed", 0),
                     "total_test_cases": test_results.get("total", 0),
-                    "performance_warnings": performance_warnings,
                     "plagiarism_score": 0,
                 }
             )
@@ -1367,10 +1370,18 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 )
 
                 response_data = result.get("response_data", {})
+                if response_data.get("status") == "tle":
+                    return Response(
+                        {
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 execution_results = result["execution_results"]
                 test_results = result["test_results"]
                 execution_output = result["execution_output"]
-
 
                 service_url = os.environ.get(
                     "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009"
@@ -1405,6 +1416,19 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         topic = question.subtopic.topic
 
                 exec_res = execution_results.get("execution_result", {})
+                if exec_res.get("status") == "timeout":
+                    return Response(
+                        {
+                            "status": "timeout",
+                            "reason": "Infinite loop detected or execution timed out.",
+                            "message": "Infinite loop detected or execution timed out.",
+                            "execution_time": exec_res.get("execution_time", 0),
+                            "memory_usage": exec_res.get("memory_usage", 0),
+                            "test_cases_passed": 0,
+                            "total_test_cases": execution_results.get("total_tests", 0),
+                        }
+                    )
+
                 basic_results = execution_results.get("basic_results", [])
                 advanced_results = execution_results.get("advanced_results", [])
                 custom_results = execution_results.get("custom_results", [])
@@ -1421,9 +1445,6 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
                 status_val = "completed"
                 reason_val = ""
-                if response_data.get("status") == "tle":
-                    status_val = "timeout"
-                    reason_val = "Execution Timed Out"
                 for r in (basic_results + advanced_results + custom_results):
                     if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                         status_val = "failed"
@@ -1529,7 +1550,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 performance_warnings = []
                 for r in (basic_results + advanced_results + custom_results):
                     err = r.get("error", "")
-                    if err in ("Time Limit Exceeded", "Memory Limit Exceeded"):
+                    if r.get("passed") and err in ("Time Limit Exceeded", "Memory Limit Exceeded"):
                         performance_warnings.append({
                             "type": err,
                             "execution_time": r.get("execution_time", 0),

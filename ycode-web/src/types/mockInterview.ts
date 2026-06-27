@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface Role {
     id: string;
     title: string;
@@ -8,7 +10,7 @@ export interface Role {
     interviewer_name: string;
     interviewer_voice_id: string;
     voice_speed: number;
-    icon?: string;
+    icon?: React.ReactNode;
     iconBg?: string;
     iconColor?: string;
     buttonGradient?: string;
@@ -28,5 +30,4 @@ export interface Message {
     timestamp: string;
     questionType?: 'behavioral' | 'coding';
     codeSubmission?: string;
-    relativeTime?: number;
 }
