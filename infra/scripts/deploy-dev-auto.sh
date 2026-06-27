@@ -439,6 +439,11 @@ echo "  VITE_DEPLOY_COMMIT_SHA=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
 echo "  VITE_DEPLOY_APP_VERSION=\$VITE_DEPLOY_APP_VERSION"
 
 echo "📦 Building services — old containers stay up during build (zero downtime)..."
+
+# Ensure the OS filesystem is expanded in case the EBS volume was recently resized
+sudo growpart /dev/nvme0n1 1 2>/dev/null || true
+sudo resize2fs /dev/root 2>/dev/null || sudo resize2fs /dev/nvme0n1p1 2>/dev/null || true
+
 echo "🧹 Cleaning up old Docker images and build cache to free space..."
 docker system prune -f
 docker builder prune -f --keep-storage 5GB
