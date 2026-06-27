@@ -1,0 +1,455 @@
+{
+  "sub_unit_name": "Reversal and Two Pointer Techniques",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Why This Topic Matters",
+      "description": "Linked List reversal and Two Pointer techniques are among the most frequently asked concepts in coding interviews and real-world systems."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Many advanced Linked List problems can be solved using either <strong>pointer reversal</strong> or the <strong>Fast and Slow Pointer</strong> technique. These approaches improve efficiency while using minimal extra memory.</p>"
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Interview Favorite",
+      "content": "Questions involving reversal, cycle detection, middle node finding, palindrome checking, and nth node from end often use Two Pointer techniques."
+    },
+
+    {
+      "type": "heading",
+      "content": "What is Linked List Reversal?"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Reversal means changing the direction of every link in the Linked List so that the last node becomes the first node and vice versa.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Before Reversal",
+      "steps": ["Head", " ↓ ", "[10] → [20] → [30] → [40] → NULL"]
+    },
+
+    {
+      "type": "diagram",
+      "title": "After Reversal",
+      "steps": ["Head", " ↓ ", "[40] → [30] → [20] → [10] → NULL"]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Core Idea",
+      "description": "Each node's next pointer is reversed to point toward its previous node."
+    },
+
+    {
+      "type": "heading",
+      "content": "Iterative Reversal Approach"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The most common reversal approach uses three pointers: Previous, Current, and Next.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Reversal Steps",
+      "steps": [
+        "Initialize Previous = NULL",
+        "Current = Head",
+        "Store Next Node",
+        "Reverse Current Link",
+        "Move Previous Forward",
+        "Move Current Forward",
+        "Repeat Until NULL"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Pointer Movement",
+      "steps": [
+        "Prev ← Current → Next",
+        "Reverse Link",
+        "Current → Prev",
+        "Move All Pointers Forward"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Memory Efficient",
+      "content": "Iterative reversal requires no additional data structure."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Iterative Reversal",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Recursive Reversal"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Reversal can also be performed recursively by reversing the remaining list first and then adjusting pointers during the return phase.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Recursive Reversal Flow",
+      "steps": [
+        "Reach Last Node",
+        "Make Last Node New Head",
+        "Reverse Links During Return",
+        "Complete Reversal"
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Tradeoff",
+      "content": "Recursive reversal uses additional stack memory."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Recursive Reversal",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Applications of Reversal"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Where Reversal is Used",
+      "items": [
+        {
+          "question": "Undo Systems",
+          "answer": "Reverse previous operations."
+        },
+        {
+          "question": "Browser Navigation",
+          "answer": "Manage backward history."
+        },
+        {
+          "question": "Data Processing",
+          "answer": "Reverse processing order."
+        },
+        {
+          "question": "Interview Questions",
+          "answer": "Forms the basis of many Linked List problems."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Introduction to Two Pointer Technique"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The Two Pointer technique uses two pointers moving through the Linked List at different speeds or positions to solve problems efficiently.</p>"
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Main Idea",
+      "description": "Instead of multiple traversals, use two pointers to gather information in a single pass."
+    },
+
+    {
+      "type": "heading",
+      "content": "Fast and Slow Pointer Technique"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The Slow pointer moves one node at a time while the Fast pointer moves two nodes at a time.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Fast vs Slow Movement",
+      "steps": [
+        "Slow → 1 Step",
+        "Fast → 2 Steps",
+        "Fast Reaches End",
+        "Slow Reaches Middle"
+      ]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Fast-Slow Algorithm",
+      "steps": [
+        "Initialize Both at Head",
+        "Move Slow by One",
+        "Move Fast by Two",
+        "Repeat Until Fast Ends"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Most Popular Pattern",
+      "content": "Fast and Slow pointers are among the most important interview techniques for Linked Lists."
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding the Middle Node"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>When Fast reaches the end, Slow automatically reaches the middle node.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Middle Node Example",
+      "steps": [
+        "[10] → [20] → [30] → [40] → [50]",
+        "Fast reaches end",
+        "Slow reaches 30",
+        "Middle = 30"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Find Middle Node",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Nth Node from End"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Using two pointers separated by N nodes allows finding the Nth node from the end in one traversal.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Nth Node Technique",
+      "steps": [
+        "Move Fast N Steps",
+        "Start Slow at Head",
+        "Move Both Together",
+        "Fast Reaches End",
+        "Slow Reaches Answer"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Nth Node from End",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Cycle Detection"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A cycle occurs when a node points back to an earlier node instead of NULL.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Cycle Detection Idea",
+      "steps": [
+        "Slow Moves One Step",
+        "Fast Moves Two Steps",
+        "Cycle Exists",
+        "Pointers Eventually Meet"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Floyd's Cycle Detection",
+      "description": "If Fast and Slow pointers meet, a cycle exists in the Linked List."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Cycle Detection",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Palindrome Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Two Pointer techniques are often combined with reversal to check whether a Linked List reads the same forwards and backwards.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Palindrome Check",
+      "steps": [
+        "Find Middle",
+        "Reverse Second Half",
+        "Compare Both Halves",
+        "Determine Result"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Pattern Combination",
+      "content": "Many advanced interview questions combine reversal and Fast-Slow pointers."
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-World Applications"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Industry Usage",
+      "items": [
+        {
+          "question": "Memory Management",
+          "answer": "Detect cycles in references."
+        },
+        {
+          "question": "Operating Systems",
+          "answer": "Process scheduling structures."
+        },
+        {
+          "question": "Networking",
+          "answer": "Packet routing structures."
+        },
+        {
+          "question": "Database Engines",
+          "answer": "Efficient record traversal."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Complexity Summary"
+    },
+
+    {
+      "type": "table",
+      "headers": ["Operation", "Time Complexity", "Space Complexity"],
+      "rows": [
+        ["Iterative Reversal", "O(n)", "O(1)"],
+        ["Recursive Reversal", "O(n)", "O(n)"],
+        ["Find Middle", "O(n)", "O(1)"],
+        ["Nth Node From End", "O(n)", "O(1)"],
+        ["Cycle Detection", "O(n)", "O(1)"],
+        ["Palindrome Check", "O(n)", "O(1)"]
+      ]
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Reversal Technique",
+      "right_title": "Two Pointer Technique",
+      "left_points": [
+        "Changes Links",
+        "Pointer Manipulation",
+        "Used for Reordering",
+        "O(1) Extra Space"
+      ],
+      "right_points": [
+        "No Link Changes",
+        "Tracks Positions",
+        "Used for Analysis",
+        "O(1) Extra Space"
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "Whenever a Linked List question mentions middle node, cycle, palindrome, or nth node from end, immediately think about the Fast and Slow Pointer pattern."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Reversal and Two Pointer techniques are among the top 5 most frequently tested Linked List concepts in coding interviews."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Reversal changes link directions.",
+        "Iterative reversal uses Previous, Current, and Next pointers.",
+        "Iterative reversal runs in O(n) time and O(1) space.",
+        "Recursive reversal uses extra stack memory.",
+        "Fast pointer moves two steps.",
+        "Slow pointer moves one step.",
+        "Fast-Slow pointers find the middle node.",
+        "Two pointers find nth node from end.",
+        "Cycle detection uses Floyd's Algorithm.",
+        "Many advanced problems combine reversal and Two Pointer techniques."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which pointers are commonly used for iterative reversal?",
+      "options": [
+        "Head and Tail",
+        "Previous, Current, Next",
+        "Fast and Slow",
+        "Left and Right"
+      ],
+      "answer": "Previous, Current, Next"
+    },
+
+    {
+      "type": "quiz",
+      "question": "How many steps does the Fast pointer move?",
+      "options": ["0", "1", "2", "3"],
+      "answer": "2"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which algorithm is used for cycle detection?",
+      "options": [
+        "Binary Search",
+        "Merge Sort",
+        "Floyd's Cycle Detection",
+        "DFS"
+      ],
+      "answer": "Floyd's Cycle Detection"
+    }
+  ]
+}

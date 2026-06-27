@@ -1,6 +1,6 @@
 import React from 'react';
 import { TipTapEditor } from '../TipTapEditor';
-import { Input } from '@/components/ui/input';
+
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 
@@ -68,9 +68,10 @@ export const CalloutBlock: React.FC<CalloutBlockProps> = ({ block, onChange }) =
         </select>
       </div>
 
-      <Input
-        value={block.metadata?.title || ''}
-        onChange={(e) => onChange({ metadata: { ...block.metadata, title: e.target.value } })}
+      <TipTapEditor
+        minimal
+        content={block.metadata?.title || ''}
+        onChange={(html) => onChange({ metadata: { ...block.metadata, title: html } })}
         placeholder="Title (optional)..."
         className={`font-semibold bg-transparent border-none shadow-none focus-visible:ring-0 px-0 mb-2 ${config.titleClass} placeholder:opacity-50`}
       />
@@ -124,17 +125,19 @@ export const CardGridBlock: React.FC<CardGridBlockProps> = ({ block, onChange })
             >
               ×
             </button>
-            <Input
-              value={card.title}
-              onChange={(e) => updateCard(idx, 'title', e.target.value)}
+            <TipTapEditor
+              minimal
+              content={card.title}
+              onChange={(html) => updateCard(idx, 'title', html)}
               placeholder="Card title"
-              className="font-semibold text-sm border-none shadow-none focus-visible:ring-0 px-1 h-7"
+              className="font-semibold text-sm border-none shadow-none focus-visible:ring-0 px-1 py-1"
             />
-            <Input
-              value={card.description || ''}
-              onChange={(e) => updateCard(idx, 'description', e.target.value)}
+            <TipTapEditor
+              minimal
+              content={card.description || ''}
+              onChange={(html) => updateCard(idx, 'description', html)}
               placeholder="Optional description..."
-              className="text-xs text-slate-500 border-none shadow-none focus-visible:ring-0 px-1 h-6"
+              className="text-xs text-slate-500 border-none shadow-none focus-visible:ring-0 px-1 py-1"
             />
           </div>
         ))}
@@ -169,11 +172,12 @@ export const ColumnLayoutBlock: React.FC<ColumnLayoutBlockProps> = ({ block, onC
         {columns.map((col, idx) => (
           <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-200">
-              <Input
-                value={col.heading || ''}
-                onChange={(e) => updateColumn(idx, 'heading', e.target.value)}
+              <TipTapEditor
+                minimal
+                content={col.heading || ''}
+                onChange={(html) => updateColumn(idx, 'heading', html)}
                 placeholder={`Column ${idx + 1} heading...`}
-                className="border-none shadow-none focus-visible:ring-0 px-0 h-6 text-xs font-semibold text-slate-600"
+                className="border-none shadow-none focus-visible:ring-0 px-0 py-1 text-xs font-semibold text-slate-600"
               />
             </div>
             <div className="p-2">
@@ -220,11 +224,12 @@ export const BulletListBlock: React.FC<BulletListBlockProps> = ({ block, onChang
           ) : (
             <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 ml-1" />
           )}
-          <Input
-            value={item}
-            onChange={(e) => updateItem(idx, e.target.value)}
+          <TipTapEditor
+            minimal
+            content={item}
+            onChange={(html) => updateItem(idx, html)}
             placeholder={`Item ${idx + 1}...`}
-            className="flex-1 border-none shadow-none focus-visible:ring-0 px-0 bg-transparent"
+            className="flex-1 border-none shadow-none focus-visible:ring-0 px-0 bg-transparent py-1"
           />
           <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} disabled={items.length <= 1} className="h-7 w-7 text-slate-400 hover:text-red-500">
             <Trash2 className="w-3 h-3" />
@@ -252,11 +257,12 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({ block, onChange }) =
           {block.content || <span className="text-slate-400 text-sm">Enter formula below...</span>}
         </span>
       </div>
-      <Input
-        value={block.content || ''}
-        onChange={(e) => onChange({ content: e.target.value })}
+      <TipTapEditor
+        minimal
+        content={block.content || ''}
+        onChange={(html) => onChange({ content: html })}
         placeholder="e.g.  PV = nRT  or  E = mc²"
-        className="font-mono text-center text-slate-700"
+        className="font-mono text-center text-slate-700 py-2"
       />
     </div>
   );

@@ -1,0 +1,501 @@
+{
+  "sub_unit_name": "Linked List Variants & Advanced Problems",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Beyond Singly Linked Lists",
+      "description": "Real-world applications often require specialized Linked List structures that provide additional capabilities and efficiency."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>So far, we have worked primarily with Singly Linked Lists. However, there are several variants of Linked Lists designed to solve specific problems more efficiently. Understanding these variants is essential for advanced problem solving and technical interviews.</p>"
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Advanced Linked List questions frequently involve Doubly Linked Lists, Circular Linked Lists, cycle detection, merging, sorting, and cloning techniques."
+    },
+
+    {
+      "type": "heading",
+      "content": "Types of Linked Lists"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Linked List Variants",
+      "items": [
+        {
+          "question": "Singly Linked List",
+          "answer": "Each node points only to the next node."
+        },
+        {
+          "question": "Doubly Linked List",
+          "answer": "Each node contains both next and previous pointers."
+        },
+        {
+          "question": "Circular Linked List",
+          "answer": "The last node points back to the first node."
+        },
+        {
+          "question": "Circular Doubly Linked List",
+          "answer": "Both previous and next links form a circular structure."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Singly Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Singly Linked List contains a data field and a single pointer to the next node.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Singly Linked List",
+      "steps": ["[10] → [20] → [30] → [40] → NULL"]
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Simple structure",
+        "Less memory usage",
+        "Easy implementation",
+        "Efficient insertions"
+      ],
+      "right_points": [
+        "No backward traversal",
+        "Limited navigation",
+        "Extra traversal required",
+        "Less flexible"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Doubly Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Doubly Linked List stores both previous and next pointers, enabling bidirectional traversal.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Doubly Linked List",
+      "steps": ["NULL ← [10] ⇄ [20] ⇄ [30] ⇄ [40] → NULL"]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Key Feature",
+      "description": "Traversal can occur in both forward and backward directions."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Doubly Linked List Tradeoff",
+      "time_complexity": "O(1) Bidirectional Access to Neighbor Nodes",
+      "space_complexity": "Extra Pointer Per Node"
+    },
+
+    {
+      "type": "heading",
+      "content": "Circular Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>In a Circular Linked List, the last node connects back to the first node instead of pointing to NULL.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Circular Linked List",
+      "steps": [
+        "[10] → [20] → [30] → [40]",
+        " ↑               ↓ ",
+        " └───────────────┘ "
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Common Usage",
+      "content": "Circular Linked Lists are frequently used in round-robin scheduling systems."
+    },
+
+    {
+      "type": "heading",
+      "content": "Circular Doubly Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>This combines the benefits of both circular and doubly linked structures.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Circular Doubly Linked List",
+      "steps": [
+        "[10] ⇄ [20] ⇄ [30] ⇄ [40]",
+        "↑                     ↓",
+        "└─────────────────────┘"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Maximum Flexibility",
+      "description": "Supports forward traversal, backward traversal, and circular movement."
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Detecting a Cycle"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A cycle exists when a node eventually points back to an earlier node, creating an infinite loop.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Cycle Example",
+      "steps": [
+        "[10] → [20] → [30] → [40]",
+        "              ↑       ↓",
+        "              └───────┘"
+      ]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Floyd's Cycle Detection",
+      "steps": [
+        "Initialize Fast and Slow Pointers",
+        "Move Slow by One",
+        "Move Fast by Two",
+        "Pointers Meet if Cycle Exists"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Cycle Detection",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Finding Cycle Start"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>After detecting a cycle, another common problem is identifying the exact node where the cycle begins.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Cycle Start Detection",
+      "steps": [
+        "Detect Cycle",
+        "Place One Pointer at Head",
+        "Move Both One Step",
+        "Meeting Point = Cycle Start"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Merge Two Sorted Lists"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Given two sorted Linked Lists, merge them while maintaining sorted order.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Merge Example",
+      "steps": [
+        "List A: 1 → 3 → 5",
+        "List B: 2 → 4 → 6",
+        "Result: 1 → 2 → 3 → 4 → 5 → 6"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Popular Interview Question",
+      "content": "Merging sorted lists is one of the most frequently asked Linked List coding problems."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Merge Sorted Lists",
+      "time_complexity": "O(n + m)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Intersection of Two Lists"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Determine whether two Linked Lists share a common node.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Intersection Example",
+      "steps": [
+        "List A → [10] → [20]",
+        "                    ↓",
+        "                 [30] → [40]",
+        "                    ↑",
+        "List B → [15] ──────┘"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Key Observation",
+      "description": "After the intersection point, both lists share the same nodes."
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Remove Duplicates"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Duplicate values can be removed from sorted or unsorted Linked Lists.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Duplicate Removal",
+      "steps": [
+        "[10] → [20] → [20] → [30]",
+        "Remove Duplicate",
+        "[10] → [20] → [30]"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Duplicate Removal",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Clone Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Cloning creates an exact copy of a Linked List while preserving all node relationships.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Clone Process",
+      "steps": [
+        "Create Duplicate Nodes",
+        "Copy Connections",
+        "Reconnect Random Pointers",
+        "Separate Clone"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Sort a Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Merge Sort is commonly used because Linked Lists do not support efficient random access.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Merge Sort on Linked Lists",
+      "steps": [
+        "Find Middle",
+        "Split List",
+        "Sort Both Halves",
+        "Merge Results"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Merge Sort",
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(log n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Advanced Problem: Flatten Multi-Level Lists"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Some Linked Lists contain child pointers that create multiple levels of linked structures.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Flatten Structure",
+      "steps": [
+        "[10] → [20] → [30]",
+        "         ↓",
+        "       [25]",
+        "Flatten → Single List"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-World Applications"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Industry Applications",
+      "items": [
+        {
+          "question": "Browser History",
+          "answer": "Uses Doubly Linked Lists."
+        },
+        {
+          "question": "Music Playlists",
+          "answer": "Support forward and backward navigation."
+        },
+        {
+          "question": "Operating Systems",
+          "answer": "Task scheduling with Circular Lists."
+        },
+        {
+          "question": "Database Engines",
+          "answer": "Complex record linking."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Complexity Summary"
+    },
+
+    {
+      "type": "table",
+      "headers": ["Advanced Problem", "Time Complexity"],
+      "rows": [
+        ["Cycle Detection", "O(n)"],
+        ["Cycle Start", "O(n)"],
+        ["Merge Sorted Lists", "O(n+m)"],
+        ["Find Intersection", "O(n+m)"],
+        ["Remove Duplicates", "O(n)"],
+        ["Clone Linked List", "O(n)"],
+        ["Merge Sort", "O(n log n)"]
+      ]
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Basic Problems",
+      "right_title": "Advanced Problems",
+      "left_points": ["Insertion", "Deletion", "Traversal", "Searching"],
+      "right_points": [
+        "Cycle Detection",
+        "Merge Lists",
+        "Clone Lists",
+        "Sorting"
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "Advanced Linked List problems often combine multiple techniques such as Fast-Slow pointers, reversal, recursion, hashing, and merge operations."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Mastering cycle detection, merging, sorting, and cloning covers a significant portion of Linked List interview questions asked by top companies."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Singly Linked Lists use one pointer.",
+        "Doubly Linked Lists support backward traversal.",
+        "Circular Lists connect back to the beginning.",
+        "Cycle detection uses Floyd's Algorithm.",
+        "Merge Sorted Lists is a classic interview problem.",
+        "Intersection problems identify shared nodes.",
+        "Duplicate removal cleans list data.",
+        "Cloning creates independent copies.",
+        "Merge Sort is ideal for Linked Lists.",
+        "Advanced problems combine multiple techniques."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which Linked List supports backward traversal?",
+      "options": [
+        "Singly Linked List",
+        "Circular Linked List",
+        "Doubly Linked List",
+        "Static List"
+      ],
+      "answer": "Doubly Linked List"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which algorithm is commonly used to detect cycles?",
+      "options": [
+        "Binary Search",
+        "DFS",
+        "Floyd's Cycle Detection",
+        "Heap Sort"
+      ],
+      "answer": "Floyd's Cycle Detection"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which sorting algorithm is most suitable for Linked Lists?",
+      "options": ["Bubble Sort", "Selection Sort", "Merge Sort", "Quick Sort"],
+      "answer": "Merge Sort"
+    }
+  ]
+}
