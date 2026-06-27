@@ -21,8 +21,8 @@ class Command(BaseCommand):
             "--deploy_env",
             type=str,
             default="dev",
-            choices=["dev", "prod"],
-            help="Environment to load fixtures from: dev or prod",
+            choices=["local", "dev", "prod"],
+            help="Environment to load fixtures from: local, dev or prod",
         )
 
     def handle(self, *args, **options):

@@ -8,7 +8,10 @@ from django.utils import timezone
 from datetime import timedelta
 from assessment.models import SkillTest, Contest, MockInterview, JobTest, CertificationExam, PredefinedInterviewQuestion
 from course.models import Course, Topic, Question
-from ai_assistant.models import AIAgent
+try:
+    from ai_assistant.models import AIAgent
+except ImportError:
+    AIAgent = None
 
 User = get_user_model()
 
@@ -55,15 +58,18 @@ class Command(BaseCommand):
         fixtures_dir = here.parents[2] / "fixtures" / options["deploy_env"]
 
         # Ensure at least one AI agent exists for mock interviews (required for ChatSession)
-        if not AIAgent.objects.exists():
-            self.stdout.write("No AI agents found. Creating default Gemini agent for local testing...")
-            AIAgent.objects.create(
-                name="Gemini Pro (Default)",
-                provider="gemini",
-                model_name="gemini-1.5-pro",
-                description="Default agent created for local testing",
-                is_active=True
-            )
+        if AIAgent is not None:
+            if not AIAgent.objects.exists():
+                self.stdout.write("No AI agents found. Creating default Gemini agent for local testing...")
+                AIAgent.objects.create(
+                    name="Gemini Pro (Default)",
+                    provider="gemini",
+                    model_name="gemini-1.5-pro",
+                    description="Default agent created for local testing",
+                    is_active=True
+                )
+        else:
+            self.stdout.write(self.style.WARNING("ai_assistant module not available, skipping AIAgent setup."))
 
         skill_file_name = options.get("file")
         primary_skill_file = fixtures_dir / skill_file_name

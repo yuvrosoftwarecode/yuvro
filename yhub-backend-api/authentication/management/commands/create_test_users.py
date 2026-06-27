@@ -21,8 +21,8 @@ class Command(BaseCommand):
             "--deploy_env",
             type=str,
             default="dev",
-            choices=["dev", "prod"],
-            help="Environment to load fixtures from: dev or prod",
+            choices=["local", "dev", "prod"],
+            help="Environment to load fixtures from: local, dev or prod",
         )
         parser.add_argument(
             "--file",
@@ -40,10 +40,16 @@ class Command(BaseCommand):
         self.stdout.write("Creating test users with comprehensive profile data...")
 
         try:
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            auth_app_dir = os.path.dirname(os.path.dirname(current_dir))
-            deploy_env = options["deploy_env"]
-            json_file_path = os.path.join(auth_app_dir, "fixtures", deploy_env, options["file"])
+            env_dir = options["deploy_env"]
+            if env_dir == "local":
+                env_dir = "dev"
+            
+            json_file_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                "fixtures",
+                env_dir,
+                options["file"],
+            )
 
             if not os.path.exists(json_file_path):
                 self.stdout.write(

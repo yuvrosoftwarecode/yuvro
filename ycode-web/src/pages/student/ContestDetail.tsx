@@ -641,7 +641,7 @@ const ContestDetail: React.FC = () => {
                             )}
                             
                             {/* Leaderboard below the Action Card if the contest has started or is past */}
-                            {(isLive || isPast) && (
+                            {(isLive || isPast) && !isPublic && (
                                 <div className="mt-6">
                                     <ContestLeaderboard
                                         contestId={contest.id}

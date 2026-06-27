@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { fetchContests, contestService } from "@/services/contestService";
+import { authService } from "@/services/authService";
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
@@ -43,6 +45,7 @@ const ContestRegistration: React.FC = () => {
     const isPublic = location.pathname.startsWith('/public/');
     const basePath = isPublic ? '/public/contests' : '/student/contests';
     const Layout: React.FC<any> = isPublic ? PublicLayout : DashboardLayout;
+    const { verifyOtp } = useAuth();
     const skillInputRef = useRef<HTMLInputElement>(null);
 
     const [contest, setContest] = useState<Contest | null>(null);
@@ -164,7 +167,7 @@ const ContestRegistration: React.FC = () => {
         }
         try {
             setSendingOtp(true);
-            await contestService.sendRegistrationOtp(contestId!, email);
+            await authService.sendOtp(email, { contest_id: contestId });
             setOtpSent(true);
             toast.success('OTP sent to your email!');
         } catch (err) {
@@ -181,7 +184,8 @@ const ContestRegistration: React.FC = () => {
         }
         try {
             setVerifyingOtp(true);
-            await contestService.verifyRegistrationOtp(contestId!, email, otp);
+            await authService.verifyOtp(email, otp);
+            await checkAuth(); // Refresh user context now that we have tokens
             setOtpVerified(true);
             setErrors(prev => ({ ...prev, otp: '' }));
             toast.success('Email verified successfully!');
@@ -198,30 +202,46 @@ const ContestRegistration: React.FC = () => {
 
         try {
             setSubmitting(true);
-            const details = { fullName, email, phone, college, semester, skills };
 
-            if (isPublic) {
-                // Unauthenticated: use public registration API
-                const response = await contestService.registerPublicContest(contestId, email, otp, details);
-                if (response.status === 'success') {
-                    toast.success('Successfully registered for the contest!');
-                    setIsRegistered(true);
-                } else if (response.status === 'payment_required') {
-                    navigate(`${basePath}/${contestId}/payment?token=${response.payment_token}`);
+            // If we are in public mode and haven't verified yet, verify the OTP first
+            if (isPublic && !otpVerified) {
+                if (otp.length !== 6) {
+                    setErrors(prev => ({ ...prev, otp: 'Enter complete 6-digit OTP' }));
+                    setSubmitting(false);
+                    return;
+                }
+                
+                try {
+                    await verifyOtp(email, otp);
+                    setOtpVerified(true);
+                    setErrors(prev => ({ ...prev, otp: '' }));
+                } catch (err) {
+                    setErrors(prev => ({ ...prev, otp: 'Invalid OTP. Please try again.' }));
+                    toast.error('Invalid OTP');
+                    setSubmitting(false);
+                    return; // Stop here if verification fails
+                }
+            }
+
+            // At this point, the user is authenticated. 
+            // Call the normal authenticated register endpoint.
+            const response = await contestService.registerContest(contestId);
+            const status = response.status?.toLowerCase();
+            
+            if (status === 'success' || status === 'registered') {
+                toast.success('Successfully registered for the contest!');
+                setIsRegistered(true);
+                if (!isPublic) {
+                    navigate(`/student/contests/${contestId}`);
+                }
+            } else if (status === 'payment_required') {
+                if (isPublic) {
+                    navigate(`/public/contests/${contestId}/payment?token=${response.payment_token}`);
                 } else {
-                    toast.error(response.message || 'Registration failed');
+                    navigate(`/student/contests/${contestId}/payment?token=${response.payment_token}`);
                 }
             } else {
-                // Authenticated: use normal flow
-                const response = await contestService.registerContest(contestId);
-                if (response.status === 'success' || response.status === 'registered') {
-                    toast.success('Successfully registered for the contest!');
-                    navigate(`${basePath}/${contestId}`);
-                } else if (response.status === 'payment_required') {
-                    navigate(`${basePath}/${contestId}/payment?token=${response.payment_token}`);
-                } else {
-                    toast.error(response.error || response.message || 'Registration failed');
-                }
+                toast.error(response.error || response.message || 'Registration failed');
             }
         } catch (err: any) {
             console.error("Registration failed", err);
@@ -340,12 +360,14 @@ const ContestRegistration: React.FC = () => {
                             <p className="text-gray-600 mb-8 max-w-sm text-base font-inter">
                                 You have successfully registered for <b>{contest?.title}</b>. We've recorded your details and you're all set to participate.
                             </p>
-                            <button
-                                onClick={() => navigate(basePath)}
-                                className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base transition-colors shadow-sm"
-                            >
-                                Back to Contests
-                            </button>
+                            {!isPublic && (
+                                <button
+                                    onClick={() => navigate(basePath)}
+                                    className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base transition-colors shadow-sm"
+                                >
+                                    Back to Contests
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <>

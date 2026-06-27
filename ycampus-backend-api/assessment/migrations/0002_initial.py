@@ -21,7 +21,6 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
                 to=settings.AUTH_USER_MODEL,
-                db_constraint=False,
             ),
         ),
         migrations.AddField(
@@ -33,7 +32,6 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
                 to=settings.AUTH_USER_MODEL,
-                db_constraint=False,
             ),
         ),
     ]

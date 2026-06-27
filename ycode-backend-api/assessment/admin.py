@@ -343,7 +343,6 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "mock_interview",
-        "interview_type",
         "status",
         "experience_level",
         "marks",
@@ -355,7 +354,6 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
     list_filter = [
         "status",
         "experience_level",
-        "interview_type",
         "started_at",
     ]
     search_fields = [

@@ -225,40 +225,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="mockinterviewquestionactivity",
-            name="graded_by",
-            field=models.ForeignKey(
-                blank=True,
-                db_constraint=False,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
-            ),
-        ),
-        migrations.AlterField(
-            model_name="mockinterviewquestionactivity",
-            name="resolved_by",
-            field=models.ForeignKey(
-                blank=True,
-                db_constraint=False,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
-            ),
-        ),
-        migrations.AlterField(
-            model_name="mockinterviewquestionactivity",
-            name="user",
-            field=models.ForeignKey(
-                db_constraint=False,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
-            ),
-        ),
-        migrations.AlterField(
             model_name="mockinterviewsubmission",
             name="user",
             field=models.ForeignKey(

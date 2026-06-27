@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("assessment", "0008_certificationsubmission_anomalies_detected_and_more"),
+        ("assessment", "0008_remove_mockinterview_ai_context_and_more"),
     ]
 
     operations = [

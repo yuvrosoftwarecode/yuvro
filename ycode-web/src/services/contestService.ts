@@ -372,18 +372,6 @@ export const contestService = {
     });
   },
 
-  async sendRegistrationOtp(contestId: string, email: string): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_send_otp/`, { email });
-  },
-
-  async verifyRegistrationOtp(contestId: string, email: string, otp: string): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_verify_otp/`, { email, otp });
-  },
-
-  async registerPublicContest(contestId: string, email: string, otp: string, details: any): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_register/`, { email, otp, details });
-  },
-
   async verifyPayment(contestId: string, paymentToken: string): Promise<any> {
     return restApiUtil.post(`/assessment/contests/${contestId}/verify_payment/`, { payment_token: paymentToken });
   }

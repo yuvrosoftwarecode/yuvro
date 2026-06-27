@@ -544,7 +544,7 @@ class QuestionSolutionViewSet(viewsets.ModelViewSet):
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related(
-        "course", "topic", "subtopic", "created_by"
+        "course", "topic", "subtopic"
     )
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticatedUser]
@@ -553,7 +553,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         from django.db import models
 
         qs = Question.objects.select_related(
-            "course", "topic", "subtopic", "created_by"
+            "course", "topic", "subtopic"
         )
         user = self.request.user
 

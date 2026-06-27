@@ -42,6 +42,7 @@ interface AuthContextType extends AuthState {
     username: string,
     password: string
   ) => Promise<void>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -241,11 +242,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'UPDATE_USER', payload: user });
   };
 
+  const verifyOtp = async (email: string, otp: string): Promise<void> => {
+    dispatch({ type: 'LOGIN_START' });
+    try {
+      const response = await authService.verifyOtp(email, otp);
+      
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { user: response.user, token: response.access },
+        });
+      }
+    } catch (error) {
+      dispatch({ type: 'LOGIN_FAILURE' });
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
     loginWithGoogle,
     register,
+    verifyOtp,
     logout,
     updateUser,
   };

@@ -423,17 +423,17 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             return Response({'error': 'This contest has already ended.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 1. Profile Validation
-        try:
-            profile = user.profile
-        except Profile.DoesNotExist:
+        # Since we use StatelessUser, profile data is on the user instance
+        if not user.full_name or not user.role:
             return Response({'error': 'Profile not found. Please complete your profile', 'requires_profile_update': True}, status=status.HTTP_403_FORBIDDEN)
 
         if not contest.open_for_all_colleges:
             allowed = contest.allowed_colleges.all()
             allowed_names = [c.name for c in allowed]
-            student_college_name = profile.college.name if profile.college else None
+            allowed_ids = [str(c.id) for c in allowed]
+            student_college_name = user.college_name
 
-            if not profile.college:
+            if not user.college_id:
                 return Response({
                     'error': 'Please select your college to register for this contest.',
                     'error_type': 'no_college',
@@ -441,7 +441,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                     'allowed_college_names': allowed_names,
                 }, status=status.HTTP_403_FORBIDDEN)
 
-            if profile.college not in allowed:
+            if str(user.college_id) not in allowed_ids:
                 return Response({
                     'error': f'This contest is restricted to specific colleges. Your college ({student_college_name}) is not in the allowed list.',
                     'error_type': 'college_mismatch',
@@ -453,9 +453,10 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if not contest.open_for_all_departments:
             allowed_depts = contest.allowed_departments.all()
             allowed_dept_names = [d.name for d in allowed_depts]
-            student_dept_name = profile.department.name if profile.department else None
+            allowed_dept_ids = [str(d.id) for d in allowed_depts]
+            student_dept_name = user.department_name
 
-            if not profile.department:
+            if not user.department_id:
                 return Response({
                     'error': 'Please select your department to register for this contest.',
                     'error_type': 'no_department',
@@ -463,7 +464,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                     'allowed_department_names': allowed_dept_names,
                 }, status=status.HTTP_403_FORBIDDEN)
 
-            if profile.department not in allowed_depts:
+            if str(user.department_id) not in allowed_dept_ids:
                 return Response({
                     'error': f'This contest is restricted to specific departments. Your department ({student_dept_name}) is not in the allowed list.',
                     'error_type': 'department_mismatch',
@@ -472,7 +473,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                     'allowed_department_names': allowed_dept_names,
                 }, status=status.HTTP_403_FORBIDDEN)
 
-        if contest.require_student_id and not profile.student_id:
+        if contest.require_student_id and not user.student_id:
             return Response({'error': 'Student ID is required', 'requires_profile_update': True}, status=status.HTTP_403_FORBIDDEN)
 
         # 2. Check if already registered
@@ -627,136 +628,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             'tab_switch_count': tab_switch_count,
         })
 
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_send_otp(self, request, pk=None):
-        contest = self.get_object()
-        email = request.data.get('email')
-        if not email:
-            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Generate OTP
-        otp = str(random.randint(100000, 999999))
-        
-        # Store OTP in cache
-        from django.core.cache import cache
-        cache.set(f"contest_registration_otp_{contest.id}_{email}", otp, timeout=300) # 5 minutes
-        
-        # Send OTP email
-        from django.core.mail import send_mail
-        from django.conf import settings
-        from django.template.loader import render_to_string
-        
-        context = {
-            "contest_title": contest.title,
-            "otp": otp,
-            "frontend_url": settings.FRONTEND_URL
-        }
-        html_message = render_to_string("emails/otp_verification.html", context)
-        
-        send_mail(
-            subject=f"OTP for Contest Registration: {contest.title}",
-            message=f"Your OTP for registering in the contest '{contest.title}' is: {otp}. It is valid for 5 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-            html_message=html_message
-        )
-        
-        return Response({"status": "success", "message": "OTP sent successfully"})
 
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_verify_otp(self, request, pk=None):
-        contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
-        
-        if cached_otp and str(cached_otp) == str(otp):
-            return Response({"status": "success", "message": "OTP verified"})
-        
-        return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_register(self, request, pk=None):
-        contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        details = request.data.get('details', {})
-        
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        # Verify OTP one last time before saving
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
-        
-        if cached_otp and str(cached_otp) == str(otp):
-            from django.contrib.auth import get_user_model
-            from rest_framework_simplejwt.tokens import AccessToken
-            from .models import ContestRegistration
-            import string
-            
-            User = get_user_model()
-            user = User.objects.filter(email=email).first()
-            
-            # Create user if not exists
-            if not user:
-                password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-                base_username = email.split('@')[0]
-                username = base_username
-                while User.objects.filter(username=username).exists():
-                    username = f"{base_username}{random.randint(100, 9999)}"
-                
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                )
-                user.is_otp_login = True
-                user.save(update_fields=['is_otp_login'])
-                
-            # Check payment type
-            if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
-                token = AccessToken.for_user(user)
-                token['contest_id'] = str(contest.id)
-                token['payment_pending'] = True
-                token['amount'] = float(contest.amount) if contest.amount else 0.0
-                
-                # Invalidate OTP
-                cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-                return Response({
-                    "status": "payment_required", 
-                    "message": "Proceed to payment",
-                    "payment_token": str(token),
-                    "amount": contest.amount
-                })
-                
-            # Unpaid - register immediately
-            ContestRegistration.objects.get_or_create(
-                contest=contest, 
-                user=user,
-                defaults={'created_by': user}
-            )
-            
-            # Invalidate OTP
-            cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-            
-            # Automatically log them in since they verified OTP
-            token = AccessToken.for_user(user)
-            
-            return Response({
-                "status": "success", 
-                "message": "Successfully registered",
-                "access_token": str(token)
-            })
-            
-        else:
-            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def verify_payment(self, request, pk=None):

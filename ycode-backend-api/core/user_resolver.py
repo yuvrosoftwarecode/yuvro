@@ -39,7 +39,9 @@ def resolve_user(user_id):
             cache.set(cache_key, data, timeout=300)
             return User.from_dict(data)
         else:
-            logger.warning(f"Failed to resolve user {user_id_str} from YHub: HTTP {response.status_code}")
+            # Changed to debug to avoid spamming console during fixture loading 
+            # where test users only exist locally and not in YHub
+            logger.debug(f"Failed to resolve user {user_id_str} from YHub: HTTP {response.status_code}")
     except Exception as e:
         logger.error(f"Error connecting to YHub to resolve user {user_id_str}: {str(e)}")
 

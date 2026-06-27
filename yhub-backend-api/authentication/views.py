@@ -880,3 +880,99 @@ def internal_user_detail_view(request, pk):
         "is_active": user.is_active,
         "profile": profile_data,
     })
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def send_otp_view(request):
+    import random
+    from django.core.cache import cache
+    from django.core.mail import send_mail
+    from django.conf import settings
+    from django.template.loader import render_to_string
+
+    email = request.data.get("email")
+    context_data = request.data.get("context", {})
+
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # Generate OTP
+    otp = str(random.randint(100000, 999999))
+    
+    # Store OTP in cache
+    cache_key = f"auth_otp_{email}"
+    cache.set(cache_key, otp, timeout=300) # 5 minutes
+    
+    contest_title = context_data.get("contest_title", "Yuvro Contest")
+    
+    context = {
+        "contest_title": contest_title,
+        "otp": otp,
+        "frontend_url": settings.FRONTEND_URL
+    }
+    html_message = render_to_string("emails/otp_verification.html", context)
+    
+    send_mail(
+        subject=f"OTP for Contest Registration: {contest_title}",
+        message=f"Your OTP for registering in the contest '{contest_title}' is: {otp}. It is valid for 5 minutes.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_message
+    )
+    
+    return Response({"status": "success", "message": "OTP sent successfully"})
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def verify_otp_view(request):
+    import random
+    import string
+    from django.core.cache import cache
+    
+    email = request.data.get("email")
+    otp = request.data.get("otp")
+    
+    if not email or not otp:
+        return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    cache_key = f"auth_otp_{email}"
+    cached_otp = cache.get(cache_key)
+    
+    if cached_otp and str(cached_otp) == str(otp):
+        user = User.objects.filter(email=email).first()
+        
+        # Create user if not exists
+        if not user:
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            base_username = email.split('@')[0]
+            username = base_username
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{random.randint(100, 9999)}"
+            
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+            )
+            user.is_otp_login = True
+            user.save(update_fields=['is_otp_login'])
+            
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+        
+        # Keep OTP in cache until registration is complete, or we could delete it here
+        # cache.delete(cache_key)
+        
+        return Response({
+            "status": "success",
+            "message": "OTP verified successfully",
+            "user": UserSerializer(user).data,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        })
+        
+    return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+

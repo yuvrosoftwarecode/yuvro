@@ -60,6 +60,7 @@ clean:
 load-fixtures-data:
 	@echo "🔄 Loading YHub fixture data (no clear)..."
 	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py setup_fixtures_data --deploy_env $(DEPLOY_ENV)
+	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py seed_agents
 	@echo "✅ YHub fixture data loaded!"
 
 reload-data-clear:
@@ -88,11 +89,6 @@ db-reset:
 	docker compose -f docker-compose.yhub.yml down yhub-db -v
 	docker compose -f docker-compose.yhub.yml up -d yhub-db
 	@echo "✅ Database reset complete!"
-
-load-fixtures-data:
-	@echo "🔄 Loading YHub fixture data..."
-	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py seed_agents
-	@echo "✅ YHub fixture data loaded!"
 
 # ============================================================================
 # Backend

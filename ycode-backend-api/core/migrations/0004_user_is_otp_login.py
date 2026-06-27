@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("authentication", "0003_remove_user_is_temp_password_alter_user_role"),
+        ("core", "0001_initial"),
     ]
 
     operations = [

@@ -11,15 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="mockinterviewsubmission",
-            name="state_data",
-            field=models.JSONField(
-                blank=True,
-                default=dict,
-                help_text="In-progress state data for AI-powered mock interview",
-            ),
-        ),
+
         migrations.AlterField(
             model_name="mockinterviewsubmission",
             name="mock_interview",

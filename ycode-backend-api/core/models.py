@@ -151,6 +151,7 @@ class User(AbstractUser):
         user._department_name = profile.get("department_name")
         user._full_name = profile.get("full_name") or f"{user.first_name} {user.last_name}".strip() or user.username
         user._profile_image = profile.get("profile_image")
+        user._student_id = profile.get("student_id")
         
         return user
 
@@ -177,6 +178,10 @@ class User(AbstractUser):
     @property
     def profile_image(self):
         return getattr(self, "_profile_image", None)
+
+    @property
+    def student_id(self):
+        return getattr(self, "_student_id", None)
 
     def is_admin(self):
         return self.role == "admin"

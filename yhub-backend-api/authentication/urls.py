@@ -12,6 +12,8 @@ router.register(r'departments', views.DepartmentViewSet, basename='department')
 urlpatterns = [
     path("register/", views.UserRegistrationView.as_view(), name="register"),
     path("login/", views.login_view, name="login"),
+    path("otp/send/", views.send_otp_view, name="send_otp"),
+    path("otp/verify/", views.verify_otp_view, name="verify_otp"),
     path("google/", google_login_view, name="google_login"),
     path("logout/", views.logout_view, name="logout"),
     path(

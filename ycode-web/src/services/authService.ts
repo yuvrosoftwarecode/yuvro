@@ -68,6 +68,22 @@ class AuthService {
     return response;
   }
 
+  async sendOtp(email: string, context?: any): Promise<any> {
+    return restApiAuthUtil.post('/auth/otp/send/', { email, context });
+  }
+
+  async verifyOtp(email: string, otp: string): Promise<LoginResponse> {
+    const response = await restApiAuthUtil.post<LoginResponse>('/auth/otp/verify/', { email, otp });
+
+    if (response.access) {
+      localStorage.setItem('access', response.access);
+      localStorage.setItem('refresh', response.refresh);
+      restApiAuthUtil.setAuthToken(response.access);
+    }
+
+    return response;
+  }
+
   async getCurrentUser(): Promise<User> {
     return await restApiAuthUtil.get<User>('/auth/user/');
   }
