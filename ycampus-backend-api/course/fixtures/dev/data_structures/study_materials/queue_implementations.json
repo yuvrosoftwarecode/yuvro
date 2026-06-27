@@ -1,0 +1,450 @@
+{
+  "sub_unit_name": "Queue Implementations",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Queue Implementation?",
+      "description": "Queue implementation refers to the internal storage mechanism used to maintain FIFO behavior while supporting efficient insertion and deletion operations."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Queue always follows FIFO ordering, but its internal implementation can vary. The most common implementations are <strong>Array-Based Queue</strong> and <strong>Linked List-Based Queue</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Observation",
+      "content": "Regardless of implementation, the behavior of a Queue remains FIFO. Only the storage mechanism changes."
+    },
+
+    {
+      "type": "heading",
+      "content": "Why Multiple Implementations?"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Different applications have different memory and performance requirements. Some systems prefer fixed memory allocation, while others require dynamic growth.</p>"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Fixed Storage",
+      "right_title": "Dynamic Storage",
+      "left_points": [
+        "Predictable memory",
+        "Array implementation",
+        "Fast indexing",
+        "Possible overflow"
+      ],
+      "right_points": [
+        "Flexible size",
+        "Linked list implementation",
+        "Dynamic allocation",
+        "Additional pointer memory"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Array-Based Queue"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>An Array-Based Queue stores elements inside contiguous memory locations. Two pointers, <strong>Front</strong> and <strong>Rear</strong>, are used to manage insertions and deletions.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Array Queue Structure",
+      "steps": [
+        "Front → [10] [20] [30] [40] ← Rear",
+        "Deletion from Front",
+        "Insertion at Rear"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Front and Rear",
+      "description": "Front points to the oldest element, while Rear points to the newest element."
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Array Queue Enqueue",
+      "steps": [
+        "Check Overflow",
+        "Move Rear Forward",
+        "Insert Element",
+        "Update Queue"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Enqueue Example",
+      "steps": [
+        "Queue: [10, 20, 30]",
+        "Enqueue 40",
+        "Rear Moves",
+        "Queue: [10, 20, 30, 40]"
+      ]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Array Queue Dequeue",
+      "steps": [
+        "Check Underflow",
+        "Remove Front Element",
+        "Move Front Forward",
+        "Queue Updated"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Dequeue Example",
+      "steps": [
+        "Queue: [10, 20, 30]",
+        "Remove 10",
+        "Front Moves",
+        "Queue: [20, 30]"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Array Queue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Problem with Simple Arrays",
+      "content": "After multiple dequeue operations, unused spaces appear at the beginning of the array, causing inefficient memory utilization."
+    },
+
+    {
+      "type": "diagram",
+      "title": "Memory Waste Example",
+      "steps": [
+        "[ ] [ ] [30] [40] [50]",
+        "Front moved ahead",
+        "Empty cells cannot be reused easily"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Circular Queue Solution"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>To overcome wasted space in array queues, Circular Queues reuse freed positions by wrapping Rear back to the beginning.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Circular Queue Concept",
+      "steps": [
+        "Rear reaches end",
+        "Wrap around to start",
+        "Reuse empty positions",
+        "Efficient memory usage"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Industry Usage",
+      "content": "Circular Queues are widely used in networking systems, CPU scheduling, and buffering systems."
+    },
+
+    {
+      "type": "heading",
+      "content": "Linked List-Based Queue"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Linked List Queue stores elements as nodes connected through pointers. The Front points to the first node and Rear points to the last node.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Linked List Queue Structure",
+      "steps": [
+        "Front → [10]",
+        "[10] → [20]",
+        "[20] → [30]",
+        "[30] → NULL",
+        "Rear → [30]"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Dynamic Growth",
+      "description": "Linked List Queues grow dynamically as new nodes are created."
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Linked List Enqueue",
+      "steps": [
+        "Create Node",
+        "Attach After Rear",
+        "Move Rear Pointer",
+        "Insertion Complete"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Linked List Enqueue Example",
+      "steps": ["Queue: 10 → 20", "Insert 30", "Attach New Node", "Rear → 30"]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Linked List Dequeue",
+      "steps": [
+        "Check Empty Queue",
+        "Remove Front Node",
+        "Move Front Pointer",
+        "Delete Old Node"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Linked List Dequeue Example",
+      "steps": ["Front → 10", "Remove 10", "Front → 20", "Node Deleted"]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Linked List Queue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Major Benefit",
+      "content": "Linked List Queues do not suffer from fixed-size limitations and can grow as needed."
+    },
+
+    {
+      "type": "heading",
+      "content": "Array Queue vs Linked List Queue"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Array Queue",
+      "right_title": "Linked List Queue",
+      "left_points": [
+        "Contiguous memory",
+        "Fast cache performance",
+        "Possible overflow",
+        "Fixed capacity"
+      ],
+      "right_points": [
+        "Dynamic memory",
+        "Flexible growth",
+        "No capacity limitation",
+        "Extra pointer memory"
+      ]
+    },
+
+    {
+      "type": "table",
+      "headers": ["Feature", "Array Queue", "Linked List Queue"],
+      "rows": [
+        ["Memory", "Contiguous", "Non-Contiguous"],
+        ["Growth", "Limited", "Dynamic"],
+        ["Overflow", "Possible", "Rare"],
+        ["Cache Performance", "Better", "Lower"],
+        ["Memory Usage", "Efficient", "Extra Pointers"]
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Dynamic Array Queues"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Many modern programming languages internally use dynamically resizing arrays that automatically grow when capacity is reached.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Dynamic Resizing",
+      "steps": [
+        "Capacity Full",
+        "Create Larger Array",
+        "Copy Elements",
+        "Continue Operations"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Programming Libraries",
+      "content": "Many standard library implementations use dynamic arrays combined with circular queue logic."
+    },
+
+    {
+      "type": "heading",
+      "content": "Memory Representation"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Array Memory",
+      "right_title": "Linked List Memory",
+      "left_points": [
+        "Sequential addresses",
+        "Compact storage",
+        "Cache friendly",
+        "Better locality"
+      ],
+      "right_points": [
+        "Scattered addresses",
+        "Pointer-based storage",
+        "Flexible allocation",
+        "Dynamic growth"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-World Applications"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Where Queue Implementations Are Used",
+      "items": [
+        {
+          "question": "Operating Systems",
+          "answer": "Process scheduling queues."
+        },
+        {
+          "question": "Printers",
+          "answer": "Print job management."
+        },
+        {
+          "question": "Networking",
+          "answer": "Packet buffering and routing."
+        },
+        {
+          "question": "Web Servers",
+          "answer": "Request processing."
+        },
+        {
+          "question": "Streaming Platforms",
+          "answer": "Data buffering systems."
+        }
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Packet Queue Example",
+      "steps": [
+        "Packet Arrives",
+        "Packet Stored",
+        "Wait for Processing",
+        "Forward Packet"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Common Implementation Errors"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Queue Overflow?",
+          "answer": "Occurs when inserting into a full fixed-size queue."
+        },
+        {
+          "question": "Queue Underflow?",
+          "answer": "Occurs when removing from an empty queue."
+        },
+        {
+          "question": "Pointer Update Errors?",
+          "answer": "Incorrect Front or Rear updates break the queue."
+        }
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "Always discuss Array Queue, Circular Queue, and Linked List Queue when explaining Queue implementations in interviews."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Most interview questions focus on understanding the trade-offs between memory efficiency, dynamic growth, and operation complexity."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Queues can be implemented using Arrays or Linked Lists.",
+        "Front handles deletion.",
+        "Rear handles insertion.",
+        "Array queues may waste space.",
+        "Circular queues solve memory waste issues.",
+        "Linked list queues grow dynamically.",
+        "Enqueue and Dequeue take O(1).",
+        "Array queues offer better cache performance.",
+        "Linked list queues offer flexible memory allocation.",
+        "Implementation choice depends on system requirements."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which Queue implementation supports dynamic growth naturally?",
+      "options": [
+        "Fixed Array Queue",
+        "Linked List Queue",
+        "Static Queue",
+        "Circular Array"
+      ],
+      "answer": "Linked List Queue"
+    },
+
+    {
+      "type": "quiz",
+      "question": "What problem does a Circular Queue solve?",
+      "options": ["Sorting", "Memory Wastage", "Searching", "Hashing"],
+      "answer": "Memory Wastage"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which pointer is used for insertion in a Queue?",
+      "options": ["Front", "Middle", "Rear", "Top"],
+      "answer": "Rear"
+    }
+  ]
+}

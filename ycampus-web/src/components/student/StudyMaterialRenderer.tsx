@@ -51,15 +51,17 @@ const calloutStyle: Record<string, { bg: string; border: string; icon: string; t
 // ─── Individual Block Renderers ────────────────────────────────────────────────
 
 const RenderHeading: React.FC<{ block: Block }> = ({ block }) => (
-  <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-2 leading-tight">
-    {block.content || ''}
-  </h2>
+  <h2 
+    className="text-2xl font-bold text-slate-900 mt-8 mb-2 leading-tight"
+    dangerouslySetInnerHTML={{ __html: block.content || '' }}
+  />
 );
 
 const RenderSubheading: React.FC<{ block: Block }> = ({ block }) => (
-  <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2 leading-snug">
-    {block.content || ''}
-  </h3>
+  <h3 
+    className="text-lg font-semibold text-slate-800 mt-6 mb-2 leading-snug"
+    dangerouslySetInnerHTML={{ __html: block.content || '' }}
+  />
 );
 
 const RenderParagraph: React.FC<{ block: Block }> = ({ block }) => (
@@ -107,7 +109,7 @@ const RenderCallout: React.FC<{ block: Block }> = ({ block }) => {
       <div className="flex items-center gap-2 mb-2">
         <span className="text-lg">{style.icon}</span>
         {block.metadata?.title && (
-          <span className={`font-bold text-sm ${style.titleColor}`}>{block.metadata.title}</span>
+          <span className={`font-bold text-sm ${style.titleColor} prose prose-sm max-w-none prose-p:my-0`} dangerouslySetInnerHTML={{ __html: block.metadata.title }} />
         )}
       </div>
       <div
@@ -127,7 +129,7 @@ const RenderBulletList: React.FC<{ block: Block }> = ({ block }) => {
         {items.filter(Boolean).map((item, i) => (
           <li key={i} className="flex items-start gap-3 text-slate-700">
             <span className="text-sm font-bold text-indigo-600 w-6 shrink-0 mt-0.5">{i + 1}.</span>
-            <span className="text-sm leading-relaxed">{item}</span>
+            <span className="text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-0" dangerouslySetInnerHTML={{ __html: item }} />
           </li>
         ))}
       </ol>
@@ -138,7 +140,7 @@ const RenderBulletList: React.FC<{ block: Block }> = ({ block }) => {
       {items.filter(Boolean).map((item, i) => (
         <li key={i} className="flex items-start gap-3 text-slate-700">
           <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 mt-2" />
-          <span className="text-sm leading-relaxed">{item}</span>
+          <span className="text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-0" dangerouslySetInnerHTML={{ __html: item }} />
         </li>
       ))}
     </ul>
@@ -196,8 +198,8 @@ const RenderCardGrid: React.FC<{ block: Block }> = ({ block }) => {
           key={idx}
           className={`bg-gradient-to-br ${colors[idx % colors.length]} text-white rounded-xl p-5 shadow-md`}
         >
-          <p className="font-bold text-base mb-1">{card.title}</p>
-          {card.description && <p className="text-sm text-white/80 leading-relaxed">{card.description}</p>}
+          <div className="font-bold text-base mb-1 prose prose-invert max-w-none prose-p:my-0" dangerouslySetInnerHTML={{ __html: card.title }} />
+          {card.description && <div className="text-sm text-white/80 leading-relaxed prose prose-invert max-w-none prose-p:my-0 mt-1" dangerouslySetInnerHTML={{ __html: card.description }} />}
         </div>
       ))}
     </div>
@@ -214,7 +216,7 @@ const RenderColumnLayout: React.FC<{ block: Block }> = ({ block }) => {
         <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
           {col.heading && (
             <div className="bg-slate-50 px-4 py-2 border-b border-slate-200">
-              <p className="text-sm font-semibold text-slate-700">{col.heading}</p>
+              <div className="text-sm font-semibold text-slate-700 prose prose-sm max-w-none prose-p:my-0" dangerouslySetInnerHTML={{ __html: col.heading }} />
             </div>
           )}
           <div

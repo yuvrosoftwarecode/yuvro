@@ -1,0 +1,448 @@
+{
+  "sub_unit_name": "Circular Queue",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is a Circular Queue?",
+      "description": "A Circular Queue is a queue in which the last position is connected back to the first position, forming a circular structure."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Circular Queue improves upon a standard linear queue by reusing empty spaces created after dequeue operations. Instead of moving elements, the queue wraps around to utilize available positions efficiently.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Circular?",
+      "content": "The rear pointer can move back to the beginning of the array when it reaches the end, creating a circular flow."
+    },
+
+    {
+      "type": "heading",
+      "content": "Problem with Linear Queue"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>In a normal array-based queue, dequeued positions remain unused. Over time, this wastes memory even when empty spaces are available.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Linear Queue Memory Waste",
+      "steps": [
+        "Initial Queue: [10] [20] [30] [40] [50]",
+        "Dequeue 10",
+        "Dequeue 20",
+        "[ ] [ ] [30] [40] [50]",
+        "Front moves ahead",
+        "Empty slots cannot be reused easily"
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Limitation",
+      "content": "Even though free space exists at the beginning of the array, new insertions may fail if the rear has reached the end."
+    },
+
+    {
+      "type": "heading",
+      "content": "Circular Queue Solution"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Circular Queue treats the array as a circle. When the rear reaches the last index, it wraps back to index 0 if free space is available.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Circular Structure",
+      "steps": [
+        "Index 0 → 1 → 2 → 3 → 4",
+        "Last Index (4)",
+        "Wrap Back",
+        "Index 4 → 0"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Key Benefit",
+      "content": "All available positions can be reused without shifting elements."
+    },
+
+    {
+      "type": "heading",
+      "content": "Queue Representation"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Circular Queue Layout",
+      "steps": [
+        "[10] [20] [30] [ ] [ ]",
+        "Front = 0",
+        "Rear = 2",
+        "Elements stored sequentially"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Wrap Around Mechanism"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The modulo operator (%) is used to move pointers back to the beginning after reaching the end of the array.</p>"
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Circular Formula",
+      "description": "Next Position = (Current Position + 1) % Capacity"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Rear Wrap Around Example",
+      "steps": ["Capacity = 5", "Rear = 4", "(4 + 1) % 5", "Rear becomes 0"]
+    },
+
+    {
+      "type": "heading",
+      "content": "Enqueue Operation"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Insertion occurs at the rear. After insertion, the rear pointer advances using circular indexing.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Enqueue Process",
+      "steps": [
+        "Check Queue Full",
+        "Move Rear",
+        "Insert Element",
+        "Update Rear Position"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Enqueue Example",
+      "steps": [
+        "Queue: [10] [20] [30] [ ] [ ]",
+        "Insert 40",
+        "Rear Moves",
+        "[10] [20] [30] [40] [ ]"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Enqueue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Dequeue Operation"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Deletion occurs from the front. After removal, the front pointer advances using circular indexing.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Dequeue Process",
+      "steps": [
+        "Check Queue Empty",
+        "Remove Front Element",
+        "Move Front Forward",
+        "Update Queue"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Dequeue Example",
+      "steps": [
+        "[10] [20] [30] [40] [50]",
+        "Remove 10",
+        "Front Moves",
+        "Front = 1"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Dequeue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "How to Detect Empty Queue?"
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Empty Condition",
+      "description": "A Circular Queue is empty when Front = -1."
+    },
+
+    {
+      "type": "diagram",
+      "title": "Empty Queue State",
+      "steps": ["Front = -1", "Rear = -1", "Queue Contains No Elements"]
+    },
+
+    {
+      "type": "heading",
+      "content": "How to Detect Full Queue?"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Circular Queue becomes full when the next position of Rear equals Front.</p>"
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Full Queue Formula",
+      "description": "(Rear + 1) % Capacity == Front"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Full Queue Example",
+      "steps": [
+        "Capacity = 5",
+        "Front = 2",
+        "Rear = 1",
+        "(1 + 1) % 5 = 2",
+        "Queue Full"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Complete Circular Queue Walkthrough"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Operation Sequence",
+      "steps": [
+        "Enqueue 10",
+        "Enqueue 20",
+        "Enqueue 30",
+        "Dequeue 10",
+        "Enqueue 40",
+        "Enqueue 50",
+        "Rear Wraps Around"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Observation",
+      "content": "The queue continuously reuses free spaces without moving existing elements."
+    },
+
+    {
+      "type": "heading",
+      "content": "Advantages of Circular Queue"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Efficient Memory Usage",
+          "answer": "No unused spaces after dequeue operations."
+        },
+        {
+          "question": "No Shifting Required",
+          "answer": "Elements stay in place."
+        },
+        {
+          "question": "Constant Time Operations",
+          "answer": "Enqueue and Dequeue remain O(1)."
+        },
+        {
+          "question": "Suitable for Fixed Buffers",
+          "answer": "Common in hardware and networking systems."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Disadvantages of Circular Queue"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Limitations",
+      "items": [
+        {
+          "question": "Fixed Capacity",
+          "answer": "Size cannot grow automatically."
+        },
+        {
+          "question": "Implementation Complexity",
+          "answer": "Requires careful pointer management."
+        },
+        {
+          "question": "Full Queue Detection",
+          "answer": "Needs special conditions."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Circular Queue vs Linear Queue"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Linear Queue",
+      "right_title": "Circular Queue",
+      "left_points": [
+        "Memory waste possible",
+        "Rear stops at end",
+        "Simple implementation",
+        "Less efficient"
+      ],
+      "right_points": [
+        "Reuses memory",
+        "Rear wraps around",
+        "Better utilization",
+        "More efficient"
+      ]
+    },
+
+    {
+      "type": "table",
+      "headers": ["Feature", "Linear Queue", "Circular Queue"],
+      "rows": [
+        ["Memory Utilization", "Moderate", "High"],
+        ["Wrap Around", "No", "Yes"],
+        ["Overflow Risk", "Higher", "Lower"],
+        ["Space Efficiency", "Lower", "Higher"],
+        ["Complexity", "Simple", "Moderate"]
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-World Applications"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Where Circular Queues Are Used",
+      "items": [
+        {
+          "question": "CPU Scheduling",
+          "answer": "Round Robin scheduling uses circular queues."
+        },
+        {
+          "question": "Keyboard Buffers",
+          "answer": "Input characters are stored efficiently."
+        },
+        {
+          "question": "Streaming Applications",
+          "answer": "Audio and video buffering."
+        },
+        {
+          "question": "Network Routers",
+          "answer": "Packet buffering systems."
+        },
+        {
+          "question": "Embedded Systems",
+          "answer": "Fixed-size memory environments."
+        }
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Round Robin Scheduling",
+      "steps": [
+        "Process P1",
+        "Process P2",
+        "Process P3",
+        "Return to P1",
+        "Continue Circularly"
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "Whenever an interviewer asks how to remove memory wastage in an array-based queue, the answer is Circular Queue."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Circular Queue is one of the most frequently asked queue implementation topics because it demonstrates efficient memory utilization."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Circular Queue forms a circular structure.",
+        "Rear wraps around to the beginning.",
+        "Uses modulo arithmetic.",
+        "Solves memory wastage problems.",
+        "Enqueue is O(1).",
+        "Dequeue is O(1).",
+        "No element shifting required.",
+        "Efficient space utilization.",
+        "Widely used in buffering systems.",
+        "Common interview topic."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "What problem does a Circular Queue primarily solve?",
+      "options": ["Searching", "Sorting", "Memory Wastage", "Hashing"],
+      "answer": "Memory Wastage"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which operator is commonly used for circular indexing?",
+      "options": ["+", "-", "*", "%"],
+      "answer": "%"
+    },
+
+    {
+      "type": "quiz",
+      "question": "When is a Circular Queue considered full?",
+      "options": [
+        "Front == Rear",
+        "(Rear + 1) % Capacity == Front",
+        "Front == -1",
+        "Rear == Capacity"
+      ],
+      "answer": "(Rear + 1) % Capacity == Front"
+    }
+  ]
+}
