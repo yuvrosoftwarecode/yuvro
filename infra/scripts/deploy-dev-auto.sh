@@ -448,7 +448,7 @@ docker compose \
   -f docker-compose.ycampus.yml \
   -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
-  build --build-arg CACHEBUST="\$CACHEBUST" 2>&1 | tail -20
+  build --build-arg CACHEBUST="\$CACHEBUST"
 
 echo "📦 Stopping old containers and starting new ones..."
 docker network create executor 2>/dev/null || true
