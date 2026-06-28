@@ -7,11 +7,11 @@
 #   DEPLOY_TYPE=k8s make install        - Use Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
-.PHONY: install-ycode install-ycampus install-ylabs run-ycode run-ycampus run-ylabs
-.PHONY: stop-ycode stop-ycampus stop-ylabs clean-ycode clean-ycampus clean-ylabs
-.PHONY: logs-ycode logs-ycampus logs-ylabs load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus load-courses-ycode load-courses-ycampus
+.PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
+.PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
-.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
+.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub
 .PHONY: db-reset
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
@@ -37,7 +37,7 @@ VALID_DEPLOY_ENVS  := local dev staging prod
 VALID_DEPLOY_TYPES := docker k8s
 
 # Services list
-SERVICES := ycode-backend ycampus-backend ylabs-backend ycode-frontend ycampus-frontend ylabs-frontend code-executor
+SERVICES := ycode-backend ycampus-backend ylabs-backend yhub-backend ycode-frontend ycampus-frontend ylabs-frontend code-executor
 
 _validate-deploy:
 	@if ! echo "$(VALID_DEPLOY_ENVS)" | grep -qw "$(DEPLOY_ENV)"; then \
@@ -76,6 +76,13 @@ load-env-files: _validate-deploy
 					echo "  ✓ ycampus-backend-api/.env.$(DEPLOY_ENV)"; \
 				else \
 					echo "  ⚠ ycampus-backend-api/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			yhub-backend) \
+				if [ -f "yhub-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ yhub-backend-api/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ yhub-backend-api/.env.$(DEPLOY_ENV) not found"; \
 				fi \
 				;; \
 			ycode-frontend) \
@@ -117,6 +124,12 @@ validate-env-files: _validate-deploy
 			ycampus-backend) \
 				if [ ! -f "ycampus-backend-api/.env.$(DEPLOY_ENV)" ]; then \
 					echo "  ❌ Missing: ycampus-backend-api/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			yhub-backend) \
+				if [ ! -f "yhub-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: yhub-backend-api/.env.$(DEPLOY_ENV)"; \
 					MISSING_FILES=1; \
 				fi \
 				;; \
@@ -198,9 +211,10 @@ help:
 	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo "  make logs-ycode         View YCode logs"
 	@echo "  make logs-ycampus       View YCampus logs"
-	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus (no clear)"
+	@echo "  make setup-fixtures-data            Load fixture data for both YCode, YCampus, and YHub (no clear)"
 	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data (no clear)"
 	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data (no clear)"
+	@echo "  make setup-fixtures-data-yhub       Load YHub fixture data (no clear)"
 	@echo "  make load-courses-ycode             Load courses only into YCode"
 	@echo "  make load-courses-ycampus           Load courses only into YCampus"
 	@echo ""
@@ -221,7 +235,7 @@ help:
 ifeq ($(DEPLOY_TYPE),docker)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
-  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml $(ENV_OVERRIDE)
+  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml $(ENV_OVERRIDE)
 endif
 
 install: _validate-deploy
@@ -284,6 +298,7 @@ run: _validate-deploy
 		echo "   YCampus Backend:   http://localhost:8001"; \
 		echo "   YLabs Frontend:    http://localhost:3002"; \
 		echo "   YLabs Backend:     http://localhost:8002"; \
+		echo "   YHub Backend:      http://localhost:8003"; \
 		echo "   Code Executor:     http://localhost:8009"; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -645,6 +660,56 @@ logs-ycampus: _validate-deploy
 		kubectl logs -n yuvro -l app.kubernetes.io/instance=yuvro-code -f 2>/dev/null || echo "No pods found"; \
 	fi
 
+install-yhub: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🔨 Building YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		echo "🚀 Starting YHub services..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+	else \
+		echo "❌ Kubernetes deployment for YHub is not configured"; \
+	fi
+
+run-yhub: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
+			echo "❌ One or more YHub services failed to become healthy. Showing logs:"; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ YHub services are up and healthy!"; \
+		echo ""; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YHub Backend:   http://localhost:8003"; \
+		echo "   Code Executor:  http://localhost:8009"; \
+	else \
+		echo "❌ Kubernetes run for YHub is not configured"; \
+	fi
+
+stop-yhub: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🛑 Stopping YHub services..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
+	fi
+
+clean-yhub: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🧹 Cleaning YHub containers and volumes..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
+	fi
+
+logs-yhub: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📝 Viewing YHub logs (Ctrl+C to exit)..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
+	fi
+
 load-fixtures-ycode:
 	@$(MAKE) -f Makefile.ycode load-courses
 
@@ -654,12 +719,16 @@ load-fixtures-ycampus:
 setup-fixtures-data:
 	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+	@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 
 setup-fixtures-data-ycode:
 	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 
 setup-fixtures-data-ycampus:
 	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+setup-fixtures-data-yhub:
+	@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 
 load-courses-ycode:
 	@$(MAKE) -f Makefile.ycode load-courses
@@ -671,14 +740,17 @@ load-courses-ycampus:
 # Database Commands
 # ============================================================================
 
-makemigrations: makemigrations-ycode makemigrations-ycampus
-	@echo "✅ makemigrations completed for YCode and YCampus"
+makemigrations: makemigrations-ycode makemigrations-ycampus makemigrations-yhub
+	@echo "✅ makemigrations completed for YCode, YCampus, and YHub"
 
 makemigrations-ycode:
 	@$(MAKE) -f Makefile.ycode db-makemigrations
 
 makemigrations-ycampus:
 	@$(MAKE) -f Makefile.ycampus db-makemigrations
+
+makemigrations-yhub:
+	@$(MAKE) -f Makefile.yhub db-makemigrations
 
 clear-migrations:
 	@echo "🔎 Showing migration files (dry-run). Use '-y' to delete."
@@ -689,11 +761,12 @@ db-reset: _validate-deploy
 	@echo "🧹 Resetting databases (bringing down, removing volumes, starting DBs)..."
 	@docker network create executor 2>/dev/null || true
 	@docker compose $(COMPOSE_FILES) down -v --remove-orphans || true
-	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db || true
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db || true
 	@echo "⏳ Waiting for databases to become healthy..."
 	@sleep 5
 	@docker compose $(COMPOSE_FILES) exec -T ycode-backend python manage.py migrate || true
 	@docker compose $(COMPOSE_FILES) exec -T ycampus-backend python manage.py migrate || true
+	@docker compose $(COMPOSE_FILES) exec -T yhub-backend python manage.py migrate || true
 	@echo "✅ DB reset complete (migrations applied)."
 
 # ============================================================================
