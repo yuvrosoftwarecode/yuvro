@@ -1,18 +1,30 @@
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.exceptions import ValidationError
+
+YCODE_ROLE_CHOICES = [
+    ("student", "Student"),
+    ("instructor", "Instructor"),
+    ("recruiter", "Recruiter"),
+    ("admin", "Administrator"),
+    ("guest", "Guest"),
+]
+
+YLABS_ROLE_CHOICES = [
+    ("student", "Student"),
+    ("developer", "Developer"),
+    ("admin", "Administrator"),
+]
 
 
 class User(AbstractUser):
-    ROLE_CHOICES = [
-        ("user", "User"),
-        ("admin", "Administrator"),
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="user")
+    is_otp_login = models.BooleanField(default=False)
+    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    roles = models.JSONField(default=dict, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -20,36 +32,21 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
-    def is_admin(self):
-        return self.role == "admin"
+    def clean(self):
+        super().clean()
+        if not isinstance(self.roles, dict):
+            raise ValidationError({"roles": "Roles must be a JSON dictionary."})
+        
+        ycode_role = self.roles.get("ycode")
+        ycode_valid_keys = [r[0] for r in YCODE_ROLE_CHOICES]
+        if ycode_role and ycode_role not in ycode_valid_keys:
+            raise ValidationError({"roles": f"Invalid ycode role. Allowed: {', '.join(ycode_valid_keys)}"})
+            
+        ylabs_role = self.roles.get("ylabs")
+        ylabs_valid_keys = [r[0] for r in YLABS_ROLE_CHOICES]
+        if ylabs_role and ylabs_role not in ylabs_valid_keys:
+            raise ValidationError({"roles": f"Invalid ylabs role. Allowed: {', '.join(ylabs_valid_keys)}"})
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
-            self.role = "admin"
+        self.clean()
         super().save(*args, **kwargs)
-
-
-class Profile(models.Model):
-    GENDER_CHOICES = [
-        ("male", "Male"),
-        ("female", "Female"),
-        ("other", "Other"),
-        ("prefer_not_to_say", "Prefer not to say"),
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-
-    profile_image = models.URLField(blank=True, null=True)
-    cover_image = models.URLField(blank=True, null=True)
-    full_name = models.CharField(max_length=200, blank=True, null=True)
-    title = models.CharField(max_length=200, blank=True, null=True)
-    location = models.CharField(max_length=200, blank=True, null=True)
-    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
-    about = models.TextField(blank=True, null=True)
-    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.user.email}'s Profile"

@@ -8,7 +8,8 @@ const DashboardRedirect: React.FC = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      switch (user.role) {
+      const userRole = user.roles?.ycode || user.role;
+      switch (userRole) {
         case 'admin':
         case 'instructor':
           navigate('/instructor/dashboard', { replace: true });

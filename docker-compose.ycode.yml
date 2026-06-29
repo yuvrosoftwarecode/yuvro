@@ -83,3 +83,4 @@ networks:
     driver: bridge
   executor:
     external: true
+  yuvro-storage:

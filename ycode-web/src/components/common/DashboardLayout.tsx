@@ -35,7 +35,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     footerLinks
 }) => {
     const { user } = useAuth();
-    const userRole = user?.role || 'student';
+    const userRole = user?.roles?.ycode || user?.role || 'student';
     const isInstructorOrAdmin = userRole === 'admin' || userRole === 'instructor';
     const shouldHideFooter = hideFooter || isInstructorOrAdmin;
 

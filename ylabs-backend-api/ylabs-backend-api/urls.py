@@ -13,7 +13,6 @@ from django.conf.urls.static import static
 def health_check(request):
     return JsonResponse({"status": "healthy", "service": "ylabs-backend-api"})
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
@@ -21,6 +20,7 @@ urlpatterns = [
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/health/", health_check, name="health_check"),
     path("accounts/", include("allauth.urls")),
+    path("api/auth/", include("authentication.urls")),
 ]
 
 if settings.DEBUG:

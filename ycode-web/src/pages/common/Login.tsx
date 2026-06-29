@@ -19,11 +19,12 @@ const Login: React.FC = () => {
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   useEffect(() => {
-    if (isAuthenticated && user && user.role) {
+    const userRole = user?.roles?.ycode || user?.role;
+    if (isAuthenticated && user && userRole) {
       const queryParams = new URLSearchParams(location.search);
       const redirectParam = queryParams.get('redirect') || (location.state as any)?.from?.pathname;
       
-      if (user.role === 'guest') {
+      if (userRole === 'guest') {
         const finalRedirect = redirectParam || '/dashboard';
         navigate(`/change-password?redirect=${encodeURIComponent(finalRedirect)}`, { replace: true });
       } else {
@@ -60,18 +61,21 @@ const Login: React.FC = () => {
     try {
       const loggedInUser = await login(email, password);
 
-      if (loggedInUser && loggedInUser.role) {
-        const queryParams = new URLSearchParams(location.search);
-        const redirectParam = queryParams.get('redirect') || (location.state as any)?.from?.pathname;
+      if (loggedInUser) {
+        const userRole = loggedInUser.roles?.ycode || loggedInUser.role;
+        if (userRole) {
+          const queryParams = new URLSearchParams(location.search);
+          const redirectParam = queryParams.get('redirect') || (location.state as any)?.from?.pathname;
 
-        if (loggedInUser.role === 'guest') {
-          const finalRedirect = redirectParam || '/dashboard';
-          navigate(`/change-password?redirect=${encodeURIComponent(finalRedirect)}`, { replace: true });
-        } else {
-          if (redirectParam && redirectParam !== '/dashboard' && redirectParam !== '/') {
-            navigate(redirectParam, { replace: true });
+          if (userRole === 'guest') {
+            const finalRedirect = redirectParam || '/dashboard';
+            navigate(`/change-password?redirect=${encodeURIComponent(finalRedirect)}`, { replace: true });
           } else {
-            redirectToDashboard(loggedInUser, navigate);
+            if (redirectParam && redirectParam !== '/dashboard' && redirectParam !== '/') {
+              navigate(redirectParam, { replace: true });
+            } else {
+              redirectToDashboard(loggedInUser, navigate);
+            }
           }
         }
       }

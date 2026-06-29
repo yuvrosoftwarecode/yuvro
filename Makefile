@@ -211,10 +211,11 @@ help:
 	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo "  make logs-ycode         View YCode logs"
 	@echo "  make logs-ycampus       View YCampus logs"
-	@echo "  make setup-fixtures-data            Load fixture data for both YCode, YCampus, and YHub (no clear)"
+	@echo "  make setup-fixtures-data            Load fixture data for YHub, YCode, YLabs, and YCampus (no clear)"
 	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data (no clear)"
 	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data (no clear)"
 	@echo "  make setup-fixtures-data-yhub       Load YHub fixture data (no clear)"
+	@echo "  make setup-fixtures-data-ylabs      Load YLabs fixture data (no clear)"
 	@echo "  make load-courses-ycode             Load courses only into YCode"
 	@echo "  make load-courses-ycampus           Load courses only into YCampus"
 	@echo ""
@@ -717,9 +718,10 @@ load-fixtures-ycampus:
 	@$(MAKE) -f Makefile.ycampus load-courses
 
 setup-fixtures-data:
-	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
-	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 	@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+	@$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 
 setup-fixtures-data-ycode:
 	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
@@ -729,6 +731,9 @@ setup-fixtures-data-ycampus:
 
 setup-fixtures-data-yhub:
 	@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+setup-fixtures-data-ylabs:
+	@$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
 
 load-courses-ycode:
 	@$(MAKE) -f Makefile.ycode load-courses
@@ -758,16 +763,14 @@ clear-migrations:
 
 # Reset databases: bring down, remove volumes, start DBs and run migrations
 db-reset: _validate-deploy
-	@echo "🧹 Resetting databases (bringing down, removing volumes, starting DBs)..."
+	@echo "🧹 Resetting databases (removing DB volumes and restarting DBs/Backends)..."
 	@docker network create executor 2>/dev/null || true
-	@docker compose $(COMPOSE_FILES) down -v --remove-orphans || true
-	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db || true
+	@docker compose $(COMPOSE_FILES) rm -s -f -v ycode-db ycampus-db yhub-db ylabs-db || true
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db || true
 	@echo "⏳ Waiting for databases to become healthy..."
 	@sleep 5
-	@docker compose $(COMPOSE_FILES) exec -T ycode-backend python manage.py migrate || true
-	@docker compose $(COMPOSE_FILES) exec -T ycampus-backend python manage.py migrate || true
-	@docker compose $(COMPOSE_FILES) exec -T yhub-backend python manage.py migrate || true
-	@echo "✅ DB reset complete (migrations applied)."
+	@docker compose $(COMPOSE_FILES) restart ycode-backend ycampus-backend yhub-backend ylabs-backend || true
+	@echo "✅ DB reset complete (migrations applied on backend restart)."
 
 # ============================================================================
 # Code Executor Commands

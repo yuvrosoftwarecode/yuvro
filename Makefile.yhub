@@ -85,14 +85,14 @@ db-createsuperuser:
 
 db-reset:
 	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.yhub.yml down yhub-db -v
+	docker compose -f docker-compose.yhub.yml rm -s -f -v yhub-db
 	docker compose -f docker-compose.yhub.yml up -d yhub-db
+	@echo "⏳ Waiting for database to become healthy..."
+	@sleep 5
+	docker compose -f docker-compose.yhub.yml restart yhub-backend
 	@echo "✅ Database reset complete!"
 
-load-fixtures-data:
-	@echo "🔄 Loading YHub fixture data..."
-	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py seed_agents
-	@echo "✅ YHub fixture data loaded!"
+
 
 # ============================================================================
 # Backend

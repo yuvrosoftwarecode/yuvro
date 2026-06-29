@@ -1,12 +1,13 @@
 import { NavigateFunction } from 'react-router-dom';
 
 export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
-  if (!user || !user.role) {
+  const userRole = user?.roles?.ycode || user?.role;
+  if (!user || !userRole) {
     navigate('/login');
     return;
   }
 
-  switch (user.role) {
+  switch (userRole) {
     case 'admin':
     case 'instructor':
       navigate('/instructor/dashboard', { replace: true });
