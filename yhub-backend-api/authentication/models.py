@@ -13,7 +13,6 @@ YCODE_ROLE_CHOICES = [
 
 YLABS_ROLE_CHOICES = [
     ("student", "Student"),
-    ("developer", "Developer"),
     ("admin", "Administrator"),
 ]
 
@@ -23,7 +22,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     is_otp_login = models.BooleanField(default=False)
-    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    
     roles = models.JSONField(default=dict, blank=True)
 
     USERNAME_FIELD = "email"

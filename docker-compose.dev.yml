@@ -3,27 +3,7 @@
 # so the dev environment behaves like production for performance.
 # Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
 
-services:
-  # Stub DB containers - stay healthy so depends_on is satisfied, but backends use RDS via .env.dev
-  ycode-db:
-    image: alpine
-    command: ["sh", "-c", "while true; do sleep 3600; done"]
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 1s
-      timeout: 1s
-      retries: 1
-      start_period: 1s
-
-  ycampus-db:
-    image: alpine
-    command: ["sh", "-c", "while true; do sleep 3600; done"]
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 1s
-      timeout: 1s
-      retries: 1
-      start_period: 1s
+services: 
 
   # Use .env.dev files for all services
   yuvro-code-executor:
@@ -126,17 +106,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # Stub DB for ylabs (uses RDS in dev)
-  ylabs-db:
-    image: alpine
-    command: ["sh", "-c", "while true; do sleep 3600; done"]
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 1s
-      timeout: 1s
-      retries: 1
-      start_period: 1s
-
   # Backend: use production target (gunicorn)
   ylabs-backend:
     build:
@@ -177,17 +146,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-
-# Stub DB for yhub (uses RDS in dev)
-  yhub-db:
-    image: alpine
-    command: ["sh", "-c", "while true; do sleep 3600; done"]
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 1s
-      timeout: 1s
-      retries: 1
-      start_period: 1s
 
   # Backend: use production target (gunicorn)
   yhub-backend:

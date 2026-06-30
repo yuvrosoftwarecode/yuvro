@@ -100,17 +100,16 @@ def google_login_view(request):
             "first_name": first_name,
             "last_name": last_name,
             "is_active": True,
-            "google_id": google_id,
         },
     )
     
-    if not user.google_id:
-        user.google_id = google_id
-        update_fields = ["google_id"]
-        product = request.query_params.get("product") or request.data.get("product")
-        if product and not user.roles:
-            user.roles = {product: "student"}
-            update_fields.append("roles")
+    update_fields = []
+    product = request.query_params.get("product") or request.data.get("product")
+    if product and not user.roles:
+        user.roles = {product: "student"}
+        update_fields.append("roles")
+        
+    if update_fields:
         user.save(update_fields=update_fields)
 
     token_serializer = CustomTokenObtainPairSerializer()
