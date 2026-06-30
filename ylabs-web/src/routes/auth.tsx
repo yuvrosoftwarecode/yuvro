@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { useAuth, DEMO_ACCOUNTS, Role } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import { ArrowRight, Github, Eye, EyeOff, Bot, Activity, GitBranch, Layers, CheckCircle2 } from "lucide-react";
+
+type Role = "student" | "developer" | "admin" | "job_seeker" | "recruiter";
 
 const searchSchema = z.object({ tab: z.enum(["signin", "signup"]).default("signin").catch("signin") });
 
@@ -32,7 +34,7 @@ function AuthPage() {
             <button onClick={() => setTab("signup")} className={`flex-1 rounded-md py-2 transition ${tab === "signup" ? "bg-gradient-to-r from-primary to-ui text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}>Create Account</button>
           </div>
           {tab === "signin" ? <SignInForm /> : <SignUpForm />}
-          <DemoCreds />
+
           <p className="mt-6 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground">← Back to home</Link>
           </p>
@@ -115,16 +117,18 @@ function SignInForm() {
   const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
-    const acc = DEMO_ACCOUNTS[email.toLowerCase().trim()];
-    if (!acc || acc.password !== password) {
-      setErr("Invalid email or password. Try a demo account below.");
-      return;
+    try {
+      // @ts-ignore (we know authService exists, we will import it)
+      const res = await import("@/services/authService").then(m => m.default.login(email, password));
+      login(res.user, res.access);
+      const role = res.user.roles?.ylabs || res.user.role;
+      nav({ to: role === "admin" ? "/admin" : "/dashboard" });
+    } catch (error: any) {
+      setErr(error?.message || "Invalid email or password.");
     }
-    login(acc.user);
-    nav({ to: acc.user.role === "admin" ? "/admin" : "/dashboard" });
   };
 
   return (
@@ -165,14 +169,27 @@ function SignUpForm() {
   const [agree, setAgree] = useState(false);
   const [err, setErr] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
     if (pwd.length < 6) return setErr("Password must be at least 6 characters.");
     if (pwd !== confirm) return setErr("Passwords do not match.");
     if (!agree) return setErr("Please accept the terms and privacy policy.");
-    login({ email: email.trim(), name: name.trim(), role });
-    nav({ to: role === "admin" ? "/admin" : "/dashboard" });
+    
+    try {
+      // @ts-ignore
+      const res = await import("@/services/authService").then(m => m.default.register({
+        email: email.trim(),
+        username: email.trim(),
+        password: pwd,
+        password_confirm: confirm
+      }));
+      login(res.user, res.access);
+      const userRole = res.user.roles?.ylabs || res.user.role;
+      nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
+    } catch (error: any) {
+      setErr(error?.message || "Registration failed.");
+    }
   };
 
   return (
@@ -223,42 +240,6 @@ function OAuthButtons() {
   );
 }
 
-function DemoCreds() {
-  const { login } = useAuth();
-  const nav = useNavigate();
-  const fill = (email: string) => {
-    const acc = DEMO_ACCOUNTS[email];
-    if (!acc) return;
-    login(acc.user);
-    nav({ to: acc.user.role === "admin" ? "/admin" : "/dashboard" });
-  };
-  const demos = [
-    { label: "Student", email: "student@yuvrolabs.com", pwd: "student123", c: "primary" },
-    { label: "Developer", email: "developer@yuvrolabs.com", pwd: "developer123", c: "ui" },
-    { label: "Admin", email: "admin@yuvrolabs.com", pwd: "admin123", c: "warning" },
-  ];
-  return (
-    <div className="mt-6 rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4">
-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Demo Credentials — one click to enter</div>
-      <div className="mt-3 space-y-2">
-        {demos.map((d) => (
-          <div key={d.email} className="flex items-center justify-between gap-3 rounded-md border border-border/50 bg-background/40 p-2.5">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ color: `var(--${d.c})`, background: `color-mix(in oklab, var(--${d.c}) 15%, transparent)` }}>{d.label}</span>
-                <span className="font-mono truncate">{d.email}</span>
-              </div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground font-mono">password: {d.pwd}</div>
-            </div>
-            <button onClick={() => fill(d.email)} className="shrink-0 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 transition">
-              Enter <ArrowRight className="h-3 w-3" />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

@@ -1,11 +1,34 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   ArrowRight, Sparkles, Code2, Users, Brain, ShieldCheck, BarChart3, Trophy,
   GitBranch, Bug, Database, Server, Cpu, Layers, Zap, CheckCircle2, Play, Bot,
   Star, Activity, Award, Briefcase, Rocket, Quote
 } from "lucide-react";
 
-export const Route = createFileRoute("/")({ component: Landing });
+export const Route = createFileRoute("/")({ 
+  beforeLoad: () => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem('access');
+      if (token) {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            const role = user.roles?.ylabs || user.role;
+            if (role === 'admin') {
+              throw redirect({ to: '/admin' });
+            } else {
+              throw redirect({ to: '/dashboard' });
+            }
+          } catch (e) {
+            // ignore parsing error
+          }
+        }
+      }
+    }
+  },
+  component: Landing 
+});
 
 function Landing() {
   return (

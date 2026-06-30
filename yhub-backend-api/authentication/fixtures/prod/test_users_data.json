@@ -296,6 +296,129 @@
       }
     },
     {
+      "email": "sreelekha@gmail.com",
+      "username": "sreelekha",
+      "first_name": "sreelekha",
+      "last_name": "Mucharla",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "sreelekha saidul",
+        "title": "Full Stack Developer",
+        "location": "Hyderabad, India",
+        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
+        "gender": "female",
+        "skills": [
+          {
+            "name": "React.js",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Node.js",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "JavaScript",
+            "level": "Advanced",
+            "percentage": 90
+          },
+          {
+            "name": "Python",
+            "level": "Intermediate",
+            "percentage": 70
+          },
+          {
+            "name": "MongoDB",
+            "level": "Intermediate",
+            "percentage": 65
+          }
+        ],
+        "experiences": [
+          {
+            "company": "TechStart Solutions",
+            "role": "Frontend Developer Intern",
+            "duration": "Jun 2023 - Dec 2023",
+            "description_list": [
+              "Developed responsive web applications using React.js and TypeScript",
+              "Collaborated with design team to implement pixel-perfect UI components",
+              "Optimized application performance resulting in 30% faster load times"
+            ],
+            "technologies": [
+              "React.js",
+              "TypeScript",
+              "CSS3",
+              "Git"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "E-commerce Platform",
+            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
+            "role": "Full Stack Developer",
+            "tech_stack": [
+              "React.js",
+              "Node.js",
+              "MongoDB",
+              "Express.js",
+              "Stripe API"
+            ],
+            "github_link": "https://github.com/shilpa/ecommerce-platform",
+            "live_link": "https://shilpa-ecommerce.netlify.app"
+          },
+          {
+            "title": "Task Management App",
+            "description": "Collaborative task management application with real-time updates and team collaboration features",
+            "role": "Frontend Developer",
+            "tech_stack": [
+              "React.js",
+              "Socket.io",
+              "Material-UI",
+              "Firebase"
+            ],
+            "github_link": "https://github.com/shilpa/task-manager",
+            "live_link": "https://task-manager-shilpa.vercel.app"
+          }
+        ],
+        "education": [
+          {
+            "institution": "JNTU Hyderabad",
+            "degree": "Bachelor of Technology",
+            "field": "Computer Science Engineering",
+            "duration": "2021 - 2025",
+            "cgpa": "8.5",
+            "start_year": 2021,
+            "end_year": 2025
+          }
+        ],
+        "certifications": [
+          {
+            "name": "React Developer Certification",
+            "issuer": "Meta",
+            "completion_date": "March 2024"
+          },
+          {
+            "name": "JavaScript Algorithms and Data Structures",
+            "issuer": "freeCodeCamp",
+            "completion_date": "January 2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/shilpadora",
+          "linkedin": "https://linkedin.com/in/shilpadora",
+          "portfolio": "https://shilpadora.dev",
+          "email": "shilpa@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "developer"
+      }
+    },
+    {
       "email": "devendra@gmail.com",
       "username": "devendra",
       "first_name": "Devendra",
