@@ -3,6 +3,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Github, Eye, EyeOff, Bot, Activity, GitBranch, Layers, CheckCircle2 } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 type Role = "student" | "developer" | "admin" | "job_seeker" | "recruiter";
 
@@ -225,14 +226,34 @@ function SignUpForm() {
 }
 
 function OAuthButtons() {
+  const { login } = useAuth();
+  const nav = useNavigate();
+  
+  const handleGoogleSuccess = async (tokenResponse: any) => {
+    try {
+      // @ts-ignore
+      const res = await import("@/services/authService").then(m => m.default.loginWithGoogle(tokenResponse.access_token));
+      login(res.user, res.access);
+      const userRole = res.user.roles?.ylabs || res.user.role;
+      nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
+    } catch (error: any) {
+       console.error("Google login failed", error);
+    }
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => console.error('Google Login Failed'),
+  });
+
   return (
     <>
       <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div><div className="relative flex justify-center text-[10px] uppercase tracking-wider"><span className="bg-background px-2 text-muted-foreground">or continue with</span></div></div>
       <div className="grid grid-cols-2 gap-3">
-        <button type="button" className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition">
+        <button type="button" onClick={() => googleLogin()} className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition cursor-pointer">
           <GoogleIcon /> Google
         </button>
-        <button type="button" className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition">
+        <button type="button" className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition opacity-50 cursor-not-allowed">
           <Github className="h-4 w-4" /> GitHub
         </button>
       </div>

@@ -1,10 +1,6 @@
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-# ============================================================================
-# Base Permission Classes
-# ============================================================================
-
 
 class IsAdminUser(BasePermission):
     """
@@ -24,11 +20,6 @@ class IsAuthenticatedUser(BasePermission):
 
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated
-
-
-# ============================================================================
-# Role-Based Permission Classes
-# ============================================================================
 
 
 class IsInstructorOrAdmin(BasePermission):
@@ -89,11 +80,6 @@ class IsAuthenticatedOrReadOnly(BasePermission):
         return request.user and request.user.is_authenticated
 
 
-# ============================================================================
-# Object-Level Permission Classes
-# ============================================================================
-
-
 class IsOwnerOrAdmin(BasePermission):
     """
     Permission class that allows access to the owner of the object or admin users.
@@ -137,11 +123,6 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Write permissions are only allowed to the owner of the object.
         return obj.user == request.user
-
-
-# ============================================================================
-# Content Management Permission Classes
-# ============================================================================
 
 
 class CanManageContent(BasePermission):
@@ -199,11 +180,6 @@ class CanManageUsers(BasePermission):
         )
 
 
-# ============================================================================
-# Job-Related Permission Classes
-# ============================================================================
-
-
 class IsHRorReadOnly(BasePermission):
     """
     Permission class for HR operations.
@@ -214,11 +190,6 @@ class IsHRorReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         return request.user and request.user.is_staff
-
-
-# ============================================================================
-# Combined Permission Classes
-# ============================================================================
 
 
 class IsInstructorOrAdminOrReadOnly(BasePermission):
