@@ -1,0 +1,304 @@
+{
+  "sub_unit_name": "LinkedList & Queue",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are LinkedList and Queue?",
+      "description": "LinkedList is a doubly linked list implementation of both the List and Deque interfaces, while Queue is an interface designed to process elements in a specific order, usually FIFO (First-In, First-Out)."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike <code>ArrayList</code>, which stores elements in a dynamic array, <strong>LinkedList</strong> stores elements as interconnected nodes. This makes insertions and deletions more efficient. Since LinkedList also implements the <code>Queue</code> interface, it can be used for queue operations such as adding and removing elements in FIFO order.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn LinkedList & Queue?",
+      "content": "LinkedList is ideal for frequent insertions and deletions, while Queue is widely used for scheduling, task processing, BFS traversal, and message handling."
+    },
+    {
+      "type": "diagram",
+      "title": "LinkedList Structure",
+      "steps": [
+        "Head Node",
+        "Previous Pointer",
+        "Current Node",
+        "Next Pointer",
+        "Tail Node"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "LinkedList"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A <code>LinkedList</code> stores elements as nodes where each node contains data and references to the previous and next nodes. It maintains insertion order and allows duplicate elements.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a LinkedList",
+      "code": "import java.util.*;\n\nLinkedList<String> cities = new LinkedList<>();\ncities.add(\"Delhi\");\ncities.add(\"Mumbai\");\ncities.add(\"Chennai\");\nSystem.out.println(cities);"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "LinkedList provides fast insertions and deletions because elements are linked through nodes instead of stored in contiguous memory."
+    },
+    {
+      "type": "heading",
+      "content": "Common LinkedList Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["add()", "Adds an element"],
+        ["addFirst()", "Adds element at the beginning"],
+        ["addLast()", "Adds element at the end"],
+        ["remove()", "Removes an element"],
+        ["removeFirst()", "Removes the first element"],
+        ["removeLast()", "Removes the last element"],
+        ["getFirst()", "Returns the first element"],
+        ["getLast()", "Returns the last element"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using LinkedList Methods",
+      "code": "LinkedList<Integer> list = new LinkedList<>();\nlist.add(10);\nlist.addFirst(5);\nlist.addLast(20);\nSystem.out.println(list);\nlist.removeFirst();"
+    },
+    {
+      "type": "heading",
+      "content": "Queue Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Queue</code> interface represents a collection where elements are processed according to FIFO (First-In, First-Out). Elements are inserted at the rear and removed from the front.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Queue (FIFO)",
+      "steps": [
+        "Enqueue A",
+        "Enqueue B",
+        "Enqueue C",
+        "Dequeue A",
+        "Remaining: B, C"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Queue Example",
+      "code": "Queue<String> queue = new LinkedList<>();\nqueue.offer(\"Task1\");\nqueue.offer(\"Task2\");\nqueue.offer(\"Task3\");\nSystem.out.println(queue.poll());"
+    },
+    {
+      "type": "fact-box",
+      "title": "Queue Operations",
+      "content": "offer() inserts an element, poll() removes and returns the front element, and peek() returns the front element without removing it."
+    },
+    {
+      "type": "heading",
+      "content": "Queue Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["offer()", "Insert an element"],
+        ["poll()", "Remove and return the front element"],
+        ["peek()", "View the front element"],
+        ["isEmpty()", "Check whether queue is empty"],
+        ["size()", "Return number of elements"]
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Queue Processing",
+      "steps": [
+        "Create Queue",
+        "Enqueue Elements",
+        "Peek Front Element",
+        "Dequeue Element",
+        "Repeat Until Empty"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "LinkedList vs ArrayList"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "LinkedList",
+      "right_title": "ArrayList",
+      "left_points": [
+        "Node-based storage",
+        "Fast insertions and deletions",
+        "Slower random access",
+        "More memory usage"
+      ],
+      "right_points": [
+        "Dynamic array",
+        "Fast random access",
+        "Slower middle insertions",
+        "Less memory overhead"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Queue vs Stack"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Queue",
+      "right_title": "Stack",
+      "left_points": [
+        "FIFO",
+        "Insertion at rear",
+        "Removal from front",
+        "Used in scheduling"
+      ],
+      "right_points": [
+        "LIFO",
+        "Insertion at top",
+        "Removal from top",
+        "Used in recursion and undo operations"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "LinkedList Complexity"],
+      "rows": [
+        ["Insert at Beginning", "O(1)"],
+        ["Insert at End", "O(1)"],
+        ["Delete at Beginning", "O(1)"],
+        ["Access by Index", "O(n)"],
+        ["Search", "O(n)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "LinkedList Performance",
+      "time_complexity": "Insertion/Deletion: O(1), Access/Search: O(n)",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are LinkedList and Queue Used?",
+      "items": [
+        {
+          "question": "CPU Scheduling",
+          "answer": "Tasks are processed in queue order."
+        },
+        {
+          "question": "Breadth-First Search (BFS)",
+          "answer": "Queues store vertices to visit next."
+        },
+        {
+          "question": "Print Queue",
+          "answer": "Documents are printed in FIFO order."
+        },
+        {
+          "question": "Music Playlist",
+          "answer": "LinkedList allows efficient insertion and deletion of songs."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "People Waiting in Line",
+      "content": "A queue works like people standing in a ticket line. The first person to join the queue is the first one to be served. A LinkedList is like a chain where every person knows who stands before and after them."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interview questions commonly cover LinkedList vs ArrayList, Queue operations, FIFO behavior, internal node structure, and the time complexity of insertion, deletion, and traversal."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Is LinkedList always faster than ArrayList?",
+          "answer": "No. LinkedList is faster for insertions and deletions, while ArrayList is faster for random access."
+        },
+        {
+          "question": "Does Queue allow direct index access?",
+          "answer": "No. Queue elements are accessed according to processing order."
+        },
+        {
+          "question": "Should remove() be used on an empty queue?",
+          "answer": "No. Use poll() when possible because it returns null instead of throwing an exception."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use LinkedList when insertions and deletions are frequent, and use Queue when data must be processed in FIFO order."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "LinkedList", "Queue"],
+      "rows": [
+        ["Purpose", "Dynamic List", "FIFO Processing"],
+        ["Duplicates", "Allowed", "Allowed"],
+        ["Order", "Insertion Order", "Processing Order"],
+        [
+          "Common Methods",
+          "addFirst(), removeLast()",
+          "offer(), poll(), peek()"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "LinkedList uses interconnected nodes.",
+        "Queue follows FIFO order.",
+        "LinkedList supports fast insertions and deletions.",
+        "offer() inserts into a queue.",
+        "poll() removes the front element.",
+        "peek() views the front element without removing it."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which data structure follows FIFO order?",
+      "options": ["Stack", "Queue", "Tree", "HashSet"],
+      "answer": "Queue"
+    },
+    {
+      "type": "quiz",
+      "question": "Which implementation stores elements as linked nodes?",
+      "options": ["ArrayList", "HashMap", "LinkedList", "TreeSet"],
+      "answer": "LinkedList"
+    },
+    {
+      "type": "quiz",
+      "question": "Which Queue method removes and returns the front element?",
+      "options": ["peek()", "offer()", "poll()", "push()"],
+      "answer": "poll()"
+    }
+  ]
+}

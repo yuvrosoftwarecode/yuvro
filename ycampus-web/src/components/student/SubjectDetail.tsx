@@ -76,7 +76,7 @@ const SubjectDetail: React.FC = () => {
         setLoading(true);
         const [sub, rawUnits] = await Promise.all([fetchSubjectById(subjectId), fetchUnitsBySubject(subjectId)]);
         const isAssessments = window.location.pathname.includes('/student/assessments');
-        if (isAssessments && sub.short_code !== 'DSA100') {
+        if (isAssessments && sub.short_code !== 'DSA100' && sub.short_code !== 'JAVA100') {
           toast.error('Unauthorized access');
           navigate('/student/assessments/notes');
           return;

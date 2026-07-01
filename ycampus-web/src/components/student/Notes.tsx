@@ -24,7 +24,7 @@ const Notes = () => {
         let data = await fetchSubjectsByCollege(user.college_id);
         const activeProductType = window.location.pathname.includes('/student/assessments') || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
         if (activeProductType === 'assessments') {
-          data = data.filter(s => s.product_type === 'assessments' && (s.short_code === 'DSA100' || s.subject_code === 'DSA100'));
+          data = data.filter(s => s.product_type === 'assessments' && (s.short_code === 'DSA100' || s.subject_code === 'DSA100' || s.short_code === 'JAVA100' || s.subject_code === 'JAVA100'))
         } else {
           data = data.filter(s => s.product_type === activeProductType);
         }

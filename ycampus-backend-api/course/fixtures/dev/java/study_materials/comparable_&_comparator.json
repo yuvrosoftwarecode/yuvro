@@ -1,0 +1,265 @@
+{
+  "sub_unit_name": "Comparable & Comparator",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Comparable & Comparator?",
+      "description": "Comparable and Comparator are interfaces used to define the ordering of objects in Java. Comparable provides the natural ordering of objects, while Comparator allows custom sorting based on different criteria."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Sorting is a common requirement in Java applications. The <code>Comparable</code> interface is implemented inside a class to define its default sorting order. The <code>Comparator</code> interface is implemented separately and allows multiple custom sorting strategies without modifying the original class.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Comparable & Comparator?",
+      "content": "These interfaces are essential for sorting collections, implementing custom ordering, and solving many coding interview problems involving objects."
+    },
+    {
+      "type": "diagram",
+      "title": "Sorting Approaches",
+      "steps": [
+        "Collection of Objects",
+        "Comparable (Natural Order)",
+        "Comparator (Custom Order)",
+        "Collections.sort()",
+        "Sorted Collection"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparable Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Comparable</code> interface belongs to the <code>java.lang</code> package and contains a single method, <code>compareTo()</code>. It defines the natural ordering of objects.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Comparable Example",
+      "code": "class Student implements Comparable<Student> {\n    int marks;\n\n    Student(int marks) {\n        this.marks = marks;\n    }\n\n    @Override\n    public int compareTo(Student s) {\n        return this.marks - s.marks;\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A class can implement Comparable only once because it defines a single natural ordering."
+    },
+    {
+      "type": "heading",
+      "content": "Comparator Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Comparator</code> interface belongs to the <code>java.util</code> package and provides the <code>compare()</code> method. It allows multiple custom sorting strategies without changing the original class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Comparator Example",
+      "code": "Comparator<Student> byMarks = (s1, s2) -> s1.marks - s2.marks;\nCollections.sort(studentList, byMarks);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Flexibility",
+      "content": "A class can have multiple Comparator implementations for different sorting requirements, such as sorting by name, age, salary, or marks."
+    },
+    {
+      "type": "heading",
+      "content": "compareTo() Return Values"
+    },
+    {
+      "type": "table",
+      "headers": ["Return Value", "Meaning"],
+      "rows": [
+        ["Negative", "Current object comes before the other object"],
+        ["Zero", "Both objects are considered equal"],
+        ["Positive", "Current object comes after the other object"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "compare() Return Values"
+    },
+    {
+      "type": "table",
+      "headers": ["Return Value", "Meaning"],
+      "rows": [
+        ["Negative", "First object comes before second object"],
+        ["Zero", "Objects are equal"],
+        ["Positive", "First object comes after second object"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Sorting by Name",
+      "code": "Comparator<Student> byName = (s1, s2) -> s1.name.compareTo(s2.name);\nCollections.sort(studentList, byName);"
+    },
+    {
+      "type": "process_flow",
+      "title": "Sorting Objects",
+      "steps": [
+        "Create Objects",
+        "Choose Comparable or Comparator",
+        "Implement compareTo() or compare()",
+        "Call Collections.sort()",
+        "Receive Sorted Collection"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparable vs Comparator"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Comparable",
+      "right_title": "Comparator",
+      "left_points": [
+        "Package: java.lang",
+        "Uses compareTo()",
+        "Defines natural ordering",
+        "One sorting strategy"
+      ],
+      "right_points": [
+        "Package: java.util",
+        "Uses compare()",
+        "Defines custom ordering",
+        "Multiple sorting strategies"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "When to Use Which?"
+    },
+    {
+      "type": "table",
+      "headers": ["Scenario", "Recommended Interface"],
+      "rows": [
+        ["Default sorting", "Comparable"],
+        ["Multiple sorting conditions", "Comparator"],
+        ["Cannot modify existing class", "Comparator"],
+        ["Single natural ordering", "Comparable"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Sorting Complexity",
+      "time_complexity": "Collections.sort(): O(n log n)",
+      "space_complexity": "Depends on sorting implementation"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Comparable & Comparator Used?",
+      "items": [
+        {
+          "question": "Student Management",
+          "answer": "Sort students by marks, roll number, or name."
+        },
+        {
+          "question": "Employee Records",
+          "answer": "Sort employees by salary, department, or experience."
+        },
+        {
+          "question": "E-commerce",
+          "answer": "Sort products by price, rating, or popularity."
+        },
+        {
+          "question": "Library Systems",
+          "answer": "Sort books by title, author, or publication year."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Ranking Students",
+      "content": "Imagine a school ranking students. If the default ranking is based on marks, it is like Comparable. If teachers sometimes rank students by attendance, sports, or behavior, those are different Comparators."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Comparable and Comparator are among the most frequently asked Java interview topics. Interviewers often ask about compareTo(), compare(), lambda expressions, sorting custom objects, and differences between natural and custom ordering."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a class implement multiple Comparable interfaces?",
+          "answer": "No. A class can define only one natural ordering using Comparable."
+        },
+        {
+          "question": "Should Comparator modify the original class?",
+          "answer": "No. Comparator is implemented separately to keep the original class unchanged."
+        },
+        {
+          "question": "Can compareTo() return only -1, 0, or 1?",
+          "answer": "No. It can return any negative, zero, or positive integer."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use Comparable for default sorting built into a class and Comparator when different custom sorting strategies are required."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Comparable", "Comparator"],
+      "rows": [
+        ["Package", "java.lang", "java.util"],
+        ["Method", "compareTo()", "compare()"],
+        ["Sorting", "Natural", "Custom"],
+        ["Number of Strategies", "One", "Multiple"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Comparable defines natural ordering.",
+        "Comparator defines custom ordering.",
+        "compareTo() belongs to Comparable.",
+        "compare() belongs to Comparator.",
+        "Collections.sort() works with both.",
+        "Comparator is commonly implemented using lambda expressions."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface defines the natural ordering of objects?",
+      "options": ["Comparator", "Comparable", "Collection", "Iterable"],
+      "answer": "Comparable"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method belongs to the Comparator interface?",
+      "options": ["compareTo()", "equals()", "compare()", "sort()"],
+      "answer": "compare()"
+    },
+    {
+      "type": "quiz",
+      "question": "When should Comparator be preferred over Comparable?",
+      "options": [
+        "When only one default sorting order is needed",
+        "When multiple custom sorting strategies are required",
+        "When sorting primitive arrays",
+        "When working only with Strings"
+      ],
+      "answer": "When multiple custom sorting strategies are required"
+    }
+  ]
+}

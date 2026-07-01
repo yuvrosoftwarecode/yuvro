@@ -146,14 +146,14 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
   const renderContentSection = () => {
     switch (block.type) {
       case 'heading': case 'subheading': case 'paragraph':
-        return <CollapsibleSection title="Content" icon="??">{renderRich('Text Content', 'content')}</CollapsibleSection>;
+        return <CollapsibleSection title="Content" icon="📝">{renderRich('Text Content', 'content')}</CollapsibleSection>;
       case 'hero':
-        return <CollapsibleSection title="Hero Content" icon="??">{renderStr('Title', 'title')}{renderRich('Description', 'description')}</CollapsibleSection>;
+        return <CollapsibleSection title="Hero Content" icon="🚀">{renderStr('Title', 'title')}{renderRich('Description', 'description')}</CollapsibleSection>;
       case 'info-box': case 'warning-box': case 'success-box': case 'tip-box':
       case 'fact-box': case 'analogy-box': case 'concept-card': case 'definition-card':
-        return <CollapsibleSection title="Card Content" icon="??">{renderStr('Title', 'title')}{renderRich('Body', 'content')}</CollapsibleSection>;
+        return <CollapsibleSection title="Card Content" icon="📋">{renderStr('Title', 'title')}{renderRich('Body', 'content')}</CollapsibleSection>;
       case 'bullet-list': case 'numbered-list':
-        return <CollapsibleSection title="List Items" icon="??">{renderList('Items', 'items')}</CollapsibleSection>;
+        return <CollapsibleSection title="List Items" icon="🔢">{renderList('Items', 'items')}</CollapsibleSection>;
       case 'complexity-card':
         return (
           <CollapsibleSection title="Complexity" icon="?">
@@ -164,8 +164,8 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
       case 'comparison-card':
         return (
           <>
-            <CollapsibleSection title="Left Side" icon="??">{renderStr('Title', 'left_title')}{renderList('Points', 'left_points')}</CollapsibleSection>
-            <CollapsibleSection title="Right Side" icon="??">{renderStr('Title', 'right_title')}{renderList('Points', 'right_points')}</CollapsibleSection>
+            <CollapsibleSection title="Left Side" icon="⬅️">{renderStr('Title', 'left_title')}{renderList('Points', 'left_points')}</CollapsibleSection>
+            <CollapsibleSection title="Right Side" icon="➡️">{renderStr('Title', 'right_title')}{renderList('Points', 'right_points')}</CollapsibleSection>
           </>
         );
       case 'revision-card':
@@ -188,21 +188,27 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
           </>
         );
       case 'accordion':
-        return <CollapsibleSection title="Accordion" icon="??">{renderStr('Title', 'title')}{renderRich('Expanded Content', 'description')}</CollapsibleSection>;
+        return (
+          <CollapsibleSection title="Accordion" icon="📑">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Edit the title and answer directly in the block editor on the left canvas.
+            </p>
+          </CollapsibleSection>
+        );
       case 'diagram': case 'step-flow': case 'flow-diagram':
-        return <CollapsibleSection title="Flow Steps" icon="??">{renderStr('Title', 'title', false, 'Optional...')}{renderList('Steps', 'steps')}</CollapsibleSection>;
+        return <CollapsibleSection title="Flow Steps" icon="🔄">{renderStr('Title', 'title', false, 'Optional...')}{renderList('Steps', 'steps')}</CollapsibleSection>;
       case 'array-diagram':
-        return <CollapsibleSection title="Array" icon="??">{renderStr('Title', 'title')}{renderList('Array Values', 'items')}</CollapsibleSection>;
+        return <CollapsibleSection title="Array" icon="📦">{renderStr('Title', 'title')}{renderList('Array Values', 'items')}</CollapsibleSection>;
       case 'array-operation-diagram':
         return (
           <>
-            <CollapsibleSection title="Operation" icon="??">{renderStr('Title', 'title')}</CollapsibleSection>
-            <CollapsibleSection title="Arrays" icon="??">{renderList('Before Array', 'before', true)}{renderList('After Array', 'after', true)}</CollapsibleSection>
+            <CollapsibleSection title="Operation" icon="⚙️">{renderStr('Title', 'title')}</CollapsibleSection>
+            <CollapsibleSection title="Arrays" icon="📦">{renderList('Before Array', 'before', true)}{renderList('After Array', 'after', true)}</CollapsibleSection>
           </>
         );
       case 'code-example':
         return (
-          <CollapsibleSection title="Code" icon="??">
+          <CollapsibleSection title="Code" icon="💻">
             {renderStr('Title', 'title')}
             {renderStr('Language', 'language', true, 'javascript')}
             <div>
@@ -235,41 +241,14 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
       {/* Block-specific content fields (always open) */}
       {renderContentSection()}
 
-      {/* Typography */}
-      <CollapsibleSection title="Typography" icon="Aa" defaultOpen={false}>
-        <SelectField label="Font Size" value={meta.fontSize || ''} options={FONT_SIZES.map(s => ({ label: s, value: s }))} onChange={v => setMeta('fontSize', v)} />
-        <SelectField label="Font Weight" value={meta.fontWeight || ''} options={FONT_WEIGHTS} onChange={v => setMeta('fontWeight', v)} />
-        <SelectField label="Line Height" value={meta.lineHeight || ''} options={LINE_HEIGHTS.map(h => ({ label: h, value: h }))} onChange={v => setMeta('lineHeight', v)} />
-        <SelectField label="Text Align" value={meta.textAlign || ''} options={[
-          { label: '? Left', value: 'left' },{ label: '? Center', value: 'center' },
-          { label: '? Right', value: 'right' },{ label: '� Justify', value: 'justify' }
-        ]} onChange={v => setMeta('textAlign', v)} />
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">Style</label>
-          <div className="flex gap-2">
-            {[
-              { label: 'B', key: 'bold', cls: 'font-bold' },
-              { label: 'I', key: 'italic', cls: 'italic' },
-              { label: 'U', key: 'underline', cls: 'underline' },
-            ].map(({ label, key, cls }) => (
-              <button key={key} onClick={() => setMeta(key, !meta[key])}
-                className={`w-9 h-9 rounded-lg text-sm ${cls} border transition-all ${meta[key] ? 'bg-indigo-600 text-white border-indigo-700 shadow-inner' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </CollapsibleSection>
-
-      {/* Color */}
-      <CollapsibleSection title="Color" icon="??" defaultOpen={false}>
-        <ColorSwatch label="Text Color" value={meta.textColor || ''} onChange={v => setMeta('textColor', v)} />
+      {/* Background & Border Colors */}
+      <CollapsibleSection title="Colors" icon="🎨" defaultOpen={false}>
         <ColorSwatch label="Background Color" value={meta.bgColor || ''} onChange={v => setMeta('bgColor', v)} />
         <ColorSwatch label="Border Color" value={meta.borderColor || ''} onChange={v => setMeta('borderColor', v)} />
       </CollapsibleSection>
 
       {/* Spacing */}
-      <CollapsibleSection title="Spacing" icon="??" defaultOpen={false}>
+      <CollapsibleSection title="Spacing" icon="📏" defaultOpen={false}>
         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pb-1">Margin</p>
         <div className="grid grid-cols-2 gap-2">
           <SpacingInput label="Top" value={meta.marginTop || ''} onChange={v => setMeta('marginTop', v)} />
@@ -287,7 +266,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
       </CollapsibleSection>
 
       {/* Border */}
-      <CollapsibleSection title="Border & Radius" icon="??" defaultOpen={false}>
+      <CollapsibleSection title="Border & Radius" icon="🔲" defaultOpen={false}>
         <SpacingInput label="Border Width" value={meta.borderWidth || ''} onChange={v => setMeta('borderWidth', v)} placeholder="1px" />
         <SelectField label="Border Style" value={meta.borderStyle || ''} options={[
           { label: 'Solid', value: 'solid' },{ label: 'Dashed', value: 'dashed' },{ label: 'Dotted', value: 'dotted' }
@@ -296,7 +275,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ block, onChang
       </CollapsibleSection>
 
       {/* Layout */}
-      <CollapsibleSection title="Layout & Size" icon="??" defaultOpen={false}>
+      <CollapsibleSection title="Layout & Size" icon="📐" defaultOpen={false}>
         <SpacingInput label="Width" value={meta.width || ''} onChange={v => setMeta('width', v)} placeholder="100%" />
         <SpacingInput label="Max Width" value={meta.maxWidth || ''} onChange={v => setMeta('maxWidth', v)} placeholder="none" />
         <SelectField label="Block Alignment" value={meta.alignSelf || ''} options={[

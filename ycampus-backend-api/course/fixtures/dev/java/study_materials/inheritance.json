@@ -1,0 +1,285 @@
+{
+  "sub_unit_name": "Inheritance",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Inheritance?",
+      "description": "Inheritance is an Object-Oriented Programming (OOP) concept that allows one class to acquire the properties and behaviors of another class. It promotes code reusability and establishes an 'is-a' relationship between classes."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Inheritance</strong> enables a class to reuse the fields and methods of another class. The class whose members are inherited is called the <strong>parent (superclass)</strong>, while the class that inherits them is called the <strong>child (subclass)</strong>. Java uses the <code>extends</code> keyword to implement inheritance.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Inheritance?",
+      "content": "Inheritance reduces code duplication, improves maintainability, and enables hierarchical relationships between classes."
+    },
+    {
+      "type": "diagram",
+      "title": "Inheritance Flow",
+      "steps": [
+        "Create Parent Class",
+        "Define Common Members",
+        "Create Child Class",
+        "Use extends Keyword",
+        "Access Inherited Members"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Basic Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The child class automatically inherits accessible variables and methods from its parent class. Additional members can also be added to the child class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Basic Inheritance Example",
+      "code": "class Animal {\n    void eat(){\n        System.out.println(\"Animal is eating\");\n    }\n}\n\nclass Dog extends Animal {\n    void bark(){\n        System.out.println(\"Dog is barking\");\n    }\n}\n\nDog d = new Dog();\nd.eat();\nd.bark();"
+    },
+    {
+      "type": "concept-card",
+      "title": "Parent and Child Classes",
+      "description": "A parent class provides common functionality, while a child class extends and specializes that functionality."
+    },
+    {
+      "type": "heading",
+      "content": "The extends Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>extends</code> keyword tells Java that one class inherits from another. The subclass gains access to all non-private members of the superclass.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using extends",
+      "code": "class Vehicle {\n    void start(){\n        System.out.println(\"Vehicle Started\");\n    }\n}\n\nclass Car extends Vehicle {\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Inheritance Process",
+      "steps": [
+        "Define Parent Class",
+        "Create Child Class",
+        "Use extends",
+        "Inherited Members Become Available",
+        "Add Child-Specific Features"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Types of Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java supports several forms of inheritance. However, it does not support multiple inheritance through classes to avoid ambiguity.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Supported in Java", "Description"],
+      "rows": [
+        ["Single", "Yes", "One child inherits one parent."],
+        ["Multilevel", "Yes", "Inheritance across multiple generations."],
+        ["Hierarchical", "Yes", "Multiple child classes inherit one parent."],
+        ["Multiple", "No (Classes)", "Achieved using interfaces."],
+        ["Hybrid", "Partially", "Possible through interfaces."]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Single Inheritance"
+    },
+    {
+      "type": "diagram",
+      "title": "Single Inheritance",
+      "steps": ["Animal", "↓", "Dog"]
+    },
+    {
+      "type": "heading",
+      "content": "Multilevel Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In multilevel inheritance, one class inherits another class, which itself inherits from another class.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Multilevel Inheritance",
+      "steps": ["Animal", "↓", "Dog", "↓", "Puppy"]
+    },
+    {
+      "type": "heading",
+      "content": "Hierarchical Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In hierarchical inheritance, multiple child classes inherit from the same parent class.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Hierarchical Inheritance",
+      "steps": ["Vehicle", "↙", "Car", "↘", "Bike"]
+    },
+    {
+      "type": "heading",
+      "content": "Method Overriding"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method overriding allows a child class to provide its own implementation of a method already defined in the parent class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method Overriding Example",
+      "code": "class Animal {\n    void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    void sound(){\n        System.out.println(\"Dog Barks\");\n    }\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Did You Know?",
+      "content": "Method overriding is one of the key concepts that enables runtime polymorphism in Java."
+    },
+    {
+      "type": "heading",
+      "content": "The super Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>super</code> keyword refers to the immediate parent class. It is used to access parent constructors, methods, and variables.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using super",
+      "code": "class Animal {\n    void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}\n\nclass Dog extends Animal {\n    void sound(){\n        super.sound();\n        System.out.println(\"Dog Barks\");\n    }\n}"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Inheritance",
+      "right_title": "Composition",
+      "left_points": [
+        "Represents an 'is-a' relationship",
+        "Uses extends keyword",
+        "Promotes code reuse",
+        "Supports method overriding"
+      ],
+      "right_points": [
+        "Represents a 'has-a' relationship",
+        "Uses objects as members",
+        "Provides greater flexibility",
+        "Avoids deep inheritance chains"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Inheritance"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Code Reusability",
+          "answer": "Common code is written once in the parent class and reused by child classes."
+        },
+        {
+          "question": "Maintainability",
+          "answer": "Changes in the parent class automatically benefit child classes."
+        },
+        {
+          "question": "Extensibility",
+          "answer": "New functionality can be added through subclasses."
+        },
+        {
+          "question": "Supports Polymorphism",
+          "answer": "Inheritance forms the basis for runtime polymorphism."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Family Inheritance",
+      "content": "A child inherits characteristics such as eye color or facial features from parents while also having unique qualities. Similarly, a child class inherits fields and methods from a parent class while adding its own features."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Inheritance, method overriding, the extends keyword, the super keyword, and different types of inheritance are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can private members be inherited?",
+          "answer": "Private members belong only to the parent class and cannot be accessed directly by child classes."
+        },
+        {
+          "question": "Does Java support multiple inheritance through classes?",
+          "answer": "No. Java supports multiple inheritance only through interfaces."
+        },
+        {
+          "question": "Should inheritance always be used?",
+          "answer": "No. Use inheritance only when an 'is-a' relationship truly exists."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Inheritance allows one class to reuse another class's features. Use extends to inherit, super to access parent members, and method overriding to customize inherited behavior."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["extends", "Create inheritance", "class Dog extends Animal"],
+        ["super", "Access parent members", "super.sound()"],
+        ["Overriding", "Modify inherited behavior", "sound()"],
+        ["Single Inheritance", "One parent, one child", "Animal → Dog"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Inheritance promotes code reusability.",
+        "The extends keyword creates parent-child relationships.",
+        "Java supports single, multilevel, and hierarchical inheritance.",
+        "Method overriding enables runtime polymorphism.",
+        "The super keyword accesses parent class members."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to inherit a class in Java?",
+      "options": ["implements", "extends", "inherits", "super"],
+      "answer": "extends"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword refers to the immediate parent class?",
+      "options": ["this", "parent", "base", "super"],
+      "answer": "super"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of inheritance is NOT supported directly through Java classes?",
+      "options": ["Single", "Multilevel", "Multiple", "Hierarchical"],
+      "answer": "Multiple"
+    }
+  ]
+}

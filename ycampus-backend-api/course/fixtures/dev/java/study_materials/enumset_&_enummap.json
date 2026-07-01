@@ -1,0 +1,296 @@
+{
+  "sub_unit_name": "EnumSet & EnumMap",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are EnumSet & EnumMap?",
+      "description": "EnumSet is a specialized Set implementation designed exclusively for enum types, while EnumMap is a specialized Map implementation that uses enum constants as keys. Both are highly optimized for performance and memory efficiency."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Java Collections Framework provides <strong>EnumSet</strong> and <strong>EnumMap</strong> specifically for working with <code>enum</code> types. Since they are optimized internally using bit vectors and arrays, they are significantly faster and more memory-efficient than general-purpose collections like <code>HashSet</code> and <code>HashMap</code> when dealing with enums.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Enum Collections?",
+      "content": "EnumSet and EnumMap provide better performance, lower memory usage, and compile-time type safety when working with enumeration constants."
+    },
+    {
+      "type": "diagram",
+      "title": "Enum Collections",
+      "steps": [
+        "Enum Type",
+        "EnumSet",
+        "Store Unique Enum Constants",
+        "EnumMap",
+        "Map Enum Constants to Values"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "EnumSet"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>EnumSet</code> is a high-performance implementation of the <code>Set</code> interface that stores only enum constants. Duplicate values are automatically ignored.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "EnumSet Example",
+      "code": "import java.util.*;\n\nenum Day { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY }\n\nEnumSet<Day> workingDays = EnumSet.of(Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY);\nSystem.out.println(workingDays);"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "EnumSet can store only enum constants and is much faster than HashSet for enum values."
+    },
+    {
+      "type": "heading",
+      "content": "Creating EnumSet"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["EnumSet.of()", "Creates a set with specified enum values"],
+        ["EnumSet.allOf()", "Contains all enum constants"],
+        ["EnumSet.noneOf()", "Creates an empty EnumSet"],
+        ["EnumSet.range()", "Creates a set within a specified enum range"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using EnumSet.allOf()",
+      "code": "EnumSet<Day> allDays = EnumSet.allOf(Day.class);\nSystem.out.println(allDays);"
+    },
+    {
+      "type": "heading",
+      "content": "EnumMap"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>EnumMap</code> is a specialized implementation of the <code>Map</code> interface where every key must be an enum constant. Values can be any object type.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "EnumMap Example",
+      "code": "import java.util.*;\n\nenum Day { MONDAY, TUESDAY, WEDNESDAY }\n\nEnumMap<Day, String> tasks = new EnumMap<>(Day.class);\ntasks.put(Day.MONDAY, \"Coding\");\ntasks.put(Day.TUESDAY, \"Testing\");\nSystem.out.println(tasks);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Performance",
+      "content": "EnumMap is generally faster than HashMap when enum constants are used as keys."
+    },
+    {
+      "type": "heading",
+      "content": "Common EnumMap Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["put()", "Insert a key-value pair"],
+        ["get()", "Retrieve a value"],
+        ["remove()", "Delete an entry"],
+        ["containsKey()", "Check whether a key exists"],
+        ["keySet()", "Return all enum keys"],
+        ["values()", "Return all values"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Traversing an EnumMap",
+      "code": "for(Map.Entry<Day, String> entry : tasks.entrySet()){\n    System.out.println(entry.getKey() + \" -> \" + entry.getValue());\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working with Enum Collections",
+      "steps": [
+        "Create Enum",
+        "Create EnumSet or EnumMap",
+        "Add Enum Constants",
+        "Access Data",
+        "Traverse Collection"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "EnumSet vs HashSet"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "EnumSet",
+      "right_title": "HashSet",
+      "left_points": [
+        "Stores only enum values",
+        "Very memory efficient",
+        "Highly optimized",
+        "Faster for enums"
+      ],
+      "right_points": [
+        "Stores any object",
+        "Uses hashing",
+        "More general-purpose",
+        "Slightly slower for enums"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "EnumMap vs HashMap"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "EnumMap",
+      "right_title": "HashMap",
+      "left_points": [
+        "Enum keys only",
+        "Array-based internally",
+        "Faster access",
+        "Lower memory usage"
+      ],
+      "right_points": [
+        "Any object as key",
+        "Hash table based",
+        "General-purpose",
+        "Higher memory overhead"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "EnumSet", "EnumMap"],
+      "rows": [
+        ["Add / Put", "O(1)", "O(1)"],
+        ["Contains / Get", "O(1)", "O(1)"],
+        ["Remove", "O(1)", "O(1)"],
+        ["Traversal", "O(n)", "O(n)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Performance",
+      "time_complexity": "Most operations: O(1)",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are EnumSet & EnumMap Used?",
+      "items": [
+        {
+          "question": "Permission Systems",
+          "answer": "Store user permissions represented as enum constants."
+        },
+        {
+          "question": "Days of the Week",
+          "answer": "Associate tasks with weekdays using EnumMap."
+        },
+        {
+          "question": "Game Development",
+          "answer": "Represent player states and actions using enums."
+        },
+        {
+          "question": "Configuration Management",
+          "answer": "Store enum-based application settings."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Calendar Planner",
+      "content": "Think of an EnumMap as a weekly planner where each day of the week (enum key) has a scheduled activity (value). EnumSet is like selecting only the working days from the entire week."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers may ask when to prefer EnumSet over HashSet, EnumMap over HashMap, their internal implementation, performance advantages, and common use cases involving enums."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can EnumSet store String values?",
+          "answer": "No. EnumSet stores only enum constants."
+        },
+        {
+          "question": "Can EnumMap use String as a key?",
+          "answer": "No. EnumMap keys must always be enum constants."
+        },
+        {
+          "question": "Should HashMap always be used instead of EnumMap?",
+          "answer": "No. EnumMap is preferred when keys are enums because it offers better performance and memory efficiency."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use EnumSet for collections of enum values and EnumMap for mapping enum constants to objects. They are faster and more efficient than HashSet and HashMap for enum-based data."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "EnumSet", "EnumMap"],
+      "rows": [
+        ["Stores", "Enum Constants", "Enum Keys with Values"],
+        ["Duplicates", "Not Allowed", "Keys Unique"],
+        ["Performance", "Very Fast", "Very Fast"],
+        ["Best Use", "Unique Enum Collection", "Enum Key-Value Mapping"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "EnumSet stores only enum constants.",
+        "EnumMap uses enum constants as keys.",
+        "Both are optimized for enum types.",
+        "EnumSet is faster than HashSet for enums.",
+        "EnumMap is faster than HashMap for enum keys.",
+        "Use these specialized collections whenever working with enums."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which collection is specifically designed to store enum constants?",
+      "options": ["HashSet", "TreeSet", "EnumSet", "LinkedHashSet"],
+      "answer": "EnumSet"
+    },
+    {
+      "type": "quiz",
+      "question": "What type of keys does EnumMap allow?",
+      "options": ["String", "Integer", "Any Object", "Enum Constants"],
+      "answer": "Enum Constants"
+    },
+    {
+      "type": "quiz",
+      "question": "Why are EnumSet and EnumMap preferred over HashSet and HashMap for enums?",
+      "options": [
+        "They support duplicate enum values.",
+        "They provide better performance and memory efficiency.",
+        "They can store primitive data types directly.",
+        "They automatically sort enum values alphabetically."
+      ],
+      "answer": "They provide better performance and memory efficiency."
+    }
+  ]
+}

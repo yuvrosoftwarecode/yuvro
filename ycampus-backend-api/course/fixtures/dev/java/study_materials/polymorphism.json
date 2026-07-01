@@ -1,0 +1,279 @@
+{
+  "sub_unit_name": "Polymorphism",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Polymorphism?",
+      "description": "Polymorphism is an Object-Oriented Programming (OOP) concept that allows the same method or interface to perform different actions depending on the object or parameters involved. The word 'Polymorphism' means 'many forms'."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Polymorphism</strong> enables one interface to represent multiple implementations. In Java, polymorphism allows the same method name to behave differently based on the object or method parameters. It improves flexibility, extensibility, and code reusability.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Polymorphism?",
+      "content": "Polymorphism allows developers to write generic, reusable code while enabling different objects to provide their own implementations."
+    },
+    {
+      "type": "diagram",
+      "title": "Polymorphism Flow",
+      "steps": [
+        "Create Parent Class",
+        "Create Child Classes",
+        "Override Methods",
+        "Call Method Using Parent Reference",
+        "Correct Child Method Executes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Types of Polymorphism"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java supports two main types of polymorphism: <strong>Compile-Time Polymorphism</strong> (Method Overloading) and <strong>Runtime Polymorphism</strong> (Method Overriding).</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Also Known As", "Achieved By"],
+      "rows": [
+        ["Compile-Time", "Static Polymorphism", "Method Overloading"],
+        ["Runtime", "Dynamic Polymorphism", "Method Overriding"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Two Forms of Polymorphism",
+      "description": "Compile-time polymorphism depends on method signatures, while runtime polymorphism depends on the actual object created."
+    },
+    {
+      "type": "heading",
+      "content": "Compile-Time Polymorphism (Method Overloading)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method overloading occurs when multiple methods have the same name but different parameter lists. The compiler decides which method to call based on the arguments.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method Overloading Example",
+      "code": "class Calculator {\n    int add(int a, int b){\n        return a + b;\n    }\n\n    double add(double a, double b){\n        return a + b;\n    }\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Compile-Time Polymorphism",
+      "steps": [
+        "Method Call",
+        "Compiler Checks Parameters",
+        "Matching Method Selected",
+        "Method Executes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Runtime Polymorphism (Method Overriding)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method overriding occurs when a child class provides its own implementation of a method already defined in the parent class. The JVM determines which method to execute at runtime.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method Overriding Example",
+      "code": "class Animal {\n    void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    void sound(){\n        System.out.println(\"Dog Barks\");\n    }\n}\n\nAnimal obj = new Dog();\nobj.sound();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Dynamic Method Dispatch",
+      "content": "Runtime polymorphism is implemented using dynamic method dispatch, where the JVM decides which overridden method to execute based on the actual object."
+    },
+    {
+      "type": "heading",
+      "content": "Method Overloading Rules"
+    },
+    {
+      "type": "accordion",
+      "title": "Overloading Rules",
+      "items": [
+        {
+          "question": "Can overloaded methods have different parameter types?",
+          "answer": "Yes. Parameter types, numbers, or order must differ."
+        },
+        {
+          "question": "Can methods be overloaded only by changing the return type?",
+          "answer": "No. Changing only the return type does not create a valid overloaded method."
+        },
+        {
+          "question": "Can constructors be overloaded?",
+          "answer": "Yes. Constructor overloading is commonly used."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Overriding Rules"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>To override a method, the child class method must have the same name, parameters, and compatible return type as the parent class method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Overriding Example",
+      "code": "class Shape {\n    void draw(){\n        System.out.println(\"Drawing Shape\");\n    }\n}\n\nclass Circle extends Shape {\n    @Override\n    void draw(){\n        System.out.println(\"Drawing Circle\");\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Runtime Method Resolution",
+      "steps": [
+        "Parent Reference Created",
+        "Child Object Assigned",
+        "Method Called",
+        "JVM Identifies Actual Object",
+        "Overridden Method Executes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Overloading vs Method Overriding"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Method Overloading",
+      "right_title": "Method Overriding",
+      "left_points": [
+        "Compile-time polymorphism",
+        "Same class",
+        "Different parameter lists",
+        "Compiler decides"
+      ],
+      "right_points": [
+        "Runtime polymorphism",
+        "Parent-child classes",
+        "Same method signature",
+        "JVM decides"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Polymorphism"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Code Reusability",
+          "answer": "Write generic code that works with different object types."
+        },
+        {
+          "question": "Flexibility",
+          "answer": "Programs become easier to extend without changing existing code."
+        },
+        {
+          "question": "Maintainability",
+          "answer": "Common interfaces reduce duplicate code."
+        },
+        {
+          "question": "Scalability",
+          "answer": "New classes can be added with minimal changes."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Remote Control",
+      "content": "A TV remote has the same Power button, but pressing it performs different actions depending on whether it's connected to a TV, projector, or smart device. Similarly, the same method call behaves differently depending on the object."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Polymorphism is one of the four pillars of OOP. Interviewers frequently ask about method overloading, method overriding, dynamic method dispatch, and the differences between compile-time and runtime polymorphism."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can methods be overloaded by changing only the return type?",
+          "answer": "No. The parameter list must also be different."
+        },
+        {
+          "question": "Can static methods be overridden?",
+          "answer": "No. Static methods are hidden, not overridden."
+        },
+        {
+          "question": "Does runtime polymorphism work without inheritance?",
+          "answer": "No. It requires inheritance and method overriding."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Method overloading provides compile-time polymorphism, while method overriding provides runtime polymorphism. Together, they make Java programs more flexible and reusable."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Method Overloading", "Compile-time polymorphism", "add(int, int)"],
+        ["Method Overriding", "Runtime polymorphism", "sound()"],
+        ["Parent Reference", "Reference child object", "Animal a = new Dog();"],
+        ["Dynamic Dispatch", "JVM selects overridden method", "a.sound()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Polymorphism means 'many forms'.",
+        "Java supports compile-time and runtime polymorphism.",
+        "Method overloading implements compile-time polymorphism.",
+        "Method overriding implements runtime polymorphism.",
+        "Dynamic method dispatch allows the JVM to call the correct overridden method."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of polymorphism is achieved using method overloading?",
+      "options": [
+        "Runtime Polymorphism",
+        "Dynamic Polymorphism",
+        "Compile-Time Polymorphism",
+        "Interface Polymorphism"
+      ],
+      "answer": "Compile-Time Polymorphism"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of polymorphism uses method overriding?",
+      "options": [
+        "Compile-Time Polymorphism",
+        "Runtime Polymorphism",
+        "Constructor Polymorphism",
+        "Static Polymorphism"
+      ],
+      "answer": "Runtime Polymorphism"
+    },
+    {
+      "type": "quiz",
+      "question": "Who decides which overridden method is executed during runtime?",
+      "options": ["Compiler", "Programmer", "JVM", "Operating System"],
+      "answer": "JVM"
+    }
+  ]
+}
