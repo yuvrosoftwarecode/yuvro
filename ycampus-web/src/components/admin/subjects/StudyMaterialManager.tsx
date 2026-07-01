@@ -14,7 +14,7 @@ import { TipTapEditor } from './editor/TipTapEditor';
 import { MediaBlock } from './editor/blocks/MediaBlock';
 import { TableBlock } from './editor/blocks/TableBlock';
 import { ProcessFlowBlock, StepperBlock } from './editor/blocks/FlowBlocks';
-import { CalloutBlock, CardGridBlock, ColumnLayoutBlock, BulletListBlock, FormulaBlock, DividerBlock, CodeBlockEditor } from './editor/blocks/ContentBlocks';
+import { CalloutBlock, AccordionBlock, CardGridBlock, ColumnLayoutBlock, BulletListBlock, FormulaBlock, DividerBlock, CodeBlockEditor } from './editor/blocks/ContentBlocks';
 import { DrawingBlock } from './editor/blocks/DrawingBlock';
 import { EditorSidebar } from './editor/EditorSidebar';
 import StudyMaterialRenderer from '@/components/shared/StudyMaterialRenderer';
@@ -22,6 +22,7 @@ import { RenderBlock } from '@/components/shared/StudyMaterialRenderer';
 import { Block, blockDefMap, blockLabel, blockIcon } from './editor/BlockRegistry';
 import { EditorProvider } from '@/contexts/EditorContext';
 import { GlobalFormattingToolbar } from './editor/GlobalFormattingToolbar';
+import { BlockWrapper } from '@/components/shared/BlockWrapper';
 
 // ─── Block Content Renderer ─────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ interface BlockEditorContentProps {
   onChange: (updates: Partial<Block>) => void;
 }
 
-const BlockEditorContent: React.FC<BlockEditorContentProps> = ({ block, onChange }) => {
+const BlockEditorContentInner: React.FC<BlockEditorContentProps> = ({ block, onChange }) => {
   switch (block.type) {
     case 'heading':
       return (
@@ -78,6 +79,8 @@ const BlockEditorContent: React.FC<BlockEditorContentProps> = ({ block, onChange
     case 'two_columns':
     case 'three_columns':
       return <ColumnLayoutBlock block={block} onChange={(u) => onChange(u)} />;
+    case 'accordion':
+      return <AccordionBlock block={block} onChange={(u) => onChange(u)} />;
     case 'process_flow':
       return <ProcessFlowBlock block={block} onChange={(u) => onChange(u)} />;
     case 'stepper':
@@ -92,6 +95,25 @@ const BlockEditorContent: React.FC<BlockEditorContentProps> = ({ block, onChange
         </div>
       );
   }
+};
+
+const BlockEditorContent: React.FC<BlockEditorContentProps> = (props) => {
+  const isCustomRendered = [
+    'heading', 'subheading', 'paragraph', 'divider', 'formula', 'code', 'drawing',
+    'callout_info', 'callout_warning', 'callout_success', 'callout_question', 'callout_tip',
+    'bullet_list', 'ordered_list', 'image', 'video', 'pdf', 'table', 'card_grid',
+    'two_columns', 'three_columns', 'process_flow', 'stepper', 'accordion'
+  ].includes(props.block.type);
+
+  if (!isCustomRendered) {
+    return <BlockEditorContentInner {...props} />;
+  }
+
+  return (
+    <BlockWrapper block={props.block}>
+      <BlockEditorContentInner {...props} />
+    </BlockWrapper>
+  );
 };
 
 
@@ -133,7 +155,7 @@ const StudyMaterialManager: React.FC<StudyMaterialManagerProps> = ({ subUnit, on
             if (b.type === 'box') return { id: b.id || uuidv4(), type: 'callout_info', content: b.content || '', metadata: { variant: 'info', title: b.title || '' } };
             if (b.type === 'bullet_points' || b.type === 'exam_strategy') return { id: b.id || uuidv4(), type: 'bullet_list', metadata: { items: b.items || [] } };
             if (b.type === 'array') return { id: b.id || uuidv4(), type: 'bullet_list', metadata: { items: b.items || [] } };
-            return { id: b.id || uuidv4(), type: b.type, content: b.content, metadata: b.metadata };
+            return { ...b, id: b.id || uuidv4() };
           }).filter(Boolean) as Block[];
           setBlocks(migrated);
           return;
@@ -198,8 +220,9 @@ const StudyMaterialManager: React.FC<StudyMaterialManagerProps> = ({ subUnit, on
       });
       toast.success('Study material saved successfully');
       onUpdate(updated as SubUnit);
-    } catch {
-      toast.error('Failed to save study material');
+    } catch (error: any) {
+      console.error('Save failed:', error);
+      toast.error(error?.response?.data?.message || error?.message || 'Failed to save study material');
     } finally {
       setSaving(false);
     }

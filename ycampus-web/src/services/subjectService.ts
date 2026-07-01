@@ -257,7 +257,7 @@ export async function updateSubUnit(
   subUnitId: string,
   payload: Partial<{ name: string; order_index: number; content?: string }>
 ) {
-  return restApiAuthUtil.put(`/course/subunits/${subUnitId}/`, payload);
+  return restApiAuthUtil.patch(`/course/subunits/${subUnitId}/`, payload);
 }
 
 export async function deleteSubUnit(subUnitId: string) {

@@ -1,0 +1,271 @@
+{
+  "sub_unit_name": "Abstraction & Encapsulation",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Abstraction and Encapsulation?",
+      "description": "Abstraction and Encapsulation are two fundamental principles of Object-Oriented Programming (OOP). Abstraction focuses on hiding implementation details, while Encapsulation focuses on protecting data by combining it with methods."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Abstraction</strong> helps users focus only on what an object does instead of how it works. <strong>Encapsulation</strong> bundles data and methods into a single unit (class) while restricting direct access to the data. Together, they make Java applications secure, modular, and easier to maintain.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn These Concepts?",
+      "content": "Abstraction simplifies complex systems, while encapsulation improves security, maintainability, and data integrity. Both are essential pillars of Object-Oriented Programming."
+    },
+    {
+      "type": "diagram",
+      "title": "Relationship Between Abstraction & Encapsulation",
+      "steps": [
+        "Design Class",
+        "Hide Internal Details",
+        "Protect Data",
+        "Expose Required Methods",
+        "Provide Controlled Access"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Understanding Abstraction"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Abstraction hides implementation details and exposes only the essential functionality to the user. Users interact with an object through its interface without knowing how the internal logic works.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea of Abstraction",
+      "description": "Focus on what an object can do instead of how it performs the task."
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Example of Abstraction"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Driving a Car",
+      "content": "When driving a car, you use the steering wheel, accelerator, and brakes without knowing how the engine or transmission works internally. This is abstraction."
+    },
+    {
+      "type": "heading",
+      "content": "How Abstraction is Achieved"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides abstraction using <strong>abstract classes</strong> and <strong>interfaces</strong>. They define what operations should be performed without specifying every implementation detail.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Abstract Class", "Interface"],
+      "rows": [
+        ["Methods", "Abstract & Concrete", "Abstract (primarily)"],
+        ["Constructors", "Supported", "Not Supported"],
+        ["Inheritance", "Single", "Multiple Interfaces"],
+        ["Usage", "Shared Base Class", "Common Contract"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Abstract Class Example",
+      "code": "abstract class Animal {\n    abstract void sound();\n}\n\nclass Dog extends Animal {\n    void sound(){\n        System.out.println(\"Dog Barks\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Understanding Encapsulation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Encapsulation combines data (variables) and methods into a single class while restricting direct access to internal data. This is achieved using private variables and public getter/setter methods.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Encapsulation Process",
+      "steps": [
+        "Declare Private Variables",
+        "Restrict Direct Access",
+        "Create Getter Methods",
+        "Create Setter Methods",
+        "Access Data Securely"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Private Variables"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Instance variables are usually declared as <code>private</code> so they cannot be accessed directly from outside the class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Private Variables",
+      "code": "class Student {\n    private String name;\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Getter and Setter Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Getter methods read private data, while setter methods modify private data in a controlled manner.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Getter and Setter Example",
+      "code": "class Student {\n    private String name;\n\n    public void setName(String name){\n        this.name = name;\n    }\n\n    public String getName(){\n        return name;\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Encapsulation Workflow",
+      "steps": [
+        "Private Variable",
+        "Setter Validates Input",
+        "Value Stored",
+        "Getter Returns Value"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Encapsulation"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Data Security",
+          "answer": "Private variables prevent unauthorized access."
+        },
+        {
+          "question": "Controlled Modification",
+          "answer": "Setter methods can validate data before storing it."
+        },
+        {
+          "question": "Better Maintainability",
+          "answer": "Internal implementation can change without affecting users."
+        },
+        {
+          "question": "Code Reusability",
+          "answer": "Encapsulated classes are easier to reuse in different applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Abstraction vs Encapsulation"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Abstraction",
+      "right_title": "Encapsulation",
+      "left_points": [
+        "Hides implementation",
+        "Focuses on functionality",
+        "Achieved using abstract classes and interfaces",
+        "Reduces complexity"
+      ],
+      "right_points": [
+        "Hides data",
+        "Focuses on security",
+        "Achieved using private fields and getters/setters",
+        "Protects object state"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Comparison"
+    },
+    {
+      "type": "analogy-box",
+      "title": "ATM Machine",
+      "content": "Using an ATM is an example of abstraction because users only interact with the screen without knowing the internal banking process. The customer's account details are protected using encapsulation, as direct access to bank data is not allowed."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers commonly ask the differences between abstraction and encapsulation, along with questions about abstract classes, interfaces, access modifiers, getters, setters, and data hiding."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Is abstraction the same as encapsulation?",
+          "answer": "No. Abstraction hides implementation details, whereas encapsulation hides internal data."
+        },
+        {
+          "question": "Can private variables be accessed directly?",
+          "answer": "No. They should be accessed through public getter and setter methods."
+        },
+        {
+          "question": "Can an abstract class be instantiated?",
+          "answer": "No. Objects cannot be created directly from an abstract class."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Abstraction hides complexity, while encapsulation hides data. Together they improve software design, security, and maintainability."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Abstract Class", "Partial abstraction", "abstract class Animal"],
+        ["Interface", "Complete contract", "interface Vehicle"],
+        ["Encapsulation", "Protect data", "private variables"],
+        ["Getter/Setter", "Controlled access", "getName(), setName()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Abstraction hides implementation details.",
+        "Encapsulation hides and protects data.",
+        "Abstract classes and interfaces support abstraction.",
+        "Private variables and getters/setters support encapsulation.",
+        "Both concepts improve code quality and maintainability."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which OOP concept focuses on hiding implementation details?",
+      "options": [
+        "Inheritance",
+        "Polymorphism",
+        "Abstraction",
+        "Encapsulation"
+      ],
+      "answer": "Abstraction"
+    },
+    {
+      "type": "quiz",
+      "question": "Which access modifier is commonly used for encapsulated variables?",
+      "options": ["public", "protected", "private", "default"],
+      "answer": "private"
+    },
+    {
+      "type": "quiz",
+      "question": "Which methods are commonly used to access private variables?",
+      "options": [
+        "main methods",
+        "Constructors",
+        "Getter and Setter methods",
+        "Static methods"
+      ],
+      "answer": "Getter and Setter methods"
+    }
+  ]
+}

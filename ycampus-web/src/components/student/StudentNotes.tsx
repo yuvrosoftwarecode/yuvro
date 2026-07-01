@@ -7,18 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import AIChatContainer from './ai-buddy/AIChatContainer';
-import { StudyToolkitPanel } from './StudyToolkit';
-import {
-  HardnessOfWaterArticle,
-  FluorideManagementArticle,
-  WaterSofteningArticle,
-  DesalinationArticle,
-  BoilerTroublesArticle,
-  BatteryTechnologyArticle,
-  FuelSolarCellsArticle,
-  CorrosionPrinciplesArticle,
-  CorrosionControlArticle
-} from './DummyLearningMaterials';
+import StudyMaterialRenderer from '@/components/shared/StudyMaterialRenderer';
+import StudyToolkitPanel from './StudyToolkitPanel';
 
 const MaterialsView = ({
   materials,
@@ -32,6 +22,8 @@ const MaterialsView = ({
   subunitName,
   isMarkedComplete,
   onMarkComplete,
+  isToolkitOpen,
+  setIsToolkitOpen,
 }: {
   materials: Note[];
   isSplitView: boolean;
@@ -44,6 +36,8 @@ const MaterialsView = ({
   subunitName?: string;
   isMarkedComplete?: boolean;
   onMarkComplete?: () => void;
+  isToolkitOpen?: boolean;
+  setIsToolkitOpen?: (v: boolean) => void;
 }) => {
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
@@ -71,6 +65,17 @@ const MaterialsView = ({
               className="gap-2 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all font-sans"
             >
               <Columns className="w-4 h-4" /> Compare
+            </Button>
+          )}
+          {!isToolkitOpen && setIsToolkitOpen && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsToolkitOpen(true)}
+              className="gap-2 rounded-xl border shadow-sm hover:shadow-md transition-all font-sans bg-white text-slate-800 border-gray-200"
+            >
+              <Brain className="w-4 h-4 text-blue-500" />
+              Study Toolkit
             </Button>
           )}
           {!isChatOpen && (
@@ -447,6 +452,7 @@ const StudentNotes = ({
   const [isSplitView, setIsSplitView] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatWidth, setChatWidth] = useState(30);
+  const [isToolkitOpen, setIsToolkitOpen] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -648,6 +654,8 @@ const StudentNotes = ({
                   subunitName={subunitName}
                   isMarkedComplete={isMarkedComplete}
                   onMarkComplete={handleMarkComplete}
+                  isToolkitOpen={isToolkitOpen}
+                  setIsToolkitOpen={setIsToolkitOpen}
                 />
               </div>
             </div>
@@ -711,15 +719,7 @@ const StudentNotes = ({
 
   return (
     <div ref={containerRef} className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
-      {/* Main content area */}
-      <div
-        className="p-6 overflow-hidden flex-1 min-w-0"
-        style={{
-          width: isChatOpen
-            ? `calc(${100 - chatWidth}% - 280px - 6px)`
-            : 'calc(100% - 280px)',
-        }}
-      >
+      <div className="p-6 overflow-hidden" style={{ width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : '100%' }}>
         {mode === 'materials' ? (
           <MaterialsView
             materials={materials}
@@ -732,6 +732,8 @@ const StudentNotes = ({
             subunitName={subunitName}
             isMarkedComplete={isMarkedComplete}
             onMarkComplete={handleMarkComplete}
+            isToolkitOpen={isToolkitOpen}
+            setIsToolkitOpen={setIsToolkitOpen}
           />
         ) : (
           <MyNotesView
@@ -754,6 +756,16 @@ const StudentNotes = ({
           />
         )}
       </div>
+
+      {/* Study Toolkit Side Panel */}
+      {isToolkitOpen && !isChatOpen && mode === 'materials' && (
+        <div className="h-full border-l border-slate-200 flex flex-col bg-white shrink-0" style={{ width: '280px' }}>
+          <StudyToolkitPanel
+            subunit={subunit}
+            onClose={() => setIsToolkitOpen(false)}
+          />
+        </div>
+      )}
 
       {/* AI Chat panel (slides in) */}
       {isChatOpen && (

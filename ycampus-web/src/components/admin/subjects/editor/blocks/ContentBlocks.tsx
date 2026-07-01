@@ -86,6 +86,49 @@ export const CalloutBlock: React.FC<CalloutBlockProps> = ({ block, onChange }) =
   );
 };
 
+// ─── Accordion / FAQ Block ────────────────────────────────────────────────────
+
+interface AccordionBlockProps {
+  block: any;
+  onChange: (updates: any) => void;
+}
+
+export const AccordionBlock: React.FC<AccordionBlockProps> = ({ block, onChange }) => {
+  return (
+    <div className="p-4 space-y-3">
+      {/* Title */}
+      <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-200">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Question / Title</span>
+        </div>
+        <div className="px-1">
+          <TipTapEditor
+            minimal
+            content={block.title || ''}
+            onChange={(html) => onChange({ title: html })}
+            placeholder="Enter FAQ question..."
+            className="font-semibold text-slate-800 text-sm bg-transparent border-none shadow-none focus-visible:ring-0 py-2"
+          />
+        </div>
+      </div>
+      {/* Answer */}
+      <div className="border border-dashed border-slate-300 rounded-lg overflow-hidden">
+        <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-200">
+          <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-wider">↳ Expanded Answer</span>
+        </div>
+        <div className="px-1">
+          <TipTapEditor
+            content={block.description || ''}
+            onChange={(html) => onChange({ description: html })}
+            placeholder="Write the answer or explanation..."
+            className="bg-transparent py-2"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 interface CardGridBlockProps {
   block: any;

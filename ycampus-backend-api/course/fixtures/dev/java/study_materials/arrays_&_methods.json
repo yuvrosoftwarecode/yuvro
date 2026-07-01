@@ -1,0 +1,326 @@
+{
+  "sub_unit_name": "Arrays & Methods",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Arrays and Methods?",
+      "description": "Arrays allow you to store multiple values of the same data type in a single variable, while methods are reusable blocks of code that perform specific tasks."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>As programs grow larger, managing data and avoiding repetitive code become important. <strong>Arrays</strong> help organize collections of similar data, while <strong>methods</strong> improve code reusability, readability, and modularity.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Arrays & Methods?",
+      "content": "Arrays efficiently store collections of data, and methods reduce duplicate code by allowing logic to be written once and reused multiple times."
+    },
+    {
+      "type": "diagram",
+      "title": "Arrays and Methods Overview",
+      "steps": [
+        "Store Multiple Values in an Array",
+        "Call a Method",
+        "Process the Data",
+        "Return or Display Result"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Introduction to Arrays"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An array is a collection of elements of the same data type stored in contiguous memory locations. Each element is accessed using its index, starting from <code>0</code>.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Declaring an Array",
+      "code": "int[] marks = new int[5];"
+    },
+    {
+      "type": "diagram",
+      "title": "Array Memory Representation",
+      "steps": [
+        "Index: 0  1  2  3  4",
+        "Values: 85 90 78 95 88",
+        "marks[0] = 85",
+        "marks[4] = 88"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Array Initialization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Arrays can be initialized either by specifying the size or by providing values directly during declaration.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Initializing Arrays",
+      "code": "int[] numbers = {10, 20, 30, 40, 50};\nString[] names = {\"Amit\", \"Priya\", \"Rahul\"};"
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "Array indices always begin with 0. Accessing an invalid index causes an ArrayIndexOutOfBoundsException."
+    },
+    {
+      "type": "heading",
+      "content": "Traversing an Array"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Traversal means visiting every element in an array. This is commonly done using a <code>for</code> loop or an enhanced <code>for-each</code> loop.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Array Traversal",
+      "code": "int[] numbers = {10, 20, 30, 40};\n\nfor(int i = 0; i < numbers.length; i++){\n    System.out.println(numbers[i]);\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Array Traversal Process",
+      "steps": [
+        "Start from Index 0",
+        "Read Element",
+        "Move to Next Index",
+        "Repeat Until Last Element"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Enhanced for Loop"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The enhanced <code>for</code> loop (for-each loop) simplifies array traversal when the index value is not required.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Enhanced for Loop",
+      "code": "int[] numbers = {10, 20, 30};\n\nfor(int num : numbers){\n    System.out.println(num);\n}"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "for Loop",
+      "right_title": "Enhanced for Loop",
+      "left_points": [
+        "Provides index access",
+        "Useful for updates",
+        "Flexible iteration",
+        "Can traverse partially"
+      ],
+      "right_points": [
+        "Simpler syntax",
+        "No index available",
+        "Read-only traversal",
+        "Best for printing values"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Introduction to Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A method is a reusable block of code that performs a specific task. Instead of writing the same code multiple times, we write it once inside a method and call it whenever needed.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Simple Method",
+      "code": "public static void greet(){\n    System.out.println(\"Welcome to Java!\");\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Method Components",
+      "description": "A method consists of an access modifier, return type, method name, parameters (optional), and method body."
+    },
+    {
+      "type": "heading",
+      "content": "Method Parameters and Return Values"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Methods can receive input using parameters and return results using the <code>return</code> statement.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method with Parameters",
+      "code": "public static int add(int a, int b){\n    return a + b;\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Method Execution Flow",
+      "steps": [
+        "Method Called",
+        "Arguments Passed",
+        "Method Executes",
+        "Result Returned"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Types"
+    },
+    {
+      "type": "accordion",
+      "title": "Common Method Categories",
+      "items": [
+        {
+          "question": "Method without Parameters",
+          "answer": "Executes without receiving any input."
+        },
+        {
+          "question": "Method with Parameters",
+          "answer": "Accepts input values from the caller."
+        },
+        {
+          "question": "Method with Return Value",
+          "answer": "Returns a computed result back to the caller."
+        },
+        {
+          "question": "Void Method",
+          "answer": "Performs an action but does not return any value."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Passing Arrays to Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Arrays can be passed as arguments to methods, allowing multiple values to be processed efficiently inside reusable functions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Passing an Array",
+      "code": "public static void printArray(int[] arr){\n    for(int num : arr){\n        System.out.println(num);\n    }\n}"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        [
+          "Array",
+          "Store multiple values",
+          "int[] marks"
+        ],
+        [
+          "Method",
+          "Reusable block of code",
+          "calculateSum()"
+        ],
+        [
+          "Parameter",
+          "Input to method",
+          "int number"
+        ],
+        [
+          "Return Value",
+          "Output from method",
+          "return total;"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Classroom Attendance",
+      "content": "An array is like a classroom attendance register that stores the names of all students in one place. A method is like the teacher who performs tasks such as counting students or marking attendance whenever required."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about arrays, array traversal, method creation, parameter passing, return types, and passing arrays to methods are frequently asked in Java interviews."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why does ArrayIndexOutOfBoundsException occur?",
+          "answer": "Because the program tries to access an index outside the valid range of the array."
+        },
+        {
+          "question": "Why must a non-void method return a value?",
+          "answer": "Because the declared return type requires a value to be returned."
+        },
+        {
+          "question": "What is a common mistake while traversing arrays?",
+          "answer": "Using <= instead of < with the array length, causing an invalid index access."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use arrays to store collections of similar data and methods to organize reusable logic into smaller, manageable blocks."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Arrays store multiple values of the same data type.",
+        "Array indexing starts from 0.",
+        "Methods improve code reusability.",
+        "Methods can accept parameters and return values.",
+        "Arrays can be passed as arguments to methods."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What is the index of the first element in a Java array?",
+      "options": [
+        "1",
+        "-1",
+        "0",
+        "Depends on the array"
+      ],
+      "answer": "0"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to return a value from a method?",
+      "options": [
+        "break",
+        "continue",
+        "return",
+        "exit"
+      ],
+      "answer": "return"
+    },
+    {
+      "type": "quiz",
+      "question": "Which loop is specially designed for traversing arrays when the index is not needed?",
+      "options": [
+        "while",
+        "do-while",
+        "Enhanced for Loop",
+        "switch"
+      ],
+      "answer": "Enhanced for Loop"
+    }
+  ]
+}

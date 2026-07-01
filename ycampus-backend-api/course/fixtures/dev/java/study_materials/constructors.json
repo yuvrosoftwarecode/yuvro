@@ -1,0 +1,318 @@
+{
+  "sub_unit_name": "Constructors",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Constructors?",
+      "description": "A constructor is a special member of a class that is automatically executed when an object is created. Its primary purpose is to initialize the object's data."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Whenever an object is created using the <code>new</code> keyword, Java automatically calls a <strong>constructor</strong>. Constructors help initialize instance variables and ensure that every object starts with the required values.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Constructors?",
+      "content": "Constructors eliminate the need to initialize object data manually after object creation, making programs cleaner and more reliable."
+    },
+    {
+      "type": "diagram",
+      "title": "Object Creation with Constructor",
+      "steps": [
+        "Create Class",
+        "Define Constructor",
+        "Create Object using new",
+        "Constructor Executes Automatically",
+        "Object Gets Initialized"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Constructors"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Constructors have the same name as the class, do not have a return type, and are invoked automatically whenever an object is created.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Constructor Properties",
+      "items": [
+        {
+          "question": "Does a constructor have a return type?",
+          "answer": "No. Constructors never specify a return type, not even void."
+        },
+        {
+          "question": "Can a constructor have parameters?",
+          "answer": "Yes. Constructors can accept parameters to initialize objects with different values."
+        },
+        {
+          "question": "Can a class have multiple constructors?",
+          "answer": "Yes. Java supports constructor overloading."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Default Constructor"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>If no constructor is written in a class, Java automatically provides a default constructor. It initializes objects with default values.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Default Constructor Example",
+      "code": "class Student {\n    Student(){\n        System.out.println(\"Object Created\");\n    }\n}\n\nStudent s1 = new Student();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "Java provides a default constructor only when no constructor is explicitly defined by the programmer."
+    },
+    {
+      "type": "heading",
+      "content": "Parameterized Constructor"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A parameterized constructor accepts arguments, allowing objects to be initialized with different values during creation.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Parameterized Constructor",
+      "code": "class Student {\n    String name;\n    int age;\n\n    Student(String n, int a){\n        name = n;\n        age = a;\n    }\n}\n\nStudent s1 = new Student(\"Rahul\", 20);"
+    },
+    {
+      "type": "diagram",
+      "title": "Parameterized Constructor Flow",
+      "steps": [
+        "Object Created",
+        "Arguments Passed",
+        "Constructor Receives Values",
+        "Fields Initialized"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Constructor Overloading"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Constructor overloading allows multiple constructors in the same class with different parameter lists. This provides multiple ways to create objects.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Constructor Overloading",
+      "code": "class Student {\n    Student(){\n        System.out.println(\"Default Constructor\");\n    }\n\n    Student(String name){\n        System.out.println(name);\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Constructor Execution",
+      "steps": [
+        "Object Created",
+        "Matching Constructor Found",
+        "Constructor Executes",
+        "Object Ready for Use"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The this Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>this</code> keyword refers to the current object. It is commonly used inside constructors to distinguish instance variables from parameters having the same name.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using this Keyword",
+      "code": "class Student {\n    String name;\n\n    Student(String name){\n        this.name = name;\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Constructor Chaining"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Constructor chaining allows one constructor to call another constructor within the same class using the <code>this()</code> statement.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Constructor Chaining Example",
+      "code": "class Student {\n    Student(){\n        this(\"Unknown\");\n    }\n\n    Student(String name){\n        System.out.println(name);\n    }\n}"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Default Constructor",
+      "right_title": "Parameterized Constructor",
+      "left_points": [
+        "No parameters",
+        "Initializes default values",
+        "Called without arguments",
+        "Simple object creation"
+      ],
+      "right_points": [
+        "Accepts parameters",
+        "Initializes custom values",
+        "Called with arguments",
+        "Flexible object creation"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Constructor vs Method"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Feature",
+        "Constructor",
+        "Method"
+      ],
+      "rows": [
+        [
+          "Purpose",
+          "Initialize object",
+          "Perform operations"
+        ],
+        [
+          "Return Type",
+          "None",
+          "Required"
+        ],
+        [
+          "Invocation",
+          "Automatic",
+          "Explicit method call"
+        ],
+        [
+          "Name",
+          "Same as class",
+          "Any valid identifier"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Registering a New Student",
+      "content": "When a new student joins a school, the admission form automatically records the student's name, age, and class. Similarly, a constructor automatically initializes an object's data when it is created."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Constructors, constructor overloading, default constructors, parameterized constructors, the this keyword, and constructor chaining are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a constructor have a return type?",
+          "answer": "No. Adding a return type turns it into a regular method."
+        },
+        {
+          "question": "Why isn't the default constructor available?",
+          "answer": "Because Java does not generate one if any constructor is explicitly defined."
+        },
+        {
+          "question": "Can this() appear anywhere inside a constructor?",
+          "answer": "No. It must always be the first statement inside the constructor."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Constructors initialize objects automatically. They share the class name, have no return type, and support overloading for flexible object creation."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        [
+          "Default Constructor",
+          "Initialize default object",
+          "Student()"
+        ],
+        [
+          "Parameterized Constructor",
+          "Initialize custom values",
+          "Student(\"Rahul\", 20)"
+        ],
+        [
+          "this Keyword",
+          "Current object reference",
+          "this.name = name;"
+        ],
+        [
+          "Constructor Chaining",
+          "Call another constructor",
+          "this();"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Constructors initialize objects automatically.",
+        "Constructor names must match the class name.",
+        "Constructors do not have a return type.",
+        "Java supports constructor overloading.",
+        "The this keyword refers to the current object."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "When is a constructor executed?",
+      "options": [
+        "When the class is compiled",
+        "When an object is created",
+        "When a method is called",
+        "When the program ends"
+      ],
+      "answer": "When an object is created"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword refers to the current object inside a constructor?",
+      "options": [
+        "self",
+        "current",
+        "this",
+        "super"
+      ],
+      "answer": "this"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about constructors is correct?",
+      "options": [
+        "Constructors have a return type.",
+        "Constructors must always be private.",
+        "Constructors have the same name as the class.",
+        "Constructors are called manually."
+      ],
+      "answer": "Constructors have the same name as the class."
+    }
+  ]
+}
