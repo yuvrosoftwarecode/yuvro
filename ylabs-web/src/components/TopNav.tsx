@@ -48,7 +48,7 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
           <span className="hidden sm:flex items-center gap-1 text-warning"><Flame className="h-4 w-4" />{me.streak}</span>
           <span className="hidden sm:flex items-center gap-1 text-primary"><Zap className="h-4 w-4" />{me.xp.toLocaleString()} XP</span>
           <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">{me.avatar}</div>
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">{user ? user.first_name?.charAt(0)?.toUpperCase() || user.username?.charAt(0)?.toUpperCase() : "U"}</div>
           {user && (
             <button onClick={() => { logout(); nav({ to: "/" }); }} title="Sign out"
               className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground">

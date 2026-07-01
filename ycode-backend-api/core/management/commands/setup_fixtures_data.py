@@ -38,12 +38,6 @@ class Command(BaseCommand):
                     self.style.SUCCESS("✓ Database migrations completed\n")
                 )
 
-            self.stdout.write("👥 Setting up test users...")
-            if options["clear"]:
-                call_command("create_test_users", "--clear", deploy_env=options["deploy_env"], verbosity=1)
-            else:
-                call_command("create_test_users", deploy_env=options["deploy_env"], verbosity=1)
-            self.stdout.write("")
 
             self.stdout.write("📚 Loading sample course data...")
             if options["clear"]:
@@ -78,7 +72,7 @@ class Command(BaseCommand):
                     "🎉 setup completed successfully!"
                 )
             )
-            self.stdout.write(self.style.SUCCESS("✓ Test users created"))
+
             self.stdout.write(self.style.SUCCESS("✓ Sample courses loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample companies and jobs loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample assessment tests loaded"))

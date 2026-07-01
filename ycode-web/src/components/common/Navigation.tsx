@@ -16,7 +16,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
     const hideTimer = useRef<NodeJS.Timeout | null>(null);
 
     // Role-based navigation setup
-    const role = user?.role || 'student';
+    const role = user?.roles?.ycode || user?.role || 'student';
 
     const handleMouseEnter = () => {
         if (hideTimer.current) {
@@ -255,7 +255,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                             role === 'instructor' ? 'text-green-600' :
                                                 role === 'recruiter' ? 'text-purple-600' :
                                                     'text-indigo-600'
-                                            }`}>{user?.role || 'Student'}</div>
+                                            }`}>{role}</div>
                                     </div>
                                     <svg className={`w-4 h-4 hidden md:block transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''
                                         } ${role === 'admin' ? 'text-red-400' :
@@ -308,7 +308,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                                                 role === 'recruiter' ? 'bg-purple-500' :
                                                                     'bg-indigo-500'
                                                             }`}></div>
-                                                        {user?.role || 'Student'}
+                                                        {role}
                                                     </div>
                                                 </div>
                                             </div>

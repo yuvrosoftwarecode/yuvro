@@ -112,14 +112,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      {clientId ? (
+        <GoogleOAuthProvider clientId={clientId}>
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      ) : (
+        <AuthProvider>
+          <Outlet />
+        </AuthProvider>
+      )}
     </QueryClientProvider>
   );
 }

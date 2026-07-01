@@ -202,8 +202,7 @@ class CodeEditorService {
           })),
           success: executionResult.success || false
         },
-        plagiarism_flagged: false,
-        performance_warnings: performance_warnings
+        plagiarism_flagged: false
       } as any;
     } catch (error) {
       // Re-throw TLE as-is so CodeEditor can handle it with the correct UI.

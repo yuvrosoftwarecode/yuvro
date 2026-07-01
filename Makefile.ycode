@@ -109,8 +109,11 @@ db-createsuperuser:
 
 db-reset:
 	@echo "🔄 Resetting database..."
-	docker compose $(COMPOSE_FILES) down ycode-db -v
-	docker compose $(COMPOSE_FILES) up -d ycode-db
+	docker compose -f docker-compose.ycode.yml rm -s -f -v ycode-db
+	docker compose -f docker-compose.ycode.yml up -d ycode-db
+	@echo "⏳ Waiting for database to become healthy..."
+	@sleep 5
+	docker compose -f docker-compose.ycode.yml restart ycode-backend
 	@echo "✅ Database reset complete!"
 
 # ============================================================================

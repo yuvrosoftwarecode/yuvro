@@ -1,0 +1,1036 @@
+{
+  "users": [
+    {
+      "email": "admin@yuvro.com",
+      "username": "admin",
+      "first_name": "Admin",
+      "last_name": "User",
+      "password": "admin123",
+      "is_staff": true,
+      "is_superuser": true,
+      "profile": {
+        "full_name": "Admin User",
+        "title": "System Administrator",
+        "location": "San Francisco, CA",
+        "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
+        "gender": "prefer_not_to_say"
+      },
+      "roles": {
+        "ycode": "admin",
+        "ylabs": "admin"
+      }
+    },
+    {
+      "email": "instructor_ds@yuvro.com",
+      "username": "instructor_ds",
+      "first_name": "Data Structures",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Sarah Johnson",
+        "title": "Data Structures & Algorithms Instructor",
+        "location": "Boston, MA",
+        "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
+        "gender": "female"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "instructor_python@yuvro.com",
+      "username": "instructor_python",
+      "first_name": "Python",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Michael Chen",
+        "title": "Python Programming Instructor",
+        "location": "Seattle, WA",
+        "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
+        "gender": "male"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "instructor_java@yuvro.com",
+      "username": "instructor_java",
+      "first_name": "Java",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Robert Martinez",
+        "title": "Java Programming Instructor",
+        "location": "Austin, TX",
+        "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
+        "gender": "male"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "instructor_mysql@yuvro.com",
+      "username": "instructor_mysql",
+      "first_name": "MySQL",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Lisa Wang",
+        "title": "Database Systems Instructor",
+        "location": "New York, NY",
+        "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
+        "gender": "female"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "instructor_mongodb@yuvro.com",
+      "username": "instructor_mongodb",
+      "first_name": "MongoDB",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "David Kumar",
+        "title": "NoSQL Database Instructor",
+        "location": "Denver, CO",
+        "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
+        "gender": "male"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "instructor_ai@yuvro.com",
+      "username": "instructor_ai",
+      "first_name": "AI",
+      "last_name": "Instructor",
+      "password": "instructor123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Emily Rodriguez",
+        "title": "AI & Machine Learning Instructor",
+        "location": "Palo Alto, CA",
+        "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
+        "gender": "female"
+      },
+      "roles": {
+        "ycode": "instructor"
+      }
+    },
+    {
+      "email": "recruiter_admin@yuvro.com",
+      "username": "recruiter_admin",
+      "first_name": "Recruiter",
+      "last_name": "Admin",
+      "password": "recruiter123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Recruiter Admin",
+        "title": "Recruitment Admin",
+        "location": "India",
+        "about": "Recruiter admin with access to manage candidates and hiring workflows.",
+        "gender": "prefer_not_to_say"
+      },
+      "roles": {
+        "ycode": "recruiter"
+      }
+    },
+    {
+      "email": "recruiter@yuvro.com",
+      "username": "recruiter",
+      "first_name": "Tech",
+      "last_name": "Recruiter",
+      "password": "recruiter123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Jennifer Thompson",
+        "title": "Senior Technical Recruiter",
+        "location": "San Francisco, CA",
+        "about": "Technical recruiter specializing in software engineering and data science positions with 8+ years of experience in tech talent acquisition.",
+        "gender": "female"
+      },
+      "roles": {
+        "ycode": "recruiter"
+      }
+    },
+    {
+      "email": "shilpa@gmail.com",
+      "username": "shilpa",
+      "first_name": "Shilpa",
+      "last_name": "Dora",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Shilpa Dora",
+        "title": "Full Stack Developer",
+        "location": "Hyderabad, India",
+        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
+        "gender": "female",
+        "skills": [
+          {
+            "name": "React.js",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Node.js",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "JavaScript",
+            "level": "Advanced",
+            "percentage": 90
+          },
+          {
+            "name": "Python",
+            "level": "Intermediate",
+            "percentage": 70
+          },
+          {
+            "name": "MongoDB",
+            "level": "Intermediate",
+            "percentage": 65
+          }
+        ],
+        "experiences": [
+          {
+            "company": "TechStart Solutions",
+            "role": "Frontend Developer Intern",
+            "duration": "Jun 2023 - Dec 2023",
+            "description_list": [
+              "Developed responsive web applications using React.js and TypeScript",
+              "Collaborated with design team to implement pixel-perfect UI components",
+              "Optimized application performance resulting in 30% faster load times"
+            ],
+            "technologies": [
+              "React.js",
+              "TypeScript",
+              "CSS3",
+              "Git"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "E-commerce Platform",
+            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
+            "role": "Full Stack Developer",
+            "tech_stack": [
+              "React.js",
+              "Node.js",
+              "MongoDB",
+              "Express.js",
+              "Stripe API"
+            ],
+            "github_link": "https://github.com/shilpa/ecommerce-platform",
+            "live_link": "https://shilpa-ecommerce.netlify.app"
+          },
+          {
+            "title": "Task Management App",
+            "description": "Collaborative task management application with real-time updates and team collaboration features",
+            "role": "Frontend Developer",
+            "tech_stack": [
+              "React.js",
+              "Socket.io",
+              "Material-UI",
+              "Firebase"
+            ],
+            "github_link": "https://github.com/shilpa/task-manager",
+            "live_link": "https://task-manager-shilpa.vercel.app"
+          }
+        ],
+        "education": [
+          {
+            "institution": "JNTU Hyderabad",
+            "degree": "Bachelor of Technology",
+            "field": "Computer Science Engineering",
+            "duration": "2021 - 2025",
+            "cgpa": "8.5",
+            "start_year": 2021,
+            "end_year": 2025
+          }
+        ],
+        "certifications": [
+          {
+            "name": "React Developer Certification",
+            "issuer": "Meta",
+            "completion_date": "March 2024"
+          },
+          {
+            "name": "JavaScript Algorithms and Data Structures",
+            "issuer": "freeCodeCamp",
+            "completion_date": "January 2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/shilpadora",
+          "linkedin": "https://linkedin.com/in/shilpadora",
+          "portfolio": "https://shilpadora.dev",
+          "email": "shilpa@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "sreelekha@gmail.com",
+      "username": "sreelekha",
+      "first_name": "sreelekha",
+      "last_name": "Mucharla",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "sreelekha saidul",
+        "title": "Full Stack Developer",
+        "location": "Hyderabad, India",
+        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
+        "gender": "female",
+        "skills": [
+          {
+            "name": "React.js",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Node.js",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "JavaScript",
+            "level": "Advanced",
+            "percentage": 90
+          },
+          {
+            "name": "Python",
+            "level": "Intermediate",
+            "percentage": 70
+          },
+          {
+            "name": "MongoDB",
+            "level": "Intermediate",
+            "percentage": 65
+          }
+        ],
+        "experiences": [
+          {
+            "company": "TechStart Solutions",
+            "role": "Frontend Developer Intern",
+            "duration": "Jun 2023 - Dec 2023",
+            "description_list": [
+              "Developed responsive web applications using React.js and TypeScript",
+              "Collaborated with design team to implement pixel-perfect UI components",
+              "Optimized application performance resulting in 30% faster load times"
+            ],
+            "technologies": [
+              "React.js",
+              "TypeScript",
+              "CSS3",
+              "Git"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "E-commerce Platform",
+            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
+            "role": "Full Stack Developer",
+            "tech_stack": [
+              "React.js",
+              "Node.js",
+              "MongoDB",
+              "Express.js",
+              "Stripe API"
+            ],
+            "github_link": "https://github.com/shilpa/ecommerce-platform",
+            "live_link": "https://shilpa-ecommerce.netlify.app"
+          },
+          {
+            "title": "Task Management App",
+            "description": "Collaborative task management application with real-time updates and team collaboration features",
+            "role": "Frontend Developer",
+            "tech_stack": [
+              "React.js",
+              "Socket.io",
+              "Material-UI",
+              "Firebase"
+            ],
+            "github_link": "https://github.com/shilpa/task-manager",
+            "live_link": "https://task-manager-shilpa.vercel.app"
+          }
+        ],
+        "education": [
+          {
+            "institution": "JNTU Hyderabad",
+            "degree": "Bachelor of Technology",
+            "field": "Computer Science Engineering",
+            "duration": "2021 - 2025",
+            "cgpa": "8.5",
+            "start_year": 2021,
+            "end_year": 2025
+          }
+        ],
+        "certifications": [
+          {
+            "name": "React Developer Certification",
+            "issuer": "Meta",
+            "completion_date": "March 2024"
+          },
+          {
+            "name": "JavaScript Algorithms and Data Structures",
+            "issuer": "freeCodeCamp",
+            "completion_date": "January 2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/shilpadora",
+          "linkedin": "https://linkedin.com/in/shilpadora",
+          "portfolio": "https://shilpadora.dev",
+          "email": "shilpa@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "devendra@gmail.com",
+      "username": "devendra",
+      "first_name": "Devendra",
+      "last_name": "Dora",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Devendra Dora",
+        "title": "Backend Developer",
+        "location": "Bangalore, India",
+        "about": "Backend developer specializing in Python, Django, and cloud technologies. Experienced in building scalable APIs and microservices architecture.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "Python",
+            "level": "Advanced",
+            "percentage": 88
+          },
+          {
+            "name": "Django",
+            "level": "Advanced",
+            "percentage": 82
+          },
+          {
+            "name": "PostgreSQL",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "AWS",
+            "level": "Intermediate",
+            "percentage": 70
+          },
+          {
+            "name": "Docker",
+            "level": "Intermediate",
+            "percentage": 68
+          }
+        ],
+        "experiences": [
+          {
+            "company": "CloudTech Innovations",
+            "role": "Backend Developer Intern",
+            "duration": "Jan 2024 - Present",
+            "description_list": [
+              "Developed RESTful APIs using Django REST Framework",
+              "Implemented authentication and authorization systems",
+              "Optimized database queries reducing response time by 40%"
+            ],
+            "technologies": [
+              "Python",
+              "Django",
+              "PostgreSQL",
+              "Redis",
+              "AWS"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Social Media API",
+            "description": "RESTful API for social media platform with user management, posts, comments, and real-time notifications",
+            "role": "Backend Developer",
+            "tech_stack": [
+              "Django",
+              "PostgreSQL",
+              "Redis",
+              "Celery",
+              "WebSocket"
+            ],
+            "github_link": "https://github.com/devendra/social-api"
+          },
+          {
+            "title": "Inventory Management System",
+            "description": "Complete inventory management system with barcode scanning and automated reorder functionality",
+            "role": "Full Stack Developer",
+            "tech_stack": [
+              "Django",
+              "React.js",
+              "PostgreSQL",
+              "Docker"
+            ],
+            "github_link": "https://github.com/devendra/inventory-system"
+          }
+        ],
+        "education": [
+          {
+            "institution": "PES University",
+            "department": "Computer Science",
+            "degree": "Bachelor of Engineering",
+            "field": "Computer Science",
+            "duration": "2020 - 2024",
+            "cgpa": "8.8",
+            "start_year": 2020,
+            "end_year": 2024
+          }
+        ],
+        "certifications": [
+          {
+            "name": "AWS Certified Developer Associate",
+            "issuer": "Amazon Web Services",
+            "completion_date": "February 2024"
+          },
+          {
+            "name": "Python for Data Science",
+            "issuer": "IBM",
+            "completion_date": "December 2023"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/devendradora",
+          "linkedin": "https://linkedin.com/in/devendradora",
+          "email": "devendra@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "rohith@gmail.com",
+      "username": "rohith",
+      "first_name": "Rohith",
+      "last_name": "Krishna",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Rohith Krishna",
+        "title": "Data Science Enthusiast",
+        "location": "Chennai, India",
+        "about": "Data science enthusiast with strong foundation in machine learning and statistical analysis. Passionate about extracting insights from data to solve real-world problems.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "Python",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Machine Learning",
+            "level": "Intermediate",
+            "percentage": 78
+          },
+          {
+            "name": "SQL",
+            "level": "Advanced",
+            "percentage": 80
+          },
+          {
+            "name": "Pandas",
+            "level": "Advanced",
+            "percentage": 82
+          },
+          {
+            "name": "TensorFlow",
+            "level": "Intermediate",
+            "percentage": 72
+          }
+        ],
+        "experiences": [
+          {
+            "company": "DataInsights Corp",
+            "role": "Data Analyst Intern",
+            "duration": "May 2023 - Nov 2023",
+            "description_list": [
+              "Analyzed customer behavior data to identify trends and patterns",
+              "Built predictive models using scikit-learn and TensorFlow",
+              "Created interactive dashboards using Tableau and Power BI"
+            ],
+            "technologies": [
+              "Python",
+              "Pandas",
+              "Scikit-learn",
+              "Tableau",
+              "SQL"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Customer Churn Prediction",
+            "description": "Machine learning model to predict customer churn with 89% accuracy using ensemble methods",
+            "role": "Data Scientist",
+            "tech_stack": [
+              "Python",
+              "Scikit-learn",
+              "Pandas",
+              "Matplotlib",
+              "Jupyter"
+            ],
+            "github_link": "https://github.com/rohith/churn-prediction"
+          },
+          {
+            "title": "Stock Price Forecasting",
+            "description": "Time series analysis and LSTM neural network for stock price prediction",
+            "role": "ML Engineer",
+            "tech_stack": [
+              "Python",
+              "TensorFlow",
+              "Keras",
+              "NumPy",
+              "Plotly"
+            ],
+            "github_link": "https://github.com/rohith/stock-forecasting"
+          }
+        ],
+        "education": [
+          {
+            "institution": "IIT Madras",
+            "department": "Computer Science and Engineering",
+            "degree": "Bachelor of Technology",
+            "field": "Computer Science and Engineering",
+            "duration": "2021 - 2025",
+            "cgpa": "9.1",
+            "start_year": 2021,
+            "end_year": 2025
+          }
+        ],
+        "certifications": [
+          {
+            "name": "Machine Learning Specialization",
+            "issuer": "Stanford University (Coursera)",
+            "completion_date": "January 2024"
+          },
+          {
+            "name": "Data Science Professional Certificate",
+            "issuer": "IBM",
+            "completion_date": "November 2023"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/rohithkrishna",
+          "linkedin": "https://linkedin.com/in/rohithkrishna",
+          "email": "rohith@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "manikanta@gmail.com",
+      "username": "manikanta",
+      "first_name": "Manikanta",
+      "last_name": "Reddy",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Manikanta Reddy",
+        "title": "Mobile App Developer",
+        "location": "Pune, India",
+        "about": "Mobile app developer with expertise in React Native and Flutter. Passionate about creating intuitive mobile experiences and cross-platform development.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "React Native",
+            "level": "Advanced",
+            "percentage": 83
+          },
+          {
+            "name": "Flutter",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "JavaScript",
+            "level": "Advanced",
+            "percentage": 87
+          },
+          {
+            "name": "Dart",
+            "level": "Intermediate",
+            "percentage": 70
+          },
+          {
+            "name": "Firebase",
+            "level": "Intermediate",
+            "percentage": 72
+          }
+        ],
+        "experiences": [
+          {
+            "company": "MobileTech Solutions",
+            "role": "Mobile Developer Intern",
+            "duration": "Aug 2023 - Feb 2024",
+            "description_list": [
+              "Developed cross-platform mobile applications using React Native",
+              "Integrated third-party APIs and payment gateways",
+              "Implemented push notifications and real-time chat features"
+            ],
+            "technologies": [
+              "React Native",
+              "Firebase",
+              "Redux",
+              "AsyncStorage"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Food Delivery App",
+            "description": "Complete food delivery application with user authentication, restaurant listings, and order tracking",
+            "role": "Mobile Developer",
+            "tech_stack": [
+              "React Native",
+              "Firebase",
+              "Google Maps API",
+              "Stripe"
+            ],
+            "github_link": "https://github.com/manikanta/food-delivery-app"
+          },
+          {
+            "title": "Fitness Tracker",
+            "description": "Personal fitness tracking app with workout plans, progress monitoring, and social features",
+            "role": "Flutter Developer",
+            "tech_stack": [
+              "Flutter",
+              "Dart",
+              "SQLite",
+              "Provider"
+            ],
+            "github_link": "https://github.com/manikanta/fitness-tracker"
+          }
+        ],
+        "education": [
+          {
+            "institution": "Pune Institute of Technology",
+            "degree": "Bachelor of Engineering",
+            "field": "Information Technology",
+            "duration": "2020 - 2024",
+            "cgpa": "8.3",
+            "start_year": 2020,
+            "end_year": 2024
+          }
+        ],
+        "certifications": [
+          {
+            "name": "React Native Developer",
+            "issuer": "Meta",
+            "completion_date": "March 2024"
+          },
+          {
+            "name": "Flutter Development Bootcamp",
+            "issuer": "Google Developers",
+            "completion_date": "January 2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/manikantareddy",
+          "linkedin": "https://linkedin.com/in/manikantareddy",
+          "portfolio": "https://manikanta.dev",
+          "email": "manikanta@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "harsha@gmail.com",
+      "username": "harsha",
+      "first_name": "Harsha",
+      "last_name": "Vardhan",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Harsha Vardhan",
+        "title": "DevOps Engineer",
+        "location": "Mumbai, India",
+        "about": "DevOps engineer with expertise in cloud infrastructure, containerization, and CI/CD pipelines. Passionate about automation and scalable system architecture.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "Docker",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Kubernetes",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "AWS",
+            "level": "Advanced",
+            "percentage": 80
+          },
+          {
+            "name": "Jenkins",
+            "level": "Intermediate",
+            "percentage": 72
+          },
+          {
+            "name": "Terraform",
+            "level": "Intermediate",
+            "percentage": 68
+          }
+        ],
+        "experiences": [
+          {
+            "company": "CloudOps Technologies",
+            "role": "DevOps Intern",
+            "duration": "Sep 2023 - Mar 2024",
+            "description_list": [
+              "Automated deployment pipelines using Jenkins and GitLab CI",
+              "Managed containerized applications with Docker and Kubernetes",
+              "Implemented infrastructure as code using Terraform"
+            ],
+            "technologies": [
+              "Docker",
+              "Kubernetes",
+              "Jenkins",
+              "AWS",
+              "Terraform"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Microservices Deployment Platform",
+            "description": "Automated deployment platform for microservices using Kubernetes and Helm charts",
+            "role": "DevOps Engineer",
+            "tech_stack": [
+              "Kubernetes",
+              "Helm",
+              "Docker",
+              "Prometheus",
+              "Grafana"
+            ],
+            "github_link": "https://github.com/harsha/microservices-platform"
+          },
+          {
+            "title": "CI/CD Pipeline Automation",
+            "description": "Complete CI/CD pipeline with automated testing, security scanning, and deployment",
+            "role": "DevOps Engineer",
+            "tech_stack": [
+              "Jenkins",
+              "Docker",
+              "SonarQube",
+              "AWS",
+              "Ansible"
+            ],
+            "github_link": "https://github.com/harsha/cicd-automation"
+          }
+        ],
+        "education": [
+          {
+            "institution": "Mumbai University",
+            "degree": "Bachelor of Engineering",
+            "field": "Computer Engineering",
+            "duration": "2020 - 2024",
+            "cgpa": "8.6",
+            "start_year": 2020,
+            "end_year": 2024
+          }
+        ],
+        "certifications": [
+          {
+            "name": "AWS Certified Solutions Architect",
+            "issuer": "Amazon Web Services",
+            "completion_date": "February 2024"
+          },
+          {
+            "name": "Certified Kubernetes Administrator",
+            "issuer": "Cloud Native Computing Foundation",
+            "completion_date": "December 2023"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/harshavardhan",
+          "linkedin": "https://linkedin.com/in/harshavardhan",
+          "email": "harsha@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "vinod@gmail.com",
+      "username": "vinod",
+      "first_name": "Vinod",
+      "last_name": "Kumar",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Vinod Kumar",
+        "title": "Cybersecurity Specialist",
+        "location": "Delhi, India",
+        "about": "Cybersecurity specialist with focus on ethical hacking, penetration testing, and security architecture. Passionate about protecting digital assets and building secure systems.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "Ethical Hacking",
+            "level": "Advanced",
+            "percentage": 88
+          },
+          {
+            "name": "Network Security",
+            "level": "Advanced",
+            "percentage": 85
+          },
+          {
+            "name": "Python",
+            "level": "Intermediate",
+            "percentage": 75
+          },
+          {
+            "name": "Linux",
+            "level": "Advanced",
+            "percentage": 90
+          },
+          {
+            "name": "Cryptography",
+            "level": "Intermediate",
+            "percentage": 70
+          }
+        ],
+        "experiences": [
+          {
+            "company": "SecureNet Solutions",
+            "role": "Security Analyst Intern",
+            "duration": "Jul 2023 - Jan 2024",
+            "description_list": [
+              "Conducted vulnerability assessments and penetration testing",
+              "Developed security policies and incident response procedures",
+              "Monitored network traffic for suspicious activities"
+            ],
+            "technologies": [
+              "Kali Linux",
+              "Metasploit",
+              "Wireshark",
+              "Nmap",
+              "Burp Suite"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Network Security Scanner",
+            "description": "Automated network vulnerability scanner with reporting and remediation suggestions",
+            "role": "Security Developer",
+            "tech_stack": [
+              "Python",
+              "Nmap",
+              "SQLite",
+              "Flask",
+              "Bootstrap"
+            ],
+            "github_link": "https://github.com/vinod/network-scanner"
+          },
+          {
+            "title": "Secure Chat Application",
+            "description": "End-to-end encrypted chat application with advanced security features",
+            "role": "Security Engineer",
+            "tech_stack": [
+              "Python",
+              "Cryptography",
+              "Socket.io",
+              "React.js"
+            ],
+            "github_link": "https://github.com/vinod/secure-chat"
+          }
+        ],
+        "education": [
+          {
+            "institution": "Delhi Technological University",
+            "degree": "Bachelor of Technology",
+            "field": "Computer Science and Engineering",
+            "duration": "2021 - 2025",
+            "cgpa": "8.9",
+            "start_year": 2021,
+            "end_year": 2025
+          }
+        ],
+        "certifications": [
+          {
+            "name": "Certified Ethical Hacker (CEH)",
+            "issuer": "EC-Council",
+            "completion_date": "March 2024"
+          },
+          {
+            "name": "CompTIA Security+",
+            "issuer": "CompTIA",
+            "completion_date": "January 2024"
+          },
+          {
+            "name": "CISSP Associate",
+            "issuer": "(ISC)\u00b2",
+            "completion_date": "February 2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/vinodkumar",
+          "linkedin": "https://linkedin.com/in/vinodkumar-security",
+          "website": "https://vinodkumar-security.com",
+          "email": "vinod@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    }
+  ]
+}

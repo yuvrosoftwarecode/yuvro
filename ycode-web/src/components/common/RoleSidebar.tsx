@@ -197,7 +197,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const userRole = user?.role || 'student';
+  const userRole = user?.roles?.ycode || user?.role || 'student';
   const userEmail = user?.email || '';
 
   const hasJobsApprovalAccess = ['recruiter@yuvro.com', 'recruiter_admin@yuvro.com', 'admin@yuvro.com'].includes(userEmail);

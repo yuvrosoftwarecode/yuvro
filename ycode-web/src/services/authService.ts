@@ -1,5 +1,5 @@
 import type { User } from '../contexts/AuthContext';
-import restApiAuthUtil from '../utils/RestApiAuthUtil';
+import { restApiAuthUtil, yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
 
 export interface LoginResponse {
   access: string;
@@ -17,6 +17,7 @@ export interface RegisterRequest {
 class AuthService {
   setAuthToken(token: string): void {
     restApiAuthUtil.setAuthToken(token);
+    yhubApiAuthUtil.setAuthToken(token);
   }
 
   isAuthenticated(): boolean {
@@ -28,42 +29,46 @@ class AuthService {
   }
 
   async refreshToken(): Promise<boolean> {
-    return restApiAuthUtil.forceRefreshToken();
+    return yhubApiAuthUtil.forceRefreshToken();
   }
 
   initializeFromStorage(): void {
     const token = localStorage.getItem('access');
     if (token) {
       restApiAuthUtil.setAuthToken(token);
+      yhubApiAuthUtil.setAuthToken(token);
     }
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await restApiAuthUtil.post<LoginResponse>('/auth/login/', { email, password });
+    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/login/?product=ycode', { email, password });
 
     localStorage.setItem('access', response.access);
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
+    yhubApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
 
   async register(data: RegisterRequest): Promise<LoginResponse> {
-    const response = await restApiAuthUtil.post<LoginResponse>('/auth/register/', data);
+    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/register/?product=ycode', data);
 
     localStorage.setItem('access', response.access);
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
+    yhubApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
 
   async loginWithGoogle(token: string): Promise<LoginResponse> {
-    const response = await restApiAuthUtil.post<LoginResponse>('/auth/google/', { token });
+    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/google/?product=ycode', { token });
 
     localStorage.setItem('access', response.access);
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
+    yhubApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
@@ -79,11 +84,12 @@ class AuthService {
   async logoutUser(): Promise<void> {
     const refreshToken = localStorage.getItem('refresh');
     if (refreshToken) {
-      restApiAuthUtil.post('/auth/logout/', { refresh: refreshToken }).catch(error => {
+      yhubApiAuthUtil.post('/auth/logout/', { refresh: refreshToken }).catch(error => {
         console.warn('Logout error:', error);
       });
     }
     restApiAuthUtil.clearAuthToken();
+    yhubApiAuthUtil.clearAuthToken();
     window.location.href = '/login';
   }
 
