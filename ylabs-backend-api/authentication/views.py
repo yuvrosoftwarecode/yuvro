@@ -4,8 +4,16 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminUser
 from django.contrib.auth import get_user_model
+from .serializers import UserSerializer
 
 User = get_user_model()
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_info_view(request):
+    """Get current user information."""
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])
