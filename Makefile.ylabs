@@ -60,10 +60,6 @@ clean:
 	docker compose -f docker-compose.ylabs.yml down -v --remove-orphans
 	@echo "✅ Cleanup complete!"
 
-load-fixtures-data:
-	@echo "🔄 YLabs has no fixtures to load (users are synced from YHub)."
-	@echo "✅ YLabs fixture data step completed!"
-
 # ============================================================================
 # Database
 # ============================================================================
@@ -82,11 +78,8 @@ db-createsuperuser:
 
 db-reset:
 	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.ylabs.yml rm -s -f -v ylabs-db
+	docker compose -f docker-compose.ylabs.yml down ylabs-db -v
 	docker compose -f docker-compose.ylabs.yml up -d ylabs-db
-	@echo "⏳ Waiting for database to become healthy..."
-	@sleep 5
-	docker compose -f docker-compose.ylabs.yml restart ylabs-backend
 	@echo "✅ Database reset complete!"
 
 # ============================================================================

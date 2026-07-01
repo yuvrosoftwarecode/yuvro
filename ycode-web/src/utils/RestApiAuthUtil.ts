@@ -160,5 +160,4 @@ class RestApiAuthUtil extends RestApiUtil {
 }
 
 export const restApiAuthUtil = new RestApiAuthUtil(API_BASE_URL);
-export const yhubApiAuthUtil = new RestApiAuthUtil(import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL);
 export default restApiAuthUtil;

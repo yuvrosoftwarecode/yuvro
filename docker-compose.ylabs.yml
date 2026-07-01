@@ -47,7 +47,6 @@ services:
     restart: on-failure
     networks:
       - ylabs
-      - yuvro-storage
 
   ylabs-frontend:
     build:
@@ -82,4 +81,3 @@ networks:
     driver: bridge
   executor:
     external: true
-  yuvro-storage:

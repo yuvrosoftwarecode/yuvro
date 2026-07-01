@@ -10,10 +10,6 @@ export interface User {
   first_name?: string;
   last_name?: string;
   role?: string;
-  roles?: {
-    ycode?: string;
-    ylabs?: string;
-  };
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;

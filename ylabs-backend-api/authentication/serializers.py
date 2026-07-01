@@ -1,39 +1,44 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .models import User, Profile
 
-from .models import User
 
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
-        # Add custom claims
+        token["role"] = user.role
         token["username"] = user.username
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
-        token["roles"] = user.roles
-
         return token
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            "profile_image", "cover_image", "full_name",
+            "title", "location", "about", "gender",
+        ]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            "id",
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "roles",
-            "is_active",
-            "date_joined",
-            "last_login",
+            "id", "username", "email", "first_name", "last_name",
+            "full_name", "role", "is_active", "date_joined", "last_login",
+            "profile",
         ]
         read_only_fields = ["id", "date_joined", "last_login"]
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -53,10 +58,8 @@ class UserLoginSerializer(serializers.Serializer):
                     raise serializers.ValidationError("User account is disabled.")
                 attrs["user"] = user
                 return attrs
-            else:
-                raise serializers.ValidationError("Invalid email or password.")
-        else:
-            raise serializers.ValidationError("Must include email and password.")
+            raise serializers.ValidationError("Invalid email or password.")
+        raise serializers.ValidationError("Must include email and password.")
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -66,13 +69,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "username",
-            "email",
-            "password",
-            "password_confirm",
-            "first_name",
-            "last_name",
-            "roles",
+            "username", "email", "password", "password_confirm",
+            "first_name", "last_name",
         ]
 
     def validate(self, attrs):
@@ -83,12 +81,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password_confirm")
         password = validated_data.pop("password")
-        user = User.objects.create_user(password=password, **validated_data)
-        return user
+        return User.objects.create_user(password=password, **validated_data)
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name"]
-

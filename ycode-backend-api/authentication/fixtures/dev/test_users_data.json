@@ -5,6 +5,7 @@
       "username": "admin",
       "first_name": "Admin",
       "last_name": "User",
+      "role": "admin",
       "password": "admin123",
       "is_staff": true,
       "is_superuser": true,
@@ -14,10 +15,6 @@
         "location": "San Francisco, CA",
         "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
         "gender": "prefer_not_to_say"
-      },
-      "roles": {
-        "ycode": "admin",
-        "ylabs": "admin"
       }
     },
     {
@@ -25,6 +22,7 @@
       "username": "instructor_ds",
       "first_name": "Data Structures",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -34,9 +32,6 @@
         "location": "Boston, MA",
         "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
         "gender": "female"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -44,6 +39,7 @@
       "username": "instructor_python",
       "first_name": "Python",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -53,9 +49,6 @@
         "location": "Seattle, WA",
         "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
         "gender": "male"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -63,6 +56,7 @@
       "username": "instructor_java",
       "first_name": "Java",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -72,9 +66,6 @@
         "location": "Austin, TX",
         "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
         "gender": "male"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -82,6 +73,7 @@
       "username": "instructor_mysql",
       "first_name": "MySQL",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -91,9 +83,6 @@
         "location": "New York, NY",
         "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
         "gender": "female"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -101,6 +90,7 @@
       "username": "instructor_mongodb",
       "first_name": "MongoDB",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -110,9 +100,6 @@
         "location": "Denver, CO",
         "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
         "gender": "male"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -120,6 +107,7 @@
       "username": "instructor_ai",
       "first_name": "AI",
       "last_name": "Instructor",
+      "role": "instructor",
       "password": "instructor123",
       "is_staff": false,
       "is_superuser": false,
@@ -129,9 +117,6 @@
         "location": "Palo Alto, CA",
         "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
         "gender": "female"
-      },
-      "roles": {
-        "ycode": "instructor"
       }
     },
     {
@@ -139,6 +124,7 @@
       "username": "recruiter_admin",
       "first_name": "Recruiter",
       "last_name": "Admin",
+      "role": "recruiter",
       "password": "recruiter123",
       "is_staff": true,
       "is_superuser": false,
@@ -148,9 +134,6 @@
         "location": "India",
         "about": "Recruiter admin with access to manage candidates and hiring workflows.",
         "gender": "prefer_not_to_say"
-      },
-      "roles": {
-        "ycode": "recruiter"
       }
     },
     {
@@ -158,6 +141,7 @@
       "username": "recruiter",
       "first_name": "Tech",
       "last_name": "Recruiter",
+      "role": "recruiter",
       "password": "recruiter123",
       "is_staff": false,
       "is_superuser": false,
@@ -167,9 +151,6 @@
         "location": "San Francisco, CA",
         "about": "Technical recruiter specializing in software engineering and data science positions with 8+ years of experience in tech talent acquisition.",
         "gender": "female"
-      },
-      "roles": {
-        "ycode": "recruiter"
       }
     },
     {
@@ -177,6 +158,7 @@
       "username": "shilpa",
       "first_name": "Shilpa",
       "last_name": "Dora",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -289,133 +271,6 @@
           "portfolio": "https://shilpadora.dev",
           "email": "shilpa@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
-      }
-    },
-    {
-      "email": "sreelekha@gmail.com",
-      "username": "sreelekha",
-      "first_name": "sreelekha",
-      "last_name": "Mucharla",
-      "password": "student123",
-      "is_staff": false,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "sreelekha saidul",
-        "title": "Full Stack Developer",
-        "location": "Hyderabad, India",
-        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
-        "gender": "female",
-        "skills": [
-          {
-            "name": "React.js",
-            "level": "Advanced",
-            "percentage": 85
-          },
-          {
-            "name": "Node.js",
-            "level": "Intermediate",
-            "percentage": 75
-          },
-          {
-            "name": "JavaScript",
-            "level": "Advanced",
-            "percentage": 90
-          },
-          {
-            "name": "Python",
-            "level": "Intermediate",
-            "percentage": 70
-          },
-          {
-            "name": "MongoDB",
-            "level": "Intermediate",
-            "percentage": 65
-          }
-        ],
-        "experiences": [
-          {
-            "company": "TechStart Solutions",
-            "role": "Frontend Developer Intern",
-            "duration": "Jun 2023 - Dec 2023",
-            "description_list": [
-              "Developed responsive web applications using React.js and TypeScript",
-              "Collaborated with design team to implement pixel-perfect UI components",
-              "Optimized application performance resulting in 30% faster load times"
-            ],
-            "technologies": [
-              "React.js",
-              "TypeScript",
-              "CSS3",
-              "Git"
-            ]
-          }
-        ],
-        "projects": [
-          {
-            "title": "E-commerce Platform",
-            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
-            "role": "Full Stack Developer",
-            "tech_stack": [
-              "React.js",
-              "Node.js",
-              "MongoDB",
-              "Express.js",
-              "Stripe API"
-            ],
-            "github_link": "https://github.com/shilpa/ecommerce-platform",
-            "live_link": "https://shilpa-ecommerce.netlify.app"
-          },
-          {
-            "title": "Task Management App",
-            "description": "Collaborative task management application with real-time updates and team collaboration features",
-            "role": "Frontend Developer",
-            "tech_stack": [
-              "React.js",
-              "Socket.io",
-              "Material-UI",
-              "Firebase"
-            ],
-            "github_link": "https://github.com/shilpa/task-manager",
-            "live_link": "https://task-manager-shilpa.vercel.app"
-          }
-        ],
-        "education": [
-          {
-            "institution": "JNTU Hyderabad",
-            "degree": "Bachelor of Technology",
-            "field": "Computer Science Engineering",
-            "duration": "2021 - 2025",
-            "cgpa": "8.5",
-            "start_year": 2021,
-            "end_year": 2025
-          }
-        ],
-        "certifications": [
-          {
-            "name": "React Developer Certification",
-            "issuer": "Meta",
-            "completion_date": "March 2024"
-          },
-          {
-            "name": "JavaScript Algorithms and Data Structures",
-            "issuer": "freeCodeCamp",
-            "completion_date": "January 2024"
-          }
-        ],
-        "social_links": {
-          "github": "https://github.com/shilpadora",
-          "linkedin": "https://linkedin.com/in/shilpadora",
-          "portfolio": "https://shilpadora.dev",
-          "email": "shilpa@gmail.com"
-        }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     },
     {
@@ -423,6 +278,7 @@
       "username": "devendra",
       "first_name": "Devendra",
       "last_name": "Dora",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -534,10 +390,6 @@
           "linkedin": "https://linkedin.com/in/devendradora",
           "email": "devendra@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     },
     {
@@ -545,6 +397,7 @@
       "username": "rohith",
       "first_name": "Rohith",
       "last_name": "Krishna",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -657,10 +510,6 @@
           "linkedin": "https://linkedin.com/in/rohithkrishna",
           "email": "rohith@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     },
     {
@@ -668,6 +517,7 @@
       "username": "manikanta",
       "first_name": "Manikanta",
       "last_name": "Reddy",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -777,10 +627,6 @@
           "portfolio": "https://manikanta.dev",
           "email": "manikanta@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     },
     {
@@ -788,6 +634,7 @@
       "username": "harsha",
       "first_name": "Harsha",
       "last_name": "Vardhan",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -899,10 +746,6 @@
           "linkedin": "https://linkedin.com/in/harshavardhan",
           "email": "harsha@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     },
     {
@@ -910,6 +753,7 @@
       "username": "vinod",
       "first_name": "Vinod",
       "last_name": "Kumar",
+      "role": "student",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
@@ -1016,7 +860,7 @@
           },
           {
             "name": "CISSP Associate",
-            "issuer": "(ISC)\u00b2",
+            "issuer": "(ISC)²",
             "completion_date": "February 2024"
           }
         ],
@@ -1026,10 +870,6 @@
           "website": "https://vinodkumar-security.com",
           "email": "vinod@gmail.com"
         }
-      },
-      "roles": {
-        "ycode": "student",
-        "ylabs": "student"
       }
     }
   ]
