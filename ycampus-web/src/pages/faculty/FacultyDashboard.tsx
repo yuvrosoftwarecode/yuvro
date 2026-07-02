@@ -251,7 +251,7 @@ const FacultyDashboard = () => {
       return (
         <div className="flex flex-col h-[70vh] items-center justify-center space-y-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-bold text-xs text-slate-500 uppercase tracking-widest animate-pulse">Initializing Dashboard...</p>
+          <p className="font-semibold text-xs text-slate-500  tracking-widest animate-pulse">Initializing Dashboard...</p>
         </div>
       );
     }

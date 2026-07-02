@@ -107,7 +107,8 @@ module "rds_ycampus" {
 module "s3" {
   source = "./modules/s3"
 
-  environment = var.environment
+  environment          = var.environment
+  cors_allowed_origins = var.s3_cors_allowed_origins
 }
 
 # IAM Roles Module
