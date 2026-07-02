@@ -39,7 +39,7 @@ const ChatDialog = ({ open, onClose, company, onSendMessage }: ChatDialogProps) 
 
         <ScrollArea className="h-[320px] p-4">
           {company?.chatMessages.length === 0 && (
-            <p className="text-center text-muted-foreground text-xs py-10">No messages yet. Start the conversation!</p>
+            <p className="text-center  text-xs py-10">No messages yet. Start the conversation!</p>
           )}
           <div className="space-y-3">
             {company?.chatMessages.map(msg => (
