@@ -1,0 +1,296 @@
+{
+  "sub_unit_name": "PreparedStatement",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is PreparedStatement?",
+      "description": "PreparedStatement is a JDBC interface used to execute precompiled, parameterized SQL statements. It improves performance, enhances security, and helps prevent SQL Injection attacks."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>PreparedStatement</strong> extends the Statement interface by allowing SQL queries to contain placeholders (<code>?</code>) for parameters. These parameters are supplied separately before execution, making the code safer, easier to maintain, and more efficient when the same query is executed multiple times.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use PreparedStatement?",
+      "content": "PreparedStatement prevents SQL Injection, supports parameterized queries, improves performance through query precompilation, and makes SQL statements easier to read and maintain."
+    },
+    {
+      "type": "diagram",
+      "title": "PreparedStatement Workflow",
+      "steps": [
+        "Write SQL with ? Placeholders",
+        "Create PreparedStatement",
+        "Set Parameter Values",
+        "Execute SQL",
+        "Receive Result"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating a PreparedStatement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A PreparedStatement object is created using the <code>prepareStatement()</code> method of the Connection interface.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a PreparedStatement",
+      "code": "String sql = \"SELECT * FROM students WHERE id = ?\";\nPreparedStatement ps = con.prepareStatement(sql);"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "SQL is compiled once and reused multiple times with different parameter values, improving efficiency."
+    },
+    {
+      "type": "heading",
+      "content": "Setting Parameters"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Parameter values are assigned using setter methods such as <code>setInt()</code>, <code>setString()</code>, <code>setDouble()</code>, and <code>setDate()</code>.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["setInt()", "Assign integer value"],
+        ["setString()", "Assign string value"],
+        ["setDouble()", "Assign double value"],
+        ["setBoolean()", "Assign boolean value"],
+        ["setDate()", "Assign SQL date"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Setting Parameter Values",
+      "code": "ps.setInt(1, 101);"
+    },
+    {
+      "type": "heading",
+      "content": "Executing Queries"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PreparedStatement supports executing SELECT, INSERT, UPDATE, and DELETE statements using dedicated execution methods.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["executeQuery()", "Executes SELECT statements"],
+        ["executeUpdate()", "Executes INSERT, UPDATE, DELETE"],
+        ["execute()", "Executes any SQL statement"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "SELECT Example",
+      "code": "PreparedStatement ps = con.prepareStatement(\n    \"SELECT * FROM students WHERE id = ?\"\n);\n\nps.setInt(1, 101);\nResultSet rs = ps.executeQuery();"
+    },
+    {
+      "type": "heading",
+      "content": "INSERT Example"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PreparedStatement is commonly used to insert user-provided values into database tables safely.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "INSERT Example",
+      "code": "PreparedStatement ps = con.prepareStatement(\n    \"INSERT INTO students(name, age) VALUES(?, ?)\"\n);\n\nps.setString(1, \"Alice\");\nps.setInt(2, 20);\nps.executeUpdate();"
+    },
+    {
+      "type": "heading",
+      "content": "Statement vs PreparedStatement"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Statement",
+      "right_title": "PreparedStatement",
+      "left_points": [
+        "Dynamic SQL strings",
+        "Not precompiled",
+        "Vulnerable to SQL Injection",
+        "Suitable for one-time queries"
+      ],
+      "right_points": [
+        "Parameterized SQL",
+        "Precompiled",
+        "Prevents SQL Injection",
+        "Better for repeated execution"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Executing a PreparedStatement",
+      "steps": [
+        "Create Connection",
+        "Write SQL with ?",
+        "Prepare Statement",
+        "Set Parameters",
+        "Execute Query",
+        "Process Result",
+        "Close Resources"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Benefits of PreparedStatement"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Advantages",
+      "items": [
+        {
+          "question": "Security",
+          "answer": "Protects applications from SQL Injection attacks."
+        },
+        {
+          "question": "Performance",
+          "answer": "SQL statements are precompiled and reused."
+        },
+        {
+          "question": "Readability",
+          "answer": "Separates SQL logic from parameter values."
+        },
+        {
+          "question": "Maintainability",
+          "answer": "Makes code easier to modify and debug."
+        }
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "PreparedStatement Execution",
+      "time_complexity": "Depends on the SQL query and database indexing",
+      "space_complexity": "Depends on the size of query results"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is PreparedStatement Used?",
+      "items": [
+        {
+          "question": "Login Systems",
+          "answer": "Securely validate user credentials."
+        },
+        {
+          "question": "Registration Forms",
+          "answer": "Insert user information safely into databases."
+        },
+        {
+          "question": "Search Features",
+          "answer": "Execute parameterized search queries."
+        },
+        {
+          "question": "Enterprise Applications",
+          "answer": "Perform secure CRUD operations on large databases."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Preprinted Application Form",
+      "content": "Imagine a printed application form with blank spaces. The form structure remains the same, while only the values are filled in for each applicant. PreparedStatement works similarly by preparing the SQL once and filling different parameter values each time."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "PreparedStatement, SQL Injection prevention, parameterized queries, executeQuery(), executeUpdate(), placeholders (?), JDBC transactions, and Statement vs PreparedStatement comparisons are among the most commonly asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why shouldn't user input be concatenated into SQL?",
+          "answer": "String concatenation can make applications vulnerable to SQL Injection attacks."
+        },
+        {
+          "question": "Must every placeholder receive a value?",
+          "answer": "Yes. Every '?' placeholder must be assigned a value before execution."
+        },
+        {
+          "question": "Should PreparedStatement be reused?",
+          "answer": "Yes. Reusing a PreparedStatement for repeated executions improves performance."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "PreparedStatement is the preferred JDBC interface for executing parameterized SQL queries because it is secure, efficient, and easy to maintain."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Return Type"],
+      "rows": [
+        ["setInt()", "Assign integer parameter", "void"],
+        ["setString()", "Assign string parameter", "void"],
+        ["executeQuery()", "Execute SELECT query", "ResultSet"],
+        ["executeUpdate()", "Execute INSERT/UPDATE/DELETE", "int"],
+        ["execute()", "Execute any SQL", "boolean"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "PreparedStatement executes parameterized SQL queries.",
+        "It uses '?' placeholders for parameters.",
+        "Values are assigned using setter methods.",
+        "It prevents SQL Injection attacks.",
+        "Prepared SQL statements are precompiled.",
+        "PreparedStatement is preferred over Statement in most applications."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which symbol is used as a parameter placeholder in PreparedStatement?",
+      "options": ["$", "@", "?", "#"],
+      "answer": "?"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method executes a SELECT query using PreparedStatement?",
+      "options": [
+        "executeUpdate()",
+        "executeQuery()",
+        "executeInsert()",
+        "executeSQL()"
+      ],
+      "answer": "executeQuery()"
+    },
+    {
+      "type": "quiz",
+      "question": "Why is PreparedStatement preferred over Statement?",
+      "options": [
+        "It uses less memory only",
+        "It automatically creates tables",
+        "It prevents SQL Injection and improves performance",
+        "It works only with MySQL"
+      ],
+      "answer": "It prevents SQL Injection and improves performance"
+    }
+  ]
+}

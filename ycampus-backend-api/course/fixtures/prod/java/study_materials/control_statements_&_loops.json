@@ -1,0 +1,341 @@
+{
+  "sub_unit_name": "Control Statements & Loops",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Control Statements and Loops?",
+      "description": "Control statements determine the flow of execution in a Java program, while loops allow a block of code to execute repeatedly until a specified condition is met."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Programs often need to make decisions or repeat tasks. Java provides <strong>control statements</strong> such as <code>if</code>, <code>if-else</code>, <code>switch</code>, and <strong>loops</strong> like <code>for</code>, <code>while</code>, and <code>do-while</code> to handle these situations efficiently.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Control Statements?",
+      "content": "Without control statements, programs would execute every statement sequentially without making decisions or repeating operations."
+    },
+    {
+      "type": "diagram",
+      "title": "Program Flow",
+      "steps": [
+        "Start Program",
+        "Evaluate Condition",
+        "Choose Execution Path",
+        "Repeat if Needed",
+        "End Program"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Decision-Making Statements"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Decision-making statements execute different blocks of code depending on whether a condition evaluates to true or false.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Types of Decision Statements",
+      "items": [
+        {
+          "question": "if Statement",
+          "answer": "Executes a block only if the condition is true."
+        },
+        {
+          "question": "if-else Statement",
+          "answer": "Executes one block when the condition is true and another when it is false."
+        },
+        {
+          "question": "else-if Ladder",
+          "answer": "Checks multiple conditions one after another."
+        },
+        {
+          "question": "switch Statement",
+          "answer": "Selects one block from multiple possible choices."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "if Statement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>if</code> statement is the simplest decision-making statement. It executes its block only when the specified condition evaluates to true.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "if Statement Example",
+      "code": "int age = 20;\n\nif(age >= 18){\n    System.out.println(\"Eligible to Vote\");\n}"
+    },
+    {
+      "type": "heading",
+      "content": "if-else Statement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>if-else</code> statement provides two execution paths depending on the result of the condition.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "if-else Example",
+      "code": "int marks = 45;\n\nif(marks >= 35){\n    System.out.println(\"Pass\");\n}else{\n    System.out.println(\"Fail\");\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "if-else Flow",
+      "steps": [
+        "Check Condition",
+        "True?",
+        "Execute if Block",
+        "Otherwise Execute else Block"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "switch Statement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>switch</code> statement is useful when a variable can have multiple predefined values. It improves readability compared to long else-if ladders.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "switch Example",
+      "code": "int day = 2;\n\nswitch(day){\n    case 1:\n        System.out.println(\"Monday\");\n        break;\n    case 2:\n        System.out.println(\"Tuesday\");\n        break;\n    default:\n        System.out.println(\"Invalid Day\");\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "Always use break in a switch statement unless intentional fall-through behavior is required."
+    },
+    {
+      "type": "heading",
+      "content": "Loops in Java"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Loops repeatedly execute a block of code while a condition remains true. They eliminate repetitive coding and improve efficiency.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Types of Loops",
+      "items": [
+        {
+          "question": "for Loop",
+          "answer": "Best when the number of iterations is known."
+        },
+        {
+          "question": "while Loop",
+          "answer": "Best when the number of iterations is unknown."
+        },
+        {
+          "question": "do-while Loop",
+          "answer": "Executes the loop body at least once before checking the condition."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "for Loop"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>for</code> loop combines initialization, condition checking, and update in a single statement, making it ideal for counting loops.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "for Loop Example",
+      "code": "for(int i = 1; i <= 5; i++){\n    System.out.println(i);\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "for Loop Execution",
+      "steps": [
+        "Initialize Variable",
+        "Check Condition",
+        "Execute Loop Body",
+        "Update Variable",
+        "Repeat Until Condition is False"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "while Loop"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>while</code> loop checks the condition before each iteration. If the condition is false initially, the loop body is never executed.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "while Loop Example",
+      "code": "int i = 1;\n\nwhile(i <= 5){\n    System.out.println(i);\n    i++;\n}"
+    },
+    {
+      "type": "heading",
+      "content": "do-while Loop"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>do-while</code> loop executes its body first and checks the condition afterward, ensuring at least one execution.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "do-while Example",
+      "code": "int i = 1;\n\ndo{\n    System.out.println(i);\n    i++;\n}while(i <= 5);"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "for Loop",
+      "right_title": "while & do-while",
+      "left_points": [
+        "Known iterations",
+        "Compact syntax",
+        "Initialization included",
+        "Best for counting"
+      ],
+      "right_points": [
+        "Unknown iterations",
+        "Condition-based execution",
+        "Flexible structure",
+        "do-while executes at least once"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Loop Control Statements"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides special statements to alter the normal flow of loops.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Statement",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        ["break", "Exit the loop immediately", "break;"],
+        ["continue", "Skip current iteration", "continue;"],
+        ["return", "Exit the method", "return;"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "break and continue",
+      "code": "for(int i = 1; i <= 5; i++){\n    if(i == 3)\n        continue;\n\n    if(i == 5)\n        break;\n\n    System.out.println(i);\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Traffic Signals",
+      "content": "A traffic signal controls when vehicles should stop, move, or wait. Similarly, control statements decide which part of a program should execute, while loops repeatedly allow vehicles (instructions) to pass until the condition changes."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions on if-else, switch, loop execution order, break, continue, and nested loops are very common in Java interviews and coding assessments."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why does an infinite loop occur?",
+          "answer": "Because the loop condition never becomes false or the loop variable is not updated."
+        },
+        {
+          "question": "Why does switch execute multiple cases?",
+          "answer": "Because the break statement is missing."
+        },
+        {
+          "question": "When should you use do-while?",
+          "answer": "When the loop body must execute at least once regardless of the condition."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use if for simple decisions, switch for multiple fixed choices, for when iterations are known, while for unknown iterations, and do-while when at least one execution is required."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Statement",
+        "Purpose",
+        "Best Use Case"
+      ],
+      "rows": [
+        ["if", "Single Decision", "Simple Conditions"],
+        ["switch", "Multiple Choices", "Menu Selection"],
+        ["for", "Fixed Iterations", "Counting Loops"],
+        ["while", "Condition-Based", "Unknown Iterations"],
+        ["do-while", "Execute Once Minimum", "Menu-Driven Programs"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Control statements determine program flow.",
+        "if and switch are decision-making statements.",
+        "for, while, and do-while are looping statements.",
+        "break exits a loop or switch.",
+        "continue skips the current loop iteration."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which loop always executes at least once?",
+      "options": [
+        "for",
+        "while",
+        "do-while",
+        "Enhanced for"
+      ],
+      "answer": "do-while"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement immediately exits a loop?",
+      "options": [
+        "continue",
+        "break",
+        "return",
+        "exit"
+      ],
+      "answer": "break"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement is most suitable when checking multiple fixed values?",
+      "options": [
+        "if",
+        "switch",
+        "while",
+        "for"
+      ],
+      "answer": "switch"
+    }
+  ]
+}

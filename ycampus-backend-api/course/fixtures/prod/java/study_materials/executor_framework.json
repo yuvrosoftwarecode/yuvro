@@ -1,0 +1,298 @@
+{
+  "sub_unit_name": "Executor Framework",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Executor Framework?",
+      "description": "The Executor Framework is a high-level concurrency framework in Java that simplifies thread management by separating task submission from thread creation and execution."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Creating and managing threads manually becomes difficult as applications grow. The <strong>Executor Framework</strong>, introduced in Java 5 under the <code>java.util.concurrent</code> package, provides thread pools, task scheduling, and efficient resource management. Developers submit tasks to an executor, which handles thread creation, reuse, and scheduling automatically.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use the Executor Framework?",
+      "content": "It improves application performance by reusing threads, reducing thread creation overhead, simplifying concurrency, and providing scalable task execution."
+    },
+    {
+      "type": "diagram",
+      "title": "Executor Framework Workflow",
+      "steps": [
+        "Create Task (Runnable/Callable)",
+        "Submit Task",
+        "Executor Service Receives Task",
+        "Thread Pool Executes Task",
+        "Task Completes",
+        "Thread Returned to Pool"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Core Components"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Executor Framework consists of several important interfaces and classes that work together to manage concurrent task execution efficiently.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Purpose"],
+      "rows": [
+        ["Executor", "Basic interface for executing tasks"],
+        ["ExecutorService", "Manages thread pools and task lifecycle"],
+        ["Executors", "Factory class for creating executor services"],
+        ["Callable", "Task that returns a result"],
+        ["Future", "Represents the result of an asynchronous task"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Instead of creating threads manually, submit tasks to an ExecutorService and let the framework manage execution."
+    },
+    {
+      "type": "heading",
+      "content": "ExecutorService"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>ExecutorService</code> is the most commonly used interface. It provides methods to submit tasks, manage thread pools, and shut down executors safely.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Fixed Thread Pool",
+      "code": "ExecutorService executor = Executors.newFixedThreadPool(3);\n\nexecutor.execute(() -> {\n    System.out.println(\"Task Executed\");\n});\n\nexecutor.shutdown();"
+    },
+    {
+      "type": "heading",
+      "content": "Runnable vs Callable"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Runnable",
+      "right_title": "Callable",
+      "left_points": [
+        "Returns no result",
+        "run() method",
+        "Cannot throw checked exceptions",
+        "Suitable for simple tasks"
+      ],
+      "right_points": [
+        "Returns a result",
+        "call() method",
+        "Can throw checked exceptions",
+        "Suitable for computations"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Callable Example",
+      "code": "ExecutorService executor = Executors.newSingleThreadExecutor();\n\nCallable<Integer> task = () -> 100;\nFuture<Integer> result = executor.submit(task);\n\nSystem.out.println(result.get());\nexecutor.shutdown();"
+    },
+    {
+      "type": "heading",
+      "content": "Future Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Future</code> interface represents the result of an asynchronous computation. It allows checking task completion, retrieving results, or cancelling tasks.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["get()", "Returns the task result"],
+        ["isDone()", "Checks whether task has completed"],
+        ["cancel()", "Attempts to cancel execution"],
+        ["isCancelled()", "Checks if task was cancelled"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Types of Thread Pools"
+    },
+    {
+      "type": "accordion",
+      "title": "Executor Types",
+      "items": [
+        {
+          "question": "Fixed Thread Pool",
+          "answer": "Creates a fixed number of reusable threads."
+        },
+        {
+          "question": "Cached Thread Pool",
+          "answer": "Creates new threads as needed and reuses idle threads."
+        },
+        {
+          "question": "Single Thread Executor",
+          "answer": "Executes tasks sequentially using a single worker thread."
+        },
+        {
+          "question": "Scheduled Thread Pool",
+          "answer": "Schedules tasks to execute after delays or periodically."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Scheduled Executor Example",
+      "code": "ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);\n\nscheduler.schedule(() -> {\n    System.out.println(\"Task Executed\");\n}, 2, TimeUnit.SECONDS);\n\nscheduler.shutdown();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Task Execution Process",
+      "steps": [
+        "Create Runnable or Callable",
+        "Create ExecutorService",
+        "Submit Task",
+        "Thread Pool Executes Task",
+        "Retrieve Result (Optional)",
+        "Shutdown Executor"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Executor Framework vs Manual Threads"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Executor Framework",
+      "right_title": "Manual Thread Creation",
+      "left_points": [
+        "Thread reuse",
+        "Automatic management",
+        "Scalable",
+        "Better performance"
+      ],
+      "right_points": [
+        "Creates new thread every time",
+        "Manual management",
+        "Higher overhead",
+        "Less efficient"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Task Submission",
+      "time_complexity": "O(1) (task submission, implementation dependent)",
+      "space_complexity": "Depends on thread pool size and queued tasks"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is the Executor Framework Used?",
+      "items": [
+        {
+          "question": "Web Servers",
+          "answer": "Handle thousands of client requests efficiently using thread pools."
+        },
+        {
+          "question": "Background Processing",
+          "answer": "Execute long-running tasks without blocking the main application."
+        },
+        {
+          "question": "Batch Processing",
+          "answer": "Process large datasets concurrently."
+        },
+        {
+          "question": "Scheduled Jobs",
+          "answer": "Run periodic maintenance, backups, and monitoring tasks."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Restaurant Staff",
+      "content": "Instead of hiring a new waiter for every customer, a restaurant keeps a team of waiters ready to serve incoming customers. Similarly, a thread pool reuses existing threads instead of creating new ones for every task."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "ExecutorService, thread pools, Callable, Runnable, Future, ScheduledExecutorService, shutdown(), submit(), execute(), and ForkJoinPool are common Java concurrency interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should shutdown() be ignored?",
+          "answer": "No. Always shut down an ExecutorService to release system resources."
+        },
+        {
+          "question": "Can Runnable return a value?",
+          "answer": "No. Use Callable when a result is required."
+        },
+        {
+          "question": "Should a new thread pool be created for every task?",
+          "answer": "No. Reuse thread pools whenever possible to improve performance."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "The Executor Framework simplifies concurrent programming by managing reusable thread pools and separating task execution from thread management."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Executor Framework", "Manual Threads"],
+      "rows": [
+        ["Thread Management", "Automatic", "Manual"],
+        ["Thread Reuse", "Yes", "No"],
+        ["Performance", "Higher", "Lower"],
+        ["Scalability", "Excellent", "Limited"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Executor Framework manages thread pools.",
+        "ExecutorService is the primary interface.",
+        "Runnable performs tasks without returning results.",
+        "Callable returns values through Future.",
+        "Thread pools improve performance by reusing threads.",
+        "Always call shutdown() after task completion."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface manages thread pools in Java?",
+      "options": ["Thread", "ExecutorService", "Runnable", "Future"],
+      "answer": "ExecutorService"
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface should be used when a task needs to return a value?",
+      "options": ["Runnable", "Callable", "Thread", "Executor"],
+      "answer": "Callable"
+    },
+    {
+      "type": "quiz",
+      "question": "Why are thread pools preferred over creating threads manually?",
+      "options": [
+        "They eliminate synchronization.",
+        "They reuse threads and reduce creation overhead.",
+        "They execute only one task.",
+        "They replace the JVM scheduler."
+      ],
+      "answer": "They reuse threads and reduce creation overhead."
+    }
+  ]
+}

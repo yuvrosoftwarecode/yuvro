@@ -1,0 +1,285 @@
+{
+  "sub_unit_name": "JDK, JRE & JVM",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are JDK, JRE, and JVM?",
+      "description": "JDK, JRE, and JVM are the three core components of the Java platform. Together, they enable developers to build, compile, and execute Java applications."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Many beginners confuse <strong>JDK</strong>, <strong>JRE</strong>, and <strong>JVM</strong>. Understanding their responsibilities is essential because every Java application depends on them. The JDK is used for development, the JRE provides the runtime environment, and the JVM executes Java bytecode.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Idea",
+      "content": "JDK = Development Tools + JRE, JRE = JVM + Libraries, JVM = Executes Bytecode."
+    },
+    {
+      "type": "diagram",
+      "title": "Relationship Between JDK, JRE & JVM",
+      "steps": [
+        "JDK",
+        "Contains JRE",
+        "JRE contains JVM",
+        "JVM Executes Bytecode",
+        "Application Runs Successfully"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Understanding the Components"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Each component has a different responsibility in the Java ecosystem.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Components Explained",
+      "items": [
+        {
+          "question": "What is JDK?",
+          "answer": "Java Development Kit (JDK) is used by developers to write, compile, debug, and package Java applications."
+        },
+        {
+          "question": "What is JRE?",
+          "answer": "Java Runtime Environment (JRE) provides the libraries and runtime environment required to execute Java programs."
+        },
+        {
+          "question": "What is JVM?",
+          "answer": "Java Virtual Machine (JVM) converts bytecode into machine code and executes the program."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Java Development Kit (JDK)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>JDK</strong> is the complete package required for Java development. It contains the compiler (<code>javac</code>), debugger, documentation tools, JRE, and other utilities needed to build Java applications.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Role of JDK",
+      "steps": [
+        "Write Source Code",
+        "Compile using javac",
+        "Generate Bytecode",
+        "Package Application",
+        "Run Application"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Developer's Toolkit",
+      "description": "If you want to create Java programs, you must install the JDK."
+    },
+    {
+      "type": "heading",
+      "content": "Java Runtime Environment (JRE)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>JRE</strong> provides everything required to run Java applications. It includes the JVM and standard Java libraries but does not contain development tools like the compiler.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Inside JRE",
+      "steps": [
+        "Java Libraries",
+        "Runtime Files",
+        "JVM",
+        "Execute Java Application"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "End users who only run Java applications need JRE, while developers require JDK."
+    },
+    {
+      "type": "heading",
+      "content": "Java Virtual Machine (JVM)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>JVM</strong> is responsible for executing Java bytecode. It converts platform-independent bytecode into machine-specific instructions that the operating system can understand.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "How JVM Works",
+      "steps": [
+        "Load Bytecode",
+        "Verify Bytecode",
+        "Interpret or Compile",
+        "Execute Machine Code",
+        "Produce Output"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Execution Characteristics",
+      "time_complexity": "Depends on Program",
+      "space_complexity": "Depends on JVM Heap & Stack"
+    },
+    {
+      "type": "heading",
+      "content": "Compilation and Execution Process"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java follows a two-step execution process. First, the compiler converts source code into bytecode. Then, the JVM converts the bytecode into machine code during execution.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Complete Java Workflow",
+      "steps": [
+        "Write Hello.java",
+        "Compile using javac",
+        "Generate Hello.class",
+        "JVM Loads Bytecode",
+        "Machine Code Generated",
+        "Program Executes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of JDK, JRE & JVM"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "JDK",
+      "right_title": "JRE & JVM",
+      "left_points": [
+        "Used for Development",
+        "Contains Compiler",
+        "Includes JRE",
+        "Required by Developers"
+      ],
+      "right_points": [
+        "Runs Applications",
+        "No Compiler",
+        "Contains JVM",
+        "Required for Execution"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Component",
+        "Purpose",
+        "Contains",
+        "Used By"
+      ],
+      "rows": [
+        [
+          "JDK",
+          "Develop Java Applications",
+          "JRE + Development Tools",
+          "Developers"
+        ],
+        [
+          "JRE",
+          "Run Java Applications",
+          "JVM + Libraries",
+          "Users"
+        ],
+        [
+          "JVM",
+          "Execute Bytecode",
+          "Execution Engine",
+          "Every Java Program"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Building and Driving a Car",
+      "content": "Think of JDK as the car factory where vehicles are built. JRE is the road system that allows cars to operate, while the JVM is the engine that actually powers the car."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "The difference between JDK, JRE, and JVM is one of the most frequently asked Java interview questions."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Is JDK the same as JRE?",
+          "answer": "No. JDK includes JRE along with development tools."
+        },
+        {
+          "question": "Does JVM compile Java code?",
+          "answer": "No. The compiler (javac) in JDK compiles Java code into bytecode."
+        },
+        {
+          "question": "Can you develop Java applications using only JRE?",
+          "answer": "No. You need the JDK because it provides the compiler and development tools."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Interview Tip",
+      "description": "Remember the hierarchy: JDK contains JRE, and JRE contains JVM."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "JDK is used for development.",
+        "JRE provides the runtime environment.",
+        "JVM executes Java bytecode.",
+        "JDK includes JRE.",
+        "JRE includes JVM.",
+        "Platform independence is achieved through the JVM."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which component contains the Java compiler?",
+      "options": [
+        "JVM",
+        "JRE",
+        "JDK",
+        "Bytecode"
+      ],
+      "answer": "JDK"
+    },
+    {
+      "type": "quiz",
+      "question": "Which component is responsible for executing Java bytecode?",
+      "options": [
+        "JDK",
+        "Compiler",
+        "JVM",
+        "IDE"
+      ],
+      "answer": "JVM"
+    },
+    {
+      "type": "quiz",
+      "question": "Which hierarchy is correct?",
+      "options": [
+        "JVM → JDK → JRE",
+        "JDK → JRE → JVM",
+        "JRE → JVM → JDK",
+        "JVM → JRE → JDK"
+      ],
+      "answer": "JDK → JRE → JVM"
+    }
+  ]
+}

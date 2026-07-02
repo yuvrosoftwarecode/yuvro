@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X } from 'lucide-react';
+import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X, Brain, Zap, Table as TableIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote, markSubUnitComplete } from '@/services/subjectService';
@@ -18,8 +18,6 @@ const MaterialsView = ({
   setIsChatOpen,
   showHeader = true,
   subunit,
-  subunitId,
-  subunitName,
   isMarkedComplete,
   onMarkComplete,
   isToolkitOpen,
@@ -32,8 +30,6 @@ const MaterialsView = ({
   setIsChatOpen: (value: boolean) => void;
   showHeader?: boolean;
   subunit?: any;
-  subunitId?: string;
-  subunitName?: string;
   isMarkedComplete?: boolean;
   onMarkComplete?: () => void;
   isToolkitOpen?: boolean;
@@ -95,7 +91,7 @@ const MaterialsView = ({
 
     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
       <div className="mb-8 mt-2 space-y-6">
-        {false && subunit && subunit.content ? (
+        {subunit && subunit.content ? (
           <div className={`rounded-3xl p-8 border transition-all duration-300 ${themeClasses[theme]}`}>
             <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b ${
               theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
@@ -113,7 +109,7 @@ const MaterialsView = ({
                   }`}>â±ï¸ 5 min read &bull; Interactive Study Guide</p>
                 </div>
               </div>
-              
+
               {/* Reading Preferences Control Panel */}
               <div className={`flex items-center gap-4 p-2 rounded-2xl border shrink-0 ${
                 theme === 'dark' ? 'bg-slate-900/60 border-slate-800' : theme === 'sepia' ? 'bg-[#ebdcb6]/20 border-[#e8dfc7]' : 'bg-gray-50/80 border-gray-150'
@@ -153,7 +149,7 @@ const MaterialsView = ({
                     A++
                   </button>
                 </div>
-                
+
                 {/* Theme Selectors */}
                 <div className="flex items-center gap-2">
                   <button
@@ -234,6 +230,7 @@ const MaterialsView = ({
       </div>
       {materials.length === 0 ? (
         <></>
+        // <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200 font-sans">
         //   <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
         //   <p className="text-sm">No study materials available for this unit yet.</p>
         // </div>
@@ -424,7 +421,6 @@ const MyNotesView = ({
 
 const StudentNotes = ({
   subunitId,
-  subunitName,
   mode = 'materials',
   sessionId,
   onNewSession,
@@ -432,7 +428,6 @@ const StudentNotes = ({
   onProgressUpdate,
 }: {
   subunitId: string;
-  subunitName?: string;
   mode?: 'materials' | 'my-notes';
   sessionId?: string;
   onNewSession?: () => void;
@@ -651,7 +646,6 @@ const StudentNotes = ({
                   setIsChatOpen={setIsChatOpen}
                   showHeader={false}
                   subunit={subunit}
-                  subunitName={subunitName}
                   isMarkedComplete={isMarkedComplete}
                   onMarkComplete={handleMarkComplete}
                   isToolkitOpen={isToolkitOpen}
@@ -719,7 +713,7 @@ const StudentNotes = ({
 
   return (
     <div ref={containerRef} className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
-      <div className="p-6 overflow-hidden" style={{ width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : '100%' }}>
+      <div className="p-6 overflow-hidden" style={{ width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : isToolkitOpen ? 'calc(100% - 280px)' : '100%' }}>
         {mode === 'materials' ? (
           <MaterialsView
             materials={materials}
@@ -728,8 +722,6 @@ const StudentNotes = ({
             isChatOpen={isChatOpen}
             setIsChatOpen={setIsChatOpen}
             subunit={subunit}
-            subunitId={subunitId}
-            subunitName={subunitName}
             isMarkedComplete={isMarkedComplete}
             onMarkComplete={handleMarkComplete}
             isToolkitOpen={isToolkitOpen}
@@ -767,7 +759,6 @@ const StudentNotes = ({
         </div>
       )}
 
-      {/* AI Chat panel (slides in) */}
       {isChatOpen && (
         <>
           <div
@@ -792,13 +783,6 @@ const StudentNotes = ({
             />
           </div>
         </>
-      )}
-
-      {/* Persistent Study Toolkit sidebar (always visible in materials mode) */}
-      {mode === 'materials' && (
-        <div className="w-[280px] shrink-0 h-full">
-          <StudyToolkitPanel onOpenAi={() => setIsChatOpen(true)} />
-        </div>
       )}
     </div>
   );

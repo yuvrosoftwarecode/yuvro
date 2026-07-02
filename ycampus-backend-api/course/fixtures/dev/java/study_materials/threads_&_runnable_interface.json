@@ -1,0 +1,289 @@
+{
+  "sub_unit_name": "Threads & Runnable Interface",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Threads & Runnable Interface?",
+      "description": "A thread is the smallest unit of execution within a process. Java supports multithreading through the Thread class and the Runnable interface, allowing multiple tasks to execute concurrently."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Modern applications often need to perform multiple tasks simultaneously, such as downloading files while updating the user interface. Java provides multithreading using the <code>Thread</code> class and the <code>Runnable</code> interface. Threads improve responsiveness and make efficient use of CPU resources.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Threads?",
+      "content": "Threads are essential for building responsive applications, parallel processing, web servers, games, and real-time systems."
+    },
+    {
+      "type": "diagram",
+      "title": "Multithreading Overview",
+      "steps": [
+        "Program Starts",
+        "Main Thread Executes",
+        "Create Additional Threads",
+        "Threads Run Concurrently",
+        "Program Completes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "What is a Thread?"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A thread is an independent path of execution within a program. Multiple threads can run concurrently, allowing different tasks to execute simultaneously.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Every Java application starts with a single thread called the main thread."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a Thread using Thread Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>One way to create a thread is by extending the <code>Thread</code> class and overriding its <code>run()</code> method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Thread Class Example",
+      "code": "class MyThread extends Thread {\n    @Override\n    public void run() {\n        System.out.println(\"Thread is running\");\n    }\n}\n\nMyThread t = new MyThread();\nt.start();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "Always call start() instead of run(). The start() method creates a new thread, whereas run() executes like a normal method."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a Thread using Runnable"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The recommended approach is to implement the <code>Runnable</code> interface because it allows a class to extend another class while still supporting multithreading.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Runnable Example",
+      "code": "class MyTask implements Runnable {\n    @Override\n    public void run() {\n        System.out.println(\"Runnable task executing\");\n    }\n}\n\nThread thread = new Thread(new MyTask());\nthread.start();"
+    },
+    {
+      "type": "heading",
+      "content": "Thread Lifecycle"
+    },
+    {
+      "type": "diagram",
+      "title": "Lifecycle of a Thread",
+      "steps": ["New", "Runnable", "Running", "Blocked / Waiting", "Terminated"]
+    },
+    {
+      "type": "heading",
+      "content": "Common Thread Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["start()", "Starts a new thread"],
+        ["run()", "Contains thread logic"],
+        ["sleep()", "Pauses the current thread"],
+        ["join()", "Waits for another thread to finish"],
+        ["currentThread()", "Returns the currently executing thread"],
+        ["getName()", "Returns the thread name"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using sleep()",
+      "code": "try {\n    Thread.sleep(1000);\n} catch (InterruptedException e) {\n    e.printStackTrace();\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Executing a Thread",
+      "steps": [
+        "Create Thread or Runnable",
+        "Override run()",
+        "Create Thread Object",
+        "Call start()",
+        "Thread Executes Independently"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thread vs Runnable"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Thread Class",
+      "right_title": "Runnable Interface",
+      "left_points": [
+        "Extends Thread class",
+        "Cannot extend another class",
+        "Simple for small programs",
+        "Less flexible"
+      ],
+      "right_points": [
+        "Implements Runnable",
+        "Supports multiple inheritance through interfaces",
+        "Recommended approach",
+        "Better code reuse"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Multithreading"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Improved Performance",
+          "answer": "Multiple tasks can execute simultaneously on multi-core processors."
+        },
+        {
+          "question": "Responsive Applications",
+          "answer": "Long-running tasks do not freeze the user interface."
+        },
+        {
+          "question": "Efficient CPU Utilization",
+          "answer": "CPU resources are better utilized by running multiple threads."
+        },
+        {
+          "question": "Parallel Processing",
+          "answer": "Large computations can be divided among multiple threads."
+        }
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Thread Creation",
+      "time_complexity": "O(1) for creation (system dependent)",
+      "space_complexity": "Depends on thread stack size"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Threads Used?",
+      "items": [
+        {
+          "question": "Web Servers",
+          "answer": "Handle multiple client requests simultaneously."
+        },
+        {
+          "question": "Games",
+          "answer": "Separate rendering, input handling, and physics calculations."
+        },
+        {
+          "question": "Download Managers",
+          "answer": "Download multiple files concurrently."
+        },
+        {
+          "question": "Background Tasks",
+          "answer": "Perform logging, backups, and scheduled operations."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Restaurant Kitchen",
+      "content": "Imagine several chefs working in the same kitchen. One prepares appetizers, another cooks the main course, while another makes desserts. Each chef represents a thread performing a different task simultaneously."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Thread creation, Runnable vs Thread, lifecycle, start() vs run(), join(), sleep(), synchronization, daemon threads, and thread safety are frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should run() be called directly?",
+          "answer": "No. Calling run() executes the method in the current thread. Use start() to create a new thread."
+        },
+        {
+          "question": "Is extending Thread always recommended?",
+          "answer": "No. Implementing Runnable is generally preferred because it allows inheritance from another class."
+        },
+        {
+          "question": "Can multiple threads safely modify shared data?",
+          "answer": "Not always. Synchronization or concurrent collections are required to prevent race conditions."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use Runnable for better flexibility and always start threads using the start() method instead of calling run() directly."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Thread Class", "Runnable Interface"],
+      "rows": [
+        ["Inheritance", "Extends Thread", "Implements Runnable"],
+        ["Code Reuse", "Lower", "Higher"],
+        ["Multiple Inheritance", "Not Possible", "Possible"],
+        ["Recommended", "No", "Yes"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "A thread is an independent execution path.",
+        "Every Java program starts with the main thread.",
+        "Threads can be created using Thread or Runnable.",
+        "Runnable is generally preferred.",
+        "Always use start() to begin thread execution.",
+        "Thread lifecycle includes New, Runnable, Running, Waiting, and Terminated states."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method actually starts a new thread?",
+      "options": ["run()", "execute()", "start()", "begin()"],
+      "answer": "start()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which approach is generally recommended for creating threads?",
+      "options": [
+        "Extending Thread",
+        "Implementing Runnable",
+        "Using Object",
+        "Using Serializable"
+      ],
+      "answer": "Implementing Runnable"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the first thread created when a Java application starts?",
+      "options": [
+        "Worker Thread",
+        "Background Thread",
+        "Main Thread",
+        "Daemon Thread"
+      ],
+      "answer": "Main Thread"
+    }
+  ]
+}

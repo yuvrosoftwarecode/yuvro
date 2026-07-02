@@ -1,0 +1,293 @@
+{
+  "sub_unit_name": "Optional Class",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Optional Class?",
+      "description": "The Optional class, introduced in Java 8, is a container object that may or may not contain a non-null value. It helps prevent NullPointerException and encourages safer handling of missing values."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>One of the most common runtime errors in Java is the <strong>NullPointerException (NPE)</strong>. The <code>Optional</code> class provides a cleaner and safer alternative to using <code>null</code>. Instead of returning <code>null</code>, methods can return an <code>Optional</code> object that explicitly indicates whether a value is present or absent.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Optional?",
+      "content": "Optional reduces the risk of NullPointerException, improves code readability, encourages explicit null handling, and promotes functional programming practices."
+    },
+    {
+      "type": "diagram",
+      "title": "Optional Workflow",
+      "steps": [
+        "Create Optional",
+        "Value Present?",
+        "Yes → Process Value",
+        "No → Return Default or Handle Absence",
+        "Continue Execution"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating an Optional"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Optional class provides factory methods to create objects with or without values.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["Optional.of()", "Creates an Optional containing a non-null value"],
+        ["Optional.ofNullable()", "Creates an Optional that may contain null"],
+        ["Optional.empty()", "Creates an empty Optional"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating Optional Objects",
+      "code": "Optional<String> name1 = Optional.of(\"Alice\");\nOptional<String> name2 = Optional.ofNullable(null);\nOptional<String> name3 = Optional.empty();"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "An Optional object never stores null directly. Instead, it represents either a present value or an empty container."
+    },
+    {
+      "type": "heading",
+      "content": "Checking for Values"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Before accessing the stored value, developers can check whether the Optional contains a value.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Checking Presence",
+      "code": "Optional<String> name = Optional.of(\"Java\");\n\nif (name.isPresent()) {\n    System.out.println(name.get());\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Best Practice",
+      "content": "Avoid using get() directly unless you're certain a value exists. Prefer methods like orElse(), ifPresent(), or orElseThrow()."
+    },
+    {
+      "type": "heading",
+      "content": "Common Optional Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["isPresent()", "Checks whether a value exists"],
+        ["ifPresent()", "Executes code if a value exists"],
+        ["orElse()", "Returns a default value"],
+        ["orElseGet()", "Generates a default value lazily"],
+        ["orElseThrow()", "Throws an exception if value is absent"],
+        ["map()", "Transforms the contained value"],
+        ["filter()", "Keeps value only if condition matches"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Using orElse()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>orElse()</code> method returns the contained value if present; otherwise, it returns a specified default value.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "orElse Example",
+      "code": "Optional<String> city = Optional.empty();\n\nSystem.out.println(city.orElse(\"Unknown City\"));"
+    },
+    {
+      "type": "heading",
+      "content": "Using ifPresent()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>ifPresent()</code> method executes a lambda expression only when a value exists.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ifPresent Example",
+      "code": "Optional<String> language = Optional.of(\"Java\");\n\nlanguage.ifPresent(System.out::println);"
+    },
+    {
+      "type": "heading",
+      "content": "Optional with Streams"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Many stream operations such as <code>findFirst()</code>, <code>findAny()</code>, <code>min()</code>, and <code>max()</code> return Optional objects because the result may not always exist.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "findFirst Example",
+      "code": "Optional<Integer> number = List.of(10, 20, 30)\n    .stream()\n    .filter(n -> n > 15)\n    .findFirst();\n\nnumber.ifPresent(System.out::println);"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Optional",
+      "steps": [
+        "Create Optional",
+        "Store Value or Empty",
+        "Check Presence",
+        "Process Value",
+        "Provide Default if Needed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Optional vs Null"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Optional",
+      "right_title": "Null Reference",
+      "left_points": [
+        "Safer API",
+        "Explicit handling",
+        "Avoids NullPointerException",
+        "Supports functional programming"
+      ],
+      "right_points": [
+        "Prone to runtime errors",
+        "Implicit absence",
+        "Requires manual null checks",
+        "Less expressive"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Optional Operations",
+      "time_complexity": "O(1) for most operations",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Optional Used?",
+      "items": [
+        {
+          "question": "Service Layer",
+          "answer": "Represent optional return values instead of returning null."
+        },
+        {
+          "question": "Streams API",
+          "answer": "Handle results of operations such as findFirst(), min(), and max()."
+        },
+        {
+          "question": "Repository Methods",
+          "answer": "Represent entities that may or may not exist."
+        },
+        {
+          "question": "Functional Programming",
+          "answer": "Chain operations using map(), filter(), and flatMap()."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Gift Box",
+      "content": "Imagine receiving a gift box. It may contain a present or it may be empty, but the box itself always exists. Optional works the same way—it safely wraps a value that may or may not be present."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Optional, NullPointerException, Optional.of(), Optional.ofNullable(), Optional.empty(), orElse(), orElseGet(), ifPresent(), map(), flatMap(), and Optional with Streams are frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should get() be used without checking?",
+          "answer": "No. Calling get() on an empty Optional throws NoSuchElementException."
+        },
+        {
+          "question": "Should Optional be used for every field?",
+          "answer": "No. Optional is intended primarily for return types, not class fields or method parameters."
+        },
+        {
+          "question": "Can Optional contain null?",
+          "answer": "No. Use Optional.ofNullable() to safely wrap nullable values."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Optional represents the presence or absence of a value, making null handling explicit and reducing runtime errors."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Description", "Returns"],
+      "rows": [
+        ["of()", "Creates Optional with non-null value", "Optional"],
+        ["ofNullable()", "Creates Optional from nullable value", "Optional"],
+        ["empty()", "Creates empty Optional", "Optional"],
+        ["orElse()", "Returns value or default", "Value"],
+        ["ifPresent()", "Executes action if value exists", "void"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Optional was introduced in Java 8.",
+        "It helps avoid NullPointerException.",
+        "Use Optional.of() for non-null values.",
+        "Use Optional.ofNullable() for nullable values.",
+        "Prefer orElse(), ifPresent(), and orElseThrow() over get().",
+        "Many Stream methods return Optional."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method creates an Optional that can safely wrap a null value?",
+      "options": [
+        "Optional.of()",
+        "Optional.ofNullable()",
+        "Optional.create()",
+        "Optional.wrap()"
+      ],
+      "answer": "Optional.ofNullable()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which exception may occur when calling get() on an empty Optional?",
+      "options": [
+        "NullPointerException",
+        "IllegalArgumentException",
+        "NoSuchElementException",
+        "IOException"
+      ],
+      "answer": "NoSuchElementException"
+    },
+    {
+      "type": "quiz",
+      "question": "Which Java version introduced the Optional class?",
+      "options": ["Java 6", "Java 7", "Java 8", "Java 11"],
+      "answer": "Java 8"
+    }
+  ]
+}

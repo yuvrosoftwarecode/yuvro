@@ -1,0 +1,323 @@
+{
+  "sub_unit_name": "Operators & Type Casting",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Operators and Type Casting?",
+      "description": "Operators perform operations on variables and values, while type casting converts a value from one data type to another."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides a rich set of <strong>operators</strong> for performing arithmetic, comparison, logical, assignment, and bitwise operations. Sometimes, values need to be converted between different data types. This process is known as <strong>type casting</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Operators?",
+      "content": "Operators form the foundation of programming because almost every calculation, comparison, and decision depends on them."
+    },
+    {
+      "type": "diagram",
+      "title": "Operators in Action",
+      "steps": [
+        "Take Operands",
+        "Apply Operator",
+        "Produce Result",
+        "Store or Display Output"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Types of Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java groups operators into several categories based on the type of operation they perform.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Operator Categories",
+      "items": [
+        {
+          "question": "Arithmetic Operators",
+          "answer": "Used for mathematical calculations like +, -, *, /, and %."
+        },
+        {
+          "question": "Relational Operators",
+          "answer": "Used to compare values such as ==, !=, >, <, >=, and <=."
+        },
+        {
+          "question": "Logical Operators",
+          "answer": "Used to combine conditions using &&, ||, and !."
+        },
+        {
+          "question": "Assignment Operators",
+          "answer": "Used to assign values, such as =, +=, -=, *=, and /=."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Arithmetic Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Arithmetic operators perform mathematical calculations on numeric values.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Arithmetic Operators Example",
+      "code": "int a = 10;\nint b = 3;\nSystem.out.println(a + b);\nSystem.out.println(a - b);\nSystem.out.println(a * b);\nSystem.out.println(a / b);\nSystem.out.println(a % b);"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Operator",
+        "Meaning",
+        "Example",
+        "Result"
+      ],
+      "rows": [
+        ["+", "Addition", "10 + 5", "15"],
+        ["-", "Subtraction", "10 - 5", "5"],
+        ["*", "Multiplication", "10 * 5", "50"],
+        ["/", "Division", "10 / 5", "2"],
+        ["%", "Modulus", "10 % 3", "1"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Relational Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Relational operators compare two values and always return a boolean result.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Comparison Example",
+      "steps": [
+        "Compare 10 > 5",
+        "Condition Evaluated",
+        "Result = true"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "Relational operators always produce either true or false."
+    },
+    {
+      "type": "heading",
+      "content": "Logical Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Logical operators combine multiple conditions and are commonly used inside decision-making statements like if and while.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Logical Operators Example",
+      "code": "int age = 20;\nboolean student = true;\nSystem.out.println(age >= 18 && student);\nSystem.out.println(age < 18 || student);\nSystem.out.println(!student);"
+    },
+    {
+      "type": "heading",
+      "content": "Assignment Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Assignment operators assign values to variables and can perform operations while assigning.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Operator",
+        "Meaning",
+        "Example"
+      ],
+      "rows": [
+        ["=", "Assignment", "x = 10"],
+        ["+=", "Add and Assign", "x += 5"],
+        ["-=", "Subtract and Assign", "x -= 2"],
+        ["*=", "Multiply and Assign", "x *= 3"],
+        ["/=", "Divide and Assign", "x /= 2"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Unary Operators"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unary operators operate on a single operand. The increment (++) and decrement (--) operators are frequently used in loops.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Increment & Decrement",
+      "code": "int count = 5;\ncount++;\nSystem.out.println(count);\ncount--;\nSystem.out.println(count);"
+    },
+    {
+      "type": "heading",
+      "content": "Type Casting"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Type casting converts one data type into another. Java supports two types of casting: implicit (widening) and explicit (narrowing).</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Types of Casting",
+      "items": [
+        {
+          "question": "Implicit (Widening) Casting",
+          "answer": "Automatically converts a smaller data type into a larger data type."
+        },
+        {
+          "question": "Explicit (Narrowing) Casting",
+          "answer": "Requires manual conversion because data may be lost."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Implicit Type Casting",
+      "code": "int number = 50;\ndouble value = number;\nSystem.out.println(value);"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Explicit Type Casting",
+      "code": "double price = 99.99;\nint amount = (int) price;\nSystem.out.println(amount);"
+    },
+    {
+      "type": "diagram",
+      "title": "Type Casting Flow",
+      "steps": [
+        "Original Data Type",
+        "Apply Casting",
+        "Convert Value",
+        "Store in New Variable"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Implicit Casting",
+      "right_title": "Explicit Casting",
+      "left_points": [
+        "Automatic",
+        "No Data Loss",
+        "Smaller → Larger Type",
+        "Safe Conversion"
+      ],
+      "right_points": [
+        "Manual",
+        "Possible Data Loss",
+        "Larger → Smaller Type",
+        "Requires Cast Operator"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Using Different Measuring Cups",
+      "content": "Imagine pouring water from a small cup into a larger container—it fits easily (implicit casting). Pouring from a large container into a small cup may lose some water (explicit casting)."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about operator precedence, increment operators, implicit vs explicit casting, and integer division."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why does 10 / 3 return 3 instead of 3.33?",
+          "answer": "Because both operands are integers, resulting in integer division."
+        },
+        {
+          "question": "Why is data lost during explicit casting?",
+          "answer": "Because a larger data type is converted into a smaller one."
+        },
+        {
+          "question": "What is a common mistake with == ?",
+          "answer": "Using == to compare String objects instead of using the equals() method."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use implicit casting whenever possible. Use explicit casting only when necessary and be aware of possible data loss."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Example",
+        "Purpose"
+      ],
+      "rows": [
+        ["Arithmetic", "a + b", "Perform calculations"],
+        ["Logical", "a && b", "Combine conditions"],
+        ["Relational", "a > b", "Compare values"],
+        ["Casting", "(int)3.14", "Convert data type"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Operators perform operations on values.",
+        "Java has arithmetic, relational, logical, assignment, and unary operators.",
+        "Type casting converts one data type into another.",
+        "Implicit casting is automatic.",
+        "Explicit casting requires manual conversion."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which operator returns the remainder after division?",
+      "options": [
+        "+",
+        "/",
+        "%",
+        "*"
+      ],
+      "answer": "%"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of casting happens automatically?",
+      "options": [
+        "Explicit Casting",
+        "Narrowing",
+        "Implicit Casting",
+        "Manual Casting"
+      ],
+      "answer": "Implicit Casting"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the output of 10 / 3 in Java when both operands are int?",
+      "options": [
+        "3.33",
+        "3",
+        "4",
+        "Compilation Error"
+      ],
+      "answer": "3"
+    }
+  ]
+}

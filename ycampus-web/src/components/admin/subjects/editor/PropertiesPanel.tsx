@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import { Block } from './BlockRegistry';
 import { TipTapEditor } from './TipTapEditor';
 import { Plus, X, ChevronDown, ChevronRight } from 'lucide-react';
@@ -10,18 +11,171 @@ interface PropertiesPanelProps {
   onChange: (updates: Partial<Block>) => void;
 }
 
-const FONT_SIZES = ['10px','12px','13px','14px','15px','16px','18px','20px','24px','28px','32px','36px','48px'];
-const FONT_WEIGHTS = [
-  { label: 'Thin', value: '100' },{ label: 'Light', value: '300' },{ label: 'Normal', value: '400' },
-  { label: 'Medium', value: '500' },{ label: 'Semi Bold', value: '600' },{ label: 'Bold', value: '700' },{ label: 'Extra Bold', value: '800' }
-];
-const LINE_HEIGHTS = ['1','1.25','1.4','1.5','1.6','1.75','2','2.5'];
+// Semantic preset colors — minimal, meaningful palette
 const PRESET_COLORS = [
-  '#000000','#1e293b','#334155','#64748b','#94a3b8',
-  '#ef4444','#f97316','#eab308','#22c55e','#06b6d4',
-  '#3b82f6','#6366f1','#a855f7','#ec4899',
-  '#ffffff','#f8fafc'
+  // Neutrals
+  { label: 'Black',       value: '#000000' },
+  { label: 'Slate',       value: '#1e293b' },
+  { label: 'Muted',       value: '#64748b' },
+  { label: 'White',       value: '#ffffff' },
+  { label: 'Light Gray',  value: '#f1f5f9' },
+  // Primary
+  { label: 'Indigo',      value: '#6366f1' },
+  { label: 'Blue',        value: '#3b82f6' },
+  { label: 'Violet',      value: '#8b5cf6' },
+  // Semantic
+  { label: 'Success',     value: '#22c55e' },
+  { label: 'Warning',     value: '#f59e0b' },
+  { label: 'Danger',      value: '#ef4444' },
+  { label: 'Info',        value: '#06b6d4' },
 ];
+
+// ─── Shared recently-used store (module-level, survives re-renders) ───────────
+let _recentColors: string[] = [];
+
+const addRecent = (color: string) => {
+  _recentColors = [color, ..._recentColors.filter(c => c !== color)].slice(0, 6);
+};
+
+// ─── Color Swatch Component ───────────────────────────────────────────────────
+
+const ColorSwatch: React.FC<{ label: string; value: string; onChange: (v: string) => void }> = ({ label, value, onChange }) => {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [hexInput, setHexInput] = useState(value || '');
+  const [recents, setRecents] = useState<string[]>(_recentColors);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync hex input when external value changes
+  useEffect(() => { setHexInput(value || ''); }, [value]);
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [pickerOpen]);
+
+  const commit = useCallback((color: string) => {
+    onChange(color);
+    addRecent(color);
+    setRecents([..._recentColors]);
+  }, [onChange]);
+
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const handlePickerChange = (c: string) => {
+    setHexInput(c);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      onChange(c);
+    }, 150);
+  };
+
+  const handleHexInputCommit = () => {
+    const trimmed = hexInput.trim();
+    const isValid = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(trimmed);
+    if (isValid) commit(trimmed);
+    else setHexInput(value || '');
+  };
+
+  return (
+    <div ref={containerRef}>
+      <label className="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">{label}</label>
+
+      {/* Current color preview + hex input */}
+      <div className="flex items-center gap-2 mb-2">
+        <button
+          onClick={() => setPickerOpen(p => !p)}
+          title="Open color picker"
+          className="w-8 h-8 rounded-lg border-2 border-slate-200 hover:border-indigo-400 transition-colors shrink-0 shadow-sm"
+          style={{ backgroundColor: value || '#ffffff' }}
+        />
+        <Input
+          value={hexInput}
+          onChange={e => setHexInput(e.target.value)}
+          onBlur={handleHexInputCommit}
+          onKeyDown={e => e.key === 'Enter' && handleHexInputCommit()}
+          placeholder="#000000"
+          className="h-8 text-xs font-mono flex-1 bg-slate-50 border-slate-200"
+        />
+        {value && (
+          <button
+            onClick={() => { onChange(''); setHexInput(''); }}
+            title="Clear color"
+            className="h-8 w-8 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Semantic preset swatches */}
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {PRESET_COLORS.map(({ label: l, value: c }) => (
+          <button
+            key={c}
+            onClick={() => commit(c)}
+            title={l}
+            className={`w-6 h-6 rounded-md border-2 transition-all hover:scale-110 ${
+              value === c
+                ? 'border-indigo-500 ring-2 ring-indigo-300 ring-offset-1 scale-110'
+                : 'border-slate-200 hover:border-slate-400'
+            }`}
+            style={{ backgroundColor: c }}
+          />
+        ))}
+      </div>
+
+      {/* Recently used */}
+      {recents.length > 0 && (
+        <div className="mb-2">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Recent</p>
+          <div className="flex flex-wrap gap-1.5">
+            {recents.map(c => (
+              <button
+                key={c}
+                onClick={() => commit(c)}
+                title={c}
+                className={`w-5 h-5 rounded-md border-2 transition-all hover:scale-110 ${
+                  value === c
+                    ? 'border-indigo-500 ring-2 ring-indigo-300 ring-offset-1 scale-110'
+                    : 'border-slate-200 hover:border-slate-400'
+                }`}
+                style={{ backgroundColor: c }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* react-colorful picker — toggles on click */}
+      {pickerOpen && (
+        <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-lg">
+          <HexColorPicker
+            color={hexInput || value || '#6366f1'}
+            onChange={handlePickerChange}
+            onMouseUp={() => { commit(hexInput || value); }}
+            style={{ width: '100%', height: '160px' }}
+          />
+          <div className="flex items-center gap-2 px-2 pb-2 pt-1 bg-white">
+            <div className="w-5 h-5 rounded border border-slate-200 shrink-0" style={{ backgroundColor: hexInput || value || '#6366f1' }} />
+            <span className="text-xs font-mono text-slate-600 flex-1">{hexInput || value || '#6366f1'}</span>
+            <button
+              onClick={() => { commit(hexInput || value); setPickerOpen(false); }}
+              className="text-[11px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded-md transition-colors"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CollapsibleSection: React.FC<{
   title: string; icon: string; defaultOpen?: boolean; children: React.ReactNode
@@ -43,25 +197,6 @@ const CollapsibleSection: React.FC<{
     </div>
   );
 };
-
-const ColorSwatch: React.FC<{ label: string; value: string; onChange: (v: string) => void }> = ({ label, value, onChange }) => (
-  <div>
-    <label className="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">{label}</label>
-    <div className="flex items-center gap-2">
-      <input type="color" value={value || '#000000'} onChange={e => onChange(e.target.value)}
-        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 p-0.5 bg-white shrink-0" />
-      <Input value={value || ''} onChange={e => onChange(e.target.value)} placeholder="#000000"
-        className="h-8 text-xs font-mono flex-1 bg-slate-50 border-slate-200" />
-    </div>
-    <div className="flex flex-wrap gap-1 mt-2">
-      {PRESET_COLORS.map(c => (
-        <button key={c} onClick={() => onChange(c)}
-          className={`w-5 h-5 rounded-md border transition-transform hover:scale-110 ${value === c ? 'ring-2 ring-indigo-500 ring-offset-1' : 'border-slate-200'}`}
-          style={{ backgroundColor: c }} title={c} />
-      ))}
-    </div>
-  </div>
-);
 
 const SpacingInput: React.FC<{ label: string; value: string; onChange: (v: string) => void; placeholder?: string }> = ({ label, value, onChange, placeholder = '0px' }) => (
   <div>

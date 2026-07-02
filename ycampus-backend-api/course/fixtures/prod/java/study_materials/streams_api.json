@@ -1,0 +1,299 @@
+{
+  "sub_unit_name": "Streams API",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Streams API?",
+      "description": "The Streams API, introduced in Java 8, provides a functional and declarative approach to processing collections of data using operations such as filtering, mapping, sorting, and reducing."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>Streams API</strong> allows developers to process data efficiently without modifying the original collection. Instead of writing multiple loops, Streams enable operations to be chained together, resulting in cleaner, more readable, and often more efficient code.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Streams?",
+      "content": "Streams simplify collection processing, reduce boilerplate code, support functional programming, enable parallel processing, and improve code readability."
+    },
+    {
+      "type": "diagram",
+      "title": "Streams Processing Pipeline",
+      "steps": [
+        "Source (Collection/Array)",
+        "Create Stream",
+        "Intermediate Operations",
+        "Terminal Operation",
+        "Result"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Stream Pipeline"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A stream processes data through a pipeline consisting of a source, one or more intermediate operations, and a terminal operation.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Stage", "Purpose"],
+      "rows": [
+        ["Source", "Provides data for the stream"],
+        ["Intermediate Operations", "Transform or filter data"],
+        ["Terminal Operation", "Produces the final result"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Streams do not store data. They simply process data from a source through a sequence of operations."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a Stream"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Streams can be created from collections, arrays, files, or generated dynamically using utility methods.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Stream",
+      "code": "List<String> names = Arrays.asList(\"Alice\", \"Bob\", \"Charlie\");\n\nStream<String> stream = names.stream();"
+    },
+    {
+      "type": "heading",
+      "content": "Intermediate Operations"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Intermediate operations transform a stream and return another stream, allowing multiple operations to be chained together.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "Purpose"],
+      "rows": [
+        ["filter()", "Select matching elements"],
+        ["map()", "Transform elements"],
+        ["sorted()", "Sort elements"],
+        ["distinct()", "Remove duplicates"],
+        ["limit()", "Restrict number of elements"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Filtering and Mapping",
+      "code": "List<String> result = names.stream()\n    .filter(name -> name.startsWith(\"A\"))\n    .map(String::toUpperCase)\n    .toList();"
+    },
+    {
+      "type": "heading",
+      "content": "Terminal Operations"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Terminal operations complete the stream pipeline and produce a result such as a collection, value, or side effect.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "Purpose"],
+      "rows": [
+        ["collect()", "Collect elements into a collection"],
+        ["forEach()", "Perform an action on each element"],
+        ["count()", "Count elements"],
+        ["reduce()", "Combine elements into one value"],
+        ["findFirst()", "Return first matching element"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Collect Example",
+      "code": "List<Integer> evenNumbers = numbers.stream()\n    .filter(n -> n % 2 == 0)\n    .collect(Collectors.toList());"
+    },
+    {
+      "type": "heading",
+      "content": "Sequential vs Parallel Streams"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Sequential Stream",
+      "right_title": "Parallel Stream",
+      "left_points": [
+        "Single thread",
+        "Processes one element at a time",
+        "Simple execution",
+        "Suitable for smaller datasets"
+      ],
+      "right_points": [
+        "Multiple threads",
+        "Processes elements concurrently",
+        "Better for large datasets",
+        "Uses ForkJoinPool"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Parallel Stream",
+      "code": "numbers.parallelStream()\n       .forEach(System.out::println);"
+    },
+    {
+      "type": "process_flow",
+      "title": "Stream Processing Steps",
+      "steps": [
+        "Create Source",
+        "Create Stream",
+        "Apply Intermediate Operations",
+        "Execute Terminal Operation",
+        "Receive Result"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Stream Operations"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Used Methods",
+      "items": [
+        {
+          "question": "filter()",
+          "answer": "Selects elements matching a given condition."
+        },
+        {
+          "question": "map()",
+          "answer": "Transforms each element into another form."
+        },
+        {
+          "question": "sorted()",
+          "answer": "Sorts stream elements naturally or using a comparator."
+        },
+        {
+          "question": "reduce()",
+          "answer": "Combines all elements into a single result."
+        }
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Stream Operations",
+      "time_complexity": "Depends on the operations performed (typically O(n) for traversal)",
+      "space_complexity": "Depends on intermediate operations and collected results"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Streams Used?",
+      "items": [
+        {
+          "question": "Data Filtering",
+          "answer": "Select records based on specific conditions."
+        },
+        {
+          "question": "Data Transformation",
+          "answer": "Convert objects into different representations."
+        },
+        {
+          "question": "Statistics",
+          "answer": "Calculate sums, averages, minimums, and maximums."
+        },
+        {
+          "question": "Parallel Processing",
+          "answer": "Improve performance by processing large datasets concurrently."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Water Purification Pipeline",
+      "content": "Imagine water flowing through multiple filters before reaching a storage tank. Each filter performs one operation, and the purified water represents the final result. Streams process data similarly through a sequence of operations."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Streams API, filter(), map(), reduce(), collect(), parallelStream(), Collectors, lazy evaluation, terminal operations, and method references are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a stream be reused after a terminal operation?",
+          "answer": "No. Once a terminal operation executes, the stream is consumed and cannot be reused."
+        },
+        {
+          "question": "Do streams modify the original collection?",
+          "answer": "No. Streams process data without changing the original source unless explicitly modified."
+        },
+        {
+          "question": "Should parallel streams always be used?",
+          "answer": "No. They are beneficial mainly for large datasets and CPU-intensive operations."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "A stream is a sequence of data processed through a pipeline of intermediate operations followed by a terminal operation."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Streams API", "Traditional Loops"],
+      "rows": [
+        ["Programming Style", "Declarative", "Imperative"],
+        ["Code Length", "Short", "Longer"],
+        ["Parallel Processing", "Supported", "Manual"],
+        ["Readability", "High", "Moderate"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Streams were introduced in Java 8.",
+        "A stream consists of source, intermediate operations, and terminal operations.",
+        "Intermediate operations are lazy.",
+        "Terminal operations trigger execution.",
+        "Streams do not modify the original collection.",
+        "Parallel streams use multiple threads for processing."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which operation completes the execution of a stream pipeline?",
+      "options": ["filter()", "map()", "sorted()", "collect()"],
+      "answer": "collect()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method is used to transform elements in a stream?",
+      "options": ["count()", "map()", "findFirst()", "limit()"],
+      "answer": "map()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of stream uses multiple threads for processing?",
+      "options": [
+        "Sequential Stream",
+        "Normal Stream",
+        "Parallel Stream",
+        "Buffered Stream"
+      ],
+      "answer": "Parallel Stream"
+    }
+  ]
+}
