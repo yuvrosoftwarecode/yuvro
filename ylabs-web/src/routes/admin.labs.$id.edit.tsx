@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AdminShell, Panel } from "@/components/admin/AdminShell";
 import { useEffect, useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
-import { getLab, updateLab, CATEGORIES, DIFFS, type AdminLab } from "@/lib/adminLabs";
+import { getLab, updateLab, LAB_TYPES, DIFFICULTIES, type AdminLab, type LabType, type LabDifficulty } from "@/lib/adminLabs";
 import { loadSprintsWithSeed, saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
 
@@ -18,27 +18,37 @@ function EditLab() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [prereqsText, setPrereqsText] = useState("");
+  const [skillsText, setSkillsText] = useState("");
 
   useEffect(() => {
     const found = getLab(id);
     if (!found) { nav({ to: "/admin/labs" }); return; }
     setLab(found);
+    setPrereqsText((found.prerequisites ?? []).join(", "));
+    setSkillsText((found.skills ?? []).join(", "));
     setSprints(loadSprintsWithSeed(found.id, found.slug));
   }, [id, nav]);
 
   if (!lab) return null;
 
   const set = <K extends keyof AdminLab>(k: K, v: AdminLab[K]) => setLab(s => s ? { ...s, [k]: v } : s);
+  const toList = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
 
   const save = () => {
-    if (!lab.name.trim()) { setError("Lab name is required."); setStep(0); return; }
+    if (!lab.title.trim()) { setError("Lab title is required."); setStep(0); return; }
     if (!lab.description.trim()) { setError("Description is required."); setStep(0); return; }
     setError(null);
     updateLab(lab.id, {
-      name: lab.name, icon: lab.icon, cat: lab.cat, diff: lab.diff,
-      tickets: lab.tickets, sprints: sprints.length || lab.sprints, users: lab.users,
-      comp: lab.comp, rating: lab.rating, description: lab.description,
-      repoUrl: lab.repoUrl, repoBranch: lab.repoBranch,
+      title: lab.title,
+      icon: lab.icon,
+      type: lab.type,
+      difficulty: lab.difficulty,
+      description: lab.description,
+      prerequisites: toList(prereqsText),
+      skills: toList(skillsText),
+      gitRepoStarterUrl: lab.gitRepoStarterUrl,
+      isActive: lab.isActive,
     });
     saveSprints(lab.id, sprints);
     setSaved(true);
@@ -46,7 +56,7 @@ function EditLab() {
   };
 
   return (
-    <AdminShell title={`Edit · ${lab.name}`} breadcrumb={["Engineering", "Labs", "Edit"]} right={
+    <AdminShell title={`Edit · ${lab.title}`} breadcrumb={["Engineering", "Labs", "Edit"]} right={
       <div className="flex items-center gap-2">
         <Link to="/admin/labs" className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent">← Back</Link>
       </div>
@@ -71,31 +81,34 @@ function EditLab() {
           {step === 0 && (
             <Panel title="Basic info">
               <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <Field label="Lab name *"><input value={lab.name} onChange={e => set("name", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
+                <Field label="Title *"><input value={lab.title} onChange={e => set("title", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Icon (emoji)"><input value={lab.icon} maxLength={2} onChange={e => set("icon", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Category">
-                  <select value={lab.cat} onChange={e => set("cat", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                <Field label="Type">
+                  <select value={lab.type} onChange={e => set("type", e.target.value as LabType)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
+                    {LAB_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Difficulty">
-                  <select value={lab.diff} onChange={e => set("diff", e.target.value as any)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
-                    {DIFFS.map(d => <option key={d}>{d}</option>)}
+                  <select value={lab.difficulty} onChange={e => set("difficulty", e.target.value as LabDifficulty)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
+                    {DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                   </select>
                 </Field>
-                <Field label="Tickets"><input type="number" value={lab.tickets} onChange={e => set("tickets", Number(e.target.value))} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Active users"><input type="number" value={lab.users} onChange={e => set("users", Number(e.target.value))} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Completion %"><input type="number" min={0} max={100} value={lab.comp} onChange={e => set("comp", Number(e.target.value))} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Rating"><input type="number" step={0.1} min={0} max={5} value={lab.rating} onChange={e => set("rating", Number(e.target.value))} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
+                <Field label="Status">
+                  <label className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border">
+                    <input type="checkbox" checked={lab.isActive} onChange={e => set("isActive", e.target.checked)} className="h-3.5 w-3.5" />
+                    Active (visible to students)
+                  </label>
+                </Field>
+                <Field label="Prerequisites (comma-separated)" full><input value={prereqsText} onChange={e => setPrereqsText(e.target.value)} placeholder="Basic Java, OOP fundamentals" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
+                <Field label="Skills (comma-separated)" full><input value={skillsText} onChange={e => setSkillsText(e.target.value)} placeholder="Coroutines, Flow, Channels" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Description *" full><textarea rows={4} value={lab.description} onChange={e => set("description", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="GitHub starter repo URL" full><input value={lab.repoUrl ?? ""} onChange={e => set("repoUrl", e.target.value)} placeholder="https://github.com/org/repo" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" /></Field>
-                <Field label="Default branch"><input value={lab.repoBranch ?? ""} onChange={e => set("repoBranch", e.target.value)} placeholder="main" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" /></Field>
+                <Field label="Git starter repo URL" full><input value={lab.gitRepoStarterUrl ?? ""} onChange={e => set("gitRepoStarterUrl", e.target.value)} placeholder="https://github.com/org/repo" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" /></Field>
               </div>
             </Panel>
           )}
           {step === 1 && (
             <Panel title="Sprints & tasks">
-              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={lab.name} />
+              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={lab.title} labSlug={lab.slug} />
             </Panel>
           )}
 

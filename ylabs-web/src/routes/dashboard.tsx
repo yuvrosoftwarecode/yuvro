@@ -1,39 +1,13 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
 import { labs, me } from "@/lib/dummy";
 import { ArrowRight, Sparkles, Flame, Zap, Trophy } from "lucide-react";
-import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/dashboard")({ 
-  beforeLoad: () => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem('access');
-      if (!token) {
-        throw redirect({ to: '/auth', search: { tab: 'signin' } });
-      }
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        let user;
-        try {
-          user = JSON.parse(userStr);
-        } catch (e) {}
-        
-        if (user) {
-          const role = user.roles?.ylabs || user.role;
-          if (role === 'admin') {
-            throw redirect({ to: '/admin' });
-          }
-        }
-      }
-    }
-  },
-  component: Hub 
-});
+export const Route = createFileRoute("/dashboard")({ component: Hub });
 
 function Hub() {
-  const { user } = useAuth();
   return (
     <div className="min-h-screen">
       <TopNav />
@@ -46,7 +20,7 @@ function Hub() {
               <Sparkles className="h-3 w-3" /> New season · 2026 cohort live
             </span>
             <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight">
-              Welcome back, <span className="text-primary">{user?.first_name || user?.username}</span>!
+              Master practical skills through <span className="text-primary">real-world projects</span>
             </h1>
             <p className="mt-3 text-muted-foreground max-w-xl">
               Solve Jira-style tickets in a full in-browser IDE. Get progressive hints, run tests, and ship code that recruiters actually read.
