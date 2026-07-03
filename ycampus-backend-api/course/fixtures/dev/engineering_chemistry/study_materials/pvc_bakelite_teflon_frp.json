@@ -1,0 +1,286 @@
+{
+  "sub_unit_name": "Preparation, Properties and engineering applications of PVC and Bakelite, Teflon, Fiber reinforced plastics (FRP)",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Engineering Plastics",
+      "description": "PVC, Bakelite, Teflon, and Fiber Reinforced Plastics (FRP) are important engineering materials widely used because of their excellent mechanical strength, chemical resistance, electrical insulation, and durability."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Engineering plastics are replacing conventional materials like metals and wood in many industries. Each plastic possesses unique properties that make it suitable for specific engineering applications such as electrical insulation, piping, aerospace, automobiles, and construction.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Importance",
+      "content": "PVC, Bakelite, Teflon, and FRP are among the most frequently used polymeric materials in engineering due to their versatility and cost-effectiveness."
+    },
+    {
+      "type": "diagram",
+      "title": "Engineering Plastics Overview",
+      "steps": [
+        "Raw Monomers",
+        "Polymerization",
+        "Engineering Plastic",
+        "Desired Properties",
+        "Industrial Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polyvinyl Chloride (PVC)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>PVC (Polyvinyl Chloride)</strong> is prepared by the addition polymerization of vinyl chloride monomer. It is a thermoplastic material known for its excellent chemical resistance, durability, and electrical insulating properties.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Aspect",
+        "PVC"
+      ],
+      "rows": [
+        [
+          "Preparation",
+          "Addition polymerization of vinyl chloride"
+        ],
+        [
+          "Properties",
+          "Lightweight, corrosion resistant, good electrical insulator"
+        ],
+        [
+          "Applications",
+          "Pipes, cable insulation, water tanks, window frames, medical tubing"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Bakelite"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Bakelite</strong> is a thermosetting plastic prepared by the condensation polymerization of phenol and formaldehyde. It possesses high mechanical strength, heat resistance, and excellent electrical insulation.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Aspect",
+        "Bakelite"
+      ],
+      "rows": [
+        [
+          "Preparation",
+          "Condensation of phenol and formaldehyde"
+        ],
+        [
+          "Properties",
+          "Hard, rigid, heat resistant, electrical insulator"
+        ],
+        [
+          "Applications",
+          "Electrical switches, plug boards, handles, radio and TV casings"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Teflon (PTFE)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Teflon (Polytetrafluoroethylene)</strong> is produced by the addition polymerization of tetrafluoroethylene. It has outstanding chemical resistance, a very low coefficient of friction, excellent thermal stability, and non-stick characteristics.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Aspect",
+        "Teflon"
+      ],
+      "rows": [
+        [
+          "Preparation",
+          "Addition polymerization of tetrafluoroethylene"
+        ],
+        [
+          "Properties",
+          "Non-stick, chemically inert, heat resistant, low friction"
+        ],
+        [
+          "Applications",
+          "Non-stick cookware, chemical containers, bearings, seals, wire insulation"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Fiber Reinforced Plastics (FRP)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Fiber Reinforced Plastics (FRP)</strong> are composite materials made by reinforcing a polymer matrix with fibers such as glass, carbon, or aramid. The fibers improve the strength, stiffness, and durability of the plastic.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Common Reinforcing Fibers",
+      "content": "Glass fiber, carbon fiber, and aramid fiber are commonly used to manufacture high-strength FRP composites."
+    },
+    {
+      "type": "heading",
+      "content": "Properties of FRP"
+    },
+    {
+      "type": "accordion",
+      "title": "Advantages of FRP",
+      "items": [
+        {
+          "question": "High Strength",
+          "answer": "Provides excellent strength-to-weight ratio."
+        },
+        {
+          "question": "Corrosion Resistance",
+          "answer": "Resists moisture, chemicals, and atmospheric corrosion."
+        },
+        {
+          "question": "Light Weight",
+          "answer": "Much lighter than conventional metals."
+        },
+        {
+          "question": "Long Service Life",
+          "answer": "Requires minimal maintenance and offers excellent durability."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Engineering Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PVC is extensively used in plumbing and electrical industries. Bakelite is preferred for electrical insulation and heat-resistant products. Teflon is widely used for non-stick coatings and chemical equipment. FRP finds applications in aerospace, automobiles, marine structures, construction, wind turbine blades, and sports equipment.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Thermoplastics",
+      "right_title": "Thermosetting & Composite Plastics",
+      "left_points": [
+        "PVC is a thermoplastic",
+        "Can be remoulded",
+        "Good flexibility",
+        "Used for pipes and cables"
+      ],
+      "right_points": [
+        "Bakelite is thermosetting",
+        "FRP is a composite material",
+        "High strength and heat resistance",
+        "Used in electrical and structural applications"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Manufacturing Process",
+      "steps": [
+        "Select Monomer/Resin",
+        "Polymerization",
+        "Moulding or Reinforcement",
+        "Curing/Cooling",
+        "Finished Engineering Product"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Material",
+        "Major Property",
+        "Important Engineering Application"
+      ],
+      "rows": [
+        [
+          "PVC",
+          "Chemical resistance",
+          "Pipes and cable insulation"
+        ],
+        [
+          "Bakelite",
+          "Heat and electrical resistance",
+          "Switches and electrical fittings"
+        ],
+        [
+          "Teflon",
+          "Non-stick and low friction",
+          "Cookware and bearings"
+        ],
+        [
+          "FRP",
+          "High strength-to-weight ratio",
+          "Aircraft, automobiles, construction"
+        ]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Remember the preparation method, important properties, and at least three engineering applications of each material, as these are frequently asked in examinations."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "PVC is prepared by addition polymerization of vinyl chloride.",
+        "Bakelite is produced by condensation of phenol and formaldehyde.",
+        "Teflon is obtained from tetrafluoroethylene.",
+        "FRP consists of reinforcing fibers embedded in a polymer matrix.",
+        "PVC is used for pipes and insulation.",
+        "Bakelite is used in electrical components.",
+        "Teflon is famous for its non-stick property.",
+        "FRP is widely used in aerospace, automobile, and construction industries."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "PVC is prepared by polymerization of:",
+      "options": [
+        "Ethylene",
+        "Vinyl chloride",
+        "Styrene",
+        "Phenol"
+      ],
+      "answer": "Vinyl chloride"
+    },
+    {
+      "type": "quiz",
+      "question": "Bakelite is formed by the reaction of:",
+      "options": [
+        "Ethylene and chlorine",
+        "Phenol and formaldehyde",
+        "Adipic acid and hexamethylene diamine",
+        "Ethylene glycol and terephthalic acid"
+      ],
+      "answer": "Phenol and formaldehyde"
+    },
+    {
+      "type": "quiz",
+      "question": "Which material is well known for its non-stick property?",
+      "options": [
+        "PVC",
+        "FRP",
+        "Teflon",
+        "Bakelite"
+      ],
+      "answer": "Teflon"
+    },
+    {
+      "type": "quiz",
+      "question": "FRP stands for:",
+      "options": [
+        "Flexible Resin Plastic",
+        "Fiber Reinforced Plastic",
+        "Formed Rubber Polymer",
+        "Fine Reinforced Polymer"
+      ],
+      "answer": "Fiber Reinforced Plastic"
+    }
+  ]
+}

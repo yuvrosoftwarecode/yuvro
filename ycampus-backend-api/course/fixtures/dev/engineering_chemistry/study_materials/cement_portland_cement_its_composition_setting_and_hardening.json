@@ -1,0 +1,225 @@
+{
+  "sub_unit_name": "Cement: Portland cement, its composition, setting and hardening",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Portland Cement",
+      "description": "Portland cement is a hydraulic cement obtained by grinding clinker with a small quantity of gypsum. It hardens by chemical reaction with water and is the most widely used construction material."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Ordinary Portland Cement (OPC)</strong> is manufactured from limestone and clay. It develops strength by hydration reactions and is extensively used in buildings, bridges, dams, roads, and other civil engineering structures.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Portland cement is the backbone of modern construction due to its high strength, durability, and resistance to weathering."
+    },
+    {
+      "type": "diagram",
+      "title": "Manufacture and Use of Portland Cement",
+      "steps": [
+        "Raw Materials",
+        "Clinker Formation",
+        "Grinding with Gypsum",
+        "Portland Cement",
+        "Construction Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Raw Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The main raw materials used in manufacturing Portland cement are <strong>limestone (CaCO₃)</strong> and <strong>clay</strong>. Small quantities of iron oxide, silica, alumina, and gypsum are also added to obtain the desired composition.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Composition of Portland Cement"
+    },
+    {
+      "type": "table",
+      "headers": ["Constituent", "Chemical Formula", "Function"],
+      "rows": [
+        ["Tricalcium Silicate", "C₃S", "Provides early strength"],
+        ["Dicalcium Silicate", "C₂S", "Provides long-term strength"],
+        ["Tricalcium Aluminate", "C₃A", "Responsible for initial setting"],
+        [
+          "Tetracalcium Aluminoferrite",
+          "C₄AF",
+          "Contributes to hardness and colour"
+        ],
+        ["Gypsum", "CaSO₄·2H₂O", "Controls setting time"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Functions of Cement Compounds"
+    },
+    {
+      "type": "accordion",
+      "title": "Role of Constituents",
+      "items": [
+        {
+          "question": "Tricalcium Silicate (C₃S)",
+          "answer": "Develops early strength and releases more heat during hydration."
+        },
+        {
+          "question": "Dicalcium Silicate (C₂S)",
+          "answer": "Develops strength slowly and improves durability."
+        },
+        {
+          "question": "Tricalcium Aluminate (C₃A)",
+          "answer": "Accelerates initial setting but reduces sulphate resistance."
+        },
+        {
+          "question": "Tetracalcium Aluminoferrite (C₄AF)",
+          "answer": "Acts as a flux during manufacture and contributes to hardness."
+        },
+        {
+          "question": "Gypsum",
+          "answer": "Prevents flash setting by controlling the hydration of C₃A."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Setting of Cement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Setting</strong> is the process by which cement paste loses its plasticity after mixing with water and becomes rigid due to hydration reactions. Initial setting allows placing of concrete, while final setting makes the paste hard.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Setting Process",
+      "steps": [
+        "Cement + Water",
+        "Hydration Begins",
+        "Initial Setting",
+        "Final Setting",
+        "Rigid Mass Formed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Hardening of Cement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Hardening</strong> is the gradual development of strength after the cement has set. It occurs due to continuous hydration of calcium silicates, resulting in the formation of strong calcium silicate hydrate (C-S-H) gel.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Hardening Process",
+      "steps": [
+        "Hydration of C₃S & C₂S",
+        "Formation of C-S-H Gel",
+        "Strength Development",
+        "Long-Term Hardening"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Setting vs Hardening"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Setting",
+      "right_title": "Hardening",
+      "left_points": [
+        "Loss of plasticity",
+        "Occurs within a few hours",
+        "Paste becomes rigid",
+        "Initial stage"
+      ],
+      "right_points": [
+        "Development of strength",
+        "Continues for days and months",
+        "Formation of C-S-H gel",
+        "Final stage"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Portland Cement"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Uses",
+      "items": [
+        {
+          "question": "Buildings",
+          "answer": "Construction of residential and commercial buildings."
+        },
+        {
+          "question": "Roads and Bridges",
+          "answer": "Used in highways, flyovers, and bridges."
+        },
+        {
+          "question": "Dams",
+          "answer": "Construction of water storage and hydroelectric projects."
+        },
+        {
+          "question": "Precast Structures",
+          "answer": "Manufacture of pipes, poles, and concrete blocks."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Remember the composition of Portland cement, the functions of C₃S, C₂S, C₃A, C₄AF, the role of gypsum, and the difference between setting and hardening."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Portland cement is a hydraulic cement.",
+        "Main raw materials are limestone and clay.",
+        "Major compounds are C₃S, C₂S, C₃A, and C₄AF.",
+        "Gypsum controls the setting time.",
+        "Setting is the loss of plasticity.",
+        "Hardening is the gradual gain in strength.",
+        "C₃S gives early strength, while C₂S gives long-term strength.",
+        "Portland cement is widely used in construction."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which compound is mainly responsible for the early strength of Portland cement?",
+      "options": ["C₂S", "C₃S", "C₄AF", "Gypsum"],
+      "answer": "C₃S"
+    },
+    {
+      "type": "quiz",
+      "question": "Gypsum is added to Portland cement to:",
+      "options": [
+        "Increase colour",
+        "Control setting time",
+        "Increase ash content",
+        "Reduce strength"
+      ],
+      "answer": "Control setting time"
+    },
+    {
+      "type": "quiz",
+      "question": "Hardening of cement mainly occurs due to:",
+      "options": [
+        "Evaporation of water",
+        "Hydration reactions",
+        "Cooling",
+        "Drying"
+      ],
+      "answer": "Hydration reactions"
+    },
+    {
+      "type": "quiz",
+      "question": "Which compound contributes mainly to the long-term strength of cement?",
+      "options": ["C₂S", "C₃A", "C₄AF", "Gypsum"],
+      "answer": "C₂S"
+    }
+  ]
+}

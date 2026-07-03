@@ -1,0 +1,259 @@
+{
+  "sub_unit_name": "Conducting polymers: Characteristics and Classification with examples-mechanism of conduction in trans-polyacetylene and applications of conducting polymers",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Conducting Polymers",
+      "description": "Conducting polymers are organic polymers that possess electrical conductivity due to the presence of conjugated double bonds in their molecular structure. Their conductivity can be greatly increased by the process of doping."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike conventional polymers, conducting polymers can conduct electricity because of the movement of π-electrons along the polymer backbone. These materials combine the flexibility and light weight of plastics with the electrical properties of metals and semiconductors.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Conducting polymers are used in rechargeable batteries, solar cells, sensors, LEDs, anti-static coatings, flexible electronics, and electromagnetic shielding."
+    },
+    {
+      "type": "diagram",
+      "title": "Conducting Polymer Concept",
+      "steps": [
+        "Monomer",
+        "Polymerization",
+        "Conjugated Polymer Chain",
+        "Doping",
+        "Electrical Conduction"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Conducting Polymers"
+    },
+    {
+      "type": "accordion",
+      "title": "Important Characteristics",
+      "items": [
+        {
+          "question": "Electrical Conductivity",
+          "answer": "Conduct electricity due to delocalized π-electrons."
+        },
+        {
+          "question": "Light Weight",
+          "answer": "Much lighter than metallic conductors."
+        },
+        {
+          "question": "Flexible",
+          "answer": "Can be processed into thin films and flexible devices."
+        },
+        {
+          "question": "Corrosion Resistant",
+          "answer": "Offer better resistance to corrosion than many metals."
+        },
+        {
+          "question": "Dopable",
+          "answer": "Electrical conductivity increases significantly after doping."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Conducting Polymers"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Conducting polymers are broadly classified into <strong>intrinsically conducting polymers</strong> and <strong>extrinsically conducting polymers</strong>. Intrinsic polymers conduct due to conjugated double bonds, whereas extrinsic polymers become conducting by adding conducting fillers such as carbon black or metal particles.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Type",
+        "Description",
+        "Examples"
+      ],
+      "rows": [
+        [
+          "Intrinsically Conducting",
+          "Conduct due to conjugated π-electrons",
+          "Polyacetylene, Polyaniline, Polypyrrole"
+        ],
+        [
+          "Extrinsically Conducting",
+          "Conduct by addition of conducting fillers",
+          "Carbon-filled PVC, Metal-filled polymers"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Trans-Polyacetylene"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Trans-polyacetylene</strong> is the first widely studied conducting polymer. It contains alternating single and double bonds, producing a conjugated system that allows π-electrons to move along the polymer chain.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Mechanism of Conduction"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In trans-polyacetylene, the alternating single and double bonds create delocalized π-electrons. During <strong>doping</strong> with oxidizing or reducing agents, additional charge carriers (electrons or holes) are generated. These charge carriers move freely along the conjugated polymer chain, resulting in high electrical conductivity.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Conduction Mechanism",
+      "steps": [
+        "Conjugated Double Bonds",
+        "Doping",
+        "Formation of Charge Carriers",
+        "Electron Movement",
+        "Electrical Conductivity"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Examples of Conducting Polymers"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Conducting Polymer",
+        "Important Property",
+        "Common Application"
+      ],
+      "rows": [
+        [
+          "Polyacetylene",
+          "High conductivity after doping",
+          "Electronic devices"
+        ],
+        [
+          "Polyaniline",
+          "Stable and inexpensive",
+          "Batteries and sensors"
+        ],
+        [
+          "Polypyrrole",
+          "Good environmental stability",
+          "Medical and electronic devices"
+        ],
+        [
+          "Polythiophene",
+          "Flexible and conductive",
+          "Solar cells and LEDs"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Engineering Applications",
+      "items": [
+        {
+          "question": "Rechargeable Batteries",
+          "answer": "Used as electrode materials because of good electrical conductivity."
+        },
+        {
+          "question": "Solar Cells",
+          "answer": "Used in lightweight and flexible photovoltaic devices."
+        },
+        {
+          "question": "Sensors",
+          "answer": "Applied in chemical, gas, and biosensors."
+        },
+        {
+          "question": "Anti-static Coatings",
+          "answer": "Prevent the accumulation of static electricity."
+        },
+        {
+          "question": "Flexible Electronics",
+          "answer": "Used in wearable electronics, OLEDs, and smart displays."
+        }
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Conventional Polymers",
+      "right_title": "Conducting Polymers",
+      "left_points": [
+        "Electrical insulators",
+        "No conjugated bonds",
+        "Low conductivity",
+        "Used mainly as structural materials"
+      ],
+      "right_points": [
+        "Conduct electricity",
+        "Conjugated double bonds present",
+        "Conductivity increases after doping",
+        "Used in electronic devices"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Remember the classification, characteristics, conduction mechanism in trans-polyacetylene, and applications of conducting polymers. Questions on doping are frequently asked."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Conducting polymers contain conjugated double bonds.",
+        "Their conductivity increases by doping.",
+        "They are classified as intrinsic and extrinsic conducting polymers.",
+        "Trans-polyacetylene conducts through delocalized π-electrons.",
+        "Doping creates charge carriers responsible for conduction.",
+        "They are used in batteries, sensors, LEDs, solar cells, and anti-static coatings.",
+        "Conducting polymers combine flexibility with electrical conductivity."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Why do conducting polymers conduct electricity?",
+      "options": [
+        "Because they contain metal atoms",
+        "Because of conjugated double bonds",
+        "Because they contain water",
+        "Because of high density"
+      ],
+      "answer": "Because of conjugated double bonds"
+    },
+    {
+      "type": "quiz",
+      "question": "The electrical conductivity of conducting polymers is increased by:",
+      "options": [
+        "Heating",
+        "Cooling",
+        "Doping",
+        "Vulcanization"
+      ],
+      "answer": "Doping"
+    },
+    {
+      "type": "quiz",
+      "question": "Trans-polyacetylene is an example of:",
+      "options": [
+        "Thermosetting polymer",
+        "Intrinsically conducting polymer",
+        "Natural polymer",
+        "Elastomer"
+      ],
+      "answer": "Intrinsically conducting polymer"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an application of conducting polymers?",
+      "options": [
+        "Solar cells",
+        "Rechargeable batteries",
+        "Sensors",
+        "All of the above"
+      ],
+      "answer": "All of the above"
+    }
+  ]
+}

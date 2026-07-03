@@ -1,0 +1,198 @@
+{
+  "sub_unit_name": "Introduction, Calorific value of fuel HCV, LCV- Dulongs formula",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Fuel and Calorific Value",
+      "description": "A fuel is a substance that produces heat energy when burned in the presence of oxygen. The amount of heat released by the complete combustion of unit quantity of fuel is called its calorific value."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Calorific value is one of the most important properties of a fuel. It indicates the energy content of the fuel and helps in selecting suitable fuels for domestic, industrial, and power generation applications.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Fuels with higher calorific value produce more heat and are generally more efficient and economical."
+    },
+    {
+      "type": "diagram",
+      "title": "Heat Produced by Fuel",
+      "steps": [
+        "Fuel",
+        "Combustion",
+        "Heat Energy",
+        "Calorific Value",
+        "Engineering Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Calorific Value"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Calorific Value (CV)</strong> is the quantity of heat produced by the complete combustion of unit mass (or unit volume) of a fuel. It is usually expressed in <strong>kJ/kg</strong> for solid and liquid fuels.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Types of Calorific Value"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Type",
+        "Description"
+      ],
+      "rows": [
+        [
+          "Higher Calorific Value (HCV)",
+          "Includes the latent heat of condensation of water vapour formed during combustion."
+        ],
+        [
+          "Lower Calorific Value (LCV)",
+          "Does not include the latent heat of water vapour; hence it is always lower than HCV."
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Difference Between HCV and LCV"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "HCV",
+      "right_title": "LCV",
+      "left_points": [
+        "Includes latent heat",
+        "Higher energy value",
+        "Water formed is condensed",
+        "Always greater than LCV"
+      ],
+      "right_points": [
+        "Excludes latent heat",
+        "Lower energy value",
+        "Water remains as vapour",
+        "Used in practical calculations"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Dulong's Formula"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Dulong's formula is an empirical equation used to calculate the <strong>Higher Calorific Value (HCV)</strong> of a fuel from its elemental composition.</p>"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Dulong's Formula",
+      "code": "HCV (kcal/kg) = (1/100) × [8080C + 34500(H - O/8) + 2240S]\n\nWhere:\nC = % Carbon\nH = % Hydrogen\nO = % Oxygen\nS = % Sulphur"
+    },
+    {
+      "type": "heading",
+      "content": "Relation Between HCV and LCV"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Formula",
+      "code": "LCV = HCV - (0.09 × H × 587)\n\nH = Percentage of hydrogen in the fuel"
+    },
+    {
+      "type": "process_flow",
+      "title": "Calculation of Calorific Value",
+      "steps": [
+        "Find % of C, H, O & S",
+        "Apply Dulong's Formula",
+        "Calculate HCV",
+        "Use HCV-LCV Relation",
+        "Obtain LCV"
+      ]
+    },
+    {
+      "type": "accordion",
+      "title": "Applications of Calorific Value",
+      "items": [
+        {
+          "question": "Fuel Selection",
+          "answer": "Helps choose efficient fuels for industries and power plants."
+        },
+        {
+          "question": "Boiler Design",
+          "answer": "Used for designing and evaluating boiler performance."
+        },
+        {
+          "question": "Power Generation",
+          "answer": "Determines energy output from different fuels."
+        },
+        {
+          "question": "Fuel Comparison",
+          "answer": "Compares the efficiency of various solid, liquid, and gaseous fuels."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Dulong's Formula, the difference between HCV and LCV, and numerical problems based on these formulas are among the most frequently asked questions."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Calorific value is the heat released by complete combustion of fuel.",
+        "HCV includes latent heat of steam formed.",
+        "LCV excludes latent heat and is always less than HCV.",
+        "Dulong's Formula estimates HCV from elemental composition.",
+        "LCV can be calculated from HCV using the hydrogen correction."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which calorific value includes the latent heat of condensation of water?",
+      "options": [
+        "LCV",
+        "HCV",
+        "Net CV",
+        "Gross Loss"
+      ],
+      "answer": "HCV"
+    },
+    {
+      "type": "quiz",
+      "question": "Dulong's Formula is used to calculate:",
+      "options": [
+        "Boiler efficiency",
+        "Higher Calorific Value",
+        "Flash point",
+        "Cetane number"
+      ],
+      "answer": "Higher Calorific Value"
+    },
+    {
+      "type": "quiz",
+      "question": "Which elemental composition is NOT used in Dulong's Formula?",
+      "options": [
+        "Carbon",
+        "Hydrogen",
+        "Sulphur",
+        "Nitrogen"
+      ],
+      "answer": "Nitrogen"
+    },
+    {
+      "type": "quiz",
+      "question": "Compared to HCV, LCV is:",
+      "options": [
+        "Higher",
+        "Equal",
+        "Lower",
+        "Independent"
+      ],
+      "answer": "Lower"
+    }
+  ]
+}

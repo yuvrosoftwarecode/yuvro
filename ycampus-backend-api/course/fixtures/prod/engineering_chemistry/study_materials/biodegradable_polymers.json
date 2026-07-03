@@ -1,0 +1,192 @@
+{
+  "sub_unit_name": "Biodegradable polymers: Concept and advantages - Polylactic acid and Polyvinyl alcohol and their applications",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Biodegradable Polymers",
+      "description": "Biodegradable polymers are polymers that can be decomposed into harmless substances such as water, carbon dioxide, and biomass by the action of microorganisms under suitable environmental conditions."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike conventional plastics, biodegradable polymers reduce environmental pollution because they naturally degrade after use. They are increasingly used in medical, packaging, and agricultural applications.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Biodegradable polymers help reduce plastic waste and promote sustainable development by replacing non-degradable plastics in many applications."
+    },
+    {
+      "type": "diagram",
+      "title": "Life Cycle of Biodegradable Polymers",
+      "steps": [
+        "Raw Materials",
+        "Polymer Formation",
+        "Product Usage",
+        "Microbial Degradation",
+        "Natural Products"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Concept of Biodegradable Polymers"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Biodegradable polymers are designed to break down naturally through the action of bacteria, fungi, and other microorganisms. The degradation products are generally non-toxic and environmentally friendly.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Eco-Friendly",
+          "answer": "Reduce environmental pollution caused by plastic waste."
+        },
+        {
+          "question": "Biodegradable",
+          "answer": "Decompose naturally into harmless products."
+        },
+        {
+          "question": "Renewable Sources",
+          "answer": "Many are produced from renewable agricultural resources."
+        },
+        {
+          "question": "Medical Safety",
+          "answer": "Suitable for biomedical and pharmaceutical applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polylactic Acid (PLA)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Polylactic Acid (PLA)</strong> is a biodegradable polyester prepared from lactic acid obtained from renewable resources such as corn starch and sugarcane. It possesses good strength, transparency, and biodegradability.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "Polylactic Acid (PLA)"],
+      "rows": [
+        ["Preparation", "Polymerization of lactic acid"],
+        ["Properties", "Biodegradable, transparent, good strength"],
+        [
+          "Applications",
+          "Food packaging, disposable cups, sutures, 3D printing"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polyvinyl Alcohol (PVA)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Polyvinyl Alcohol (PVA)</strong> is a water-soluble synthetic polymer prepared by the hydrolysis of polyvinyl acetate. It exhibits excellent film-forming ability, adhesion, flexibility, and biodegradability under suitable conditions.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "Polyvinyl Alcohol (PVA)"],
+      "rows": [
+        ["Preparation", "Hydrolysis of polyvinyl acetate"],
+        ["Properties", "Water soluble, flexible, good film former"],
+        ["Applications", "Packaging films, adhesives, textiles, paper coating"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "PLA",
+      "right_title": "PVA",
+      "left_points": [
+        "Prepared from lactic acid",
+        "Derived from renewable resources",
+        "Good mechanical strength",
+        "Used in packaging and biomedical fields"
+      ],
+      "right_points": [
+        "Prepared from polyvinyl acetate",
+        "Water soluble",
+        "Excellent adhesive property",
+        "Used in films, textiles and coatings"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Biodegradable polymers are widely used in food packaging, agricultural films, drug delivery systems, surgical sutures, disposable products, tissue engineering, biodegradable bags, paper coatings, adhesives, and environmentally friendly consumer products.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Biodegradation Process",
+      "steps": [
+        "Polymer Product",
+        "Microbial Action",
+        "Polymer Breakdown",
+        "Formation of CO₂ & Water",
+        "Eco-Friendly Disposal"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Focus on the concept, advantages, preparation, properties, and applications of PLA and PVA. These are commonly asked in engineering chemistry examinations."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Biodegradable polymers decompose naturally by microorganisms.",
+        "They help reduce plastic pollution.",
+        "PLA is prepared from lactic acid and used in packaging and biomedical products.",
+        "PVA is obtained from polyvinyl acetate and is water soluble.",
+        "Both polymers are important eco-friendly engineering materials."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Biodegradable polymers are decomposed by:",
+      "options": ["Electricity", "Microorganisms", "Sunlight only", "Pressure"],
+      "answer": "Microorganisms"
+    },
+    {
+      "type": "quiz",
+      "question": "Polylactic acid (PLA) is prepared from:",
+      "options": ["Ethylene", "Lactic acid", "Vinyl chloride", "Phenol"],
+      "answer": "Lactic acid"
+    },
+    {
+      "type": "quiz",
+      "question": "Polyvinyl alcohol (PVA) is best known for being:",
+      "options": [
+        "Water soluble",
+        "Metallic",
+        "Non-polymeric",
+        "Thermosetting"
+      ],
+      "answer": "Water soluble"
+    },
+    {
+      "type": "quiz",
+      "question": "Which is an important application of PLA?",
+      "options": [
+        "Food packaging",
+        "Steel production",
+        "Concrete manufacture",
+        "Glass making"
+      ],
+      "answer": "Food packaging"
+    }
+  ]
+}

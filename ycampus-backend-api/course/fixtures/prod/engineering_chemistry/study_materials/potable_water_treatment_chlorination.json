@@ -1,0 +1,227 @@
+{
+  "sub_unit_name": "Potable water and its specifications - Steps involved in the treatment of potable water - Disinfection of potable water by chlorination and break-point chlorination",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Potable Water?",
+      "description": "Potable water is water that is safe for drinking and domestic use. It is free from harmful microorganisms, toxic chemicals, objectionable taste, odor, and suspended impurities."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Potable water</strong> should be clear, colorless, odorless, and safe for human consumption. It must satisfy physical, chemical, and biological quality standards prescribed by drinking water authorities.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Importance of Potable Water",
+      "content": "Safe drinking water prevents water-borne diseases such as cholera, typhoid, dysentery, and hepatitis, ensuring good public health."
+    },
+    {
+      "type": "heading",
+      "content": "Specifications of Potable Water"
+    },
+    {
+      "type": "table",
+      "headers": ["Parameter", "Recommended Value"],
+      "rows": [
+        ["pH", "6.5 - 8.5"],
+        ["Turbidity", "< 5 NTU"],
+        ["Total Dissolved Solids (TDS)", "< 500 mg/L"],
+        ["Hardness", "< 200 mg/L as CaCO₃"],
+        ["Microorganisms", "Absent"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Need for Water Treatment"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Natural water contains suspended particles, dissolved salts, microorganisms, and organic matter. Water treatment removes these impurities to make water suitable for drinking.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Steps in Potable Water Treatment",
+      "steps": [
+        "Screening",
+        "Aeration",
+        "Coagulation",
+        "Sedimentation",
+        "Filtration",
+        "Disinfection",
+        "Distribution"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Major Treatment Steps"
+    },
+    {
+      "type": "accordion",
+      "title": "Treatment Process",
+      "items": [
+        {
+          "question": "Screening",
+          "answer": "Removes large floating materials such as leaves, sticks, and debris."
+        },
+        {
+          "question": "Aeration",
+          "answer": "Removes dissolved gases and improves the taste and odor of water."
+        },
+        {
+          "question": "Coagulation and Sedimentation",
+          "answer": "Alum is added to form flocs that settle down with suspended impurities."
+        },
+        {
+          "question": "Filtration",
+          "answer": "Sand filters remove fine suspended particles and microorganisms."
+        },
+        {
+          "question": "Disinfection",
+          "answer": "Kills disease-causing microorganisms before water is supplied."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Disinfection by Chlorination"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Chlorination</strong> is the most widely used method of disinfecting potable water. Chlorine destroys harmful bacteria, viruses, and other pathogens while leaving a small residual amount that protects water during distribution.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Principle of Chlorination",
+      "description": "When chlorine is added to water, it forms hypochlorous acid (HOCl), a powerful disinfecting agent that destroys microorganisms."
+    },
+    {
+      "type": "heading",
+      "content": "Chemical Reactions"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Cl₂ + H₂O → HOCl + HCl</strong><br><strong>HOCl ⇌ H⁺ + OCl⁻</strong><br>Hypochlorous acid (HOCl) is the main disinfecting species responsible for killing microorganisms.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Break-Point Chlorination"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Break-point chlorination</strong> is the process of adding chlorine until all organic matter, ammonia, and reducing substances are oxidized. Beyond this point, free residual chlorine remains in water, ensuring effective disinfection.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Break-Point Chlorination Process",
+      "steps": [
+        "Add Chlorine",
+        "Chlorine Reacts with Impurities",
+        "Chloramines are Formed",
+        "More Chlorine Oxidizes Chloramines",
+        "Break Point Reached",
+        "Free Residual Chlorine Remains"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Ordinary Chlorination",
+      "right_title": "Break-Point Chlorination",
+      "left_points": [
+        "Only disinfects water",
+        "Residual chlorine may be insufficient",
+        "Less effective in ammonia-rich water"
+      ],
+      "right_points": [
+        "Complete oxidation of impurities",
+        "Maintains free residual chlorine",
+        "Provides effective and reliable disinfection"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Chlorination"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Effective Disinfection",
+          "answer": "Kills most disease-causing microorganisms."
+        },
+        {
+          "question": "Low Cost",
+          "answer": "Economical and suitable for large-scale water treatment."
+        },
+        {
+          "question": "Residual Protection",
+          "answer": "Prevents microbial contamination during storage and distribution."
+        },
+        {
+          "question": "Easy Operation",
+          "answer": "Simple to apply and monitor in water treatment plants."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Residual Chlorine",
+      "content": "A residual chlorine concentration of about 0.2–0.5 mg/L is generally maintained to ensure continued protection against microbial contamination."
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "table",
+      "headers": ["Application", "Purpose"],
+      "rows": [
+        ["Municipal Water Supply", "Safe drinking water"],
+        ["Swimming Pools", "Prevent microbial growth"],
+        ["Emergency Water Treatment", "Rapid disinfection"],
+        ["Rural Water Supply", "Control water-borne diseases"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Potable water is safe for drinking and domestic use.",
+        "Water treatment includes screening, aeration, coagulation, sedimentation, filtration, and disinfection.",
+        "Chlorination is the most common method of water disinfection.",
+        "Hypochlorous acid (HOCl) is the active disinfecting agent.",
+        "Break-point chlorination ensures complete oxidation and leaves free residual chlorine."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which chemical species is mainly responsible for the disinfecting action of chlorine in water?",
+      "options": ["HCl", "HOCl", "Cl⁻", "O₂"],
+      "answer": "HOCl"
+    },
+    {
+      "type": "quiz",
+      "question": "Which process removes suspended impurities by forming flocs?",
+      "options": ["Aeration", "Filtration", "Coagulation", "Chlorination"],
+      "answer": "Coagulation"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the purpose of break-point chlorination?",
+      "options": [
+        "Increase hardness",
+        "Remove dissolved oxygen",
+        "Ensure complete disinfection by leaving free residual chlorine",
+        "Increase pH"
+      ],
+      "answer": "Ensure complete disinfection by leaving free residual chlorine"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is the final step in potable water treatment?",
+      "options": ["Screening", "Filtration", "Disinfection", "Coagulation"],
+      "answer": "Disinfection"
+    }
+  ]
+}

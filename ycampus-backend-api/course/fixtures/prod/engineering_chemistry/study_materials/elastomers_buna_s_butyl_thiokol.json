@@ -1,0 +1,221 @@
+{
+  "sub_unit_name": "Elastomers: Characteristics - Preparation - Properties and Applications of Buna-S, Butyl and Thiokol Rubber",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Elastomers?",
+      "description": "Elastomers are high molecular weight polymers that exhibit high elasticity. They can undergo large deformation under stress and return to their original shape when the stress is removed."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Elastomers are widely used in engineering because of their flexibility, resilience, abrasion resistance, and ability to withstand repeated stretching. They are used in tyres, seals, gaskets, hoses, conveyor belts, vibration dampers, and protective coatings.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Synthetic elastomers are designed to possess better resistance to heat, oils, chemicals, weathering, and aging than natural rubber."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Elastomers",
+      "steps": [
+        "Elastomers",
+        "Natural Rubber",
+        "Synthetic Rubber",
+        "Buna-S / Butyl / Thiokol",
+        "Engineering Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Elastomers"
+    },
+    {
+      "type": "accordion",
+      "title": "Important Characteristics",
+      "items": [
+        {
+          "question": "High Elasticity",
+          "answer": "Can stretch considerably and regain their original shape."
+        },
+        {
+          "question": "Flexible",
+          "answer": "Remain flexible even under repeated deformation."
+        },
+        {
+          "question": "Shock Absorption",
+          "answer": "Absorb vibration and impact effectively."
+        },
+        {
+          "question": "Wear Resistance",
+          "answer": "Resist abrasion and mechanical wear."
+        },
+        {
+          "question": "Chemical Resistance",
+          "answer": "Many synthetic elastomers resist oils, solvents, and chemicals."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Buna-S Rubber"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Buna-S (Styrene Butadiene Rubber)</strong> is prepared by the copolymerization of <strong>1,3-butadiene</strong> and <strong>styrene</strong>. It is one of the most widely used synthetic rubbers due to its excellent abrasion resistance and durability.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "Buna-S"],
+      "rows": [
+        ["Preparation", "Copolymerization of butadiene and styrene"],
+        ["Properties", "Good abrasion resistance, tough, durable"],
+        ["Applications", "Automobile tyres, footwear, conveyor belts, hoses"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Butyl Rubber"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Butyl Rubber</strong> is prepared by the copolymerization of <strong>isobutylene</strong> with a small amount of <strong>isoprene</strong>. It possesses excellent air-tightness, weather resistance, and chemical stability.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "Butyl Rubber"],
+      "rows": [
+        ["Preparation", "Copolymerization of isobutylene and isoprene"],
+        [
+          "Properties",
+          "Excellent air retention, weather and chemical resistance"
+        ],
+        [
+          "Applications",
+          "Inner tubes, tyre liners, pharmaceutical stoppers, seals"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thiokol Rubber"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Thiokol Rubber</strong> is prepared by the condensation polymerization of <strong>organic dihalides</strong> with <strong>sodium polysulfide</strong>. It exhibits outstanding resistance to oils, fuels, solvents, and chemicals.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "Thiokol Rubber"],
+      "rows": [
+        [
+          "Preparation",
+          "Condensation of organic dihalides with sodium polysulfide"
+        ],
+        ["Properties", "Excellent oil, solvent and chemical resistance"],
+        [
+          "Applications",
+          "Fuel hoses, aircraft components, gaskets, chemical seals"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Elastomers"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Buna-S",
+      "right_title": "Butyl & Thiokol",
+      "left_points": [
+        "Made from butadiene and styrene",
+        "High abrasion resistance",
+        "Used mainly in tyres",
+        "Good mechanical strength"
+      ],
+      "right_points": [
+        "Butyl: Excellent air retention",
+        "Thiokol: Excellent oil resistance",
+        "Better chemical resistance",
+        "Used for seals, tubes and fuel systems"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Engineering Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Buna-S is mainly used in automobile tyres, belts, footwear, and conveyor belts. Butyl rubber is used in tyre inner tubes, air-tight containers, seals, and pharmaceutical closures. Thiokol rubber is extensively used in aircraft fuel tanks, chemical plants, oil-resistant hoses, and sealing compounds.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Manufacture of Synthetic Elastomers",
+      "steps": [
+        "Select Monomers",
+        "Polymerization",
+        "Rubber Formation",
+        "Vulcanization",
+        "Engineering Product"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Questions are commonly asked on the preparation monomers, important properties, and applications of Buna-S, Butyl, and Thiokol rubber."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Elastomers are highly elastic polymers.",
+        "Buna-S is prepared from butadiene and styrene.",
+        "Butyl rubber is prepared from isobutylene and isoprene.",
+        "Thiokol rubber is prepared using sodium polysulfide and organic dihalides.",
+        "Buna-S is mainly used in tyres.",
+        "Butyl rubber has excellent air-tightness.",
+        "Thiokol rubber has outstanding oil and chemical resistance."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Buna-S is prepared by copolymerization of:",
+      "options": [
+        "Ethylene and Propylene",
+        "Butadiene and Styrene",
+        "Vinyl chloride and Styrene",
+        "Phenol and Formaldehyde"
+      ],
+      "answer": "Butadiene and Styrene"
+    },
+    {
+      "type": "quiz",
+      "question": "Which synthetic rubber is widely used for tyre inner tubes due to excellent air retention?",
+      "options": ["Buna-S", "Thiokol", "Butyl", "Natural Rubber"],
+      "answer": "Butyl"
+    },
+    {
+      "type": "quiz",
+      "question": "Thiokol rubber is best known for its resistance to:",
+      "options": [
+        "Water only",
+        "Heat only",
+        "Oils and solvents",
+        "Electricity"
+      ],
+      "answer": "Oils and solvents"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is a characteristic of elastomers?",
+      "options": [
+        "High brittleness",
+        "High elasticity",
+        "Poor flexibility",
+        "Low resilience"
+      ],
+      "answer": "High elasticity"
+    }
+  ]
+}

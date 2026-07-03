@@ -1,0 +1,212 @@
+{
+  "sub_unit_name": "Internal treatment of Boiler feed water Calgon conditioning Phosphate conditioning Colloidal conditioning",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Internal Treatment of Boiler Feed Water",
+      "description": "Internal treatment involves adding suitable chemicals directly into the boiler water to prevent scale formation, sludge deposition, and corrosion. It is commonly used along with external water treatment methods."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Boiler feed water often contains dissolved salts that cause scale and sludge formation. <strong>Internal conditioning</strong> converts these salts into soft, non-adherent sludge or soluble complexes that can be removed by blow-down operations, thereby improving boiler efficiency and extending equipment life.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Need for Internal Treatment",
+      "content": "Internal treatment minimizes scale formation, prevents corrosion, improves heat transfer, and reduces maintenance costs in boilers."
+    },
+    {
+      "type": "diagram",
+      "title": "Internal Boiler Water Treatment",
+      "steps": [
+        "Impure Feed Water",
+        "Add Conditioning Chemicals",
+        "Convert Scale-forming Salts",
+        "Soft Sludge Formation",
+        "Blow-down Removal",
+        "Efficient Boiler Operation"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Methods of Internal Treatment"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Method",
+        "Conditioning Agent",
+        "Purpose"
+      ],
+      "rows": [
+        [
+          "Calgon Conditioning",
+          "Sodium Hexametaphosphate",
+          "Prevents scale formation"
+        ],
+        [
+          "Phosphate Conditioning",
+          "Sodium Phosphates",
+          "Converts hardness into sludge"
+        ],
+        [
+          "Colloidal Conditioning",
+          "Organic colloids",
+          "Keeps precipitates suspended"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Calgon Conditioning"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Calgon conditioning</strong> uses <strong>sodium hexametaphosphate (NaPO<sub>3</sub>)<sub>6</sub></strong>, commonly called Calgon. It reacts with calcium ions to form soluble complex compounds, preventing the formation of hard scales inside the boiler.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Principle of Calgon Conditioning",
+      "description": "Calgon forms stable soluble complexes with calcium and magnesium ions, thereby preventing their precipitation as scales."
+    },
+    {
+      "type": "heading",
+      "content": "Phosphate Conditioning"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In <strong>phosphate conditioning</strong>, chemicals such as trisodium phosphate (Na<sub>3</sub>PO<sub>4</sub>), disodium phosphate (Na<sub>2</sub>HPO<sub>4</sub>), or monosodium phosphate (NaH<sub>2</sub>PO<sub>4</sub>) are added to convert hardness-producing salts into soft phosphate sludge.</p>"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>3CaSO<sub>4</sub> + 2Na<sub>3</sub>PO<sub>4</sub> → Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>↓ + 3Na<sub>2</sub>SO<sub>4</sub></strong></p>"
+    },
+    {
+      "type": "heading",
+      "content": "Colloidal Conditioning"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Colloidal conditioning</strong> uses organic substances such as kerosene, tannin, agar-agar, starch, or sodium alginate. These substances surround precipitated particles and keep them suspended in water, preventing their deposition on boiler surfaces.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Colloidal Conditioning Process",
+      "steps": [
+        "Add Colloidal Material",
+        "Coat Suspended Particles",
+        "Prevent Deposition",
+        "Particles Remain Suspended",
+        "Remove by Blow-down"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Conditioning Methods"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Calgon Conditioning",
+      "right_title": "Phosphate & Colloidal Conditioning",
+      "left_points": [
+        "Forms soluble complexes",
+        "Prevents scale formation",
+        "Suitable for moderate hardness",
+        "Uses sodium hexametaphosphate"
+      ],
+      "right_points": [
+        "Forms removable sludge",
+        "Converts hardness salts",
+        "Suitable for high-pressure boilers",
+        "Uses phosphates and colloids"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Internal Treatment"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Scale Prevention",
+          "answer": "Prevents deposition of hard scales inside boilers."
+        },
+        {
+          "question": "Improved Heat Transfer",
+          "answer": "Maintains efficient heat transfer and reduces fuel consumption."
+        },
+        {
+          "question": "Easy Maintenance",
+          "answer": "Soft sludge can be removed easily through blow-down."
+        },
+        {
+          "question": "Longer Boiler Life",
+          "answer": "Reduces corrosion and increases the service life of boiler equipment."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Industrial Importance",
+      "content": "Internal conditioning is widely used in thermal power plants, chemical industries, textile mills, sugar factories, and paper industries to maintain efficient boiler operation."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Internal treatment uses chemicals added directly into boiler water.",
+        "Calgon conditioning forms soluble complexes with hardness ions.",
+        "Phosphate conditioning converts hardness salts into soft phosphate sludge.",
+        "Colloidal conditioning keeps precipitates suspended and prevents deposition.",
+        "Blow-down removes the sludge formed during conditioning."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which chemical is used in Calgon conditioning?",
+      "options": [
+        "Sodium chloride",
+        "Sodium hexametaphosphate",
+        "Sodium hydroxide",
+        "Calcium carbonate"
+      ],
+      "answer": "Sodium hexametaphosphate"
+    },
+    {
+      "type": "quiz",
+      "question": "Which conditioning method converts hardness salts into phosphate sludge?",
+      "options": [
+        "Calgon conditioning",
+        "Phosphate conditioning",
+        "Lime-soda process",
+        "Zeolite process"
+      ],
+      "answer": "Phosphate conditioning"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is used in colloidal conditioning?",
+      "options": [
+        "Tannin",
+        "Hydrochloric acid",
+        "Sulfuric acid",
+        "Potassium permanganate"
+      ],
+      "answer": "Tannin"
+    },
+    {
+      "type": "quiz",
+      "question": "The sludge formed during internal treatment is removed by:",
+      "options": [
+        "Filtration",
+        "Distillation",
+        "Blow-down operation",
+        "Evaporation"
+      ],
+      "answer": "Blow-down operation"
+    }
+  ]
+}

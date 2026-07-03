@@ -1,0 +1,166 @@
+{
+  "sub_unit_name": "Solar cells - Introduction and applications of Solar cells",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Solar Cells",
+      "description": "A solar cell is a semiconductor device that converts sunlight directly into electrical energy through the photovoltaic effect. It is one of the most important renewable energy technologies."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Solar cells generate clean and renewable electricity without producing harmful emissions. They are mainly made of <strong>silicon semiconductor materials</strong> and are widely used in homes, industries, satellites, and power plants.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Solar Cells?",
+      "content": "Solar cells provide pollution-free electricity, reduce dependence on fossil fuels, and utilize abundant solar energy."
+    },
+    {
+      "type": "diagram",
+      "title": "Working of a Solar Cell",
+      "steps": [
+        "Sunlight Falls on Cell",
+        "Photovoltaic Effect",
+        "Electron-Hole Pair Formation",
+        "Electron Flow",
+        "Electricity Produced"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Construction of a Solar Cell"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A solar cell consists of a <strong>p-n junction semiconductor</strong>, usually silicon, with a front metal grid, anti-reflective coating, and a back metal contact. When sunlight strikes the p-n junction, electrical energy is generated.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Working Principle"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>When sunlight falls on the semiconductor surface, photons transfer energy to electrons, creating electron-hole pairs. The built-in electric field of the p-n junction separates these charges, producing a flow of current through an external circuit.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Energy Conversion Process",
+      "steps": [
+        "Sunlight Absorbed",
+        "Electron-Hole Pairs Generated",
+        "Charge Separation",
+        "Current Flows",
+        "Electrical Power Output"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages and Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Uses of Solar Cells",
+      "items": [
+        {
+          "question": "Domestic Use",
+          "answer": "Used for rooftop solar panels and home lighting systems."
+        },
+        {
+          "question": "Industrial Use",
+          "answer": "Used in solar power plants and industrial power generation."
+        },
+        {
+          "question": "Space Applications",
+          "answer": "Provide electrical power for satellites and spacecraft."
+        },
+        {
+          "question": "Other Applications",
+          "answer": "Used in calculators, street lights, water pumps, and traffic signals."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Benefit"],
+      "rows": [
+        ["Renewable Energy", "Unlimited energy source"],
+        ["Pollution-Free", "No harmful emissions"],
+        ["Low Maintenance", "Simple operation"],
+        ["Long Life", "Reliable power generation"]
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Clean energy",
+        "Renewable source",
+        "Low operating cost",
+        "Long service life"
+      ],
+      "right_points": [
+        "High initial cost",
+        "Depends on sunlight",
+        "Lower efficiency during cloudy weather",
+        "Requires large installation area"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Industrial Importance",
+      "content": "Solar cells play a vital role in sustainable energy production and are widely used to reduce carbon emissions and meet future energy demands."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Solar cells convert solar energy into electrical energy.",
+        "They operate based on the photovoltaic effect.",
+        "Silicon is the most commonly used semiconductor material.",
+        "Solar cells provide clean and renewable energy.",
+        "They are widely used in homes, industries, and satellites."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Solar cells convert which form of energy into electrical energy?",
+      "options": [
+        "Heat energy",
+        "Chemical energy",
+        "Solar energy",
+        "Mechanical energy"
+      ],
+      "answer": "Solar energy"
+    },
+    {
+      "type": "quiz",
+      "question": "The working principle of a solar cell is based on:",
+      "options": [
+        "Electrolysis",
+        "Photovoltaic effect",
+        "Electromagnetic induction",
+        "Combustion"
+      ],
+      "answer": "Photovoltaic effect"
+    },
+    {
+      "type": "quiz",
+      "question": "Which material is most commonly used in solar cells?",
+      "options": ["Copper", "Silicon", "Iron", "Aluminium"],
+      "answer": "Silicon"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an application of solar cells?",
+      "options": [
+        "Satellites",
+        "Street lights",
+        "Solar power plants",
+        "All of the above"
+      ],
+      "answer": "All of the above"
+    }
+  ]
+}

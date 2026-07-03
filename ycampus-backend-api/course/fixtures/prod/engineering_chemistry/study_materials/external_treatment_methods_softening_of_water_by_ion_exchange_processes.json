@@ -1,0 +1,180 @@
+{
+  "sub_unit_name": "External treatment methods - Softening of water by ion-exchange processes",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "External Water Treatment",
+      "description": "External treatment removes hardness-producing ions from water before it enters the boiler. The ion-exchange process is one of the most efficient methods for producing soft and demineralized water."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>External treatment</strong> is carried out outside the boiler to remove dissolved calcium (Ca<sup>2+</sup>) and magnesium (Mg<sup>2+</sup>) ions that cause hardness. The <strong>ion-exchange process</strong> replaces these ions with hydrogen (H<sup>+</sup>) and hydroxyl (OH<sup>-</sup>) ions to produce soft water suitable for industrial applications.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why External Treatment?",
+      "content": "It prevents scale formation, improves boiler efficiency, reduces maintenance costs, and increases the life of boiler equipment."
+    },
+    {
+      "type": "diagram",
+      "title": "Ion-Exchange Softening Process",
+      "steps": [
+        "Hard Water Enters",
+        "Cation Exchange Unit",
+        "Anion Exchange Unit",
+        "H⁺ and OH⁻ Combine",
+        "Soft/Demineralized Water Obtained"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Principle of Ion-Exchange Process"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The ion-exchange process is based on the exchange of undesirable ions present in water with harmless ions attached to synthetic resins. Cation exchange resins replace positive ions, while anion exchange resins replace negative ions.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Cation Exchange Resin"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The cation exchange resin contains acidic functional groups (R-H). It exchanges hydrogen ions (H<sup>+</sup>) for hardness-producing ions such as Ca<sup>2+</sup> and Mg<sup>2+</sup>.</p><p><strong>2RH + Ca<sup>2+</sup> → R<sub>2</sub>Ca + 2H<sup>+</sup></strong></p>"
+    },
+    {
+      "type": "heading",
+      "content": "Anion Exchange Resin"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The anion exchange resin contains basic functional groups (R-OH). It exchanges hydroxyl ions (OH<sup>-</sup>) for chloride, sulfate, bicarbonate, and nitrate ions present in water.</p><p><strong>R-OH + Cl<sup>-</sup> → R-Cl + OH<sup>-</sup></strong></p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working of Ion-Exchange Process",
+      "steps": [
+        "Feed Hard Water",
+        "Remove Ca²⁺ and Mg²⁺",
+        "Remove Cl⁻, SO₄²⁻, HCO₃⁻",
+        "H⁺ and OH⁻ Combine",
+        "Pure Water Produced"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Regeneration of Resins"
+    },
+    {
+      "type": "table",
+      "headers": ["Resin", "Regenerating Chemical", "Purpose"],
+      "rows": [
+        ["Cation Resin", "Dilute HCl / H₂SO₄", "Restores H⁺ ions"],
+        ["Anion Resin", "Dilute NaOH", "Restores OH⁻ ions"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Ion-Exchange Process"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Complete Softening",
+          "answer": "Removes almost all dissolved cations and anions."
+        },
+        {
+          "question": "High Purity Water",
+          "answer": "Produces demineralized water suitable for high-pressure boilers."
+        },
+        {
+          "question": "Low Maintenance",
+          "answer": "Resins can be regenerated and reused multiple times."
+        },
+        {
+          "question": "Wide Industrial Use",
+          "answer": "Used in power plants, pharmaceuticals, and chemical industries."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Produces completely soft water",
+        "Suitable for high-pressure boilers",
+        "Highly efficient",
+        "Resins are reusable"
+      ],
+      "right_points": [
+        "High installation cost",
+        "Requires periodic resin regeneration",
+        "Feed water should be free from suspended impurities",
+        "Regular maintenance is necessary"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications",
+      "content": "The ion-exchange process is widely used in thermal power plants, laboratories, pharmaceutical industries, electronics manufacturing, and chemical processing plants."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "External treatment removes hardness before water enters the boiler.",
+        "Cation resin exchanges Ca²⁺ and Mg²⁺ with H⁺ ions.",
+        "Anion resin exchanges Cl⁻, SO₄²⁻, and other anions with OH⁻ ions.",
+        "H⁺ and OH⁻ combine to form pure water.",
+        "Ion-exchange produces highly purified demineralized water."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which ions are removed by the cation exchange resin?",
+      "options": [
+        "Chloride ions",
+        "Calcium and magnesium ions",
+        "Hydroxide ions",
+        "Nitrate ions"
+      ],
+      "answer": "Calcium and magnesium ions"
+    },
+    {
+      "type": "quiz",
+      "question": "Which chemical is commonly used to regenerate an anion exchange resin?",
+      "options": ["HCl", "H₂SO₄", "NaOH", "Ca(OH)₂"],
+      "answer": "NaOH"
+    },
+    {
+      "type": "quiz",
+      "question": "The ion-exchange process mainly produces:",
+      "options": [
+        "Hard water",
+        "Saline water",
+        "Soft/Demineralized water",
+        "Distilled water"
+      ],
+      "answer": "Soft/Demineralized water"
+    },
+    {
+      "type": "quiz",
+      "question": "Why is the ion-exchange process preferred for high-pressure boilers?",
+      "options": [
+        "It increases hardness",
+        "It removes nearly all dissolved ions",
+        "It adds chlorine to water",
+        "It increases boiler pressure"
+      ],
+      "answer": "It removes nearly all dissolved ions"
+    }
+  ]
+}

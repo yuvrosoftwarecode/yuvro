@@ -1,0 +1,386 @@
+{
+  "sub_unit_name": "Lubricants: Classification of lubricants with examples - Characteristics of a good lubricant - Mechanism of lubrication (thick film, thin film and extreme pressure) - Properties of lubricants: viscosity, cloud point, pour point, flash point and fire point",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Lubricants",
+      "description": "Lubricants are substances introduced between two moving surfaces to reduce friction, wear, heat generation, and energy loss while ensuring smooth operation of machines."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Lubrication is an essential process in mechanical and industrial systems. A lubricant forms a protective film between moving parts, preventing direct metal-to-metal contact. Besides reducing friction, lubricants also help in cooling, cleaning, corrosion prevention, sealing, and increasing the life of machine components.</p>"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Depending on operating conditions such as load, speed, and temperature, different types of lubricants and lubrication mechanisms are employed in automobiles, turbines, compressors, bearings, gears, engines, and heavy industrial machinery.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Proper lubrication reduces maintenance cost, improves efficiency, minimizes power loss, prevents wear, and increases the service life of machines."
+    },
+    {
+      "type": "diagram",
+      "title": "Functions of a Lubricant",
+      "steps": [
+        "Reduce Friction",
+        "Minimize Wear",
+        "Remove Heat",
+        "Prevent Corrosion",
+        "Improve Machine Life"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Functions of Lubricants"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A lubricant performs several important functions such as reducing friction between moving surfaces, minimizing wear and tear, carrying away heat, preventing corrosion, reducing noise, sealing gaps between moving parts, and protecting machinery from rust and oxidation.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Functions",
+      "items": [
+        {
+          "question": "Reduce Friction",
+          "answer": "Prevents direct contact between moving surfaces."
+        },
+        {
+          "question": "Cooling",
+          "answer": "Removes heat generated due to friction."
+        },
+        {
+          "question": "Corrosion Protection",
+          "answer": "Protects metal surfaces from oxidation and rust."
+        },
+        {
+          "question": "Cleaning",
+          "answer": "Carries away dirt, carbon particles, and wear debris."
+        },
+        {
+          "question": "Sealing",
+          "answer": "Prevents leakage between moving components."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Lubricants"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Lubricants are classified mainly into liquid, semi-solid, solid, and gaseous lubricants depending on their physical state and applications.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Examples", "Applications"],
+      "rows": [
+        [
+          "Liquid Lubricants",
+          "Mineral oil, Engine oil",
+          "Automobile engines, turbines"
+        ],
+        ["Semi-solid Lubricants", "Grease", "Bearings and gears"],
+        [
+          "Solid Lubricants",
+          "Graphite, MoS₂, PTFE",
+          "High-temperature and vacuum conditions"
+        ],
+        [
+          "Gaseous Lubricants",
+          "Air, Nitrogen",
+          "Precision instruments and high-speed bearings"
+        ]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Examples",
+      "content": "Engine oil is a liquid lubricant, grease is a semi-solid lubricant, graphite and molybdenum disulphide (MoS₂) are solid lubricants, while air acts as a gaseous lubricant."
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of a Good Lubricant"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A good lubricant should possess suitable viscosity, high flash and fire points, low volatility, good oxidation stability, high oiliness, low pour point, resistance to corrosion, and should maintain its lubricating properties over a wide temperature range.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Characteristics",
+      "items": [
+        {
+          "question": "Proper Viscosity",
+          "answer": "Maintains a continuous lubricating film."
+        },
+        {
+          "question": "High Flash Point",
+          "answer": "Ensures safety at elevated temperatures."
+        },
+        {
+          "question": "Low Pour Point",
+          "answer": "Allows flow even at low temperatures."
+        },
+        {
+          "question": "Chemical Stability",
+          "answer": "Resists oxidation and decomposition."
+        },
+        {
+          "question": "Non-Corrosive",
+          "answer": "Protects machine parts from rust."
+        },
+        {
+          "question": "High Oiliness",
+          "answer": "Provides strong adhesion to metal surfaces."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Mechanism of Lubrication"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Lubrication mechanisms depend on the thickness of the lubricant film formed between moving surfaces. The three important mechanisms are thick film lubrication, thin film lubrication, and extreme pressure lubrication.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Types of Lubrication",
+      "steps": [
+        "Moving Surfaces",
+        "Lubricant Introduced",
+        "Film Formation",
+        "Reduced Friction",
+        "Smooth Motion"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thick Film (Hydrodynamic) Lubrication"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In thick film lubrication, a thick layer of lubricant completely separates the moving surfaces. Since there is no direct metal-to-metal contact, friction and wear are very low. This mechanism is commonly observed in high-speed and lightly loaded machines.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications",
+      "content": "Used in turbines, electric motors, centrifugal pumps, and journal bearings."
+    },
+    {
+      "type": "heading",
+      "content": "Thin Film (Boundary) Lubrication"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Thin film lubrication occurs when only a very thin molecular layer of lubricant exists between moving surfaces. The lubricant molecules adhere strongly to the metal surfaces and reduce friction under moderate load and low-speed conditions.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications",
+      "content": "Common in gears, machine tools, automobile engines during starting, and reciprocating machines."
+    },
+    {
+      "type": "heading",
+      "content": "Extreme Pressure Lubrication"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Extreme pressure lubrication is used when machines operate under very high load and temperature. Special additives containing sulphur, phosphorus, or chlorine react chemically with metal surfaces to form a protective layer that prevents welding and severe wear.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications",
+      "content": "Used in heavy-duty gears, cutting tools, rolling mills, mining equipment, and high-load industrial machinery."
+    },
+    {
+      "type": "process_flow",
+      "title": "Extreme Pressure Lubrication",
+      "steps": [
+        "Heavy Load",
+        "High Temperature",
+        "EP Additives React",
+        "Protective Film Forms",
+        "Wear Prevented"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Lubrication Mechanisms"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Thick Film",
+      "right_title": "Thin Film & Extreme Pressure",
+      "left_points": [
+        "Complete lubricant film",
+        "No metal contact",
+        "Low friction",
+        "Suitable for high speed"
+      ],
+      "right_points": [
+        "Very thin film or chemical film",
+        "Some metal interaction",
+        "Suitable for heavy loads",
+        "Used at low speed or extreme pressure"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Lubricants"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The quality of a lubricant is evaluated by several physical properties such as viscosity, cloud point, pour point, flash point, and fire point. These properties determine its suitability for different operating conditions.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Viscosity"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Viscosity is the internal resistance offered by a lubricant to flow. It is the most important property because it determines the thickness of the lubricating film formed between moving surfaces.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Cloud Point"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Cloud point is the temperature at which wax crystals first begin to separate from the lubricant, giving it a cloudy appearance during cooling.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Pour Point"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Pour point is the lowest temperature at which a lubricant is capable of flowing under specified conditions. Lubricants used in cold regions should possess a low pour point.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Flash Point"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Flash point is the lowest temperature at which lubricant vapours ignite momentarily when exposed to a flame. It indicates the safety of the lubricant during storage and operation.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Fire Point"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Fire point is the minimum temperature at which the lubricant continues to burn for at least five seconds after ignition. It is always higher than the flash point.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Definition", "Importance"],
+      "rows": [
+        ["Viscosity", "Resistance to flow", "Determines film thickness"],
+        ["Cloud Point", "Wax begins to separate", "Cold weather performance"],
+        ["Pour Point", "Lowest flow temperature", "Low-temperature operation"],
+        [
+          "Flash Point",
+          "Temporary ignition temperature",
+          "Safety during handling"
+        ],
+        [
+          "Fire Point",
+          "Continuous burning temperature",
+          "High-temperature safety"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Lubricants"
+    },
+    {
+      "type": "accordion",
+      "title": "Engineering Applications",
+      "items": [
+        {
+          "question": "Automobile Industry",
+          "answer": "Engine oils, gear oils, brake systems, and transmission units."
+        },
+        {
+          "question": "Power Plants",
+          "answer": "Lubrication of turbines, generators, and compressors."
+        },
+        {
+          "question": "Manufacturing Industry",
+          "answer": "Machine tools, bearings, conveyors, and hydraulic systems."
+        },
+        {
+          "question": "Aerospace",
+          "answer": "Aircraft engines and precision mechanical components."
+        },
+        {
+          "question": "Marine Industry",
+          "answer": "Ship engines, propeller shafts, and heavy-duty gears."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Frequently asked questions include classification of lubricants, characteristics of a good lubricant, thick film, thin film and extreme pressure lubrication mechanisms, viscosity, cloud point, pour point, flash point, and fire point."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Lubricants reduce friction and wear between moving surfaces.",
+        "Major types are liquid, semi-solid, solid, and gaseous lubricants.",
+        "A good lubricant should have proper viscosity and chemical stability.",
+        "Thick film lubrication completely separates moving surfaces.",
+        "Thin film lubrication forms a molecular protective layer.",
+        "Extreme pressure lubrication uses chemically active additives.",
+        "Viscosity measures resistance to flow.",
+        "Cloud point indicates wax formation temperature.",
+        "Pour point is the lowest temperature at which oil flows.",
+        "Flash point is the ignition temperature of vapours.",
+        "Fire point is the temperature for continuous burning.",
+        "Lubricants improve machine efficiency and service life."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which lubrication mechanism is suitable for high-speed machines with complete separation of moving surfaces?",
+      "options": [
+        "Boundary lubrication",
+        "Extreme pressure lubrication",
+        "Thick film lubrication",
+        "Dry lubrication"
+      ],
+      "answer": "Thick film lubrication"
+    },
+    {
+      "type": "quiz",
+      "question": "The resistance offered by a lubricant to flow is called:",
+      "options": ["Oiliness", "Flash point", "Viscosity", "Pour point"],
+      "answer": "Viscosity"
+    },
+    {
+      "type": "quiz",
+      "question": "Which property indicates the lowest temperature at which a lubricant can still flow?",
+      "options": ["Flash point", "Fire point", "Cloud point", "Pour point"],
+      "answer": "Pour point"
+    },
+    {
+      "type": "quiz",
+      "question": "Extreme pressure lubricants mainly contain additives of:",
+      "options": [
+        "Sodium and Potassium",
+        "Sulphur, Phosphorus and Chlorine",
+        "Calcium and Magnesium",
+        "Silicon and Aluminium"
+      ],
+      "answer": "Sulphur, Phosphorus and Chlorine"
+    }
+  ]
+}
