@@ -1,6 +1,6 @@
-import React from 'react';
-import { Block } from '../BlockRegistry';
-import { Pencil } from 'lucide-react';
+import React from "react";
+import { Block } from "../BlockRegistry";
+import { Pencil } from "lucide-react";
 
 interface DrawingBlockProps {
   block: Block;
@@ -18,7 +18,7 @@ export const DrawingBlock: React.FC<DrawingBlockProps> = ({ block }) => {
         <p className="text-xs text-slate-400 mt-0.5">
           {block.metadata?.excalidrawElements?.length
             ? `${block.metadata.excalidrawElements.length} element(s) saved`
-            : 'No drawing yet — Excalidraw integration pending package install'}
+            : "No drawing yet ï¿½ Excalidraw integration pending package install"}
         </p>
       </div>
     </div>

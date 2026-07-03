@@ -1751,7 +1751,7 @@ class FileUploadViewSet(viewsets.ViewSet):
             stored_key = upload_file(key=key, file_obj=file_obj)
             file_url = build_public_url(stored_key)
             
-            # Ensure it's an absolute URL if local storage returned a relative path
+
             if file_url and not file_url.startswith('http'):
                 file_url = request.build_absolute_uri(file_url)
                 

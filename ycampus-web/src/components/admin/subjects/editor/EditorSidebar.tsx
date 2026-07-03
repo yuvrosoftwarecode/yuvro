@@ -14,11 +14,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAdd, selectedBlo
   const [activeTab, setActiveTab] = useState<'library' | 'properties'>('library');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Automatically switch to properties when a block is selected, and library when deselected
   React.useEffect(() => {
     if (selectedBlock) {
       setActiveTab('properties');
-      setIsCollapsed(false); // Uncollapse if they select a block
+      setIsCollapsed(false); 
     } else {
       setActiveTab('library');
     }

@@ -1,31 +1,36 @@
-import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React, { useState } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
-import { blockDefs, categories } from './BlockRegistry';
+import { blockDefs, categories } from "./BlockRegistry";
 
 interface BlockLibraryPanelProps {
   onAdd: (type: string) => void;
 }
 
-export const BlockLibraryPanel: React.FC<BlockLibraryPanelProps> = ({ onAdd }) => {
-  const [query, setQuery] = useState('');
-  
-  const filtered = blockDefs.filter(d =>
-    d.label.toLowerCase().includes(query.toLowerCase()) ||
-    d.category.toLowerCase().includes(query.toLowerCase())
+export const BlockLibraryPanel: React.FC<BlockLibraryPanelProps> = ({
+  onAdd,
+}) => {
+  const [query, setQuery] = useState("");
+
+  const filtered = blockDefs.filter(
+    (d) =>
+      d.label.toLowerCase().includes(query.toLowerCase()) ||
+      d.category.toLowerCase().includes(query.toLowerCase()),
   );
-  
-  const grouped = categories.reduce<Record<string, typeof blockDefs>>((acc, cat) => {
-    const items = filtered.filter(d => d.category === cat);
-    if (items.length) acc[cat] = items;
-    return acc;
-  }, {});
+
+  const grouped = categories.reduce<Record<string, typeof blockDefs>>(
+    (acc, cat) => {
+      const items = filtered.filter((d) => d.category === cat);
+      if (items.length) acc[cat] = items;
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="w-full flex-col h-full bg-white flex transition-all">
       <div className="p-4 border-b border-slate-100 sticky top-0 bg-white z-10">
-
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <Input
@@ -36,7 +41,7 @@ export const BlockLibraryPanel: React.FC<BlockLibraryPanelProps> = ({ onAdd }) =
           />
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
         {Object.entries(grouped).map(([cat, items]) => (
           <div key={cat}>
@@ -44,7 +49,7 @@ export const BlockLibraryPanel: React.FC<BlockLibraryPanelProps> = ({ onAdd }) =
               {cat}
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {items.map(def => (
+              {items.map((def) => (
                 <button
                   key={def.type}
                   type="button"

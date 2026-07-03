@@ -130,5 +130,5 @@ def upload_file(*, key, file_obj, replace_extensions=()):
         logger.exception("upload_file failed (key=%s)", full_key)
         raise
 
-# Alias for backwards compatibility
+
 upload_image = upload_file

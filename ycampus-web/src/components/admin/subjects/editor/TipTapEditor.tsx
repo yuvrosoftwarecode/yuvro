@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
-import Link from '@tiptap/extension-link';
-import { useGlobalEditor } from '@/contexts/EditorContext';
+import React, { useEffect } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import Link from "@tiptap/extension-link";
+import { useGlobalEditor } from "@/contexts/EditorContext";
 
 interface TipTapEditorProps {
   content: string;
@@ -16,7 +16,13 @@ interface TipTapEditorProps {
   minimal?: boolean;
 }
 
-export const TipTapEditor: React.FC<TipTapEditorProps> = ({ content, onChange, placeholder, className = '', minimal = false }) => {
+export const TipTapEditor: React.FC<TipTapEditorProps> = ({
+  content,
+  onChange,
+  placeholder,
+  className = "",
+  minimal = false,
+}) => {
   const { setActiveEditor, activeEditor } = useGlobalEditor();
 
   const editor = useEditor({
@@ -28,22 +34,22 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({ content, onChange, p
       }),
       Underline,
       TextAlign.configure({
-        types: ['paragraph'],
+        types: ["paragraph"],
       }),
       TextStyle,
       Color,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-indigo-600 underline cursor-pointer',
+          class: "text-indigo-600 underline cursor-pointer",
         },
       }),
     ],
     content,
     editorProps: {
       attributes: {
-        class: `prose prose-sm max-w-none focus:outline-none ${minimal ? 'p-0 min-h-0' : 'min-h-[100px] p-3'} ${className}`,
-        placeholder: placeholder || 'Type something...',
+        class: `prose prose-sm max-w-none focus:outline-none ${minimal ? "p-0 min-h-0" : "min-h-[100px] p-3"} ${className}`,
+        placeholder: placeholder || "Type something...",
       },
     },
     onUpdate: ({ editor }) => {
@@ -52,9 +58,6 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({ content, onChange, p
     onFocus: ({ editor }) => {
       setActiveEditor(editor);
     },
-    // We don't unset activeEditor onBlur, because clicking the global toolbar
-    // triggers a blur on the editor but we still need activeEditor to be set
-    // to apply formatting. We let the next focused editor overwrite it.
   });
 
   // Ensure if this editor unmounts while active, we clear it
@@ -67,7 +70,9 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({ content, onChange, p
   }, [activeEditor, editor, setActiveEditor]);
 
   return (
-    <div className={`${minimal ? 'w-full' : 'border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-300 transition-all'}`}>
+    <div
+      className={`${minimal ? "w-full" : "border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-300 transition-all"}`}
+    >
       <EditorContent editor={editor} />
     </div>
   );

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Trash2 } from 'lucide-react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Trash2 } from "lucide-react";
 
 interface TableBlockProps {
   block: any;
@@ -9,31 +9,50 @@ interface TableBlockProps {
 }
 
 export const TableBlock: React.FC<TableBlockProps> = ({ block, onChange }) => {
-  const rows: string[][] = block.metadata?.rows || [['Header 1', 'Header 2'], ['Cell 1', 'Cell 2']];
+  const rows: string[][] = block.metadata?.rows || [
+    ["Header 1", "Header 2"],
+    ["Cell 1", "Cell 2"],
+  ];
   const hasHeader: boolean = block.metadata?.hasHeader !== false;
 
   const updateCell = (rowIdx: number, colIdx: number, value: string) => {
-    const newRows = rows.map((r, ri) => r.map((c, ci) => (ri === rowIdx && ci === colIdx ? value : c)));
+    const newRows = rows.map((r, ri) =>
+      r.map((c, ci) => (ri === rowIdx && ci === colIdx ? value : c)),
+    );
     onChange({ metadata: { ...block.metadata, rows: newRows } });
   };
 
   const addRow = () => {
     const cols = rows[0]?.length || 2;
-    onChange({ metadata: { ...block.metadata, rows: [...rows, Array(cols).fill('')] } });
+    onChange({
+      metadata: { ...block.metadata, rows: [...rows, Array(cols).fill("")] },
+    });
   };
 
   const deleteRow = (rowIdx: number) => {
     if (rows.length <= 1) return;
-    onChange({ metadata: { ...block.metadata, rows: rows.filter((_, i) => i !== rowIdx) } });
+    onChange({
+      metadata: {
+        ...block.metadata,
+        rows: rows.filter((_, i) => i !== rowIdx),
+      },
+    });
   };
 
   const addCol = () => {
-    onChange({ metadata: { ...block.metadata, rows: rows.map(r => [...r, '']) } });
+    onChange({
+      metadata: { ...block.metadata, rows: rows.map((r) => [...r, ""]) },
+    });
   };
 
   const deleteCol = (colIdx: number) => {
     if ((rows[0]?.length || 0) <= 1) return;
-    onChange({ metadata: { ...block.metadata, rows: rows.map(r => r.filter((_, i) => i !== colIdx)) } });
+    onChange({
+      metadata: {
+        ...block.metadata,
+        rows: rows.map((r) => r.filter((_, i) => i !== colIdx)),
+      },
+    });
   };
 
   return (
@@ -43,7 +62,11 @@ export const TableBlock: React.FC<TableBlockProps> = ({ block, onChange }) => {
           <input
             type="checkbox"
             checked={hasHeader}
-            onChange={(e) => onChange({ metadata: { ...block.metadata, hasHeader: e.target.checked } })}
+            onChange={(e) =>
+              onChange({
+                metadata: { ...block.metadata, hasHeader: e.target.checked },
+              })
+            }
             className="rounded"
           />
           First row is header
@@ -54,13 +77,21 @@ export const TableBlock: React.FC<TableBlockProps> = ({ block, onChange }) => {
         <table className="w-full text-sm">
           <tbody>
             {rows.map((row, rowIdx) => (
-              <tr key={rowIdx} className={`group ${rowIdx === 0 && hasHeader ? 'bg-indigo-50' : rowIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}>
+              <tr
+                key={rowIdx}
+                className={`group ${rowIdx === 0 && hasHeader ? "bg-indigo-50" : rowIdx % 2 === 0 ? "bg-white" : "bg-slate-50/60"}`}
+              >
                 {row.map((cell, colIdx) => (
-                  <td key={colIdx} className="border border-slate-200 p-0 relative group/cell">
+                  <td
+                    key={colIdx}
+                    className="border border-slate-200 p-0 relative group/cell"
+                  >
                     <Input
                       value={cell}
-                      onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
-                      className={`border-0 rounded-none h-9 focus-visible:ring-0 bg-transparent ${rowIdx === 0 && hasHeader ? 'font-semibold text-indigo-700' : ''}`}
+                      onChange={(e) =>
+                        updateCell(rowIdx, colIdx, e.target.value)
+                      }
+                      className={`border-0 rounded-none h-9 focus-visible:ring-0 bg-transparent ${rowIdx === 0 && hasHeader ? "font-semibold text-indigo-700" : ""}`}
                     />
                     {rowIdx === 0 && (
                       <button
@@ -89,10 +120,20 @@ export const TableBlock: React.FC<TableBlockProps> = ({ block, onChange }) => {
       </div>
 
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={addRow} className="gap-1 text-xs">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={addRow}
+          className="gap-1 text-xs"
+        >
           <Plus className="w-3 h-3" /> Add Row
         </Button>
-        <Button variant="outline" size="sm" onClick={addCol} className="gap-1 text-xs">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={addCol}
+          className="gap-1 text-xs"
+        >
           <Plus className="w-3 h-3" /> Add Column
         </Button>
       </div>
