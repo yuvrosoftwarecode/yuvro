@@ -1,0 +1,300 @@
+{
+  "sub_unit_name": "List & ArrayList",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are List and ArrayList?",
+      "description": "List is an interface in the Java Collections Framework that represents an ordered collection of elements. ArrayList is a resizable array implementation of the List interface that provides fast random access and dynamic storage."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike arrays, which have a fixed size, an <strong>ArrayList</strong> grows and shrinks dynamically as elements are added or removed. Since ArrayList implements the <code>List</code> interface, it maintains insertion order, allows duplicate elements, and provides index-based access, making it one of the most commonly used collection classes in Java.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use ArrayList?",
+      "content": "ArrayList eliminates the need to manage array sizes manually and provides convenient methods for adding, removing, searching, and updating elements."
+    },
+    {
+      "type": "diagram",
+      "title": "List Hierarchy",
+      "steps": [
+        "Iterable",
+        "Collection",
+        "List Interface",
+        "ArrayList Implementation",
+        "Dynamic Storage of Elements"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of List"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>List</code> interface defines an ordered collection. Elements are stored according to insertion order, duplicate values are allowed, and every element has an index.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Description"],
+      "rows": [
+        ["Ordered", "Maintains insertion order"],
+        ["Duplicates", "Allows duplicate elements"],
+        ["Indexing", "Supports index-based access"],
+        ["Dynamic Size", "Can grow or shrink"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Program to the List interface while using ArrayList as the implementation. This makes your code more flexible."
+    },
+    {
+      "type": "heading",
+      "content": "Creating an ArrayList"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An ArrayList is created using the <code>ArrayList</code> class from the <code>java.util</code> package.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating an ArrayList",
+      "code": "import java.util.*;\n\nList<String> fruits = new ArrayList<>();\nfruits.add(\"Apple\");\nfruits.add(\"Banana\");\nfruits.add(\"Mango\");\nSystem.out.println(fruits);"
+    },
+    {
+      "type": "heading",
+      "content": "Common Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>ArrayList provides many useful methods for managing elements efficiently.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["add()", "Adds an element"],
+        ["get()", "Retrieves an element"],
+        ["set()", "Updates an element"],
+        ["remove()", "Removes an element"],
+        ["contains()", "Checks if an element exists"],
+        ["size()", "Returns the number of elements"],
+        ["clear()", "Removes all elements"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using Common Methods",
+      "code": "List<Integer> numbers = new ArrayList<>();\nnumbers.add(10);\nnumbers.add(20);\nnumbers.add(30);\nSystem.out.println(numbers.get(1));\nnumbers.remove(0);\nSystem.out.println(numbers.size());"
+    },
+    {
+      "type": "heading",
+      "content": "Traversing an ArrayList"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>ArrayList elements can be traversed using loops or iterators.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Enhanced For Loop",
+      "code": "for(String fruit : fruits){\n    System.out.println(fruit);\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working with ArrayList",
+      "steps": [
+        "Create ArrayList",
+        "Add Elements",
+        "Access or Modify Data",
+        "Traverse Elements",
+        "Remove Elements"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Array vs ArrayList"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Array",
+      "right_title": "ArrayList",
+      "left_points": [
+        "Fixed size",
+        "Stores primitives and objects",
+        "No built-in methods",
+        "Less flexible"
+      ],
+      "right_points": [
+        "Dynamic size",
+        "Stores objects only",
+        "Rich collection methods",
+        "Easy to modify"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "ArrayList vs LinkedList"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "ArrayList",
+      "right_title": "LinkedList",
+      "left_points": [
+        "Fast random access",
+        "Slower insertions in middle",
+        "Backed by dynamic array",
+        "Less memory overhead"
+      ],
+      "right_points": [
+        "Slower random access",
+        "Fast insertions and deletions",
+        "Uses linked nodes",
+        "Higher memory usage"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "Complexity"],
+      "rows": [
+        ["Access by Index", "O(1)"],
+        ["Add at End", "O(1) (Amortized)"],
+        ["Insert in Middle", "O(n)"],
+        ["Delete by Index", "O(n)"],
+        ["Search", "O(n)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "ArrayList Performance",
+      "time_complexity": "Access: O(1), Search: O(n), Insert/Delete (Middle): O(n)",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is ArrayList Used?",
+      "items": [
+        {
+          "question": "Student Records",
+          "answer": "Store dynamic lists of students."
+        },
+        {
+          "question": "Shopping Cart",
+          "answer": "Manage products selected by users."
+        },
+        {
+          "question": "Playlist Management",
+          "answer": "Maintain ordered collections of songs."
+        },
+        {
+          "question": "Task Lists",
+          "answer": "Store tasks that can be added or removed dynamically."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Expandable Notebook",
+      "content": "An ArrayList is like a notebook with expandable pages. You can easily add new pages, remove old ones, and access any page by its page number."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "ArrayList is one of the most frequently asked Java interview topics. Candidates should understand its internal dynamic array implementation, time complexity, common methods, and differences from arrays and LinkedList."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can ArrayList store primitive data types directly?",
+          "answer": "No. It stores objects. Primitive values are automatically wrapped using wrapper classes."
+        },
+        {
+          "question": "Does ArrayList have a fixed size?",
+          "answer": "No. It automatically resizes when needed."
+        },
+        {
+          "question": "Should ArrayList always be used?",
+          "answer": "No. Use LinkedList when frequent insertions and deletions are required."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "ArrayList provides dynamic storage, fast index-based access, maintains insertion order, and allows duplicate elements."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "ArrayList", "Array"],
+      "rows": [
+        ["Size", "Dynamic", "Fixed"],
+        ["Duplicates", "Allowed", "Allowed"],
+        ["Index Access", "Yes", "Yes"],
+        ["Built-in Methods", "Many", "Few"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "List is an interface for ordered collections.",
+        "ArrayList implements the List interface.",
+        "ArrayList maintains insertion order.",
+        "Duplicate elements are allowed.",
+        "ArrayList grows dynamically.",
+        "Access by index is O(1)."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface does ArrayList implement?",
+      "options": ["Set", "Queue", "List", "Map"],
+      "answer": "List"
+    },
+    {
+      "type": "quiz",
+      "question": "Which operation has O(1) time complexity in an ArrayList?",
+      "options": [
+        "Search",
+        "Insert in Middle",
+        "Access by Index",
+        "Delete by Index"
+      ],
+      "answer": "Access by Index"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about ArrayList is correct?",
+      "options": [
+        "It stores unique elements only.",
+        "Its size is fixed after creation.",
+        "It maintains insertion order and allows duplicates.",
+        "It belongs to the Map hierarchy."
+      ],
+      "answer": "It maintains insertion order and allows duplicates."
+    }
+  ]
+}

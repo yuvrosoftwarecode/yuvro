@@ -1,0 +1,285 @@
+{
+  "sub_unit_name": "Collections Framework",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Collections Framework?",
+      "description": "The Java Collections Framework (JCF) is a unified architecture that provides interfaces, implementations, and algorithms to efficiently store, manipulate, and process groups of objects."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Arrays have a fixed size and limited functionality. The <strong>Java Collections Framework (JCF)</strong> provides dynamic data structures such as lists, sets, queues, and maps that can grow or shrink during program execution. It also offers powerful utility methods for searching, sorting, and manipulating collections.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Collections?",
+      "content": "Collections are used extensively in Java applications for managing data efficiently and are one of the most frequently tested topics in coding interviews."
+    },
+    {
+      "type": "diagram",
+      "title": "Collections Framework Hierarchy",
+      "steps": [
+        "Iterable",
+        "Collection",
+        "List / Set / Queue",
+        "ArrayList, LinkedList, HashSet, PriorityQueue",
+        "Map (Separate Hierarchy)"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Core Interfaces"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Collections Framework consists of several interfaces that define how groups of objects should be stored and manipulated.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Interface", "Purpose"],
+      "rows": [
+        ["List", "Ordered collection with duplicate elements."],
+        ["Set", "Stores unique elements."],
+        ["Queue", "Processes elements in insertion order or priority."],
+        ["Map", "Stores key-value pairs."]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Collection is the root interface for List, Set, and Queue, while Map belongs to a separate hierarchy."
+    },
+    {
+      "type": "heading",
+      "content": "List Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>List</code> interface maintains insertion order, allows duplicate elements, and supports index-based access.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ArrayList Example",
+      "code": "import java.util.*;\n\nList<String> list = new ArrayList<>();\nlist.add(\"Java\");\nlist.add(\"Python\");\nlist.add(\"Java\");\nSystem.out.println(list);"
+    },
+    {
+      "type": "heading",
+      "content": "Set Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Set</code> interface stores only unique elements. Duplicate values are automatically ignored.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "HashSet Example",
+      "code": "Set<Integer> set = new HashSet<>();\nset.add(10);\nset.add(20);\nset.add(10);\nSystem.out.println(set);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Unique Property",
+      "content": "HashSet automatically removes duplicate entries."
+    },
+    {
+      "type": "heading",
+      "content": "Queue Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Queue</code> interface is designed for processing elements in FIFO (First-In, First-Out) order, although some implementations use priorities.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Queue Example",
+      "code": "Queue<String> queue = new LinkedList<>();\nqueue.offer(\"A\");\nqueue.offer(\"B\");\nSystem.out.println(queue.poll());"
+    },
+    {
+      "type": "heading",
+      "content": "Map Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Map</code> interface stores data as key-value pairs. Keys are unique, while values may be duplicated.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "HashMap Example",
+      "code": "Map<Integer, String> map = new HashMap<>();\nmap.put(1, \"Alice\");\nmap.put(2, \"Bob\");\nSystem.out.println(map.get(1));"
+    },
+    {
+      "type": "process_flow",
+      "title": "Collection Processing",
+      "steps": [
+        "Create Collection",
+        "Add Elements",
+        "Access or Modify Data",
+        "Traverse Collection",
+        "Remove Elements"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Implementations"
+    },
+    {
+      "type": "table",
+      "headers": ["Interface", "Popular Implementation", "Best Use Case"],
+      "rows": [
+        ["List", "ArrayList", "Fast random access"],
+        ["List", "LinkedList", "Frequent insertions/deletions"],
+        ["Set", "HashSet", "Unique elements"],
+        ["Set", "TreeSet", "Sorted unique elements"],
+        ["Queue", "PriorityQueue", "Priority-based processing"],
+        ["Map", "HashMap", "Fast key-value lookup"],
+        ["Map", "TreeMap", "Sorted key-value pairs"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Collections Utility Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Collections</code> class provides static utility methods for sorting, searching, reversing, and shuffling collections.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Sorting a List",
+      "code": "List<Integer> numbers = Arrays.asList(5, 3, 8, 1);\nCollections.sort(numbers);\nSystem.out.println(numbers);"
+    },
+    {
+      "type": "heading",
+      "content": "List vs Set vs Queue vs Map"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "List",
+      "right_title": "Set / Queue / Map",
+      "left_points": [
+        "Ordered elements",
+        "Duplicates allowed",
+        "Index-based access",
+        "Example: ArrayList"
+      ],
+      "right_points": [
+        "Set stores unique values",
+        "Queue follows processing order",
+        "Map stores key-value pairs",
+        "Different use cases"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where Are Collections Used?",
+      "items": [
+        {
+          "question": "Student Management",
+          "answer": "Store lists of students dynamically."
+        },
+        {
+          "question": "Banking Systems",
+          "answer": "Maintain customer accounts using maps."
+        },
+        {
+          "question": "Task Scheduling",
+          "answer": "Manage jobs using queues."
+        },
+        {
+          "question": "Inventory Systems",
+          "answer": "Store unique product IDs using sets."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Library Organization",
+      "content": "A List is like books placed in order on a shelf, a Set is like a collection of unique book IDs, a Queue is like people waiting to borrow books, and a Map is like a catalog that links each book ID to its title."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Collections Framework is one of the most important Java interview topics. Candidates are expected to know List, Set, Map, Queue, ArrayList, LinkedList, HashMap, HashSet, TreeMap, TreeSet, and the Collections utility class."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Is Map a subtype of Collection?",
+          "answer": "No. Map belongs to a separate hierarchy."
+        },
+        {
+          "question": "Can HashSet store duplicate elements?",
+          "answer": "No. Duplicate elements are ignored."
+        },
+        {
+          "question": "Should ArrayList always be used?",
+          "answer": "No. Choose the implementation based on the application's requirements."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Choose List for ordered data, Set for unique data, Queue for processing order, and Map for key-value storage."
+    },
+    {
+      "type": "table",
+      "headers": ["Interface", "Implementation", "Primary Feature"],
+      "rows": [
+        ["List", "ArrayList", "Ordered with duplicates"],
+        ["Set", "HashSet", "Unique elements"],
+        ["Queue", "PriorityQueue", "Priority processing"],
+        ["Map", "HashMap", "Key-value pairs"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Collections Framework manages groups of objects.",
+        "List maintains order and allows duplicates.",
+        "Set stores only unique elements.",
+        "Queue processes elements in FIFO or priority order.",
+        "Map stores key-value pairs.",
+        "Collections utility class provides sorting and searching methods."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface stores duplicate elements in insertion order?",
+      "options": ["Set", "List", "Queue", "Map"],
+      "answer": "List"
+    },
+    {
+      "type": "quiz",
+      "question": "Which implementation automatically removes duplicate elements?",
+      "options": ["ArrayList", "LinkedList", "HashSet", "HashMap"],
+      "answer": "HashSet"
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface stores data as key-value pairs?",
+      "options": ["Queue", "Set", "List", "Map"],
+      "answer": "Map"
+    }
+  ]
+}

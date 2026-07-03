@@ -1,0 +1,279 @@
+{
+  "sub_unit_name": "BufferedReader & BufferedWriter",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are BufferedReader and BufferedWriter?",
+      "description": "BufferedReader and BufferedWriter are Java classes that improve file reading and writing performance by using an internal buffer, reducing the number of direct disk operations."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Reading or writing one character at a time can be slow because each operation accesses the file system. <code>BufferedReader</code> and <code>BufferedWriter</code> use an internal memory buffer to process data efficiently, making file operations faster and more suitable for large files.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Buffered Streams?",
+      "content": "BufferedReader and BufferedWriter reduce disk access, improve performance, and provide convenient methods for reading and writing text files."
+    },
+    {
+      "type": "diagram",
+      "title": "Buffered File Processing",
+      "steps": [
+        "Open File",
+        "Load Data into Buffer",
+        "Read or Write Using Buffer",
+        "Flush Remaining Data",
+        "Close File"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "BufferedReader"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>BufferedReader</code> reads text efficiently by buffering characters from an input stream. It also provides the convenient <code>readLine()</code> method for reading an entire line at once.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "BufferedReader Example",
+      "code": "import java.io.*;\n\nBufferedReader reader = new BufferedReader(new FileReader(\"student.txt\"));\nString line;\nwhile((line = reader.readLine()) != null){\n    System.out.println(line);\n}\nreader.close();"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Feature",
+      "description": "The readLine() method reads an entire line of text, making BufferedReader simpler and faster than reading characters individually."
+    },
+    {
+      "type": "heading",
+      "content": "BufferedWriter"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>BufferedWriter</code> writes characters efficiently by storing data temporarily in a buffer before writing it to the file.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "BufferedWriter Example",
+      "code": "import java.io.*;\n\nBufferedWriter writer = new BufferedWriter(new FileWriter(\"student.txt\"));\nwriter.write(\"Welcome to Java\");\nwriter.newLine();\nwriter.write(\"Buffered Writing Example\");\nwriter.close();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "Always close or flush a BufferedWriter to ensure all buffered data is written to the file."
+    },
+    {
+      "type": "heading",
+      "content": "Common Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Method", "Purpose"],
+      "rows": [
+        ["BufferedReader", "read()", "Reads one character"],
+        ["BufferedReader", "readLine()", "Reads one complete line"],
+        ["BufferedWriter", "write()", "Writes text"],
+        ["BufferedWriter", "newLine()", "Writes a new line"],
+        ["BufferedWriter", "flush()", "Writes buffered data immediately"],
+        ["BufferedReader/Writer", "close()", "Closes the stream"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "BufferedReader vs FileReader"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "FileReader",
+      "right_title": "BufferedReader",
+      "left_points": [
+        "Reads character by character",
+        "Slower for large files",
+        "No readLine() method",
+        "Less efficient"
+      ],
+      "right_points": [
+        "Uses internal buffer",
+        "Faster reading",
+        "Supports readLine()",
+        "Suitable for large files"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "BufferedWriter vs FileWriter"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "FileWriter",
+      "right_title": "BufferedWriter",
+      "left_points": [
+        "Writes directly to file",
+        "Frequent disk access",
+        "Lower performance",
+        "Suitable for small writes"
+      ],
+      "right_points": [
+        "Uses memory buffer",
+        "Reduces disk operations",
+        "Higher performance",
+        "Suitable for large text files"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Using flush()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>flush()</code> method forces all buffered output to be written immediately without closing the stream.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "flush() Example",
+      "code": "BufferedWriter writer = new BufferedWriter(new FileWriter(\"student.txt\"));\nwriter.write(\"Hello Java\");\nwriter.flush();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Buffered Writing Process",
+      "steps": [
+        "Create BufferedWriter",
+        "Store Data in Buffer",
+        "Call flush() or close()",
+        "Write Data to File",
+        "Release Resources"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where Are Buffered Streams Used?",
+      "items": [
+        {
+          "question": "Log Files",
+          "answer": "Efficiently read and write application logs."
+        },
+        {
+          "question": "Configuration Files",
+          "answer": "Read application settings line by line."
+        },
+        {
+          "question": "Report Generation",
+          "answer": "Write large reports efficiently."
+        },
+        {
+          "question": "CSV and Text Processing",
+          "answer": "Read and process large text-based datasets."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "BufferedReader vs BufferedWriter"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "BufferedReader", "BufferedWriter"],
+      "rows": [
+        ["Purpose", "Read Text", "Write Text"],
+        ["Primary Method", "readLine()", "write()"],
+        ["Performance", "Fast Reading", "Fast Writing"],
+        ["Buffer", "Yes", "Yes"],
+        ["Close Required", "Yes", "Yes"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Water Storage Tank",
+      "content": "Instead of fetching one bucket of water at a time, a storage tank collects a large amount and supplies it whenever needed. Similarly, buffered streams process data in batches to improve performance."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers commonly ask the differences between FileReader and BufferedReader, FileWriter and BufferedWriter, the purpose of buffering, readLine(), flush(), and when buffered streams should be preferred."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "What happens if BufferedWriter is not closed?",
+          "answer": "Some buffered data may never be written to the file."
+        },
+        {
+          "question": "Should BufferedReader always wrap another Reader?",
+          "answer": "Yes. It wraps another Reader such as FileReader."
+        },
+        {
+          "question": "Is flush() the same as close()?",
+          "answer": "No. flush() writes buffered data, while close() flushes the data and releases system resources."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "BufferedReader and BufferedWriter improve file I/O performance by using an internal buffer. BufferedReader is optimized for reading, while BufferedWriter is optimized for writing."
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Purpose", "Common Method"],
+      "rows": [
+        ["BufferedReader", "Read Text Efficiently", "readLine()"],
+        ["BufferedWriter", "Write Text Efficiently", "write()"],
+        ["FileReader", "Character Input", "read()"],
+        ["FileWriter", "Character Output", "write()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "BufferedReader improves reading performance using a buffer.",
+        "BufferedWriter improves writing performance using a buffer.",
+        "readLine() reads an entire line of text.",
+        "flush() writes buffered data without closing the stream.",
+        "Always close buffered streams after use.",
+        "Buffered streams are recommended for large text files."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method reads an entire line of text?",
+      "options": ["read()", "readLine()", "write()", "flush()"],
+      "answer": "readLine()"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary purpose of BufferedWriter?",
+      "options": [
+        "Read binary files",
+        "Write text efficiently using a buffer",
+        "Delete files",
+        "Create directories"
+      ],
+      "answer": "Write text efficiently using a buffer"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method writes buffered data to the file without closing the stream?",
+      "options": ["close()", "flush()", "readLine()", "createNewFile()"],
+      "answer": "flush()"
+    }
+  ]
+}

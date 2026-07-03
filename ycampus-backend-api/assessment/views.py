@@ -2089,11 +2089,11 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             # Upload enrollment photo to S3/MinIO
             enroll_photo_key = None
             try:
-                from core.storage import upload_image
+                from core.storage import upload_file
                 from django.core.files.base import ContentFile
                 user_id = submission.user_id
                 s3_key = f"mock_interviews/{user_id}/{submission.id}/enroll.jpg"
-                enroll_photo_key = upload_image(
+                enroll_photo_key = upload_file(
                     key=s3_key,
                     file_obj=ContentFile(image_bytes, name="enroll.jpg"),
                     replace_extensions=("png", "jpeg", "jpg"),
@@ -2143,12 +2143,12 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             # Upload verification photo to S3/MinIO
             verify_photo_key = None
             try:
-                from core.storage import upload_image
+                from core.storage import upload_file
                 from django.core.files.base import ContentFile
                 user_id = submission.user_id
                 ts = timezone.now().strftime("%Y%m%dT%H%M%S")
                 s3_key = f"mock_interviews/{user_id}/{submission.id}/verify_{ts}.jpg"
-                verify_photo_key = upload_image(
+                verify_photo_key = upload_file(
                     key=s3_key,
                     file_obj=ContentFile(image_bytes, name=f"verify_{ts}.jpg"),
                 )

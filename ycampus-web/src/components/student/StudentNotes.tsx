@@ -1,24 +1,36 @@
-import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote, markSubUnitComplete } from '@/services/subjectService';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import AIChatContainer from './ai-buddy/AIChatContainer';
-import { StudyToolkitPanel } from './StudyToolkit';
+import { useEffect, useRef, useState } from "react";
 import {
-  HardnessOfWaterArticle,
-  FluorideManagementArticle,
-  WaterSofteningArticle,
-  DesalinationArticle,
-  BoilerTroublesArticle,
-  BatteryTechnologyArticle,
-  FuelSolarCellsArticle,
-  CorrosionPrinciplesArticle,
-  CorrosionControlArticle
-} from './DummyLearningMaterials';
+  BookOpen,
+  Check,
+  Columns,
+  Minimize2,
+  Pencil,
+  Plus,
+  Sparkles,
+  StickyNote,
+  Trash2,
+  X,
+  Brain,
+  Zap,
+  Table as TableIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  createNote,
+  deleteNote,
+  fetchNotesBySubUnit,
+  fetchSubUnitById,
+  Note,
+  updateNote,
+  markSubUnitComplete,
+} from "@/services/subjectService";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import AIChatContainer from "./ai-buddy/AIChatContainer";
+import StudyMaterialRenderer from "@/components/shared/StudyMaterialRenderer";
+import StudyToolkitPanel from "./StudyToolkitPanel";
 
 const MaterialsView = ({
   materials,
@@ -28,10 +40,10 @@ const MaterialsView = ({
   setIsChatOpen,
   showHeader = true,
   subunit,
-  subunitId,
-  subunitName,
   isMarkedComplete,
   onMarkComplete,
+  isToolkitOpen,
+  setIsToolkitOpen,
 }: {
   materials: Note[];
   isSplitView: boolean;
@@ -40,571 +52,289 @@ const MaterialsView = ({
   setIsChatOpen: (value: boolean) => void;
   showHeader?: boolean;
   subunit?: any;
-  subunitId?: string;
-  subunitName?: string;
   isMarkedComplete?: boolean;
   onMarkComplete?: () => void;
+  isToolkitOpen?: boolean;
+  setIsToolkitOpen?: (v: boolean) => void;
 }) => {
-  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
-  const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
+  const [fontSize, setFontSize] = useState<"normal" | "large" | "extra-large">(
+    "normal",
+  );
+  const [theme, setTheme] = useState<"light" | "sepia" | "dark">("light");
 
   const themeClasses = {
-    light: 'bg-white border-gray-150 text-slate-800 shadow-sm',
-    sepia: 'bg-[#faf6ee] border-[#e8dfc7] text-[#433422] shadow-md',
-    dark: 'bg-slate-950 border-slate-900 text-slate-100 shadow-xl',
+    light: "bg-white border-gray-150 text-slate-800 shadow-sm",
+    sepia: "bg-[#faf6ee] border-[#e8dfc7] text-[#433422] shadow-md",
+    dark: "bg-slate-950 border-slate-900 text-slate-100 shadow-xl",
   };
 
   return (
-  <div className="h-full flex flex-col">
-    {showHeader && (
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div className="flex items-center gap-2 text-gray-800 font-semibold font-sans">
-          <BookOpen className="w-5 h-5 text-slate-900" />
-          <h2 className="text-lg">Study Materials</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {!isSplitView && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsSplitView(true)}
-              className="gap-2 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all font-sans"
-            >
-              <Columns className="w-4 h-4" /> Compare
-            </Button>
-          )}
-          {!isChatOpen && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsChatOpen(true)}
-              className="gap-2 rounded-xl border shadow-sm hover:shadow-md transition-all font-sans bg-white text-slate-800 border-gray-200"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-500" />
-              AI Mentor
-            </Button>
-          )}
-        </div>
-      </div>
-    )}
-
-    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
-      <div className="mb-8 mt-2 space-y-6">
-        {false && subunit && subunit.content ? (
-          <div className={`rounded-3xl p-8 border transition-all duration-300 ${themeClasses[theme]}`}>
-            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b ${
-              theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
-            }`}>
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/45 rounded-2xl shrink-0">
-                  <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <h2 className={`text-2xl font-extrabold font-sans leading-tight ${
-                    theme === 'dark' ? 'text-white' : theme === 'sepia' ? 'text-[#302010]' : 'text-slate-900'
-                  }`}>{subunit.name}</h2>
-                  <p className={`text-xs mt-1 font-medium ${
-                    theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
-                  }`}>⏱️ 5 min read &bull; Interactive Study Guide</p>
-                </div>
-              </div>
-              
-              {/* Reading Preferences Control Panel */}
-              <div className={`flex items-center gap-4 p-2 rounded-2xl border shrink-0 ${
-                theme === 'dark' ? 'bg-slate-900/60 border-slate-800' : theme === 'sepia' ? 'bg-[#ebdcb6]/20 border-[#e8dfc7]' : 'bg-gray-50/80 border-gray-150'
-              }`}>
-                {/* Font Size Adjusters */}
-                <div className={`flex items-center border-r pr-3 gap-1 ${
-                  theme === 'dark' ? 'border-slate-800' : 'border-gray-200'
-                }`}>
-                  <button 
-                    onClick={() => setFontSize('normal')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                      fontSize === 'normal' 
-                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
-                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
-                    }`}
-                  >
-                    A
-                  </button>
-                  <button 
-                    onClick={() => setFontSize('large')}
-                    className={`px-2.5 py-1 rounded-lg text-sm font-bold transition-all ${
-                      fontSize === 'large' 
-                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
-                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
-                    }`}
-                  >
-                    A+
-                  </button>
-                  <button 
-                    onClick={() => setFontSize('extra-large')}
-                    className={`px-3 py-1 rounded-lg text-md font-extrabold transition-all ${
-                      fontSize === 'extra-large' 
-                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
-                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
-                    }`}
-                  >
-                    A++
-                  </button>
-                </div>
-                
-                {/* Theme Selectors */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setTheme('light')}
-                    title="Light Mode"
-                    className={`w-5 h-5 rounded-full border-2 transition-all ${
-                      theme === 'light' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-gray-300 hover:scale-105'
-                    } bg-white`}
-                  />
-                  <button
-                    onClick={() => setTheme('sepia')}
-                    title="Sepia Mode"
-                    className={`w-5 h-5 rounded-full border-2 transition-all ${
-                      theme === 'sepia' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-[#ebdcb6] hover:scale-105'
-                    } bg-[#fcf8f2]`}
-                  />
-                  <button
-                    onClick={() => setTheme('dark')}
-                    title="Dark Mode"
-                    className={`w-5 h-5 rounded-full border-2 transition-all ${
-                      theme === 'dark' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-slate-700 hover:scale-105'
-                    } bg-slate-900`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {(() => {
-                let parsedBlocks: any[] | null = null;
-                try {
-                   if (subunit.content.trim().startsWith('[')) {
-                     parsedBlocks = JSON.parse(subunit.content);
-                     if (!Array.isArray(parsedBlocks)) parsedBlocks = null;
-                   }
-                } catch {
-                   parsedBlocks = null;
-                }
-
-                // Keyword badge styling helper
-                const renderTextWithHighlights = (text: string) => {
-                  const parts = text.split(/(O\(1\)|O\(n\)|O\(log n\))/g);
-                  return parts.map((part, i) => {
-                    if (part === 'O(1)') {
-                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-250/20 mx-1">O(1)</span>;
-                    }
-                    if (part === 'O(n)') {
-                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-250/20 mx-1">O(n)</span>;
-                    }
-                    if (part === 'O(log n)') {
-                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-250/20 mx-1">O(log n)</span>;
-                    }
-                    
-                    return (
-                      <span key={i} dangerouslySetInnerHTML={{
-                        __html: part
-                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-indigo-650 dark:text-indigo-400">$1</strong>')
-                          .replace(/`(.*?)`/g, '<code class="px-1.5 py-0.5 bg-gray-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded font-mono text-[11px]">$1</code>')
-                      }} />
-                    );
-                  });
-                };
-
-                if (parsedBlocks) {
-                  return parsedBlocks.map((block: any, idx: number) => {
-                    if (block.type === 'heading') {
-                      return (
-                        <div key={idx} className="mb-6 mt-4 shrink-0">
-                          <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-full border border-indigo-150/30">Course Topic</span>
-                          <h1 className={`text-2xl font-black mt-2 font-sans tracking-tight ${
-                            theme === 'dark' ? 'text-white' : 'text-slate-900'
-                          }`}>{block.content}</h1>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'subheading') {
-                      return (
-                        <div key={idx} className="my-6">
-                          <h3 className={`font-extrabold flex items-center gap-3 font-sans tracking-tight ${
-                            fontSize === 'normal' ? 'text-lg' : fontSize === 'large' ? 'text-xl' : 'text-2xl'
-                          } ${
-                            theme === 'dark' ? 'text-white' : 'text-slate-900'
-                          }`}>
-                            {block.content}
-                          </h3>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'box') {
-                      return (
-                        <div key={idx} className={`my-6 p-6 rounded-2xl border bg-gradient-to-br shadow-sm relative overflow-hidden ${
-                          theme === 'dark' 
-                            ? 'from-slate-900/60 to-indigo-950/20 border-indigo-900/40 text-slate-200' 
-                            : theme === 'sepia' 
-                              ? 'from-[#f5ebd6] to-[#ebdcb6] border-[#d8c7a7] text-[#4e3e2e]' 
-                              : 'from-indigo-50/50 to-blue-50/20 border-indigo-100 text-slate-800'
-                        }`}>
-                          <div className="flex gap-3">
-                            <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl shrink-0 h-fit">
-                              <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                            </div>
-                            <div>
-                              <h4 className="font-extrabold text-xs uppercase tracking-wider mb-2 text-indigo-655 dark:text-indigo-350">{block.title || 'Note'}</h4>
-                              <p className={`leading-relaxed ${
-                                fontSize === 'normal' ? 'text-[13.5px]' : fontSize === 'large' ? 'text-[15.5px]' : 'text-[17.5px]'
-                              }`}>{renderTextWithHighlights(block.content || '')}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'array') {
-                      return (
-                        <div key={idx} className={`my-6 p-6 rounded-2xl border ${
-                          theme === 'dark' ? 'bg-slate-900/40 border-slate-850' : theme === 'sepia' ? 'bg-[#ebdcb6]/10 border-[#ebdcb6]' : 'bg-gray-50/60 border-gray-150'
-                        }`}>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-4 block">Visual Array Memory Block</span>
-                          <div className="flex flex-wrap items-center gap-3">
-                            {(block.items || []).map((item: string, cellIdx: number) => (
-                              <div key={cellIdx} className="flex flex-col items-center">
-                                <span className="text-[10px] font-bold text-indigo-500 mb-1.5">idx {cellIdx}</span>
-                                <div className={`min-w-[4rem] px-4 h-14 rounded-xl border flex items-center justify-center font-bold text-xs shadow-sm transition-all hover:scale-105 ${
-                                  theme === 'dark' 
-                                    ? 'bg-slate-950 border-slate-800 text-white' 
-                                    : 'bg-white border-gray-255 text-slate-800'
-                                }`}>
-                                  {item}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'bullet_points') {
-                      return (
-                        <div key={idx} className="space-y-3 my-4 pl-1">
-                          {(block.items || []).map((item: string, lIdx: number) => {
-                            if (!item.trim()) return null;
-                            return (
-                              <div key={lIdx} className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0 animate-pulse" />
-                                <p className={`leading-relaxed font-sans ${
-                                  fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
-                                } ${
-                                  theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
-                                }`}>{renderTextWithHighlights(item)}</p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    }
-                    if (block.type === 'formula') {
-                      return (
-                        <div key={idx} className={`my-6 p-6 rounded-2xl border-l-4 bg-gradient-to-r shadow-sm flex items-center justify-between ${
-                          theme === 'dark' 
-                            ? 'from-slate-900 to-indigo-950/40 border-indigo-500 text-white' 
-                            : theme === 'sepia' 
-                              ? 'from-[#fcf8f2] to-[#ebdcb6]/20 border-[#cbb78d] text-[#302010]' 
-                              : 'from-indigo-50/30 to-blue-50/10 border-indigo-500 text-slate-900'
-                        }`}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold shrink-0 font-mono">
-                              f(x)
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Formula / Expression</span>
-                              <p className="font-mono text-xs sm:text-sm font-bold mt-0.5 tracking-wide">{block.content}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'exam_strategy') {
-                      return (
-                        <div key={idx} className="my-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200/60 shadow-sm">
-                           <h3 className="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2"><Zap className="w-5 h-5 text-amber-600" /> Exam Strategy</h3>
-                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                             {(block.items || []).map((item: string, i: number) => {
-                               if (!item.trim()) return null;
-                               return (
-                                 <div key={i} className="bg-white/60 p-2.5 rounded-lg border border-amber-200/40 text-amber-900 text-sm font-medium flex items-center gap-2">
-                                   <Check className="w-4 h-4 text-emerald-500 shrink-0" /> {item}
-                                 </div>
-                               );
-                             })}
-                           </div>
-                        </div>
-                      );
-                    }
-                    if (block.type === 'code') {
-                      return (
-                        <div key={idx} className="my-6 bg-slate-900 rounded-xl p-5 shadow-inner">
-                           <div className="flex items-center justify-between mb-3">
-                             <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{block.codeLanguage || 'Code'}</span>
-                           </div>
-                           <pre className="text-sm text-emerald-400 font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap">
-                             {block.content}
-                           </pre>
-                        </div>
-                      );
-                    }
-                    // Fallback to paragraph
-                    return (
-                      <p key={idx} className={`leading-relaxed mb-5 font-sans ${
-                        fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
-                      } ${
-                        theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
-                      }`}>
-                        {renderTextWithHighlights(block.content || '')}
-                      </p>
-                    );
-                  });
-                }
-
-                return subunit.content.split(/\n\n+/).map((block: string, idx: number) => {
-                const trimmed = block.trim();
-                if (!trimmed) return null;
-
-                // 1. Check for Uppercase Header/Title (e.g. "ARRAYS")
-                if (trimmed === trimmed.toUpperCase() && trimmed.length < 35 && !trimmed.includes('→') && !trimmed.includes('=')) {
-                  return (
-                    <div key={idx} className="mb-6 mt-4 shrink-0">
-                      <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-full border border-indigo-150/30">Course Topic</span>
-                      <h1 className={`text-2xl font-black mt-2 font-sans tracking-tight ${
-                        theme === 'dark' ? 'text-white' : 'text-slate-900'
-                      }`}>{trimmed}</h1>
-                    </div>
-                  );
-                }
-
-                // 2. Check for Real-Life Examples / Callouts
-                if (trimmed.startsWith('Real-Life Example:') || trimmed.startsWith('Real-Life Examples:')) {
-                  const lines = trimmed.split('\n');
-                  const title = lines[0];
-                  const contentLines = lines.slice(1).join('\n');
-                  return (
-                    <div key={idx} className={`my-6 p-6 rounded-2xl border bg-gradient-to-br shadow-sm relative overflow-hidden ${
-                      theme === 'dark' 
-                        ? 'from-slate-900/60 to-indigo-950/20 border-indigo-900/40 text-slate-200' 
-                        : theme === 'sepia' 
-                          ? 'from-[#f5ebd6] to-[#ebdcb6] border-[#d8c7a7] text-[#4e3e2e]' 
-                          : 'from-indigo-50/50 to-blue-50/20 border-indigo-100 text-slate-800'
-                    }`}>
-                      <div className="flex gap-3">
-                        <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl shrink-0 h-fit">
-                          <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-extrabold text-xs uppercase tracking-wider mb-2 text-indigo-655 dark:text-indigo-350">{title}</h4>
-                          <p className={`leading-relaxed ${
-                            fontSize === 'normal' ? 'text-[13.5px]' : fontSize === 'large' ? 'text-[15.5px]' : 'text-[17.5px]'
-                          }`}>{renderTextWithHighlights(contentLines)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                // 3. Check for Visual Array representation (e.g. ["Song A", "Song B", "Song C"] or Array = [10, 20, 30, 40])
-                const isStringArray = trimmed.startsWith('[') && trimmed.endsWith(']');
-                const isNumericArray = trimmed.startsWith('Array = [') && trimmed.endsWith(']');
-                if (isStringArray || isNumericArray) {
-                  let arrayItems: string[] = [];
-                  if (isStringArray) {
-                    try {
-                      arrayItems = JSON.parse(trimmed);
-                    } catch {
-                      arrayItems = trimmed.replace(/[\[\]"]/g, '').split(',').map(s => s.trim());
-                    }
-                  } else {
-                    arrayItems = trimmed.replace('Array = [', '').replace(']', '').split(',').map(s => s.trim());
-                  }
-
-                  return (
-                    <div key={idx} className={`my-6 p-6 rounded-2xl border ${
-                      theme === 'dark' ? 'bg-slate-900/40 border-slate-850' : theme === 'sepia' ? 'bg-[#ebdcb6]/10 border-[#ebdcb6]' : 'bg-gray-50/60 border-gray-150'
-                    }`}>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-4 block">Visual Array Memory Block</span>
-                      <div className="flex flex-wrap items-center gap-3">
-                        {arrayItems.map((item, cellIdx) => (
-                          <div key={cellIdx} className="flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-indigo-500 mb-1.5">idx {cellIdx}</span>
-                            <div className={`w-24 h-14 rounded-xl border flex items-center justify-center font-bold text-xs shadow-sm transition-all hover:scale-105 ${
-                              theme === 'dark' 
-                                ? 'bg-slate-950 border-slate-800 text-white' 
-                                : 'bg-white border-gray-255 text-slate-800'
-                            }`}>
-                              {item}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                }
-
-                // 4. Check for Bullet Points (lines starting with •)
-                if (trimmed.includes('•')) {
-                  const lines = trimmed.split('\n');
-                  return (
-                    <div key={idx} className="space-y-3 my-4 pl-1">
-                      {lines.map((line, lIdx) => {
-                        const content = line.replace(/^[•\s\-\*]+/, '').trim();
-                        if (!content) return null;
-                        return (
-                          <div key={lIdx} className="flex items-start gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0 animate-pulse" />
-                            <p className={`leading-relaxed font-sans ${
-                              fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
-                            } ${
-                              theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
-                            }`}>{renderTextWithHighlights(content)}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                }
-
-                // 5. Check for Math / Formulas (lines containing "=" and some variables like Base, Size, prefix)
-                const isFormula = (trimmed.includes('=') && (trimmed.includes('Base') || trimmed.includes('Size') || trimmed.includes('prefix') || trimmed.includes('Sum(') || trimmed.includes('×')));
-                if (isFormula) {
-                  return (
-                    <div key={idx} className={`my-6 p-6 rounded-2xl border-l-4 bg-gradient-to-r shadow-sm flex items-center justify-between ${
-                      theme === 'dark' 
-                        ? 'from-slate-900 to-indigo-950/40 border-indigo-500 text-white' 
-                        : theme === 'sepia' 
-                          ? 'from-[#fcf8f2] to-[#ebdcb6]/20 border-[#cbb78d] text-[#302010]' 
-                          : 'from-indigo-50/30 to-blue-50/10 border-indigo-500 text-slate-900'
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold shrink-0 font-mono">
-                          f(x)
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Formula / Expression</span>
-                          <p className="font-mono text-xs sm:text-sm font-bold mt-0.5 tracking-wide">{trimmed}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                // 6. Check for Numbered Headers / Steps
-                const isStepHeader = /^\d+\.\s+/.test(trimmed);
-                if (isStepHeader) {
-                  const lines = trimmed.split('\n');
-                  const header = lines[0];
-                  const subContent = lines.slice(1).join('\n');
-                  const num = header.match(/^(\d+)\./)?.[1] || '0';
-                  const title = header.replace(/^\d+\.\s+/, '');
-                  
-                  return (
-                    <div key={idx} className="my-6">
-                      <h3 className={`font-extrabold flex items-center gap-3 font-sans tracking-tight ${
-                        fontSize === 'normal' ? 'text-lg' : fontSize === 'large' ? 'text-xl' : 'text-2xl'
-                      } ${
-                        theme === 'dark' ? 'text-white' : 'text-slate-900'
-                      }`}>
-                        <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">{num}</span>
-                        {title}
-                      </h3>
-                      {subContent && (
-                        <p className={`mt-3 leading-relaxed font-sans pl-11 ${
-                          fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
-                        } ${
-                          theme === 'dark' ? 'text-slate-350' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
-                        }`}>{renderTextWithHighlights(subContent)}</p>
-                      )}
-                    </div>
-                  );
-                }
-
-                // 7. Fallback to normal paragraph
-                return (
-                  <p key={idx} className={`leading-relaxed mb-5 font-sans ${
-                    fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
-                  } ${
-                    theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
-                  }`}>
-                    {renderTextWithHighlights(trimmed)}
-                  </p>
-                );
-              });
-              })()}
-            </div>
-
-            {/* Mark as Completed Button */}
-            <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-              theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
-            }`}>
-              <div>
-                <h4 className={`font-bold text-sm ${
-                  theme === 'dark' ? 'text-white' : theme === 'sepia' ? 'text-[#302010]' : 'text-gray-900'
-                }`}>Finished reading?</h4>
-                <p className={`text-xs mt-0.5 ${
-                  theme === 'dark' ? 'text-slate-450' : 'text-gray-500'
-                }`}>Mark this lesson as completed to update your progress dashboard.</p>
-              </div>
-              <Button
-                onClick={onMarkComplete}
-                disabled={isMarkedComplete}
-                className={`rounded-xl px-5 py-2.5 font-sans font-semibold transition-all duration-300 shadow-sm hover:shadow-md ${
-                  isMarkedComplete 
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-not-allowed' 
-                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                }`}
-              >
-                {isMarkedComplete ? '✓ Completed' : 'Mark as Completed'}
-              </Button>
-            </div>
+    <div className="h-full flex flex-col">
+      {showHeader && (
+        <div className="flex items-center justify-between mb-4 shrink-0">
+          <div className="flex items-center gap-2 text-gray-800 font-semibold font-sans">
+            <BookOpen className="w-5 h-5 text-slate-900" />
+            <h2 className="text-lg">Study Materials</h2>
           </div>
-        ) : (() => {
-            const articles = [
-              HardnessOfWaterArticle,
-              FluorideManagementArticle,
-              WaterSofteningArticle,
-              DesalinationArticle,
-              BoilerTroublesArticle,
-              BatteryTechnologyArticle,
-              FuelSolarCellsArticle,
-              CorrosionPrinciplesArticle,
-              CorrosionControlArticle,
-            ];
-            // Deterministic pick based on subunitId so same topic always shows same article
-            const key = subunitId || subunitName || subunit?.name || 'default';
-            let hash = 0;
-            for (let i = 0; i < key.length; i++) { hash += key.charCodeAt(i); }
-            const Article = articles[hash % articles.length];
-            return <Article />;
-          })()
-        }
-      </div>
-      {materials.length === 0 ? (
-        <></>
-        //   <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
-        //   <p className="text-sm">No study materials available for this unit yet.</p>
-        // </div>
-      ) : (
-        <div className="space-y-4">
-          {materials.map((note) => (
-            <Card
-              key={note.id}
-              className="border-l-4 border-l-slate-900 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all"
-            >
-              <CardContent className="p-5 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 font-sans">
-                {note.content}
-              </CardContent>
-            </Card>
-          ))}
+          <div className="flex items-center gap-2">
+            {!isSplitView && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsSplitView(true)}
+                className="gap-2 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all font-sans"
+              >
+                <Columns className="w-4 h-4" /> Compare
+              </Button>
+            )}
+            {!isToolkitOpen && setIsToolkitOpen && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsToolkitOpen(true)}
+                className="gap-2 rounded-xl border shadow-sm hover:shadow-md transition-all font-sans bg-white text-slate-800 border-gray-200"
+              >
+                <Brain className="w-4 h-4 text-blue-500" />
+                Study Toolkit
+              </Button>
+            )}
+            {!isChatOpen && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsChatOpen(true)}
+                className="gap-2 rounded-xl border shadow-sm hover:shadow-md transition-all font-sans bg-white text-slate-800 border-gray-200"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-500" />
+                AI Mentor
+              </Button>
+            )}
+          </div>
         </div>
       )}
+
+      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
+        <div className="mb-8 mt-2 space-y-6">
+          {subunit && subunit.content ? (
+            <div
+              className={`rounded-3xl p-8 border transition-all duration-300 ${themeClasses[theme]}`}
+            >
+              <div
+                className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b ${
+                  theme === "dark"
+                    ? "border-slate-850"
+                    : theme === "sepia"
+                      ? "border-[#ebdcb6]"
+                      : "border-gray-150"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-950/45 rounded-2xl shrink-0">
+                    <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h2
+                      className={`text-2xl font-extrabold font-sans leading-tight ${
+                        theme === "dark"
+                          ? "text-white"
+                          : theme === "sepia"
+                            ? "text-[#302010]"
+                            : "text-slate-900"
+                      }`}
+                    >
+                      {subunit.name}
+                    </h2>
+                    <p
+                      className={`text-xs mt-1 font-medium ${
+                        theme === "dark" ? "text-slate-400" : "text-gray-500"
+                      }`}
+                    >
+                      â±ï¸ 5 min read &bull; Interactive Study Guide
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={`flex items-center gap-4 p-2 rounded-2xl border shrink-0 ${
+                    theme === "dark"
+                      ? "bg-slate-900/60 border-slate-800"
+                      : theme === "sepia"
+                        ? "bg-[#ebdcb6]/20 border-[#e8dfc7]"
+                        : "bg-gray-50/80 border-gray-150"
+                  }`}
+                >
+                  <div
+                    className={`flex items-center border-r pr-3 gap-1 ${
+                      theme === "dark" ? "border-slate-800" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      onClick={() => setFontSize("normal")}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                        fontSize === "normal"
+                          ? theme === "dark"
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "bg-white shadow-sm text-indigo-600"
+                          : theme === "dark"
+                            ? "text-slate-400 hover:bg-slate-800"
+                            : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      A
+                    </button>
+                    <button
+                      onClick={() => setFontSize("large")}
+                      className={`px-2.5 py-1 rounded-lg text-sm font-bold transition-all ${
+                        fontSize === "large"
+                          ? theme === "dark"
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "bg-white shadow-sm text-indigo-600"
+                          : theme === "dark"
+                            ? "text-slate-400 hover:bg-slate-800"
+                            : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      A+
+                    </button>
+                    <button
+                      onClick={() => setFontSize("extra-large")}
+                      className={`px-3 py-1 rounded-lg text-md font-extrabold transition-all ${
+                        fontSize === "extra-large"
+                          ? theme === "dark"
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "bg-white shadow-sm text-indigo-600"
+                          : theme === "dark"
+                            ? "text-slate-400 hover:bg-slate-800"
+                            : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      A++
+                    </button>
+                  </div>
+
+                  {/* Theme Selectors */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setTheme("light")}
+                      title="Light Mode"
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        theme === "light"
+                          ? "ring-2 ring-indigo-500 border-white scale-110"
+                          : "border-gray-300 hover:scale-105"
+                      } bg-white`}
+                    />
+                    <button
+                      onClick={() => setTheme("sepia")}
+                      title="Sepia Mode"
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        theme === "sepia"
+                          ? "ring-2 ring-indigo-500 border-white scale-110"
+                          : "border-[#ebdcb6] hover:scale-105"
+                      } bg-[#fcf8f2]`}
+                    />
+                    <button
+                      onClick={() => setTheme("dark")}
+                      title="Dark Mode"
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        theme === "dark"
+                          ? "ring-2 ring-indigo-500 border-white scale-110"
+                          : "border-slate-700 hover:scale-105"
+                      } bg-slate-900`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <StudyMaterialRenderer content={subunit.content} />
+              </div>
+
+              <div
+                className={`mt-12 pt-8 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  theme === "dark"
+                    ? "border-slate-850"
+                    : theme === "sepia"
+                      ? "border-[#ebdcb6]"
+                      : "border-gray-150"
+                }`}
+              >
+                <div>
+                  <h4
+                    className={`font-bold text-sm ${
+                      theme === "dark"
+                        ? "text-white"
+                        : theme === "sepia"
+                          ? "text-[#302010]"
+                          : "text-gray-900"
+                    }`}
+                  >
+                    Finished reading?
+                  </h4>
+                  <p
+                    className={`text-xs mt-0.5 ${
+                      theme === "dark" ? "text-slate-450" : "text-gray-500"
+                    }`}
+                  >
+                    Mark this lesson as completed to update your progress
+                    dashboard.
+                  </p>
+                </div>
+                <Button
+                  onClick={onMarkComplete}
+                  disabled={isMarkedComplete}
+                  className={`rounded-xl px-5 py-2.5 font-sans font-semibold transition-all duration-300 shadow-sm hover:shadow-md ${
+                    isMarkedComplete
+                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                  }`}
+                >
+                  {isMarkedComplete ? "âœ“ Completed" : "Mark as Completed"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            (() => {
+              const articles = [
+                HardnessOfWaterArticle,
+                FluorideManagementArticle,
+                WaterSofteningArticle,
+                DesalinationArticle,
+                BoilerTroublesArticle,
+                BatteryTechnologyArticle,
+                FuelSolarCellsArticle,
+                CorrosionPrinciplesArticle,
+                CorrosionControlArticle,
+              ];
+
+              const key =
+                subunitId || subunitName || subunit?.name || "default";
+              let hash = 0;
+              for (let i = 0; i < key.length; i++) {
+                hash += key.charCodeAt(i);
+              }
+              const Article = articles[hash % articles.length];
+              return <Article />;
+            })()
+          )}
+        </div>
+        {materials.length === 0 ? (
+          <></>
+        ) : (
+          <div className="space-y-4">
+            {materials.map((note) => (
+              <Card
+                key={note.id}
+                className="border-l-4 border-l-slate-900 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all"
+              >
+                <CardContent className="p-5 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 font-sans">
+                  {note.content}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
   );
 };
 
@@ -699,7 +429,7 @@ const MyNotesView = ({
               className="bg-slate-900 hover:bg-black text-white rounded-xl px-6 gap-2 shadow-lg shadow-slate-200 active:scale-95 transition-all font-sans"
             >
               <Plus className="w-4 h-4" />
-              {isCreating ? 'Saving...' : 'Save Note'}
+              {isCreating ? "Saving..." : "Save Note"}
             </Button>
           </div>
         </div>
@@ -725,10 +455,19 @@ const MyNotesView = ({
                         className="min-h-[100px] resize-none rounded-xl border border-gray-200 focus:ring-4 focus:ring-green-50 focus:border-green-200 font-sans"
                       />
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="secondary" onClick={cancelEditing} className="rounded-xl border border-gray-200 font-sans">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={cancelEditing}
+                          className="rounded-xl border border-gray-200 font-sans"
+                        >
                           <X className="w-4 h-4 mr-1" /> Cancel
                         </Button>
-                        <Button size="sm" onClick={() => handleUpdateNote(note.id)} className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 font-sans">
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateNote(note.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 font-sans"
+                        >
                           <Check className="w-4 h-4 mr-1" /> Save Update
                         </Button>
                       </div>
@@ -760,7 +499,10 @@ const MyNotesView = ({
                       </div>
                       <div className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest border-t border-gray-50 pt-3 flex items-center gap-1.5 font-sans">
                         <div className="w-1 h-1 rounded-full bg-gray-300" />
-                        {new Date(note.created_at || '').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(note.created_at || "").toLocaleDateString(
+                          undefined,
+                          { day: "numeric", month: "short", year: "numeric" },
+                        )}
                       </div>
                     </>
                   )}
@@ -776,16 +518,14 @@ const MyNotesView = ({
 
 const StudentNotes = ({
   subunitId,
-  subunitName,
-  mode = 'materials',
+  mode = "materials",
   sessionId,
   onNewSession,
   isMarkedComplete,
   onProgressUpdate,
 }: {
   subunitId: string;
-  subunitName?: string;
-  mode?: 'materials' | 'my-notes';
+  mode?: "materials" | "my-notes";
   sessionId?: string;
   onNewSession?: () => void;
   isMarkedComplete?: boolean;
@@ -795,15 +535,16 @@ const StudentNotes = ({
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [newNoteContent, setNewNoteContent] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState('');
+  const [editContent, setEditContent] = useState("");
 
   const [isSplitView, setIsSplitView] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatWidth, setChatWidth] = useState(30);
+  const [isToolkitOpen, setIsToolkitOpen] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -825,12 +566,12 @@ const StudentNotes = ({
 
     const handleMouseUp = () => setIsDragging(false);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging]);
 
@@ -847,8 +588,8 @@ const StudentNotes = ({
         setNotes(notesRes || []);
         setSubunit(subunitRes || null);
       } catch (error) {
-        console.error('Failed to load notes or subunit details', error);
-        toast.error('Failed to load study materials');
+        console.error("Failed to load notes or subunit details", error);
+        toast.error("Failed to load study materials");
         setNotes([]);
         setSubunit(null);
       } finally {
@@ -868,13 +609,13 @@ const StudentNotes = ({
         sub_unit: subunitId,
         content: newNoteContent,
       });
-      setNewNoteContent('');
-      toast.success('Note added successfully');
+      setNewNoteContent("");
+      toast.success("Note added successfully");
       const response = await fetchNotesBySubUnit(subunitId);
       setNotes(response || []);
     } catch (error) {
-      console.error('Failed to create note', error);
-      toast.error('Failed to save note');
+      console.error("Failed to create note", error);
+      toast.error("Failed to save note");
     } finally {
       setIsCreating(false);
     }
@@ -883,11 +624,11 @@ const StudentNotes = ({
   const handleDeleteNote = async (noteId: string) => {
     try {
       await deleteNote(noteId);
-      toast.success('Note deleted');
+      toast.success("Note deleted");
       setNotes(notes.filter((note) => note.id !== noteId));
     } catch (error) {
-      console.error('Failed to delete note', error);
-      toast.error('Failed to delete note');
+      console.error("Failed to delete note", error);
+      toast.error("Failed to delete note");
     }
   };
 
@@ -898,7 +639,7 @@ const StudentNotes = ({
 
   const cancelEditing = () => {
     setEditingNoteId(null);
-    setEditContent('');
+    setEditContent("");
   };
 
   const handleUpdateNote = async (noteId: string) => {
@@ -906,19 +647,23 @@ const StudentNotes = ({
 
     try {
       await updateNote(noteId, { content: editContent });
-      toast.success('Note updated');
-      setNotes(notes.map((note) => (note.id === noteId ? { ...note, content: editContent } : note)));
+      toast.success("Note updated");
+      setNotes(
+        notes.map((note) =>
+          note.id === noteId ? { ...note, content: editContent } : note,
+        ),
+      );
       setEditingNoteId(null);
     } catch (error) {
-      console.error('Failed to update note', error);
-      toast.error('Failed to update note');
+      console.error("Failed to update note", error);
+      toast.error("Failed to update note");
     }
   };
 
   const handleMarkComplete = async () => {
     try {
       await markSubUnitComplete(subunitId);
-      toast.success("Awesome job! Lesson marked as completed 🎉");
+      toast.success("Awesome job! Lesson marked as completed ðŸŽ‰");
       if (onProgressUpdate) {
         onProgressUpdate();
       }
@@ -928,17 +673,21 @@ const StudentNotes = ({
   };
 
   if (loading) {
-    return <div className="text-muted-foreground p-4 font-sans">Loading notes...</div>;
+    return (
+      <div className="text-muted-foreground p-4 font-sans">
+        Loading notes...
+      </div>
+    );
   }
 
   const myNotes = notes.filter((note) => note.user === user?.id);
   const materials = notes.filter((note) => note.user !== user?.id);
 
   const getNotesContext = () => {
-    let context = 'Context: Study notes for the current lesson.\n\n';
+    let context = "Context: Study notes for the current lesson.\n\n";
 
     if (materials.length > 0) {
-      context += '--- Study Materials provided by Instructor ---\n';
+      context += "--- Study Materials provided by Instructor ---\n";
       materials.forEach((material, index) => {
         context += `Note ${index + 1}:\n${material.content}\n\n`;
       });
@@ -958,9 +707,14 @@ const StudentNotes = ({
     return (
       <div
         ref={containerRef}
-        className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? 'select-none cursor-col-resize' : ''}`}
+        className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? "select-none cursor-col-resize" : ""}`}
       >
-        <div className="flex flex-col overflow-hidden text-sans" style={{ width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : '100%' }}>
+        <div
+          className="flex flex-col overflow-hidden text-sans"
+          style={{
+            width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : "100%",
+          }}
+        >
           <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
             <div className="font-bold text-sm text-gray-800 flex items-center gap-2">
               <Columns className="w-4 h-4 text-slate-900" />
@@ -1002,15 +756,17 @@ const StudentNotes = ({
                   setIsChatOpen={setIsChatOpen}
                   showHeader={false}
                   subunit={subunit}
-                  subunitName={subunitName}
                   isMarkedComplete={isMarkedComplete}
                   onMarkComplete={handleMarkComplete}
+                  isToolkitOpen={isToolkitOpen}
+                  setIsToolkitOpen={setIsToolkitOpen}
                 />
               </div>
             </div>
             <div className="p-6 flex flex-col overflow-hidden bg-white/30">
               <div className="flex items-center gap-2 mb-6 text-gray-600 font-semibold text-sm shrink-0">
-                <StickyNote className="w-3 h-3 text-indigo-500" /> Personal Notes
+                <StickyNote className="w-3 h-3 text-indigo-500" /> Personal
+                Notes
               </div>
               <div className="flex-1 overflow-hidden">
                 <MyNotesView
@@ -1048,7 +804,10 @@ const StudentNotes = ({
             >
               <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
             </div>
-            <div className="h-full border-l border-gray-100 p-2 animate-in slide-in-from-right duration-300" style={{ width: `${chatWidth}%` }}>
+            <div
+              className="h-full border-l border-gray-100 p-2 animate-in slide-in-from-right duration-300"
+              style={{ width: `${chatWidth}%` }}
+            >
               <AIChatContainer
                 className="w-full h-full shadow-none border-none rounded-none"
                 welcomeMessage="Hi! I can help you with your notes and materials for this unit."
@@ -1067,17 +826,21 @@ const StudentNotes = ({
   }
 
   return (
-    <div ref={containerRef} className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
-      {/* Main content area */}
+    <div
+      ref={containerRef}
+      className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? "select-none cursor-col-resize" : ""}`}
+    >
       <div
-        className="p-6 overflow-hidden flex-1 min-w-0"
+        className="p-6 overflow-hidden"
         style={{
           width: isChatOpen
-            ? `calc(${100 - chatWidth}% - 280px - 6px)`
-            : 'calc(100% - 280px)',
+            ? `calc(${100 - chatWidth}% - 6px)`
+            : isToolkitOpen
+              ? "calc(100% - 280px)"
+              : "100%",
         }}
       >
-        {mode === 'materials' ? (
+        {mode === "materials" ? (
           <MaterialsView
             materials={materials}
             isSplitView={isSplitView}
@@ -1085,10 +848,10 @@ const StudentNotes = ({
             isChatOpen={isChatOpen}
             setIsChatOpen={setIsChatOpen}
             subunit={subunit}
-            subunitId={subunitId}
-            subunitName={subunitName}
             isMarkedComplete={isMarkedComplete}
             onMarkComplete={handleMarkComplete}
+            isToolkitOpen={isToolkitOpen}
+            setIsToolkitOpen={setIsToolkitOpen}
           />
         ) : (
           <MyNotesView
@@ -1112,7 +875,18 @@ const StudentNotes = ({
         )}
       </div>
 
-      {/* AI Chat panel (slides in) */}
+      {isToolkitOpen && !isChatOpen && mode === "materials" && (
+        <div
+          className="h-full border-l border-slate-200 flex flex-col bg-white shrink-0"
+          style={{ width: "280px" }}
+        >
+          <StudyToolkitPanel
+            subunit={subunit}
+            onClose={() => setIsToolkitOpen(false)}
+          />
+        </div>
+      )}
+
       {isChatOpen && (
         <>
           <div
@@ -1124,10 +898,13 @@ const StudentNotes = ({
           >
             <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
           </div>
-          <div className="h-full border-l border-gray-100 p-2 animate-in slide-in-from-right duration-300" style={{ width: `${chatWidth}%` }}>
+          <div
+            className="h-full border-l border-gray-100 p-2 animate-in slide-in-from-right duration-300"
+            style={{ width: `${chatWidth}%` }}
+          >
             <AIChatContainer
               className="w-full h-full shadow-none border-none rounded-none"
-              welcomeMessage={`Hi! I can help you with your ${mode === 'materials' ? 'study materials' : 'personal notes'} for this lesson.`}
+              welcomeMessage={`Hi! I can help you with your ${mode === "materials" ? "study materials" : "personal notes"} for this lesson.`}
               persistenceKey={sessionId}
               chatTitle="AI Mentor - Notes"
               onClose={() => setIsChatOpen(false)}
@@ -1137,13 +914,6 @@ const StudentNotes = ({
             />
           </div>
         </>
-      )}
-
-      {/* Persistent Study Toolkit sidebar (always visible in materials mode) */}
-      {mode === 'materials' && (
-        <div className="w-[280px] shrink-0 h-full">
-          <StudyToolkitPanel onOpenAi={() => setIsChatOpen(true)} />
-        </div>
       )}
     </div>
   );

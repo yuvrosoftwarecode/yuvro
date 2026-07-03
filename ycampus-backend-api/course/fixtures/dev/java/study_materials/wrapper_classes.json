@@ -1,0 +1,280 @@
+{
+  "sub_unit_name": "Wrapper Classes",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Wrapper Classes?",
+      "description": "Wrapper classes are object representations of Java's primitive data types. They allow primitive values to be treated as objects, making them compatible with collections, generics, and utility methods."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides wrapper classes for every primitive data type. These classes belong to the <strong>java.lang</strong> package and enable developers to use primitive values wherever objects are required. Wrapper classes also provide useful methods for parsing, converting, and comparing values.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Wrapper Classes?",
+      "content": "Collections like ArrayList can only store objects, not primitive data types. Wrapper classes bridge this gap."
+    },
+    {
+      "type": "diagram",
+      "title": "Primitive to Object",
+      "steps": [
+        "Primitive Value",
+        "Wrapper Object Created",
+        "Object Used in Collection",
+        "Retrieve Primitive Value"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Primitive Types and Their Wrapper Classes"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Each primitive data type has a corresponding wrapper class with additional methods for conversions and utility operations.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Primitive Type",
+        "Wrapper Class",
+        "Example"
+      ],
+      "rows": [
+        ["byte", "Byte", "Byte b = 10;"],
+        ["short", "Short", "Short s = 20;"],
+        ["int", "Integer", "Integer num = 100;"],
+        ["long", "Long", "Long value = 500L;"],
+        ["float", "Float", "Float f = 10.5f;"],
+        ["double", "Double", "Double d = 99.99;"],
+        ["char", "Character", "Character ch = 'A';"],
+        ["boolean", "Boolean", "Boolean flag = true;"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Wrapper Classes in Java",
+      "description": "The eight wrapper classes are Byte, Short, Integer, Long, Float, Double, Character, and Boolean."
+    },
+    {
+      "type": "heading",
+      "content": "Creating Wrapper Objects"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Wrapper objects can be created using constructors (deprecated in many cases) or by using utility methods such as <code>valueOf()</code>.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating Wrapper Objects",
+      "code": "Integer number = Integer.valueOf(100);\nDouble price = Double.valueOf(199.99);\nBoolean status = Boolean.valueOf(true);"
+    },
+    {
+      "type": "process_flow",
+      "title": "Wrapper Object Creation",
+      "steps": [
+        "Primitive Value",
+        "Call valueOf()",
+        "Wrapper Object Created",
+        "Use Object in Program"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Autoboxing"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Autoboxing is the automatic conversion of a primitive value into its corresponding wrapper object. Java performs this conversion automatically when required.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Autoboxing Example",
+      "code": "int age = 21;\nInteger ageObject = age;\n\nSystem.out.println(ageObject);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Did You Know?",
+      "content": "Autoboxing was introduced in Java 5 to simplify working with wrapper classes."
+    },
+    {
+      "type": "heading",
+      "content": "Unboxing"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unboxing is the automatic conversion of a wrapper object back into its primitive value.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Unboxing Example",
+      "code": "Integer marks = 95;\nint score = marks;\n\nSystem.out.println(score);"
+    },
+    {
+      "type": "diagram",
+      "title": "Autoboxing and Unboxing",
+      "steps": [
+        "Primitive → Wrapper (Autoboxing)",
+        "Store Object",
+        "Wrapper → Primitive (Unboxing)"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Useful Wrapper Class Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Wrapper classes provide several built-in methods for converting strings, comparing values, and finding limits of data types.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Method",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        ["parseInt()", "Convert String to int", "Integer.parseInt(\"25\")"],
+        ["parseDouble()", "Convert String to double", "Double.parseDouble(\"99.5\")"],
+        ["valueOf()", "Create Wrapper Object", "Integer.valueOf(50)"],
+        ["toString()", "Convert to String", "Integer.toString(100)"],
+        ["compare()", "Compare Values", "Integer.compare(a, b)"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Wrapper Classes in Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java Collections Framework stores objects instead of primitive data types. Wrapper classes make it possible to store numeric and boolean values inside collections like ArrayList.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Wrapper Class with ArrayList",
+      "code": "ArrayList<Integer> numbers = new ArrayList<>();\nnumbers.add(10);\nnumbers.add(20);\nnumbers.add(30);"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Primitive Types",
+      "right_title": "Wrapper Classes",
+      "left_points": [
+        "Store actual values",
+        "Cannot be used in collections",
+        "Faster memory access",
+        "Limited utility methods"
+      ],
+      "right_points": [
+        "Represent objects",
+        "Used in collections",
+        "Support autoboxing",
+        "Provide many helper methods"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Gift Wrapping",
+      "content": "A primitive value is like a simple gift item. A wrapper class is like wrapping that gift inside a decorative box so it can be safely transported, stored, and handled in different situations."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about wrapper classes, autoboxing, unboxing, parseInt(), valueOf(), and the difference between primitive and wrapper types are very common in Java interviews."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why can't ArrayList<int> be used?",
+          "answer": "Because Java collections accept only objects, not primitive data types."
+        },
+        {
+          "question": "What happens if parseInt() receives an invalid number?",
+          "answer": "It throws a NumberFormatException."
+        },
+        {
+          "question": "Why should wrapper objects be checked for null before unboxing?",
+          "answer": "Unboxing a null wrapper object causes a NullPointerException."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use primitive types for performance and wrapper classes whenever objects are required, especially in collections and generics."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Example",
+        "Purpose"
+      ],
+      "rows": [
+        ["Autoboxing", "Integer x = 10;", "Primitive to Object"],
+        ["Unboxing", "int y = x;", "Object to Primitive"],
+        ["parseInt()", "Integer.parseInt(\"50\")", "String to int"],
+        ["valueOf()", "Integer.valueOf(50)", "Create Wrapper Object"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Every primitive type has a corresponding wrapper class.",
+        "Wrapper classes allow primitives to behave like objects.",
+        "Autoboxing converts primitives into wrapper objects automatically.",
+        "Unboxing converts wrapper objects back to primitives.",
+        "Wrapper classes provide useful conversion and utility methods."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which wrapper class corresponds to the int data type?",
+      "options": [
+        "Int",
+        "Integer",
+        "Number",
+        "Long"
+      ],
+      "answer": "Integer"
+    },
+    {
+      "type": "quiz",
+      "question": "What is autoboxing?",
+      "options": [
+        "Converting an object to a primitive",
+        "Automatically converting a primitive to its wrapper object",
+        "Converting a String to an Integer",
+        "Creating an array of objects"
+      ],
+      "answer": "Automatically converting a primitive to its wrapper object"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method converts a String into an int value?",
+      "options": [
+        "Integer.valueOf()",
+        "Integer.parseInt()",
+        "Integer.toString()",
+        "Integer.compare()"
+      ],
+      "answer": "Integer.parseInt()"
+    }
+  ]
+}

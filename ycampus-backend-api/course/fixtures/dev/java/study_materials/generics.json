@@ -1,0 +1,281 @@
+{
+  "sub_unit_name": "Generics",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Generics?",
+      "description": "Generics allow classes, interfaces, and methods to operate on different data types while providing compile-time type safety and eliminating unnecessary type casting."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Before Java introduced <strong>Generics</strong>, collections stored objects as <code>Object</code>, requiring explicit type casting when retrieving elements. Generics enable developers to specify the data type while creating collections or classes, making code safer, cleaner, and easier to maintain.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Generics?",
+      "content": "Generics improve type safety, reduce runtime errors, eliminate explicit casting, and make code reusable across multiple data types."
+    },
+    {
+      "type": "diagram",
+      "title": "Generics Workflow",
+      "steps": [
+        "Define Generic Type",
+        "Specify Type Parameter",
+        "Compile-Time Type Checking",
+        "Safe Data Storage",
+        "No Explicit Casting"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Generic Classes"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A generic class uses a type parameter (commonly <code>T</code>) that is replaced with an actual type when an object is created.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Generic Class Example",
+      "code": "class Box<T> {\n    private T value;\n\n    public void setValue(T value) {\n        this.value = value;\n    }\n\n    public T getValue() {\n        return value;\n    }\n}\n\nBox<String> box = new Box<>();\nbox.setValue(\"Java\");\nSystem.out.println(box.getValue());"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "The type parameter T acts as a placeholder and is replaced by an actual type during object creation."
+    },
+    {
+      "type": "heading",
+      "content": "Generic Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Generic methods work independently of generic classes and allow methods to operate on different data types.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Generic Method Example",
+      "code": "public class Demo {\n    public static <T> void print(T value) {\n        System.out.println(value);\n    }\n\n    public static void main(String[] args) {\n        print(\"Hello\");\n        print(100);\n        print(12.5);\n    }\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Compile-Time Safety",
+      "content": "Generics detect incompatible data types during compilation instead of allowing runtime ClassCastException."
+    },
+    {
+      "type": "heading",
+      "content": "Generic Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Collections such as <code>ArrayList</code>, <code>HashSet</code>, and <code>HashMap</code> commonly use generics to ensure they store only the intended data type.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Generic Collection Example",
+      "code": "ArrayList<String> names = new ArrayList<>();\nnames.add(\"Alice\");\nnames.add(\"Bob\");\nSystem.out.println(names.get(0));"
+    },
+    {
+      "type": "heading",
+      "content": "Multiple Type Parameters"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Generic classes can declare multiple type parameters when working with more than one data type.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Multiple Type Parameters",
+      "code": "class Pair<K, V> {\n    K key;\n    V value;\n\n    Pair(K key, V value) {\n        this.key = key;\n        this.value = value;\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Generics",
+      "steps": [
+        "Define Generic Type",
+        "Specify Type Parameter",
+        "Create Object",
+        "Store Values",
+        "Retrieve Values Safely"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Type Parameters"
+    },
+    {
+      "type": "table",
+      "headers": ["Symbol", "Meaning"],
+      "rows": [
+        ["T", "Type"],
+        ["E", "Element"],
+        ["K", "Key"],
+        ["V", "Value"],
+        ["N", "Number"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Generics vs Non-Generics"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Generics",
+      "right_title": "Without Generics",
+      "left_points": [
+        "Compile-time type checking",
+        "No explicit casting",
+        "Type-safe collections",
+        "Cleaner code"
+      ],
+      "right_points": [
+        "Uses Object type",
+        "Requires casting",
+        "Possible runtime errors",
+        "Less readable"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Bounded Generics"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Bounded type parameters restrict the types that can be used with generics. For example, <code>&lt;T extends Number&gt;</code> allows only numeric types.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Bounded Generic Example",
+      "code": "class Calculator<T extends Number> {\n    T number;\n\n    Calculator(T number) {\n        this.number = number;\n    }\n}"
+    },
+    {
+      "type": "complexity-card",
+      "title": "Generics Performance",
+      "time_complexity": "No additional algorithmic overhead",
+      "space_complexity": "Depends on underlying data structure"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Generics Used?",
+      "items": [
+        {
+          "question": "Collections Framework",
+          "answer": "ArrayList, HashMap, HashSet, Queue, and other collections use generics extensively."
+        },
+        {
+          "question": "Reusable Libraries",
+          "answer": "Develop generic utility classes that work with multiple data types."
+        },
+        {
+          "question": "Framework Development",
+          "answer": "Spring, Hibernate, and many Java frameworks use generics for type-safe APIs."
+        },
+        {
+          "question": "Custom Data Structures",
+          "answer": "Implement reusable stacks, queues, trees, and linked lists."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Reusable Storage Box",
+      "content": "Imagine a storage box labeled with the type of item it can hold, such as books or toys. A generic class works the same way—it accepts only the specified type, preventing accidental placement of incompatible items."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interview questions frequently cover type parameters, generic classes, generic methods, bounded types, wildcards, type erasure, and the advantages of generics over non-generic code."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can primitive data types be used directly as generic types?",
+          "answer": "No. Use wrapper classes such as Integer, Double, and Character."
+        },
+        {
+          "question": "Are generics available at runtime?",
+          "answer": "No. Java uses type erasure, so generic type information is removed during compilation."
+        },
+        {
+          "question": "Should raw types be used instead of generic types?",
+          "answer": "No. Raw types disable compile-time type checking and reduce type safety."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Generics provide compile-time type safety, reusable code, and eliminate unnecessary casting while working with different data types."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Generics", "Without Generics"],
+      "rows": [
+        ["Type Safety", "Yes", "No"],
+        ["Casting Required", "No", "Yes"],
+        ["Runtime Errors", "Reduced", "More Likely"],
+        ["Code Reusability", "High", "Lower"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Generics provide compile-time type safety.",
+        "T, E, K, and V are common type parameters.",
+        "Generic classes and methods improve code reusability.",
+        "Collections extensively use generics.",
+        "Bounded generics restrict acceptable types.",
+        "Generics eliminate most explicit type casting."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary advantage of Generics?",
+      "options": [
+        "Faster execution",
+        "Compile-time type safety",
+        "Automatic memory management",
+        "Multi-threading support"
+      ],
+      "answer": "Compile-time type safety"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type parameter is commonly used to represent a key?",
+      "options": ["T", "E", "K", "N"],
+      "answer": "K"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about Generics is correct?",
+      "options": [
+        "They allow primitive types directly.",
+        "They eliminate the need for explicit casting in most cases.",
+        "They are available at runtime without type erasure.",
+        "They make collections slower."
+      ],
+      "answer": "They eliminate the need for explicit casting in most cases."
+    }
+  ]
+}

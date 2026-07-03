@@ -1,0 +1,289 @@
+{
+  "sub_unit_name": "Object Class",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Object Class?",
+      "description": "The Object class is the root (superclass) of the Java class hierarchy. Every class in Java directly or indirectly inherits from the Object class."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In Java, the <code>Object</code> class is the parent of all classes. It provides several built-in methods such as <code>toString()</code>, <code>equals()</code>, <code>hashCode()</code>, <code>clone()</code>, <code>getClass()</code>, <code>wait()</code>, <code>notify()</code>, and <code>notifyAll()</code>. These methods provide common functionality that every Java object can use.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why is Object Class Important?",
+      "content": "Since every Java object inherits from the Object class, its methods are available throughout the Java language, making them fundamental to object-oriented programming."
+    },
+    {
+      "type": "diagram",
+      "title": "Java Class Hierarchy",
+      "steps": ["Object", "↓", "Animal", "↓", "Dog"]
+    },
+    {
+      "type": "heading",
+      "content": "Inheritance from Object"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>If a class does not explicitly extend another class, Java automatically makes it inherit from the <code>Object</code> class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Implicit Inheritance",
+      "code": "class Student {\n}\n\n// Equivalent to\nclass Student extends Object {\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Universal Parent Class",
+      "description": "Every class in Java inherits the methods of the Object class, either directly or indirectly."
+    },
+    {
+      "type": "heading",
+      "content": "Important Methods of Object Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Object class provides several methods that support object comparison, string representation, cloning, runtime information, and thread communication.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Return Type"],
+      "rows": [
+        ["toString()", "Returns string representation", "String"],
+        ["equals()", "Compares objects", "boolean"],
+        ["hashCode()", "Returns hash value", "int"],
+        ["getClass()", "Returns runtime class", "Class<?>"],
+        ["clone()", "Creates object copy", "Object"],
+        ["wait()", "Pauses current thread", "void"],
+        ["notify()", "Wakes one waiting thread", "void"],
+        ["notifyAll()", "Wakes all waiting threads", "void"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The toString() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>toString()</code> method returns a string representation of an object. It is commonly overridden to display meaningful object information.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "toString() Example",
+      "code": "class Student {\n    String name = \"Rahul\";\n\n    public String toString(){\n        return name;\n    }\n}\n\nStudent s = new Student();\nSystem.out.println(s);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Best Practice",
+      "content": "Override toString() to display meaningful information instead of the default memory reference."
+    },
+    {
+      "type": "heading",
+      "content": "The equals() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>equals()</code> method compares two objects for logical equality. By default, it compares object references, but it is commonly overridden to compare object contents.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "equals() Example",
+      "code": "String s1 = \"Java\";\nString s2 = \"Java\";\n\nSystem.out.println(s1.equals(s2));"
+    },
+    {
+      "type": "process_flow",
+      "title": "equals() Execution",
+      "steps": ["Compare Objects", "Check Object Data", "Return true or false"]
+    },
+    {
+      "type": "heading",
+      "content": "The hashCode() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>hashCode()</code> method returns an integer value representing an object's hash code. It is widely used in collections such as HashMap and HashSet.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "hashCode() Example",
+      "code": "String str = \"Java\";\nSystem.out.println(str.hashCode());"
+    },
+    {
+      "type": "heading",
+      "content": "The getClass() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>getClass()</code> method returns the runtime class information of an object.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "getClass() Example",
+      "code": "Student s = new Student();\nSystem.out.println(s.getClass().getName());"
+    },
+    {
+      "type": "heading",
+      "content": "The clone() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>clone()</code> method creates a copy of an existing object. A class must implement the <code>Cloneable</code> interface to support cloning.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "clone() Example",
+      "code": "class Student implements Cloneable {\n    protected Object clone() throws CloneNotSupportedException {\n        return super.clone();\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "wait(), notify(), and notifyAll()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>These methods are used for thread communication in Java's multithreading environment. They help synchronize multiple threads working on shared resources.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Thread Communication",
+      "steps": [
+        "Thread Waits",
+        "Another Thread Updates Resource",
+        "notify() or notifyAll()",
+        "Waiting Thread Resumes"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "equals()",
+      "right_title": "== Operator",
+      "left_points": [
+        "Compares object contents",
+        "Can be overridden",
+        "Used for logical equality",
+        "Commonly used with Strings and custom objects"
+      ],
+      "right_points": [
+        "Compares object references",
+        "Cannot be overridden",
+        "Checks memory location",
+        "Suitable for primitive comparisons"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Object Class"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Code Reusability",
+          "answer": "Common methods are available to every Java object."
+        },
+        {
+          "question": "Standard Functionality",
+          "answer": "Provides built-in methods for comparison, printing, and cloning."
+        },
+        {
+          "question": "Supports Collections",
+          "answer": "Methods like hashCode() and equals() are essential for Java Collections."
+        },
+        {
+          "question": "Supports Reflection",
+          "answer": "getClass() provides runtime class information."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Universal Identity Card",
+      "content": "Every citizen receives a basic identity card with common information. Similarly, every Java object automatically receives the common functionality provided by the Object class."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about Object class methods, especially equals(), hashCode(), toString(), clone(), and getClass(), are extremely common in Java interviews."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Does equals() compare memory addresses?",
+          "answer": "Not necessarily. It can be overridden to compare object contents."
+        },
+        {
+          "question": "Can clone() be used without Cloneable?",
+          "answer": "No. Otherwise, CloneNotSupportedException is thrown."
+        },
+        {
+          "question": "Should hashCode() be overridden when equals() is overridden?",
+          "answer": "Yes. Both methods should follow the hashCode-equals contract."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "The Object class is the root of Java's class hierarchy. Every class inherits its methods, making them available to every object in a Java program."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Common Use"],
+      "rows": [
+        ["toString()", "String representation", "Printing objects"],
+        ["equals()", "Object comparison", "Logical equality"],
+        ["hashCode()", "Hash generation", "HashMap & HashSet"],
+        ["getClass()", "Runtime information", "Reflection"],
+        ["clone()", "Copy object", "Object duplication"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Object is the parent of every Java class.",
+        "All classes inherit Object methods.",
+        "toString() returns a string representation of an object.",
+        "equals() compares object equality.",
+        "hashCode() is essential for hash-based collections.",
+        "getClass() provides runtime class information."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is the root of the Java class hierarchy?",
+      "options": ["Class", "Main", "Object", "System"],
+      "answer": "Object"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method returns a string representation of an object?",
+      "options": ["equals()", "hashCode()", "toString()", "clone()"],
+      "answer": "toString()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which Object class method returns runtime class information?",
+      "options": ["clone()", "wait()", "getClass()", "notify()"],
+      "answer": "getClass()"
+    }
+  ]
+}

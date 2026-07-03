@@ -1,0 +1,270 @@
+{
+  "sub_unit_name": "Variables & Data Types",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Variables and Data Types?",
+      "description": "Variables are named memory locations used to store data, while data types define the kind of data a variable can hold and the operations that can be performed on it."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Every Java program works with data. Before storing any value, Java requires you to declare a variable along with its <strong>data type</strong>. The data type determines the size of memory allocated, the range of values, and the operations that can be performed on the variable.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Variables Matter",
+      "content": "Variables allow programs to store, retrieve, and manipulate data efficiently during execution."
+    },
+    {
+      "type": "diagram",
+      "title": "Variable Creation Process",
+      "steps": [
+        "Choose a Data Type",
+        "Declare a Variable",
+        "Assign a Value",
+        "Use the Variable in the Program"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Declaring Variables"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A variable declaration specifies both the data type and the variable name. Variables can be initialized during declaration or later in the program.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Variable Declaration",
+      "code": "int age = 21;\ndouble salary = 45000.75;\nchar grade = 'A';\nboolean isPassed = true;\nString name = \"Rahul\";"
+    },
+    {
+      "type": "process_flow",
+      "title": "Variable Lifecycle",
+      "steps": [
+        "Declare Variable",
+        "Allocate Memory",
+        "Assign Value",
+        "Access Variable",
+        "Update Value"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Primitive Data Types"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Primitive data types are predefined by Java and store simple values directly in memory.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Data Type",
+        "Size",
+        "Example",
+        "Purpose"
+      ],
+      "rows": [
+        ["byte", "1 Byte", "100", "Small integers"],
+        ["short", "2 Bytes", "25000", "Medium integers"],
+        ["int", "4 Bytes", "100000", "Default integer type"],
+        ["long", "8 Bytes", "1000000000L", "Large integers"],
+        ["float", "4 Bytes", "12.5f", "Decimal numbers"],
+        ["double", "8 Bytes", "123.456", "High precision decimals"],
+        ["char", "2 Bytes", "'A'", "Single character"],
+        ["boolean", "1 Bit (logical)", "true", "True/False values"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Primitive Types",
+      "description": "Java provides eight primitive data types: byte, short, int, long, float, double, char, and boolean."
+    },
+    {
+      "type": "heading",
+      "content": "Non-Primitive Data Types"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Non-primitive (reference) data types store references to objects rather than actual values. Examples include String, Arrays, Classes, and Interfaces.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Reference Type Example",
+      "steps": [
+        "Variable Declared",
+        "Reference Created",
+        "Object Stored in Memory",
+        "Variable Points to Object"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Did You Know?",
+      "content": "Strings are not primitive data types in Java. They are objects of the String class."
+    },
+    {
+      "type": "heading",
+      "content": "Type Inference with var"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Starting from Java 10, local variables can be declared using the <code>var</code> keyword. The compiler automatically infers the data type based on the assigned value.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using var",
+      "code": "var city = \"Hyderabad\";\nvar marks = 95;\nvar percentage = 89.5;"
+    },
+    {
+      "type": "heading",
+      "content": "Variable Naming Rules"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java follows specific rules and conventions for naming variables to improve readability and maintainability.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Naming Rules",
+      "items": [
+        {
+          "question": "Can a variable start with a number?",
+          "answer": "No. Variable names cannot begin with digits."
+        },
+        {
+          "question": "Can keywords be used as variable names?",
+          "answer": "No. Reserved keywords like int, class, and public cannot be used."
+        },
+        {
+          "question": "What naming convention is recommended?",
+          "answer": "Use camelCase for variable names, such as studentName or totalMarks."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Primitive vs Reference Types"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Primitive Types",
+      "right_title": "Reference Types",
+      "left_points": [
+        "Store actual values",
+        "Fixed size",
+        "Faster access",
+        "Built into Java"
+      ],
+      "right_points": [
+        "Store object references",
+        "Can grow dynamically",
+        "Created using classes",
+        "Examples: String, Array"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Labeled Storage Boxes",
+      "content": "Imagine different storage boxes labeled for books, clothes, or electronics. You place only the appropriate item inside each box. Similarly, a data type determines what kind of value a variable can store."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about primitive data types, memory size, default values, variable naming rules, and the difference between primitive and reference types."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why does assigning 12.5 to an int cause an error?",
+          "answer": "Because int stores only whole numbers."
+        },
+        {
+          "question": "Why must float values end with 'f'?",
+          "answer": "Without 'f', decimal values are treated as double by default."
+        },
+        {
+          "question": "Why can't variables have duplicate names in the same scope?",
+          "answer": "Each variable name must uniquely identify a memory location within its scope."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Always choose the smallest appropriate data type to improve memory efficiency while maintaining readability."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Example",
+        "Purpose"
+      ],
+      "rows": [
+        ["Variable", "int age", "Stores data"],
+        ["Primitive Type", "double", "Stores numeric values"],
+        ["Reference Type", "String", "Stores object references"],
+        ["Initialization", "int x = 10", "Assigns initial value"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Variables store values in memory.",
+        "Every variable has a data type.",
+        "Java has eight primitive data types.",
+        "String is a reference type, not a primitive type.",
+        "Use meaningful variable names following camelCase."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which data type is used to store decimal numbers with high precision?",
+      "options": [
+        "int",
+        "char",
+        "double",
+        "boolean"
+      ],
+      "answer": "double"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is NOT a primitive data type?",
+      "options": [
+        "boolean",
+        "char",
+        "String",
+        "double"
+      ],
+      "answer": "String"
+    },
+    {
+      "type": "quiz",
+      "question": "Which naming convention is recommended for Java variables?",
+      "options": [
+        "snake_case",
+        "PascalCase",
+        "camelCase",
+        "UPPER_CASE"
+      ],
+      "answer": "camelCase"
+    }
+  ]
+}

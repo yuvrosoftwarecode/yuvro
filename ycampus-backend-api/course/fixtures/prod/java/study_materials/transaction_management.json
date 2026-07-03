@@ -1,0 +1,289 @@
+{
+  "sub_unit_name": "Transaction Management",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Transaction Management?",
+      "description": "Transaction Management in JDBC is the process of executing one or more SQL statements as a single logical unit of work. Either all operations succeed (commit) or all operations fail (rollback)."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In database applications, multiple SQL statements often depend on one another. If one statement fails, the database should not be left in an inconsistent state. <strong>Transaction Management</strong> ensures that a group of operations is treated as a single unit, maintaining data consistency and reliability.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Transaction Management?",
+      "content": "Transaction management maintains data integrity by ensuring that related database operations either complete successfully together or are completely undone."
+    },
+    {
+      "type": "diagram",
+      "title": "Transaction Workflow",
+      "steps": [
+        "Begin Transaction",
+        "Execute SQL Statements",
+        "All Successful?",
+        "Yes → Commit",
+        "No → Rollback"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "What is a Transaction?"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A transaction is a sequence of one or more SQL operations executed as a single unit. If every operation succeeds, the transaction is committed. If any operation fails, the transaction is rolled back.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A transaction follows the 'all-or-nothing' principle—either every operation succeeds or none of them are applied."
+    },
+    {
+      "type": "heading",
+      "content": "Auto-Commit Mode"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>By default, JDBC operates in <strong>auto-commit mode</strong>, meaning every SQL statement is automatically committed immediately after execution.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Disable Auto-Commit",
+      "code": "Connection con = DriverManager.getConnection(url, user, password);\ncon.setAutoCommit(false);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important",
+      "content": "To manage transactions manually, auto-commit must be disabled using setAutoCommit(false)."
+    },
+    {
+      "type": "heading",
+      "content": "Commit Operation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>commit()</code> method permanently saves all changes made during the current transaction.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Commit Example",
+      "code": "con.commit();"
+    },
+    {
+      "type": "heading",
+      "content": "Rollback Operation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>If an error occurs, the <code>rollback()</code> method reverses all changes made during the current transaction.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Rollback Example",
+      "code": "con.rollback();"
+    },
+    {
+      "type": "heading",
+      "content": "Complete Transaction Example"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The following example transfers money between two accounts. If any statement fails, the entire transaction is rolled back.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Transaction Management Example",
+      "code": "try {\n    con.setAutoCommit(false);\n\n    PreparedStatement debit = con.prepareStatement(\n        \"UPDATE accounts SET balance = balance - ? WHERE id = ?\"\n    );\n\n    PreparedStatement credit = con.prepareStatement(\n        \"UPDATE accounts SET balance = balance + ? WHERE id = ?\"\n    );\n\n    debit.setDouble(1, 1000);\n    debit.setInt(2, 101);\n    debit.executeUpdate();\n\n    credit.setDouble(1, 1000);\n    credit.setInt(2, 102);\n    credit.executeUpdate();\n\n    con.commit();\n} catch(Exception e) {\n    con.rollback();\n}"
+    },
+    {
+      "type": "heading",
+      "content": "ACID Properties"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Every database transaction follows the ACID properties to ensure reliable processing.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Description"],
+      "rows": [
+        ["Atomicity", "All operations succeed or none do."],
+        ["Consistency", "Database remains in a valid state."],
+        ["Isolation", "Transactions do not interfere with one another."],
+        ["Durability", "Committed changes are permanent."]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Savepoints"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Savepoint allows partial rollback within a transaction instead of rolling back the entire transaction.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using Savepoint",
+      "code": "Savepoint sp = con.setSavepoint();\n\n// Execute SQL statements\n\ncon.rollback(sp);"
+    },
+    {
+      "type": "heading",
+      "content": "Commit vs Rollback"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Commit",
+      "right_title": "Rollback",
+      "left_points": [
+        "Saves changes permanently",
+        "Transaction completes successfully",
+        "Cannot be undone easily",
+        "Used after successful execution"
+      ],
+      "right_points": [
+        "Cancels pending changes",
+        "Restores previous state",
+        "Occurs when an error happens",
+        "Maintains database consistency"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Transaction Processing",
+      "steps": [
+        "Disable Auto-Commit",
+        "Execute SQL Statements",
+        "Check for Errors",
+        "Commit if Successful",
+        "Rollback if Failed",
+        "Close Connection"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Transaction Processing",
+      "time_complexity": "Depends on the executed SQL statements",
+      "space_complexity": "Depends on transaction logs maintained by the database"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Transaction Management Used?",
+      "items": [
+        {
+          "question": "Banking Systems",
+          "answer": "Transfer money securely between accounts."
+        },
+        {
+          "question": "E-commerce Applications",
+          "answer": "Process orders and payments together."
+        },
+        {
+          "question": "Airline Reservation Systems",
+          "answer": "Book seats without double reservation."
+        },
+        {
+          "question": "Inventory Management",
+          "answer": "Update stock after successful purchases."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Bank Money Transfer",
+      "content": "Imagine transferring money from one bank account to another. The amount should only be deducted if it is successfully deposited into the recipient's account. If the deposit fails, the withdrawal should also be cancelled. This is exactly how database transactions work."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Transactions, commit(), rollback(), auto-commit mode, setAutoCommit(false), ACID properties, Savepoint, transaction isolation, and concurrency control are among the most frequently asked JDBC interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why should auto-commit be disabled?",
+          "answer": "Without disabling auto-commit, every SQL statement is committed immediately, making rollback impossible."
+        },
+        {
+          "question": "Should commit() be called after rollback()?",
+          "answer": "No. Rollback cancels the transaction, so commit is unnecessary."
+        },
+        {
+          "question": "Why must transactions be handled inside try-catch blocks?",
+          "answer": "Exceptions should trigger rollback to maintain database consistency."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "A transaction groups multiple SQL operations into a single unit. Use commit() to save changes and rollback() to undo them when an error occurs."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Return Type"],
+      "rows": [
+        ["setAutoCommit(false)", "Disable auto-commit", "void"],
+        ["commit()", "Save transaction", "void"],
+        ["rollback()", "Undo transaction", "void"],
+        ["setSavepoint()", "Create savepoint", "Savepoint"],
+        ["rollback(Savepoint)", "Rollback to savepoint", "void"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "A transaction is a group of SQL operations.",
+        "Disable auto-commit for manual transaction control.",
+        "Use commit() to permanently save changes.",
+        "Use rollback() when errors occur.",
+        "Transactions follow ACID properties.",
+        "Savepoints allow partial rollback."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method permanently saves the changes in a transaction?",
+      "options": ["rollback()", "commit()", "executeUpdate()", "close()"],
+      "answer": "commit()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which JDBC method disables automatic transaction commits?",
+      "options": [
+        "disableCommit()",
+        "setCommit(false)",
+        "setAutoCommit(false)",
+        "rollback(false)"
+      ],
+      "answer": "setAutoCommit(false)"
+    },
+    {
+      "type": "quiz",
+      "question": "Which ACID property ensures that either all operations succeed or none of them are applied?",
+      "options": ["Consistency", "Durability", "Isolation", "Atomicity"],
+      "answer": "Atomicity"
+    }
+  ]
+}

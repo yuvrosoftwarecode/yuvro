@@ -1,0 +1,290 @@
+{
+  "sub_unit_name": "Enums & Inner Classes",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Enums & Inner Classes?",
+      "description": "Enums are special Java types used to define a fixed set of constants, while Inner Classes are classes declared inside another class to improve encapsulation and logical grouping."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides <strong>Enums</strong> to represent predefined constant values such as days of the week or user roles. <strong>Inner Classes</strong> allow one class to be nested inside another, making code more organized and improving encapsulation. Both are widely used in modern Java applications and frameworks.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Enums & Inner Classes?",
+      "content": "Enums improve type safety by replacing integer constants, while Inner Classes help organize related code, reduce namespace pollution, and enable better object-oriented design."
+    },
+    {
+      "type": "diagram",
+      "title": "Overview",
+      "steps": [
+        "Java Program",
+        "Enum Defines Constants",
+        "Outer Class Contains Inner Class",
+        "Objects Access Nested Members",
+        "Improved Code Organization"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Enums"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An <code>enum</code> defines a collection of named constants. Each enum constant is an object of the enum type, making enums much safer than using integer or string constants.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating an Enum",
+      "code": "enum Day {\n    MONDAY,\n    TUESDAY,\n    WEDNESDAY,\n    THURSDAY,\n    FRIDAY,\n    SATURDAY,\n    SUNDAY\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Enums provide compile-time type safety because only predefined constant values are allowed."
+    },
+    {
+      "type": "heading",
+      "content": "Using an Enum"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Enum constants can be assigned to variables and compared using the equality operator (==).</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Enum Example",
+      "code": "Day today = Day.MONDAY;\n\nif (today == Day.MONDAY) {\n    System.out.println(\"Start of the work week\");\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Useful Enum Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["values()", "Returns all enum constants"],
+        ["valueOf()", "Returns enum constant by name"],
+        ["ordinal()", "Returns the constant's position"],
+        ["name()", "Returns the constant name"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Iterating Through Enum Values",
+      "code": "for (Day d : Day.values()) {\n    System.out.println(d);\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Inner Classes"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An <strong>Inner Class</strong> is declared inside another class. It has access to all members, including private members, of the outer class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Member Inner Class",
+      "code": "class Outer {\n    private int x = 10;\n\n    class Inner {\n        void display() {\n            System.out.println(x);\n        }\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Types of Inner Classes"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Description"],
+      "rows": [
+        ["Member Inner Class", "Declared as a member of another class"],
+        ["Static Nested Class", "Declared using the static keyword"],
+        ["Local Inner Class", "Declared inside a method"],
+        ["Anonymous Inner Class", "Declared without a class name"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Static Nested Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A static nested class behaves like a static member of the outer class and can be instantiated without creating an outer class object.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Nested Class Example",
+      "code": "class Outer {\n    static class Nested {\n        void show() {\n            System.out.println(\"Static Nested Class\");\n        }\n    }\n}\n\nOuter.Nested obj = new Outer.Nested();"
+    },
+    {
+      "type": "heading",
+      "content": "Anonymous Inner Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An anonymous inner class is used to create a one-time implementation of an interface or superclass without defining a separate class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Anonymous Inner Class Example",
+      "code": "Runnable task = new Runnable() {\n    @Override\n    public void run() {\n        System.out.println(\"Running...\");\n    }\n};"
+    },
+    {
+      "type": "heading",
+      "content": "Enums vs Constants"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Integer Constants",
+      "right_title": "Enums",
+      "left_points": [
+        "Less type-safe",
+        "Easy to misuse",
+        "Harder to maintain",
+        "Limited functionality"
+      ],
+      "right_points": [
+        "Type-safe",
+        "Readable code",
+        "Built-in methods",
+        "Can contain fields and methods"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Working with Enums & Inner Classes",
+      "steps": [
+        "Define Enum or Outer Class",
+        "Create Constants or Inner Class",
+        "Instantiate Object",
+        "Access Members",
+        "Execute Program"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Enums & Inner Classes",
+      "time_complexity": "O(1) for accessing enum constants or inner class members",
+      "space_complexity": "Minimal object overhead depending on implementation"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Enums & Inner Classes Used?",
+      "items": [
+        {
+          "question": "Spring Framework",
+          "answer": "Enums represent application states and configuration values."
+        },
+        {
+          "question": "GUI Applications",
+          "answer": "Anonymous inner classes handle button click events."
+        },
+        {
+          "question": "Banking Systems",
+          "answer": "Enums define account types and transaction statuses."
+        },
+        {
+          "question": "Enterprise Applications",
+          "answer": "Inner classes encapsulate helper functionality within classes."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Company Departments",
+      "content": "Think of an enum as a list of fixed company departments like HR, Finance, and IT. An inner class is like a team that exists only within a department and works closely with it. Both help organize the company efficiently."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Enums, values(), valueOf(), ordinal(), member inner classes, static nested classes, anonymous classes, local classes, and enum advantages are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should integers be used instead of enums?",
+          "answer": "No. Enums provide type safety and make the code easier to understand."
+        },
+        {
+          "question": "Can a static nested class directly access non-static members of the outer class?",
+          "answer": "No. It can directly access only static members unless it has an outer class object."
+        },
+        {
+          "question": "Are anonymous inner classes reusable?",
+          "answer": "No. They are intended for one-time implementations."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Enums represent a fixed set of constants with type safety, while Inner Classes improve encapsulation by grouping closely related classes together."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Enum", "Fixed constants", "Days, Roles, Status"],
+        ["Member Inner Class", "Nested helper class", "Outer.Inner"],
+        ["Static Nested Class", "Static nested type", "Outer.Nested"],
+        ["Anonymous Inner Class", "One-time implementation", "Event handling"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Enums define fixed constant values.",
+        "Enums are type-safe and support methods.",
+        "Inner classes are declared inside other classes.",
+        "Java supports member, static, local, and anonymous inner classes.",
+        "Anonymous inner classes are commonly used for event handling.",
+        "Enums and inner classes improve code organization and maintainability."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which Java feature is used to define a fixed set of constants?",
+      "options": ["Class", "Interface", "Enum", "Package"],
+      "answer": "Enum"
+    },
+    {
+      "type": "quiz",
+      "question": "Which enum method returns all constants of an enum?",
+      "options": ["getAll()", "list()", "values()", "constants()"],
+      "answer": "values()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of inner class is commonly used for one-time implementations of interfaces?",
+      "options": [
+        "Member Inner Class",
+        "Static Nested Class",
+        "Local Inner Class",
+        "Anonymous Inner Class"
+      ],
+      "answer": "Anonymous Inner Class"
+    }
+  ]
+}

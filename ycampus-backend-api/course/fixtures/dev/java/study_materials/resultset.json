@@ -1,0 +1,301 @@
+{
+  "sub_unit_name": "ResultSet",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is ResultSet?",
+      "description": "ResultSet is a JDBC interface that represents the data returned by a SQL SELECT query. It allows Java applications to retrieve and process rows returned from a database."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>When a <strong>SELECT</strong> query is executed using JDBC, the database returns the matching records as a <code>ResultSet</code>. The ResultSet object acts like a cursor that points to one row at a time, allowing applications to iterate through records and retrieve column values using various getter methods.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use ResultSet?",
+      "content": "ResultSet provides an organized way to access database records one row at a time while supporting different data types such as integers, strings, dates, and floating-point numbers."
+    },
+    {
+      "type": "diagram",
+      "title": "ResultSet Workflow",
+      "steps": [
+        "Execute SELECT Query",
+        "Database Returns Rows",
+        "Create ResultSet",
+        "Move Cursor Using next()",
+        "Read Column Values"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating a ResultSet"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A ResultSet object is obtained by executing a SELECT query using either Statement or PreparedStatement.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a ResultSet",
+      "code": "Statement stmt = con.createStatement();\nResultSet rs = stmt.executeQuery(\"SELECT * FROM students\");"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "The ResultSet cursor starts before the first row. Calling next() moves the cursor to the next available record."
+    },
+    {
+      "type": "heading",
+      "content": "Traversing ResultSet"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>next()</code> method moves the cursor to the next row. It returns <code>true</code> if another row exists; otherwise, it returns <code>false</code>.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Iterating Through Records",
+      "code": "while (rs.next()) {\n    System.out.println(rs.getInt(\"id\") + \" \" + rs.getString(\"name\"));\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Getter Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>ResultSet provides various getter methods to retrieve values according to their data types.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Returns"],
+      "rows": [
+        ["getInt()", "Integer value"],
+        ["getString()", "String value"],
+        ["getDouble()", "Double value"],
+        ["getBoolean()", "Boolean value"],
+        ["getDate()", "SQL Date"],
+        ["getFloat()", "Float value"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reading Column Values",
+      "code": "int id = rs.getInt(\"id\");\nString name = rs.getString(\"name\");\ndouble marks = rs.getDouble(\"marks\");"
+    },
+    {
+      "type": "heading",
+      "content": "Accessing Columns"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Column values can be accessed either by column name or by column index (starting from 1).</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "By Column Name",
+      "right_title": "By Column Index",
+      "left_points": [
+        "Easy to read",
+        "Independent of column order",
+        "Preferred approach",
+        "More maintainable"
+      ],
+      "right_points": [
+        "Uses integer positions",
+        "Slightly faster",
+        "Depends on column order",
+        "Less readable"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Column Access Example",
+      "code": "String name = rs.getString(\"name\");\nString city = rs.getString(3);"
+    },
+    {
+      "type": "heading",
+      "content": "Cursor Movement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Besides next(), scrollable ResultSet objects provide additional cursor movement methods.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["next()", "Move to next row"],
+        ["previous()", "Move to previous row"],
+        ["first()", "Move to first row"],
+        ["last()", "Move to last row"],
+        ["beforeFirst()", "Move before first row"],
+        ["afterLast()", "Move after last row"]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Note",
+      "content": "Methods like previous(), first(), and last() require a scrollable ResultSet. By default, ResultSet objects are forward-only."
+    },
+    {
+      "type": "process_flow",
+      "title": "Processing Query Results",
+      "steps": [
+        "Execute SELECT Query",
+        "Receive ResultSet",
+        "Move Cursor",
+        "Read Values",
+        "Process Data",
+        "Close Resources"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "ResultSet Types"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Description"],
+      "rows": [
+        ["TYPE_FORWARD_ONLY", "Cursor moves only forward"],
+        [
+          "TYPE_SCROLL_INSENSITIVE",
+          "Supports scrolling; ignores database changes"
+        ],
+        [
+          "TYPE_SCROLL_SENSITIVE",
+          "Supports scrolling and reflects database changes"
+        ]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "ResultSet Traversal",
+      "time_complexity": "O(n) for traversing n rows",
+      "space_complexity": "Depends on JDBC driver and fetched data"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is ResultSet Used?",
+      "items": [
+        {
+          "question": "Student Management Systems",
+          "answer": "Retrieve student records from databases."
+        },
+        {
+          "question": "Banking Applications",
+          "answer": "Display account and transaction information."
+        },
+        {
+          "question": "E-commerce Websites",
+          "answer": "Retrieve product and customer information."
+        },
+        {
+          "question": "Reporting Systems",
+          "answer": "Generate reports from database records."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Reading a Spreadsheet",
+      "content": "Imagine reading an Excel spreadsheet row by row. You move to each row, read the values from its columns, and continue until all rows have been processed. ResultSet works in the same way."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "ResultSet, cursor movement, next(), getInt(), getString(), ResultSet types, scrollable ResultSet, column indexing, PreparedStatement, and JDBC CRUD operations are commonly asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why must next() be called before reading data?",
+          "answer": "The cursor initially points before the first row. Calling next() positions it on the first available record."
+        },
+        {
+          "question": "Can ResultSet be used after closing the Statement or Connection?",
+          "answer": "No. Closing the associated Statement or Connection usually closes the ResultSet as well."
+        },
+        {
+          "question": "Should column indexes always be preferred?",
+          "answer": "No. Accessing columns by name improves readability and maintainability."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "ResultSet stores rows returned by SELECT queries and allows applications to traverse records using a cursor."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Return Type"],
+      "rows": [
+        ["next()", "Move to next row", "boolean"],
+        ["getInt()", "Read integer value", "int"],
+        ["getString()", "Read string value", "String"],
+        ["first()", "Move to first row", "boolean"],
+        ["last()", "Move to last row", "boolean"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "ResultSet stores rows returned by SELECT queries.",
+        "The cursor starts before the first row.",
+        "Use next() to move through records.",
+        "Getter methods retrieve typed column values.",
+        "Columns can be accessed by name or index.",
+        "Always close ResultSet after use."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method moves the ResultSet cursor to the next row?",
+      "options": ["move()", "next()", "advance()", "forward()"],
+      "answer": "next()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method retrieves a String value from a ResultSet?",
+      "options": [
+        "readString()",
+        "fetchString()",
+        "getString()",
+        "stringValue()"
+      ],
+      "answer": "getString()"
+    },
+    {
+      "type": "quiz",
+      "question": "Where does the ResultSet cursor point immediately after creation?",
+      "options": [
+        "First row",
+        "Last row",
+        "Before the first row",
+        "After the last row"
+      ],
+      "answer": "Before the first row"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ urlpatterns = [
     path(
         "profile/upload-image/",
         views.upload_profile_image,
-        name="profile_upload_image",
+        name="profile_upload_file",
     ),
     path("user/", views.user_info_view, name="user_info"),
     path(

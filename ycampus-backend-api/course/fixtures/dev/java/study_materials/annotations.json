@@ -1,0 +1,315 @@
+{
+  "sub_unit_name": "Annotations",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Annotations?",
+      "description": "Annotations are metadata added to Java code that provide additional information to the compiler, JVM, or frameworks. They do not directly change program logic but influence how the code is processed."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Annotations</strong> were introduced in Java 5 to allow developers to attach metadata to classes, methods, fields, constructors, parameters, and other program elements. They help improve code readability, enable compile-time checking, generate code automatically, and are heavily used in frameworks like Spring, Hibernate, and JUnit.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Annotations?",
+      "content": "Annotations reduce boilerplate code, improve maintainability, enable framework features, and provide useful information to the compiler and runtime."
+    },
+    {
+      "type": "diagram",
+      "title": "Annotation Processing Flow",
+      "steps": [
+        "Write Java Code",
+        "Add Annotation",
+        "Compiler/JVM Reads Metadata",
+        "Framework or Tool Processes Annotation",
+        "Desired Behavior Executed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Built-in Annotations"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides several built-in annotations that assist the compiler and improve code quality.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Annotation", "Purpose"],
+      "rows": [
+        ["@Override", "Ensures a method overrides a superclass method"],
+        ["@Deprecated", "Marks an API as obsolete"],
+        ["@SuppressWarnings", "Suppresses compiler warnings"],
+        ["@FunctionalInterface", "Marks an interface as functional"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Annotations provide metadata—they describe the code rather than directly executing program logic."
+    },
+    {
+      "type": "heading",
+      "content": "@Override Annotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>@Override</code> annotation tells the compiler that a method is intended to override a superclass method. If the method signature is incorrect, the compiler reports an error.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "@Override Example",
+      "code": "class Animal {\n    void sound() {\n        System.out.println(\"Animal Sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    void sound() {\n        System.out.println(\"Bark\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "@Deprecated Annotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>@Deprecated</code> annotation indicates that a class, method, or field should no longer be used because a better alternative exists.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "@Deprecated Example",
+      "code": "@Deprecated\nvoid oldMethod() {\n    System.out.println(\"Old implementation\");\n}"
+    },
+    {
+      "type": "heading",
+      "content": "@SuppressWarnings Annotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>@SuppressWarnings</code> annotation suppresses specific compiler warnings when the developer intentionally wants to ignore them.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "@SuppressWarnings Example",
+      "code": "@SuppressWarnings(\"unchecked\")\nList list = new ArrayList();"
+    },
+    {
+      "type": "heading",
+      "content": "@FunctionalInterface Annotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>@FunctionalInterface</code> annotation ensures that an interface contains exactly one abstract method, making it suitable for lambda expressions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "@FunctionalInterface Example",
+      "code": "@FunctionalInterface\ninterface Calculator {\n    int add(int a, int b);\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Custom Annotations"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Developers can create their own annotations to provide metadata specific to their applications or frameworks.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Custom Annotation",
+      "code": "@interface Author {\n    String name();\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Annotation Targets"
+    },
+    {
+      "type": "table",
+      "headers": ["Target", "Description"],
+      "rows": [
+        ["Class", "Applied to classes"],
+        ["Method", "Applied to methods"],
+        ["Field", "Applied to variables"],
+        ["Constructor", "Applied to constructors"],
+        ["Parameter", "Applied to method parameters"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Retention Policies"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Retention policies determine how long annotation information is available.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Policy", "Availability"],
+      "rows": [
+        ["SOURCE", "Available only during compilation"],
+        ["CLASS", "Stored in class file but not available at runtime"],
+        ["RUNTIME", "Available during program execution via reflection"]
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Using an Annotation",
+      "steps": [
+        "Create or Choose Annotation",
+        "Apply to Java Element",
+        "Compile Program",
+        "Compiler/JVM Processes Annotation",
+        "Framework Uses Metadata"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Built-in vs Custom Annotations"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Built-in Annotations",
+      "right_title": "Custom Annotations",
+      "left_points": [
+        "Provided by Java",
+        "Compiler support",
+        "Ready to use",
+        "Examples: @Override, @Deprecated"
+      ],
+      "right_points": [
+        "Created by developers",
+        "Application-specific",
+        "Can store custom metadata",
+        "Often used with reflection"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Annotation Processing",
+      "time_complexity": "Depends on annotation processors and reflection usage",
+      "space_complexity": "Minimal metadata storage overhead"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Annotations Used?",
+      "items": [
+        {
+          "question": "Spring Framework",
+          "answer": "Dependency injection, REST APIs, configuration, and component scanning."
+        },
+        {
+          "question": "Hibernate",
+          "answer": "Object-relational mapping (ORM) between Java objects and database tables."
+        },
+        {
+          "question": "JUnit",
+          "answer": "Mark test methods and configure test execution."
+        },
+        {
+          "question": "Compiler",
+          "answer": "Perform compile-time validation and warning management."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Sticky Notes on Documents",
+      "content": "Imagine attaching sticky notes to important documents. The notes don't change the document's content but provide instructions or additional information for people reading it. Annotations work the same way by attaching metadata to Java code."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Annotations, @Override, @Deprecated, @SuppressWarnings, @FunctionalInterface, custom annotations, retention policies, target elements, reflection, and annotation processing are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Do annotations execute business logic?",
+          "answer": "No. They only provide metadata that is interpreted by the compiler, JVM, or frameworks."
+        },
+        {
+          "question": "Can @Override be applied to any method?",
+          "answer": "No. It should only be used for methods that actually override a superclass or interface method."
+        },
+        {
+          "question": "Are custom annotations automatically processed?",
+          "answer": "No. They require annotation processors or reflection to be useful."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Annotations provide metadata to Java code, helping the compiler, JVM, and frameworks perform additional processing without changing the program's core logic."
+    },
+    {
+      "type": "table",
+      "headers": ["Annotation", "Purpose", "Common Usage"],
+      "rows": [
+        ["@Override", "Verify method overriding", "Inheritance"],
+        ["@Deprecated", "Mark obsolete APIs", "API Evolution"],
+        ["@SuppressWarnings", "Hide compiler warnings", "Legacy Code"],
+        [
+          "@FunctionalInterface",
+          "Define functional interfaces",
+          "Lambda Expressions"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Annotations are metadata for Java code.",
+        "They improve readability and reduce boilerplate.",
+        "@Override verifies method overriding.",
+        "@Deprecated marks obsolete APIs.",
+        "@SuppressWarnings suppresses compiler warnings.",
+        "Custom annotations are widely used in frameworks like Spring and Hibernate."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which annotation verifies that a method overrides a superclass method?",
+      "options": [
+        "@Deprecated",
+        "@FunctionalInterface",
+        "@Override",
+        "@SuppressWarnings"
+      ],
+      "answer": "@Override"
+    },
+    {
+      "type": "quiz",
+      "question": "Which annotation marks an API as obsolete?",
+      "options": ["@SuppressWarnings", "@Deprecated", "@Retention", "@Target"],
+      "answer": "@Deprecated"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary purpose of Java annotations?",
+      "options": [
+        "Execute SQL queries",
+        "Store program variables",
+        "Provide metadata about code",
+        "Replace classes"
+      ],
+      "answer": "Provide metadata about code"
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "sub_unit_name": "Custom Exceptions",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Custom Exceptions?",
+      "description": "Custom Exceptions are user-defined exception classes created by extending the Exception or RuntimeException class to represent application-specific error conditions."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides many built-in exceptions, but sometimes applications need to represent domain-specific problems such as an invalid bank transaction, insufficient balance, invalid age, or unauthorized access. In such cases, developers create <strong>Custom Exceptions</strong> to make error handling more meaningful and easier to understand.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Create Custom Exceptions?",
+      "content": "Custom exceptions make programs easier to maintain by providing meaningful names and messages for application-specific errors."
+    },
+    {
+      "type": "diagram",
+      "title": "Custom Exception Workflow",
+      "steps": [
+        "Application Checks Condition",
+        "Invalid Situation Found",
+        "Throw Custom Exception",
+        "Catch Exception",
+        "Handle Error Gracefully"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating a Custom Exception"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A custom exception is created by extending either the <code>Exception</code> class (checked exception) or the <code>RuntimeException</code> class (unchecked exception).</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Checked Custom Exception",
+      "code": "class InvalidAgeException extends Exception {\n    public InvalidAgeException(String message) {\n        super(message);\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A custom exception behaves like any other Java exception but represents a problem specific to your application."
+    },
+    {
+      "type": "heading",
+      "content": "Throwing a Custom Exception"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Once a custom exception class is created, it can be thrown using the <code>throw</code> keyword whenever a business rule is violated.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Throwing Custom Exception",
+      "code": "int age = 16;\n\nif(age < 18){\n    throw new InvalidAgeException(\"Age must be at least 18.\");\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Business Rules",
+      "content": "Custom exceptions are commonly used to enforce business rules such as minimum balance, valid user age, or product availability."
+    },
+    {
+      "type": "heading",
+      "content": "Handling a Custom Exception"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Custom exceptions can be handled using the same <code>try-catch</code> mechanism used for built-in Java exceptions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Handling Custom Exception",
+      "code": "try {\n    validateAge(16);\n} catch (InvalidAgeException e) {\n    System.out.println(e.getMessage());\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Execution Flow",
+      "steps": [
+        "Validate Input",
+        "Rule Violated",
+        "throw Custom Exception",
+        "catch Exception",
+        "Display Error Message"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Checked vs Unchecked Custom Exceptions"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Checked Custom Exception",
+      "right_title": "Unchecked Custom Exception",
+      "left_points": [
+        "Extends Exception",
+        "Compiler checks handling",
+        "Must use try-catch or throws",
+        "Suitable for recoverable errors"
+      ],
+      "right_points": [
+        "Extends RuntimeException",
+        "Handled at runtime",
+        "Handling is optional",
+        "Suitable for programming errors"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where Are Custom Exceptions Used?",
+      "items": [
+        {
+          "question": "Banking Systems",
+          "answer": "InsufficientBalanceException for low account balance."
+        },
+        {
+          "question": "Authentication",
+          "answer": "InvalidCredentialsException for incorrect login details."
+        },
+        {
+          "question": "E-Commerce",
+          "answer": "OutOfStockException when products are unavailable."
+        },
+        {
+          "question": "Education Systems",
+          "answer": "InvalidMarksException for marks outside the valid range."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Complete Example"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Custom Exception Program",
+      "code": "class InvalidAgeException extends Exception {\n    InvalidAgeException(String msg){\n        super(msg);\n    }\n}\n\npublic class Demo {\n    static void checkAge(int age) throws InvalidAgeException {\n        if(age < 18)\n            throw new InvalidAgeException(\"Not Eligible\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages"
+    },
+    {
+      "type": "table",
+      "headers": ["Advantage", "Description"],
+      "rows": [
+        ["Readable Code", "Meaningful exception names improve understanding."],
+        ["Better Debugging", "Specific errors are easier to identify."],
+        ["Business Logic", "Represents application-specific rules."],
+        ["Maintainability", "Simplifies future code updates."]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "School Admission Rules",
+      "content": "A school may reject students who do not meet the minimum age requirement by issuing a special notice. Similarly, a custom exception represents a specific rule violation with a meaningful message."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Java interviews frequently ask candidates to create custom exceptions, explain checked vs unchecked exceptions, and demonstrate when custom exceptions should be preferred over built-in exceptions."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should every error have a custom exception?",
+          "answer": "No. Use built-in exceptions whenever they accurately describe the problem."
+        },
+        {
+          "question": "Can a custom exception extend RuntimeException?",
+          "answer": "Yes. This creates an unchecked custom exception."
+        },
+        {
+          "question": "Should meaningful messages be provided?",
+          "answer": "Yes. Clear exception messages make debugging much easier."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Create custom exceptions when built-in exceptions cannot clearly represent your application's business rules or domain-specific errors."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Exception", "Checked Custom Exception", "InvalidAgeException"],
+        [
+          "RuntimeException",
+          "Unchecked Custom Exception",
+          "InvalidUserException"
+        ],
+        ["throw", "Generate Exception", "throw new InvalidAgeException()"],
+        ["throws", "Declare Exception", "checkAge() throws InvalidAgeException"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Custom exceptions represent application-specific errors.",
+        "Extend Exception for checked exceptions.",
+        "Extend RuntimeException for unchecked exceptions.",
+        "Use throw to generate custom exceptions.",
+        "Handle custom exceptions using try-catch or declare them using throws.",
+        "Meaningful exception names improve readability and debugging."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is commonly extended to create a checked custom exception?",
+      "options": ["Object", "Throwable", "Exception", "Error"],
+      "answer": "Exception"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to create a custom exception object during execution?",
+      "options": ["throws", "throw", "catch", "try"],
+      "answer": "throw"
+    },
+    {
+      "type": "quiz",
+      "question": "Why are custom exceptions used?",
+      "options": [
+        "To improve compiler speed",
+        "To represent application-specific errors",
+        "To replace all built-in exceptions",
+        "To avoid using try-catch"
+      ],
+      "answer": "To represent application-specific errors"
+    }
+  ]
+}
