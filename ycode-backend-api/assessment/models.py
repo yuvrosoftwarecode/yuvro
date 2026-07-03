@@ -134,29 +134,23 @@ class Contest(BaseAssessmentModel):
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default=PAYMENT_TYPE_UNPAID)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-    # Contests allow only one attempt per user (enforced by ContestSubmission.unique_together)
-    # Override the inherited max_attempts to always be 1 and make it non-editable
     max_attempts = models.PositiveIntegerField(
         default=1,
         editable=False,
         help_text="Contests allow exactly one attempt per user."
     )
 
-    # Registration Window
     registration_start_datetime = models.DateTimeField(null=True, blank=True)
     registration_end_datetime = models.DateTimeField(null=True, blank=True)
     allow_late_entry = models.BooleanField(default=False)
 
-    # College & Department Constraints
     open_for_all_colleges = models.BooleanField(default=True)
     allowed_colleges = models.ManyToManyField("authentication.College", blank=True, related_name="allowed_contests")
     open_for_all_departments = models.BooleanField(default=True)
     allowed_departments = models.ManyToManyField("authentication.Department", blank=True, related_name="allowed_contests")
     
-    # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
     
-    # Public Registrations (unauthenticated users)
     public_registrations = models.JSONField(default=list, blank=True, help_text="Stores details of unauthenticated users who registered for public contests")
 
     class Meta:
@@ -210,7 +204,6 @@ class MockInterview(BaseModel):
         default=30, help_text="Maximum duration in minutes"
     )
 
-    # Skills Configuration
     required_skills = models.JSONField(
         default=list, blank=True, help_text="List of required skills"
     )
@@ -316,7 +309,6 @@ class BaseUserSubmission(BaseTimestampedModel):
     user_agent = models.TextField(blank=True)
     marks = models.FloatField(null=True, blank=True)
 
-    # Post-exam AI Proctoring verification
     proctoring_passed = models.BooleanField(default=True)
     anomalies_detected = models.JSONField(default=list, blank=True)
 
@@ -331,7 +323,6 @@ class SkillTestSubmission(BaseUserSubmission):
 
     class Meta:
         ordering = ["-created_at"]
-        # Removed unique_together to allow multiple attempts (up to 3) per user per test
 
     def __str__(self):
         return f"{self.user.username} - {self.skill_test.title}"
@@ -390,12 +381,11 @@ class MockInterviewSubmission(BaseUserSubmission):
     )
 
     resume = models.FileField(upload_to="resumes/", null=True, blank=True)
-    chat_session = models.OneToOneField(
-        "ai_assistant.ChatSession",
-        on_delete=models.SET_NULL,
+    chat_session_id = models.CharField(
+        max_length=255,
         null=True,
         blank=True,
-        related_name="mock_interview_submission",
+        help_text="ID of the chat session in YHub",
     )
     interview_type = models.CharField(
         max_length=20,

@@ -45,8 +45,9 @@ class Command(BaseCommand):
                 call_command("create_test_users", deploy_env=deploy_env, verbosity=1)
             self.stdout.write("")
 
-
-
+            self.stdout.write("🤖 Seeding AI Agents...")
+            call_command("seed_agents", verbosity=1)
+            self.stdout.write("")
             self.stdout.write(
                 self.style.SUCCESS(
                     "🎉 YHub setup completed successfully!"

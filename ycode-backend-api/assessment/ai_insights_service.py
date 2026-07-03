@@ -6,14 +6,12 @@ import asyncio
 import json
 from typing import Dict, List, Any
 from django.conf import settings
-from ai_assistant.services import AIServiceFactory, AIServiceError
+from core.ai_client import AIClient
 
 
 class ContestAIInsightsService:
-    """Service for generating AI-powered insights for contest analytics."""
 
     def __init__(self):
-        """Initialize the AI service."""
         self.provider = "gemini"
         self.model_name = "gemini-2.5-flash"
         
@@ -22,24 +20,9 @@ class ContestAIInsightsService:
         student_analytics: Dict[str, Any],
         contest_title: str,
     ) -> Dict[str, Any]:
-        """
-        Generate personalized AI insights for a student's contest performance.
-        
-        Args:
-            student_analytics: Complete analytics data from ContestAnalyticsService
-            contest_title: Title of the contest
-            
-        Returns:
-            Dictionary containing AI-generated insights
-        """
         try:
-            # Create AI service
-            ai_service = AIServiceFactory.create_service(self.provider, self.model_name)
-            
-            # Prepare the prompt with student data
             prompt = self._build_student_insights_prompt(student_analytics, contest_title)
             
-            # Generate insights
             messages = [
                 {
                     "role": "system",
@@ -51,25 +34,22 @@ class ContestAIInsightsService:
                 }
             ]
             
-            response = await ai_service.generate_response(
+            response = await AIClient.generate_response(
                 messages=messages,
                 temperature=0.7,
                 max_tokens=1500
             )
             
-            # Parse the AI response
             insights = self._parse_student_insights(response.get("content", ""))
             
             return insights
             
         except AIServiceError as e:
-            # Return user-friendly error message instead of fallback
             return {
                 "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
                 "ai_generated": False
             }
         except Exception as e:
-            # Return user-friendly error message for any other errors
             return {
                 "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
                 "ai_generated": False
@@ -78,19 +58,16 @@ class ContestAIInsightsService:
     def _build_student_insights_prompt(
         self, analytics: Dict[str, Any], contest_title: str
     ) -> str:
-        """Build the prompt for AI to generate student insights."""
         perf = analytics.get("performance_overview", {})
         topics = analytics.get("topic_performance", [])
         difficulty = analytics.get("difficulty_analysis", {})
         time = analytics.get("time_analysis", {})
         behavioral = analytics.get("behavioral_insights", {})
         
-        # Identify strengths and weaknesses
         strong_topics = [t for t in topics if t.get("vs_average", 0) > 10][:3]
         weak_topics = [t for t in topics if t.get("vs_average", 0) < -10][:3]
         
-        # Determine if student passed or failed
-        passing_percentage = 40  # Typical passing threshold
+        passing_percentage = 40  
         did_pass = perf.get('percentage', 0) >= passing_percentage
         performance_level = "excellent" if perf.get('percentage', 0) >= 80 else "good" if perf.get('percentage', 0) >= 60 else "needs improvement"
         
@@ -157,13 +134,9 @@ CRITICAL GUIDELINES:
         return prompt
 
     def _parse_student_insights(self, ai_response: str) -> Dict[str, Any]:
-        """Parse the AI response into structured insights."""
         try:
-            # Try to extract JSON from the response
-            # AI might wrap it in markdown code blocks
             response_text = ai_response.strip()
             
-            # Remove markdown code blocks if present
             if response_text.startswith("```json"):
                 response_text = response_text[7:]
             elif response_text.startswith("```"):
@@ -174,10 +147,8 @@ CRITICAL GUIDELINES:
             
             response_text = response_text.strip()
             
-            # Parse JSON
             insights = json.loads(response_text)
             
-            # Validate required fields
             required_fields = [
                 "strengths", "weaknesses", "recommendations",
                 "learning_path", "motivational_message", "comparison_insight"
@@ -190,15 +161,12 @@ CRITICAL GUIDELINES:
             return insights
             
         except json.JSONDecodeError:
-            # If JSON parsing fails, return error
             return {
                 "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
                 "ai_generated": False
             }
 
     def _extract_insights_from_text(self, text: str) -> Dict[str, Any]:
-        """Extract insights from unstructured text response."""
-        # Return error instead of fallback
         return {
             "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
             "ai_generated": False
@@ -213,8 +181,6 @@ CRITICAL GUIDELINES:
         Generate AI-powered insights for a college's contest performance.
         """
         try:
-            ai_service = AIServiceFactory.create_service(self.provider, self.model_name)
-
             overview = college_analytics.get("college_overview", {})
             departments = college_analytics.get("department_breakdown", [])
             topics = college_analytics.get("topic_performance", [])
@@ -276,7 +242,7 @@ Be specific, data-driven, and actionable. Reference actual departments, topics, 
                 }
             ]
 
-            response = await ai_service.generate_response(
+            response = await AIClient.generate_response(
                 messages=messages,
                 temperature=0.7,
                 max_tokens=1500
@@ -307,10 +273,6 @@ def generate_student_insights_sync(
     student_analytics: Dict[str, Any],
     contest_title: str,
 ) -> Dict[str, Any]:
-    """
-    Synchronous wrapper for generating student insights.
-    Can be called from Django views.
-    """
     service = ContestAIInsightsService()
     loop = asyncio.new_event_loop()
     try:
@@ -326,9 +288,7 @@ def generate_college_insights_sync(
     college_analytics: Dict[str, Any],
     contest_title: str,
 ) -> Dict[str, Any]:
-    """
-    Synchronous wrapper for generating AI-powered college insights.
-    """
+
     service = ContestAIInsightsService()
     loop = asyncio.new_event_loop()
     try:
@@ -343,25 +303,14 @@ async def generate_contest_insights(
     contest_data: Dict[str, Any],
     contest_title: str,
 ) -> Dict[str, Any]:
-    """
-    Generate AI-powered insights for overall contest performance.
-    
-    Args:
-        contest_data: Complete contest report data
-        contest_title: Title of the contest
-        
-    Returns:
-        Dictionary containing AI-generated contest insights
-    """
+
     try:
-        ai_service = AIServiceFactory.create_service("gemini", "gemini-2.5-flash")
         
         summary = contest_data.get("summary", {})
         top_performers = contest_data.get("top_performers", [])[:5]
         college_breakdown = contest_data.get("college_breakdown", [])[:10]
         question_performance = contest_data.get("question_performance", [])
         
-        # Identify hardest and easiest questions
         hardest_questions = sorted(question_performance, key=lambda x: x.get("correct_percentage", 100))[:3]
         easiest_questions = sorted(question_performance, key=lambda x: x.get("correct_percentage", 0), reverse=True)[:3]
         
@@ -418,18 +367,15 @@ Each list should contain strings, and text fields should be strings."""
             }
         ]
         
-        response = await ai_service.generate_response(
+        response = await AIClient.generate_response(
             messages=messages,
             temperature=0.7,
             max_tokens=2000
         )
         
-        # Parse AI response
         content = response.get("content", "")
         
-        # Try to extract JSON from the response
         try:
-            # Remove markdown code blocks if present
             if "```json" in content:
                 content = content.split("```json")[1].split("```")[0].strip()
             elif "```" in content:
@@ -439,7 +385,6 @@ Each list should contain strings, and text fields should be strings."""
             insights["ai_generated"] = True
             return insights
         except json.JSONDecodeError:
-            # If JSON parsing fails, return error
             return {
                 "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
                 "ai_generated": False
@@ -456,7 +401,6 @@ def generate_contest_insights_sync(
     contest_data: Dict[str, Any],
     contest_title: str,
 ) -> Dict[str, Any]:
-    """Synchronous wrapper for generate_contest_insights."""
     loop = asyncio.new_event_loop()
     try:
         return loop.run_until_complete(generate_contest_insights(contest_data, contest_title))

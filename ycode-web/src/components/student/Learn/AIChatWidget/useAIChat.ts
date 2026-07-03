@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import restApiAuthUtil from '@/utils/RestApiAuthUtil';
+import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 
 export type ChatMessage = {
   id: string;
@@ -116,14 +116,14 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
 
   const storedAccess = localStorage.getItem("access");
   if (storedAccess) {
-    restApiAuthUtil.setAuthToken(storedAccess);
+    yhubApiAuthUtil.setAuthToken(storedAccess);
   }
 
   useEffect(() => {
     // Fetch available agents once
     const loadAgents = async () => {
       try {
-        const data = await restApiAuthUtil.get<Agent[]>('/agents/');
+        const data = await yhubApiAuthUtil.get<Agent[]>('/agents/');
         if (Array.isArray(data)) setAgents(data);
       } catch (err) {
         console.warn('Failed to fetch agents', err);
@@ -134,7 +134,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     // Warmup Logic: Keep AI models ready
     const triggerWarmup = async () => {
         try {
-            await restApiAuthUtil.post('/agents/warmup/', {});
+            await yhubApiAuthUtil.post('/agents/warmup/', {});
         } catch (e) {
             console.debug('Warmup silent fail', e);
         }
@@ -259,7 +259,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       const page_content = getPageContentSnippet();
       // Use generic title to hide model details from student
       const payload: any = { ai_agent: agentId, page: 'learn', title: 'AI Tutor Chat', page_content };
-      const res = await restApiAuthUtil.post<SessionResponse>('/sessions/', payload);
+      const res = await yhubApiAuthUtil.post<SessionResponse>('/sessions/', payload);
       if (res && res.id) {
         setSessionId(res.id);
         return res.id;
@@ -329,7 +329,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
         ...(sid && !sid.startsWith('local-') ? {} : { ai_agent_id: agentId })
       };
 
-      const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
+      const baseUrl = import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
       const endpoint = (sid && !sid.startsWith('local-')) 
         ? `${baseUrl}/sessions/${sid}/send_message/`
         : `${baseUrl}/chat/quick_chat/`;
@@ -509,10 +509,10 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       if (sid && !sid.startsWith('local-')) {
         const page_content = getPageContentSnippet();
         const payload = { message: content, temperature: 0.7, max_tokens: 1024, page_content, stream: false };
-        const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
+        const baseUrl = import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
         
         // Background call - don't wait for response to block UI
-        const resp = await restApiAuthUtil.post<ChatResponse>(`/sessions/${sid}/send_message/`, payload);
+        const resp = await yhubApiAuthUtil.post<ChatResponse>(`/sessions/${sid}/send_message/`, payload);
         if (resp && resp.response) {
             setPrefetchData({ prompt: content, response: resp.response, sessionId: sid });
         }
@@ -541,7 +541,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
 
     if (sessionId && !sessionId.startsWith('local-')) {
       try {
-        await restApiAuthUtil.post(`/sessions/${sessionId}/messages/${messageId}/feedback/`, {
+        await yhubApiAuthUtil.post(`/sessions/${sessionId}/messages/${messageId}/feedback/`, {
           feedback: isPositive ? 1 : -1
         });
       } catch (err) {
