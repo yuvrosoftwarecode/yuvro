@@ -1,0 +1,288 @@
+{
+  "sub_unit_name": "JDBC Basics",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is JDBC?",
+      "description": "JDBC (Java Database Connectivity) is a standard Java API that enables Java applications to connect to relational databases, execute SQL queries, and process the results."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>JDBC (Java Database Connectivity)</strong> acts as a bridge between Java applications and relational databases such as MySQL, PostgreSQL, Oracle, and SQL Server. It allows developers to establish database connections, execute SQL statements, retrieve query results, and perform CRUD (Create, Read, Update, Delete) operations.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why JDBC?",
+      "content": "JDBC provides a standard way for Java applications to communicate with different relational databases using SQL, making database operations portable and efficient."
+    },
+    {
+      "type": "diagram",
+      "title": "JDBC Architecture",
+      "steps": [
+        "Java Application",
+        "JDBC API",
+        "JDBC Driver",
+        "Database Server",
+        "Query Results"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "JDBC Components"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The JDBC API consists of several important classes and interfaces that work together to communicate with a database.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Purpose"],
+      "rows": [
+        ["DriverManager", "Establishes database connections"],
+        ["Connection", "Represents a database session"],
+        ["Statement", "Executes SQL queries"],
+        ["PreparedStatement", "Executes parameterized SQL queries"],
+        ["CallableStatement", "Executes stored procedures"],
+        ["ResultSet", "Stores query results"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "JDBC provides a database-independent API. Only the JDBC driver changes when connecting to different databases."
+    },
+    {
+      "type": "heading",
+      "content": "JDBC Workflow"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A typical JDBC program follows a series of steps to establish a connection, execute SQL statements, and retrieve results.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Steps in JDBC",
+      "steps": [
+        "Load JDBC Driver",
+        "Establish Connection",
+        "Create Statement",
+        "Execute SQL Query",
+        "Process ResultSet",
+        "Close Resources"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Establishing a Connection"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>DriverManager</code> class is commonly used to establish a connection between the Java application and the database.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Database Connection Example",
+      "code": "Connection con = DriverManager.getConnection(\n    \"jdbc:mysql://localhost:3306/studentdb\",\n    \"root\",\n    \"password\"\n);"
+    },
+    {
+      "type": "heading",
+      "content": "Executing SQL Queries"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Once connected, SQL queries can be executed using Statement or PreparedStatement objects.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Statement Example",
+      "code": "Statement stmt = con.createStatement();\nResultSet rs = stmt.executeQuery(\"SELECT * FROM students\");"
+    },
+    {
+      "type": "heading",
+      "content": "Reading Query Results"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>ResultSet</code> object stores rows returned by a SELECT query and allows iteration through each record.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ResultSet Example",
+      "code": "while(rs.next()) {\n    System.out.println(rs.getInt(\"id\") + \" \" + rs.getString(\"name\"));\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Statement vs PreparedStatement"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Statement",
+      "right_title": "PreparedStatement",
+      "left_points": [
+        "Simple SQL execution",
+        "Not precompiled",
+        "Vulnerable to SQL Injection",
+        "Suitable for static queries"
+      ],
+      "right_points": [
+        "Parameterized queries",
+        "Precompiled by database",
+        "Prevents SQL Injection",
+        "Better performance for repeated execution"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "PreparedStatement Example",
+      "code": "PreparedStatement ps = con.prepareStatement(\n    \"SELECT * FROM students WHERE id = ?\"\n);\nps.setInt(1, 101);\nResultSet rs = ps.executeQuery();"
+    },
+    {
+      "type": "heading",
+      "content": "JDBC Driver Types"
+    },
+    {
+      "type": "table",
+      "headers": ["Driver Type", "Description"],
+      "rows": [
+        ["Type 1", "JDBC-ODBC Bridge Driver"],
+        ["Type 2", "Native API Driver"],
+        ["Type 3", "Network Protocol Driver"],
+        ["Type 4", "Thin Driver (Pure Java)"]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Most Common Driver",
+      "content": "Type 4 JDBC drivers are the most widely used because they are platform-independent, written entirely in Java, and offer better performance."
+    },
+    {
+      "type": "complexity-card",
+      "title": "JDBC Query Execution",
+      "time_complexity": "Depends on SQL query and database indexing",
+      "space_complexity": "Depends on the size of the ResultSet"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is JDBC Used?",
+      "items": [
+        {
+          "question": "Web Applications",
+          "answer": "Connect Java web applications to relational databases."
+        },
+        {
+          "question": "Enterprise Software",
+          "answer": "Store and retrieve business data securely."
+        },
+        {
+          "question": "Banking Systems",
+          "answer": "Perform secure transaction processing."
+        },
+        {
+          "question": "Inventory Management",
+          "answer": "Maintain product and customer information."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Restaurant Waiter",
+      "content": "Think of JDBC as a waiter in a restaurant. The customer (Java application) places an order (SQL query), the waiter (JDBC) communicates with the kitchen (database), and finally delivers the prepared food (query result) back to the customer."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "JDBC architecture, DriverManager, Connection, Statement, PreparedStatement, ResultSet, JDBC driver types, SQL Injection prevention, transactions, and CRUD operations are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why should PreparedStatement be preferred over Statement?",
+          "answer": "PreparedStatement prevents SQL Injection attacks and improves performance for repeated queries."
+        },
+        {
+          "question": "Why should JDBC resources be closed?",
+          "answer": "Leaving connections, statements, or result sets open can lead to memory leaks and resource exhaustion."
+        },
+        {
+          "question": "Is loading the JDBC driver always required manually?",
+          "answer": "No. Modern JDBC drivers support automatic driver loading, although older versions required Class.forName()."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "JDBC provides a standard API that allows Java applications to connect to databases, execute SQL statements, and process query results."
+    },
+    {
+      "type": "table",
+      "headers": ["Class / Interface", "Responsibility", "Common Method"],
+      "rows": [
+        ["DriverManager", "Create Connection", "getConnection()"],
+        ["Connection", "Database Session", "prepareStatement()"],
+        ["Statement", "Execute SQL", "executeQuery()"],
+        ["PreparedStatement", "Parameterized SQL", "setInt(), executeUpdate()"],
+        ["ResultSet", "Read Results", "next()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "JDBC stands for Java Database Connectivity.",
+        "It connects Java applications with relational databases.",
+        "The JDBC workflow includes connecting, executing queries, processing results, and closing resources.",
+        "PreparedStatement is safer than Statement.",
+        "ResultSet stores query results.",
+        "Type 4 drivers are the most commonly used JDBC drivers."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What does JDBC stand for?",
+      "options": [
+        "Java Database Connectivity",
+        "Java Data Communication",
+        "Java Database Connector",
+        "Java Distributed Connection"
+      ],
+      "answer": "Java Database Connectivity"
+    },
+    {
+      "type": "quiz",
+      "question": "Which JDBC interface stores the result of a SELECT query?",
+      "options": ["Connection", "DriverManager", "Statement", "ResultSet"],
+      "answer": "ResultSet"
+    },
+    {
+      "type": "quiz",
+      "question": "Which JDBC object is recommended for executing parameterized SQL queries?",
+      "options": [
+        "Statement",
+        "PreparedStatement",
+        "CallableStatement",
+        "ResultSet"
+      ],
+      "answer": "PreparedStatement"
+    }
+  ]
+}

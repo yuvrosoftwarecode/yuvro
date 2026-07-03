@@ -1,0 +1,269 @@
+{
+  "sub_unit_name": "StringBuilder & StringBuffer",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are StringBuilder and StringBuffer?",
+      "description": "StringBuilder and StringBuffer are mutable classes in Java used to modify strings efficiently without creating new objects. StringBuilder is faster, while StringBuffer is thread-safe."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike the <code>String</code> class, which is immutable, <code>StringBuilder</code> and <code>StringBuffer</code> allow modifications to the same object. They are ideal when performing frequent string operations such as appending, inserting, deleting, or reversing text.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use StringBuilder or StringBuffer?",
+      "content": "Repeated string modifications using String create many temporary objects. StringBuilder and StringBuffer improve performance by modifying the same object."
+    },
+    {
+      "type": "diagram",
+      "title": "String Modification Process",
+      "steps": [
+        "Create Mutable Object",
+        "Append or Modify Text",
+        "Same Object Updated",
+        "Final String Generated"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating StringBuilder"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>StringBuilder</code> is designed for fast string manipulation in single-threaded applications.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "StringBuilder Example",
+      "code": "StringBuilder sb = new StringBuilder(\"Java\");\nsb.append(\" Programming\");\nSystem.out.println(sb);"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Feature",
+      "description": "StringBuilder modifies the existing object instead of creating new String objects, making it much faster for repeated updates."
+    },
+    {
+      "type": "heading",
+      "content": "Creating StringBuffer"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>StringBuffer</code> works similarly to StringBuilder but synchronizes its methods, making it safe for use by multiple threads.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "StringBuffer Example",
+      "code": "StringBuffer sb = new StringBuffer(\"Java\");\nsb.append(\" Programming\");\nSystem.out.println(sb);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Thread Safety",
+      "content": "StringBuffer is synchronized, making it thread-safe, whereas StringBuilder is not synchronized and offers better performance."
+    },
+    {
+      "type": "heading",
+      "content": "Common Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Both StringBuilder and StringBuffer provide several methods for efficiently manipulating text.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Example"],
+      "rows": [
+        ["append()", "Adds text", "append(\"Java\")"],
+        ["insert()", "Inserts text", "insert(2,\"X\")"],
+        ["delete()", "Deletes characters", "delete(1,4)"],
+        ["replace()", "Replaces characters", "replace(0,2,\"Hi\")"],
+        ["reverse()", "Reverses text", "reverse()"],
+        ["length()", "Returns length", "length()"],
+        ["capacity()", "Returns buffer capacity", "capacity()"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Frequently Used Operations"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "StringBuilder Operations",
+      "code": "StringBuilder sb = new StringBuilder(\"Java\");\nsb.append(\" 21\");\nsb.insert(4, \" SE\");\nsb.delete(4,7);\nsb.reverse();"
+    },
+    {
+      "type": "process_flow",
+      "title": "StringBuilder Workflow",
+      "steps": [
+        "Create Object",
+        "Append Text",
+        "Insert or Delete",
+        "Reverse or Replace",
+        "Display Result"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "String vs StringBuilder vs StringBuffer"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "String",
+      "right_title": "StringBuilder & StringBuffer",
+      "left_points": [
+        "Immutable",
+        "Creates new object after modification",
+        "Suitable for fixed text",
+        "Slower for repeated changes"
+      ],
+      "right_points": [
+        "Mutable",
+        "Updates same object",
+        "Suitable for dynamic text",
+        "Faster for repeated modifications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "StringBuilder vs StringBuffer"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "StringBuilder", "StringBuffer"],
+      "rows": [
+        ["Mutability", "Mutable", "Mutable"],
+        ["Thread Safety", "Not Thread-Safe", "Thread-Safe"],
+        ["Synchronization", "No", "Yes"],
+        ["Performance", "Faster", "Slightly Slower"],
+        [
+          "Recommended For",
+          "Single-threaded Applications",
+          "Multi-threaded Applications"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Capacity"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Both StringBuilder and StringBuffer maintain an internal capacity. When the current capacity is exceeded, Java automatically increases it to accommodate additional characters.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Capacity Example",
+      "code": "StringBuilder sb = new StringBuilder();\nSystem.out.println(sb.capacity());\n// Output: 16"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Common Use Cases",
+      "items": [
+        {
+          "question": "When should StringBuilder be used?",
+          "answer": "When performing many string modifications in single-threaded programs."
+        },
+        {
+          "question": "When should StringBuffer be used?",
+          "answer": "When multiple threads access and modify the same string object."
+        },
+        {
+          "question": "Why not always use String?",
+          "answer": "Repeated String modifications create many unnecessary objects and reduce performance."
+        },
+        {
+          "question": "Where are they commonly used?",
+          "answer": "Text editors, log generation, report creation, and dynamic string processing."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Notebook vs Printed Book",
+      "content": "A String is like a printed book—you cannot directly modify its pages. StringBuilder and StringBuffer are like notebooks where you can easily erase, insert, and rewrite content without creating a new notebook."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about String vs StringBuilder vs StringBuffer, mutability, synchronization, performance differences, and common string manipulation methods."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Is StringBuilder thread-safe?",
+          "answer": "No. Only StringBuffer is synchronized."
+        },
+        {
+          "question": "Does append() create a new object?",
+          "answer": "No. It modifies the existing StringBuilder or StringBuffer object."
+        },
+        {
+          "question": "Should StringBuffer always be preferred?",
+          "answer": "No. Use StringBuilder unless thread safety is required."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use String for fixed text, StringBuilder for fast mutable strings in single-threaded applications, and StringBuffer when thread safety is required."
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Mutable", "Best Use"],
+      "rows": [
+        ["String", "No", "Read-only text"],
+        ["StringBuilder", "Yes", "Fast string manipulation"],
+        ["StringBuffer", "Yes", "Thread-safe string manipulation"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "StringBuilder and StringBuffer are mutable classes.",
+        "Both modify the same object instead of creating new ones.",
+        "StringBuilder is faster because it is not synchronized.",
+        "StringBuffer is synchronized and thread-safe.",
+        "Common methods include append(), insert(), delete(), replace(), and reverse()."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is faster for single-threaded applications?",
+      "options": ["String", "StringBuffer", "StringBuilder", "Character"],
+      "answer": "StringBuilder"
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is synchronized and thread-safe?",
+      "options": ["String", "StringBuilder", "StringBuffer", "Object"],
+      "answer": "StringBuffer"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method is used to add text to a StringBuilder object?",
+      "options": ["concat()", "append()", "merge()", "join()"],
+      "answer": "append()"
+    }
+  ]
+}

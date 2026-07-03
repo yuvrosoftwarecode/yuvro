@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { BookMarked } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
-import { toast } from 'sonner';
-import PageHeader from '@/components/common/PageHeader';
-import { getSubjectIconComponent } from '@/utils/subjectIcon';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { BookMarked } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchSubjectsByCollege, Subject } from "@/services/subjectService";
+import { toast } from "sonner";
+import PageHeader from "@/components/common/PageHeader";
+import { getSubjectIconComponent } from "@/utils/subjectIcon";
 
 const Notes = () => {
   const navigate = useNavigate();
@@ -22,13 +22,23 @@ const Notes = () => {
       }
       try {
         let data = await fetchSubjectsByCollege(user.college_id);
-        const activeProductType = window.location.pathname.includes('/student/assessments') || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
-        if (activeProductType === 'assessments') {
-          data = data.filter(s => s.product_type === 'assessments' && (s.short_code === 'DSA100' || s.subject_code === 'DSA100'));
+        const activeProductType =
+          window.location.pathname.includes("/student/assessments") ||
+          user?.college_product_type === "assessments"
+            ? "assessments"
+            : "campus";
+        if (activeProductType === "assessments") {
+          data = data.filter(
+            (s) =>
+              s.product_type === "assessments" &&
+              (s.short_code === "DSA100" ||
+                s.subject_code === "DSA100" ||
+                s.short_code === "JAVA100" ||
+                s.subject_code === "JAVA100"),
+          );
         } else {
-          data = data.filter(s => s.product_type === activeProductType);
+          data = data.filter((s) => s.product_type === activeProductType);
         }
-        // Sort subjects alphabetically
         data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);
       } catch (error) {
@@ -43,15 +53,21 @@ const Notes = () => {
   }, [user]);
 
   const handleCardClick = (subjectId: string | number) => {
-    const isAssessments = window.location.pathname.includes('/student/assessments');
-    navigate(isAssessments ? `/student/assessments/notes/${subjectId}` : `/student/notes/${subjectId}`);
+    const isAssessments = window.location.pathname.includes(
+      "/student/assessments",
+    );
+    navigate(
+      isAssessments
+        ? `/student/assessments/notes/${subjectId}`
+        : `/student/notes/${subjectId}`,
+    );
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Learn" 
-        subtitle="Select a subject to access your notes and study materials." 
+      <PageHeader
+        title="Learn"
+        subtitle="Select a subject to access your notes and study materials."
       />
 
       {loading ? (
@@ -71,17 +87,15 @@ const Notes = () => {
               <Card
                 key={subject.id}
                 className="cursor-pointer transition-all duration-200 hover:shadow-md border-0 group"
-                style={{ backgroundColor: 'hsl(var(--notes-card-bg))' }}
+                style={{ backgroundColor: "hsl(var(--notes-card-bg))" }}
                 onClick={() => handleCardClick(subject.id)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <Icon 
-                      className="h-6 w-6 text-foreground"
-                    />
-                    <h3 
+                    <Icon className="h-6 w-6 text-foreground" />
+                    <h3
                       className="text-lg font-semibold transition-colors"
-                      style={{ color: 'hsl(var(--notes-card-fg))' }}
+                      style={{ color: "hsl(var(--notes-card-fg))" }}
                     >
                       {subject.subject_name}
                     </h3>

@@ -48,7 +48,7 @@ const CodePractice = () => {
       let subject: any = selectedSubject;
       if (!selectedSubject || selectedSubject.id !== subjectId) {
         subject = await fetchSubjectById(subjectId);
-        if (subject.short_code !== 'DSA100') {
+        if (subject.short_code !== 'DSA100' && subject.short_code !== 'JAVA100') {
           toast.error("Unauthorized access.");
           navigate('/student/assessments/code-practice');
           setIsHydrating(false);

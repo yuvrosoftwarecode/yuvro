@@ -1,0 +1,353 @@
+{
+  "sub_unit_name": "Access Modifiers & Packages",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Access Modifiers and Packages?",
+      "description": "Access modifiers control the visibility of classes, methods, and variables, while packages organize related Java classes and interfaces into namespaces for better code management."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>As Java applications become larger, it becomes important to organize code and control who can access different parts of the program. <strong>Access modifiers</strong> provide security by restricting access, while <strong>packages</strong> help organize related classes and avoid naming conflicts.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Access Modifiers?",
+      "content": "Access modifiers improve encapsulation and security, while packages make large projects easier to organize and maintain."
+    },
+    {
+      "type": "diagram",
+      "title": "Organization in Java",
+      "steps": [
+        "Create Package",
+        "Add Classes",
+        "Apply Access Modifiers",
+        "Use Classes in Application"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Access Modifiers"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Access modifiers define the visibility of classes, methods, constructors, and variables. Java provides four access levels: <strong>public</strong>, <strong>protected</strong>, <strong>default</strong>, and <strong>private</strong>.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Modifier",
+        "Same Class",
+        "Same Package",
+        "Subclass",
+        "Anywhere"
+      ],
+      "rows": [
+        ["public", "✔", "✔", "✔", "✔"],
+        ["protected", "✔", "✔", "✔", "✖"],
+        ["default", "✔", "✔", "✖", "✖"],
+        ["private", "✔", "✖", "✖", "✖"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Four Access Levels",
+      "description": "Java provides public, protected, default (package-private), and private access modifiers to control member visibility."
+    },
+    {
+      "type": "heading",
+      "content": "public Access Modifier"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>public</code> modifier provides the highest level of accessibility. Public members can be accessed from any class in any package.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Public Example",
+      "code": "public class Student {\n    public String name = \"Rahul\";\n}"
+    },
+    {
+      "type": "heading",
+      "content": "private Access Modifier"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>private</code> modifier restricts access to the same class only. It is commonly used to achieve encapsulation.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Private Example",
+      "code": "class BankAccount {\n    private double balance = 5000;\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Encapsulation",
+      "content": "Private variables are usually accessed through public getter and setter methods."
+    },
+    {
+      "type": "heading",
+      "content": "protected Access Modifier"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>protected</code> modifier allows access within the same package and by subclasses in different packages.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Protected Example",
+      "code": "class Animal {\n    protected void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Default Access Modifier"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>If no access modifier is specified, Java assigns <strong>default</strong> (package-private) access. Members are accessible only within the same package.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Default Access Example",
+      "code": "class Employee {\n    int id = 101;\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Access Modifier Visibility",
+      "steps": [
+        "private → Same Class",
+        "default → Same Package",
+        "protected → Package + Subclasses",
+        "public → Everywhere"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Introduction to Packages"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A package is a namespace that groups related classes and interfaces together. Packages improve project organization and prevent class name conflicts.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Package",
+      "code": "package com.example.student;"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Packages",
+      "steps": [
+        "Create Package",
+        "Write Classes",
+        "Compile Package",
+        "Import Package",
+        "Use Classes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Import Statement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>import</code> keyword allows classes from other packages to be used without writing their fully qualified names.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Import Example",
+      "code": "import java.util.Scanner;\n\nScanner sc = new Scanner(System.in);"
+    },
+    {
+      "type": "heading",
+      "content": "Built-in Packages"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides many predefined packages that contain commonly used classes and interfaces.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Package",
+        "Purpose",
+        "Example Class"
+      ],
+      "rows": [
+        [
+          "java.lang",
+          "Core language classes",
+          "String"
+        ],
+        [
+          "java.util",
+          "Utility classes",
+          "Scanner"
+        ],
+        [
+          "java.io",
+          "Input/Output classes",
+          "File"
+        ],
+        [
+          "java.time",
+          "Date and Time API",
+          "LocalDate"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "User-Defined Packages"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Developers can create custom packages to organize project modules. A package name usually follows the reverse domain naming convention.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "User-Defined Package",
+      "code": "package com.company.project;\n\npublic class Student {\n}"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Access Modifiers",
+      "right_title": "Packages",
+      "left_points": [
+        "Control visibility",
+        "Improve security",
+        "Support encapsulation",
+        "Applied to members"
+      ],
+      "right_points": [
+        "Organize classes",
+        "Avoid naming conflicts",
+        "Improve maintainability",
+        "Group related code"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Office Building",
+      "content": "Think of a company office. Different rooms have different access levels—some are open to everyone (public), some only to employees (protected), some only within a department (default), and some only to the manager (private). Packages are like departments that organize employees based on their work."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers commonly ask about the differences between public, private, protected, and default access modifiers, package creation, import statements, and encapsulation."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a private variable be accessed directly outside its class?",
+          "answer": "No. It must be accessed through public methods such as getters and setters."
+        },
+        {
+          "question": "What happens if an import statement is missing?",
+          "answer": "The compiler cannot recognize classes from external packages unless their fully qualified names are used."
+        },
+        {
+          "question": "Why should meaningful package names be used?",
+          "answer": "They improve project organization and reduce naming conflicts."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use private for data hiding, public for global access, protected for inheritance, default for package-level access, and packages to organize related classes."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        [
+          "public",
+          "Accessible everywhere",
+          "public class Student"
+        ],
+        [
+          "private",
+          "Accessible only within class",
+          "private int age"
+        ],
+        [
+          "Package",
+          "Organize classes",
+          "package com.app;"
+        ],
+        [
+          "Import",
+          "Use external classes",
+          "import java.util.*;"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Java has four access modifiers.",
+        "private provides the highest level of data protection.",
+        "public members are accessible everywhere.",
+        "Packages organize related classes and interfaces.",
+        "The import keyword allows classes from other packages to be used."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which access modifier allows access from anywhere in a Java application?",
+      "options": [
+        "private",
+        "default",
+        "protected",
+        "public"
+      ],
+      "answer": "public"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to include classes from another package?",
+      "options": [
+        "include",
+        "package",
+        "import",
+        "using"
+      ],
+      "answer": "import"
+    },
+    {
+      "type": "quiz",
+      "question": "Which access modifier restricts access to the same class only?",
+      "options": [
+        "public",
+        "protected",
+        "private",
+        "default"
+      ],
+      "answer": "private"
+    }
+  ]
+}

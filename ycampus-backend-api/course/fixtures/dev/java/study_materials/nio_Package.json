@@ -1,0 +1,300 @@
+{
+  "sub_unit_name": "NIO Package",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the NIO Package?",
+      "description": "NIO (New Input/Output) is an enhanced I/O API introduced in Java to provide faster, scalable, and more flexible file and network operations using buffers, channels, and paths."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>java.nio</strong> package was introduced to overcome the limitations of traditional Java I/O. Unlike the older <code>java.io</code> package, NIO uses <strong>buffers</strong>, <strong>channels</strong>, and the <strong>Files</strong> API to efficiently process large amounts of data, making it ideal for high-performance applications.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn NIO?",
+      "content": "NIO provides faster file operations, better scalability, efficient memory usage, and improved support for large files and network programming."
+    },
+    {
+      "type": "diagram",
+      "title": "NIO Architecture",
+      "steps": [
+        "Application",
+        "Channel",
+        "Buffer",
+        "Operating System",
+        "Storage Device"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Key Components of NIO"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The NIO package is built around four important concepts: Buffers, Channels, Paths, and the Files utility class.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Purpose"],
+      "rows": [
+        ["Buffer", "Stores data temporarily during I/O operations."],
+        ["Channel", "Transfers data between buffers and files."],
+        ["Path", "Represents file or directory locations."],
+        ["Files", "Provides utility methods for file operations."]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Unlike java.io streams, NIO transfers data through buffers connected to channels."
+    },
+    {
+      "type": "heading",
+      "content": "Buffers"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A <code>Buffer</code> is a temporary memory area used to hold data while it is being transferred. Java provides several buffer types, including ByteBuffer, CharBuffer, IntBuffer, and FloatBuffer.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ByteBuffer Example",
+      "code": "import java.nio.ByteBuffer;\n\nByteBuffer buffer = ByteBuffer.allocate(20);\nbuffer.put((byte)65);\nbuffer.flip();\nSystem.out.println((char)buffer.get());"
+    },
+    {
+      "type": "heading",
+      "content": "Channels"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A <code>Channel</code> represents a connection to a file, socket, or other I/O device. Data is transferred between the channel and a buffer.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "FileChannel Example",
+      "code": "import java.io.*;\nimport java.nio.channels.FileChannel;\n\nFileInputStream fis = new FileInputStream(\"data.txt\");\nFileChannel channel = fis.getChannel();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Performance Advantage",
+      "content": "Channels can support faster I/O operations because they work directly with buffers and may use operating system optimizations."
+    },
+    {
+      "type": "heading",
+      "content": "Path"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Path</code> interface represents file and directory locations. It replaces many uses of the older File class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Path",
+      "code": "import java.nio.file.*;\n\nPath path = Paths.get(\"student.txt\");\nSystem.out.println(path.getFileName());"
+    },
+    {
+      "type": "heading",
+      "content": "Files Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Files</code> utility class provides convenient static methods for creating, copying, moving, deleting, and reading files.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reading a File",
+      "code": "import java.nio.file.*;\n\nString content = Files.readString(Paths.get(\"student.txt\"));\nSystem.out.println(content);"
+    },
+    {
+      "type": "process_flow",
+      "title": "NIO File Processing",
+      "steps": [
+        "Create Path",
+        "Open Channel",
+        "Allocate Buffer",
+        "Read or Write Data",
+        "Close Resources"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Files Methods"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Used Methods",
+      "items": [
+        {
+          "question": "Files.exists()",
+          "answer": "Checks whether a file exists."
+        },
+        {
+          "question": "Files.copy()",
+          "answer": "Copies a file from one location to another."
+        },
+        {
+          "question": "Files.delete()",
+          "answer": "Deletes a file."
+        },
+        {
+          "question": "Files.readString()",
+          "answer": "Reads the complete contents of a text file into a String."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "NIO vs Traditional IO"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "java.io",
+      "right_title": "java.nio",
+      "left_points": [
+        "Stream-based",
+        "Blocking I/O",
+        "Less efficient for large files",
+        "Older API"
+      ],
+      "right_points": [
+        "Buffer and Channel based",
+        "Supports non-blocking operations",
+        "Better performance",
+        "Modern file API"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of NIO"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is NIO Used?",
+      "items": [
+        {
+          "question": "Large File Processing",
+          "answer": "Read and write large files efficiently."
+        },
+        {
+          "question": "Web Servers",
+          "answer": "Handle thousands of client connections using non-blocking I/O."
+        },
+        {
+          "question": "Database Systems",
+          "answer": "Efficiently transfer data between storage and memory."
+        },
+        {
+          "question": "Cloud Applications",
+          "answer": "Process files with high performance and scalability."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Important Classes"
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Purpose"],
+      "rows": [
+        ["Path", "Represents file paths"],
+        ["Paths", "Creates Path objects"],
+        ["Files", "Performs file operations"],
+        ["ByteBuffer", "Stores binary data"],
+        ["FileChannel", "Transfers data efficiently"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Warehouse Conveyor Belt",
+      "content": "Traditional I/O is like workers carrying one box at a time. NIO is like using conveyor belts and storage bins, allowing many items to move efficiently with less effort."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers often ask about the differences between java.io and java.nio, the purpose of buffers and channels, the Files API, Path interface, and the advantages of non-blocking I/O."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can data be transferred directly through a Channel?",
+          "answer": "No. Channels exchange data through buffers."
+        },
+        {
+          "question": "Should Path replace File everywhere?",
+          "answer": "For modern Java applications, Path and Files are generally preferred over File."
+        },
+        {
+          "question": "What happens if flip() is not called on a ByteBuffer?",
+          "answer": "The buffer remains in write mode, making it impossible to read the stored data correctly."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "NIO is built around Buffers, Channels, Paths, and Files, providing a faster and more flexible alternative to traditional Java I/O."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["ByteBuffer", "Store Data", "ByteBuffer.allocate()"],
+        ["FileChannel", "Transfer Data", "getChannel()"],
+        ["Path", "Represent File Path", "Paths.get()"],
+        ["Files", "Utility Operations", "Files.readString()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "NIO stands for New Input/Output.",
+        "Buffers temporarily store data.",
+        "Channels transfer data using buffers.",
+        "Path represents file locations.",
+        "Files provides utility methods for file operations.",
+        "NIO offers better performance than traditional java.io."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which class represents a file path in Java NIO?",
+      "options": ["File", "Path", "Channel", "Buffer"],
+      "answer": "Path"
+    },
+    {
+      "type": "quiz",
+      "question": "Which component transfers data between storage and memory in NIO?",
+      "options": ["Buffer", "Channel", "Scanner", "Reader"],
+      "answer": "Channel"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary advantage of Java NIO over traditional java.io?",
+      "options": [
+        "It removes exception handling.",
+        "It uses buffers and channels for better performance.",
+        "It works only with binary files.",
+        "It eliminates the need for file paths."
+      ],
+      "answer": "It uses buffers and channels for better performance."
+    }
+  ]
+}

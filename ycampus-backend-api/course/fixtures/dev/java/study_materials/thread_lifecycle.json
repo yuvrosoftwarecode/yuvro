@@ -1,0 +1,294 @@
+{
+  "sub_unit_name": "Thread Lifecycle",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the Thread Lifecycle?",
+      "description": "The Thread Lifecycle describes the different states a thread passes through from its creation until its termination. Java defines these states using the Thread.State enum."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Every thread in Java moves through a series of well-defined states during its execution. Understanding these states helps developers write efficient multithreaded applications, debug concurrency issues, and optimize application performance.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Thread Lifecycle?",
+      "content": "Knowledge of thread states helps in debugging deadlocks, synchronization issues, waiting threads, and performance bottlenecks in concurrent applications."
+    },
+    {
+      "type": "diagram",
+      "title": "Java Thread Lifecycle",
+      "steps": [
+        "New",
+        "Runnable",
+        "Running (CPU Execution)",
+        "Blocked / Waiting / Timed Waiting",
+        "Terminated"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thread States in Java"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Thread.State</code> enum defines six official thread states that represent the lifecycle of a thread.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["State", "Description"],
+      "rows": [
+        ["NEW", "Thread object is created but not started."],
+        ["RUNNABLE", "Thread is ready to run and waiting for CPU scheduling."],
+        ["BLOCKED", "Thread is waiting to acquire a monitor lock."],
+        [
+          "WAITING",
+          "Thread waits indefinitely until another thread notifies it."
+        ],
+        ["TIMED_WAITING", "Thread waits for a specified amount of time."],
+        ["TERMINATED", "Thread has completed execution."]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A thread does not directly move from NEW to RUNNING. It first enters the RUNNABLE state and is scheduled by the JVM."
+    },
+    {
+      "type": "heading",
+      "content": "NEW State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A thread enters the <strong>NEW</strong> state immediately after its object is created. At this stage, the thread has not yet begun execution.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Thread",
+      "code": "Thread t = new Thread();\nSystem.out.println(t.getState()); // NEW"
+    },
+    {
+      "type": "heading",
+      "content": "RUNNABLE State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Calling <code>start()</code> moves the thread into the <strong>RUNNABLE</strong> state. The thread waits until the JVM scheduler assigns CPU time.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Starting a Thread",
+      "code": "Thread t = new Thread(() -> System.out.println(\"Running\"));\nt.start();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "RUNNABLE does not always mean the thread is executing. It simply means the thread is eligible to run."
+    },
+    {
+      "type": "heading",
+      "content": "BLOCKED State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A thread enters the <strong>BLOCKED</strong> state when it attempts to acquire a synchronized lock that is currently held by another thread.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "WAITING State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A thread enters the <strong>WAITING</strong> state when it waits indefinitely for another thread to perform an action, such as calling <code>notify()</code> or <code>notifyAll()</code>.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "TIMED_WAITING State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A thread enters the <strong>TIMED_WAITING</strong> state when it waits for a specified duration using methods such as <code>sleep()</code>, <code>join(timeout)</code>, or <code>wait(timeout)</code>.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using sleep()",
+      "code": "try {\n    Thread.sleep(2000);\n} catch (InterruptedException e) {\n    e.printStackTrace();\n}"
+    },
+    {
+      "type": "heading",
+      "content": "TERMINATED State"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Once the <code>run()</code> method completes or an uncaught exception occurs, the thread enters the <strong>TERMINATED</strong> state and cannot be restarted.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Thread State Transitions",
+      "steps": [
+        "Create Thread (NEW)",
+        "Call start()",
+        "RUNNABLE",
+        "CPU Executes Thread",
+        "WAITING / BLOCKED / TIMED_WAITING (if required)",
+        "Resume Execution",
+        "TERMINATED"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Methods Affecting Thread States"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Effect"],
+      "rows": [
+        ["start()", "Moves thread from NEW to RUNNABLE"],
+        ["sleep()", "Moves thread to TIMED_WAITING"],
+        ["wait()", "Moves thread to WAITING"],
+        ["notify()", "Wakes a waiting thread"],
+        ["join()", "Current thread waits for another thread"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Runnable vs Running"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "RUNNABLE",
+      "right_title": "Running",
+      "left_points": [
+        "Ready to execute",
+        "Waiting for CPU scheduling",
+        "May not currently execute",
+        "Official Java thread state"
+      ],
+      "right_points": [
+        "Actually executing instructions",
+        "CPU assigned",
+        "Temporary execution phase",
+        "Not an official Thread.State value"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Thread State Changes",
+      "time_complexity": "State transitions depend on JVM scheduling",
+      "space_complexity": "Depends on thread stack size"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Why Understand Thread States?",
+      "items": [
+        {
+          "question": "Debugging",
+          "answer": "Identify blocked, waiting, or deadlocked threads."
+        },
+        {
+          "question": "Performance Optimization",
+          "answer": "Reduce unnecessary waiting and improve responsiveness."
+        },
+        {
+          "question": "Server Applications",
+          "answer": "Manage hundreds of concurrent client threads efficiently."
+        },
+        {
+          "question": "Real-Time Systems",
+          "answer": "Monitor thread execution and scheduling."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Customer at a Bank",
+      "content": "A customer first enters the bank (NEW), waits in the queue (RUNNABLE), gets served (Running), may wait for document verification (WAITING/BLOCKED), and finally leaves the bank (TERMINATED)."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about Thread.State values, Runnable vs Running, sleep(), wait(), notify(), join(), synchronization, deadlocks, and state transitions."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a terminated thread be restarted?",
+          "answer": "No. Once terminated, a thread cannot be started again."
+        },
+        {
+          "question": "Is RUNNABLE the same as Running?",
+          "answer": "No. RUNNABLE means eligible to run, while Running means the CPU is actively executing the thread."
+        },
+        {
+          "question": "Does sleep() release synchronization locks?",
+          "answer": "No. A sleeping thread retains any locks it currently owns."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "A thread progresses through NEW, RUNNABLE, WAITING/BLOCKED/TIMED_WAITING (if needed), and TERMINATED. The JVM scheduler controls execution after start() is called."
+    },
+    {
+      "type": "table",
+      "headers": ["State", "How It Is Entered"],
+      "rows": [
+        ["NEW", "Thread object created"],
+        ["RUNNABLE", "start() called"],
+        ["BLOCKED", "Waiting for synchronized lock"],
+        ["WAITING", "wait() or join()"],
+        ["TIMED_WAITING", "sleep() or wait(timeout)"],
+        ["TERMINATED", "run() finishes"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Java defines six thread states.",
+        "NEW is the initial state.",
+        "start() moves a thread to RUNNABLE.",
+        "WAITING and TIMED_WAITING differ in timeout behavior.",
+        "BLOCKED occurs while waiting for a lock.",
+        "TERMINATED is the final state and cannot be reversed."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which thread state occurs immediately after creating a Thread object?",
+      "options": ["RUNNABLE", "WAITING", "NEW", "TERMINATED"],
+      "answer": "NEW"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method typically moves a thread into the TIMED_WAITING state?",
+      "options": ["start()", "sleep()", "notify()", "run()"],
+      "answer": "sleep()"
+    },
+    {
+      "type": "quiz",
+      "question": "Can a thread be started again after reaching the TERMINATED state?",
+      "options": ["Yes", "Only once", "Only after calling run()", "No"],
+      "answer": "No"
+    }
+  ]
+}

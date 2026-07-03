@@ -1,0 +1,292 @@
+{
+  "sub_unit_name": "String Class",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is the String Class?",
+      "description": "The String class represents a sequence of characters in Java. Strings are immutable, meaning once a String object is created, its value cannot be changed."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>String</code> class is one of the most commonly used classes in Java. It is used to store and manipulate textual data. Since strings are immutable, every modification creates a new String object instead of changing the existing one.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Strings?",
+      "content": "Strings are used in almost every Java application for handling names, messages, files, user input, URLs, JSON data, and much more."
+    },
+    {
+      "type": "diagram",
+      "title": "String Lifecycle",
+      "steps": [
+        "Create String",
+        "Store Characters",
+        "Perform Operations",
+        "New Object Created (if modified)",
+        "Original String Remains Unchanged"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating Strings"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Strings can be created using string literals or by using the <code>new</code> keyword. String literals are stored in the String Pool, while objects created using <code>new</code> are stored in heap memory.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating Strings",
+      "code": "String s1 = \"Java\";\nString s2 = new String(\"Programming\");"
+    },
+    {
+      "type": "concept-card",
+      "title": "String Pool",
+      "description": "Java stores string literals in a special memory area called the String Pool to save memory by reusing identical string values."
+    },
+    {
+      "type": "heading",
+      "content": "String Immutability"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Strings are immutable. Whenever a string is modified using methods like <code>concat()</code> or <code>replace()</code>, a new String object is created instead of changing the original object.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Immutability Example",
+      "code": "String s = \"Java\";\ns.concat(\" Programming\");\nSystem.out.println(s);\n// Output: Java"
+    },
+    {
+      "type": "diagram",
+      "title": "String Immutability",
+      "steps": [
+        "\"Java\"",
+        "concat(\" Programming\")",
+        "New String Created",
+        "\"Java\" Remains Unchanged"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common String Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The String class provides many useful methods for searching, comparing, modifying, and extracting text.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Example"],
+      "rows": [
+        ["length()", "Returns string length", "\"Java\".length()"],
+        ["charAt()", "Returns character", "charAt(2)"],
+        ["substring()", "Extracts part of string", "substring(1,4)"],
+        ["toUpperCase()", "Converts to uppercase", "\"java\""],
+        ["toLowerCase()", "Converts to lowercase", "\"JAVA\""],
+        ["trim()", "Removes spaces", "\" Java \""],
+        ["replace()", "Replaces characters", "replace('a','o')"],
+        ["contains()", "Checks substring", "contains(\"va\")"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "String Comparison"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Strings should generally be compared using the <code>equals()</code> method. The <code>==</code> operator compares object references instead of actual string contents.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "String Comparison",
+      "code": "String s1 = \"Java\";\nString s2 = new String(\"Java\");\n\nSystem.out.println(s1 == s2);      // false\nSystem.out.println(s1.equals(s2)); // true"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "== Operator",
+      "right_title": "equals() Method",
+      "left_points": [
+        "Compares memory references",
+        "Checks object identity",
+        "May return false for equal text",
+        "Not recommended for String comparison"
+      ],
+      "right_points": [
+        "Compares character contents",
+        "Checks logical equality",
+        "Returns true for same text",
+        "Recommended for String comparison"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "String Pool"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The String Pool is a special memory area where Java stores string literals. If the same literal already exists, Java reuses the existing object instead of creating another one.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "String Pool Example",
+      "code": "String s1 = \"Java\";\nString s2 = \"Java\";\n\nSystem.out.println(s1 == s2);\n// true"
+    },
+    {
+      "type": "fact-box",
+      "title": "Memory Optimization",
+      "content": "The String Pool reduces memory usage by allowing multiple variables to reference the same String object."
+    },
+    {
+      "type": "heading",
+      "content": "StringBuilder and StringBuffer"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Since String objects are immutable, Java provides <code>StringBuilder</code> and <code>StringBuffer</code> for efficient modification of character sequences.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "String",
+      "right_title": "StringBuilder",
+      "left_points": [
+        "Immutable",
+        "Creates new objects on modification",
+        "Thread-safe by design",
+        "Suitable for fixed text"
+      ],
+      "right_points": [
+        "Mutable",
+        "Modifies same object",
+        "Faster for repeated modifications",
+        "Suitable for dynamic text"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Useful String Operations"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Used Methods",
+      "items": [
+        {
+          "question": "How to find the length of a string?",
+          "answer": "Use the length() method."
+        },
+        {
+          "question": "How to convert text to uppercase?",
+          "answer": "Use toUpperCase()."
+        },
+        {
+          "question": "How to extract part of a string?",
+          "answer": "Use substring()."
+        },
+        {
+          "question": "How to replace characters?",
+          "answer": "Use replace()."
+        }
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "String Processing",
+      "steps": [
+        "Create String",
+        "Call String Method",
+        "New String Returned",
+        "Assign if Required"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Printed Book",
+      "content": "A printed book cannot be modified directly. To change its content, a new edition must be printed. Similarly, modifying a String creates a new object instead of changing the existing one."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Java interviews frequently include questions about String immutability, String Pool, equals() vs ==, StringBuilder vs StringBuffer, and commonly used String methods."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can Strings be modified directly?",
+          "answer": "No. Strings are immutable."
+        },
+        {
+          "question": "Should == be used for String comparison?",
+          "answer": "No. Use equals() to compare String contents."
+        },
+        {
+          "question": "Is concat() modifying the original String?",
+          "answer": "No. It returns a new String object."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Strings are immutable objects stored efficiently using the String Pool. Use equals() for comparison and StringBuilder for frequent modifications."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["String", "Store text", "\"Java\""],
+        ["equals()", "Compare contents", "s1.equals(s2)"],
+        ["String Pool", "Reuse literals", "\"Java\""],
+        ["StringBuilder", "Modify text efficiently", "append()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "String is an immutable class.",
+        "String literals are stored in the String Pool.",
+        "Use equals() instead of == for comparing strings.",
+        "Common methods include length(), substring(), replace(), and contains().",
+        "Use StringBuilder when frequent modifications are required."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Why are String objects considered immutable?",
+      "options": [
+        "They cannot store characters.",
+        "Their value cannot be changed after creation.",
+        "They are stored only in RAM.",
+        "They are thread-specific."
+      ],
+      "answer": "Their value cannot be changed after creation."
+    },
+    {
+      "type": "quiz",
+      "question": "Which method should be used to compare the contents of two String objects?",
+      "options": ["==", "compare()", "equals()", "match()"],
+      "answer": "equals()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is preferred for frequent String modifications?",
+      "options": ["String", "StringBuilder", "Character", "Object"],
+      "answer": "StringBuilder"
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "sub_unit_name": "Throw & Throws",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are throw and throws?",
+      "description": "The throw and throws keywords are used in Java exception handling. 'throw' explicitly throws an exception, while 'throws' declares that a method may pass an exception to its caller."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides the <code>throw</code> keyword to manually generate an exception and the <code>throws</code> keyword to indicate that a method may produce one or more exceptions. These keywords help developers write robust applications by handling exceptional situations in a structured manner.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn throw & throws?",
+      "content": "Understanding the difference between throw and throws is essential for writing reliable Java programs and is one of the most frequently asked Java interview topics."
+    },
+    {
+      "type": "diagram",
+      "title": "Exception Propagation",
+      "steps": [
+        "Method Executes",
+        "Exception Occurs",
+        "throw Creates Exception",
+        "throws Passes Exception",
+        "Caller Handles Exception"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The throw Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>throw</code> keyword is used to explicitly create and throw an exception object. Once an exception is thrown, normal program execution stops and control moves to the nearest matching <code>catch</code> block.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "throw Example",
+      "code": "int age = 16;\n\nif(age < 18){\n    throw new ArithmeticException(\"Not Eligible to Vote\");\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "The throw keyword is followed by an exception object and is used to generate an exception manually."
+    },
+    {
+      "type": "heading",
+      "content": "The throws Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>throws</code> keyword is placed in a method declaration to indicate that the method may throw one or more exceptions. The responsibility of handling those exceptions is transferred to the calling method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "throws Example",
+      "code": "import java.io.*;\n\nclass Demo {\n    static void readFile() throws IOException {\n        FileReader file = new FileReader(\"data.txt\");\n    }\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "throws only declares possible exceptions. It does not actually throw an exception."
+    },
+    {
+      "type": "heading",
+      "content": "throw vs throws"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "throw",
+      "right_title": "throws",
+      "left_points": [
+        "Used inside a method",
+        "Actually throws an exception",
+        "Followed by an exception object",
+        "Used once for a single exception"
+      ],
+      "right_points": [
+        "Used in method declaration",
+        "Declares possible exceptions",
+        "Followed by exception class names",
+        "Can declare multiple exceptions"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Declaring Multiple Exceptions"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A method can declare multiple exceptions using the throws keyword by separating exception classes with commas.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Multiple throws Example",
+      "code": "public void process() throws IOException, ClassNotFoundException {\n    // Code\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "How throws Works",
+      "steps": [
+        "Method Declares throws",
+        "Method Called",
+        "Exception Occurs",
+        "Caller Receives Exception",
+        "Caller Handles or Propagates"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Using throw with Custom Exceptions"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The throw keyword is commonly used to generate custom exceptions whenever business rules are violated.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Custom Exception Example",
+      "code": "if(balance < amount){\n    throw new IllegalArgumentException(\"Insufficient Balance\");\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Common Use Cases"
+    },
+    {
+      "type": "accordion",
+      "title": "Where Are They Used?",
+      "items": [
+        {
+          "question": "When should throw be used?",
+          "answer": "When a program detects an invalid condition and wants to explicitly generate an exception."
+        },
+        {
+          "question": "When should throws be used?",
+          "answer": "When a method cannot handle an exception and wants to pass it to the calling method."
+        },
+        {
+          "question": "Can throws declare multiple exceptions?",
+          "answer": "Yes. Multiple exception classes can be separated using commas."
+        },
+        {
+          "question": "Does throw work with checked and unchecked exceptions?",
+          "answer": "Yes. It can throw both checked and unchecked exceptions."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Execution Flow"
+    },
+    {
+      "type": "diagram",
+      "title": "throw and throws Together",
+      "steps": [
+        "Method Starts",
+        "Invalid Condition Found",
+        "throw Generates Exception",
+        "throws Declares Propagation",
+        "Caller Handles Exception"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Complete Comparison"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "throw", "throws"],
+      "rows": [
+        ["Purpose", "Generate Exception", "Declare Exception"],
+        ["Location", "Method Body", "Method Declaration"],
+        ["Followed By", "Exception Object", "Exception Class Names"],
+        ["Multiple Exceptions", "No", "Yes"],
+        ["Used For", "Manual Exception Creation", "Exception Propagation"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Emergency Alarm",
+      "content": "Using throw is like pressing the emergency alarm when a problem occurs. Using throws is like informing everyone in advance that an alarm might be triggered, so they should be prepared to handle it."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions comparing throw and throws are extremely common in Java interviews. Interviewers also ask about checked exceptions, exception propagation, custom exceptions, and exception hierarchy."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can throws generate an exception?",
+          "answer": "No. It only declares that a method may throw an exception."
+        },
+        {
+          "question": "Can throw declare multiple exceptions?",
+          "answer": "No. A single throw statement throws only one exception object."
+        },
+        {
+          "question": "Should checked exceptions always be handled or declared?",
+          "answer": "Yes. They must either be caught using try-catch or declared using throws."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "throw creates an exception, whereas throws informs the compiler and caller that a method may produce an exception."
+    },
+    {
+      "type": "table",
+      "headers": ["Keyword", "Purpose", "Example"],
+      "rows": [
+        ["throw", "Generate Exception", "throw new IOException();"],
+        ["throws", "Declare Exception", "method() throws IOException"],
+        ["try", "Handle Exception", "try { ... }"],
+        ["catch", "Catch Exception", "catch(Exception e)"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "throw explicitly generates an exception.",
+        "throws declares exceptions in a method signature.",
+        "throw is followed by an exception object.",
+        "throws is followed by exception class names.",
+        "Checked exceptions are commonly declared using throws.",
+        "Both keywords are fundamental to Java exception handling."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to explicitly generate an exception?",
+      "options": ["throws", "throw", "try", "catch"],
+      "answer": "throw"
+    },
+    {
+      "type": "quiz",
+      "question": "Where is the throws keyword used?",
+      "options": [
+        "Inside a catch block",
+        "Inside a finally block",
+        "In the method declaration",
+        "Inside the constructor body"
+      ],
+      "answer": "In the method declaration"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about throw and throws is correct?",
+      "options": [
+        "throw declares an exception.",
+        "throws creates an exception object.",
+        "throw creates an exception, while throws declares it.",
+        "Both keywords perform the same function."
+      ],
+      "answer": "throw creates an exception, while throws declares it."
+    }
+  ]
+}

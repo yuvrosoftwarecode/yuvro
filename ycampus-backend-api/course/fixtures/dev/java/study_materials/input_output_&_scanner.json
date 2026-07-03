@@ -1,0 +1,288 @@
+{
+  "sub_unit_name": "Input Output & Scanner",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Input and Output in Java?",
+      "description": "Input refers to receiving data from the user or another source, while output refers to displaying or sending processed information. Java provides several classes for handling input and output, with Scanner being the most commonly used for console input."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Every interactive Java application requires a way to accept data from users and display results. Java uses the <strong>Scanner</strong> class to read input from the keyboard and the <strong>System.out</strong> object to print output to the console.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Scanner?",
+      "content": "Scanner is one of the first Java classes every programmer learns because almost every beginner program accepts user input."
+    },
+    {
+      "type": "diagram",
+      "title": "Input-Output Flow",
+      "steps": [
+        "User Enters Data",
+        "Scanner Reads Input",
+        "Program Processes Data",
+        "System.out Displays Output"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Console Output"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides multiple methods for displaying output on the console. The most commonly used methods are <code>print()</code>, <code>println()</code>, and <code>printf()</code>.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Output Methods",
+      "items": [
+        {
+          "question": "print()",
+          "answer": "Displays text without moving to the next line."
+        },
+        {
+          "question": "println()",
+          "answer": "Displays text and moves the cursor to the next line."
+        },
+        {
+          "question": "printf()",
+          "answer": "Displays formatted output similar to the C programming language."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Printing Output",
+      "code": "System.out.print(\"Hello \");\nSystem.out.println(\"World!\");\nSystem.out.printf(\"Age: %d\", 21);"
+    },
+    {
+      "type": "heading",
+      "content": "Scanner Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>Scanner</strong> class belongs to the <code>java.util</code> package. Before using it, the package must be imported and a Scanner object must be created.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Scanner Object",
+      "code": "import java.util.Scanner;\n\nScanner sc = new Scanner(System.in);"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Scanner",
+      "steps": [
+        "Import Scanner",
+        "Create Scanner Object",
+        "Read User Input",
+        "Store Input in Variable",
+        "Process the Value",
+        "Display Output"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Reading Different Data Types"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Scanner provides different methods for reading different kinds of data such as integers, floating-point numbers, strings, and boolean values.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Method",
+        "Reads",
+        "Example"
+      ],
+      "rows": [
+        ["nextInt()", "Integer", "25"],
+        ["nextDouble()", "Decimal Number", "99.5"],
+        ["nextFloat()", "Float Value", "12.5f"],
+        ["nextBoolean()", "Boolean", "true"],
+        ["next()", "Single Word", "Java"],
+        ["nextLine()", "Entire Line", "Hello Java Programming"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reading User Input",
+      "code": "import java.util.Scanner;\n\nScanner sc = new Scanner(System.in);\n\nSystem.out.print(\"Enter your age: \");\nint age = sc.nextInt();\n\nSystem.out.println(\"Age is \" + age);"
+    },
+    {
+      "type": "heading",
+      "content": "Reading Multiple Inputs"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Scanner object can read multiple values one after another. Each input is stored in an appropriate variable according to its data type.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reading Multiple Values",
+      "code": "Scanner sc = new Scanner(System.in);\n\nString name = sc.next();\nint age = sc.nextInt();\ndouble salary = sc.nextDouble();\n\nSystem.out.println(name);\nSystem.out.println(age);\nSystem.out.println(salary);"
+    },
+    {
+      "type": "diagram",
+      "title": "Scanner Input Example",
+      "steps": [
+        "User Types: Rahul",
+        "next() Reads Rahul",
+        "User Types: 22",
+        "nextInt() Reads 22",
+        "Program Prints Both Values"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "next() vs nextLine()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Many beginners confuse <code>next()</code> and <code>nextLine()</code>. The difference is that <code>next()</code> reads only one word, while <code>nextLine()</code> reads the complete line including spaces.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "next()",
+      "right_title": "nextLine()",
+      "left_points": [
+        "Reads one word",
+        "Stops at whitespace",
+        "Cannot read spaces",
+        "Useful for single values"
+      ],
+      "right_points": [
+        "Reads complete line",
+        "Includes spaces",
+        "Stops at newline",
+        "Useful for sentences"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Common Interview Question",
+      "content": "The difference between next() and nextLine() is one of the most frequently asked Java interview questions for beginners."
+    },
+    {
+      "type": "heading",
+      "content": "Closing Scanner"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>After reading input, it is good practice to close the Scanner object to release system resources.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Closing Scanner",
+      "code": "Scanner sc = new Scanner(System.in);\n\n// Read input\n\nsc.close();"
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Taking an Order at a Restaurant",
+      "content": "Imagine a waiter taking your order. You provide the information (input), the waiter writes it down (Scanner), and later serves the prepared food (output)."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers often ask how Scanner works, the difference between next() and nextLine(), and how to read different data types from the console."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why do we import Scanner?",
+          "answer": "Because Scanner belongs to the java.util package and is not available automatically."
+        },
+        {
+          "question": "Why does nextLine() sometimes skip input?",
+          "answer": "Because nextInt(), nextDouble(), and similar methods leave the newline character in the input buffer."
+        },
+        {
+          "question": "Why should Scanner be closed?",
+          "answer": "Closing Scanner releases system resources and follows good programming practices."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use next() for a single word, nextLine() for a complete sentence, and always import java.util.Scanner before creating a Scanner object."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Method",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        ["print()", "Print without newline", "System.out.print()"],
+        ["println()", "Print with newline", "System.out.println()"],
+        ["nextInt()", "Read integer", "25"],
+        ["nextDouble()", "Read decimal", "99.99"],
+        ["next()", "Read one word", "Java"],
+        ["nextLine()", "Read full sentence", "Learning Java Programming"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "System.out.print(), println(), and printf() display output.",
+        "Scanner reads user input from the keyboard.",
+        "Import Scanner using java.util.Scanner.",
+        "next() reads one word while nextLine() reads an entire line.",
+        "Always close the Scanner object after use."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which package contains the Scanner class?",
+      "options": [
+        "java.io",
+        "java.lang",
+        "java.util",
+        "java.text"
+      ],
+      "answer": "java.util"
+    },
+    {
+      "type": "quiz",
+      "question": "Which Scanner method reads an entire line including spaces?",
+      "options": [
+        "next()",
+        "nextLine()",
+        "nextInt()",
+        "nextDouble()"
+      ],
+      "answer": "nextLine()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method prints output and moves the cursor to the next line?",
+      "options": [
+        "print()",
+        "printf()",
+        "println()",
+        "display()"
+      ],
+      "answer": "println()"
+    }
+  ]
+}

@@ -93,9 +93,9 @@ def build_public_url(object_name):
     return _build_unsigned_url(obj, bucket)
 
 
-def upload_image(*, key, file_obj, replace_extensions=()):
+def upload_file(*, key, file_obj, replace_extensions=()):
     """
-    Save an image via Django's default storage backend.
+    Save a file via Django's default storage backend.
 
     The key is relative to the bucket root; the per-app folder (from
     APP_NAME) is auto-prepended so callers can use the same key shape
@@ -127,5 +127,5 @@ def upload_image(*, key, file_obj, replace_extensions=()):
 
         return default_storage.save(full_key, file_obj)
     except Exception:
-        logger.exception("upload_image failed (key=%s)", full_key)
+        logger.exception("upload_file failed (key=%s)", full_key)
         raise

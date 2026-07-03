@@ -1,0 +1,283 @@
+{
+  "sub_unit_name": "Concurrent Collections",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Concurrent Collections?",
+      "description": "Concurrent Collections are thread-safe collection classes provided by the java.util.concurrent package. They allow multiple threads to access and modify collections safely without requiring explicit synchronization in most cases."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In multi-threaded applications, standard collections like <code>ArrayList</code> and <code>HashMap</code> are not thread-safe. The <strong>java.util.concurrent</strong> package provides specialized collection classes such as <code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>, and <code>BlockingQueue</code> that enable safe and efficient concurrent access.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Concurrent Collections?",
+      "content": "They improve performance in multi-threaded programs by reducing contention and eliminating the need for manual synchronization in many situations."
+    },
+    {
+      "type": "diagram",
+      "title": "Concurrent Collections Overview",
+      "steps": [
+        "Multiple Threads",
+        "Shared Collection",
+        "Concurrent Collection",
+        "Safe Read/Write Operations",
+        "Improved Performance"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Concurrent Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>java.util.concurrent</code> package provides several thread-safe collections designed for different concurrency scenarios.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Collection", "Purpose"],
+      "rows": [
+        ["ConcurrentHashMap", "Thread-safe key-value storage"],
+        ["CopyOnWriteArrayList", "Thread-safe list optimized for reads"],
+        ["CopyOnWriteArraySet", "Thread-safe set for mostly read operations"],
+        ["BlockingQueue", "Thread-safe producer-consumer queue"],
+        ["ConcurrentLinkedQueue", "Non-blocking thread-safe queue"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Concurrent collections allow multiple threads to work with shared data safely while minimizing locking overhead."
+    },
+    {
+      "type": "heading",
+      "content": "ConcurrentHashMap"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>ConcurrentHashMap</code> is a high-performance, thread-safe implementation of the Map interface. Unlike Hashtable, it allows multiple threads to read and update different portions of the map simultaneously.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ConcurrentHashMap Example",
+      "code": "import java.util.concurrent.*;\n\nConcurrentHashMap<Integer, String> map = new ConcurrentHashMap<>();\nmap.put(1, \"Java\");\nmap.put(2, \"Python\");\nSystem.out.println(map.get(1));"
+    },
+    {
+      "type": "fact-box",
+      "title": "Performance Advantage",
+      "content": "ConcurrentHashMap provides much better scalability than Hashtable because it minimizes locking."
+    },
+    {
+      "type": "heading",
+      "content": "CopyOnWriteArrayList"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>CopyOnWriteArrayList</code> creates a new copy of the internal array whenever modifications occur. It is ideal for applications where reads are frequent and writes are relatively rare.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "CopyOnWriteArrayList Example",
+      "code": "import java.util.concurrent.*;\n\nCopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();\nlist.add(\"A\");\nlist.add(\"B\");\nfor(String item : list){\n    System.out.println(item);\n}"
+    },
+    {
+      "type": "heading",
+      "content": "BlockingQueue"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>BlockingQueue</code> is commonly used in producer-consumer applications. If the queue is empty, consumers wait until data becomes available. If the queue is full, producers wait until space is available.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "BlockingQueue Example",
+      "code": "import java.util.concurrent.*;\n\nBlockingQueue<String> queue = new ArrayBlockingQueue<>(5);\nqueue.put(\"Task1\");\nSystem.out.println(queue.take());"
+    },
+    {
+      "type": "process_flow",
+      "title": "Producer-Consumer Workflow",
+      "steps": [
+        "Producer Creates Data",
+        "Insert into BlockingQueue",
+        "Consumer Waits if Empty",
+        "Consumer Retrieves Data",
+        "Process Completed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "ConcurrentHashMap vs HashMap"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "ConcurrentHashMap",
+      "right_title": "HashMap",
+      "left_points": [
+        "Thread-safe",
+        "Supports concurrent access",
+        "Better for multi-threading",
+        "High scalability"
+      ],
+      "right_points": [
+        "Not thread-safe",
+        "Single-thread usage",
+        "Manual synchronization required",
+        "Faster in single-threaded programs"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "CopyOnWriteArrayList vs ArrayList"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "CopyOnWriteArrayList",
+      "right_title": "ArrayList",
+      "left_points": [
+        "Thread-safe",
+        "Excellent for read-heavy workloads",
+        "Copies array on modification",
+        "Safe iteration"
+      ],
+      "right_points": [
+        "Not thread-safe",
+        "Better for frequent updates",
+        "No copying",
+        "Concurrent modification possible"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Collection", "Read", "Write"],
+      "rows": [
+        ["ConcurrentHashMap", "O(1)", "O(1)"],
+        ["CopyOnWriteArrayList", "O(1)", "O(n)"],
+        ["ConcurrentLinkedQueue", "O(1)", "O(1)"],
+        ["BlockingQueue", "O(1)", "O(1)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Concurrent Collections Performance",
+      "time_complexity": "Most operations are O(1), except CopyOnWriteArrayList writes (O(n))",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Concurrent Collections Used?",
+      "items": [
+        {
+          "question": "Web Servers",
+          "answer": "Handle multiple client requests simultaneously."
+        },
+        {
+          "question": "Banking Systems",
+          "answer": "Safely manage shared account information."
+        },
+        {
+          "question": "Producer-Consumer Systems",
+          "answer": "Exchange tasks between producer and consumer threads."
+        },
+        {
+          "question": "Caching Systems",
+          "answer": "Store frequently accessed shared data."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Multiple Service Counters",
+      "content": "Imagine several service counters in a bank working simultaneously on customer requests without interfering with each other. Concurrent collections similarly allow multiple threads to work safely on shared data."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers commonly ask about ConcurrentHashMap internals, differences from HashMap and Hashtable, CopyOnWriteArrayList use cases, BlockingQueue, synchronization, and concurrent programming concepts."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should ConcurrentHashMap replace HashMap everywhere?",
+          "answer": "No. Use it only when multiple threads access shared data."
+        },
+        {
+          "question": "Is CopyOnWriteArrayList suitable for write-heavy applications?",
+          "answer": "No. Frequent modifications require copying the entire array, making writes expensive."
+        },
+        {
+          "question": "Can standard ArrayList safely be shared across multiple threads?",
+          "answer": "No. Use synchronization or concurrent collections for thread safety."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Choose concurrent collections according to the application's access pattern. Use ConcurrentHashMap for shared maps, CopyOnWriteArrayList for read-heavy lists, and BlockingQueue for producer-consumer workflows."
+    },
+    {
+      "type": "table",
+      "headers": ["Collection", "Best Use Case"],
+      "rows": [
+        ["ConcurrentHashMap", "Shared Key-Value Data"],
+        ["CopyOnWriteArrayList", "Read-Heavy Lists"],
+        ["CopyOnWriteArraySet", "Thread-Safe Sets"],
+        ["BlockingQueue", "Producer-Consumer Communication"],
+        ["ConcurrentLinkedQueue", "Non-Blocking Queues"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Concurrent collections are thread-safe.",
+        "They belong to java.util.concurrent.",
+        "ConcurrentHashMap is preferred over Hashtable.",
+        "CopyOnWriteArrayList is ideal for read-heavy applications.",
+        "BlockingQueue supports producer-consumer design.",
+        "Choose concurrent collections based on workload characteristics."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which collection is the preferred thread-safe replacement for HashMap?",
+      "options": ["Hashtable", "TreeMap", "ConcurrentHashMap", "LinkedHashMap"],
+      "answer": "ConcurrentHashMap"
+    },
+    {
+      "type": "quiz",
+      "question": "Which collection is best suited for applications with many reads but few writes?",
+      "options": ["ArrayList", "LinkedList", "CopyOnWriteArrayList", "Vector"],
+      "answer": "CopyOnWriteArrayList"
+    },
+    {
+      "type": "quiz",
+      "question": "Which concurrent collection is commonly used in producer-consumer systems?",
+      "options": ["HashSet", "BlockingQueue", "TreeSet", "PriorityQueue"],
+      "answer": "BlockingQueue"
+    }
+  ]
+}

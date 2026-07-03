@@ -1,0 +1,429 @@
+{
+  "sub_unit_name": "Monotonic Stack Pattern",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is a Monotonic Stack?",
+      "description": "A Monotonic Stack is a stack that maintains its elements in either increasing or decreasing order while processing data."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Monotonic Stack Pattern is one of the most important optimization techniques in Data Structures and Algorithms. It helps solve problems involving nearest greater, nearest smaller, previous greater, previous smaller, and range-based queries efficiently.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Many medium and hard interview questions that appear to require O(n²) solutions can be optimized to O(n) using a Monotonic Stack."
+    },
+
+    {
+      "type": "heading",
+      "content": "Why Do We Need Monotonic Stacks?"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Suppose for every element you want to find the next greater element on the right. A brute-force solution checks all future elements, resulting in O(n²) complexity.</p>"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Brute Force",
+      "right_title": "Monotonic Stack",
+      "left_points": [
+        "Nested loops",
+        "O(n²) Time",
+        "Repeated comparisons",
+        "Poor scalability"
+      ],
+      "right_points": [
+        "Single traversal",
+        "O(n) Time",
+        "Efficient processing",
+        "Scales well"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Key Observation",
+      "content": "Every element enters and leaves the stack at most once, leading to linear complexity."
+    },
+
+    {
+      "type": "heading",
+      "content": "Types of Monotonic Stacks"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Increasing Stack",
+      "right_title": "Decreasing Stack",
+      "left_points": [
+        "Elements remain increasing",
+        "Useful for smaller element problems",
+        "Pop larger elements",
+        "Maintains ascending order"
+      ],
+      "right_points": [
+        "Elements remain decreasing",
+        "Useful for greater element problems",
+        "Pop smaller elements",
+        "Maintains descending order"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Increasing Stack Example",
+      "steps": [
+        "Push 2",
+        "Push 5",
+        "Push 8",
+        "Stack = [2, 5, 8]",
+        "Increasing Order Maintained"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Decreasing Stack Example",
+      "steps": [
+        "Push 9",
+        "Push 7",
+        "Push 4",
+        "Stack = [9, 7, 4]",
+        "Decreasing Order Maintained"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "How Monotonic Stack Works"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>When processing a new element, we remove stack elements that violate the monotonic property. This guarantees the stack always remains ordered.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "General Workflow",
+      "steps": [
+        "Traverse Array",
+        "Compare Current Element",
+        "Pop Violating Elements",
+        "Process Answer",
+        "Push Current Element"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Stack Maintenance",
+      "steps": [
+        "Stack: [8, 6, 3]",
+        "Current Element: 7",
+        "Pop 3",
+        "Pop 6",
+        "Push 7",
+        "Stack: [8, 7]"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 1: Next Greater Element"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The Next Greater Element (NGE) problem asks for the first larger element to the right of every element.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Next Greater Element Example",
+      "steps": [
+        "Array: [2, 1, 5, 3]",
+        "NGE(2) = 5",
+        "NGE(1) = 5",
+        "NGE(5) = -1",
+        "NGE(3) = -1"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Solution Strategy",
+      "description": "Use a decreasing stack and process elements from right to left."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Next Greater Element Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 2: Next Smaller Element"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>This problem finds the first smaller element appearing after the current element.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Next Smaller Example",
+      "steps": [
+        "Array: [4, 8, 5, 2]",
+        "NSE(4) = 2",
+        "NSE(8) = 5",
+        "NSE(5) = 2",
+        "NSE(2) = -1"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Solution Strategy",
+      "description": "Use an increasing stack and remove larger elements."
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 3: Previous Greater Element"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Previous Greater Element finds the nearest larger value on the left side of every element.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Previous Greater Example",
+      "steps": [
+        "Array: [5, 2, 8, 3]",
+        "PGE(2) = 5",
+        "PGE(8) = -1",
+        "PGE(3) = 8"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 4: Stock Span Problem"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The Stock Span problem calculates how many consecutive days before today had prices less than or equal to today's price.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Stock Span Example",
+      "steps": [
+        "Prices: [100, 80, 60, 70, 60, 75, 85]",
+        "Span(100)=1",
+        "Span(80)=1",
+        "Span(85)=6",
+        "Computed Using Stack"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Interview Favorite",
+      "content": "Stock Span is one of the most frequently asked Monotonic Stack interview problems."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Stock Span Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 5: Daily Temperatures"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>For every day, determine how many days must pass until a warmer temperature occurs.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Daily Temperatures",
+      "steps": [
+        "73, 74, 75, 71, 69, 72, 76",
+        "Find Next Warmer Day",
+        "Use Decreasing Stack",
+        "Generate Waiting Times"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Application 6: Largest Rectangle in Histogram"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>This advanced problem finds the largest rectangular area that can be formed within a histogram.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Histogram Problem",
+      "steps": [
+        "Analyze Bar Heights",
+        "Find Previous Smaller",
+        "Find Next Smaller",
+        "Calculate Width",
+        "Compute Maximum Area"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Advanced Application",
+      "content": "Histogram Area is considered one of the most important Monotonic Stack problems for interviews."
+    },
+
+    {
+      "type": "heading",
+      "content": "Pattern Recognition"
+    },
+
+    {
+      "type": "accordion",
+      "title": "When Should You Use a Monotonic Stack?",
+      "items": [
+        {
+          "question": "Need nearest greater element?",
+          "answer": "Consider a Monotonic Stack."
+        },
+        {
+          "question": "Need nearest smaller element?",
+          "answer": "Consider a Monotonic Stack."
+        },
+        {
+          "question": "Need previous/next relationships?",
+          "answer": "Monotonic Stack is often optimal."
+        },
+        {
+          "question": "Need O(n) optimization?",
+          "answer": "Monotonic Stack may reduce O(n²) solutions."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Increasing vs Decreasing Stack"
+    },
+
+    {
+      "type": "table",
+      "headers": ["Problem Type", "Stack Type", "Purpose"],
+      "rows": [
+        ["Next Greater", "Decreasing", "Find Larger Element"],
+        ["Previous Greater", "Decreasing", "Find Larger Left"],
+        ["Next Smaller", "Increasing", "Find Smaller Element"],
+        ["Previous Smaller", "Increasing", "Find Smaller Left"],
+        ["Histogram Area", "Increasing", "Boundary Detection"],
+        ["Stock Span", "Decreasing", "Range Computation"]
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why is my answer wrong?",
+          "answer": "You may be using the wrong stack direction."
+        },
+        {
+          "question": "Why is complexity high?",
+          "answer": "Avoid nested loops and trust stack popping."
+        },
+        {
+          "question": "Should I store values or indices?",
+          "answer": "Many problems require storing indices."
+        }
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Important Interview Tip",
+      "content": "For most Monotonic Stack problems, storing indices is often more useful than storing values because indices help compute distances and ranges."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Whenever a problem asks for nearest greater/smaller elements, previous/next relationships, spans, or range boundaries, think Monotonic Stack immediately."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Monotonic Stack maintains ordered elements.",
+        "Increasing stacks help solve smaller-element problems.",
+        "Decreasing stacks help solve greater-element problems.",
+        "Every element is pushed and popped at most once.",
+        "Most solutions run in O(n) time.",
+        "Stock Span uses a decreasing stack.",
+        "Daily Temperatures uses a monotonic stack.",
+        "Histogram Area uses previous and next smaller elements.",
+        "Store indices when distances matter.",
+        "Monotonic Stack is a top interview pattern."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which stack is commonly used for Next Greater Element problems?",
+      "options": [
+        "Increasing Stack",
+        "Decreasing Stack",
+        "Circular Queue",
+        "Heap"
+      ],
+      "answer": "Decreasing Stack"
+    },
+
+    {
+      "type": "quiz",
+      "question": "What is the typical time complexity of Monotonic Stack solutions?",
+      "options": ["O(n²)", "O(log n)", "O(n)", "O(n log n)"],
+      "answer": "O(n)"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which famous interview problem uses a Monotonic Stack?",
+      "options": ["Stock Span", "Binary Search", "Merge Sort", "Quick Sort"],
+      "answer": "Stock Span"
+    }
+  ]
+}

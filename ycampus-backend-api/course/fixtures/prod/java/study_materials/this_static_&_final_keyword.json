@@ -1,0 +1,313 @@
+{
+  "sub_unit_name": "This, Static & Final Keyword",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are this, static, and final?",
+      "description": "The keywords this, static, and final are fundamental Java keywords. The this keyword refers to the current object, static belongs to the class rather than objects, and final is used to make variables, methods, and classes unchangeable."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides several special keywords that simplify object-oriented programming. The <strong>this</strong> keyword refers to the current object, <strong>static</strong> allows members to belong to the class instead of individual objects, and <strong>final</strong> prevents modification or inheritance in different situations.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why are These Keywords Important?",
+      "content": "These keywords improve code organization, memory efficiency, security, and readability. They are frequently used in real-world Java applications."
+    },
+    {
+      "type": "diagram",
+      "title": "Keyword Overview",
+      "steps": [
+        "Create Class",
+        "Use this for Current Object",
+        "Use static for Shared Members",
+        "Use final for Constants and Restrictions"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The this Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>this</code> keyword refers to the current object. It is commonly used to distinguish instance variables from constructor or method parameters having the same name.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using this Keyword",
+      "code": "class Student {\n    String name;\n\n    Student(String name){\n        this.name = name;\n    }\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Remember",
+      "content": "Without the this keyword, local variables can hide instance variables having the same name."
+    },
+    {
+      "type": "heading",
+      "content": "Common Uses of this"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is this Used?",
+      "items": [
+        {
+          "question": "Access Instance Variables",
+          "answer": "Used to differentiate instance variables from local variables."
+        },
+        {
+          "question": "Call Another Constructor",
+          "answer": "The this() statement invokes another constructor within the same class."
+        },
+        {
+          "question": "Pass Current Object",
+          "answer": "The current object can be passed as an argument using this."
+        },
+        {
+          "question": "Return Current Object",
+          "answer": "Useful for method chaining and builder patterns."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Constructor Chaining",
+      "code": "class Student {\n    Student(){\n        this(\"Unknown\");\n    }\n\n    Student(String name){\n        System.out.println(name);\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "this Keyword Flow",
+      "steps": [
+        "Object Created",
+        "Current Object Exists",
+        "this Refers to Current Object",
+        "Access Members or Call Constructor"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The static Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>static</code> keyword belongs to the class rather than individual objects. Static members are shared by all objects of the class and can be accessed without creating an object.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Variable",
+      "code": "class Student {\n    static String college = \"ABC College\";\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Static Member Sharing",
+      "steps": [
+        "Student Class",
+        "Static Variable Created",
+        "Object 1 Uses Same Variable",
+        "Object 2 Uses Same Variable"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Static Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Static methods belong to the class and can be called directly using the class name. They cannot directly access non-static instance members.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Method Example",
+      "code": "class MathUtil {\n    static void greet(){\n        System.out.println(\"Welcome\");\n    }\n}\n\nMathUtil.greet();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Common Example",
+      "content": "The main() method is declared static because the JVM calls it before creating any object."
+    },
+    {
+      "type": "heading",
+      "content": "Static Block"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A static block executes only once when the class is loaded into memory. It is generally used to initialize static variables.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Block",
+      "code": "class Demo {\n    static {\n        System.out.println(\"Static Block Executed\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "The final Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>final</code> keyword is used to prevent modification. It can be applied to variables, methods, and classes.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Applied To", "Meaning", "Example"],
+      "rows": [
+        ["Variable", "Value cannot change", "final int MAX = 100;"],
+        ["Method", "Cannot be overridden", "final void show()"],
+        ["Class", "Cannot be inherited", "final class Utility"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Final Variables"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A final variable behaves like a constant. Once assigned a value, it cannot be modified.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Final Variable",
+      "code": "final double PI = 3.14159;\n// PI = 3.14; // Compilation Error"
+    },
+    {
+      "type": "heading",
+      "content": "Final Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A final method can be inherited but cannot be overridden by subclasses.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Final Method",
+      "code": "class Animal {\n    final void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Final Classes"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A final class cannot be extended. This is commonly used when a class should not be modified through inheritance.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Final Class",
+      "code": "final class Utility {\n}"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "static",
+      "right_title": "final",
+      "left_points": [
+        "Belongs to class",
+        "Shared among objects",
+        "Memory allocated once",
+        "Used for common members"
+      ],
+      "right_points": [
+        "Prevents modification",
+        "Creates constants",
+        "Stops overriding",
+        "Stops inheritance"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "this vs static"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "this", "static"],
+      "rows": [
+        ["Belongs To", "Current Object", "Class"],
+        ["Requires Object", "Yes", "No"],
+        ["Accesses", "Instance Members", "Static Members"],
+        ["Usage", "Object-specific operations", "Shared functionality"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "School Example",
+      "content": "Imagine a school. The 'this' keyword represents an individual student. The 'static' keyword represents the school itself, where every student shares the same school name. The 'final' keyword is like the school's registration number, which cannot be changed."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about this keyword, static variables, static methods, static blocks, final variables, final methods, and final classes are extremely common in Java interviews."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a static method directly access instance variables?",
+          "answer": "No. A static method cannot directly access non-static members because they belong to objects."
+        },
+        {
+          "question": "Can a final variable be reassigned?",
+          "answer": "No. Once initialized, its value cannot be changed."
+        },
+        {
+          "question": "Where should this() appear in a constructor?",
+          "answer": "It must always be the first statement in the constructor."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use this for the current object, static for class-level shared members, and final whenever values or behaviors should remain unchanged."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "this refers to the current object.",
+        "static members belong to the class.",
+        "Static methods can be called without creating objects.",
+        "final variables behave as constants.",
+        "final methods cannot be overridden, and final classes cannot be inherited."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword refers to the current object?",
+      "options": ["self", "this", "current", "super"],
+      "answer": "this"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword allows a member to belong to the class instead of objects?",
+      "options": ["this", "static", "final", "public"],
+      "answer": "static"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the purpose of the final keyword when applied to a variable?",
+      "options": [
+        "It makes the variable static.",
+        "It prevents the variable from being modified after initialization.",
+        "It allows multiple assignments.",
+        "It makes the variable private."
+      ],
+      "answer": "It prevents the variable from being modified after initialization."
+    }
+  ]
+}

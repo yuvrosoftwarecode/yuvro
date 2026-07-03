@@ -1,0 +1,269 @@
+{
+  "sub_unit_name": "Serialization & Deserialization",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Serialization and Deserialization?",
+      "description": "Serialization is the process of converting a Java object into a byte stream for storage or transmission. Deserialization is the reverse process of reconstructing the object from the byte stream."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In Java, objects exist only while a program is running. To save an object's state permanently or send it over a network, it must first be converted into a stream of bytes. This process is called <strong>Serialization</strong>. Later, the byte stream can be converted back into the original object through <strong>Deserialization</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Serialization?",
+      "content": "Serialization is widely used in file storage, distributed systems, caching, networking, session management, and remote communication."
+    },
+    {
+      "type": "diagram",
+      "title": "Serialization Workflow",
+      "steps": [
+        "Java Object",
+        "Serialize Object",
+        "Byte Stream",
+        "Store or Transmit",
+        "Deserialize Back to Object"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Serialization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Serialization converts an object's current state into a sequence of bytes that can be stored in a file or transmitted across a network.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Serializable Class",
+      "code": "import java.io.*;\n\nclass Student implements Serializable {\n    int id;\n    String name;\n\n    Student(int id, String name){\n        this.id = id;\n        this.name = name;\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Important Requirement",
+      "description": "A class must implement the Serializable interface to allow its objects to be serialized."
+    },
+    {
+      "type": "heading",
+      "content": "Writing an Object to a File"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>ObjectOutputStream</code> class writes serialized objects to an output stream.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Serialization Example",
+      "code": "ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(\"student.ser\"));\nout.writeObject(new Student(101, \"Rahul\"));\nout.close();"
+    },
+    {
+      "type": "heading",
+      "content": "Deserialization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Deserialization reconstructs an object from its serialized byte stream using <code>ObjectInputStream</code>.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Deserialization Example",
+      "code": "ObjectInputStream in = new ObjectInputStream(new FileInputStream(\"student.ser\"));\nStudent s = (Student) in.readObject();\nin.close();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Benefit",
+      "content": "Serialization preserves the state of an object, allowing it to be restored later exactly as it was."
+    },
+    {
+      "type": "heading",
+      "content": "Serializable Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>Serializable</code> is a marker interface that contains no methods. Its purpose is simply to indicate that objects of a class can be serialized.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Serialization Process",
+      "steps": [
+        "Create Object",
+        "Implement Serializable",
+        "Use ObjectOutputStream",
+        "Store Byte Stream",
+        "Recover Using ObjectInputStream"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The transient Keyword"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>transient</code> keyword prevents specific fields from being serialized. Such fields are skipped during serialization and receive default values during deserialization.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "transient Example",
+      "code": "class Student implements Serializable {\n    int id;\n    transient String password;\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Serialization vs Deserialization"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Serialization",
+      "right_title": "Deserialization",
+      "left_points": [
+        "Object to Byte Stream",
+        "Uses ObjectOutputStream",
+        "Stores or Transmits Data",
+        "writeObject() Method"
+      ],
+      "right_points": [
+        "Byte Stream to Object",
+        "Uses ObjectInputStream",
+        "Restores Object",
+        "readObject() Method"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Classes"
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Purpose"],
+      "rows": [
+        ["Serializable", "Marks class for serialization"],
+        ["ObjectOutputStream", "Writes serialized objects"],
+        ["ObjectInputStream", "Reads serialized objects"],
+        ["FileOutputStream", "Writes bytes to file"],
+        ["FileInputStream", "Reads bytes from file"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Serialization Used?",
+      "items": [
+        {
+          "question": "Session Management",
+          "answer": "Store user session data between requests."
+        },
+        {
+          "question": "Distributed Systems",
+          "answer": "Transfer objects between different machines."
+        },
+        {
+          "question": "Caching",
+          "answer": "Store objects efficiently for later retrieval."
+        },
+        {
+          "question": "File Storage",
+          "answer": "Save objects permanently in files."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Packing and Unpacking a Parcel",
+      "content": "Serialization is like packing your belongings into a sealed parcel so they can be transported safely. Deserialization is unpacking the parcel to retrieve the original items exactly as they were."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Serialization is a common Java interview topic. Questions often cover Serializable, transient, ObjectOutputStream, ObjectInputStream, serialVersionUID, and object persistence."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "What happens if Serializable is not implemented?",
+          "answer": "Java throws a NotSerializableException during serialization."
+        },
+        {
+          "question": "Can transient variables be serialized?",
+          "answer": "No. They are skipped during serialization."
+        },
+        {
+          "question": "Should streams always be closed?",
+          "answer": "Yes. Closing streams releases system resources and ensures proper file handling."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Serialization converts objects into byte streams, while deserialization restores those byte streams back into Java objects."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Serializable", "Enable Serialization", "implements Serializable"],
+        ["ObjectOutputStream", "Write Objects", "writeObject()"],
+        ["ObjectInputStream", "Read Objects", "readObject()"],
+        ["transient", "Skip Serialization", "transient String password;"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Serialization converts objects into byte streams.",
+        "Deserialization reconstructs objects from byte streams.",
+        "Classes must implement Serializable.",
+        "ObjectOutputStream writes serialized objects.",
+        "ObjectInputStream reads serialized objects.",
+        "transient fields are not serialized."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface must a class implement to support serialization?",
+      "options": ["Cloneable", "Serializable", "Comparable", "Iterable"],
+      "answer": "Serializable"
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is used to write serialized objects?",
+      "options": [
+        "FileWriter",
+        "BufferedWriter",
+        "ObjectOutputStream",
+        "ObjectInputStream"
+      ],
+      "answer": "ObjectOutputStream"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the purpose of the transient keyword?",
+      "options": [
+        "Make variables constant",
+        "Prevent fields from being serialized",
+        "Allow multiple inheritance",
+        "Improve loop performance"
+      ],
+      "answer": "Prevent fields from being serialized"
+    }
+  ]
+}

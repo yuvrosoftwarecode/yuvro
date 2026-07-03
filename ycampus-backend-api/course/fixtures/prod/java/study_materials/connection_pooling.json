@@ -1,0 +1,314 @@
+{
+  "sub_unit_name": "Connection Pooling",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Connection Pooling?",
+      "description": "Connection Pooling is a technique that maintains a pool of reusable database connections. Instead of creating a new connection for every database request, applications borrow a connection from the pool and return it after use."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Creating a new database connection is an expensive operation because it involves network communication, authentication, and resource allocation. <strong>Connection Pooling</strong> improves application performance by creating a limited number of reusable database connections that can be shared among multiple requests.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Connection Pooling?",
+      "content": "Connection pooling reduces the overhead of repeatedly creating and closing database connections, resulting in faster response times and better resource utilization."
+    },
+    {
+      "type": "diagram",
+      "title": "Connection Pool Workflow",
+      "steps": [
+        "Application Requests Connection",
+        "Connection Pool Checks Availability",
+        "Available Connection Assigned",
+        "Database Operation Performed",
+        "Connection Returned to Pool"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "How Connection Pooling Works"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A connection pool initializes several database connections when the application starts. Whenever a database operation is needed, an available connection is borrowed from the pool and returned after use instead of being destroyed.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Connection Lifecycle",
+      "steps": [
+        "Pool Creates Connections",
+        "Client Requests Connection",
+        "Connection Allocated",
+        "Execute SQL Operations",
+        "Return Connection to Pool",
+        "Reuse for Next Client"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Connections are reused instead of recreated, significantly improving the performance of database-driven applications."
+    },
+    {
+      "type": "heading",
+      "content": "Without vs With Connection Pooling"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Without Connection Pool",
+      "right_title": "With Connection Pool",
+      "left_points": [
+        "Creates new connection every request",
+        "Higher response time",
+        "Greater CPU and memory usage",
+        "Poor scalability"
+      ],
+      "right_points": [
+        "Reuses existing connections",
+        "Faster response time",
+        "Efficient resource utilization",
+        "Better scalability"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Using a DataSource"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Most Java applications use a <code>DataSource</code> implementation provided by a connection pooling library to obtain pooled database connections.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Obtaining a Connection",
+      "code": "DataSource dataSource = ...;\nConnection con = dataSource.getConnection();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important",
+      "content": "Closing a pooled connection does not destroy it. Instead, the connection is returned to the pool for reuse."
+    },
+    {
+      "type": "heading",
+      "content": "Popular Connection Pool Libraries"
+    },
+    {
+      "type": "table",
+      "headers": ["Library", "Description"],
+      "rows": [
+        ["HikariCP", "High-performance, lightweight connection pool"],
+        ["Apache DBCP", "Apache Database Connection Pool library"],
+        ["C3P0", "Feature-rich connection pooling library"],
+        ["Tomcat JDBC Pool", "Connection pool provided by Apache Tomcat"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Configuring a Connection Pool"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Connection pools can be configured with parameters such as maximum pool size, minimum idle connections, connection timeout, and idle timeout.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Purpose"],
+      "rows": [
+        ["Maximum Pool Size", "Maximum active connections"],
+        ["Minimum Idle", "Minimum idle connections maintained"],
+        ["Connection Timeout", "Maximum wait time for a connection"],
+        ["Idle Timeout", "Maximum idle duration before closing a connection"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "HikariCP Configuration Example",
+      "code": "HikariConfig config = new HikariConfig();\nconfig.setJdbcUrl(\"jdbc:mysql://localhost:3306/studentdb\");\nconfig.setUsername(\"root\");\nconfig.setPassword(\"password\");\nconfig.setMaximumPoolSize(10);"
+    },
+    {
+      "type": "heading",
+      "content": "Benefits of Connection Pooling"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Advantages",
+      "items": [
+        {
+          "question": "Better Performance",
+          "answer": "Avoids repeatedly creating expensive database connections."
+        },
+        {
+          "question": "Efficient Resource Usage",
+          "answer": "Reuses a fixed number of database connections."
+        },
+        {
+          "question": "Scalability",
+          "answer": "Supports a large number of concurrent users."
+        },
+        {
+          "question": "Reduced Latency",
+          "answer": "Connections are immediately available from the pool."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Connection Pool States"
+    },
+    {
+      "type": "diagram",
+      "title": "Connection States",
+      "steps": [
+        "Available",
+        "Borrowed",
+        "In Use",
+        "Returned",
+        "Available Again"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Connection Acquisition",
+      "time_complexity": "Approximately O(1) for retrieving an available pooled connection",
+      "space_complexity": "O(n), where n is the configured pool size"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Connection Pooling Used?",
+      "items": [
+        {
+          "question": "Spring Boot Applications",
+          "answer": "Manages efficient database connectivity for REST APIs."
+        },
+        {
+          "question": "Enterprise Systems",
+          "answer": "Supports thousands of simultaneous database requests."
+        },
+        {
+          "question": "Banking Applications",
+          "answer": "Handles frequent financial transactions efficiently."
+        },
+        {
+          "question": "E-commerce Platforms",
+          "answer": "Processes multiple customer requests concurrently."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Car Rental Service",
+      "content": "Imagine a car rental company with a fleet of cars. Customers borrow a car, use it, and return it when finished. The cars are reused by other customers instead of buying a new car for every trip. Connection pooling works in the same way with database connections."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Connection pooling, DataSource, HikariCP, Apache DBCP, connection reuse, maximum pool size, connection timeout, idle timeout, and database performance optimization are among the most frequently asked JDBC interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should pooled connections always be closed?",
+          "answer": "Yes. Calling close() returns the connection to the pool instead of permanently closing it."
+        },
+        {
+          "question": "Is creating a very large pool always beneficial?",
+          "answer": "No. Excessively large pools waste resources and may overload the database server."
+        },
+        {
+          "question": "Should DriverManager be used for every database request in production?",
+          "answer": "No. Modern enterprise applications typically use DataSource with connection pooling."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Connection pooling improves application performance by reusing database connections instead of creating new ones for every request."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Benefit"],
+      "rows": [
+        [
+          "Connection Pool",
+          "Stores reusable connections",
+          "Improves performance"
+        ],
+        [
+          "DataSource",
+          "Provides pooled connections",
+          "Simplifies connection management"
+        ],
+        [
+          "Maximum Pool Size",
+          "Limits active connections",
+          "Prevents resource exhaustion"
+        ],
+        [
+          "Connection Timeout",
+          "Wait limit for a connection",
+          "Improves responsiveness"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Connection pooling reuses database connections.",
+        "It improves application performance and scalability.",
+        "DataSource is commonly used with connection pools.",
+        "Popular libraries include HikariCP, Apache DBCP, C3P0, and Tomcat JDBC Pool.",
+        "Calling close() returns the connection to the pool.",
+        "Proper pool configuration is essential for optimal performance."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary purpose of connection pooling?",
+      "options": [
+        "Encrypt database data",
+        "Reuse database connections",
+        "Create multiple databases",
+        "Replace JDBC drivers"
+      ],
+      "answer": "Reuse database connections"
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface is commonly used to obtain pooled database connections?",
+      "options": ["DriverManager", "Statement", "ResultSet", "DataSource"],
+      "answer": "DataSource"
+    },
+    {
+      "type": "quiz",
+      "question": "What happens when close() is called on a pooled connection?",
+      "options": [
+        "The connection is permanently destroyed.",
+        "The database server shuts down.",
+        "The connection is returned to the pool for reuse.",
+        "The connection becomes invalid forever."
+      ],
+      "answer": "The connection is returned to the pool for reuse."
+    }
+  ]
+}

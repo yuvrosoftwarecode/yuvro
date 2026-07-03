@@ -1,0 +1,298 @@
+{
+  "sub_unit_name": "Set & HashSet",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Set and HashSet?",
+      "description": "Set is an interface in the Java Collections Framework that stores unique elements without duplicates. HashSet is a hash table-based implementation of the Set interface that provides fast insertion, deletion, and lookup operations."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike a <code>List</code>, which allows duplicate elements and maintains insertion order, a <strong>Set</strong> stores only unique values. <strong>HashSet</strong> is the most commonly used implementation because it offers excellent performance for storing and searching elements using hashing.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use HashSet?",
+      "content": "HashSet automatically prevents duplicate elements and provides nearly constant-time performance for most operations."
+    },
+    {
+      "type": "diagram",
+      "title": "Set Hierarchy",
+      "steps": [
+        "Iterable",
+        "Collection",
+        "Set Interface",
+        "HashSet Implementation",
+        "Unique Elements"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Set"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Set</code> interface represents a collection of unique elements. It does not allow duplicates and generally does not support index-based access.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Description"],
+      "rows": [
+        ["Duplicates", "Not Allowed"],
+        ["Order", "Depends on Implementation"],
+        ["Index Access", "Not Supported"],
+        ["Unique Elements", "Guaranteed"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Use Set whenever duplicate values should be eliminated automatically."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a HashSet"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>HashSet</code> class is available in the <code>java.util</code> package and is commonly used because of its fast performance.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a HashSet",
+      "code": "import java.util.*;\n\nSet<String> languages = new HashSet<>();\nlanguages.add(\"Java\");\nlanguages.add(\"Python\");\nlanguages.add(\"Java\");\nSystem.out.println(languages);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Duplicate Handling",
+      "content": "If an element already exists in a HashSet, adding it again has no effect."
+    },
+    {
+      "type": "heading",
+      "content": "Common HashSet Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>HashSet provides several methods for adding, removing, searching, and traversing unique elements.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["add()", "Adds an element"],
+        ["remove()", "Removes an element"],
+        ["contains()", "Checks if an element exists"],
+        ["size()", "Returns the number of elements"],
+        ["isEmpty()", "Checks whether the set is empty"],
+        ["clear()", "Removes all elements"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using HashSet Methods",
+      "code": "Set<Integer> numbers = new HashSet<>();\nnumbers.add(10);\nnumbers.add(20);\nnumbers.add(30);\nSystem.out.println(numbers.contains(20));\nnumbers.remove(10);"
+    },
+    {
+      "type": "heading",
+      "content": "Traversing a HashSet"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Since HashSet does not support indexing, elements are usually traversed using an enhanced for loop or an iterator.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Enhanced For Loop",
+      "code": "for(String language : languages){\n    System.out.println(language);\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working with HashSet",
+      "steps": [
+        "Create HashSet",
+        "Add Elements",
+        "Automatically Remove Duplicates",
+        "Search or Remove Elements",
+        "Traverse the Set"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "HashSet vs ArrayList"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "HashSet",
+      "right_title": "ArrayList",
+      "left_points": [
+        "No duplicate elements",
+        "No guaranteed order",
+        "No index access",
+        "Fast searching"
+      ],
+      "right_points": [
+        "Duplicates allowed",
+        "Maintains insertion order",
+        "Supports index access",
+        "Slower searching"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "HashSet vs TreeSet"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "HashSet",
+      "right_title": "TreeSet",
+      "left_points": [
+        "Uses hashing",
+        "No sorting",
+        "Faster operations",
+        "Order not guaranteed"
+      ],
+      "right_points": [
+        "Uses Red-Black Tree",
+        "Automatically sorted",
+        "Slower than HashSet",
+        "Natural ordering"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "Average Complexity"],
+      "rows": [
+        ["Add", "O(1)"],
+        ["Remove", "O(1)"],
+        ["Contains", "O(1)"],
+        ["Traversal", "O(n)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "HashSet Performance",
+      "time_complexity": "Add, Remove, Contains: O(1) Average",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is HashSet Used?",
+      "items": [
+        {
+          "question": "Removing Duplicates",
+          "answer": "Eliminate duplicate values from collections."
+        },
+        {
+          "question": "Usernames",
+          "answer": "Ensure each username is unique."
+        },
+        {
+          "question": "Unique Product IDs",
+          "answer": "Store non-repeating identifiers."
+        },
+        {
+          "question": "Membership Checking",
+          "answer": "Quickly determine whether an element exists."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Guest List",
+      "content": "A HashSet is like the guest list for an event. Every guest's name can appear only once. If someone tries to register twice, the duplicate entry is ignored."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about Set vs List, HashSet internals, hashing, duplicate handling, equals() and hashCode(), and differences between HashSet, LinkedHashSet, and TreeSet."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Does HashSet preserve insertion order?",
+          "answer": "No. Use LinkedHashSet if insertion order must be maintained."
+        },
+        {
+          "question": "Can HashSet contain duplicate elements?",
+          "answer": "No. Duplicate elements are automatically ignored."
+        },
+        {
+          "question": "Can elements be accessed using indexes?",
+          "answer": "No. HashSet does not support index-based access."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "HashSet stores only unique elements and provides fast insertion, deletion, and searching using hashing."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "HashSet", "ArrayList"],
+      "rows": [
+        ["Duplicates", "Not Allowed", "Allowed"],
+        ["Ordering", "Not Guaranteed", "Insertion Order"],
+        ["Index Access", "No", "Yes"],
+        ["Search Performance", "O(1)", "O(n)"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Set stores unique elements only.",
+        "HashSet is based on hashing.",
+        "Duplicate values are ignored.",
+        "HashSet does not support indexing.",
+        "contains() provides fast searching.",
+        "Use LinkedHashSet for insertion order and TreeSet for sorted data."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which collection automatically removes duplicate elements?",
+      "options": ["ArrayList", "LinkedList", "HashSet", "Vector"],
+      "answer": "HashSet"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the average time complexity of HashSet.contains()?",
+      "options": ["O(n)", "O(log n)", "O(1)", "O(n²)"],
+      "answer": "O(1)"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about HashSet is correct?",
+      "options": [
+        "It maintains insertion order.",
+        "It allows duplicate elements.",
+        "It stores unique elements using hashing.",
+        "It supports index-based access."
+      ],
+      "answer": "It stores unique elements using hashing."
+    }
+  ]
+}

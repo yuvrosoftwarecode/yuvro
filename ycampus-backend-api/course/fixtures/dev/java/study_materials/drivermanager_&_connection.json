@@ -1,0 +1,302 @@
+{
+  "sub_unit_name": "DriverManager & Connection",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are DriverManager & Connection?",
+      "description": "DriverManager is a JDBC utility class responsible for managing database drivers and establishing database connections, while Connection represents an active session between a Java application and a database."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Before executing SQL queries, a Java application must establish communication with the database. The <strong>DriverManager</strong> class locates an appropriate JDBC driver and creates a <strong>Connection</strong> object. This connection acts as a communication channel through which SQL statements are sent and results are received.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why are DriverManager & Connection Important?",
+      "content": "Without DriverManager and Connection, a Java application cannot communicate with a relational database. Every JDBC operation begins with establishing a valid database connection."
+    },
+    {
+      "type": "diagram",
+      "title": "Database Connection Flow",
+      "steps": [
+        "Java Application",
+        "DriverManager",
+        "JDBC Driver",
+        "Connection Created",
+        "Database Server"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Role of DriverManager"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>DriverManager</code> class manages registered JDBC drivers and selects the appropriate driver based on the database URL supplied by the application.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["getConnection()", "Creates a database connection"],
+        ["registerDriver()", "Registers a JDBC driver"],
+        ["deregisterDriver()", "Removes a registered driver"],
+        ["getDrivers()", "Returns all registered JDBC drivers"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "DriverManager automatically chooses the correct JDBC driver by examining the database URL."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a Connection"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The most commonly used method is <code>DriverManager.getConnection()</code>, which returns a <code>Connection</code> object representing an active session with the database.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Database Connection",
+      "code": "Connection con = DriverManager.getConnection(\n    \"jdbc:mysql://localhost:3306/studentdb\",\n    \"root\",\n    \"password\"\n);"
+    },
+    {
+      "type": "heading",
+      "content": "Connection URL"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The JDBC URL identifies the database type, server, port, and database name required for establishing a connection.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Part", "Example"],
+      "rows": [
+        ["Protocol", "jdbc"],
+        ["Database", "mysql"],
+        ["Host", "localhost"],
+        ["Port", "3306"],
+        ["Database Name", "studentdb"]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "JDBC URL Example",
+      "content": "jdbc:mysql://localhost:3306/studentdb connects to the MySQL database named 'studentdb' running on localhost at port 3306."
+    },
+    {
+      "type": "heading",
+      "content": "Connection Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>Connection</code> interface provides methods for executing SQL statements, managing transactions, creating prepared statements, and closing the database connection.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["createStatement()", "Creates a Statement object"],
+        ["prepareStatement()", "Creates a PreparedStatement"],
+        ["prepareCall()", "Creates a CallableStatement"],
+        ["commit()", "Commits a transaction"],
+        ["rollback()", "Rolls back a transaction"],
+        ["close()", "Closes the connection"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Statement",
+      "code": "Connection con = DriverManager.getConnection(url, user, password);\nStatement stmt = con.createStatement();"
+    },
+    {
+      "type": "heading",
+      "content": "Closing the Connection"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Closing database resources after use is important to avoid memory leaks and unnecessary database connections.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Closing Resources",
+      "code": "con.close();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Establishing a Database Connection",
+      "steps": [
+        "Load JDBC Driver",
+        "Call DriverManager.getConnection()",
+        "Receive Connection Object",
+        "Execute SQL Operations",
+        "Close Connection"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Connection Lifecycle"
+    },
+    {
+      "type": "diagram",
+      "title": "Connection States",
+      "steps": [
+        "Connection Created",
+        "SQL Execution",
+        "Transaction Processing",
+        "Commit/Rollback",
+        "Connection Closed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "DriverManager vs Connection"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "DriverManager",
+      "right_title": "Connection",
+      "left_points": [
+        "Manages JDBC drivers",
+        "Creates connections",
+        "Static utility class",
+        "Entry point of JDBC"
+      ],
+      "right_points": [
+        "Represents active database session",
+        "Executes database operations",
+        "Supports transactions",
+        "Must be closed after use"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Connection Creation",
+      "time_complexity": "Depends on network latency and database server response",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are DriverManager & Connection Used?",
+      "items": [
+        {
+          "question": "Web Applications",
+          "answer": "Connect web applications to relational databases."
+        },
+        {
+          "question": "Desktop Applications",
+          "answer": "Store and retrieve application data."
+        },
+        {
+          "question": "Enterprise Systems",
+          "answer": "Manage large-scale business databases."
+        },
+        {
+          "question": "Banking Applications",
+          "answer": "Handle secure financial transactions."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Telephone Operator",
+      "content": "Think of DriverManager as a telephone operator who connects your call to the correct department. Once connected, the phone line itself is the Connection through which both parties communicate."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "DriverManager, Connection, JDBC URL, getConnection(), createStatement(), prepareStatement(), transactions, commit(), rollback(), auto-commit mode, and connection pooling are frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why should connections always be closed?",
+          "answer": "Open connections consume database resources and may eventually exhaust the connection limit."
+        },
+        {
+          "question": "Can one Connection object communicate with multiple databases?",
+          "answer": "No. Each Connection object is associated with a single database session."
+        },
+        {
+          "question": "Should credentials be hardcoded in production code?",
+          "answer": "No. Database credentials should be stored securely using configuration files or environment variables."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "DriverManager establishes database connections, while the Connection object represents the active communication channel between Java and the database."
+    },
+    {
+      "type": "table",
+      "headers": ["Class / Interface", "Responsibility", "Common Method"],
+      "rows": [
+        ["DriverManager", "Create database connection", "getConnection()"],
+        ["Connection", "Manage database session", "createStatement()"],
+        ["Connection", "Transaction management", "commit()"],
+        ["Connection", "Close resources", "close()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "DriverManager manages JDBC drivers.",
+        "getConnection() creates a Connection object.",
+        "Connection represents an active database session.",
+        "The JDBC URL specifies the database location.",
+        "Connection provides methods for statements and transactions.",
+        "Always close database connections after use."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which JDBC class is responsible for creating database connections?",
+      "options": ["Connection", "DriverManager", "Statement", "ResultSet"],
+      "answer": "DriverManager"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method is commonly used to establish a database connection?",
+      "options": [
+        "connectDatabase()",
+        "openConnection()",
+        "getConnection()",
+        "createConnection()"
+      ],
+      "answer": "getConnection()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which interface represents an active connection to a database?",
+      "options": [
+        "DriverManager",
+        "Statement",
+        "Connection",
+        "PreparedStatement"
+      ],
+      "answer": "Connection"
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "sub_unit_name": "Lambda Expressions",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Lambda Expressions?",
+      "description": "Lambda Expressions, introduced in Java 8, provide a concise way to implement functional interfaces by allowing methods to be written without creating anonymous inner classes."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Before Java 8, developers often used anonymous inner classes to implement interfaces containing a single abstract method. <strong>Lambda Expressions</strong> simplify this process by allowing the implementation to be written as a compact expression, resulting in cleaner, more readable, and maintainable code.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Lambda Expressions?",
+      "content": "Lambda expressions reduce boilerplate code, improve readability, simplify functional programming, and integrate seamlessly with the Streams API."
+    },
+    {
+      "type": "diagram",
+      "title": "Lambda Expression Workflow",
+      "steps": [
+        "Define Functional Interface",
+        "Write Lambda Expression",
+        "Pass Lambda as Object",
+        "Execute Method",
+        "Receive Output"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Lambda Expression Syntax"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The general syntax of a lambda expression consists of parameters, an arrow operator (<code>-></code>), and the method body.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Basic Lambda Syntax",
+      "code": "(parameters) -> {\n    // method body\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A lambda expression can only implement a functional interface, which contains exactly one abstract method."
+    },
+    {
+      "type": "heading",
+      "content": "Functional Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A functional interface contains only one abstract method. Lambda expressions provide the implementation of that single method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Functional Interface Example",
+      "code": "@FunctionalInterface\ninterface Greeting {\n    void sayHello();\n}\n\nGreeting g = () -> System.out.println(\"Hello Java\");\ng.sayHello();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Functional Interface Annotation",
+      "content": "The @FunctionalInterface annotation is optional but recommended because it ensures the interface contains only one abstract method."
+    },
+    {
+      "type": "heading",
+      "content": "Lambda with Parameters"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Lambda expressions can accept one or more parameters just like regular methods.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Lambda with Parameters",
+      "code": "interface Add {\n    int sum(int a, int b);\n}\n\nAdd addition = (a, b) -> a + b;\nSystem.out.println(addition.sum(10, 20));"
+    },
+    {
+      "type": "heading",
+      "content": "Lambda with Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Lambda expressions are commonly used with collections for iteration, filtering, sorting, and processing data.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Using forEach()",
+      "code": "List<String> names = Arrays.asList(\"Alice\", \"Bob\", \"Charlie\");\n\nnames.forEach(name -> System.out.println(name));"
+    },
+    {
+      "type": "heading",
+      "content": "Lambda vs Anonymous Class"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Lambda Expression",
+      "right_title": "Anonymous Class",
+      "left_points": [
+        "Less code",
+        "Easy to read",
+        "Better performance",
+        "Supports functional programming"
+      ],
+      "right_points": [
+        "More verbose",
+        "Requires class declaration",
+        "Less readable",
+        "Older approach"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Lambda Expressions",
+      "steps": [
+        "Create Functional Interface",
+        "Write Lambda Expression",
+        "Assign to Interface Reference",
+        "Invoke Interface Method",
+        "Execute Logic"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Built-in Functional Interfaces"
+    },
+    {
+      "type": "table",
+      "headers": ["Interface", "Purpose"],
+      "rows": [
+        ["Predicate<T>", "Returns true or false"],
+        ["Function<T, R>", "Transforms one value into another"],
+        ["Consumer<T>", "Consumes an object without returning a result"],
+        ["Supplier<T>", "Produces a value without input"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Lambda Expressions Used?",
+      "items": [
+        {
+          "question": "Streams API",
+          "answer": "Perform filtering, mapping, sorting, and reduction operations."
+        },
+        {
+          "question": "Collections",
+          "answer": "Iterate, sort, and process collection elements."
+        },
+        {
+          "question": "Event Handling",
+          "answer": "Simplify GUI event listener implementations."
+        },
+        {
+          "question": "Concurrent Programming",
+          "answer": "Pass tasks to ExecutorService and threads easily."
+        }
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Lambda Performance",
+      "time_complexity": "Depends on the underlying operation",
+      "space_complexity": "Typically O(1), excluding data structures being processed"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages & Limitations"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Concise syntax",
+        "Improves readability",
+        "Supports functional programming",
+        "Works seamlessly with Streams"
+      ],
+      "right_points": [
+        "Works only with functional interfaces",
+        "Not suitable for complex implementations",
+        "Can reduce readability if overused",
+        "Cannot directly replace every anonymous class"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Quick Instructions",
+      "content": "Imagine giving a delivery person simple verbal instructions instead of writing a detailed manual. Lambda expressions similarly provide a concise way to define behavior without creating a full class."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Lambda expressions, functional interfaces, method references, Streams API, Predicate, Function, Consumer, Supplier, and Java 8 features are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can lambda expressions implement any interface?",
+          "answer": "No. They can implement only functional interfaces with a single abstract method."
+        },
+        {
+          "question": "Should lambda expressions replace all anonymous classes?",
+          "answer": "No. Anonymous classes are still useful when multiple methods or additional state are required."
+        },
+        {
+          "question": "Is the @FunctionalInterface annotation mandatory?",
+          "answer": "No. It is optional but recommended because it helps detect accidental interface changes."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Lambda expressions provide a concise implementation of functional interfaces and form the foundation of modern Java functional programming."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Lambda Expression", "Anonymous Class"],
+      "rows": [
+        ["Syntax", "Short", "Verbose"],
+        ["Readability", "High", "Moderate"],
+        ["Functional Interface Support", "Yes", "Yes"],
+        ["Boilerplate Code", "Minimal", "More"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Lambda expressions were introduced in Java 8.",
+        "They work only with functional interfaces.",
+        "The arrow operator (->) separates parameters and implementation.",
+        "They reduce boilerplate code.",
+        "They integrate closely with the Streams API.",
+        "Built-in functional interfaces include Predicate, Function, Consumer, and Supplier."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which Java version introduced Lambda Expressions?",
+      "options": ["Java 6", "Java 7", "Java 8", "Java 11"],
+      "answer": "Java 8"
+    },
+    {
+      "type": "quiz",
+      "question": "Lambda expressions can directly implement which type of interface?",
+      "options": [
+        "Marker Interface",
+        "Functional Interface",
+        "Serializable Interface",
+        "Cloneable Interface"
+      ],
+      "answer": "Functional Interface"
+    },
+    {
+      "type": "quiz",
+      "question": "Which symbol separates the parameter list from the lambda body?",
+      "options": ["::", "=>", "->", "==>"],
+      "answer": "->"
+    }
+  ]
+}

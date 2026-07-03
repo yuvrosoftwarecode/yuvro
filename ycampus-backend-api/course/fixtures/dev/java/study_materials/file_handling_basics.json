@@ -1,0 +1,298 @@
+{
+  "sub_unit_name": "File Handling Basics",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is File Handling?",
+      "description": "File Handling in Java is the process of creating, reading, writing, updating, and deleting files stored on a computer. It enables applications to store data permanently instead of keeping it only in memory."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Normally, data stored in variables is lost when a program terminates. File handling allows Java applications to store information permanently in files so that it can be accessed later. Java provides classes such as <code>File</code>, <code>FileReader</code>, <code>FileWriter</code>, <code>BufferedReader</code>, and <code>BufferedWriter</code> to perform file operations.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn File Handling?",
+      "content": "Almost every real-world application stores data in files, including configuration settings, logs, reports, CSV files, and text documents."
+    },
+    {
+      "type": "diagram",
+      "title": "File Handling Workflow",
+      "steps": [
+        "Create File",
+        "Open File",
+        "Read or Write Data",
+        "Close File",
+        "Store Data Permanently"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The File Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>File</code> class in the <code>java.io</code> package represents files and directories. It provides methods for creating, deleting, renaming, and checking file properties.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a File Object",
+      "code": "import java.io.File;\n\nFile file = new File(\"student.txt\");"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "A File object represents the path to a file or directory. It does not automatically create the physical file."
+    },
+    {
+      "type": "heading",
+      "content": "Creating a File"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>createNewFile()</code> method creates a new file if it does not already exist.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Create File Example",
+      "code": "import java.io.*;\n\nFile file = new File(\"student.txt\");\nfile.createNewFile();"
+    },
+    {
+      "type": "heading",
+      "content": "Writing to a File"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>FileWriter</code> class is used to write text data into a file. Existing content can be overwritten or appended depending on the constructor used.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Writing Data",
+      "code": "import java.io.*;\n\nFileWriter writer = new FileWriter(\"student.txt\");\nwriter.write(\"Welcome to Java File Handling\");\nwriter.close();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Best Practice",
+      "content": "Always close FileWriter after writing data to ensure all content is saved properly."
+    },
+    {
+      "type": "heading",
+      "content": "Reading from a File"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>FileReader</code> class reads character data from a file, while <code>BufferedReader</code> provides faster and more convenient reading line by line.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reading Data",
+      "code": "import java.io.*;\n\nFileReader reader = new FileReader(\"student.txt\");\nint ch;\nwhile((ch = reader.read()) != -1){\n    System.out.print((char) ch);\n}\nreader.close();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Reading Process",
+      "steps": [
+        "Open File",
+        "Read Characters",
+        "Process Data",
+        "Reach End of File",
+        "Close File"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common File Classes"
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Purpose"],
+      "rows": [
+        ["File", "Represents files and directories"],
+        ["FileReader", "Reads character data"],
+        ["FileWriter", "Writes character data"],
+        ["BufferedReader", "Reads data efficiently"],
+        ["BufferedWriter", "Writes data efficiently"],
+        ["Scanner", "Reads formatted file input"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Useful File Methods"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Used Methods",
+      "items": [
+        {
+          "question": "createNewFile()",
+          "answer": "Creates a new file if it does not already exist."
+        },
+        {
+          "question": "exists()",
+          "answer": "Checks whether a file exists."
+        },
+        {
+          "question": "delete()",
+          "answer": "Deletes a file."
+        },
+        {
+          "question": "length()",
+          "answer": "Returns the size of the file in bytes."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Handling File Exceptions"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>File operations may throw checked exceptions such as <code>IOException</code> or <code>FileNotFoundException</code>. These exceptions must be handled using try-catch blocks or declared using the throws keyword.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Handling IOException",
+      "code": "try {\n    FileWriter writer = new FileWriter(\"student.txt\");\n    writer.write(\"Hello\");\n    writer.close();\n} catch(IOException e) {\n    System.out.println(e.getMessage());\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Without File Handling",
+      "right_title": "With File Handling",
+      "left_points": [
+        "Data lost after program ends",
+        "No permanent storage",
+        "Temporary information only",
+        "Limited usefulness"
+      ],
+      "right_points": [
+        "Data stored permanently",
+        "Easy retrieval of information",
+        "Supports reports and logs",
+        "Used in real-world applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is File Handling Used?",
+      "items": [
+        {
+          "question": "Student Management Systems",
+          "answer": "Store student records in files."
+        },
+        {
+          "question": "Log Files",
+          "answer": "Record application events and errors."
+        },
+        {
+          "question": "Configuration Files",
+          "answer": "Store application settings."
+        },
+        {
+          "question": "Report Generation",
+          "answer": "Export reports in text or CSV format."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Notebook Storage",
+      "content": "Writing information on paper preserves it even after you leave the classroom. Similarly, file handling stores data permanently so it remains available after the program stops."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Java interviews often include questions about the File class, FileReader vs FileWriter, BufferedReader, IOException, file creation, reading, writing, and best practices for closing resources."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a File object create a file automatically?",
+          "answer": "No. A File object only represents a file path. Use createNewFile() to create the actual file."
+        },
+        {
+          "question": "Why should files be closed?",
+          "answer": "Closing files releases system resources and ensures all buffered data is written."
+        },
+        {
+          "question": "Should file operations always handle IOException?",
+          "answer": "Yes. Most file operations can throw checked exceptions that must be handled."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use the File class to represent files, FileReader and FileWriter for reading and writing text, and always close resources after file operations."
+    },
+    {
+      "type": "table",
+      "headers": ["Class", "Purpose", "Example"],
+      "rows": [
+        ["File", "Represent a file", "new File(\"data.txt\")"],
+        ["FileReader", "Read file", "read()"],
+        ["FileWriter", "Write file", "write()"],
+        ["BufferedReader", "Read efficiently", "readLine()"],
+        ["BufferedWriter", "Write efficiently", "write()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "File handling provides permanent data storage.",
+        "The File class represents files and directories.",
+        "FileReader reads text files.",
+        "FileWriter writes text files.",
+        "Always close file resources after use.",
+        "Handle IOException using try-catch or throws."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is used to represent a file in Java?",
+      "options": ["Reader", "Writer", "File", "Scanner"],
+      "answer": "File"
+    },
+    {
+      "type": "quiz",
+      "question": "Which class is commonly used to write text into a file?",
+      "options": ["FileReader", "FileWriter", "Scanner", "InputStream"],
+      "answer": "FileWriter"
+    },
+    {
+      "type": "quiz",
+      "question": "Why should a file be closed after reading or writing?",
+      "options": [
+        "To increase CPU speed",
+        "To release resources and save data properly",
+        "To delete the file",
+        "To avoid creating variables"
+      ],
+      "answer": "To release resources and save data properly"
+    }
+  ]
+}
