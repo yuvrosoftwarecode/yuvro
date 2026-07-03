@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from assessment.models import SkillTest, Contest, MockInterview, JobTest, CertificationExam, PredefinedInterviewQuestion
+from assessment.models import SkillTest, Contest, JobTest, CertificationExam
 from course.models import Course, Topic, Question
 
 User = get_user_model()
@@ -43,7 +43,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["clear"]:
             self.stdout.write("Clearing existing assessment data...")
-            MockInterview.objects.all().delete()
             Contest.objects.all().delete()
             SkillTest.objects.all().delete()
             CertificationExam.objects.all().delete()

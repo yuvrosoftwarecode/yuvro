@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "core",
     "authentication",
     "ai_assistant",
+    "mockinterviews",
 ]
 
 MIDDLEWARE = [

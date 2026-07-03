@@ -4,7 +4,6 @@ from course.models import Question
 from .models import (
     SkillTest,
     Contest,
-    MockInterview,
     JobTest,
     CertificationExam,
 )
@@ -25,7 +24,6 @@ def handle_question_deletion(sender, instance, **kwargs):
     assessment_models = [
         SkillTest,
         Contest,
-        MockInterview,
         JobTest,
         CertificationExam,
     ]

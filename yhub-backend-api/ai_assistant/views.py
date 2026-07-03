@@ -776,6 +776,16 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             
         interview_session.save()
 
+        # Update linked MockInterviewSubmission if it exists
+        if interview_session.chat_session:
+            from django.apps import apps
+            MockInterviewSubmission = apps.get_model('mockinterviews', 'MockInterviewSubmission')
+            mock_submission = MockInterviewSubmission.objects.filter(chat_session=interview_session.chat_session).first()
+            if mock_submission and mock_submission.status != MockInterviewSubmission.STATUS_COMPLETED:
+                mock_submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                mock_submission.completed_at = timezone.now()
+                mock_submission.save(update_fields=['status', 'completed_at'])
+
         try:
             report_generator = InterviewReportGenerator()
             

@@ -47,6 +47,12 @@ const StudentMockInterview = () => {
   // Step 2: Permission granted → request actual media stream and start interview
   const handlePermissionConfirmed = async () => {
     if (!selectedRole || startingRef.current) return;
+    
+    // Unlock speech synthesis engine using the initial user gesture!
+    const unlockUtterance = new SpeechSynthesisUtterance('');
+    unlockUtterance.volume = 0;
+    window.speechSynthesis.speak(unlockUtterance);
+    
     startingRef.current = true;
     setStarting(true);
     let stream: MediaStream | null = null;
