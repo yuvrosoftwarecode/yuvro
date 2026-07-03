@@ -1,0 +1,325 @@
+{
+  "sub_unit_name": "Classification - Solid fuels: Coal - Analysis of coal - Proximate and Ultimate analysis and their significance",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Solid Fuels",
+      "description": "Solid fuels are combustible solid substances that produce heat energy on burning. Coal is the most widely used solid fuel in domestic, industrial, and power generation sectors."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Solid fuels are economical, easy to transport and store, and possess good calorific value. Among all solid fuels, <strong>coal</strong> is the most important fossil fuel used for steam generation, electricity production, metallurgy, and various industrial processes.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Coal remains one of the major energy sources for thermal power plants, steel industries, cement industries, and boilers."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Fuels",
+      "steps": [
+        "Fuels",
+        "Solid Fuels",
+        "Liquid Fuels",
+        "Gaseous Fuels",
+        "Industrial Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Solid Fuels"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Solid fuels are broadly classified into <strong>natural solid fuels</strong> and <strong>artificial solid fuels</strong>. Natural fuels occur in nature, whereas artificial fuels are prepared by processing natural fuels.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Examples", "Characteristics"],
+      "rows": [
+        [
+          "Natural Solid Fuels",
+          "Wood, Peat, Lignite, Coal",
+          "Available naturally"
+        ],
+        [
+          "Artificial Solid Fuels",
+          "Coke, Charcoal, Briquettes",
+          "Prepared from natural fuels"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Coal"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Coal is a black or brown combustible sedimentary rock formed from the decomposition of ancient plant matter under high pressure and temperature over millions of years. It mainly contains carbon along with hydrogen, oxygen, sulphur, nitrogen, and mineral matter.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Coal"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Carbon Content", "Characteristics"],
+      "rows": [
+        ["Peat", "Lowest", "High moisture, low calorific value"],
+        ["Lignite", "Low", "Brown coal, moderate heating value"],
+        ["Bituminous", "High", "Most commonly used industrial coal"],
+        ["Anthracite", "Highest", "Hard, highest calorific value, least smoke"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Need for Coal Analysis"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Coal analysis determines the quality, combustion efficiency, suitability for industrial use, storage behavior, and economic value of coal. It helps engineers select appropriate coal for boilers, furnaces, and power plants.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Types of Coal Analysis"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Proximate Analysis",
+      "right_title": "Ultimate Analysis",
+      "left_points": [
+        "Determines moisture",
+        "Determines volatile matter",
+        "Determines ash",
+        "Determines fixed carbon"
+      ],
+      "right_points": [
+        "Determines carbon",
+        "Determines hydrogen",
+        "Determines nitrogen, sulphur",
+        "Determines oxygen"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Proximate Analysis"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Proximate analysis is a simple method used to determine the percentages of <strong>moisture, volatile matter, ash, and fixed carbon</strong> present in coal. It provides quick information regarding the combustion characteristics of coal.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Proximate Analysis",
+      "steps": [
+        "Coal Sample",
+        "Moisture Determination",
+        "Volatile Matter",
+        "Ash Content",
+        "Fixed Carbon"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Moisture Content"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Moisture is determined by heating coal at about <strong>105–110°C</strong>. High moisture reduces calorific value, increases transportation cost, and lowers combustion efficiency.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Volatile Matter"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Volatile matter is determined by heating coal in the absence of air at about <strong>950°C</strong>. High volatile matter makes ignition easier but produces more smoke during combustion.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Ash Content"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Ash is the non-combustible inorganic residue left after complete combustion. High ash decreases heating value and causes clinker formation in boilers.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Fixed Carbon"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Fixed carbon represents the solid combustible matter remaining after removing moisture, volatile matter, and ash. Higher fixed carbon indicates better fuel quality and higher calorific value.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Parameter", "Significance"],
+      "rows": [
+        ["Moisture", "Reduces heating value"],
+        ["Volatile Matter", "Affects ignition and flame"],
+        ["Ash", "Causes clinker and lowers efficiency"],
+        ["Fixed Carbon", "Determines useful heat produced"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Ultimate Analysis"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Ultimate analysis determines the elemental composition of coal, namely <strong>carbon, hydrogen, oxygen, nitrogen, sulphur, and ash</strong>. It is useful for combustion calculations and determining calorific value.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Elements Determined"
+    },
+    {
+      "type": "accordion",
+      "title": "Importance of Each Element",
+      "items": [
+        {
+          "question": "Carbon",
+          "answer": "Main heat-producing constituent. Higher carbon means higher calorific value."
+        },
+        {
+          "question": "Hydrogen",
+          "answer": "Contributes to heat generation but forms water during combustion."
+        },
+        {
+          "question": "Oxygen",
+          "answer": "Reduces the effective calorific value of coal."
+        },
+        {
+          "question": "Nitrogen",
+          "answer": "Does not contribute to heating and may form harmful oxides."
+        },
+        {
+          "question": "Sulphur",
+          "answer": "Produces SO₂ causing corrosion and air pollution."
+        },
+        {
+          "question": "Ash",
+          "answer": "Reduces fuel efficiency and increases maintenance cost."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Significance of Proximate Analysis"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Boiler Performance",
+          "answer": "Helps select suitable coal for efficient boiler operation."
+        },
+        {
+          "question": "Fuel Quality",
+          "answer": "Quickly indicates the combustion quality of coal."
+        },
+        {
+          "question": "Storage",
+          "answer": "Moisture information helps in proper storage."
+        },
+        {
+          "question": "Industrial Selection",
+          "answer": "Used for selecting coal for furnaces and power plants."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Significance of Ultimate Analysis"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Calorific Value",
+          "answer": "Used in Dulong's formula for calculating HCV."
+        },
+        {
+          "question": "Air Requirement",
+          "answer": "Helps determine theoretical oxygen needed for combustion."
+        },
+        {
+          "question": "Pollution Control",
+          "answer": "Sulphur and nitrogen estimation helps reduce emissions."
+        },
+        {
+          "question": "Combustion Design",
+          "answer": "Useful in designing furnaces and combustion systems."
+        }
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Coal Analysis Process",
+      "steps": [
+        "Collect Sample",
+        "Perform Proximate Analysis",
+        "Perform Ultimate Analysis",
+        "Evaluate Fuel Quality",
+        "Industrial Utilization"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Differentiate proximate and ultimate analysis clearly. Questions frequently ask the parameters determined in each analysis and their significance."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Coal is the most important solid fossil fuel.",
+        "Solid fuels are classified as natural and artificial.",
+        "Coal is classified into peat, lignite, bituminous, and anthracite.",
+        "Proximate analysis determines moisture, volatile matter, ash, and fixed carbon.",
+        "Ultimate analysis determines carbon, hydrogen, oxygen, nitrogen, sulphur, and ash.",
+        "Moisture and ash reduce fuel efficiency.",
+        "Higher fixed carbon and carbon content indicate better quality coal.",
+        "Ultimate analysis is useful for combustion calculations and calorific value estimation."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which parameter is NOT determined in proximate analysis?",
+      "options": ["Moisture", "Ash", "Carbon", "Volatile matter"],
+      "answer": "Carbon"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of coal has the highest carbon content?",
+      "options": ["Peat", "Lignite", "Bituminous", "Anthracite"],
+      "answer": "Anthracite"
+    },
+    {
+      "type": "quiz",
+      "question": "Ultimate analysis determines the percentage of:",
+      "options": [
+        "Carbon and Hydrogen",
+        "Sulphur and Nitrogen",
+        "Oxygen",
+        "All of the above"
+      ],
+      "answer": "All of the above"
+    },
+    {
+      "type": "quiz",
+      "question": "High ash content in coal mainly:",
+      "options": [
+        "Increases calorific value",
+        "Improves combustion",
+        "Reduces boiler efficiency",
+        "Increases fixed carbon"
+      ],
+      "answer": "Reduces boiler efficiency"
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "sub_unit_name": "Smart materials and their engineering applications",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Smart Materials",
+      "description": "Smart materials are advanced materials that can sense changes in their surroundings and respond automatically by changing one or more of their properties such as shape, size, color, stiffness, or electrical characteristics."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike conventional materials, smart materials can respond to external stimuli such as temperature, pressure, electric field, magnetic field, light, moisture, or stress. Their ability to adapt to changing environments makes them valuable in modern engineering, medicine, aerospace, robotics, and electronics.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Smart materials improve efficiency, reliability, automation, energy conservation, and safety in engineering systems."
+    },
+    {
+      "type": "diagram",
+      "title": "Working of Smart Materials",
+      "steps": [
+        "External Stimulus",
+        "Material Senses Change",
+        "Internal Response",
+        "Property Changes",
+        "Desired Action"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Smart Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Smart materials possess unique properties that enable them to detect environmental changes and respond automatically without human intervention. These responses are generally reversible and repeatable.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Characteristics",
+      "items": [
+        {
+          "question": "Self-Sensing",
+          "answer": "Can detect changes in the surrounding environment."
+        },
+        {
+          "question": "Self-Response",
+          "answer": "Automatically responds to external stimuli."
+        },
+        {
+          "question": "Adaptability",
+          "answer": "Adjusts its properties according to operating conditions."
+        },
+        {
+          "question": "Reliability",
+          "answer": "Provides consistent performance over repeated cycles."
+        },
+        {
+          "question": "Energy Efficiency",
+          "answer": "Consumes less energy while providing intelligent control."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Stimuli for Smart Materials"
+    },
+    {
+      "type": "table",
+      "headers": ["Stimulus", "Response"],
+      "rows": [
+        ["Temperature", "Shape or dimension changes"],
+        ["Pressure", "Mechanical deformation"],
+        ["Electric Field", "Expansion or contraction"],
+        ["Magnetic Field", "Movement or shape change"],
+        ["Light", "Color or electrical property changes"],
+        ["Moisture", "Swelling or contraction"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Smart Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Smart materials are classified based on the type of stimulus they respond to and the type of response they produce.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Material", "Stimulus", "Response"],
+      "rows": [
+        ["Shape Memory Alloys", "Temperature", "Recovers original shape"],
+        ["Piezoelectric Materials", "Pressure", "Generates electricity"],
+        ["Magnetostrictive Materials", "Magnetic Field", "Changes dimensions"],
+        ["Electrochromic Materials", "Electric Field", "Changes color"],
+        ["Thermochromic Materials", "Temperature", "Changes color"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Shape Memory Alloys (SMA)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Shape Memory Alloys are metallic materials that return to their original shape when heated after being deformed. Nickel-Titanium (Nitinol) is the most widely used shape memory alloy.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Examples",
+      "content": "Nitinol (Nickel-Titanium), Copper-Zinc-Aluminium and Copper-Aluminium-Nickel alloys are common shape memory materials."
+    },
+    {
+      "type": "process_flow",
+      "title": "Shape Memory Effect",
+      "steps": [
+        "Original Shape",
+        "Deformation",
+        "Heating",
+        "Recovery",
+        "Original Shape Restored"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Piezoelectric Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Piezoelectric materials generate electrical voltage when mechanical stress is applied. Conversely, they deform when subjected to an electric field.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Material", "Application"],
+      "rows": [
+        ["Quartz", "Sensors"],
+        ["PZT", "Actuators"],
+        ["Barium Titanate", "Ultrasonic devices"],
+        ["Rochelle Salt", "Microphones"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Electrochromic Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Electrochromic materials change their color or transparency when an electric voltage is applied. They are widely used in smart windows and electronic displays.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Magnetostrictive Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>These materials change their dimensions when exposed to a magnetic field. They are used in precision actuators, sonar systems, and vibration control devices.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Engineering Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Applications",
+      "items": [
+        {
+          "question": "Civil Engineering",
+          "answer": "Smart structures, earthquake-resistant buildings, and bridge health monitoring."
+        },
+        {
+          "question": "Automobile Engineering",
+          "answer": "Airbag sensors, adaptive suspension systems, and smart braking."
+        },
+        {
+          "question": "Aerospace Engineering",
+          "answer": "Shape-changing aircraft wings, vibration control, and structural monitoring."
+        },
+        {
+          "question": "Biomedical Engineering",
+          "answer": "Artificial bones, dental braces, stents, and surgical instruments."
+        },
+        {
+          "question": "Electronics",
+          "answer": "Touch sensors, microphones, speakers, and smart displays."
+        },
+        {
+          "question": "Robotics",
+          "answer": "Artificial muscles, intelligent actuators, and precision motion control."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Smart Materials"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Automatic Response",
+          "answer": "React automatically to environmental changes."
+        },
+        {
+          "question": "Improved Efficiency",
+          "answer": "Increase system performance with minimum energy."
+        },
+        {
+          "question": "Reduced Maintenance",
+          "answer": "Early detection of faults minimizes repair costs."
+        },
+        {
+          "question": "Long Service Life",
+          "answer": "Provide better durability and reliability."
+        },
+        {
+          "question": "High Precision",
+          "answer": "Suitable for sensitive engineering applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations"
+    },
+    {
+      "type": "accordion",
+      "title": "Challenges",
+      "items": [
+        {
+          "question": "High Cost",
+          "answer": "Manufacturing smart materials is expensive."
+        },
+        {
+          "question": "Complex Design",
+          "answer": "Requires sophisticated manufacturing techniques."
+        },
+        {
+          "question": "Limited Availability",
+          "answer": "Some smart materials are difficult to produce commercially."
+        },
+        {
+          "question": "Special Operating Conditions",
+          "answer": "Certain materials require controlled environments."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Conventional Materials vs Smart Materials"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Conventional Materials",
+      "right_title": "Smart Materials",
+      "left_points": [
+        "Passive materials",
+        "No self-response",
+        "Fixed properties",
+        "Require external control"
+      ],
+      "right_points": [
+        "Active materials",
+        "Respond automatically",
+        "Adaptive properties",
+        "Intelligent behavior"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Future Scope"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Smart materials are expected to play an important role in future technologies such as smart cities, wearable electronics, self-healing structures, intelligent transportation systems, biomedical implants, robotics, nanotechnology, and space exploration.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Frequently asked questions include the definition of smart materials, characteristics, classification, examples, engineering applications, and advantages."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Smart materials respond automatically to external stimuli.",
+        "Common stimuli include temperature, pressure, electric field, magnetic field, light, and moisture.",
+        "Shape Memory Alloys regain their original shape after heating.",
+        "Piezoelectric materials convert mechanical energy into electrical energy.",
+        "Electrochromic materials change color under electric voltage.",
+        "Magnetostrictive materials respond to magnetic fields.",
+        "Smart materials are widely used in aerospace, medicine, robotics, civil engineering, and electronics.",
+        "They improve efficiency, automation, and safety.",
+        "High manufacturing cost is a major limitation."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Smart materials respond to:",
+      "options": [
+        "Only temperature",
+        "Only pressure",
+        "External stimuli",
+        "Only electricity"
+      ],
+      "answer": "External stimuli"
+    },
+    {
+      "type": "quiz",
+      "question": "Which smart material regains its original shape after heating?",
+      "options": ["Quartz", "Nitinol", "Graphite", "PVC"],
+      "answer": "Nitinol"
+    },
+    {
+      "type": "quiz",
+      "question": "Piezoelectric materials convert mechanical stress into:",
+      "options": ["Heat", "Electricity", "Light", "Magnetism"],
+      "answer": "Electricity"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an application of smart materials?",
+      "options": [
+        "Bridge health monitoring",
+        "Plastic bottles",
+        "Wooden furniture",
+        "Brick manufacturing"
+      ],
+      "answer": "Bridge health monitoring"
+    }
+  ]
+}

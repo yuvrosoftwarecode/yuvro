@@ -1,0 +1,267 @@
+{
+  "sub_unit_name": "Definition - Classification of polymers with examples - Types of polymerization - addition (free radical addition) and condensation polymerization with examples - Nylon 6:6, Terylene",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Polymers?",
+      "description": "Polymers are high molecular weight macromolecules formed by the repeated linking of small molecules called monomers through chemical reactions known as polymerization."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Polymers are widely used in engineering, medicine, packaging, textiles, automobiles, electronics, and construction due to their lightweight nature, strength, flexibility, and resistance to chemicals. Both natural and synthetic polymers play an important role in daily life.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Did You Know?",
+      "content": "The word 'polymer' comes from the Greek words 'poly' meaning many and 'mer' meaning parts."
+    },
+    {
+      "type": "diagram",
+      "title": "Polymer Formation",
+      "steps": [
+        "Monomers",
+        "Polymerization",
+        "Repeated Linking",
+        "Long Polymer Chain",
+        "Useful Engineering Material"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Definition of Polymer"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A polymer is a giant molecule consisting of a large number of repeating structural units called <strong>monomers</strong>. These monomers are chemically bonded together to form long molecular chains.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Polymers"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Polymers can be classified based on their source, structure, and method of polymerization.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Classification",
+        "Types",
+        "Examples"
+      ],
+      "rows": [
+        [
+          "Based on Source",
+          "Natural",
+          "Rubber, Cellulose, Starch"
+        ],
+        [
+          "Based on Source",
+          "Synthetic",
+          "PVC, Nylon, Terylene"
+        ],
+        [
+          "Based on Structure",
+          "Linear",
+          "HDPE, Nylon"
+        ],
+        [
+          "Based on Structure",
+          "Cross-linked",
+          "Bakelite, Melamine"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polymerization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Polymerization</strong> is the chemical process in which a large number of monomer molecules combine to form a polymer. The two major types are <strong>Addition Polymerization</strong> and <strong>Condensation Polymerization</strong>.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Polymerization Process",
+      "steps": [
+        "Monomer Selection",
+        "Initiation",
+        "Chain Formation",
+        "Polymer Growth",
+        "Polymer Product"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Addition Polymerization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In <strong>addition polymerization</strong>, unsaturated monomers containing double bonds combine without the elimination of any small molecule. It generally proceeds through a free radical mechanism involving initiation, propagation, and termination.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Free Radical Addition Polymerization",
+      "description": "Free radicals initiate the reaction by opening the double bond of monomers, leading to chain growth until termination occurs."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Monomer",
+        "Polymer"
+      ],
+      "rows": [
+        [
+          "Ethylene",
+          "Polyethylene (PE)"
+        ],
+        [
+          "Vinyl Chloride",
+          "PVC"
+        ],
+        [
+          "Styrene",
+          "Polystyrene"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Condensation Polymerization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In <strong>condensation polymerization</strong>, two or more different monomers react with the elimination of small molecules such as water, ammonia, or methanol to form polymers.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Nylon 6:6"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Nylon 6:6</strong> is a condensation polymer produced by the reaction of hexamethylene diamine and adipic acid with the elimination of water molecules. It possesses high strength, toughness, and excellent wear resistance.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications of Nylon 6:6",
+      "content": "Used in gears, bearings, ropes, fishing nets, tyre cords, textile fibers, engineering plastics, and machine parts."
+    },
+    {
+      "type": "heading",
+      "content": "Terylene"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Terylene (PET)</strong> is a polyester formed by the condensation reaction between ethylene glycol and terephthalic acid. It has high tensile strength, good chemical resistance, and dimensional stability.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Applications of Terylene",
+      "content": "Used in textile fibers, PET bottles, films, packaging materials, seat belts, and industrial fabrics."
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Polymerization Methods"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Addition Polymerization",
+      "right_title": "Condensation Polymerization",
+      "left_points": [
+        "Uses unsaturated monomers",
+        "No by-product formed",
+        "Chain growth mechanism",
+        "Examples: PE, PVC, Polystyrene"
+      ],
+      "right_points": [
+        "Uses bi-functional monomers",
+        "Water or alcohol eliminated",
+        "Step growth mechanism",
+        "Examples: Nylon 6:6, Terylene"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Polymers"
+    },
+    {
+      "type": "accordion",
+      "title": "Why are Polymers Important?",
+      "items": [
+        {
+          "question": "Light Weight",
+          "answer": "Polymers are much lighter than metals, making them ideal for engineering applications."
+        },
+        {
+          "question": "Chemical Resistance",
+          "answer": "Most polymers resist acids, alkalis, and corrosion."
+        },
+        {
+          "question": "Easy Processing",
+          "answer": "They can be easily molded into different shapes and sizes."
+        },
+        {
+          "question": "Wide Applications",
+          "answer": "Used in packaging, automobiles, electrical insulation, medicine, textiles, and aerospace."
+        }
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Polymers are formed from repeating monomer units.",
+        "Polymerization is of two types: addition and condensation.",
+        "Addition polymerization does not eliminate by-products.",
+        "Condensation polymerization eliminates small molecules like water.",
+        "Nylon 6:6 is formed from adipic acid and hexamethylene diamine.",
+        "Terylene is a polyester formed from ethylene glycol and terephthalic acid."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of polymerization does not produce any by-product?",
+      "options": [
+        "Condensation polymerization",
+        "Addition polymerization",
+        "Copolymerization",
+        "Cross-linking"
+      ],
+      "answer": "Addition polymerization"
+    },
+    {
+      "type": "quiz",
+      "question": "Nylon 6:6 is an example of:",
+      "options": [
+        "Addition polymer",
+        "Condensation polymer",
+        "Natural polymer",
+        "Elastomer"
+      ],
+      "answer": "Condensation polymer"
+    },
+    {
+      "type": "quiz",
+      "question": "Terylene is produced from:",
+      "options": [
+        "Ethylene and chlorine",
+        "Ethylene glycol and terephthalic acid",
+        "Styrene and benzene",
+        "Vinyl chloride and ethylene"
+      ],
+      "answer": "Ethylene glycol and terephthalic acid"
+    },
+    {
+      "type": "quiz",
+      "question": "PVC is produced by which type of polymerization?",
+      "options": [
+        "Addition polymerization",
+        "Condensation polymerization",
+        "Step polymerization",
+        "None of these"
+      ],
+      "answer": "Addition polymerization"
+    }
+  ]
+}

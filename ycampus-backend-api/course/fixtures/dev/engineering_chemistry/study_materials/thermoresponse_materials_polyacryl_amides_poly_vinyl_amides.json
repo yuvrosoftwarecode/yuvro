@@ -1,0 +1,420 @@
+{
+  "sub_unit_name": "Thermoresponse materials- Polyacryl amides, Poly vinyl amides",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Thermoresponsive Materials",
+      "description": "Thermoresponsive materials are smart polymers that undergo reversible changes in their physical or chemical properties when the temperature changes. These changes may include swelling, shrinking, solubility, shape, or volume."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Thermoresponsive polymers are an important class of smart materials that respond specifically to temperature. At a certain transition temperature, they exhibit rapid and reversible changes, making them highly useful in biomedical engineering, drug delivery, sensors, tissue engineering, and smart coatings.</p>"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The response occurs because changes in temperature alter the interaction between polymer chains and surrounding water molecules. This causes the polymer to either absorb water and swell or expel water and shrink.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Thermoresponsive polymers enable automatic temperature-controlled systems without external mechanical devices, making them valuable in modern smart technologies."
+    },
+    {
+      "type": "diagram",
+      "title": "Working Principle",
+      "steps": [
+        "Temperature Change",
+        "Polymer Detects Heat",
+        "Molecular Rearrangement",
+        "Swelling / Shrinking",
+        "Desired Engineering Function"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Thermoresponsive Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Thermoresponsive materials exhibit reversible changes in their structure and properties with changes in temperature. They can repeatedly respond to heating and cooling without losing their functionality.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Characteristics",
+      "items": [
+        {
+          "question": "Temperature Sensitive",
+          "answer": "Respond specifically to changes in temperature."
+        },
+        {
+          "question": "Reversible Response",
+          "answer": "Return to their original state after cooling or heating."
+        },
+        {
+          "question": "Smart Behaviour",
+          "answer": "Automatically adapt to environmental conditions."
+        },
+        {
+          "question": "Biocompatibility",
+          "answer": "Many thermoresponsive polymers are suitable for biomedical applications."
+        },
+        {
+          "question": "Chemical Stability",
+          "answer": "Maintain performance over repeated thermal cycles."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Thermoresponsive Polymers"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Polymer",
+        "Response",
+        "Major Application"
+      ],
+      "rows": [
+        [
+          "Polyacrylamides",
+          "Swelling/Shrinking",
+          "Drug delivery"
+        ],
+        [
+          "Polyvinyl Amides",
+          "Volume change",
+          "Biomedical devices"
+        ],
+        [
+          "PNIPAM",
+          "Phase transition",
+          "Smart hydrogels"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polyacrylamides"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Polyacrylamides are synthetic water-soluble polymers prepared from acrylamide monomers. They exhibit thermoresponsive behavior by changing their volume and water absorption capacity when temperature changes.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Preparation",
+      "content": "Polyacrylamides are prepared by free-radical polymerization of acrylamide in the presence of suitable initiators."
+    },
+    {
+      "type": "process_flow",
+      "title": "Preparation of Polyacrylamides",
+      "steps": [
+        "Acrylamide Monomer",
+        "Free Radical Initiator",
+        "Polymerization",
+        "Polyacrylamide",
+        "Smart Polymer Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Polyacrylamides"
+    },
+    {
+      "type": "accordion",
+      "title": "Properties",
+      "items": [
+        {
+          "question": "Water Soluble",
+          "answer": "Absorbs large amounts of water."
+        },
+        {
+          "question": "Thermoresponsive",
+          "answer": "Changes volume with temperature."
+        },
+        {
+          "question": "Biocompatible",
+          "answer": "Suitable for medical and biological uses."
+        },
+        {
+          "question": "High Mechanical Strength",
+          "answer": "Useful in hydrogel preparation."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Polyacrylamides"
+    },
+    {
+      "type": "accordion",
+      "title": "Engineering Uses",
+      "items": [
+        {
+          "question": "Drug Delivery",
+          "answer": "Controlled release of medicines."
+        },
+        {
+          "question": "Hydrogels",
+          "answer": "Used in wound dressing and tissue engineering."
+        },
+        {
+          "question": "Water Treatment",
+          "answer": "Acts as a flocculating agent."
+        },
+        {
+          "question": "Agriculture",
+          "answer": "Improves soil water retention."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polyvinyl Amides"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Polyvinyl amides are another important class of thermoresponsive polymers. They exhibit reversible swelling and shrinking behavior with temperature changes and possess excellent biocompatibility and chemical stability.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Example",
+      "content": "Poly(N-vinyl caprolactam) (PVCL) is one of the most widely studied polyvinyl amides due to its excellent thermoresponsive properties."
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Polyvinyl Amides"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Properties",
+      "items": [
+        {
+          "question": "Temperature Responsive",
+          "answer": "Shows reversible phase transition."
+        },
+        {
+          "question": "Biocompatible",
+          "answer": "Suitable for biomedical applications."
+        },
+        {
+          "question": "Low Toxicity",
+          "answer": "Safe for pharmaceutical use."
+        },
+        {
+          "question": "Good Stability",
+          "answer": "Maintains properties during repeated heating and cooling."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Polyvinyl Amides"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Applications",
+      "items": [
+        {
+          "question": "Drug Delivery Systems",
+          "answer": "Temperature-controlled release of drugs."
+        },
+        {
+          "question": "Biomedical Devices",
+          "answer": "Used in implants and medical coatings."
+        },
+        {
+          "question": "Smart Hydrogels",
+          "answer": "Manufacture of intelligent hydrogels."
+        },
+        {
+          "question": "Biosensors",
+          "answer": "Used in temperature-sensitive sensing devices."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Polyacrylamides vs Polyvinyl Amides"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Polyacrylamides",
+      "right_title": "Polyvinyl Amides",
+      "left_points": [
+        "Prepared from acrylamide",
+        "Highly water soluble",
+        "Excellent hydrogel material",
+        "Used in water treatment",
+        "Drug delivery applications"
+      ],
+      "right_points": [
+        "Prepared from vinyl amides",
+        "Excellent thermal response",
+        "Superior biocompatibility",
+        "Used in biomedical devices",
+        "Smart sensor applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Thermoresponsive Polymers"
+    },
+    {
+      "type": "accordion",
+      "title": "Advantages",
+      "items": [
+        {
+          "question": "Controlled Response",
+          "answer": "Respond automatically to temperature."
+        },
+        {
+          "question": "Reusable",
+          "answer": "Can undergo repeated thermal cycles."
+        },
+        {
+          "question": "Energy Efficient",
+          "answer": "Require no complex mechanical systems."
+        },
+        {
+          "question": "Biomedical Safety",
+          "answer": "Many polymers are biocompatible and biodegradable."
+        },
+        {
+          "question": "Versatile Applications",
+          "answer": "Useful in medicine, engineering, and environmental technology."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations"
+    },
+    {
+      "type": "accordion",
+      "title": "Challenges",
+      "items": [
+        {
+          "question": "High Cost",
+          "answer": "Preparation is relatively expensive."
+        },
+        {
+          "question": "Limited Temperature Range",
+          "answer": "Performance depends on transition temperature."
+        },
+        {
+          "question": "Complex Processing",
+          "answer": "Requires controlled synthesis conditions."
+        },
+        {
+          "question": "Mechanical Weakness",
+          "answer": "Some hydrogels possess low mechanical strength."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Engineering Applications"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Field",
+        "Application"
+      ],
+      "rows": [
+        [
+          "Biomedical Engineering",
+          "Drug delivery and tissue engineering"
+        ],
+        [
+          "Pharmaceutical Industry",
+          "Controlled medicine release"
+        ],
+        [
+          "Water Treatment",
+          "Flocculants and purification"
+        ],
+        [
+          "Sensors",
+          "Temperature-sensitive devices"
+        ],
+        [
+          "Agriculture",
+          "Water retention materials"
+        ],
+        [
+          "Soft Robotics",
+          "Thermally actuated components"
+        ]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "University questions commonly ask the definition of thermoresponsive materials, Polyacrylamides, Polyvinyl amides, their properties, advantages, and engineering applications."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Thermoresponsive materials respond to temperature changes.",
+        "Their response is reversible and repeatable.",
+        "Polyacrylamides are prepared from acrylamide monomers.",
+        "Polyvinyl amides exhibit excellent thermal responsiveness.",
+        "Both are smart polymers.",
+        "Widely used in drug delivery systems.",
+        "Useful in biomedical engineering and hydrogels.",
+        "Polyacrylamides are also used in water treatment.",
+        "Polyvinyl amides are used in smart sensors.",
+        "These materials improve automation and efficiency in modern engineering."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Thermoresponsive materials respond primarily to:",
+      "options": [
+        "Pressure",
+        "Temperature",
+        "Magnetic field",
+        "Light"
+      ],
+      "answer": "Temperature"
+    },
+    {
+      "type": "quiz",
+      "question": "Polyacrylamides are prepared from:",
+      "options": [
+        "Ethylene",
+        "Acrylamide",
+        "Styrene",
+        "Propylene"
+      ],
+      "answer": "Acrylamide"
+    },
+    {
+      "type": "quiz",
+      "question": "Polyvinyl amides are widely used in:",
+      "options": [
+        "Cement production",
+        "Biomedical devices",
+        "Steel manufacturing",
+        "Glass production"
+      ],
+      "answer": "Biomedical devices"
+    },
+    {
+      "type": "quiz",
+      "question": "One important application of thermoresponsive polymers is:",
+      "options": [
+        "Controlled drug delivery",
+        "Brick making",
+        "Road construction",
+        "Coal washing"
+      ],
+      "answer": "Controlled drug delivery"
+    }
+  ]
+}

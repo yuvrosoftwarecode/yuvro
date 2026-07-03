@@ -1,0 +1,190 @@
+{
+  "sub_unit_name": "Rubbers: Natural rubber and its vulcanization",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Rubbers",
+      "description": "Rubbers are natural or synthetic elastomeric polymers that can undergo large elastic deformation and regain their original shape when the applied force is removed."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Rubber is an important engineering material due to its excellent elasticity, flexibility, shock absorption, and resistance to wear. The most common natural rubber is obtained from the latex of the rubber tree (<strong>Hevea brasiliensis</strong>).</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Rubbers are widely used in tyres, tubes, conveyor belts, seals, gaskets, hoses, footwear, and vibration dampers because of their elasticity and durability."
+    },
+    {
+      "type": "diagram",
+      "title": "Natural Rubber Processing",
+      "steps": [
+        "Latex Collection",
+        "Coagulation",
+        "Drying",
+        "Natural Rubber",
+        "Vulcanization"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Natural Rubber"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Natural rubber is obtained from the latex of the <strong>Hevea brasiliensis</strong> tree. Chemically, it is <strong>cis-1,4-polyisoprene</strong>, formed by the polymerization of isoprene molecules. It possesses high elasticity but has poor resistance to heat, oils, and chemicals.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Natural Rubber"
+    },
+    {
+      "type": "accordion",
+      "title": "Characteristics",
+      "items": [
+        {
+          "question": "High Elasticity",
+          "answer": "Returns to its original shape after deformation."
+        },
+        {
+          "question": "Good Tensile Strength",
+          "answer": "Can withstand considerable stretching before breaking."
+        },
+        {
+          "question": "Poor Heat Resistance",
+          "answer": "Becomes soft at high temperatures and brittle at low temperatures."
+        },
+        {
+          "question": "Low Chemical Resistance",
+          "answer": "Attacked by oils, solvents, oxygen, and ozone."
+        },
+        {
+          "question": "Good Electrical Insulation",
+          "answer": "Acts as a good insulator under normal conditions."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Need for Vulcanization"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Natural rubber has several drawbacks such as low mechanical strength, stickiness at high temperatures, brittleness at low temperatures, and poor resistance to chemicals. These disadvantages are overcome by the process of <strong>vulcanization</strong>.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Vulcanization of Rubber"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Vulcanization</strong> is the process of heating natural rubber with about <strong>3–5% sulfur</strong> (for soft rubber) at approximately <strong>100–140°C</strong>. Sulfur forms cross-links between adjacent polymer chains, improving the physical and mechanical properties of rubber.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Vulcanization Process",
+      "steps": [
+        "Natural Rubber",
+        "Add Sulfur",
+        "Heating",
+        "Cross-Link Formation",
+        "Vulcanized Rubber"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Vulcanization"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Effect After Vulcanization"],
+      "rows": [
+        ["Elasticity", "Improved"],
+        ["Tensile Strength", "Increased"],
+        ["Heat Resistance", "Improved"],
+        ["Chemical Resistance", "Better resistance to oils and solvents"],
+        ["Abrasion Resistance", "Higher durability"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Vulcanized rubber is extensively used in automobile tyres, conveyor belts, electrical insulation, shoe soles, industrial rollers, hoses, gaskets, seals, shock absorbers, and vibration control components.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Natural Rubber",
+      "right_title": "Vulcanized Rubber",
+      "left_points": [
+        "Soft and sticky",
+        "Low tensile strength",
+        "Poor heat resistance",
+        "Less durable",
+        "Poor chemical resistance"
+      ],
+      "right_points": [
+        "Harder and stronger",
+        "High tensile strength",
+        "Excellent heat resistance",
+        "Highly durable",
+        "Better chemical and abrasion resistance"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Remember the definition of vulcanization, the role of sulfur, the improvements in properties after vulcanization, and the comparison between natural and vulcanized rubber."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Natural rubber is obtained from Hevea brasiliensis latex.",
+        "Its chemical structure is cis-1,4-polyisoprene.",
+        "Natural rubber has good elasticity but poor heat and chemical resistance.",
+        "Vulcanization is carried out by heating rubber with sulfur.",
+        "Sulfur forms cross-links between polymer chains.",
+        "Vulcanized rubber has higher strength, elasticity, and durability.",
+        "Vulcanized rubber is widely used in tyres, belts, hoses, and industrial products."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Natural rubber is obtained from the latex of:",
+      "options": ["Neem tree", "Hevea brasiliensis", "Bamboo", "Pine tree"],
+      "answer": "Hevea brasiliensis"
+    },
+    {
+      "type": "quiz",
+      "question": "Vulcanization is carried out by heating rubber with:",
+      "options": ["Carbon", "Sulfur", "Chlorine", "Nitrogen"],
+      "answer": "Sulfur"
+    },
+    {
+      "type": "quiz",
+      "question": "The main purpose of vulcanization is to:",
+      "options": [
+        "Reduce elasticity",
+        "Improve the mechanical properties of rubber",
+        "Convert rubber into plastic",
+        "Remove impurities"
+      ],
+      "answer": "Improve the mechanical properties of rubber"
+    },
+    {
+      "type": "quiz",
+      "question": "Which property is improved after vulcanization?",
+      "options": [
+        "Heat resistance",
+        "Tensile strength",
+        "Abrasion resistance",
+        "All of the above"
+      ],
+      "answer": "All of the above"
+    }
+  ]
+}

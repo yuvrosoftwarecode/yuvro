@@ -1,0 +1,154 @@
+{
+  "sub_unit_name": "Basic requirements for commercial batteries",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Commercial Batteries",
+      "description": "Commercial batteries are designed to deliver reliable electrical energy for practical applications such as portable electronics, automobiles, industries, and backup power systems."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A good commercial battery should provide a stable voltage, long service life, high energy efficiency, and safe operation. It should also be economical, lightweight, and capable of operating under different environmental conditions.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Battery Requirements Matter",
+      "content": "The performance, reliability, and lifespan of a battery depend on how well it satisfies the essential commercial requirements."
+    },
+    {
+      "type": "diagram",
+      "title": "Requirements of a Commercial Battery",
+      "steps": [
+        "High Voltage",
+        "Long Life",
+        "High Efficiency",
+        "Safe Operation",
+        "Low Cost",
+        "Easy Maintenance"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Essential Requirements"
+    },
+    {
+      "type": "accordion",
+      "title": "Characteristics of a Good Commercial Battery",
+      "items": [
+        {
+          "question": "High Energy Density",
+          "answer": "Stores more energy in less weight and volume."
+        },
+        {
+          "question": "Long Service Life",
+          "answer": "Provides a large number of charge-discharge cycles with minimum performance loss."
+        },
+        {
+          "question": "High Efficiency",
+          "answer": "Converts chemical energy into electrical energy with minimal losses."
+        },
+        {
+          "question": "Low Self-Discharge",
+          "answer": "Retains charge for a longer period during storage."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Other Important Features"
+    },
+    {
+      "type": "table",
+      "headers": ["Requirement", "Importance"],
+      "rows": [
+        ["Light Weight", "Easy portability"],
+        ["Low Cost", "Economical for consumers"],
+        ["Safety", "Prevents leakage and explosion"],
+        ["Fast Charging", "Reduces charging time"],
+        ["Low Maintenance", "Easy to use and maintain"],
+        ["Eco-Friendly", "Reduces environmental impact"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Commercial batteries are widely used in <strong>mobile phones</strong>, <strong>laptops</strong>, <strong>electric vehicles</strong>, <strong>UPS systems</strong>, <strong>medical devices</strong>, and <strong>renewable energy storage systems</strong>.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Good Commercial Battery",
+      "right_title": "Poor Commercial Battery",
+      "left_points": [
+        "Long life",
+        "High efficiency",
+        "Low self-discharge",
+        "Safe and reliable"
+      ],
+      "right_points": [
+        "Short lifespan",
+        "Low efficiency",
+        "High maintenance",
+        "Risk of leakage or failure"
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Commercial batteries should have high energy density.",
+        "They should provide long service life and high efficiency.",
+        "Low self-discharge and safety are essential features.",
+        "Lightweight, low cost, and eco-friendly batteries are preferred.",
+        "Commercial batteries are widely used in electronic and industrial applications."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which property allows a battery to store more energy in less space?",
+      "options": [
+        "Low resistance",
+        "High energy density",
+        "High temperature",
+        "Low voltage"
+      ],
+      "answer": "High energy density"
+    },
+    {
+      "type": "quiz",
+      "question": "A good commercial battery should have:",
+      "options": [
+        "High self-discharge",
+        "Low efficiency",
+        "Long service life",
+        "Frequent maintenance"
+      ],
+      "answer": "Long service life"
+    },
+    {
+      "type": "quiz",
+      "question": "Which characteristic helps a battery retain its charge during storage?",
+      "options": [
+        "High voltage",
+        "Low self-discharge",
+        "High current",
+        "High resistance"
+      ],
+      "answer": "Low self-discharge"
+    },
+    {
+      "type": "quiz",
+      "question": "Commercial batteries are commonly used in:",
+      "options": [
+        "Mobile phones",
+        "Laptops",
+        "Electric vehicles",
+        "All of the above"
+      ],
+      "answer": "All of the above"
+    }
+  ]
+}

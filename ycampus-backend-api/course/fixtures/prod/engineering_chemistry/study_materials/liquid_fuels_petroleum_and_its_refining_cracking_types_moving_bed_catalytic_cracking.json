@@ -1,0 +1,311 @@
+{
+  "sub_unit_name": "Liquid fuels - Petroleum and its refining, Cracking types - Moving bed catalytic cracking",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Liquid Fuels",
+      "description": "Liquid fuels are combustible liquids that produce heat energy on burning. They have high calorific value, are easy to transport, and are widely used in automobiles, industries, aviation, and power generation."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Among all liquid fuels, <strong>petroleum</strong> is the most important natural source of energy. It is a complex mixture of hydrocarbons obtained from underground reservoirs. Petroleum is refined to produce useful products such as petrol, diesel, kerosene, lubricating oil, paraffin wax, and bitumen.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Petroleum products are essential fuels for transportation, industries, thermal power plants, aviation, and petrochemical industries."
+    },
+    {
+      "type": "diagram",
+      "title": "Liquid Fuel Processing",
+      "steps": [
+        "Crude Petroleum",
+        "Refining",
+        "Fractional Distillation",
+        "Cracking",
+        "Useful Petroleum Products"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Liquid Fuels"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Liquid fuels possess several advantages over solid fuels. They have higher calorific value, burn with less smoke and ash, require less storage space, and provide better combustion control.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Advantages of Liquid Fuels",
+      "items": [
+        {
+          "question": "High Efficiency",
+          "answer": "Produce more heat with efficient combustion."
+        },
+        {
+          "question": "Easy Transportation",
+          "answer": "Can be transported through pipelines, tankers, and containers."
+        },
+        {
+          "question": "Clean Burning",
+          "answer": "Produce less smoke and ash than solid fuels."
+        },
+        {
+          "question": "Easy Storage",
+          "answer": "Require comparatively less storage space."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Petroleum"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Petroleum</strong>, also known as crude oil, is a naturally occurring dark-colored oily liquid mainly composed of hydrocarbons along with small amounts of sulphur, nitrogen, oxygen compounds, and mineral impurities.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Composition of Petroleum",
+      "content": "Petroleum mainly contains paraffins (alkanes), naphthenes (cycloalkanes), aromatic hydrocarbons, sulphur compounds, nitrogen compounds, oxygen compounds, and traces of metallic impurities."
+    },
+    {
+      "type": "heading",
+      "content": "Refining of Petroleum"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Refining is the process of separating crude petroleum into useful fractions based on differences in their boiling points. The process is carried out in a <strong>fractionating column</strong> by fractional distillation.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Steps in Petroleum Refining",
+      "steps": [
+        "Crude Oil Heating",
+        "Vaporization",
+        "Fractional Distillation",
+        "Condensation at Different Levels",
+        "Collection of Petroleum Fractions"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Petroleum Fractions"
+    },
+    {
+      "type": "table",
+      "headers": ["Fraction", "Boiling Range", "Major Uses"],
+      "rows": [
+        ["Petroleum Gas", "<40°C", "Domestic fuel (LPG)"],
+        ["Petrol (Gasoline)", "40-120°C", "Motor vehicles"],
+        ["Naphtha", "120-180°C", "Petrochemical industry"],
+        ["Kerosene", "180-250°C", "Cooking, lighting, aviation"],
+        ["Diesel Oil", "250-350°C", "Diesel engines"],
+        ["Lubricating Oil", "300-400°C", "Lubrication"],
+        ["Paraffin Wax", "Higher fraction", "Candles and polishes"],
+        ["Bitumen", "Residue", "Road construction and roofing"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Cracking of Petroleum"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Cracking</strong> is the process of breaking large, heavy hydrocarbon molecules into smaller, lighter, and more valuable hydrocarbons such as petrol, LPG, and alkenes by applying heat, pressure, or catalysts.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Need for Cracking",
+      "content": "Cracking increases the yield of petrol from heavy petroleum fractions and improves the economic value of crude oil."
+    },
+    {
+      "type": "heading",
+      "content": "Types of Cracking"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Method", "Characteristics"],
+      "rows": [
+        [
+          "Thermal Cracking",
+          "High temperature and pressure",
+          "Simple but lower petrol quality"
+        ],
+        [
+          "Catalytic Cracking",
+          "Uses catalyst",
+          "Produces high-quality petrol with better yield"
+        ]
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Thermal Cracking",
+      "right_title": "Catalytic Cracking",
+      "left_points": [
+        "No catalyst used",
+        "Very high temperature",
+        "Higher pressure",
+        "Lower octane petrol"
+      ],
+      "right_points": [
+        "Uses catalyst",
+        "Lower operating temperature",
+        "Better petrol yield",
+        "Higher octane number"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Moving Bed Catalytic Cracking"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In the <strong>moving bed catalytic cracking</strong> process, powdered or pelletized catalyst continuously moves through the reactor along with heavy petroleum oil. The catalyst promotes the cracking reaction, producing lighter hydrocarbons with high octane value.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Moving Bed Catalytic Cracking Process",
+      "steps": [
+        "Heavy Oil Feed",
+        "Preheating",
+        "Catalytic Cracking Reactor",
+        "Separation of Products",
+        "Catalyst Regeneration",
+        "Recycling of Catalyst"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Working Principle"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Heavy oil is mixed with a moving catalyst and heated. Large hydrocarbon molecules break into smaller molecules in the presence of the catalyst. Carbon deposits formed on the catalyst are removed in a regenerator by burning with air, and the regenerated catalyst is reused.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Catalytic Cracking"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Higher Petrol Yield",
+          "answer": "Produces a larger quantity of petrol from heavy oils."
+        },
+        {
+          "question": "High Octane Number",
+          "answer": "Improves fuel quality and engine performance."
+        },
+        {
+          "question": "Lower Operating Conditions",
+          "answer": "Requires lower temperature and pressure than thermal cracking."
+        },
+        {
+          "question": "Catalyst Reuse",
+          "answer": "The catalyst is regenerated and reused continuously."
+        },
+        {
+          "question": "Economical",
+          "answer": "Provides better efficiency and higher profitability."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Petroleum Products"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Applications",
+      "items": [
+        {
+          "question": "Transportation",
+          "answer": "Petrol, diesel, and aviation fuel power vehicles and aircraft."
+        },
+        {
+          "question": "Industries",
+          "answer": "Used in boilers, furnaces, and generators."
+        },
+        {
+          "question": "Petrochemical Industry",
+          "answer": "Raw material for plastics, synthetic rubber, fertilizers, and chemicals."
+        },
+        {
+          "question": "Construction",
+          "answer": "Bitumen is used in road surfacing and waterproofing."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Importance of Petroleum Refining"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Petroleum refining converts crude oil into valuable commercial products with maximum efficiency. It improves fuel quality, increases petrol production, and supplies raw materials for numerous chemical industries.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Frequently asked questions include petroleum refining by fractional distillation, fractions obtained, cracking, differences between thermal and catalytic cracking, and the working of moving bed catalytic cracking."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Petroleum is the most important liquid fossil fuel.",
+        "Refining is carried out by fractional distillation.",
+        "Major fractions include LPG, petrol, kerosene, diesel, lubricating oil, paraffin wax, and bitumen.",
+        "Cracking converts heavy hydrocarbons into lighter hydrocarbons.",
+        "Cracking is classified into thermal and catalytic cracking.",
+        "Catalytic cracking gives higher petrol yield and better octane number.",
+        "Moving bed catalytic cracking uses a continuously moving catalyst.",
+        "Catalyst regeneration removes carbon deposits and allows catalyst reuse."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Petroleum refining is mainly carried out by:",
+      "options": [
+        "Electrolysis",
+        "Fractional distillation",
+        "Filtration",
+        "Crystallization"
+      ],
+      "answer": "Fractional distillation"
+    },
+    {
+      "type": "quiz",
+      "question": "The main purpose of cracking is to:",
+      "options": [
+        "Increase ash content",
+        "Convert heavy hydrocarbons into lighter hydrocarbons",
+        "Remove sulphur only",
+        "Decrease petrol production"
+      ],
+      "answer": "Convert heavy hydrocarbons into lighter hydrocarbons"
+    },
+    {
+      "type": "quiz",
+      "question": "Moving bed catalytic cracking uses:",
+      "options": [
+        "No catalyst",
+        "A continuously moving catalyst",
+        "Only steam",
+        "Electric current"
+      ],
+      "answer": "A continuously moving catalyst"
+    },
+    {
+      "type": "quiz",
+      "question": "Which petroleum product is mainly used for road construction?",
+      "options": ["Petrol", "Diesel", "Bitumen", "Kerosene"],
+      "answer": "Bitumen"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "sub_unit_name": "Biodiesel - Transesterification, Advantages",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Biodiesel",
+      "description": "Biodiesel is a renewable, biodegradable, and eco-friendly fuel produced from vegetable oils, animal fats, or used cooking oils. It can be used directly or blended with diesel in compression ignition (CI) engines."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Biodiesel is considered an alternative to conventional diesel because it is obtained from renewable biological resources. It burns cleaner, reduces harmful emissions, and helps conserve fossil fuel reserves.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Biodiesel reduces dependence on petroleum, lowers air pollution, and provides a sustainable fuel for transportation and industrial applications."
+    },
+    {
+      "type": "diagram",
+      "title": "Production of Biodiesel",
+      "steps": [
+        "Vegetable Oil / Animal Fat",
+        "Transesterification",
+        "Biodiesel",
+        "Purification",
+        "Engine Fuel"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Sources of Biodiesel"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Biodiesel is produced from renewable feedstocks such as soybean oil, sunflower oil, palm oil, jatropha oil, mustard oil, animal fats, and waste cooking oils.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Source", "Examples", "Nature"],
+      "rows": [
+        ["Vegetable Oils", "Jatropha, Soybean, Palm", "Renewable"],
+        ["Animal Fats", "Tallow, Fish Oil", "Renewable"],
+        ["Waste Oils", "Used Cooking Oil", "Recycled Resource"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Transesterification"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Transesterification</strong> is the chemical process used to manufacture biodiesel. In this process, vegetable oil or animal fat reacts with an alcohol such as methanol or ethanol in the presence of a catalyst like sodium hydroxide (NaOH) or potassium hydroxide (KOH) to produce biodiesel and glycerol.</p>"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "General Reaction",
+      "code": "Triglyceride + Methanol  --(NaOH/KOH)-->  Biodiesel (Fatty Acid Methyl Esters) + Glycerol"
+    },
+    {
+      "type": "process_flow",
+      "title": "Steps in Transesterification",
+      "steps": [
+        "Oil Selection",
+        "Mix with Methanol",
+        "Add NaOH/KOH Catalyst",
+        "Reaction",
+        "Separate Glycerol",
+        "Wash & Purify Biodiesel"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Working of Transesterification"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>During transesterification, the triglycerides present in vegetable oils react with methanol to form fatty acid methyl esters (biodiesel). Glycerol formed as a by-product settles at the bottom and is separated. The biodiesel is then washed and purified before use.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Biodiesel"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Properties",
+      "items": [
+        {
+          "question": "Renewable Fuel",
+          "answer": "Produced from plant and animal sources."
+        },
+        {
+          "question": "Biodegradable",
+          "answer": "Decomposes naturally without causing long-term pollution."
+        },
+        {
+          "question": "High Flash Point",
+          "answer": "Safer to store and transport than conventional diesel."
+        },
+        {
+          "question": "Good Lubricity",
+          "answer": "Reduces engine wear and improves lubrication."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Biodiesel"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Environment Friendly",
+          "answer": "Produces lower emissions of CO, SO₂, and particulate matter."
+        },
+        {
+          "question": "Renewable",
+          "answer": "Prepared from renewable biological resources."
+        },
+        {
+          "question": "Reduces Petroleum Consumption",
+          "answer": "Helps conserve fossil fuel reserves."
+        },
+        {
+          "question": "Lower Carbon Emissions",
+          "answer": "Contributes to reduced greenhouse gas emissions."
+        },
+        {
+          "question": "Engine Compatibility",
+          "answer": "Can be used in existing diesel engines with little or no modification."
+        },
+        {
+          "question": "Biodegradable",
+          "answer": "Less harmful to soil and water in case of spills."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Biodiesel"
+    },
+    {
+      "type": "accordion",
+      "title": "Uses",
+      "items": [
+        {
+          "question": "Transportation",
+          "answer": "Used as fuel in buses, trucks, tractors, and cars."
+        },
+        {
+          "question": "Agricultural Machinery",
+          "answer": "Used in diesel-powered farm equipment."
+        },
+        {
+          "question": "Power Generation",
+          "answer": "Used in diesel generators."
+        },
+        {
+          "question": "Marine Engines",
+          "answer": "Used as an alternative fuel for boats and ships."
+        }
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Diesel",
+      "right_title": "Biodiesel",
+      "left_points": [
+        "Derived from petroleum",
+        "Non-renewable",
+        "Higher emissions",
+        "Depends on fossil fuels"
+      ],
+      "right_points": [
+        "Produced from biological sources",
+        "Renewable",
+        "Lower emissions",
+        "Eco-friendly alternative fuel"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Important questions include the definition of biodiesel, transesterification process with reaction, advantages, and applications."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Biodiesel is a renewable diesel substitute.",
+        "Produced from vegetable oils and animal fats.",
+        "Manufactured by transesterification.",
+        "Methanol and NaOH/KOH are commonly used in production.",
+        "Glycerol is the major by-product.",
+        "Biodiesel reduces pollution and greenhouse gas emissions.",
+        "Can be used in existing diesel engines.",
+        "Widely used in transport, agriculture, and power generation."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Biodiesel is mainly produced by:",
+      "options": [
+        "Hydrogenation",
+        "Polymerization",
+        "Transesterification",
+        "Cracking"
+      ],
+      "answer": "Transesterification"
+    },
+    {
+      "type": "quiz",
+      "question": "Which alcohol is most commonly used in biodiesel production?",
+      "options": ["Methanol", "Ethanol", "Propanol", "Butanol"],
+      "answer": "Methanol"
+    },
+    {
+      "type": "quiz",
+      "question": "The major by-product formed during biodiesel production is:",
+      "options": ["Ethanol", "Acetone", "Glycerol", "Propane"],
+      "answer": "Glycerol"
+    },
+    {
+      "type": "quiz",
+      "question": "One important advantage of biodiesel is:",
+      "options": [
+        "Higher sulphur emission",
+        "Non-renewable nature",
+        "Lower exhaust emissions",
+        "Produces more smoke"
+      ],
+      "answer": "Lower exhaust emissions"
+    }
+  ]
+}

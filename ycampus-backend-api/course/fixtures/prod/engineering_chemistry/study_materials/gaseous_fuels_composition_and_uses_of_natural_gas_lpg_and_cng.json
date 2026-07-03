@@ -1,0 +1,311 @@
+{
+  "sub_unit_name": "Gaseous fuels - Composition and uses of Natural Gas, LPG and CNG",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Gaseous Fuels",
+      "description": "Gaseous fuels are fuels that exist in the gaseous state under normal conditions and produce heat energy upon combustion. They burn cleanly, have high calorific value, and are easy to transport through pipelines."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Gaseous fuels are widely used in domestic, industrial, commercial, and automobile sectors because they provide efficient combustion, produce less smoke and ash, and can be easily controlled during burning. The commonly used gaseous fuels are <strong>Natural Gas</strong>, <strong>Liquefied Petroleum Gas (LPG)</strong>, and <strong>Compressed Natural Gas (CNG)</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Gaseous fuels offer high thermal efficiency, cleaner combustion, low maintenance cost, and reduced environmental pollution compared to solid fuels."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Gaseous Fuels",
+      "steps": [
+        "Gaseous Fuels",
+        "Natural Gas",
+        "LPG",
+        "CNG",
+        "Domestic & Industrial Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Gaseous Fuels"
+    },
+    {
+      "type": "accordion",
+      "title": "Important Characteristics",
+      "items": [
+        {
+          "question": "Clean Combustion",
+          "answer": "Burn with very little smoke, ash, and soot."
+        },
+        {
+          "question": "High Calorific Value",
+          "answer": "Produce more heat per unit mass compared to many solid fuels."
+        },
+        {
+          "question": "Easy Control",
+          "answer": "The rate of combustion can be controlled accurately."
+        },
+        {
+          "question": "Efficient Mixing",
+          "answer": "Mix readily with air, resulting in complete combustion."
+        },
+        {
+          "question": "Environment Friendly",
+          "answer": "Produce lower emissions of harmful pollutants."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Natural Gas"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Natural gas</strong> is a naturally occurring gaseous fossil fuel found beneath the earth's surface, usually associated with petroleum deposits. It is one of the cleanest fossil fuels and is extensively used for domestic, industrial, and power generation purposes.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Approximate Percentage"],
+      "rows": [
+        ["Methane (CH₄)", "80–95%"],
+        ["Ethane (C₂H₆)", "2–8%"],
+        ["Propane & Butane", "Small amounts"],
+        ["Nitrogen, CO₂ & Others", "Trace quantities"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Uses of Natural Gas"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Power Generation",
+          "answer": "Used in gas turbine and combined cycle power plants."
+        },
+        {
+          "question": "Domestic Fuel",
+          "answer": "Used for cooking and water heating through piped gas supply."
+        },
+        {
+          "question": "Chemical Industry",
+          "answer": "Used in the manufacture of ammonia, methanol, and hydrogen."
+        },
+        {
+          "question": "Industrial Heating",
+          "answer": "Used in furnaces, boilers, and process heating."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Liquefied Petroleum Gas (LPG)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>LPG</strong> is a mixture of propane and butane that is liquefied under moderate pressure for convenient storage and transportation. It is colorless, odorless in pure form, and an odorant is added to detect leakage.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Approximate Percentage"],
+      "rows": [
+        ["Propane (C₃H₈)", "40–60%"],
+        ["Butane (C₄H₁₀)", "40–60%"],
+        ["Other Hydrocarbons", "Small quantities"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Properties of LPG"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Properties",
+      "items": [
+        {
+          "question": "High Calorific Value",
+          "answer": "Produces a large amount of heat on combustion."
+        },
+        {
+          "question": "Smokeless Flame",
+          "answer": "Burns with a clean blue flame."
+        },
+        {
+          "question": "Easy Storage",
+          "answer": "Stored in cylinders under pressure."
+        },
+        {
+          "question": "Portable",
+          "answer": "Can be transported easily for domestic and commercial use."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Uses of LPG"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>LPG is widely used as a domestic cooking fuel, in hotels and restaurants, laboratories, industrial furnaces, metal cutting operations, and as an automobile fuel in some vehicles.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Compressed Natural Gas (CNG)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>CNG</strong> is natural gas compressed to a very high pressure (about 200–250 bar) to reduce its volume for easy storage and transportation. It mainly consists of methane and is considered one of the cleanest automotive fuels.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Approximate Percentage"],
+      "rows": [
+        ["Methane", "90–95%"],
+        ["Ethane", "2–5%"],
+        ["Other Hydrocarbons", "Small quantities"],
+        ["Nitrogen & CO₂", "Trace amounts"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages and Uses of CNG"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Automobile Fuel",
+          "answer": "Widely used in buses, cars, taxis, and auto-rickshaws."
+        },
+        {
+          "question": "Low Pollution",
+          "answer": "Produces lower CO, NOx, and particulate emissions."
+        },
+        {
+          "question": "Economical",
+          "answer": "Cheaper than petrol and diesel in many regions."
+        },
+        {
+          "question": "Engine Life",
+          "answer": "Leaves very little carbon deposit, increasing engine life."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Natural Gas, LPG and CNG"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Natural Gas",
+      "right_title": "LPG & CNG",
+      "left_points": [
+        "Mainly methane",
+        "Supplied through pipelines",
+        "Used in industries and homes",
+        "Natural fossil fuel"
+      ],
+      "right_points": [
+        "LPG: Propane & Butane mixture",
+        "CNG: Compressed methane",
+        "LPG stored as liquid in cylinders",
+        "CNG stored under high pressure"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Gaseous Fuels"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "High Efficiency",
+          "answer": "Provide complete combustion with better thermal efficiency."
+        },
+        {
+          "question": "Clean Fuel",
+          "answer": "Produce very little ash and smoke."
+        },
+        {
+          "question": "Easy Handling",
+          "answer": "Can be transported through pipelines or cylinders."
+        },
+        {
+          "question": "Environmental Protection",
+          "answer": "Emit fewer pollutants than coal and petroleum fuels."
+        }
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Utilization of Gaseous Fuels",
+      "steps": [
+        "Extraction/Production",
+        "Purification",
+        "Storage or Compression",
+        "Distribution",
+        "Combustion for Energy"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Questions frequently ask the composition, advantages, and applications of Natural Gas, LPG, and CNG along with comparisons between them."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Gaseous fuels burn cleanly and efficiently.",
+        "Natural gas mainly contains methane.",
+        "LPG mainly consists of propane and butane.",
+        "CNG is compressed natural gas used mainly as automobile fuel.",
+        "Natural gas is supplied through pipelines.",
+        "LPG is stored as liquid under pressure in cylinders.",
+        "CNG produces lower emissions than petrol and diesel.",
+        "Gaseous fuels have high calorific value and low pollution."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "The major constituent of natural gas is:",
+      "options": ["Propane", "Methane", "Butane", "Hydrogen"],
+      "answer": "Methane"
+    },
+    {
+      "type": "quiz",
+      "question": "LPG mainly consists of:",
+      "options": [
+        "Methane only",
+        "Propane and Butane",
+        "Hydrogen and Oxygen",
+        "Carbon monoxide"
+      ],
+      "answer": "Propane and Butane"
+    },
+    {
+      "type": "quiz",
+      "question": "CNG is mainly used as:",
+      "options": [
+        "Rocket fuel",
+        "Automobile fuel",
+        "Solid fuel",
+        "Nuclear fuel"
+      ],
+      "answer": "Automobile fuel"
+    },
+    {
+      "type": "quiz",
+      "question": "Which gaseous fuel is stored in cylinders in liquefied form?",
+      "options": ["Natural Gas", "LPG", "CNG", "Biogas"],
+      "answer": "LPG"
+    }
+  ]
+}

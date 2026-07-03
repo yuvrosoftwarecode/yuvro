@@ -1,0 +1,180 @@
+{
+  "sub_unit_name": "Construction, working and applications of: Zn-air and Lithium ion battery, Applications of Li-ion battery to electrical vehicles",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Zn-Air and Lithium-ion Batteries",
+      "description": "Zn-air and Lithium-ion (Li-ion) batteries are advanced electrochemical energy storage devices. Zn-air batteries use oxygen from the atmosphere, while Li-ion batteries use reversible movement of lithium ions between electrodes."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Modern batteries are designed to provide high energy density, long service life, and reliable performance. <strong>Zn-air batteries</strong> are lightweight and economical, whereas <strong>Lithium-ion batteries</strong> are rechargeable and widely used in portable electronics and electric vehicles.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Difference",
+      "content": "Zn-air batteries are primary (generally non-rechargeable), whereas Lithium-ion batteries are secondary (rechargeable)."
+    },
+    {
+      "type": "diagram",
+      "title": "Types of Advanced Batteries",
+      "steps": [
+        "Zn-Air Battery",
+        "Uses Atmospheric Oxygen",
+        "Lithium-ion Battery",
+        "Rechargeable",
+        "Used in EVs & Electronics"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Zn-Air Battery"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Zn-air battery consists of a <strong>zinc anode</strong>, an <strong>air cathode</strong>, and an alkaline electrolyte (KOH). Oxygen from the atmosphere acts as the cathode reactant, making the battery lightweight and energy efficient.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working of Zn-Air Battery",
+      "steps": [
+        "Zinc Oxidation at Anode",
+        "Oxygen Enters Air Cathode",
+        "Electrochemical Reaction",
+        "Electron Flow",
+        "Electrical Energy Produced"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Material"],
+      "rows": [
+        ["Anode", "Zinc"],
+        ["Cathode", "Porous Air Electrode"],
+        ["Electrolyte", "Potassium Hydroxide (KOH)"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Lithium-ion Battery"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Lithium-ion battery consists of a <strong>graphite anode</strong>, a <strong>lithium metal oxide cathode</strong>, an organic electrolyte, and a separator. During charging and discharging, lithium ions move between the electrodes, making the battery rechargeable.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working of Li-ion Battery",
+      "steps": [
+        "Charging",
+        "Lithium Ions Move to Anode",
+        "Discharging",
+        "Lithium Ions Move to Cathode",
+        "Electrical Energy Delivered"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Batteries"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Zn-Air Battery",
+      "right_title": "Lithium-ion Battery",
+      "left_points": [
+        "Primary battery",
+        "Uses atmospheric oxygen",
+        "Low cost",
+        "High energy density"
+      ],
+      "right_points": [
+        "Rechargeable battery",
+        "Uses lithium-ion movement",
+        "Long cycle life",
+        "Fast charging capability"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Uses of Batteries",
+      "items": [
+        {
+          "question": "Zn-Air Battery",
+          "answer": "Used in hearing aids, medical devices, navigation equipment, and backup power systems."
+        },
+        {
+          "question": "Lithium-ion Battery",
+          "answer": "Used in smartphones, laptops, cameras, drones, and power tools."
+        },
+        {
+          "question": "Li-ion Battery in Electric Vehicles",
+          "answer": "Used in electric cars, buses, scooters, and bicycles due to high energy density and long life."
+        },
+        {
+          "question": "Advantages for EVs",
+          "answer": "Provides fast charging, lightweight construction, high efficiency, low maintenance, and zero tailpipe emissions."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Li-ion Batteries are Preferred for EVs",
+      "content": "Lithium-ion batteries offer high energy density, longer driving range, faster charging, low self-discharge, and excellent rechargeability, making them ideal for electric vehicles."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Zn-air batteries use zinc and atmospheric oxygen.",
+        "Li-ion batteries are rechargeable secondary batteries.",
+        "Graphite is commonly used as the anode in Li-ion batteries.",
+        "Li-ion batteries are widely used in electric vehicles.",
+        "High energy density and long cycle life are major advantages of Li-ion batteries."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which battery uses oxygen from the atmosphere as the cathode reactant?",
+      "options": [
+        "Lead-acid battery",
+        "Lithium-ion battery",
+        "Zn-air battery",
+        "Nickel-Cadmium battery"
+      ],
+      "answer": "Zn-air battery"
+    },
+    {
+      "type": "quiz",
+      "question": "Lithium-ion batteries are classified as:",
+      "options": [
+        "Primary batteries",
+        "Secondary batteries",
+        "Reserve batteries",
+        "Fuel cells"
+      ],
+      "answer": "Secondary batteries"
+    },
+    {
+      "type": "quiz",
+      "question": "Which material is commonly used as the anode in a Lithium-ion battery?",
+      "options": ["Copper", "Graphite", "Zinc", "Lead"],
+      "answer": "Graphite"
+    },
+    {
+      "type": "quiz",
+      "question": "Why are Lithium-ion batteries preferred in electric vehicles?",
+      "options": [
+        "Low energy density",
+        "High self-discharge",
+        "High energy density and long cycle life",
+        "Single-use operation"
+      ],
+      "answer": "High energy density and long cycle life"
+    }
+  ]
+}

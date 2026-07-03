@@ -1,0 +1,215 @@
+{
+  "sub_unit_name": "Defluoridation - Determination of F ion by ion-selective electrode method",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Defluoridation?",
+      "description": "Defluoridation is the process of removing excess fluoride ions (F⁻) from drinking water to make it safe for human consumption."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Fluoride is naturally present in groundwater due to the dissolution of fluoride-containing minerals. While a small amount of fluoride is beneficial for dental health, excessive fluoride causes <strong>dental fluorosis</strong> and <strong>skeletal fluorosis</strong>. Therefore, defluoridation is an essential step in water purification in fluoride-affected regions.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Safe Fluoride Level",
+      "content": "According to BIS guidelines, the desirable limit of fluoride in drinking water is about 1.0 mg/L, while the maximum permissible limit is 1.5 mg/L."
+    },
+    {
+      "type": "heading",
+      "content": "Need for Defluoridation"
+    },
+    {
+      "type": "accordion",
+      "title": "Why Remove Excess Fluoride?",
+      "items": [
+        {
+          "question": "Dental Fluorosis",
+          "answer": "Causes discoloration and mottling of teeth."
+        },
+        {
+          "question": "Skeletal Fluorosis",
+          "answer": "Leads to joint pain, bone deformities, and stiffness."
+        },
+        {
+          "question": "Public Health",
+          "answer": "Provides safe drinking water in fluoride-affected areas."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Methods of Defluoridation"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Principle"],
+      "rows": [
+        [
+          "Nalgonda Technique",
+          "Uses alum, lime, and bleaching powder for fluoride removal"
+        ],
+        ["Activated Alumina", "Adsorbs fluoride ions on its surface"],
+        ["Ion Exchange", "Replaces fluoride ions with hydroxide ions"],
+        [
+          "Reverse Osmosis",
+          "Removes dissolved fluoride through a semi-permeable membrane"
+        ]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Ion-Selective Electrode (ISE)",
+      "description": "An ion-selective electrode is an electrochemical sensor that measures the concentration of a specific ion in a solution by developing a potential proportional to its activity."
+    },
+    {
+      "type": "heading",
+      "content": "Principle of Fluoride Ion-Selective Electrode"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The fluoride ion-selective electrode contains a <strong>lanthanum fluoride (LaF₃) crystal membrane</strong>. When immersed in a fluoride-containing solution, a potential difference develops across the membrane, which depends on the fluoride ion concentration. This potential is measured using a reference electrode and converted into fluoride concentration.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Determination of Fluoride Using ISE",
+      "steps": [
+        "Collect Water Sample",
+        "Add Buffer Solution (TISAB)",
+        "Immerse Fluoride ISE",
+        "Measure Electrode Potential",
+        "Determine Fluoride Concentration"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Components of the ISE Setup"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Function"],
+      "rows": [
+        ["Fluoride ISE", "Detects fluoride ions"],
+        ["Reference Electrode", "Provides stable reference potential"],
+        ["TISAB Buffer", "Maintains constant ionic strength and pH"],
+        ["Digital Ion Meter", "Displays fluoride concentration"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Procedure"
+    },
+    {
+      "type": "process_flow",
+      "title": "Experimental Steps",
+      "steps": [
+        "Prepare Standard Fluoride Solutions",
+        "Calibrate the Electrode",
+        "Add TISAB to Sample",
+        "Immerse Electrodes",
+        "Record Potential",
+        "Determine Fluoride Concentration from Calibration Curve"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of ISE Method"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "High Accuracy",
+          "answer": "Provides precise fluoride estimation over a wide concentration range."
+        },
+        {
+          "question": "Rapid Analysis",
+          "answer": "Results are obtained within a few minutes."
+        },
+        {
+          "question": "Simple Operation",
+          "answer": "Requires minimal sample preparation."
+        },
+        {
+          "question": "Selective Measurement",
+          "answer": "Specifically measures fluoride ions with minimal interference."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The fluoride ion-selective electrode method is widely used in <strong>drinking water analysis</strong>, <strong>groundwater monitoring</strong>, <strong>environmental laboratories</strong>, <strong>water treatment plants</strong>, and <strong>industrial quality control</strong>.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Defluoridation",
+      "right_title": "Fluoride Estimation",
+      "left_points": [
+        "Removes excess fluoride",
+        "Improves drinking water quality",
+        "Uses physical or chemical treatment methods"
+      ],
+      "right_points": [
+        "Measures fluoride concentration",
+        "Uses ion-selective electrode",
+        "Ensures compliance with water quality standards"
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Defluoridation removes excess fluoride from drinking water.",
+        "Excess fluoride causes dental and skeletal fluorosis.",
+        "The fluoride ISE uses a lanthanum fluoride crystal membrane.",
+        "TISAB buffer maintains constant ionic strength and pH.",
+        "The ISE method is rapid, accurate, and highly selective."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which material is used as the sensing membrane in a fluoride ion-selective electrode?",
+      "options": [
+        "Silver chloride",
+        "Lanthanum fluoride",
+        "Glass membrane",
+        "Platinum"
+      ],
+      "answer": "Lanthanum fluoride"
+    },
+    {
+      "type": "quiz",
+      "question": "Which disease is caused by excessive fluoride in drinking water?",
+      "options": ["Malaria", "Typhoid", "Fluorosis", "Cholera"],
+      "answer": "Fluorosis"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the main purpose of adding TISAB buffer during fluoride estimation?",
+      "options": [
+        "Increase hardness",
+        "Maintain constant ionic strength and pH",
+        "Remove bacteria",
+        "Increase conductivity"
+      ],
+      "answer": "Maintain constant ionic strength and pH"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method is commonly used for direct determination of fluoride ions in water?",
+      "options": [
+        "Flame photometry",
+        "Ion-selective electrode method",
+        "Conductometry",
+        "Gravimetric analysis"
+      ],
+      "answer": "Ion-selective electrode method"
+    }
+  ]
+}

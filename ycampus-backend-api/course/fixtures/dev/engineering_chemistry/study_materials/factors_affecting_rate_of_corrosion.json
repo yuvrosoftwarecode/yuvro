@@ -1,0 +1,164 @@
+{
+  "sub_unit_name": "Factors affecting rate of corrosion",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Factors Affecting Corrosion",
+      "description": "The rate of corrosion depends on the nature of the metal and the surrounding environment. These factors determine how quickly a metal deteriorates."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Corrosion does not occur at the same rate for all metals. Properties such as purity, position in the electrochemical series, and environmental conditions like moisture, temperature, and pH significantly influence the corrosion rate.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Idea",
+      "content": "Both metal-related factors and environmental factors control the speed of corrosion."
+    },
+    {
+      "type": "diagram",
+      "title": "Factors Affecting Corrosion",
+      "steps": [
+        "Nature of Metal",
+        "Environmental Conditions",
+        "Electrochemical Reactions",
+        "Corrosion Rate",
+        "Metal Deterioration"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Metal Factors"
+    },
+    {
+      "type": "accordion",
+      "title": "Factors Related to Metal",
+      "items": [
+        {
+          "question": "Purity of Metal",
+          "answer": "Impurities create local galvanic cells and increase corrosion."
+        },
+        {
+          "question": "Position in Electrochemical Series",
+          "answer": "More active metals corrode faster than noble metals."
+        },
+        {
+          "question": "Nature of Oxide Film",
+          "answer": "A stable oxide film protects the metal, while a porous film accelerates corrosion."
+        },
+        {
+          "question": "Surface Condition",
+          "answer": "Smooth and clean surfaces generally resist corrosion better."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Environmental Factors"
+    },
+    {
+      "type": "table",
+      "headers": ["Factor", "Effect on Corrosion"],
+      "rows": [
+        ["Moisture", "Increases corrosion"],
+        ["Temperature", "Higher temperature increases corrosion rate"],
+        ["pH", "Acidic medium accelerates corrosion"],
+        ["Dissolved Oxygen", "Promotes electrochemical corrosion"],
+        ["Salts", "Increase electrical conductivity and corrosion"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Overall Effect"
+    },
+    {
+      "type": "process_flow",
+      "title": "How Corrosion Rate Increases",
+      "steps": [
+        "Metal Exposed",
+        "Moisture & Oxygen Present",
+        "Electrochemical Cell Forms",
+        "Metal Oxidation",
+        "Corrosion Accelerates"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Low Corrosion Rate",
+      "right_title": "High Corrosion Rate",
+      "left_points": [
+        "Pure metal",
+        "Protective oxide layer",
+        "Dry environment",
+        "Neutral pH"
+      ],
+      "right_points": [
+        "Impure metal",
+        "Porous oxide layer",
+        "Moist and salty environment",
+        "Acidic medium"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Understanding corrosion factors helps engineers choose suitable materials and protective methods for longer equipment life."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Corrosion depends on metal properties and environmental conditions.",
+        "Impurities increase corrosion.",
+        "Protective oxide films reduce corrosion.",
+        "Moisture, oxygen, and salts accelerate corrosion.",
+        "Higher temperature generally increases corrosion rate."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following increases the rate of corrosion?",
+      "options": [
+        "Dry atmosphere",
+        "Moisture",
+        "Protective oxide film",
+        "Pure metal"
+      ],
+      "answer": "Moisture"
+    },
+    {
+      "type": "quiz",
+      "question": "Impurities in a metal generally:",
+      "options": [
+        "Reduce corrosion",
+        "Have no effect",
+        "Increase corrosion",
+        "Prevent oxidation"
+      ],
+      "answer": "Increase corrosion"
+    },
+    {
+      "type": "quiz",
+      "question": "Which oxide film provides better corrosion resistance?",
+      "options": [
+        "Porous oxide film",
+        "Protective oxide film",
+        "Cracked oxide film",
+        "Loose oxide film"
+      ],
+      "answer": "Protective oxide film"
+    },
+    {
+      "type": "quiz",
+      "question": "An acidic medium generally:",
+      "options": [
+        "Reduces corrosion",
+        "Stops corrosion",
+        "Increases corrosion rate",
+        "Has no effect"
+      ],
+      "answer": "Increases corrosion rate"
+    }
+  ]
+}

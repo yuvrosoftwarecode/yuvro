@@ -1,0 +1,289 @@
+{
+  "sub_unit_name": "Introduction to hardness of water - Estimation of hardness of water by complexometric method and related numerical problems",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Hardness of Water?",
+      "description": "Hardness of water is the property caused by dissolved calcium (Ca²⁺) and magnesium (Mg²⁺) salts, which reduce the ability of water to form lather with soap."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Hard water contains dissolved minerals, mainly <strong>calcium</strong> and <strong>magnesium</strong> ions. These ions react with soap to form insoluble precipitates, reducing soap efficiency. Hardness is generally expressed in terms of <strong>mg/L (ppm) as CaCO₃</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Study Water Hardness?",
+      "content": "Knowledge of water hardness is important in domestic, industrial, and boiler applications to prevent scaling, improve cleaning efficiency, and ensure safe water usage."
+    },
+    {
+      "type": "diagram",
+      "title": "Formation of Hard Water",
+      "steps": [
+        "Rainwater",
+        "Passes Through Rocks",
+        "Dissolves Calcium & Magnesium Salts",
+        "Hard Water is Formed",
+        "Used for Domestic & Industrial Purposes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Types of Hardness"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Water hardness is classified into <strong>temporary hardness</strong> and <strong>permanent hardness</strong>. Temporary hardness is caused by bicarbonates of calcium and magnesium, while permanent hardness is caused by chlorides and sulphates.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Cause", "Removal Method"],
+      "rows": [
+        [
+          "Temporary Hardness",
+          "Calcium & Magnesium Bicarbonates",
+          "Boiling or Lime Treatment"
+        ],
+        [
+          "Permanent Hardness",
+          "Calcium & Magnesium Chlorides/Sulphates",
+          "Ion Exchange or Zeolite Process"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Effects of Hard Water"
+    },
+    {
+      "type": "accordion",
+      "title": "Common Effects",
+      "items": [
+        {
+          "question": "Soap Consumption",
+          "answer": "Hard water consumes more soap before lather is produced."
+        },
+        {
+          "question": "Scaling",
+          "answer": "Scale deposits form in boilers, pipes, and heat exchangers."
+        },
+        {
+          "question": "Reduced Heating Efficiency",
+          "answer": "Scale acts as an insulator and increases fuel consumption."
+        },
+        {
+          "question": "Industrial Problems",
+          "answer": "Hard water affects textile, paper, pharmaceutical, and food industries."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Complexometric Method (EDTA Method)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <strong>complexometric titration method</strong> uses <strong>EDTA (Ethylenediaminetetraacetic acid)</strong> to estimate total hardness of water. EDTA forms stable complexes with calcium and magnesium ions.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Principle of EDTA Titration",
+      "description": "EDTA reacts with Ca²⁺ and Mg²⁺ ions in a 1:1 ratio to form stable, colorless complexes. The amount of EDTA consumed indicates the hardness of water."
+    },
+    {
+      "type": "heading",
+      "content": "Chemicals Required"
+    },
+    {
+      "type": "table",
+      "headers": ["Chemical", "Purpose"],
+      "rows": [
+        ["EDTA Solution", "Titrant"],
+        ["Buffer Solution (pH 10)", "Maintains proper pH"],
+        ["Eriochrome Black T Indicator", "Indicates end point"],
+        ["Hard Water Sample", "Analyte"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Procedure"
+    },
+    {
+      "type": "process_flow",
+      "title": "EDTA Titration Steps",
+      "steps": [
+        "Take Water Sample",
+        "Add Buffer Solution",
+        "Add EBT Indicator",
+        "Titrate with EDTA",
+        "Observe Wine Red to Blue Color Change",
+        "Calculate Hardness"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Role of Indicator"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Eriochrome Black T (EBT)</strong> forms a wine-red complex with metal ions. During titration, EDTA binds with calcium and magnesium ions, releasing the indicator and producing a <strong>blue</strong> color at the end point.</p>"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Easy Analogy",
+      "content": "Imagine EDTA as a magnet that attracts calcium and magnesium ions away from the indicator. Once all ions are captured, the indicator changes from red to blue, signaling the end of the titration."
+    },
+    {
+      "type": "heading",
+      "content": "End Point Observation"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Before End Point",
+      "right_title": "After End Point",
+      "left_points": [
+        "Wine red color",
+        "Metal ions attached to indicator",
+        "Hardness ions present"
+      ],
+      "right_points": [
+        "Blue color",
+        "EDTA binds all metal ions",
+        "Indicator becomes free"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Formula for Hardness Calculation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Total Hardness (mg/L as CaCO₃) = (Volume of EDTA × Strength of EDTA × 1000) / Volume of Water Sample</strong></p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Unit",
+      "content": "Water hardness is commonly expressed as mg/L or ppm (parts per million) as CaCO₃."
+    },
+    {
+      "type": "heading",
+      "content": "Solved Numerical"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Problem:</strong> 25 mL of water requires 10 mL of 1 mg/mL EDTA solution. Calculate total hardness.</p><p><strong>Solution:</strong><br>Total Hardness = (10 × 1 × 1000) / 25 = <strong>400 mg/L (400 ppm as CaCO₃)</strong>.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Hardness Estimation"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Water Treatment Plants",
+          "answer": "Monitor and control water quality."
+        },
+        {
+          "question": "Boiler Feed Water",
+          "answer": "Prevent scale formation."
+        },
+        {
+          "question": "Industries",
+          "answer": "Maintain product quality and equipment life."
+        },
+        {
+          "question": "Drinking Water Testing",
+          "answer": "Ensure water meets quality standards."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of EDTA Method"
+    },
+    {
+      "type": "revision-card",
+      "title": "Advantages",
+      "points": [
+        "Simple and accurate.",
+        "Rapid analysis.",
+        "Suitable for laboratory testing.",
+        "Measures total hardness effectively.",
+        "Widely accepted standard method."
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations"
+    },
+    {
+      "type": "fact-box",
+      "title": "Limitations of EDTA Method",
+      "content": "The method requires proper pH maintenance and careful endpoint observation. Presence of interfering metal ions may affect the accuracy."
+    },
+    {
+      "type": "heading",
+      "content": "Quick Summary"
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Key Point"],
+      "rows": [
+        ["Hardness", "Due to Ca²⁺ and Mg²⁺ ions"],
+        ["Temporary Hardness", "Removed by boiling"],
+        ["Permanent Hardness", "Removed by ion exchange"],
+        ["EDTA", "Complexing agent"],
+        ["Indicator", "Eriochrome Black T"],
+        ["End Point", "Wine Red → Blue"],
+        ["Unit", "mg/L or ppm as CaCO₃"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "EDTA forms a 1:1 complex with calcium and magnesium ions. The amount of EDTA required is directly proportional to the hardness of water."
+    },
+    {
+      "type": "quiz",
+      "question": "Which ions are mainly responsible for water hardness?",
+      "options": ["Na⁺ and K⁺", "Ca²⁺ and Mg²⁺", "Cl⁻ and SO₄²⁻", "H⁺ and OH⁻"],
+      "answer": "Ca²⁺ and Mg²⁺"
+    },
+    {
+      "type": "quiz",
+      "question": "Which reagent is used in the complexometric method for hardness estimation?",
+      "options": ["NaOH", "KMnO₄", "EDTA", "HCl"],
+      "answer": "EDTA"
+    },
+    {
+      "type": "quiz",
+      "question": "Which indicator is used in EDTA titration?",
+      "options": [
+        "Phenolphthalein",
+        "Methyl Orange",
+        "Eriochrome Black T",
+        "Starch"
+      ],
+      "answer": "Eriochrome Black T"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the color change at the end point of EDTA titration?",
+      "options": [
+        "Blue to Red",
+        "Red to Green",
+        "Wine Red to Blue",
+        "Yellow to Pink"
+      ],
+      "answer": "Wine Red to Blue"
+    },
+    {
+      "type": "quiz",
+      "question": "Temporary hardness is mainly caused by:",
+      "options": ["Chlorides", "Sulphates", "Bicarbonates", "Nitrates"],
+      "answer": "Bicarbonates"
+    }
+  ]
+}

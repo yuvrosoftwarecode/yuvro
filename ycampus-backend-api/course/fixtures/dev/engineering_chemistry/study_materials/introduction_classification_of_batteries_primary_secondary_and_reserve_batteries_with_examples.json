@@ -1,0 +1,208 @@
+{
+  "sub_unit_name": "Introduction - Classification of batteries- primary, secondary and reserve batteries with examples",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is a Battery?",
+      "description": "A battery is an electrochemical device that converts stored chemical energy into electrical energy through oxidation-reduction (redox) reactions. It consists of one or more electrochemical cells connected together."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Batteries are widely used in electronic gadgets, automobiles, medical devices, defense equipment, and renewable energy systems. Based on their rechargeability and method of activation, batteries are classified into <strong>primary</strong>, <strong>secondary</strong>, and <strong>reserve batteries</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Importance of Batteries",
+      "content": "Batteries provide portable, reliable, and uninterrupted power for various domestic, industrial, and military applications."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Batteries",
+      "steps": [
+        "Battery",
+        "Primary Batteries",
+        "Secondary Batteries",
+        "Reserve Batteries",
+        "Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Primary Batteries"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Primary batteries</strong> are non-rechargeable batteries. The chemical reactions occurring inside them are irreversible, and once the reactants are consumed, the battery cannot be reused.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Examples of Primary Batteries",
+      "description": "Common examples include Dry Cell (Leclanché Cell), Alkaline Battery, Mercury Cell, and Zinc-Air Battery."
+    },
+    {
+      "type": "heading",
+      "content": "Secondary Batteries"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Secondary batteries</strong> are rechargeable batteries. Their chemical reactions are reversible, allowing them to be recharged by supplying external electrical energy after discharge.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Battery",
+        "Common Application"
+      ],
+      "rows": [
+        [
+          "Lead-Acid Battery",
+          "Automobiles and UPS"
+        ],
+        [
+          "Lithium-ion Battery",
+          "Mobile phones and laptops"
+        ],
+        [
+          "Nickel-Cadmium Battery",
+          "Emergency lighting"
+        ],
+        [
+          "Nickel-Metal Hydride Battery",
+          "Hybrid vehicles"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Reserve Batteries"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Reserve batteries</strong> remain inactive until required. One of the reactants, usually the electrolyte, is stored separately and supplied only during operation. This gives the battery a long storage life.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Examples of Reserve Batteries",
+      "description": "Lithium reserve batteries, magnesium reserve batteries, and thermal batteries are commonly used in missiles, spacecraft, and military equipment."
+    },
+    {
+      "type": "process_flow",
+      "title": "Working Principle of Batteries",
+      "steps": [
+        "Chemical Reaction Starts",
+        "Oxidation at Anode",
+        "Reduction at Cathode",
+        "Electron Flow Through External Circuit",
+        "Electrical Energy Produced"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Battery Types"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Primary Batteries",
+      "right_title": "Secondary & Reserve Batteries",
+      "left_points": [
+        "Non-rechargeable",
+        "Irreversible chemical reaction",
+        "Single-use",
+        "Low maintenance"
+      ],
+      "right_points": [
+        "Rechargeable (Secondary)",
+        "Inactive until activated (Reserve)",
+        "Long service life",
+        "Suitable for repeated or emergency use"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages and Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Battery Applications",
+      "items": [
+        {
+          "question": "Primary Batteries",
+          "answer": "Used in clocks, remote controls, flashlights, and toys."
+        },
+        {
+          "question": "Secondary Batteries",
+          "answer": "Used in electric vehicles, laptops, UPS systems, and smartphones."
+        },
+        {
+          "question": "Reserve Batteries",
+          "answer": "Used in missiles, satellites, life-saving equipment, and military communication systems."
+        },
+        {
+          "question": "Industrial Importance",
+          "answer": "Batteries are essential for portable electronics, renewable energy storage, and backup power systems."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Point",
+      "content": "Primary batteries are used once, secondary batteries can be recharged multiple times, and reserve batteries are activated only when required."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "A battery converts chemical energy into electrical energy.",
+        "Primary batteries are non-rechargeable.",
+        "Secondary batteries are rechargeable.",
+        "Reserve batteries remain inactive until activated.",
+        "Battery selection depends on application, cost, and service life."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of battery can be recharged after discharge?",
+      "options": [
+        "Primary battery",
+        "Secondary battery",
+        "Reserve battery",
+        "Dry cell"
+      ],
+      "answer": "Secondary battery"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an example of a primary battery?",
+      "options": [
+        "Lead-acid battery",
+        "Lithium-ion battery",
+        "Dry cell",
+        "Nickel-Cadmium battery"
+      ],
+      "answer": "Dry cell"
+    },
+    {
+      "type": "quiz",
+      "question": "Reserve batteries are mainly used in:",
+      "options": [
+        "Television remotes",
+        "Military and space applications",
+        "Electric fans",
+        "Desktop computers"
+      ],
+      "answer": "Military and space applications"
+    },
+    {
+      "type": "quiz",
+      "question": "The main function of a battery is to convert:",
+      "options": [
+        "Mechanical energy into heat",
+        "Chemical energy into electrical energy",
+        "Electrical energy into light",
+        "Solar energy into heat"
+      ],
+      "answer": "Chemical energy into electrical energy"
+    }
+  ]
+}

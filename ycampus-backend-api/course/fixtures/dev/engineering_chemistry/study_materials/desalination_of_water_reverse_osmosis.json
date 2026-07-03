@@ -1,0 +1,190 @@
+{
+  "sub_unit_name": "Desalination of water - Reverse osmosis",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Desalination of Water",
+      "description": "Desalination is the process of removing dissolved salts and other impurities from saline or brackish water to produce fresh water suitable for drinking, industrial, and domestic purposes."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Many regions face freshwater shortages despite having abundant seawater. <strong>Desalination</strong> converts saline water into potable water by removing dissolved salts. Among the various desalination techniques, <strong>Reverse Osmosis (RO)</strong> is the most widely used because of its high efficiency and low operating cost.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Need for Desalination",
+      "content": "Desalination provides a reliable source of fresh water in coastal areas, arid regions, industries, and places where natural freshwater resources are limited."
+    },
+    {
+      "type": "diagram",
+      "title": "Reverse Osmosis Process",
+      "steps": [
+        "Saline Water Supply",
+        "Apply High Pressure",
+        "Semi-permeable Membrane",
+        "Pure Water Passes Through",
+        "Concentrated Brine Rejected"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Osmosis and Reverse Osmosis"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Osmosis</strong> is the natural movement of water from a dilute solution to a concentrated solution through a semi-permeable membrane. In <strong>Reverse Osmosis</strong>, pressure greater than the osmotic pressure is applied on the concentrated solution, forcing pure water to move in the opposite direction while dissolved salts are retained.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Principle of Reverse Osmosis",
+      "description": "When pressure greater than the osmotic pressure is applied to saline water, only water molecules pass through the semi-permeable membrane, leaving salts and impurities behind."
+    },
+    {
+      "type": "heading",
+      "content": "Working of Reverse Osmosis"
+    },
+    {
+      "type": "process_flow",
+      "title": "RO Working Steps",
+      "steps": [
+        "Feed Saline Water",
+        "Pre-treatment of Water",
+        "High-pressure Pump",
+        "Water Passes Through RO Membrane",
+        "Pure Water Collected",
+        "Brine Discharged"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Components of an RO System"
+    },
+    {
+      "type": "table",
+      "headers": ["Component", "Function"],
+      "rows": [
+        ["Pre-filter", "Removes suspended impurities"],
+        ["High-pressure Pump", "Provides required pressure"],
+        ["RO Membrane", "Separates water from dissolved salts"],
+        ["Storage Tank", "Stores purified water"],
+        ["Brine Outlet", "Discharges concentrated salt solution"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Reverse Osmosis"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "High Purification Efficiency",
+          "answer": "Removes more than 95% of dissolved salts and impurities."
+        },
+        {
+          "question": "No Chemical Requirement",
+          "answer": "Requires very little or no chemical treatment during purification."
+        },
+        {
+          "question": "Improves Water Quality",
+          "answer": "Removes microorganisms, heavy metals, and dissolved solids."
+        },
+        {
+          "question": "Compact System",
+          "answer": "Suitable for domestic, commercial, and industrial applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations of Reverse Osmosis"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Produces high-quality water",
+        "Removes salts and microorganisms",
+        "Simple operation",
+        "Suitable for seawater desalination"
+      ],
+      "right_points": [
+        "High initial installation cost",
+        "Membrane fouling may occur",
+        "Requires regular maintenance",
+        "Produces concentrated brine waste"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Reverse osmosis is extensively used in <strong>drinking water purification</strong>, <strong>seawater desalination plants</strong>, <strong>boiler feed water preparation</strong>, <strong>pharmaceutical industries</strong>, <strong>food processing</strong>, and <strong>electronics manufacturing</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Industrial Importance",
+      "content": "Reverse osmosis is one of the most economical and energy-efficient membrane technologies for producing high-quality water on a large scale."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Desalination removes dissolved salts from saline water.",
+        "Reverse osmosis uses pressure greater than osmotic pressure.",
+        "A semi-permeable membrane allows only water molecules to pass.",
+        "RO removes dissolved salts, microorganisms, and impurities.",
+        "RO is widely used for domestic and industrial water purification."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Reverse osmosis uses which type of membrane?",
+      "options": [
+        "Metal membrane",
+        "Semi-permeable membrane",
+        "Rubber membrane",
+        "Plastic filter"
+      ],
+      "answer": "Semi-permeable membrane"
+    },
+    {
+      "type": "quiz",
+      "question": "In reverse osmosis, pressure is applied to:",
+      "options": [
+        "Pure water",
+        "Dilute solution",
+        "Concentrated saline solution",
+        "Distilled water"
+      ],
+      "answer": "Concentrated saline solution"
+    },
+    {
+      "type": "quiz",
+      "question": "The main purpose of reverse osmosis is to:",
+      "options": [
+        "Increase water hardness",
+        "Remove dissolved salts",
+        "Add chlorine to water",
+        "Increase pH"
+      ],
+      "answer": "Remove dissolved salts"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an application of reverse osmosis?",
+      "options": [
+        "Boiler corrosion",
+        "Seawater desalination",
+        "Water chlorination",
+        "Electroplating"
+      ],
+      "answer": "Seawater desalination"
+    }
+  ]
+}

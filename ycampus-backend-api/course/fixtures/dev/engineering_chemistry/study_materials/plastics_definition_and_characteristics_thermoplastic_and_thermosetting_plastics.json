@@ -1,0 +1,274 @@
+{
+  "sub_unit_name": "Plastics: Definition and characteristics- thermoplastic and thermosetting plastics",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Plastics?",
+      "description": "Plastics are high molecular weight synthetic or semi-synthetic polymeric materials that can be moulded into desired shapes by the application of heat and pressure."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Plastics are among the most widely used engineering materials because they are lightweight, durable, corrosion-resistant, inexpensive, and easy to manufacture. Depending on their behavior on heating, plastics are broadly classified into <strong>thermoplastics</strong> and <strong>thermosetting plastics</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Plastics have replaced metals in many applications due to their low weight, good strength, chemical resistance, and ease of fabrication."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Plastics",
+      "steps": [
+        "Polymers",
+        "Plastics",
+        "Thermoplastics",
+        "Thermosetting Plastics",
+        "Engineering Applications"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Definition of Plastics"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Plastics are polymeric materials that become soft when heated and can be moulded into different shapes. After cooling, they retain the desired shape and are widely used in household, industrial, medical, and electrical applications.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Plastics"
+    },
+    {
+      "type": "accordion",
+      "title": "Important Characteristics",
+      "items": [
+        {
+          "question": "Light Weight",
+          "answer": "Plastics have low density, making them easy to transport and handle."
+        },
+        {
+          "question": "Chemical Resistance",
+          "answer": "They resist corrosion, acids, alkalis, and many chemicals."
+        },
+        {
+          "question": "Electrical Insulation",
+          "answer": "Most plastics are excellent electrical and thermal insulators."
+        },
+        {
+          "question": "Easy Processing",
+          "answer": "They can be easily moulded, extruded, or fabricated into different shapes."
+        },
+        {
+          "question": "Durability",
+          "answer": "Plastics have good toughness, long service life, and require less maintenance."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thermoplastics"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Thermoplastics</strong> soften on heating and harden on cooling. This process can be repeated several times without significant chemical change, making them recyclable and easy to reshape.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Examples of Thermoplastics",
+      "content": "Polyethylene (PE), Polyvinyl Chloride (PVC), Polystyrene (PS), Polypropylene (PP), Nylon and Acrylic."
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Thermoplastics"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Property",
+        "Description"
+      ],
+      "rows": [
+        [
+          "Heating",
+          "Soften on heating"
+        ],
+        [
+          "Reusability",
+          "Can be remoulded repeatedly"
+        ],
+        [
+          "Structure",
+          "Linear or slightly branched polymers"
+        ],
+        [
+          "Examples",
+          "PVC, PE, Nylon"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Thermosetting Plastics"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Thermosetting plastics</strong> undergo permanent hardening during heating due to cross-linking of polymer chains. Once set, they cannot be softened or reshaped by reheating.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Examples of Thermosetting Plastics",
+      "content": "Bakelite, Melamine, Urea-formaldehyde resin, Epoxy resin and Phenol-formaldehyde resin."
+    },
+    {
+      "type": "heading",
+      "content": "Properties of Thermosetting Plastics"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Property",
+        "Description"
+      ],
+      "rows": [
+        [
+          "Heating",
+          "Do not soften after setting"
+        ],
+        [
+          "Reusability",
+          "Cannot be remoulded"
+        ],
+        [
+          "Structure",
+          "Highly cross-linked polymers"
+        ],
+        [
+          "Examples",
+          "Bakelite, Epoxy, Melamine"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Thermoplastics and Thermosetting Plastics"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Thermoplastics",
+      "right_title": "Thermosetting Plastics",
+      "left_points": [
+        "Soften on heating",
+        "Can be remoulded",
+        "Recyclable",
+        "Linear polymer chains",
+        "Examples: PVC, PE, Nylon"
+      ],
+      "right_points": [
+        "Harden permanently",
+        "Cannot be remoulded",
+        "Non-recyclable after setting",
+        "Cross-linked polymer chains",
+        "Examples: Bakelite, Melamine, Epoxy"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Engineering Applications",
+      "items": [
+        {
+          "question": "Thermoplastics",
+          "answer": "Used for pipes, bottles, packaging materials, toys, automobile parts, and electrical insulation."
+        },
+        {
+          "question": "Thermosetting Plastics",
+          "answer": "Used for electrical switches, plug boards, handles, adhesives, laminates, and circuit boards."
+        },
+        {
+          "question": "Medical Uses",
+          "answer": "Used in disposable syringes, IV bags, medical containers, and prosthetic devices."
+        },
+        {
+          "question": "Industrial Uses",
+          "answer": "Used in machine components, insulation materials, storage tanks, and protective coatings."
+        }
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Manufacturing of Plastic Products",
+      "steps": [
+        "Polymer Preparation",
+        "Heating",
+        "Moulding",
+        "Cooling/Setting",
+        "Finished Plastic Product"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "The most frequently asked question is the comparison between thermoplastics and thermosetting plastics along with suitable examples."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Plastics are mouldable polymeric materials.",
+        "They are lightweight, durable, and corrosion resistant.",
+        "Thermoplastics soften repeatedly on heating.",
+        "Thermosetting plastics harden permanently after heating.",
+        "PVC, PE, and Nylon are thermoplastics.",
+        "Bakelite, Melamine, and Epoxy are thermosetting plastics."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of plastic can be repeatedly softened and reshaped?",
+      "options": [
+        "Thermosetting plastic",
+        "Thermoplastic",
+        "Elastomer",
+        "Resin"
+      ],
+      "answer": "Thermoplastic"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is a thermosetting plastic?",
+      "options": [
+        "PVC",
+        "Polyethylene",
+        "Bakelite",
+        "Nylon"
+      ],
+      "answer": "Bakelite"
+    },
+    {
+      "type": "quiz",
+      "question": "Thermosetting plastics become hard due to:",
+      "options": [
+        "Melting",
+        "Cross-linking",
+        "Crystallization",
+        "Evaporation"
+      ],
+      "answer": "Cross-linking"
+    },
+    {
+      "type": "quiz",
+      "question": "Which property makes plastics suitable for electrical applications?",
+      "options": [
+        "High conductivity",
+        "Electrical insulation",
+        "High density",
+        "Magnetism"
+      ],
+      "answer": "Electrical insulation"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "sub_unit_name": "Corrosion control methods- Cathodic protection - Sacrificial anode and impressed current methods",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Corrosion Control",
+      "description": "Corrosion control involves methods that prevent or reduce the deterioration of metals. Cathodic protection is one of the most effective electrochemical methods used to protect metal structures."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Corrosion can be controlled by coatings, inhibitors, proper material selection, and <strong>cathodic protection</strong>. In cathodic protection, the metal to be protected is made the cathode, thereby preventing its oxidation.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Principle",
+      "content": "Cathodic protection prevents corrosion by forcing the metal structure to act as the cathode of an electrochemical cell."
+    },
+    {
+      "type": "diagram",
+      "title": "Cathodic Protection Methods",
+      "steps": [
+        "Metal Structure",
+        "Make it Cathode",
+        "Sacrificial Anode / DC Supply",
+        "Prevent Oxidation",
+        "Corrosion Controlled"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Cathodic Protection"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In cathodic protection, electrons are supplied to the metal surface so that oxidation does not occur. This method is widely used for underground pipelines, storage tanks, marine structures, and ship hulls.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Sacrificial Anode Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In this method, a more active metal such as <strong>magnesium</strong>, <strong>zinc</strong>, or <strong>aluminium</strong> is connected to the metal structure. The active metal acts as the anode and corrodes instead of the protected structure.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Impressed Current Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In the impressed current method, an external DC power source supplies electrons to the metal structure. An inert anode such as graphite or platinum is used, making this method suitable for protecting large structures.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Sacrificial Anode",
+      "right_title": "Impressed Current",
+      "left_points": [
+        "Uses active metals",
+        "No external power supply",
+        "Simple and economical",
+        "Suitable for small structures"
+      ],
+      "right_points": [
+        "Uses DC power source",
+        "Inert anodes are used",
+        "Suitable for large structures",
+        "Provides better control"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Method",
+        "Anode Used",
+        "Applications"
+      ],
+      "rows": [
+        [
+          "Sacrificial Anode",
+          "Mg, Zn, Al",
+          "Pipelines, ship hulls"
+        ],
+        [
+          "Impressed Current",
+          "Graphite, Platinum",
+          "Storage tanks, offshore platforms"
+        ]
+      ]
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Underground Pipelines",
+          "answer": "Protected from soil corrosion using cathodic protection."
+        },
+        {
+          "question": "Ship Hulls",
+          "answer": "Sacrificial zinc anodes prevent seawater corrosion."
+        },
+        {
+          "question": "Storage Tanks",
+          "answer": "Impressed current systems protect large steel tanks."
+        },
+        {
+          "question": "Marine Structures",
+          "answer": "Cathodic protection increases service life in seawater environments."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Cathodic protection significantly extends the life of pipelines, bridges, ships, storage tanks, and offshore structures while reducing maintenance costs."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Cathodic protection makes the metal act as a cathode.",
+        "Sacrificial anode method uses Mg, Zn, or Al.",
+        "Impressed current method uses an external DC source.",
+        "Sacrificial anodes corrode instead of the protected metal.",
+        "Cathodic protection is widely used for pipelines and marine structures."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "In cathodic protection, the metal to be protected acts as:",
+      "options": [
+        "Anode",
+        "Cathode",
+        "Electrolyte",
+        "Oxidizing agent"
+      ],
+      "answer": "Cathode"
+    },
+    {
+      "type": "quiz",
+      "question": "Which metal is commonly used as a sacrificial anode?",
+      "options": [
+        "Copper",
+        "Silver",
+        "Magnesium",
+        "Gold"
+      ],
+      "answer": "Magnesium"
+    },
+    {
+      "type": "quiz",
+      "question": "The impressed current method requires:",
+      "options": [
+        "No power source",
+        "External DC power supply",
+        "Only water",
+        "Only air"
+      ],
+      "answer": "External DC power supply"
+    },
+    {
+      "type": "quiz",
+      "question": "Cathodic protection is commonly used for protecting:",
+      "options": [
+        "Plastic pipes",
+        "Underground pipelines",
+        "Glass containers",
+        "Wooden furniture"
+      ],
+      "answer": "Underground pipelines"
+    }
+  ]
+}

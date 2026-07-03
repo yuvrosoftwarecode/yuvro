@@ -1,0 +1,185 @@
+{
+  "sub_unit_name": "Corrosion: Causes and effects of corrosion theories of chemical and electrochemical corrosion mechanism of electrochemical corrosion",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Corrosion",
+      "description": "Corrosion is the gradual deterioration of a metal due to chemical or electrochemical reactions with its surrounding environment. It leads to loss of metal, reduced strength, and economic loss."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Corrosion is a major problem in engineering industries as it damages machines, pipelines, bridges, ships, and buildings. The two main theories explaining corrosion are <strong>chemical corrosion</strong> and <strong>electrochemical corrosion</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Effects of Corrosion",
+      "content": "Corrosion causes loss of metal, decreases mechanical strength, increases maintenance costs, and may lead to equipment failure."
+    },
+    {
+      "type": "diagram",
+      "title": "Types of Corrosion",
+      "steps": [
+        "Metal Surface",
+        "Chemical Corrosion",
+        "Electrochemical Corrosion",
+        "Metal Deterioration",
+        "Failure of Component"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Causes of Corrosion"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Causes",
+      "items": [
+        {
+          "question": "Moisture and Oxygen",
+          "answer": "Water and oxygen accelerate corrosion of metals."
+        },
+        {
+          "question": "Acids and Salts",
+          "answer": "Acidic and saline environments increase corrosion rate."
+        },
+        {
+          "question": "Impurities",
+          "answer": "Impurities in metals create corrosion cells."
+        },
+        {
+          "question": "Temperature",
+          "answer": "Higher temperatures generally increase corrosion."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Chemical Corrosion"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Chemical (Dry) corrosion</strong> occurs when a metal reacts directly with dry gases such as oxygen, sulfur, or chlorine without the presence of moisture. It usually occurs at high temperatures and forms an oxide layer on the metal surface.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Electrochemical Corrosion"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Electrochemical (Wet) corrosion</strong> occurs in the presence of moisture or an electrolyte. Tiny anodic and cathodic regions are formed on the metal surface. Oxidation occurs at the anode, while reduction occurs at the cathode, resulting in gradual metal loss.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Mechanism of Electrochemical Corrosion",
+      "steps": [
+        "Formation of Anode & Cathode",
+        "Anodic Oxidation",
+        "Electron Flow",
+        "Cathodic Reduction",
+        "Metal Corrodes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Comparison of Corrosion Types"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Chemical Corrosion",
+      "right_title": "Electrochemical Corrosion",
+      "left_points": [
+        "Occurs in dry environment",
+        "No electrolyte required",
+        "Direct chemical reaction",
+        "Usually at high temperature"
+      ],
+      "right_points": [
+        "Occurs in moist environment",
+        "Requires electrolyte",
+        "Anode and cathode are formed",
+        "Common in daily life"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Type",
+        "Medium",
+        "Example"
+      ],
+      "rows": [
+        [
+          "Chemical Corrosion",
+          "Dry gases",
+          "Oxidation of hot metals"
+        ],
+        [
+          "Electrochemical Corrosion",
+          "Moisture/Electrolyte",
+          "Rusting of iron"
+        ]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Industrial Importance",
+      "content": "Understanding corrosion helps engineers select suitable materials and protective methods, increasing the life of engineering structures."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Corrosion is the deterioration of metals.",
+        "Chemical corrosion occurs in dry environments.",
+        "Electrochemical corrosion occurs in the presence of moisture.",
+        "Anodic oxidation causes metal loss.",
+        "Rusting of iron is a common example of electrochemical corrosion."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Corrosion is the:",
+      "options": [
+        "Purification of metals",
+        "Deterioration of metals",
+        "Extraction of metals",
+        "Alloy formation"
+      ],
+      "answer": "Deterioration of metals"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of corrosion requires an electrolyte?",
+      "options": [
+        "Chemical corrosion",
+        "Electrochemical corrosion",
+        "Dry corrosion",
+        "Thermal corrosion"
+      ],
+      "answer": "Electrochemical corrosion"
+    },
+    {
+      "type": "quiz",
+      "question": "Rusting of iron is an example of:",
+      "options": [
+        "Chemical corrosion",
+        "Electrochemical corrosion",
+        "Galvanization",
+        "Passivation"
+      ],
+      "answer": "Electrochemical corrosion"
+    },
+    {
+      "type": "quiz",
+      "question": "In electrochemical corrosion, oxidation occurs at the:",
+      "options": [
+        "Cathode",
+        "Anode",
+        "Electrolyte",
+        "Salt bridge"
+      ],
+      "answer": "Anode"
+    }
+  ]
+}

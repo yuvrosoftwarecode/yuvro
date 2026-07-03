@@ -1,0 +1,340 @@
+{
+  "sub_unit_name": "Knocking - octane and cetane rating, synthetic petrol - Fischer-Tropsch's process",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Knocking in Internal Combustion Engines",
+      "description": "Knocking is an abnormal combustion phenomenon in which the unburnt fuel-air mixture explodes suddenly, producing a metallic knocking sound, reducing engine efficiency and causing damage."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Knocking is an undesirable phenomenon in both petrol and diesel engines. In petrol engines it occurs due to premature auto-ignition of the fuel-air mixture, whereas in diesel engines it is caused by excessive ignition delay before combustion.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Knocking reduces engine power, decreases fuel efficiency, increases fuel consumption, and shortens engine life."
+    },
+    {
+      "type": "diagram",
+      "title": "Topics Covered",
+      "steps": [
+        "Knocking",
+        "Octane Rating",
+        "Cetane Rating",
+        "Synthetic Petrol",
+        "Fischer-Tropsch Process"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Knocking in Petrol Engine"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In a spark ignition (SI) engine, knocking occurs when the unburnt portion of the fuel-air mixture auto-ignites before the flame front reaches it, creating pressure waves that produce a knocking sound.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Effects of Knocking",
+      "items": [
+        {
+          "question": "Power Loss",
+          "answer": "Engine output decreases due to irregular combustion."
+        },
+        {
+          "question": "Engine Damage",
+          "answer": "Continuous knocking damages pistons, valves, and cylinder walls."
+        },
+        {
+          "question": "Overheating",
+          "answer": "Abnormal combustion increases engine temperature."
+        },
+        {
+          "question": "Poor Fuel Economy",
+          "answer": "More fuel is consumed for the same power output."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Octane Rating"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Octane number</strong> measures the anti-knocking quality of petrol. A higher octane number indicates greater resistance to knocking and better engine performance.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Reference Fuels",
+      "content": "Iso-octane has an octane number of 100 and n-heptane has an octane number of 0. Petrol is rated by comparing its knocking tendency with mixtures of these two fuels."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Fuel",
+        "Octane Number",
+        "Property"
+      ],
+      "rows": [
+        [
+          "Iso-octane",
+          "100",
+          "Excellent anti-knock quality"
+        ],
+        [
+          "n-Heptane",
+          "0",
+          "Very poor anti-knock quality"
+        ],
+        [
+          "Petrol",
+          "0-100+",
+          "Depends on composition"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Importance of Octane Number"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications",
+      "items": [
+        {
+          "question": "Better Combustion",
+          "answer": "Ensures smooth combustion in petrol engines."
+        },
+        {
+          "question": "Engine Protection",
+          "answer": "Reduces knocking and engine wear."
+        },
+        {
+          "question": "Improved Performance",
+          "answer": "Allows higher compression ratios."
+        },
+        {
+          "question": "Fuel Quality",
+          "answer": "Used to compare petrol grades."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Knocking in Diesel Engine"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In a compression ignition (CI) engine, knocking occurs due to excessive ignition delay. During this delay, more fuel accumulates in the combustion chamber and burns suddenly, producing a sharp knocking sound.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Cetane Rating"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Cetane number</strong> indicates the ignition quality of diesel fuel. A higher cetane number means shorter ignition delay, smoother combustion, and less knocking.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Reference Fuels",
+      "content": "Cetane (n-hexadecane) has a cetane number of 100, while α-methylnaphthalene is assigned a cetane number of 0."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Fuel",
+        "Cetane Number",
+        "Property"
+      ],
+      "rows": [
+        [
+          "Cetane",
+          "100",
+          "Excellent ignition quality"
+        ],
+        [
+          "α-Methylnaphthalene",
+          "0",
+          "Poor ignition quality"
+        ],
+        [
+          "Diesel Fuel",
+          "40-60",
+          "Commercial diesel"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Octane Number vs Cetane Number"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Octane Number",
+      "right_title": "Cetane Number",
+      "left_points": [
+        "Used for petrol engines",
+        "Measures anti-knocking quality",
+        "Higher value is desirable",
+        "Reference: Iso-octane & n-heptane"
+      ],
+      "right_points": [
+        "Used for diesel engines",
+        "Measures ignition quality",
+        "Higher value reduces ignition delay",
+        "Reference: Cetane & α-methylnaphthalene"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Synthetic Petrol"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Synthetic petrol is manufactured from coal, natural gas, or carbon monoxide and hydrogen instead of crude petroleum. It is produced to meet fuel demand when petroleum resources are limited.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Fischer-Tropsch Process"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Fischer-Tropsch process converts a mixture of carbon monoxide (CO) and hydrogen (H₂), called synthesis gas or water gas, into liquid hydrocarbons using a catalyst under controlled temperature and pressure.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Fischer-Tropsch Process",
+      "steps": [
+        "Coal/Natural Gas",
+        "Produce CO + H₂",
+        "Catalytic Reactor",
+        "Hydrocarbon Formation",
+        "Refining to Synthetic Petrol"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Overall Reaction",
+      "code": "nCO + (2n + 1)H₂  →  CₙH₂ₙ₊₂ + nH₂O\n\nCatalyst: Cobalt or Iron\nTemperature: 200–300°C\nPressure: 5–25 atm"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Fischer-Tropsch Process"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Alternative Fuel Source",
+          "answer": "Produces petrol without depending on crude oil."
+        },
+        {
+          "question": "Cleaner Fuel",
+          "answer": "Synthetic petrol contains fewer sulphur impurities."
+        },
+        {
+          "question": "Utilizes Coal",
+          "answer": "Converts abundant coal resources into liquid fuels."
+        },
+        {
+          "question": "Industrial Importance",
+          "answer": "Useful in countries with limited petroleum reserves."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Uses",
+      "items": [
+        {
+          "question": "Automobile Fuel",
+          "answer": "Synthetic petrol is used in internal combustion engines."
+        },
+        {
+          "question": "Energy Security",
+          "answer": "Reduces dependence on imported crude oil."
+        },
+        {
+          "question": "Chemical Industry",
+          "answer": "Produces hydrocarbons used as petrochemical feedstock."
+        },
+        {
+          "question": "Defense Sector",
+          "answer": "Used for strategic fuel production."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Frequently asked questions include knocking in SI and CI engines, octane number, cetane number, differences between them, and Fischer-Tropsch process with flow diagram."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Knocking is abnormal combustion in IC engines.",
+        "Octane number measures anti-knocking quality of petrol.",
+        "Cetane number measures ignition quality of diesel.",
+        "Iso-octane = 100 and n-heptane = 0 for octane rating.",
+        "Cetane = 100 and α-methylnaphthalene = 0 for cetane rating.",
+        "Synthetic petrol is produced from synthesis gas.",
+        "Fischer-Tropsch process uses iron or cobalt catalyst.",
+        "Synthetic fuels reduce dependence on petroleum."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Octane number is used to indicate the quality of:",
+      "options": [
+        "Diesel",
+        "Petrol",
+        "Kerosene",
+        "LPG"
+      ],
+      "answer": "Petrol"
+    },
+    {
+      "type": "quiz",
+      "question": "The reference fuel with an octane number of 100 is:",
+      "options": [
+        "n-Heptane",
+        "Cetane",
+        "Iso-octane",
+        "Benzene"
+      ],
+      "answer": "Iso-octane"
+    },
+    {
+      "type": "quiz",
+      "question": "The Fischer-Tropsch process converts:",
+      "options": [
+        "Coal directly into petrol",
+        "CO and H₂ into hydrocarbons",
+        "Petrol into diesel",
+        "LPG into kerosene"
+      ],
+      "answer": "CO and H₂ into hydrocarbons"
+    },
+    {
+      "type": "quiz",
+      "question": "A higher cetane number indicates:",
+      "options": [
+        "More knocking in diesel engines",
+        "Poor ignition quality",
+        "Shorter ignition delay",
+        "Lower fuel efficiency"
+      ],
+      "answer": "Shorter ignition delay"
+    }
+  ]
+}

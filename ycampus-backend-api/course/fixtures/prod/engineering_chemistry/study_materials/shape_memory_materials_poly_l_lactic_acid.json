@@ -1,0 +1,353 @@
+{
+  "sub_unit_name": "Shape memory materials - Poly L-Lactic Acid (PLLA)",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Shape Memory Materials",
+      "description": "Shape memory materials are smart materials that can be deformed into a temporary shape and recover their original shape when exposed to an external stimulus such as heat, light, electricity, or moisture."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Shape memory materials possess the unique ability to 'remember' their original shape. After deformation, they return to their permanent shape when an appropriate stimulus is applied. They are widely used in biomedical engineering, aerospace, robotics, textiles, and electronic devices.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Importance",
+      "content": "Shape memory materials simplify complex mechanical systems by providing self-actuation, reduced weight, improved reliability, and intelligent response without external mechanical components."
+    },
+    {
+      "type": "diagram",
+      "title": "Shape Memory Effect",
+      "steps": [
+        "Original Shape",
+        "Apply External Force",
+        "Temporary Shape",
+        "Apply Heat/Stimulus",
+        "Original Shape Restored"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Introduction to Shape Memory Materials"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Shape memory materials are classified as smart materials because they respond intelligently to environmental changes. Their ability to recover their original dimensions after deformation makes them suitable for advanced engineering applications where automatic motion or recovery is required.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Shape Memory Materials"
+    },
+    {
+      "type": "accordion",
+      "title": "Key Characteristics",
+      "items": [
+        {
+          "question": "Shape Recovery",
+          "answer": "Returns to its original shape after the stimulus is applied."
+        },
+        {
+          "question": "High Elasticity",
+          "answer": "Can withstand large deformation without permanent damage."
+        },
+        {
+          "question": "Lightweight",
+          "answer": "Suitable for portable and aerospace applications."
+        },
+        {
+          "question": "Self-Actuation",
+          "answer": "Produces movement without conventional mechanical systems."
+        },
+        {
+          "question": "Biocompatibility",
+          "answer": "Many shape memory polymers are compatible with biological tissues."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Classification of Shape Memory Materials"
+    },
+    {
+      "type": "table",
+      "headers": ["Material Type", "Examples", "Stimulus"],
+      "rows": [
+        ["Shape Memory Alloys", "Nitinol", "Heat"],
+        ["Shape Memory Polymers", "PLLA, Polyurethane", "Heat"],
+        ["Shape Memory Ceramics", "Certain advanced ceramics", "Temperature"],
+        ["Shape Memory Composites", "Polymer composites", "Heat/Light"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Poly L-Lactic Acid (PLLA)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Poly L-Lactic Acid (PLLA)</strong> is a biodegradable and bio-based shape memory polymer prepared from L-lactic acid. It belongs to the family of biodegradable polyesters and is one of the most important materials used in biomedical engineering because it safely degrades into harmless products inside the human body.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Source",
+      "content": "PLLA is produced from renewable resources such as corn starch, sugarcane, cassava, and other agricultural products through the fermentation of sugars to produce lactic acid."
+    },
+    {
+      "type": "heading",
+      "content": "Preparation of PLLA"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PLLA is synthesized by polymerization of L-lactic acid or by ring-opening polymerization of lactide using suitable catalysts. The resulting polymer possesses high strength, biodegradability, and excellent biocompatibility.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Preparation of PLLA",
+      "steps": [
+        "Agricultural Products",
+        "Fermentation",
+        "L-Lactic Acid",
+        "Polymerization",
+        "Poly L-Lactic Acid (PLLA)"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Working Principle"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PLLA can be heated above its transition temperature and deformed into a temporary shape. After cooling, the temporary shape is retained. When reheated, the polymer regains its original permanent shape due to the shape memory effect.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Shape Memory Cycle",
+      "steps": [
+        "Original Shape",
+        "Heating",
+        "Deformation",
+        "Cooling",
+        "Temporary Shape",
+        "Reheating",
+        "Original Shape Recovery"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Properties of PLLA"
+    },
+    {
+      "type": "accordion",
+      "title": "Important Properties",
+      "items": [
+        {
+          "question": "Biodegradable",
+          "answer": "Breaks down naturally into non-toxic products."
+        },
+        {
+          "question": "Biocompatible",
+          "answer": "Safe for medical implants and tissue engineering."
+        },
+        {
+          "question": "Shape Memory Effect",
+          "answer": "Recovers its original shape upon heating."
+        },
+        {
+          "question": "High Mechanical Strength",
+          "answer": "Suitable for load-bearing biomedical applications."
+        },
+        {
+          "question": "Renewable Source",
+          "answer": "Manufactured from naturally occurring materials."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of PLLA"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Eco-Friendly",
+          "answer": "Prepared from renewable resources and biodegradable."
+        },
+        {
+          "question": "Excellent Biocompatibility",
+          "answer": "Widely used for medical implants and devices."
+        },
+        {
+          "question": "Good Mechanical Properties",
+          "answer": "Provides sufficient strength for engineering applications."
+        },
+        {
+          "question": "Shape Memory Behavior",
+          "answer": "Recovers original shape with heat."
+        },
+        {
+          "question": "Reduced Secondary Surgery",
+          "answer": "Biodegradable implants eliminate the need for removal."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Limitations of PLLA"
+    },
+    {
+      "type": "accordion",
+      "title": "Limitations",
+      "items": [
+        {
+          "question": "Slow Degradation",
+          "answer": "Requires considerable time for complete biodegradation."
+        },
+        {
+          "question": "Temperature Sensitive",
+          "answer": "Shape recovery depends on suitable heating conditions."
+        },
+        {
+          "question": "Higher Cost",
+          "answer": "More expensive than conventional plastics."
+        },
+        {
+          "question": "Limited Heat Resistance",
+          "answer": "Not suitable for prolonged exposure to high temperatures."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Engineering Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Applications of PLLA",
+      "items": [
+        {
+          "question": "Biomedical Engineering",
+          "answer": "Bone screws, pins, sutures, stents, and orthopedic implants."
+        },
+        {
+          "question": "Drug Delivery",
+          "answer": "Controlled release capsules and biodegradable carriers."
+        },
+        {
+          "question": "Tissue Engineering",
+          "answer": "Scaffolds for regeneration of tissues."
+        },
+        {
+          "question": "Packaging",
+          "answer": "Biodegradable food packaging materials."
+        },
+        {
+          "question": "3D Printing",
+          "answer": "Used as a biodegradable filament for additive manufacturing."
+        },
+        {
+          "question": "Smart Medical Devices",
+          "answer": "Shape memory implants and minimally invasive surgical devices."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "PLLA vs Conventional Plastic"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "PLLA",
+      "right_title": "Conventional Plastic",
+      "left_points": [
+        "Biodegradable",
+        "Renewable source",
+        "Shape memory behavior",
+        "Biocompatible",
+        "Eco-friendly"
+      ],
+      "right_points": [
+        "Non-biodegradable",
+        "Petroleum based",
+        "No shape memory",
+        "Limited medical use",
+        "Causes environmental pollution"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Future Scope"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>PLLA is expected to play a major role in future biomedical technologies, biodegradable electronics, tissue engineering, sustainable packaging, smart implants, and environmentally friendly engineering products due to its renewable origin and intelligent behavior.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "PLLA"],
+      "rows": [
+        ["Type", "Shape Memory Polymer"],
+        ["Source", "L-Lactic Acid"],
+        ["Nature", "Biodegradable"],
+        ["Stimulus", "Heat"],
+        ["Major Use", "Biomedical Engineering"]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Exam Tip",
+      "content": "Frequently asked university questions include the definition of shape memory materials, preparation of PLLA, properties, advantages, engineering applications, and comparison with conventional plastics."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Shape memory materials recover their original shape after stimulation.",
+        "PLLA is a biodegradable shape memory polymer.",
+        "Prepared from L-lactic acid obtained from renewable resources.",
+        "Heat is the common stimulus for shape recovery.",
+        "PLLA possesses excellent biocompatibility.",
+        "Used in biomedical implants and tissue engineering.",
+        "Also used in packaging and 3D printing.",
+        "Biodegradability reduces environmental pollution.",
+        "PLLA is a renewable alternative to petroleum-based plastics.",
+        "Important smart material in modern engineering."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "PLLA belongs to which category of smart materials?",
+      "options": [
+        "Shape Memory Alloy",
+        "Shape Memory Polymer",
+        "Piezoelectric Material",
+        "Magnetostrictive Material"
+      ],
+      "answer": "Shape Memory Polymer"
+    },
+    {
+      "type": "quiz",
+      "question": "The common stimulus responsible for shape recovery in PLLA is:",
+      "options": ["Pressure", "Heat", "Magnetic Field", "Moisture"],
+      "answer": "Heat"
+    },
+    {
+      "type": "quiz",
+      "question": "PLLA is mainly prepared from:",
+      "options": ["Ethylene", "L-Lactic Acid", "Propylene", "Styrene"],
+      "answer": "L-Lactic Acid"
+    },
+    {
+      "type": "quiz",
+      "question": "One major application of PLLA is:",
+      "options": [
+        "Concrete production",
+        "Biomedical implants",
+        "Steel manufacturing",
+        "Glass production"
+      ],
+      "answer": "Biomedical implants"
+    }
+  ]
+}

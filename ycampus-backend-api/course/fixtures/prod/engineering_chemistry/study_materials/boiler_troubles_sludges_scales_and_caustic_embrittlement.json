@@ -1,0 +1,203 @@
+{
+  "sub_unit_name": "Boiler troubles: Sludges, Scales and Caustic embrittlement",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Boiler Troubles",
+      "description": "Boiler troubles are undesirable problems caused by impurities present in boiler feed water. The major boiler troubles are sludge formation, scale formation, and caustic embrittlement, which reduce boiler efficiency and may lead to equipment failure."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Boilers are widely used in industries to generate steam. Impure feed water leads to the deposition of dissolved salts and chemical reactions inside the boiler, resulting in <strong>sludges</strong>, <strong>scales</strong>, and <strong>caustic embrittlement</strong>. Proper water treatment helps prevent these problems.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Boiler Troubles Matter",
+      "content": "Boiler troubles reduce heat transfer efficiency, increase fuel consumption, damage boiler components, and may even cause boiler explosions if not controlled."
+    },
+    {
+      "type": "diagram",
+      "title": "Boiler Troubles Overview",
+      "steps": [
+        "Impure Feed Water",
+        "Dissolved Salts Enter Boiler",
+        "Sludge & Scale Formation",
+        "Corrosion and Embrittlement",
+        "Reduced Boiler Efficiency"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Sludges"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Sludges</strong> are soft, loose, and non-adherent deposits formed by salts that are more soluble in hot water than in cold water. They generally accumulate in the colder parts of the boiler.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Cause", "Examples"],
+      "rows": [
+        ["Highly soluble salts", "MgCl₂, MgSO₄"],
+        ["Suspended impurities", "Mud, clay and fine particles"]
+      ]
+    },
+    {
+      "type": "accordion",
+      "title": "Effects of Sludges",
+      "items": [
+        {
+          "question": "Reduced Heat Transfer",
+          "answer": "Acts as an insulating layer, reducing heating efficiency."
+        },
+        {
+          "question": "Choking of Pipes",
+          "answer": "Blocks water circulation and steam flow."
+        },
+        {
+          "question": "Fuel Wastage",
+          "answer": "More fuel is required to produce the same amount of steam."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Scales"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Scales</strong> are hard, adherent deposits formed on the inner surface of boilers due to the precipitation of sparingly soluble salts such as calcium carbonate and calcium sulfate.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Formation of Scales",
+      "description": "Scale formation occurs due to the decomposition of bicarbonates and the decreased solubility of certain salts at high temperatures."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Ca(HCO₃)₂ → CaCO₃ + CO₂ + H₂O</strong><br><strong>CaSO₄</strong> becomes less soluble at high temperatures and deposits as a hard scale.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Effects", "Consequences"],
+      "rows": [
+        ["Poor Heat Transfer", "Higher fuel consumption"],
+        ["Overheating", "Boiler tube failure"],
+        ["Reduced Steam Production", "Lower boiler efficiency"],
+        ["Explosion Risk", "Severe overheating of metal"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Sludges vs Scales"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Sludges",
+      "right_title": "Scales",
+      "left_points": [
+        "Soft and loose deposits",
+        "Form in cooler regions",
+        "Can be removed by blow-down",
+        "Less difficult to remove"
+      ],
+      "right_points": [
+        "Hard and adherent deposits",
+        "Form on hot boiler surfaces",
+        "Require mechanical or chemical removal",
+        "Cause severe heat loss"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Caustic Embrittlement"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Caustic embrittlement</strong> is the cracking of boiler metal due to the accumulation of highly concentrated sodium hydroxide (NaOH) at stressed portions of the boiler.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Caustic Embrittlement Process",
+      "steps": [
+        "Na₂CO₃ in Feed Water",
+        "Formation of NaOH",
+        "Concentration at Cracks",
+        "Metal Becomes Brittle",
+        "Crack Propagation"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Na₂CO₃ + H₂O → 2NaOH + CO₂</strong><br>The concentrated NaOH attacks boiler steel at stressed regions, causing intergranular cracks and weakening the boiler.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Prevention of Boiler Troubles"
+    },
+    {
+      "type": "accordion",
+      "title": "Preventive Measures",
+      "items": [
+        {
+          "question": "Sludge Control",
+          "answer": "Use blow-down operation and proper feed water treatment."
+        },
+        {
+          "question": "Scale Prevention",
+          "answer": "Use softened water and chemical conditioning methods."
+        },
+        {
+          "question": "Prevent Caustic Embrittlement",
+          "answer": "Use phosphate conditioning, sodium sulfate treatment, and avoid excess NaOH concentration."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Industrial Importance",
+      "content": "Proper boiler water treatment improves steam generation, reduces maintenance costs, extends boiler life, and ensures safe industrial operation."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Sludges are soft deposits formed by soluble salts.",
+        "Scales are hard deposits formed by sparingly soluble salts.",
+        "Scales reduce heat transfer and increase fuel consumption.",
+        "Caustic embrittlement is caused by concentrated NaOH attacking boiler steel.",
+        "Water treatment and chemical conditioning prevent boiler troubles."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which boiler deposit is hard and firmly attached to the boiler surface?",
+      "options": ["Sludge", "Scale", "Foam", "Scum"],
+      "answer": "Scale"
+    },
+    {
+      "type": "quiz",
+      "question": "Caustic embrittlement is mainly caused by the presence of:",
+      "options": ["CaCO₃", "NaOH", "MgSO₄", "NaCl"],
+      "answer": "NaOH"
+    },
+    {
+      "type": "quiz",
+      "question": "Which operation is commonly used to remove sludge from boilers?",
+      "options": ["Distillation", "Filtration", "Blow-down", "Chlorination"],
+      "answer": "Blow-down"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an effect of scale formation?",
+      "options": [
+        "Improved heat transfer",
+        "Reduced fuel consumption",
+        "Boiler overheating",
+        "Increased steam production"
+      ],
+      "answer": "Boiler overheating"
+    }
+  ]
+}

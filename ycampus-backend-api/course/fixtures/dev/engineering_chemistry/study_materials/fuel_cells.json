@@ -1,0 +1,185 @@
+{
+  "sub_unit_name": "Fuel Cells- Differences between battery and a fuel cell, Construction and applications of Methanol Oxygen fuel cell and Solid oxide fuel cell",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Fuel Cells",
+      "description": "A fuel cell is an electrochemical device that converts the chemical energy of a fuel directly into electrical energy through redox reactions. Unlike batteries, fuel cells continuously generate electricity as long as fuel and oxidant are supplied."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Fuel cells are clean and efficient energy sources used in transportation, portable power systems, and stationary power generation. Common fuel cells include <strong>Methanol-Oxygen Fuel Cells</strong> and <strong>Solid Oxide Fuel Cells (SOFC)</strong>.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Fuel Cells?",
+      "content": "Fuel cells provide high efficiency, continuous power generation, low pollution, and reduced dependence on fossil fuels."
+    },
+    {
+      "type": "diagram",
+      "title": "Working of a Fuel Cell",
+      "steps": [
+        "Fuel Supply",
+        "Oxidation at Anode",
+        "Electron Flow",
+        "Reduction at Cathode",
+        "Electricity Produced"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Battery vs Fuel Cell"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Battery",
+      "right_title": "Fuel Cell",
+      "left_points": [
+        "Stores chemical energy",
+        "Limited operating time",
+        "Needs recharging/replacement",
+        "Reactants stored inside"
+      ],
+      "right_points": [
+        "Converts supplied fuel into electricity",
+        "Operates continuously",
+        "No recharging required",
+        "Fuel supplied externally"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Methanol-Oxygen Fuel Cell"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Methanol-Oxygen Fuel Cell uses <strong>methanol</strong> as fuel and <strong>oxygen</strong> from air as the oxidant. It consists of an anode, cathode, electrolyte, and catalyst. Methanol is oxidized at the anode while oxygen is reduced at the cathode, producing electricity, water, and carbon dioxide.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working of Methanol-Oxygen Fuel Cell",
+      "steps": [
+        "Methanol Supplied",
+        "Oxidation at Anode",
+        "Electron Flow",
+        "Oxygen Reduction",
+        "Electricity Generated"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Solid Oxide Fuel Cell (SOFC)"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Solid Oxide Fuel Cell uses a <strong>solid ceramic electrolyte</strong> that conducts oxide ions at high temperatures. It commonly uses hydrogen or natural gas as fuel and oxygen as the oxidant, providing high electrical efficiency.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Fuel Cell",
+        "Fuel",
+        "Major Application"
+      ],
+      "rows": [
+        [
+          "Methanol-Oxygen",
+          "Methanol",
+          "Portable power devices"
+        ],
+        [
+          "Solid Oxide Fuel Cell",
+          "Hydrogen/Natural Gas",
+          "Power generation"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Uses of Fuel Cells",
+      "items": [
+        {
+          "question": "Methanol-Oxygen Fuel Cell",
+          "answer": "Used in portable electronics, backup power systems, and small electric vehicles."
+        },
+        {
+          "question": "Solid Oxide Fuel Cell",
+          "answer": "Used in power plants, industries, and distributed electricity generation."
+        },
+        {
+          "question": "Transportation",
+          "answer": "Fuel cells are used in buses, cars, and hydrogen-powered vehicles."
+        },
+        {
+          "question": "Environmental Benefit",
+          "answer": "Fuel cells produce lower emissions and higher efficiency than conventional power sources."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Advantage",
+      "content": "Fuel cells can generate electricity continuously as long as fuel is supplied, making them suitable for long-duration power applications."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Fuel cells convert chemical energy directly into electrical energy.",
+        "Fuel cells require continuous fuel supply.",
+        "Methanol-Oxygen fuel cells use methanol as fuel.",
+        "SOFC uses a solid ceramic electrolyte and operates at high temperature.",
+        "Fuel cells are efficient, clean, and suitable for continuous power generation."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "The main difference between a battery and a fuel cell is:",
+      "options": [
+        "Fuel cells cannot produce electricity",
+        "Fuel cells require continuous fuel supply",
+        "Batteries use oxygen from air",
+        "Batteries have no electrodes"
+      ],
+      "answer": "Fuel cells require continuous fuel supply"
+    },
+    {
+      "type": "quiz",
+      "question": "Which fuel is used in a Methanol-Oxygen Fuel Cell?",
+      "options": [
+        "Hydrogen",
+        "Methanol",
+        "Petrol",
+        "Diesel"
+      ],
+      "answer": "Methanol"
+    },
+    {
+      "type": "quiz",
+      "question": "The electrolyte used in a Solid Oxide Fuel Cell is:",
+      "options": [
+        "Liquid acid",
+        "Alkaline solution",
+        "Solid ceramic electrolyte",
+        "Salt solution"
+      ],
+      "answer": "Solid ceramic electrolyte"
+    },
+    {
+      "type": "quiz",
+      "question": "One major advantage of fuel cells is:",
+      "options": [
+        "High pollution",
+        "Low efficiency",
+        "Continuous power generation",
+        "Need for frequent charging"
+      ],
+      "answer": "Continuous power generation"
+    }
+  ]
+}

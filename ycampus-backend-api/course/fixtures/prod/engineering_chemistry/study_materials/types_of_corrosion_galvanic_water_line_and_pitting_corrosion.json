@@ -1,0 +1,178 @@
+{
+  "sub_unit_name": "Types of corrosion: Galvanic, water-line and pitting corrosion",
+  "subject_short_code": "EC101",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Types of Corrosion",
+      "description": "Corrosion occurs in different forms depending on the environment and the nature of the metal. Common types include galvanic corrosion, water-line corrosion, and pitting corrosion."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Different types of corrosion affect engineering materials in different ways. Identifying the type of corrosion helps in selecting suitable preventive measures and improving the service life of metal components.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Importance",
+      "content": "Understanding the types of corrosion helps prevent equipment failure, reduce maintenance costs, and improve safety."
+    },
+    {
+      "type": "diagram",
+      "title": "Classification of Corrosion",
+      "steps": [
+        "Galvanic Corrosion",
+        "Water-line Corrosion",
+        "Pitting Corrosion",
+        "Metal Damage",
+        "Protection Methods"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Galvanic Corrosion"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Galvanic corrosion</strong> occurs when two dissimilar metals are electrically connected in the presence of an electrolyte. The more active metal acts as the anode and corrodes, while the less active metal acts as the cathode and is protected.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Water-line Corrosion"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Water-line corrosion</strong> occurs at the junction of water and air due to differences in oxygen concentration. The region just below the water level becomes anodic and undergoes corrosion.</p>"
+    },
+    {
+      "type": "heading",
+      "content": "Pitting Corrosion"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Pitting corrosion</strong> is a localized form of corrosion that produces small pits or holes on the metal surface. It is dangerous because it causes severe damage while affecting only a small area.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Corrosion Development",
+      "steps": [
+        "Exposure to Environment",
+        "Formation of Corrosion Cell",
+        "Localized Metal Attack",
+        "Pit or Surface Damage",
+        "Component Weakening"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Galvanic Corrosion",
+      "right_title": "Water-line & Pitting Corrosion",
+      "left_points": [
+        "Occurs between dissimilar metals",
+        "Requires electrical contact",
+        "Needs an electrolyte",
+        "Anodic metal corrodes"
+      ],
+      "right_points": [
+        "Water-line: Due to oxygen concentration difference",
+        "Pitting: Localized attack",
+        "Occurs on a single metal",
+        "Can cause sudden failure"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Cause", "Example"],
+      "rows": [
+        [
+          "Galvanic",
+          "Dissimilar metals in electrolyte",
+          "Steel joined with copper"
+        ],
+        ["Water-line", "Differential aeration", "Storage tanks"],
+        ["Pitting", "Localized attack", "Stainless steel in chloride solution"]
+      ]
+    },
+    {
+      "type": "accordion",
+      "title": "Prevention Methods",
+      "items": [
+        {
+          "question": "Galvanic Corrosion",
+          "answer": "Avoid direct contact between dissimilar metals or use insulation."
+        },
+        {
+          "question": "Water-line Corrosion",
+          "answer": "Apply protective coatings and maintain uniform oxygen distribution."
+        },
+        {
+          "question": "Pitting Corrosion",
+          "answer": "Use corrosion-resistant alloys and avoid chloride-rich environments."
+        },
+        {
+          "question": "General Protection",
+          "answer": "Use coatings, inhibitors, cathodic protection, and proper material selection."
+        }
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Engineering Significance",
+      "content": "Pitting corrosion is considered one of the most dangerous forms because it is difficult to detect and can lead to sudden equipment failure."
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Galvanic corrosion occurs between dissimilar metals.",
+        "Water-line corrosion is caused by differential aeration.",
+        "Pitting corrosion creates small but deep pits.",
+        "Electrolytes accelerate most corrosion processes.",
+        "Proper protection methods increase the life of engineering materials."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Galvanic corrosion occurs when:",
+      "options": [
+        "A single metal is heated",
+        "Two dissimilar metals are in contact with an electrolyte",
+        "A metal is exposed to dry air",
+        "A metal is polished"
+      ],
+      "answer": "Two dissimilar metals are in contact with an electrolyte"
+    },
+    {
+      "type": "quiz",
+      "question": "Water-line corrosion is mainly caused by:",
+      "options": [
+        "High temperature",
+        "Differential oxygen concentration",
+        "Mechanical stress",
+        "Acid rain"
+      ],
+      "answer": "Differential oxygen concentration"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of corrosion forms small holes on the metal surface?",
+      "options": [
+        "Galvanic corrosion",
+        "Pitting corrosion",
+        "Uniform corrosion",
+        "Dry corrosion"
+      ],
+      "answer": "Pitting corrosion"
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of corrosion is the most difficult to detect?",
+      "options": [
+        "Galvanic corrosion",
+        "Water-line corrosion",
+        "Pitting corrosion",
+        "Chemical corrosion"
+      ],
+      "answer": "Pitting corrosion"
+    }
+  ]
+}
