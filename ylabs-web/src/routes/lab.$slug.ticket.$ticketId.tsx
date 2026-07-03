@@ -30,7 +30,34 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-export const Route = createFileRoute("/lab/$slug/ticket/$ticketId")({ component: TicketEditor });
+export const Route = createFileRoute("/lab/$slug/ticket/$ticketId")({ component: TicketEditorRoute });
+
+export type StudentPreviewOverride = {
+  title?: string;
+  description?: string;
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
+  xp?: number;
+  estMin?: number;
+  tag?: string;
+  starterCode?: string;
+  hints?: string;
+  solution?: string;
+};
+
+function TicketEditorRoute() {
+  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId" });
+  const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("preview") !== "1") return;
+    try {
+      const raw = sessionStorage.getItem("__adminPreviewTicket");
+      if (raw) setPreviewOverride(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [ticketId]);
+  return <StudentTicketView slug={slug} ticketId={ticketId} previewOverride={previewOverride} />;
+}
 
 const STARTER_MAIN = `public class Main {
     public static void main(String[] args) {
@@ -637,12 +664,34 @@ function getKit(slug: string, tag: string): Kit {
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
 type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal";
 
-function TicketEditor() {
-  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId" });
-  const navigate = useNavigate({ from: "/lab/$slug/ticket/$ticketId" });
+export function StudentTicketView({
+  slug,
+  ticketId,
+  previewOverride,
+}: {
+  slug: string;
+  ticketId: string;
+  previewOverride?: StudentPreviewOverride | null;
+}) {
+  const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const ticket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
+  const baseTicket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
+
+
+  const ticket = useMemo(() => {
+    if (!previewOverride) return baseTicket;
+    return {
+      ...baseTicket,
+      title: previewOverride.title ?? baseTicket.title,
+      description: previewOverride.description ?? baseTicket.description,
+      difficulty: (previewOverride.difficulty as typeof baseTicket.difficulty) ?? baseTicket.difficulty,
+      xp: previewOverride.xp ?? baseTicket.xp,
+      estMin: previewOverride.estMin ?? baseTicket.estMin,
+      tag: previewOverride.tag ?? baseTicket.tag,
+    };
+  }, [baseTicket, previewOverride]);
+
   const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
@@ -656,8 +705,14 @@ function TicketEditor() {
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js" };
   const [progLang, setProgLang] = useState<ProgLang>("python");
   const initialFileList: readonly string[] = kit.fileList;
-  const starters: Record<string, string> = kit.files;
+  const starters: Record<string, string> = useMemo(() => {
+    if (previewOverride?.starterCode && kit.primary) {
+      return { ...kit.files, [kit.primary]: previewOverride.starterCode };
+    }
+    return kit.files;
+  }, [kit, previewOverride]);
   const primaryFile = kit.primary;
+
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);

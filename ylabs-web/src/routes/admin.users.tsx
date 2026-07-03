@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/admin/users")({ component: UsersPage });
 
-const ROLES = ["Student", "Developer", "Job Seeker", "Recruiter", "Mentor", "Admin"];
+const ROLES = ["Student", "Job Seeker", "Recruiter", "Mentor", "Admin"];
 const COLLEGES = ["IIT Bombay", "BITS Pilani", "VIT", "NIT Trichy", "Anna Univ", "—"];
 
 const USERS = Array.from({ length: 40 }, (_, i) => ({
