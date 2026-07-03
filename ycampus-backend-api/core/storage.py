@@ -129,6 +129,3 @@ def upload_file(*, key, file_obj, replace_extensions=()):
     except Exception:
         logger.exception("upload_file failed (key=%s)", full_key)
         raise
-
-
-upload_image = upload_file

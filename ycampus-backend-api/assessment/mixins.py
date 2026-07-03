@@ -11,7 +11,7 @@ import requests
 import json
 from django.db.models import Sum
 from django.utils.text import slugify
-from core.storage import upload_image
+from core.storage import upload_file
 import logging
 
 logger = logging.getLogger(__name__)
@@ -630,7 +630,7 @@ class ProctoringMixin:
 
             object_key = "/".join(key_parts)
 
-            return upload_image(
+            return upload_file(
                 key=object_key,
                 file_obj=file_obj,
             )
