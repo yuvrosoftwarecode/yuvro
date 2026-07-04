@@ -32,8 +32,18 @@ class Command(BaseCommand):
             default="test_users_data.json",
             help="Filename within fixtures/<deploy_env>/ to load",
         )
-        parser.add_argument('--ycode-url', type=str, default=config('YCODE_BACKEND_URL', default='http://localhost:8001'), help='Base URL of YCode API.')
-        parser.add_argument('--ylabs-url', type=str, default=config('YLABS_BACKEND_URL', default='http://localhost:8002'), help='Base URL of YLabs API.')
+        parser.add_argument(
+            '--ycode-url',
+            type=str,
+            default=config('YCODE_BACKEND_URL', default='http://host.docker.internal:8001'),
+            help='Base URL of YCode API.',
+        )
+        parser.add_argument(
+            '--ylabs-url',
+            type=str,
+            default=config('YLABS_BACKEND_URL', default='http://host.docker.internal:8002'),
+            help='Base URL of YLabs API.',
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -71,7 +81,9 @@ class Command(BaseCommand):
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             auth_app_dir = os.path.dirname(os.path.dirname(current_dir))
-            deploy_env = "dev" if options["deploy_env"] == "local" else options["deploy_env"]
+            deploy_env = options.get("deploy_env") or "dev"
+            if deploy_env == "local":
+                deploy_env = "dev"
             json_file_path = os.path.join(auth_app_dir, "fixtures", deploy_env, options["file"])
 
             if not os.path.exists(json_file_path):
@@ -101,9 +113,8 @@ class Command(BaseCommand):
                         roles=user_data.get("roles", {}),
                         is_staff=user_data.get("is_staff", False),
                         is_superuser=user_data.get("is_superuser", False),
+                        is_active=user_data.get("is_active", True),
                     )
-                    user.set_password(user_data["password"])
-                    user.save()
                     created = True
 
                 if created:
