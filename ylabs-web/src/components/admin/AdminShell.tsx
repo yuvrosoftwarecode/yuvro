@@ -29,7 +29,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
   {
     group: "Engineering",
     items: [
-      { to: "/admin/labs", label: "Labs", icon: FlaskConical },
+      { to: "/admin/labs/", label: "Labs", icon: FlaskConical },
       { to: "/admin/sprints", label: "Sprint Templates", icon: GitBranch },
       { to: "/admin/tickets", label: "Tickets", icon: Ticket },
       { to: "/admin/questions", label: "Question Bank", icon: Database },
@@ -96,7 +96,7 @@ export function AdminShell({ title, breadcrumb, right, children }: {
                 {g.items.map((n) => {
                   const active = isActive(n.to);
                   return (
-                    <Link key={n.to} to={n.to} title={collapsed ? n.label : undefined} className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+                    <Link key={n.to} to={n.to as any} title={collapsed ? n.label : undefined} className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
                       <n.icon className="h-4 w-4 shrink-0" /> {!collapsed && n.label}
                     </Link>
                   );

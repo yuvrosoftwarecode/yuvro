@@ -22,13 +22,20 @@ function SprintEditorPage() {
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
-    const found = getLab(id);
-    if (!found) { nav({ to: "/admin/labs" }); return; }
-    setLab(found);
-    const sp = loadSprintsWithSeed(found.id, found.slug);
-    setSprints(sp);
-    const current = sp.find(s => s.id === sprintId);
-    if (current && current.tasks[0]) setActiveTicketId(current.tasks[0].id);
+    let active = true;
+    const fetchData = async () => {
+      const found = await getLab(id);
+      if (!active) return;
+      if (!found) { nav({ to: "/admin/labs" }); return; }
+      setLab(found);
+      const sp = await loadSprintsWithSeed(found.id, (found as any).slug || found.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+      if (!active) return;
+      setSprints(sp);
+      const current = sp.find(s => s.id === sprintId);
+      if (current && current.tasks && current.tasks.length > 0) setActiveTicketId(current.tasks[0].id);
+    };
+    fetchData();
+    return () => { active = false; };
   }, [id, sprintId, nav]);
 
   const sprint = useMemo(() => sprints.find(s => s.id === sprintId) ?? null, [sprints, sprintId]);
@@ -61,8 +68,8 @@ function SprintEditorPage() {
     if (activeTicketId === tid) setActiveTicketId(null);
   };
 
-  const save = () => {
-    saveSprints(lab.id, sprints);
+  const save = async () => {
+    await saveSprints(lab.id, sprints);
     setDirty(false);
     setSavedAt(Date.now());
   };

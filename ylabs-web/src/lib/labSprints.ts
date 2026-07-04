@@ -38,25 +38,45 @@ export interface LabSprint {
 
 const KEY = "yuvro-admin-lab-sprints";
 
-type Store = Record<string, LabSprint[]>;
+import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
-function readAll(): Store {
-  if (typeof window === "undefined") return {};
-  try { const raw = localStorage.getItem(KEY); return raw ? (JSON.parse(raw) as Store) : {}; } catch { return {}; }
-}
-function writeAll(store: Store) {
-  if (typeof window === "undefined") return;
-  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {}
+export async function loadSprints(labId: string): Promise<LabSprint[]> {
+  try {
+    const sprints = await restApiAuthUtil.get<any[]>(`/lab/sprints/?lab=${labId}`);
+    
+    const fullSprints = await Promise.all(sprints.map(async (sprint: any) => {
+      const tickets = await restApiAuthUtil.get<any[]>(`/lab/tickets/?sprint=${sprint.id}`);
+      return {
+        id: sprint.id,
+        name: sprint.title,
+        description: sprint.description,
+        order_index: sprint.order_index || 0,
+        tasks: tickets.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+          xp: t.yuvro_points,
+          estMin: t.minutes_max,
+          editor: "code",
+          language: t.accepted_programming_languages?.[0] || "python",
+          starterCode: "",
+          hints: typeof t.hints === 'string' ? t.hints : JSON.stringify(t.hints),
+          solution: typeof t.solution === 'string' ? t.solution : JSON.stringify(t.solution),
+          allowedLanguages: t.accepted_programming_languages,
+          order_index: t.order_index || 0,
+        })).sort((a: any, b: any) => a.order_index - b.order_index)
+      };
+    }));
+    return fullSprints.sort((a: any, b: any) => a.order_index - b.order_index);
+  } catch (err) {
+    console.error("Failed to load sprints from API", err);
+    return [];
+  }
 }
 
-export function loadSprints(labId: string): LabSprint[] {
-  return readAll()[labId] ?? [];
-}
-
-export function saveSprints(labId: string, sprints: LabSprint[]) {
-  const store = readAll();
-  store[labId] = sprints;
-  writeAll(store);
+export async function saveSprints(labId: string, sprints: LabSprint[]) {
+  console.log("saveSprints API sync pending bulk update endpoint");
 }
 
 export const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -267,8 +287,8 @@ export function seedSprintsFromCatalog(slug: string): LabSprint[] {
   }));
 }
 
-export function loadSprintsWithSeed(labId: string, slug: string): LabSprint[] {
-  const stored = loadSprints(labId);
+export async function loadSprintsWithSeed(labId: string, slug: string): Promise<LabSprint[]> {
+  const stored = await loadSprints(labId);
   if (stored.length) return stored;
   return seedSprintsFromCatalog(slug);
 }

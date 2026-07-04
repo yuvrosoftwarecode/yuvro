@@ -768,29 +768,11 @@ clear-migrations:
 db-reset: _validate-deploy
 	@echo "🧹 Resetting databases (removing DB volumes and restarting DBs/Backends)..."
 	@docker network create executor 2>/dev/null || true
-	# Discover backend DB services from the SERVICES list and reset them all
-	DB_SERVICES=""; \
-	for svc in $(SERVICES); do \
-		case $$svc in \
-			*-backend) db=$${svc%-backend}-db; DB_SERVICES="$$DB_SERVICES $$db";; \
-		esac; \
-	done; \
-	echo "🔁 DB services to reset: $$DB_SERVICES"; \
-	# Bring compose down and remove named volumes so all tables are deleted
-	docker compose $(COMPOSE_FILES) down -v --remove-orphans || true; \
-	# Start only DB services again
-	docker compose $(COMPOSE_FILES) up -d --wait $$DB_SERVICES || true
+	@docker compose $(COMPOSE_FILES) rm -s -f -v ycode-db ycampus-db yhub-db ylabs-db || true
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db || true
 	@echo "⏳ Waiting for databases to become healthy..."
 	@sleep 5
-	# Restart all backend services
-	BACKEND_SERVICES=""; \
-	for svc in $(SERVICES); do \
-		case $$svc in \
-			*-backend) BACKEND_SERVICES="$$BACKEND_SERVICES $$svc";; \
-		esac; \
-	done; \
-	echo "🔁 Restarting backends: $$BACKEND_SERVICES"; \
-	docker compose $(COMPOSE_FILES) restart $$BACKEND_SERVICES || true
+	@docker compose $(COMPOSE_FILES) restart ycode-backend ycampus-backend yhub-backend ylabs-backend || true
 	@echo "✅ DB reset complete (migrations applied on backend restart)."
 
 # ============================================================================

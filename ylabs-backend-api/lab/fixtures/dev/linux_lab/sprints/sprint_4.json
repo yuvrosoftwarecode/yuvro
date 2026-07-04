@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 4 \u2014 Linux for Backend Developers",
+  "description": "Deploy applications like a backend engineer.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Configure Git Development Environment",
+      "ticket_slug": "ticket-1",
+      "description": "Generate SSH keys.\nConnect to GitHub.\nClone repositories.",
+      "tasks": [],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Deploy a Django Application",
+      "ticket_slug": "ticket-2",
+      "description": "Install\nPython\nVirtual environment\nGunicorn\nRun the app.",
+      "tasks": [],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Configure Nginx Reverse Proxy",
+      "ticket_slug": "ticket-3",
+      "description": "Expose Django through Nginx.\nVerify static files work.",
+      "tasks": [],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Containerize the Application",
+      "ticket_slug": "ticket-4",
+      "description": "Write\nDockerfile\n.dockerignore\nRun the application in Docker.",
+      "tasks": [],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 5 \u2014 Deploy Using Docker Compose",
+      "ticket_slug": "ticket-5",
+      "description": "Run\nDjango\nPostgreSQL\nRedis\nNginx\nwith a single command.",
+      "tasks": [],
+      "order_index": 5,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 6 \u2014 Configure Environment Variables",
+      "ticket_slug": "ticket-6",
+      "description": "Move all secrets into\n.env\nEnsure the app works without hardcoded values.",
+      "tasks": [],
+      "order_index": 6,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 7 \u2014 Build a One-Click Deployment Script",
+      "ticket_slug": "ticket-7",
+      "description": "Create\ndeploy.sh\nIt should\nPull latest code\nInstall dependencies\nRun migrations\nRestart services",
+      "tasks": [],
+      "order_index": 7,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 8 \u2014 Deploy a Complete Production Stack",
+      "ticket_slug": "ticket-8",
+      "description": "Host a Django application accessible from another machine on your network.",
+      "tasks": [],
+      "order_index": 8,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 4,
+  "lab_title": "Linux Lab"
+}
