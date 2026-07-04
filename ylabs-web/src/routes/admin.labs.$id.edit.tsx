@@ -22,12 +22,20 @@ function EditLab() {
   const [skillsText, setSkillsText] = useState("");
 
   useEffect(() => {
-    const found = getLab(id);
-    if (!found) { nav({ to: "/admin/labs" }); return; }
-    setLab(found);
-    setPrereqsText((found.prerequisites ?? []).join(", "));
-    setSkillsText((found.skills ?? []).join(", "));
-    setSprints(loadSprintsWithSeed(found.id, found.slug));
+    let active = true;
+    const fetchLab = async () => {
+      const found = await getLab(id);
+      if (!active) return;
+      if (!found) { nav({ to: "/admin/labs" }); return; }
+      setLab(found);
+      setPrereqsText(typeof found.prerequisites === 'string' ? found.prerequisites : (found.prerequisites ?? []).join(", "));
+      setSkillsText((found.skills ?? []).join(", "));
+      
+      const loadedSprints = await loadSprintsWithSeed(found.id, (found as any).slug || found.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+      if (active) setSprints(loadedSprints);
+    };
+    fetchLab();
+    return () => { active = false; };
   }, [id, nav]);
 
   if (!lab) return null;
@@ -35,24 +43,28 @@ function EditLab() {
   const set = <K extends keyof AdminLab>(k: K, v: AdminLab[K]) => setLab(s => s ? { ...s, [k]: v } : s);
   const toList = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
 
-  const save = () => {
+  const save = async () => {
     if (!lab.title.trim()) { setError("Lab title is required."); setStep(0); return; }
     if (!lab.description.trim()) { setError("Description is required."); setStep(0); return; }
     setError(null);
-    updateLab(lab.id, {
-      title: lab.title,
-      icon: lab.icon,
-      type: lab.type,
-      difficulty: lab.difficulty,
-      description: lab.description,
-      prerequisites: toList(prereqsText),
-      skills: toList(skillsText),
-      gitRepoStarterUrl: lab.gitRepoStarterUrl,
-      isActive: lab.isActive,
-    });
-    saveSprints(lab.id, sprints);
     setSaved(true);
-    setTimeout(() => nav({ to: "/admin/labs" }), 500);
+    try {
+      await updateLab(lab.id, {
+        title: lab.title,
+        icon: lab.icon,
+        type: lab.type,
+        difficulty: lab.difficulty,
+        description: lab.description,
+        prerequisites: prereqsText,
+        skills: toList(skillsText),
+        git_repo_starter_url: lab.gitRepoStarterUrl || (lab as any).git_repo_starter_url,
+        is_active: lab.isActive || (lab as any).is_active,
+      });
+      setTimeout(() => nav({ to: "/admin/labs" }), 500);
+    } catch (e: any) {
+      setError(e.message || "Failed to save lab");
+      setSaved(false);
+    }
   };
 
   return (
@@ -95,14 +107,14 @@ function EditLab() {
                 </Field>
                 <Field label="Status">
                   <label className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border">
-                    <input type="checkbox" checked={lab.isActive} onChange={e => set("isActive", e.target.checked)} className="h-3.5 w-3.5" />
+                    <input type="checkbox" checked={lab.is_active ?? lab.isActive} onChange={e => set("is_active", e.target.checked)} className="h-3.5 w-3.5" />
                     Active (visible to students)
                   </label>
                 </Field>
                 <Field label="Prerequisites (comma-separated)" full><input value={prereqsText} onChange={e => setPrereqsText(e.target.value)} placeholder="Basic Java, OOP fundamentals" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Skills (comma-separated)" full><input value={skillsText} onChange={e => setSkillsText(e.target.value)} placeholder="Coroutines, Flow, Channels" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Description *" full><textarea rows={4} value={lab.description} onChange={e => set("description", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Git starter repo URL" full><input value={lab.gitRepoStarterUrl ?? ""} onChange={e => set("gitRepoStarterUrl", e.target.value)} placeholder="https://github.com/org/repo" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" /></Field>
+                <Field label="Git starter repo URL" full><input value={lab.git_repo_starter_url ?? lab.gitRepoStarterUrl ?? ""} onChange={e => set("git_repo_starter_url", e.target.value)} placeholder="https://github.com/org/repo" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" /></Field>
               </div>
             </Panel>
           )}

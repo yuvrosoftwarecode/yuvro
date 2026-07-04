@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 5 \u2014 Production Operations",
+  "description": "Handle production incidents and automate server management.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Investigate a High CPU Incident",
+      "ticket_slug": "ticket-1",
+      "description": "Find the process.\nIdentify the cause.\nResolve it.\nDocument the investigation.",
+      "tasks": [],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Recover from a Disk Full Incident",
+      "ticket_slug": "ticket-2",
+      "description": "Locate large files.\nFree space safely.\nPrevent recurrence.",
+      "tasks": [],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Build a Server Health Dashboard",
+      "ticket_slug": "ticket-3",
+      "description": "Create a Bash script that reports\nCPU\nMemory\nDisk\nLoad\nRunning services\nFailed services",
+      "tasks": [],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Automate User Provisioning",
+      "ticket_slug": "ticket-4",
+      "description": "Given a CSV of employees,\nAutomatically\nCreate users\nAssign groups\nCreate home directories\nSet permissions",
+      "tasks": [],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 5 \u2014 Build a Log Monitoring System",
+      "ticket_slug": "ticket-5",
+      "description": "Continuously monitor logs.\nAlert when\nERROR appears\nDisk reaches 90%\nService stops",
+      "tasks": [],
+      "order_index": 5,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 6 \u2014 Perform a Complete Server Backup and Restore",
+      "ticket_slug": "ticket-6",
+      "description": "Take a backup.\nDelete the application.\nRestore everything successfully.\nVerify data integrity.",
+      "tasks": [],
+      "order_index": 6,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 7 \u2014 Secure a Production Server",
+      "ticket_slug": "ticket-7",
+      "description": "Apply a security checklist including:\nDisable root SSH login\nEnforce SSH key authentication\nConfigure automatic security updates\nInstall and configure Fail2Ban\nRemove unused packages and services\nAudit user accounts and permissions\nDocument every change and verify the server remains accessible.",
+      "tasks": [],
+      "order_index": 7,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 8 \u2014 Capstone: Build a Production Linux Server",
+      "ticket_slug": "ticket-8",
+      "description": "Provision a fresh Ubuntu server and configure it end-to-end:\nSecure remote access with SSH keys\nFirewall and intrusion protection\nDocker and Docker Compose\nPostgreSQL or MySQL\nNginx reverse proxy\nDeploy a Django application\nAutomated backups\nHealth monitoring scripts\nLog management\nOne-command deployment script\nComplete setup and recovery documentation",
+      "tasks": [],
+      "order_index": 8,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 5,
+  "lab_title": "Linux Lab"
+}

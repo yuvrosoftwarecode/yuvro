@@ -19,10 +19,17 @@ function SprintsPage() {
   const [newDesc, setNewDesc] = useState("");
 
   useEffect(() => {
-    const found = getLab(id);
-    if (!found) { nav({ to: "/admin/labs" }); return; }
-    setLab(found);
-    setSprints(loadSprintsWithSeed(id, found.slug));
+    let active = true;
+    const fetchSprints = async () => {
+      const found = await getLab(id);
+      if (!active) return;
+      if (!found) { nav({ to: "/admin/labs" }); return; }
+      setLab(found);
+      const data = await loadSprintsWithSeed(id, (found as any).slug || found.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+      if (active) setSprints(data);
+    };
+    fetchSprints();
+    return () => { active = false; };
   }, [id, nav]);
 
   const totals = useMemo(() => ({
@@ -46,8 +53,8 @@ function SprintsPage() {
   };
   const removeSprint = (sid: string) => mutate(s => s.filter(x => x.id !== sid));
 
-  const save = () => {
-    saveSprints(id, sprints);
+  const save = async () => {
+    await saveSprints(id, sprints);
     setDirty(false);
     setSavedAt(Date.now());
   };

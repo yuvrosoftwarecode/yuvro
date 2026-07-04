@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 3 \u2014 Linux Server Administration",
+  "description": "Manage a real Linux server.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Configure SSH for Secure Remote Access",
+      "ticket_slug": "ticket-1",
+      "description": "Disable password login.\nAllow only SSH keys.\nTest from another machine.",
+      "tasks": [],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Host a Static Website",
+      "ticket_slug": "ticket-2",
+      "description": "Install Nginx.\nDeploy a portfolio.\nConfigure a custom domain locally.",
+      "tasks": [],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Host Multiple Websites",
+      "ticket_slug": "ticket-3",
+      "description": "Configure\nsite1.local\nsite2.local\nsite3.local\nEach serves different content.",
+      "tasks": [],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Secure the Server",
+      "ticket_slug": "ticket-4",
+      "description": "Install\nUFW\nFail2Ban\nAllow only\nSSH\nHTTP\nHTTPS",
+      "tasks": [],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 5 \u2014 Schedule Automatic Maintenance",
+      "ticket_slug": "ticket-5",
+      "description": "Create Cron jobs for\nBackups\nCleanup\nLog rotation\nHealth reports",
+      "tasks": [],
+      "order_index": 5,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 6 \u2014 Mount Additional Storage",
+      "ticket_slug": "ticket-6",
+      "description": "Attach a new virtual disk.\nMount automatically.\nMove backups there.",
+      "tasks": [],
+      "order_index": 6,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 7 \u2014 Investigate a Broken Server",
+      "ticket_slug": "ticket-7",
+      "description": "Given\nFull disk\nFailed service\nHigh CPU\nMissing files\nFind root cause and fix.",
+      "tasks": [],
+      "order_index": 7,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 8 \u2014 Deliver a Production-Ready Server",
+      "ticket_slug": "ticket-8",
+      "description": "Server checklist\nSSH\nFirewall\nMonitoring\nBackups\nLogs\nDocumentation",
+      "tasks": [],
+      "order_index": 8,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 3,
+  "lab_title": "Linux Lab"
+}

@@ -35,26 +35,32 @@ function LabBuilder() {
 
   const toList = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
 
-  const publish = () => {
+  const publish = async () => {
     if (!form.title.trim()) { setError("Lab title is required."); setStep(0); return; }
     if (!form.description.trim()) { setError("Description is required."); setStep(0); return; }
     setError(null);
-    const created = createLab({
-      title: form.title.trim(),
-      slug: form.slug,
-      icon: form.icon || "🧪",
-      type: form.type,
-      description: form.description.trim(),
-      prerequisites: toList(form.prerequisites),
-      skills: toList(form.skills),
-      gitRepoStarterUrl: form.gitRepoStarterUrl.trim(),
-      difficulty: form.difficulty,
-      isActive: form.isActive,
-    });
-
-    if (sprints.length) saveSprints(created.id, sprints);
     setSaved(true);
-    setTimeout(() => nav({ to: "/admin/labs" }), 600);
+    try {
+      const created = await createLab({
+        title: form.title.trim(),
+        icon: form.icon || "🧪",
+        type: form.type,
+        description: form.description.trim(),
+        prerequisites: form.prerequisites,
+        skills: toList(form.skills),
+        git_repo_starter_url: form.gitRepoStarterUrl.trim(),
+        difficulty: form.difficulty,
+        is_active: form.isActive,
+      });
+
+      if (sprints.length) {
+          
+      }
+      setTimeout(() => nav({ to: "/admin/labs" }), 600);
+    } catch (e: any) {
+      setError(e.message || "Failed to create lab");
+      setSaved(false);
+    }
   };
 
   return (

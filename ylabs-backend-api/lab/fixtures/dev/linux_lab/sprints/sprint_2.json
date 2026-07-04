@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 2 \u2014 Everyday Linux Productivity",
+  "description": "Solve real developer problems.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Analyze a 2GB Log File",
+      "ticket_slug": "ticket-1",
+      "description": "Given a large log,\nFind\nErrors\nWarnings\nTop 20 IPs\nFailed requests\nGenerate a summary.",
+      "tasks": [],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Build a Disk Cleanup Tool",
+      "ticket_slug": "ticket-2",
+      "description": "Create a Bash script that\nFinds duplicate files\nFinds empty folders\nFinds files over 500MB\nDeletes cache\nPrint reclaimed space.",
+      "tasks": [],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Create an Automatic Backup System",
+      "ticket_slug": "ticket-3",
+      "description": "Backup\nprojects/\nCompress\nTimestamp\nKeep last 7 backups.",
+      "tasks": [],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Monitor Running Processes",
+      "ticket_slug": "ticket-4",
+      "description": "Build a script that reports\nTop CPU consumers\nTop Memory consumers\nZombie processes\nProcesses older than 24 hours",
+      "tasks": [],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 5 \u2014 Diagnose Network Problems",
+      "ticket_slug": "ticket-5",
+      "description": "Find\nCurrent IP\nGateway\nDNS\nOpen ports\nSlow connections\nDocument findings.",
+      "tasks": [],
+      "order_index": 5,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 6 \u2014 Build a System Information Command",
+      "ticket_slug": "ticket-6",
+      "description": "Create\nsystem-info\nOutput\nCPU\nRAM\nDisk\nOS\nKernel\nIP\nUptime\nTemperature",
+      "tasks": [],
+      "order_index": 6,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 7 \u2014 Automate Daily Tasks",
+      "ticket_slug": "ticket-7",
+      "description": "Create\ndaily-maintenance.sh\nIt should\nUpdate packages\nDelete temp files\nBackup projects\nShow disk usage",
+      "tasks": [],
+      "order_index": 7,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 8 \u2014 Build Your Own Linux Toolbox",
+      "ticket_slug": "ticket-8",
+      "description": "Create\nlinux-tools/\nInclude\nBackup\nCleanup\nMonitor\nSearch\nNetwork checker",
+      "tasks": [],
+      "order_index": 8,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 2,
+  "lab_title": "Linux Lab"
+}

@@ -140,9 +140,9 @@ class Command(BaseCommand):
                         if resp.status_code in (200, 201):
                             msg += f", {user.username} synced to ylab"
                         else:
-                            msg += f", failed to sync {user.username} to ylab"
+                            msg += f", failed to sync {user.username} to ylab (status: {resp.status_code}, error: {resp.text})"
                     except requests.RequestException as e:
-                        msg += f", failed to sync {user.username} to ylab"
+                        msg += f", failed to sync {user.username} to ylab (exception: {str(e)})"
 
                 self.stdout.write(self.style.SUCCESS(msg))
 

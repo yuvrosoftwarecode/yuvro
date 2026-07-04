@@ -11,9 +11,20 @@ function LabsPage() {
   const [type, setType] = useState<LabType | null>(null);
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLabs(loadLabs()); }, []);
-  const refresh = () => setLabs(loadLabs());
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      const data = await loadLabs();
+      setLabs(data);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { refresh(); }, []);
 
   const filtered = useMemo(() => {
     return labs.filter(l =>
@@ -22,11 +33,15 @@ function LabsPage() {
     );
   }, [labs, type, q]);
 
-  const remove = (id: string) => { deleteLab(id); setConfirmId(null); refresh(); };
+  const remove = async (id: string) => { 
+    await deleteLab(id); 
+    setConfirmId(null); 
+    refresh(); 
+  };
 
-  const activeCount = labs.filter(l => l.isActive).length;
+  const activeCount = labs.filter(l => l.is_active).length;
   const typesCovered = new Set(labs.map(l => l.type)).size;
-  const totalSkills = labs.reduce((a, l) => a + l.skills.length, 0);
+  const totalSkills = labs.reduce((a, l) => a + (l.skills?.length || 0), 0);
 
   return (
     <AdminShell title="Labs" breadcrumb={["Engineering", "Labs"]} right={
@@ -72,9 +87,9 @@ function LabsPage() {
                   <td className="px-4 py-2.5"><Badge tone={l.difficulty === "hard" ? "destructive" : l.difficulty === "medium" ? "warning" : "success"}>{difficultyLabel(l.difficulty)}</Badge></td>
                   <td className="px-4 py-2.5">
                     <div className="flex flex-wrap gap-1 max-w-[260px]">
-                      {l.skills.slice(0, 4).map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-muted/20">{s}</span>)}
-                      {l.skills.length > 4 && <span className="text-[10px] text-muted-foreground">+{l.skills.length - 4}</span>}
-                      {l.skills.length === 0 && <span className="text-[11px] text-muted-foreground">—</span>}
+                      {(l.skills || []).slice(0, 4).map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-muted/20">{s}</span>)}
+                      {(l.skills || []).length > 4 && <span className="text-[10px] text-muted-foreground">+{(l.skills || []).length - 4}</span>}
+                      {!(l.skills || []).length && <span className="text-[11px] text-muted-foreground">—</span>}
                     </div>
                   </td>
                   <td className="px-4 py-2.5 text-xs">

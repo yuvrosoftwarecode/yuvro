@@ -91,7 +91,7 @@ class LabSprint(BaseTimestampedAdminModel):
         return f"{self.lab.title} - {self.title}"
 
 
-class LabTicket(BaseTimestampedAdminModel):
+class LabSprintTicket(BaseTimestampedAdminModel):
     sprint = models.ForeignKey(LabSprint, on_delete=models.CASCADE, related_name="tasks")
     ticket_slug = models.CharField(max_length=32)
     title = models.CharField(max_length=200)
@@ -126,9 +126,9 @@ class UserLabEnrollment(BaseTimestampedModel):
         return f"{self.user.email} -> {self.lab.title}"
 
 
-class UserLabTicketSubmission(BaseTimestampedModel):
+class UserLabSprintTicketSubmission(BaseTimestampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lab_ticket_submissions")
-    lab_ticket = models.ForeignKey(LabTicket, on_delete=models.CASCADE, related_name="submissions")
+    lab_sprint_ticket = models.ForeignKey(LabSprintTicket, on_delete=models.CASCADE, related_name="submissions")
     ticket_status = models.CharField(max_length=20, choices=TicketProgressStatus.choices, default=TicketProgressStatus.BACKLOG)
     solution = models.TextField(blank=True)
     solution_output = models.TextField(blank=True, help_text="Output from the last validation run (stdout/stderr, test results)")
@@ -137,7 +137,7 @@ class UserLabTicketSubmission(BaseTimestampedModel):
     minutes_solved = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ("user", "lab_ticket")
+        unique_together = ("user", "lab_sprint_ticket")
 
     def __str__(self):
-        return f"{self.user.email} -> {self.lab_ticket.title}"
+        return f"{self.user.email} -> {self.lab_sprint_ticket.title}"

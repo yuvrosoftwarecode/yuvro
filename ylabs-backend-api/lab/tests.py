@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from .models import Lab, LabSprint, LabTicket, UserLabEnrollment, UserLabTicketSubmission
+from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabSprintTicketSubmission
 
 User = get_user_model()
 
@@ -39,7 +39,7 @@ class LabModelsTest(TestCase):
             lab=lab,
             created_by=self.admin_user,
         )
-        ticket = LabTicket.objects.create(
+        ticket = LabSprintTicket.objects.create(
             sprint=sprint,
             ticket_slug="intro",
             title="Intro Ticket",
@@ -55,9 +55,9 @@ class LabModelsTest(TestCase):
             created_by=self.admin_user,
         )
         enrollment = UserLabEnrollment.objects.create(user=self.student_user, lab=lab)
-        submission = UserLabTicketSubmission.objects.create(
+        submission = UserLabSprintTicketSubmission.objects.create(
             user=self.student_user,
-            lab_ticket=ticket,
+            lab_sprint_ticket=ticket,
             ticket_status="backlog",
             solution="print('hi')",
             yuvro_points=5,
@@ -68,4 +68,4 @@ class LabModelsTest(TestCase):
         self.assertEqual(sprint.lab, lab)
         self.assertEqual(ticket.sprint, sprint)
         self.assertEqual(enrollment.lab, lab)
-        self.assertEqual(submission.lab_ticket, ticket)
+        self.assertEqual(submission.lab_sprint_ticket, ticket)
