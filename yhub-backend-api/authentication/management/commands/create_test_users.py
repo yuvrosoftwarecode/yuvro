@@ -104,36 +104,6 @@ class Command(BaseCommand):
                 if existing_user:
                     user = existing_user
                     created = False
-                    needs_update = False
-                    update_fields = []
-
-                    if user.first_name != user_data["first_name"]:
-                        user.first_name = user_data["first_name"]
-                        needs_update = True
-                        update_fields.append("first_name")
-                    if user.last_name != user_data["last_name"]:
-                        user.last_name = user_data["last_name"]
-                        needs_update = True
-                        update_fields.append("last_name")
-                    if user.roles != user_data.get("roles", {}):
-                        user.roles = user_data.get("roles", {})
-                        needs_update = True
-                        update_fields.append("roles")
-                    if user.is_staff != user_data.get("is_staff", False):
-                        user.is_staff = user_data.get("is_staff", False)
-                        needs_update = True
-                        update_fields.append("is_staff")
-                    if user.is_superuser != user_data.get("is_superuser", False):
-                        user.is_superuser = user_data.get("is_superuser", False)
-                        needs_update = True
-                        update_fields.append("is_superuser")
-                    if not user.is_active:
-                        user.is_active = True
-                        needs_update = True
-                        update_fields.append("is_active")
-
-                    if needs_update:
-                        user.save(update_fields=update_fields)
                 else:
                     user = User.objects.create(
                         email=user_data["email"],
@@ -147,11 +117,9 @@ class Command(BaseCommand):
                     )
                     created = True
 
-                if user_data.get("password"):
+                if created:
                     user.set_password(user_data["password"])
                     user.save()
-
-                if created:
                     msg = f"{user.username} created"
                 else:
                     msg = f"{user.username} already exists"
