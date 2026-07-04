@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     # Local — auth only
     "core",
     "authentication",
+    "ai_assistant",
+    "mockinterviews",
     "payment",
 ]
 

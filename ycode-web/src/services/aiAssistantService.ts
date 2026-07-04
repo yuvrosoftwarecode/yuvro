@@ -1,4 +1,4 @@
-import { restApiAuthUtil } from '@/utils/RestApiAuthUtil';
+import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 
 export interface ChatMessage {
     id: string;
@@ -17,7 +17,7 @@ export interface ChatSession {
 class AIAssistantService {
     async getChatSession(id: string): Promise<ChatSession> {
         try {
-            return await restApiAuthUtil.get<ChatSession>(`/sessions/${id}/`);
+            return await yhubApiAuthUtil.get<ChatSession>(`/sessions/${id}/`);
         } catch (error) {
             console.error('Error fetching chat session:', error);
             throw error;
@@ -26,7 +26,7 @@ class AIAssistantService {
 
     async sendMessage(chatId: string, message: string, context?: any): Promise<any> {
         try {
-            return await restApiAuthUtil.post<any>(`/sessions/${chatId}/send_message/`, {
+            return await yhubApiAuthUtil.post<any>(`/sessions/${chatId}/send_message/`, {
                 message,
                 ...context
             });

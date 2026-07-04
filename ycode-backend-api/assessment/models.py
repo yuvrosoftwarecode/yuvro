@@ -134,29 +134,23 @@ class Contest(BaseAssessmentModel):
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default=PAYMENT_TYPE_UNPAID)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-    # Contests allow only one attempt per user (enforced by ContestSubmission.unique_together)
-    # Override the inherited max_attempts to always be 1 and make it non-editable
     max_attempts = models.PositiveIntegerField(
         default=1,
         editable=False,
         help_text="Contests allow exactly one attempt per user."
     )
 
-    # Registration Window
     registration_start_datetime = models.DateTimeField(null=True, blank=True)
     registration_end_datetime = models.DateTimeField(null=True, blank=True)
     allow_late_entry = models.BooleanField(default=False)
 
-    # College & Department Constraints
     open_for_all_colleges = models.BooleanField(default=True)
     allowed_colleges = models.ManyToManyField("authentication.College", blank=True, related_name="allowed_contests")
     open_for_all_departments = models.BooleanField(default=True)
     allowed_departments = models.ManyToManyField("authentication.Department", blank=True, related_name="allowed_contests")
     
-    # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
     
-    # Public Registrations (unauthenticated users)
     public_registrations = models.JSONField(default=list, blank=True, help_text="Stores details of unauthenticated users who registered for public contests")
 
     class Meta:
@@ -188,62 +182,6 @@ class ContestRegistration(BaseModel):
 
     def __str__(self):
         return f"{self.user.email} registered for {self.contest.title}"
-
-
-class MockInterview(BaseModel):
-    PUBLISH_STATUS_DRAFT = "draft"
-    PUBLISH_STATUS_ACTIVE = "active"
-    PUBLISH_STATUS_INACTIVE = "inactive"
-    PUBLISH_STATUS_ARCHIVED = "archived"
-    PUBLISH_STATUS_CHOICES = [
-        (PUBLISH_STATUS_DRAFT, "Draft"),
-        (PUBLISH_STATUS_ACTIVE, "Active"),
-        (PUBLISH_STATUS_INACTIVE, "Inactive"),
-        (PUBLISH_STATUS_ARCHIVED, "Archived"),
-    ]
-
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    instructions = models.TextField(blank=True)
-
-    max_duration = models.IntegerField(
-        default=30, help_text="Maximum duration in minutes"
-    )
-
-    # Skills Configuration
-    required_skills = models.JSONField(
-        default=list, blank=True, help_text="List of required skills"
-    )
-    optional_skills = models.JSONField(
-        default=list, blank=True, help_text="List of optional skills"
-    )
-
-    publish_status = models.CharField(
-        max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
-    )
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.title}"
-
-
-class PredefinedInterviewQuestion(BaseModel):
-    mock_interview = models.ForeignKey(
-        'MockInterview', on_delete=models.CASCADE, related_name="predefined_questions"
-    )
-    text = models.TextField()
-    parent = models.ForeignKey(
-        'self', on_delete=models.CASCADE, null=True, blank=True, related_name="follow_ups"
-    )
-    level = models.IntegerField(default=1, help_text="1: Main, 2: Follow-up, 3: Deep Follow-up")
-
-    class Meta:
-        ordering = ['id']
-
-    def __str__(self):
-        return f"L{self.level}: {self.text[:50]}"
 
 
 class JobTest(BaseAssessmentModel):
@@ -316,7 +254,6 @@ class BaseUserSubmission(BaseTimestampedModel):
     user_agent = models.TextField(blank=True)
     marks = models.FloatField(null=True, blank=True)
 
-    # Post-exam AI Proctoring verification
     proctoring_passed = models.BooleanField(default=True)
     anomalies_detected = models.JSONField(default=list, blank=True)
 
@@ -331,7 +268,6 @@ class SkillTestSubmission(BaseUserSubmission):
 
     class Meta:
         ordering = ["-created_at"]
-        # Removed unique_together to allow multiple attempts (up to 3) per user per test
 
     def __str__(self):
         return f"{self.user.username} - {self.skill_test.title}"
@@ -352,81 +288,6 @@ class ContestSubmission(BaseUserSubmission):
 
     def __str__(self):
         return f"{self.user.username} - {self.contest.title}"
-
-
-class MockInterviewSubmission(BaseUserSubmission):
-    EXP_LEVEL_INTERN = "intern"
-    EXP_LEVEL_BEGINNER = "beginner"
-    EXP_LEVEL_INTERMEDIATE = "1_3_years"
-    EXP_LEVEL_EXPERIENCED = "3_plus_years"
-
-    EXP_LEVEL_CHOICES = [
-        (EXP_LEVEL_INTERN, "Intern"),
-        (EXP_LEVEL_BEGINNER, "Beginner (0-1 years)"),
-        (EXP_LEVEL_INTERMEDIATE, "Intermediate (1-3 years)"),
-        (EXP_LEVEL_EXPERIENCED, "Experienced (3+ years)"),
-    ]
-
-    mock_interview = models.ForeignKey(
-        MockInterview,
-        on_delete=models.CASCADE,
-        related_name="mock_interview_submissions",
-        null=True,
-        blank=True,
-    )
-    experience_level = models.CharField(
-        max_length=20,
-        choices=EXP_LEVEL_CHOICES,
-        default=EXP_LEVEL_BEGINNER,
-        null=True,
-        blank=True,
-        help_text="Candidate's self-declared experience level for this interview",
-    )
-    selected_duration = models.IntegerField(
-        null=True,
-        blank=True,
-        default=0,
-        help_text="Duration selected by the user in minutes"
-    )
-
-    resume = models.FileField(upload_to="resumes/", null=True, blank=True)
-    chat_session = models.OneToOneField(
-        "ai_assistant.ChatSession",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="mock_interview_submission",
-    )
-    interview_type = models.CharField(
-        max_length=20,
-        choices=[("predefined", "Predefined"), ("full_ai", "Full AI")],
-        default="full_ai"
-    )
-    state_data = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="In-progress state data for AI-powered mock interview",
-    )
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        title = self.mock_interview.title if self.mock_interview else "JD/Resume AI Mock Interview"
-        return f"{self.user.username} - {title} ({self.get_experience_level_display()})"
-
-
-class UserInterviewProgress(BaseTimestampedModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interview_progress")
-    mock_interview = models.ForeignKey('MockInterview', on_delete=models.CASCADE)
-    completed_count = models.IntegerField(default=0, help_text="Number of predefined interviews completed in current cycle (0-5)")
-    asked_questions = models.JSONField(default=list, help_text="IDs of main questions asked in this cycle")
-
-    class Meta:
-        unique_together = ('user', 'mock_interview')
-
-    def __str__(self):
-        return f"{self.user.username} - {self.mock_interview.title} - {self.completed_count}"
 
 
 class JobTestSubmission(BaseUserSubmission):

@@ -1,0 +1,10 @@
+import requests
+
+url = "http://localhost:8003/api/interviews/"
+headers = {
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMDk3ODgyLCJpYXQiOjE3ODMwOTY5ODIsImp0aSI6IjdhZTdkYjk5NjEyMzQ5NWFhOWE0ZWRhYzI1MzE2MThkIiwidXNlcl9pZCI6IjA5ZDhhMzk5LTU0NDgtNGJhNS04YTNmLTNjYjlkYTU4ZjE3NiIsInVzZXJuYW1lIjoibWFuaWthbnRhIiwiZW1haWwiOiJtYW5pa2FudGFAZ21haWwuY29tIiwiZmlyc3RfbmFtZSI6Ik1hbmlrYW50YSIsImxhc3RfbmFtZSI6IlJlZGR5Iiwicm9sZXMiOnsieWNvZGUiOiJzdHVkZW50IiwieWxhYnMiOiJzdHVkZW50In0sInByb2R1Y3RzIjpbInljb2RlIl19.UGNbzpfu99iMwA53x1LDk8ZI1_Q1aq3zuetlNJbqF5c"
+}
+
+response = requests.get(url, headers=headers)
+print("Status Code:", response.status_code)
+print("Response JSON:", response.json())

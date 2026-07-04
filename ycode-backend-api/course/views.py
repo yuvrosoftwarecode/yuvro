@@ -39,8 +39,7 @@ from .serializers import (
     QuestionSolutionSerializer,
     StudentCodePracticeSerializer,
 )
-from ai_assistant.services import AIServiceFactory, AIServiceError
-from ai_assistant.models import AIAgent
+from core.ai_client import AIClient
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -1789,23 +1788,14 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         Ensure "type" is strictly one of: 'strength', 'weakness', 'recommendation', 'trend'.
         """
 
-        # 4. Call AI Service
         try:
-            # Find an active agent
-            agent = AIAgent.objects.filter(is_active=True).first()
-            if not agent:
-                 # Fallback if no agent in DB, but we need one. 
-                 # For now, return error or mock if forced.
-                 return Response({"error": "No active AI agent configured."}, status=503)
-
-            ai_service = AIServiceFactory.create_service(agent.provider, agent.model_name)
+            auth_token = str(request.auth) if request.auth else None
             
-            # Using async wrapper as seen in other views
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
                 response_data = loop.run_until_complete(
-                    ai_service.generate_response(
+                    AIClient.generate_response(
                         messages=[{"role": "user", "content": prompt}],
                         temperature=0.7,
                         max_tokens=1000
@@ -1816,13 +1806,11 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             
             ai_text = response_data.get('response', '{}')
             
-            # Extract JSON from markdown code blocks if present
             import re
             json_match = re.search(r'```json\s*(.*?)\s*```', ai_text, re.DOTALL)
             if json_match:
                 ai_text = json_match.group(1)
             elif '```' in ai_text:
-                 # Check for generic block
                  json_match = re.search(r'```\s*(.*?)\s*```', ai_text, re.DOTALL)
                  if json_match:
                     ai_text = json_match.group(1)
@@ -1830,15 +1818,12 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             import json
             try:
                 insights_data = json.loads(ai_text)
-                # Ensure valid structure
                 if "insights" not in insights_data:
-                     # try to look if it returned a list directly
                      if isinstance(insights_data, list):
                          insights_data = {"insights": insights_data}
                      else:
                          insights_data = {"insights": []}
             except json.JSONDecodeError:
-                # Fallback or retry? for now just return empty with error message
                 print("Failed to parse AI JSON response:", ai_text)
                 return Response({"error": "Failed to parse AI response"}, status=500)
 

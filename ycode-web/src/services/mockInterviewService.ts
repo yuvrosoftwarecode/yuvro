@@ -1,4 +1,4 @@
-import { restApiAuthUtil } from '@/utils/RestApiAuthUtil';
+import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 
 export interface MockInterview {
   id: string;
@@ -54,7 +54,7 @@ class MockInterviewService {
 
   async getAllMockInterviews(): Promise<MockInterview[]> {
     try {
-      const response = await restApiAuthUtil.get<any[]>('/assessment/mock-interviews/');
+      const response = await yhubApiAuthUtil.get<any[]>('/mock-interviews/');
       return response;
     } catch (error) {
       console.error('Error fetching mock interviews:', error);
@@ -69,7 +69,7 @@ class MockInterviewService {
 
   async getMockInterview(id: string): Promise<MockInterview> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interviews/${id}/`);
+      const response = await yhubApiAuthUtil.get<any>(`/mock-interviews/${id}/`);
       return response;
     } catch (error) {
       console.error('Error fetching mock interview:', error);
@@ -79,7 +79,7 @@ class MockInterviewService {
 
   async createMockInterview(data: CreateMockInterviewData): Promise<MockInterview> {
     try {
-      const response = await restApiAuthUtil.post<any>('/assessment/mock-interviews/', data);
+      const response = await yhubApiAuthUtil.post<any>('/mock-interviews/', data);
       return response;
     } catch (error) {
       console.error('Error creating mock interview:', error);
@@ -89,7 +89,7 @@ class MockInterviewService {
 
   async updateMockInterview(id: string, data: Partial<CreateMockInterviewData>): Promise<MockInterview> {
     try {
-      const response = await restApiAuthUtil.patch<any>(`/assessment/mock-interviews/${id}/`, data);
+      const response = await yhubApiAuthUtil.patch<any>(`/mock-interviews/${id}/`, data);
       return response;
     } catch (error) {
       console.error('Error updating mock interview:', error);
@@ -99,7 +99,7 @@ class MockInterviewService {
 
   async deleteMockInterview(id: string): Promise<void> {
     try {
-      await restApiAuthUtil.delete<void>(`/assessment/mock-interviews/${id}/`);
+      await yhubApiAuthUtil.delete<void>(`/mock-interviews/${id}/`);
     } catch (error) {
       console.error('Error deleting mock interview:', error);
       throw error;
@@ -108,7 +108,7 @@ class MockInterviewService {
 
   async getMockInterviewSubmissions(id: string): Promise<any[]> {
     try {
-      const response = await restApiAuthUtil.get<any[]>(`/assessment/mock-interviews/${id}/submissions/`);
+      const response = await yhubApiAuthUtil.get<any[]>(`/mock-interviews/${id}/submissions/`);
       return response;
     } catch (error) {
       console.error('Error fetching mock interview submissions:', error);
@@ -118,7 +118,7 @@ class MockInterviewService {
 
   async updateMockInterviewSubmission(id: string, data: any): Promise<any> {
     try {
-      const response = await restApiAuthUtil.patch<any>(`/assessment/mock-interview/submissions/${id}/`, data);
+      const response = await yhubApiAuthUtil.patch<any>(`/interview/submissions/${id}/`, data);
       return response;
     } catch (error) {
       console.error('Error updating mock interview submission:', error);
@@ -128,7 +128,7 @@ class MockInterviewService {
 
   async getSubmissionReport(id: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/report/`);
+      const response = await yhubApiAuthUtil.get<any>(`/interview/submissions/${id}/report/`);
       return response;
     } catch (error) {
       console.error('Error fetching submission report:', error);
@@ -146,7 +146,7 @@ class MockInterviewService {
         formData.append('resume', resume);
       }
 
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interviews/${id}/start_interview/`, formData);
+      const response = await yhubApiAuthUtil.post<any>(`/mock-interviews/${id}/start_interview/`, formData);
       return response;
     } catch (error) {
       console.error('Error starting interview:', error);
@@ -156,7 +156,7 @@ class MockInterviewService {
 
   async getMockInterviewSubmission(id: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/`);
+      const response = await yhubApiAuthUtil.get<any>(`/interview/submissions/${id}/`);
       return response;
     } catch (error) {
       console.error('Error fetching mock interview submission:', error);
@@ -166,7 +166,7 @@ class MockInterviewService {
 
   async getNextQuestion(id: string, interviewSessionId: string, userAnswer: string, status: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interviews/${id}/get_next_question/`, {
+      const response = await yhubApiAuthUtil.post<any>(`/mock-interviews/${id}/get_next_question/`, {
         interview_session_id: interviewSessionId,
         user_answer: userAnswer,
         status: status
@@ -180,7 +180,7 @@ class MockInterviewService {
 
   async completeInterview(id: string, data: CompleteMockInterviewData): Promise<MockInterview> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interviews/${id}/complete_interview/`, data);
+      const response = await yhubApiAuthUtil.post<any>(`/mock-interviews/${id}/complete_interview/`, data);
       return response;
     } catch (error) {
       console.error('Error completing interview:', error);
@@ -190,7 +190,7 @@ class MockInterviewService {
 
   async cancelInterview(id: string): Promise<MockInterview> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interviews/${id}/cancel_interview/`, {});
+      const response = await yhubApiAuthUtil.post<any>(`/mock-interviews/${id}/cancel_interview/`, {});
       return response;
     } catch (error) {
       console.error('Error cancelling interview:', error);
@@ -200,7 +200,7 @@ class MockInterviewService {
 
   async getMyInterviews(): Promise<MockInterview[]> {
     try {
-      const response = await restApiAuthUtil.get<any[]>('/assessment/mock-interviews/my_interviews/');
+      const response = await yhubApiAuthUtil.get<any[]>('/mock-interviews/my_interviews/');
       return response;
     } catch (error) {
       console.error('Error fetching my interviews:', error);
@@ -210,7 +210,7 @@ class MockInterviewService {
 
   async getUpcomingInterviews(): Promise<MockInterview[]> {
     try {
-      const response = await restApiAuthUtil.get<any[]>('/assessment/mock-interviews/upcoming/');
+      const response = await yhubApiAuthUtil.get<any[]>('/mock-interviews/upcoming/');
       return response;
     } catch (error) {
       console.error('Error fetching upcoming interviews:', error);
@@ -220,7 +220,7 @@ class MockInterviewService {
 
   async endInterviewSession(sessionId: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/interviews/${sessionId}/end_interview/`, {});
+      const response = await yhubApiAuthUtil.post<any>(`/interviews/${sessionId}/end_interview/`, {});
       return response;
     } catch (error) {
       console.error('Error ending interview session:', error);
@@ -230,7 +230,7 @@ class MockInterviewService {
 
   async getInterviewSession(sessionId: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/interviews/${sessionId}/`);
+      const response = await yhubApiAuthUtil.get<any>(`/mock-interviews/${sessionId}/`);
       return response;
     } catch (error) {
       console.error('Error fetching interview session:', error);
@@ -240,7 +240,7 @@ class MockInterviewService {
 
   async getAllInterviewSessions(filters?: any): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>('/interviews/', filters);
+      const response = await yhubApiAuthUtil.get<any>('/mock-interviews/', filters);
       return response;
     } catch (error) {
       console.error('Error fetching all interview sessions:', error);
