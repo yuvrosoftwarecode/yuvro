@@ -101,9 +101,9 @@ class Command(BaseCommand):
             return staff_user
 
         default_user, created = User.objects.get_or_create(
-            email="admin@yuvro.com",
+            email="instructor_admin@yuvro.com",
             defaults={
-                "username": "admin",
+                "username": "instructor_admin",
                 "first_name": "System",
                 "last_name": "Admin",
                 "role": "admin",
@@ -113,7 +113,7 @@ class Command(BaseCommand):
         )
 
         if created:
-            default_user.set_password("admin123")
+            default_user.set_password("instructor123")
             default_user.save()
             self.stdout.write(f"✓ Created default admin user: {default_user.email}")
 

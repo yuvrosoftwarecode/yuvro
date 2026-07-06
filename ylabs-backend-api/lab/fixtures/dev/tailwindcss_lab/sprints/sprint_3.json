@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 3 - Advanced Layouts & Animations",
+  "description": "",
+  "order_index": 3,
+  "lab_title": "Tailwind CSS Lab",
+  "tickets": [
+    {
+      "title": "Bento Box Grid Layout",
+      "ticket_slug": "tailwind-3-1-1",
+      "description": "Constructs an asymmetrical \"Bento Box\" grid layout utilizing column and row spans. ",
+      "tasks": [
+        "Constructs an asymmetrical \"Bento Box\" grid layout utilizing column and row spans."
+      ],
+      "learning_objectives": [
+        "Master Tailwind's CSS Grid utility classes."
+      ],
+      "evaluation": "`check_class_used(\"grid-cols-4\")` `check_class_used(\"col-span-2\")` `check_class_used(\"row-span-2\")` **[A] Visual (40 pts)**: 40 pts if the grid correctly forms the asymmetrical 2x4 bento layout on desktop. **[B] Logic (40 pts)**: 40 pts for CSS grid span utilities. **[C] Quality (10 pts)**: 10 pts for arbitrary value fallback `h-[600px]` if exact sizing isn't in scale. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting to add 'grid' before using 'grid-cols-*'."
+      ],
+      "hints": [
+        "Tailwind's grid system uses 'grid' and 'grid-cols-*' utilities.",
+        "Use 'gap-*' to add spacing between grid items."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 max-w-6xl mx-auto p-4 h-[600px]\">\n            <div class=\"bg-blue-500 rounded-2xl md:col-span-2 md:row-span-2 p-6 flex flex-col justify-end\">\n              <h3 class=\"text-white text-2xl font-bold\">Main Feature (Large)</h3>\n            </div>\n            <div class=\"bg-emerald-500 rounded-2xl md:col-span-2 p-6\">\n              <h3 class=\"text-white text-xl font-bold\">Secondary Feature (Wide)</h3>\n            </div>\n            <div class=\"bg-purple-500 rounded-2xl p-6\">\n              <h3 class=\"text-white text-lg font-bold\">Small Metric</h3>\n            </div>\n            <div class=\"bg-amber-500 rounded-2xl p-6\">\n              <h3 class=\"text-white text-lg font-bold\">Small Tool</h3>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 130,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Custom Keyframe Animations",
+      "ticket_slug": "tailwind-3-1-2",
+      "description": "Extends the Tailwind config to define a custom `wiggle` keyframe animation and applies it to an icon. Code (`tailwind.config.js`): Code (`loading.html`): ",
+      "tasks": [
+        "Extends the Tailwind config to define a custom `wiggle` keyframe animation and applies it to an icon.",
+        "Code (`tailwind.config.js`):",
+        "Code (`loading.html`):"
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_config_extension(\"keyframes.wiggle\")` `check_class_used(\"animate-wiggle\")` **[B] Logic (80 pts)**: 80 pts for correctly modifying the `extend` object in the configuration file and applying the resulting utility class. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Don't write custom CSS. Check the Tailwind documentation for the correct utility class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {},
+      "yuvro_points": 120,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

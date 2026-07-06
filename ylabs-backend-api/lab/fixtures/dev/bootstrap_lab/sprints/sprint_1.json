@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 1 - Grid System & Typography",
+  "description": "",
+  "order_index": 1,
+  "lab_title": "Bootstrap 5 Lab",
+  "tickets": [
+    {
+      "title": "Equal Width Columns",
+      "ticket_slug": "bootstrap-1-1-1",
+      "description": "Builds a 3-column layout where each column takes up exactly one-third of the container space on all screen sizes. ",
+      "tasks": [
+        "Builds a 3-column layout where each column takes up exactly one-third of the container space on all screen sizes."
+      ],
+      "learning_objectives": [
+        "Master the 12-column grid system.",
+        "Implement responsive layout breakpoints."
+      ],
+      "evaluation": "`check_class_used(\"container\")` `check_class_used(\"row\")` `check_class_used(\"col\")` **[A] Visual (40 pts)**: 40 pts if layout splits into 3 equal parts. **[B] Logic (40 pts)**: 40 pts for using exactly three `.col` classes inside a `.row`. **[C] Quality (10 pts)**: 10 pts for clean semantic div nesting. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to wrap .col elements in a .container and .row.",
+        "Using col-12 on desktop instead of a specific breakpoint like col-md-4."
+      ],
+      "hints": [
+        "Remember that Bootstrap uses a 12-column grid system.",
+        "Make sure columns are wrapped inside a .row class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"container mt-5\">\n                        <div class=\"row g-4\">\n              <div class=\"col\">\n                <div class=\"border p-3 text-center\">Column 1</div>\n              </div>\n              <div class=\"col\">\n                <div class=\"border p-3 text-center\">Column 2</div>\n              </div>\n              <div class=\"col\">\n                <div class=\"border p-3 text-center\">Column 3</div>\n              </div>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 70,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Responsive Grid Breakpoints",
+      "ticket_slug": "bootstrap-1-1-2",
+      "description": "Creates a product gallery that displays 1 item per row on mobile, 2 on tablets, and 4 on desktops. ",
+      "tasks": [
+        "Creates a product gallery that displays 1 item per row on mobile, 2 on tablets, and 4 on desktops."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"col-12\")` `check_class_used(\"col-md-6\")` `check_class_used(\"col-lg-3\")` **[A] Visual (40 pts)**: 40 pts if headless browser resizing triggers correct stacking. **[B] Logic (40 pts)**: 40 pts for correct breakpoint syntax. **[C] Quality (10 pts)**: 10 pts for consistent margin bottoms (`mb-4`). ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"container\">\n            <div class=\"row\">\n              <div class=\"col-12 col-md-6 col-lg-3 mb-4\">Product 1</div>\n              <div class=\"col-12 col-md-6 col-lg-3 mb-4\">Product 2</div>\n              <div class=\"col-12 col-md-6 col-lg-3 mb-4\">Product 3</div>\n              <div class=\"col-12 col-md-6 col-lg-3 mb-4\">Product 4</div>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 80,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Typography & Buttons",
+      "ticket_slug": "bootstrap-1-1-3",
+      "description": "Builds a simple hero section using Bootstrap typography classes (`display-4`, `lead`) and styled buttons (`btn`, `btn-primary`). ",
+      "tasks": [
+        "Builds a simple hero section using Bootstrap typography classes (`display-4`, `lead`) and styled buttons (`btn`, `btn-primary`)."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"display-4\")` `check_class_used(\"lead\")` `check_class_used(\"btn-primary\")` **[A] Visual (40 pts)**: 40 pts if text sizing and button colors match perfectly. **[B] Logic (40 pts)**: 40 pts for using standard typography and button classes. **[C] Quality (10 pts)**: 10 pts for correct margin/padding utilities. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"container mt-5 text-center\">\n            <h1 class=\"display-4\">Welcome to Acme</h1>\n            <p class=\"lead text-muted\">The best way to build your UI fast.</p>\n            <button class=\"btn btn-primary btn-lg mt-3\">Get Started</button>\n            <button class=\"btn btn-outline-secondary btn-lg mt-3 ms-2\">Learn More</button>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 70,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 3
+    }
+  ]
+}

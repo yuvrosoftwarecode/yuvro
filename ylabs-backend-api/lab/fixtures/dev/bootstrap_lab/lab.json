@@ -1,0 +1,19 @@
+{
+  "labs": [
+    {
+      "title": "Bootstrap 5 Lab",
+      "type": "FRONTEND",
+      "description": "Master responsive web design using Bootstrap 5.",
+      "difficulty": "EASY",
+      "icon": "bootstrap",
+      "prerequisites": "HTML, CSS",
+      "skills": [
+        "Bootstrap 5",
+        "Responsive Design",
+        "Grid Layout"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 2 - Kanban Board (Advanced State & Drag/Drop)",
+  "description": "Graduate to complex, nested data structures and HTML5 Drag & Drop.",
+  "order_index": 2,
+  "lab_title": "React Lab",
+  "tickets": [
+    {
+      "title": "Board Layout",
+      "ticket_slug": "react-201",
+      "description": "Render a 3-column Kanban board by mapping over complex nested objects.",
+      "tasks": [
+        "Render a 3-column Kanban board by mapping over complex nested objects."
+      ],
+      "learning_objectives": [
+        "Deeply nested mapping and advanced CSS Flexbox layouts."
+      ],
+      "evaluation": "Logic Grader requires `.map` loops and correct CSS class usage (`.column`, `.task`). Target Design expects a vibrant blue/yellow/green UI.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [columns] = useState([\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div key={col.id} className=\"column\">\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div key={task.id} className=\"task\">\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "HTML5 Drag & Drop",
+      "ticket_slug": "react-202",
+      "description": "Make tasks draggable using the browser's native API.",
+      "tasks": [
+        "Make tasks draggable using the browser's native API."
+      ],
+      "learning_objectives": [
+        "`dataTransfer` objects, `onDragStart`, `onDragOver`, and preventing default browser drop behavior."
+      ],
+      "evaluation": "Logic Grader scans for `draggable`, `onDragStart`, `onDragOver`, `preventDefault`, and `onDrop`.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [columns, setColumns] = useState([\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDragOver = (e) => {\n        e.preventDefault();\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        if (sourceColId === targetColId) return;\n\n        setColumns(prev => prev.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = prev.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        }));\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={handleDragOver}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Context & Reducers",
+      "ticket_slug": "react-203",
+      "description": "Refactor the messy drag-and-drop state into a global `useReducer`.",
+      "tasks": [
+        "Refactor the messy drag-and-drop state into a global `useReducer`."
+      ],
+      "learning_objectives": [
+        "Flux architecture, state reducers, and dispatching actions."
+      ],
+      "evaluation": "Logic Grader strictly checks for the presence of `useReducer` and `createContext` inside the global context file.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "BoardContext.jsx": "    import { createContext, useReducer } from \"react\";\n\n    const initialState = [\n      { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n      { id: \"doing\", title: \"In Progress\", tasks: [] },\n      { id: \"done\", title: \"Done\", tasks: [] }\n    ];\n\n    function boardReducer(state, action) {\n      switch (action.type) {\n        case \"MOVE_TASK\":\n          const { taskId, sourceColId, targetColId } = action.payload;\n          if (sourceColId === targetColId) return state;\n          \n          return state.map(col => {\n            if (col.id === sourceColId) {\n              return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n            }\n            if (col.id === targetColId) {\n              const task = state.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n              return { ...col, tasks: [...col.tasks, task] };\n            }\n            return col;\n          });\n        default:\n          return state;\n      }\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+        "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state: columns, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        dispatch({\n          type: \"MOVE_TASK\",\n          payload: {\n            taskId: parseInt(e.dataTransfer.getData(\"taskId\")),\n            sourceColId: e.dataTransfer.getData(\"sourceColId\"),\n            targetColId\n          }\n        });\n      };\n      \n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 3
+    }
+  ]
+}

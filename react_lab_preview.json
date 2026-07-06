@@ -1,0 +1,782 @@
+{
+  "lab_title": "React Lab",
+  "description": "Master React fundamentals through advanced patterns.",
+  "order_index": 1,
+  "sprints": [
+    {
+      "title": "Sprint 1 - The To-Do List (React Fundamentals)",
+      "description": "Build a fully functional, controlled To-Do List from scratch while learning Component structure and Hooks.",
+      "order_index": 1,
+      "tickets": [
+        {
+          "title": "Component Skeleton",
+          "ticket_slug": "react-101",
+          "description": "Build a static `TaskItem` component that receives `task` object props.",
+          "tasks": [
+            "Build a static `TaskItem` component that receives `task` object props."
+          ],
+          "learning_objectives": [
+            "JSX fundamentals, component extraction, and passing props."
+          ],
+          "evaluation": "Logic Grader checks for `function TaskItem(props)`, `<input type=\"checkbox\">`, and `task.text` in the JSX.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "TaskItem.jsx": "    export default function TaskItem({ task }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} readOnly />\n          <span>{task.text}</span>\n          <button>Delete</button>\n        </div>\n      );\n    }\n",
+            "App.jsx": "    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n    export default function App() {\n      const sampleTask = { id: 1, text: \"Learn React\", completed: false };\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <TaskItem task={sampleTask} />\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 1
+        },
+        {
+          "title": "Task List State",
+          "ticket_slug": "react-102",
+          "description": "Introduce `useState` and controlled inputs to add new tasks.",
+          "tasks": [
+            "Introduce `useState` and controlled inputs to add new tasks."
+          ],
+          "learning_objectives": [
+            "State arrays, controlled forms (`value` + `onChange`), and mapping lists."
+          ],
+          "evaluation": "Logic Grader checks for `useState`, `<form onSubmit>`, `<input onChange>`, and `array.map`.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "TaskItem.jsx": "    export default function TaskItem({ task }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} readOnly />\n          <span>{task.text}</span>\n          <button>Delete</button>\n        </div>\n      );\n    }\n",
+            "App.jsx": "    import { useState } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState([]);\n      const [text, setText] = useState(\"\");\n\n      const addTask = (e) => {\n        e.preventDefault();\n        if (!text.trim()) return;\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Add a new task...\"\n            />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => <TaskItem key={task.id} task={task} />)}\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 2
+        },
+        {
+          "title": "Task Actions (Prop Drilling)",
+          "ticket_slug": "react-103",
+          "description": "Pass callback functions down to the `TaskItem` to toggle completion or delete tasks.",
+          "tasks": [
+            "Pass callback functions down to the `TaskItem` to toggle completion or delete tasks."
+          ],
+          "learning_objectives": [
+            "Event bubbling, Array `filter()`, and Prop Drilling limitations."
+          ],
+          "evaluation": "Logic Grader checks for `onToggle`, `onDelete`, array `.map`, and array `.filter`.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "TaskItem.jsx": "    export default function TaskItem({ task, onToggle, onDelete }) {\n      return (\n        <div className=\"task-item\">\n          <input \n            type=\"checkbox\" \n            checked={task.completed} \n            onChange={() => onToggle(task.id)} \n          />\n          <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>\n            {task.text}\n          </span>\n          <button onClick={() => onDelete(task.id)}>Delete</button>\n        </div>\n      );\n    }\n",
+            "App.jsx": "    import { useState } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState([]);\n      const [text, setText] = useState(\"\");\n\n      const addTask = (e) => {\n        e.preventDefault();\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n\n      const toggleTask = (id) => {\n        setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));\n      };\n\n      const deleteTask = (id) => {\n        setTasks(tasks.filter(t => t.id !== id));\n      };\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input value={text} onChange={(e) => setText(e.target.value)} />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => (\n              <TaskItem \n                key={task.id} \n                task={task} \n                onToggle={toggleTask} \n                onDelete={deleteTask} \n              />\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 3
+        },
+        {
+          "title": "Data Persistence",
+          "ticket_slug": "react-104",
+          "description": "Save the list to `localStorage` so it survives refresh.",
+          "tasks": [
+            "Save the list to `localStorage` so it survives refresh."
+          ],
+          "learning_objectives": [
+            "The `useEffect` lifecycle hook and side effects."
+          ],
+          "evaluation": "Logic Grader specifically looks for `useEffect`, `localStorage.getItem`, and `localStorage.setItem`.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Forgetting the dependency array and causing an infinite loop."
+          ],
+          "hints": [
+            "Don't forget the dependency array!",
+            "Make sure to clean up any subscriptions if needed."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "TaskItem.jsx": "    export default function TaskItem({ task, onToggle, onDelete }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} onChange={() => onToggle(task.id)} />\n          <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>{task.text}</span>\n          <button onClick={() => onDelete(task.id)}>Delete</button>\n        </div>\n      );\n    }\n",
+            "App.jsx": "    import { useState, useEffect } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState(() => {\n        const saved = localStorage.getItem(\"tasks\");\n        return saved ? JSON.parse(saved) : [];\n      });\n      const [text, setText] = useState(\"\");\n\n      useEffect(() => {\n        localStorage.setItem(\"tasks\", JSON.stringify(tasks));\n      }, [tasks]);\n\n      const addTask = (e) => {\n        e.preventDefault();\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n      const toggleTask = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));\n      const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input value={text} onChange={(e) => setText(e.target.value)} />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />)}\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 4
+        },
+        {
+          "title": "Dashboard Routing",
+          "ticket_slug": "react-105",
+          "description": "Build conditional views (List View vs Dashboard View).",
+          "tasks": [
+            "Build conditional views (List View vs Dashboard View)."
+          ],
+          "learning_objectives": [
+            "Conditional rendering and client-side routing concepts."
+          ],
+          "evaluation": "Visual Grader ensures the dashboard layout matches the target. Logic Grader checks for ternary operators (`=== ?`).",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "Dashboard.jsx": "    export default function Dashboard({ tasks }) {\n      const completed = tasks.filter(t => t.completed).length;\n      return (\n        <div>\n          <h2>Dashboard</h2>\n          <p>Total Tasks: {tasks.length}</p>\n          <p>Completed: {completed}</p>\n        </div>\n      );\n    }\n",
+            "App.jsx": "    import { useState } from \"react\";\n    import Dashboard from \"./Dashboard\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [view, setView] = useState(\"list\");\n      const [tasks, setTasks] = useState([]);\n\n      return (\n        <div className=\"app-container\">\n          <nav>\n            <button onClick={() => setView(\"list\")}>To-Do List</button>\n            <button onClick={() => setView(\"dashboard\")}>Dashboard</button>\n          </nav>\n          <main>\n            {view === \"list\" ? (\n               <div>{tasks.length} tasks in list view (simulated)</div>\n            ) : (\n              <Dashboard tasks={tasks} />\n            )}\n          </main>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 5
+        },
+        {
+          "title": "Theme Context",
+          "ticket_slug": "react-106",
+          "description": "Build a global `ThemeContext` to avoid prop-drilling a dark mode boolean.",
+          "tasks": [
+            "Build a global `ThemeContext` to avoid prop-drilling a dark mode boolean."
+          ],
+          "learning_objectives": [
+            "`createContext`, `useContext`, and global state providers."
+          ],
+          "evaluation": "Logic Grader checks for `createContext`, `useContext`, and the `Provider` component.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "ThemeContext.jsx": "    import { createContext, useState } from \"react\";\n\n    export const ThemeContext = createContext();\n\n    export function ThemeProvider({ children }) {\n      const [theme, setTheme] = useState(\"light\");\n      const toggleTheme = () => setTheme(prev => prev === \"light\" ? \"dark\" : \"light\");\n      \n      return (\n        <ThemeContext.Provider value={{ theme, toggleTheme }}>\n          {children}\n        </ThemeContext.Provider>\n      );\n    }\n",
+            "App.jsx": "    import { useContext } from \"react\";\n    import { ThemeProvider, ThemeContext } from \"./ThemeContext\";\n    import \"./App.css\";\n\n    function Layout() {\n      const { theme, toggleTheme } = useContext(ThemeContext);\n      return (\n        <div className={`app-container ${theme}`}>\n           <button onClick={toggleTheme}>Toggle Theme</button>\n           <h1>Theme is {theme}</h1>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <ThemeProvider>\n          <Layout />\n        </ThemeProvider>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 6
+        }
+      ]
+    },
+    {
+      "title": "Sprint 2 - Kanban Board (Advanced State & Drag/Drop)",
+      "description": "Graduate to complex, nested data structures and HTML5 Drag & Drop.",
+      "order_index": 2,
+      "tickets": [
+        {
+          "title": "Board Layout",
+          "ticket_slug": "react-201",
+          "description": "Render a 3-column Kanban board by mapping over complex nested objects.",
+          "tasks": [
+            "Render a 3-column Kanban board by mapping over complex nested objects."
+          ],
+          "learning_objectives": [
+            "Deeply nested mapping and advanced CSS Flexbox layouts."
+          ],
+          "evaluation": "Logic Grader requires `.map` loops and correct CSS class usage (`.column`, `.task`). Target Design expects a vibrant blue/yellow/green UI.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [columns] = useState([\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div key={col.id} className=\"column\">\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div key={task.id} className=\"task\">\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 1
+        },
+        {
+          "title": "HTML5 Drag & Drop",
+          "ticket_slug": "react-202",
+          "description": "Make tasks draggable using the browser's native API.",
+          "tasks": [
+            "Make tasks draggable using the browser's native API."
+          ],
+          "learning_objectives": [
+            "`dataTransfer` objects, `onDragStart`, `onDragOver`, and preventing default browser drop behavior."
+          ],
+          "evaluation": "Logic Grader scans for `draggable`, `onDragStart`, `onDragOver`, `preventDefault`, and `onDrop`.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [columns, setColumns] = useState([\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDragOver = (e) => {\n        e.preventDefault();\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        if (sourceColId === targetColId) return;\n\n        setColumns(prev => prev.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = prev.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        }));\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={handleDragOver}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 2
+        },
+        {
+          "title": "Context & Reducers",
+          "ticket_slug": "react-203",
+          "description": "Refactor the messy drag-and-drop state into a global `useReducer`.",
+          "tasks": [
+            "Refactor the messy drag-and-drop state into a global `useReducer`."
+          ],
+          "learning_objectives": [
+            "Flux architecture, state reducers, and dispatching actions."
+          ],
+          "evaluation": "Logic Grader strictly checks for the presence of `useReducer` and `createContext` inside the global context file.",
+          "difficulty": "EASY",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "BoardContext.jsx": "    import { createContext, useReducer } from \"react\";\n\n    const initialState = [\n      { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n      { id: \"doing\", title: \"In Progress\", tasks: [] },\n      { id: \"done\", title: \"Done\", tasks: [] }\n    ];\n\n    function boardReducer(state, action) {\n      switch (action.type) {\n        case \"MOVE_TASK\":\n          const { taskId, sourceColId, targetColId } = action.payload;\n          if (sourceColId === targetColId) return state;\n          \n          return state.map(col => {\n            if (col.id === sourceColId) {\n              return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n            }\n            if (col.id === targetColId) {\n              const task = state.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n              return { ...col, tasks: [...col.tasks, task] };\n            }\n            return col;\n          });\n        default:\n          return state;\n      }\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+            "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state: columns, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        dispatch({\n          type: \"MOVE_TASK\",\n          payload: {\n            taskId: parseInt(e.dataTransfer.getData(\"taskId\")),\n            sourceColId: e.dataTransfer.getData(\"sourceColId\"),\n            targetColId\n          }\n        });\n      };\n      \n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Sprint 3 - Real-Time Syncing (Concurrency)",
+      "description": "Transform the offline Kanban board into a simulated real-time multiplayer experience.",
+      "order_index": 3,
+      "tickets": [
+        {
+          "title": "Cross-Tab Storage Sync",
+          "ticket_slug": "react-301",
+          "description": "Sync the board across multiple open tabs instantly.",
+          "tasks": [
+            "Sync the board across multiple open tabs instantly."
+          ],
+          "learning_objectives": [
+            "Global window event listeners."
+          ],
+          "evaluation": "Logic Grader expects `useEffect` and `addEventListener('storage')`.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "BoardContext.jsx": "    import { createContext, useReducer, useEffect } from \"react\";\n\n    const initialState = [\n      { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n      { id: \"doing\", title: \"In Progress\", tasks: [] },\n      { id: \"done\", title: \"Done\", tasks: [] }\n    ];\n\n    function boardReducer(state, action) {\n      if (action.type === \"SYNC\") return action.payload;\n      if (action.type === \"MOVE_TASK\") {\n        const { taskId, sourceColId, targetColId } = action.payload;\n        if (sourceColId === targetColId) return state;\n        \n        return state.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = state.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        });\n      }\n      return state;\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n\n      useEffect(() => {\n        localStorage.setItem(\"kanban-state\", JSON.stringify(state));\n      }, [state]);\n\n      useEffect(() => {\n        const handleStorage = (e) => {\n          if (e.key === \"kanban-state\" && e.newValue) {\n            dispatch({ type: \"SYNC\", payload: JSON.parse(e.newValue) });\n          }\n        };\n        window.addEventListener(\"storage\", handleStorage);\n        return () => window.removeEventListener(\"storage\", handleStorage);\n      }, []);\n\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+            "App.jsx": "    *(No changes from REACT-203 needed. Keep your App.jsx the exact same!)*\n\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 1
+        },
+        {
+          "title": "Optimistic UI Updates",
+          "ticket_slug": "react-302",
+          "description": "Simulate a slow backend API call but update the UI instantly (rolling back on failure).",
+          "tasks": [
+            "Simulate a slow backend API call but update the UI instantly (rolling back on failure)."
+          ],
+          "learning_objectives": [
+            "Optimistic UX patterns and Promise simulation."
+          ],
+          "evaluation": "Logic Grader requires `setTimeout` to simulate the network latency.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "BoardContext.jsx": "    *(No changes from REACT-301 needed. Keep your BoardContext.jsx the exact same!)*\n    \n",
+            "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state: columns, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        const previousState = [...columns]; // Save previous state\n\n        // 1. Optimistic Update\n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId } });\n\n        // 2. Simulated Network Request\n        setTimeout(() => {\n          const apiFails = Math.random() > 0.8;\n          if (apiFails) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); // Rollback\n          }\n        }, 1000);\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 2
+        },
+        {
+          "title": "Conflicting State Resolution",
+          "ticket_slug": "react-303",
+          "description": "Add version locking to prevent two tabs from editing the same task simultaneously.",
+          "tasks": [
+            "Add version locking to prevent two tabs from editing the same task simultaneously."
+          ],
+          "learning_objectives": [
+            "Distributed system concepts and operational locks on the frontend."
+          ],
+          "evaluation": "Logic Grader looks for state locking mechanisms (e.g., `version` or `lock` variables).",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "BoardContext.jsx": "    import { createContext, useReducer, useEffect } from \"react\";\n\n    const initialState = {\n      version: 1,\n      columns: [\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]\n    };\n\n    function boardReducer(state, action) {\n      if (action.type === \"SYNC\") return action.payload;\n      if (action.type === \"MOVE_TASK\") {\n        const { taskId, sourceColId, targetColId, baseVersion } = action.payload;\n        \n        // Conflict Resolution\n        if (baseVersion < state.version) {\n           alert(\"Conflict! Someone else moved a task.\");\n           return state;\n        }\n\n        if (sourceColId === targetColId) return state;\n        \n        const newColumns = state.columns.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = state.columns.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        });\n\n        return { version: state.version + 1, columns: newColumns };\n      }\n      return state;\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n      \n      useEffect(() => {\n        localStorage.setItem(\"kanban-state\", JSON.stringify(state));\n      }, [state]);\n\n      useEffect(() => {\n        const handleStorage = (e) => {\n          if (e.key === \"kanban-state\" && e.newValue) {\n            dispatch({ type: \"SYNC\", payload: JSON.parse(e.newValue) });\n          }\n        };\n        window.addEventListener(\"storage\", handleStorage);\n        return () => window.removeEventListener(\"storage\", handleStorage);\n      }, []);\n\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+            "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      // NOTE: We now access state.columns because state is an object with a version!\n      const { state, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        const previousState = { ...state }; \n\n        // Send baseVersion in the payload!\n        dispatch({ \n          type: \"MOVE_TASK\", \n          payload: { taskId, sourceColId, targetColId, baseVersion: state.version } \n        });\n\n        setTimeout(() => {\n          const apiFails = Math.random() > 0.8;\n          if (apiFails) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); \n          }\n        }, 1000);\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Sprint 4 - Performance & Polish",
+      "description": "Optimize the Kanban board so it doesn't freeze the browser at scale.",
+      "order_index": 4,
+      "tickets": [
+        {
+          "title": "Memoization (React.memo)",
+          "ticket_slug": "react-401",
+          "description": "Wrap components in React's cache so they don't re-render unless props change.",
+          "tasks": [
+            "Wrap components in React's cache so they don't re-render unless props change."
+          ],
+          "learning_objectives": [
+            "React's rendering lifecycle, `useMemo`, and `useCallback`."
+          ],
+          "evaluation": "Logic Grader checks for `memo`, `useMemo`, or `useCallback` invocations.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "Task.jsx": "    import React from 'react';\n\n    const Task = React.memo(({ task, onDragStart, colId }) => {\n      return (\n        <div \n          className=\"task\"\n          draggable={true}\n          onDragStart={(e) => onDragStart(e, task.id, colId)}\n        >\n          {task.text}\n        </div>\n      );\n    });\n    export default Task;\n",
+            "BoardContext.jsx": "    *(Exact same as REACT-303)*\n\n",
+            "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n\n      // Memoize the drag and drop callbacks!\n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); \n          }\n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <Task key={task.id} task={task} onDragStart={handleDragStart} colId={col.id} />\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { return <BoardProvider><Board /></BoardProvider>; }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 1
+        },
+        {
+          "title": "Virtualized Lists",
+          "ticket_slug": "react-402",
+          "description": "Implement a virtualized scrolling window to render only the 10 visible tasks in a column of 1000.",
+          "tasks": [
+            "Implement a virtualized scrolling window to render only the 10 visible tasks in a column of 1000."
+          ],
+          "learning_objectives": [
+            "Windowing algorithms and DOM manipulation performance."
+          ],
+          "evaluation": "Logic Grader checks for virtualization libraries (`FixedSizeList`) or `window` calculations.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+            "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+            "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      \n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { return <BoardProvider><Board /></BoardProvider>; }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 2
+        },
+        {
+          "title": "Dark Mode Polish",
+          "ticket_slug": "react-403",
+          "description": "Integrate the ThemeContext from Sprint 1 to turn the glassmorphic board completely dark.",
+          "tasks": [
+            "Integrate the ThemeContext from Sprint 1 to turn the glassmorphic board completely dark."
+          ],
+          "learning_objectives": [
+            "CSS Variables and Context consumption."
+          ],
+          "evaluation": "Visual Grader strictly requires a dark mode palette (`#111827` background). Logic Grader looks for `ThemeProvider`.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "ThemeContext.jsx": "    import { createContext, useState } from \"react\";\n    export const ThemeContext = createContext();\n    export function ThemeProvider({ children }) {\n      const [theme, setTheme] = useState(\"dark\");\n      return (\n        <ThemeContext.Provider value={{ theme }}>\n          {children}\n        </ThemeContext.Provider>\n      );\n    }\n",
+            "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+            "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+            "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import { ThemeContext, ThemeProvider } from \"./ThemeContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      const { theme } = useContext(ThemeContext);\n      \n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => { \n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className={`board-container ${theme === 'dark' ? 'dark-mode' : ''}`}>\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { \n      return (\n        <ThemeProvider>\n          <BoardProvider>\n            <Board />\n          </BoardProvider>\n        </ThemeProvider>\n      ); \n    }\n",
+            "App.css": "    .board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n    .board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n    .board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n    .column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n    .column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n    .task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n    \n    .dark-mode { background: #111827 !important; color: #f9fafb; }\n    .dark-mode .column { background: rgba(31, 41, 55, 0.8) !important; border-color: #374151 !important; }\n    .dark-mode h1 { color: #f9fafb; }\n    .dark-mode h3 { color: #f9fafb; }\n    .dark-mode .task { background: #374151; color: #f9fafb; }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 3
+        },
+        {
+          "title": "Confetti on Complete",
+          "ticket_slug": "react-404",
+          "description": "Trigger an animation when all tasks hit the \"Done\" column.",
+          "tasks": [
+            "Trigger an animation when all tasks hit the \"Done\" column."
+          ],
+          "learning_objectives": [
+            "Integrating non-React DOM libraries (Canvas)."
+          ],
+          "evaluation": "Logic Grader checks for `confetti` or `canvas` usage.",
+          "difficulty": "MEDIUM",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "ThemeContext.jsx": "    *(Same as REACT-403)*\n    \n",
+            "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+            "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+            "App.jsx": "    import { useEffect, useContext, useCallback } from \"react\";\n    import confetti from \"canvas-confetti\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import { ThemeContext, ThemeProvider } from \"./ThemeContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      const { theme } = useContext(ThemeContext);\n\n      useEffect(() => {\n        if (state.columns[0].tasks.length === 0 && state.columns[1].tasks.length === 0) {\n          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });\n        }\n      }, [state.columns]);\n\n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => { \n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className={`board-container ${theme === 'dark' ? 'dark-mode' : ''}`}>\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { \n      return (\n        <ThemeProvider>\n          <BoardProvider>\n            <Board />\n          </BoardProvider>\n        </ThemeProvider>\n      ); \n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Sprint 5 - Real-Time Chat App (Slack Clone) \ud83c\udd95",
+      "description": "The ultimate capstone. A fully Real-Time WebSocket-driven chat application.",
+      "order_index": 5,
+      "tickets": [
+        {
+          "title": "Message Feed UI",
+          "ticket_slug": "react-501",
+          "description": "Build the core chat interface with a sticky message input.",
+          "tasks": [
+            "Build the core chat interface with a sticky message input."
+          ],
+          "learning_objectives": [
+            "Flexbox `flex-direction: column` layouts and scrolling containers."
+          ],
+          "evaluation": "Visual Grader expects a bottom-aligned input area and the \"General Chat\" header. Logic Grader expects array mapping (`.map`) and specific CSS classes (`.chat-input-area`).",
+          "difficulty": "HARD",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([\n        { id: 1, text: \"Hello!\" },\n        { id: 2, text: \"Hi there!\" }\n      ]);\n      const [text, setText] = useState(\"\");\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => (\n              <div key={msg.id} className=\"message\">{msg.text}</div>\n            ))}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={() => {\n              setMessages([...messages, { id: Date.now(), text }]);\n              setText(\"\");\n            }}>\n              Send\n            </button>\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 1
+        },
+        {
+          "title": "WebSocket Integration",
+          "ticket_slug": "react-502",
+          "description": "Connect to a live WebSocket server to listen for new messages instantly without polling.",
+          "tasks": [
+            "Connect to a live WebSocket server to listen for new messages instantly without polling."
+          ],
+          "learning_objectives": [
+            "Initializing WebSockets, cleaning up connections on unmount, and managing external subscriptions in React."
+          ],
+          "evaluation": "Logic Grader explicitly checks for `useEffect` and `WebSocket` initialization.",
+          "difficulty": "HARD",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState, useEffect } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => (\n              <div key={msg.id} className=\"message\">{msg.text}</div>\n            ))}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 2
+        },
+        {
+          "title": "Auto-Scroll to Bottom",
+          "ticket_slug": "react-503",
+          "description": "Automatically scroll the chat window down when a new message arrives.",
+          "tasks": [
+            "Automatically scroll the chat window down when a new message arrives."
+          ],
+          "learning_objectives": [
+            "Using the `useRef` hook to directly access and manipulate DOM nodes."
+          ],
+          "evaluation": "Logic Grader expects `useRef` and `scrollIntoView` invocations.",
+          "difficulty": "HARD",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState, useEffect, useRef } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n      const bottomRef = useRef(null);\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      useEffect(() => {\n        // Smooth scroll to the bottom element whenever messages array changes\n        bottomRef.current?.scrollIntoView({ behavior: \"smooth\" });\n      }, [messages]);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => <div key={msg.id} className=\"message\">{msg.text}</div>)}\n            {/* Invisible anchor div at the bottom of the feed */}\n            <div ref={bottomRef} /> \n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 3
+        },
+        {
+          "title": "Infinite Scroll Pagination",
+          "ticket_slug": "react-504",
+          "description": "When the user scrolls to the top of the chat, automatically fetch the next page of older messages.",
+          "tasks": [
+            "When the user scrolls to the top of the chat, automatically fetch the next page of older messages."
+          ],
+          "learning_objectives": [
+            "The `IntersectionObserver` API and scroll position retention."
+          ],
+          "evaluation": "Logic Grader explicitly checks for the usage of `IntersectionObserver`.",
+          "difficulty": "HARD",
+          "common_mistakes": [
+            "Using inline styles instead of CSS classes.",
+            "Forgetting to export the component."
+          ],
+          "hints": [
+            "Review the documentation for the hooks mentioned in the learning objectives.",
+            "Try logging your variables to the console to see their values."
+          ],
+          "scoring_rules": {
+            "visual_accuracy": 40,
+            "logic_score": 50,
+            "clean_code": 10
+          },
+          "solution": {
+            "App.jsx": "    import { useState, useEffect, useRef } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n      const topRef = useRef(null);\n\n      const fetchOlderMessages = async () => {\n        // Simulated fetch: generate 20 messages so it pushes the sentinel out of view!\n        const batch = Array.from({ length: 20 }).map((_, i) => ({\n          id: Date.now() + i,\n          text: `Older message...`\n        }));\n        setMessages(prev => [...batch, ...prev]);\n      };\n\n      useEffect(() => {\n        const observer = new IntersectionObserver(([entry]) => {\n          // If the top sentinel is visible in the viewport, fetch more data\n          if (entry.isIntersecting) {\n            fetchOlderMessages();\n          }\n        });\n\n        if (topRef.current) {\n          observer.observe(topRef.current);\n        }\n\n        return () => observer.disconnect();\n      }, []);\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {/* Invisible sentinel div at the top of the feed */}\n            <div ref={topRef} />\n            {messages.map(msg => <div key={msg.id} className=\"message\">{msg.text}</div>)}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+          },
+          "yuvro_points": 100,
+          "minutes_max": 45,
+          "accepted_programming_languages": [
+            "JAVASCRIPT",
+            "REACT"
+          ],
+          "order_index": 4
+        }
+      ]
+    }
+  ]
+}

@@ -130,7 +130,7 @@ class Command(BaseCommand):
             admin_user, _ = User.objects.get_or_create(
                 username="lab-system-admin",
                 defaults={
-                    "email": "lab-system-admin@yuvro.com",
+                    "email": "lab-system-instructor_admin@yuvro.com",
                     "role": "admin",
                     "is_staff": True,
                     "is_superuser": True

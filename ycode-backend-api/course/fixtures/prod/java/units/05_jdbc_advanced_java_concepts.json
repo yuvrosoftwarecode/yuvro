@@ -8168,7 +8168,7 @@
       ],
       "test_cases_advanced": [
         {
-          "input": "admin_admin123",
+          "input": "admin_instructor123",
           "expected_output": "Login Successful"
         },
         {
@@ -8190,7 +8190,7 @@
         {
           "title": "PreparedStatement Login Example",
           "language": "java",
-          "code": "import java.sql.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        String username = \"admin\";\n        String password = \"admin123\";\n\n        Connection con = DriverManager.getConnection(\"jdbc:mysql://localhost:3306/testdb\", \"root\", \"password\");\n\n        String sql = \"SELECT * FROM users WHERE username=? AND password=?\";\n        PreparedStatement ps = con.prepareStatement(sql);\n\n        ps.setString(1, username);\n        ps.setString(2, password);\n\n        ResultSet rs = ps.executeQuery();\n\n        if (rs.next()) {\n            System.out.println(\"Login Successful\");\n        } else {\n            System.out.println(\"Login Failed\");\n        }\n\n        con.close();\n    }\n}",
+          "code": "import java.sql.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        String username = \"admin\";\n        String password = \"instructor123\";\n\n        Connection con = DriverManager.getConnection(\"jdbc:mysql://localhost:3306/testdb\", \"root\", \"password\");\n\n        String sql = \"SELECT * FROM users WHERE username=? AND password=?\";\n        PreparedStatement ps = con.prepareStatement(sql);\n\n        ps.setString(1, username);\n        ps.setString(2, password);\n\n        ResultSet rs = ps.executeQuery();\n\n        if (rs.next()) {\n            System.out.println(\"Login Successful\");\n        } else {\n            System.out.println(\"Login Failed\");\n        }\n\n        con.close();\n    }\n}",
           "is_primary": true,
           "complexity_analysis": "O(1) for query, O(n) database scan",
           "approach": "secure-login"

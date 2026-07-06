@@ -1,0 +1,119 @@
+{
+  "title": "Sprint 3 - Real-Time Syncing (Concurrency)",
+  "description": "Transform the offline Kanban board into a simulated real-time multiplayer experience.",
+  "order_index": 3,
+  "lab_title": "React Lab",
+  "tickets": [
+    {
+      "title": "Cross-Tab Storage Sync",
+      "ticket_slug": "react-301",
+      "description": "Sync the board across multiple open tabs instantly.",
+      "tasks": [
+        "Sync the board across multiple open tabs instantly."
+      ],
+      "learning_objectives": [
+        "Global window event listeners."
+      ],
+      "evaluation": "Logic Grader expects `useEffect` and `addEventListener('storage')`.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "BoardContext.jsx": "    import { createContext, useReducer, useEffect } from \"react\";\n\n    const initialState = [\n      { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n      { id: \"doing\", title: \"In Progress\", tasks: [] },\n      { id: \"done\", title: \"Done\", tasks: [] }\n    ];\n\n    function boardReducer(state, action) {\n      if (action.type === \"SYNC\") return action.payload;\n      if (action.type === \"MOVE_TASK\") {\n        const { taskId, sourceColId, targetColId } = action.payload;\n        if (sourceColId === targetColId) return state;\n        \n        return state.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = state.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        });\n      }\n      return state;\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n\n      useEffect(() => {\n        localStorage.setItem(\"kanban-state\", JSON.stringify(state));\n      }, [state]);\n\n      useEffect(() => {\n        const handleStorage = (e) => {\n          if (e.key === \"kanban-state\" && e.newValue) {\n            dispatch({ type: \"SYNC\", payload: JSON.parse(e.newValue) });\n          }\n        };\n        window.addEventListener(\"storage\", handleStorage);\n        return () => window.removeEventListener(\"storage\", handleStorage);\n      }, []);\n\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+        "App.jsx": "    *(No changes from REACT-203 needed. Keep your App.jsx the exact same!)*\n\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Optimistic UI Updates",
+      "ticket_slug": "react-302",
+      "description": "Simulate a slow backend API call but update the UI instantly (rolling back on failure).",
+      "tasks": [
+        "Simulate a slow backend API call but update the UI instantly (rolling back on failure)."
+      ],
+      "learning_objectives": [
+        "Optimistic UX patterns and Promise simulation."
+      ],
+      "evaluation": "Logic Grader requires `setTimeout` to simulate the network latency.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "BoardContext.jsx": "    *(No changes from REACT-301 needed. Keep your BoardContext.jsx the exact same!)*\n    \n",
+        "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state: columns, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        const previousState = [...columns]; // Save previous state\n\n        // 1. Optimistic Update\n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId } });\n\n        // 2. Simulated Network Request\n        setTimeout(() => {\n          const apiFails = Math.random() > 0.8;\n          if (apiFails) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); // Rollback\n          }\n        }, 1000);\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Conflicting State Resolution",
+      "ticket_slug": "react-303",
+      "description": "Add version locking to prevent two tabs from editing the same task simultaneously.",
+      "tasks": [
+        "Add version locking to prevent two tabs from editing the same task simultaneously."
+      ],
+      "learning_objectives": [
+        "Distributed system concepts and operational locks on the frontend."
+      ],
+      "evaluation": "Logic Grader looks for state locking mechanisms (e.g., `version` or `lock` variables).",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "BoardContext.jsx": "    import { createContext, useReducer, useEffect } from \"react\";\n\n    const initialState = {\n      version: 1,\n      columns: [\n        { id: \"todo\", title: \"To Do\", tasks: [{ id: 1, text: \"Design Schema\" }] },\n        { id: \"doing\", title: \"In Progress\", tasks: [] },\n        { id: \"done\", title: \"Done\", tasks: [] }\n      ]\n    };\n\n    function boardReducer(state, action) {\n      if (action.type === \"SYNC\") return action.payload;\n      if (action.type === \"MOVE_TASK\") {\n        const { taskId, sourceColId, targetColId, baseVersion } = action.payload;\n        \n        // Conflict Resolution\n        if (baseVersion < state.version) {\n           alert(\"Conflict! Someone else moved a task.\");\n           return state;\n        }\n\n        if (sourceColId === targetColId) return state;\n        \n        const newColumns = state.columns.map(col => {\n          if (col.id === sourceColId) {\n            return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };\n          }\n          if (col.id === targetColId) {\n            const task = state.columns.find(c => c.id === sourceColId).tasks.find(t => t.id === taskId);\n            return { ...col, tasks: [...col.tasks, task] };\n          }\n          return col;\n        });\n\n        return { version: state.version + 1, columns: newColumns };\n      }\n      return state;\n    }\n\n    export const BoardContext = createContext();\n\n    export function BoardProvider({ children }) {\n      const [state, dispatch] = useReducer(boardReducer, initialState);\n      \n      useEffect(() => {\n        localStorage.setItem(\"kanban-state\", JSON.stringify(state));\n      }, [state]);\n\n      useEffect(() => {\n        const handleStorage = (e) => {\n          if (e.key === \"kanban-state\" && e.newValue) {\n            dispatch({ type: \"SYNC\", payload: JSON.parse(e.newValue) });\n          }\n        };\n        window.addEventListener(\"storage\", handleStorage);\n        return () => window.removeEventListener(\"storage\", handleStorage);\n      }, []);\n\n      return (\n        <BoardContext.Provider value={{ state, dispatch }}>\n          {children}\n        </BoardContext.Provider>\n      );\n    }\n",
+        "App.jsx": "    import { useContext } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import \"./App.css\";\n\n    function Board() {\n      // NOTE: We now access state.columns because state is an object with a version!\n      const { state, dispatch } = useContext(BoardContext);\n\n      const handleDragStart = (e, taskId, sourceColId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", sourceColId);\n      };\n\n      const handleDrop = (e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        \n        const previousState = { ...state }; \n\n        // Send baseVersion in the payload!\n        dispatch({ \n          type: \"MOVE_TASK\", \n          payload: { taskId, sourceColId, targetColId, baseVersion: state.version } \n        });\n\n        setTimeout(() => {\n          const apiFails = Math.random() > 0.8;\n          if (apiFails) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); \n          }\n        }, 1000);\n      };\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div \n                key={col.id} \n                className=\"column\"\n                onDragOver={(e) => e.preventDefault()}\n                onDrop={(e) => handleDrop(e, col.id)}\n              >\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <div \n                    key={task.id} \n                    className=\"task\"\n                    draggable={true}\n                    onDragStart={(e) => handleDragStart(e, task.id, col.id)}\n                  >\n                    {task.text}\n                  </div>\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <BoardProvider>\n          <Board />\n        </BoardProvider>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 3
+    }
+  ]
+}

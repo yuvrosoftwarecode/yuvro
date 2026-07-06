@@ -1,0 +1,4732 @@
+﻿diff --git a/ycode-backend-api/.env.local b/ycode-backend-api/.env.local
+index 4455ec9b..26c60dc1 100644
+--- a/ycode-backend-api/.env.local
++++ b/ycode-backend-api/.env.local
+@@ -4,7 +4,7 @@ DEPLOY_ENV=local
+ DEPLOY_TYPE=docker
+ 
+ DEBUG=True
+-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
++ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,ycode-backend
+ CORS_ALLOWED_ORIGINS=http://localhost:3000
+ 
+ # JWT Settings
+diff --git a/ycode-backend-api/authentication/fixtures/prod/test_users_data.json b/ycode-backend-api/authentication/fixtures/prod/test_users_data.json
+deleted file mode 100644
+index 30c371ea..00000000
+--- a/ycode-backend-api/authentication/fixtures/prod/test_users_data.json
++++ /dev/null
+@@ -1,38 +0,0 @@
+-{
+-  "users": [
+-    {
+-      "email": "admin@yuvro.com",
+-      "username": "admin",
+-      "first_name": "Admin",
+-      "last_name": "User",
+-      "role": "admin",
+-      "password": "admin123",
+-      "is_staff": true,
+-      "is_superuser": true,
+-      "profile": {
+-        "full_name": "Admin User",
+-        "title": "System Administrator",
+-        "location": "San Francisco, CA",
+-        "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
+-        "gender": "prefer_not_to_say"
+-      }
+-    },
+-    {
+-      "email": "instructor_ds@yuvro.com",
+-      "username": "instructor_ds",
+-      "first_name": "Data Structures",
+-      "last_name": "Instructor",
+-      "role": "instructor",
+-      "password": "instructor123",
+-      "is_staff": false,
+-      "is_superuser": false,
+-      "profile": {
+-        "full_name": "Dr. Sarah Johnson",
+-        "title": "Data Structures & Algorithms Instructor",
+-        "location": "Boston, MA",
+-        "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
+-        "gender": "female"
+-      }
+-    }
+-  ]
+-}
+diff --git a/ycode-backend-api/authentication/management/commands/create_test_users.py b/ycode-backend-api/authentication/management/commands/create_test_users.py
+deleted file mode 100644
+index 561749c1..00000000
+--- a/ycode-backend-api/authentication/management/commands/create_test_users.py
++++ /dev/null
+@@ -1,252 +0,0 @@
+-import json
+-import os
+-from django.core.management.base import BaseCommand
+-from django.contrib.auth import get_user_model
+-from django.db import models
+-from authentication.models import Profile, College
+-from job.models import SocialLinks, Skill, Experience, Project, Education, Certification
+-
+-User = get_user_model()
+-
+-
+-class Command(BaseCommand):
+-    help = "Create test users with different roles and comprehensive profile data for development and testing"
+-
+-    def add_arguments(self, parser):
+-        parser.add_argument(
+-            "--clear",
+-            action="store_true",
+-            help="Clear existing test users before creating new ones",
+-        )
+-        parser.add_argument(
+-            "--deploy_env",
+-            type=str,
+-            default="dev",
+-            choices=["dev", "prod"],
+-            help="Environment to load fixtures from: dev or prod",
+-        )
+-        parser.add_argument(
+-            "--file",
+-            type=str,
+-            default="test_users_data.json",
+-            help="Filename within fixtures/<deploy_env>/ to load",
+-        )
+-
+-    def handle(self, *args, **options):
+-        if options["clear"]:
+-            self.stdout.write(self.style.WARNING("Clearing existing test users..."))
+-            User.objects.all().delete()
+-            self.stdout.write(self.style.SUCCESS("Existing test users cleared."))
+-
+-        self.stdout.write("Creating test users with comprehensive profile data...")
+-
+-        try:
+-            current_dir = os.path.dirname(os.path.abspath(__file__))
+-            auth_app_dir = os.path.dirname(os.path.dirname(current_dir))
+-            deploy_env = options["deploy_env"]
+-            json_file_path = os.path.join(auth_app_dir, "fixtures", deploy_env, options["file"])
+-
+-            if not os.path.exists(json_file_path):
+-                self.stdout.write(
+-                    self.style.ERROR(f"JSON file not found: {json_file_path}")
+-                )
+-                return
+-
+-            with open(json_file_path, "r", encoding="utf-8") as file:
+-                data = json.load(file)
+-
+-            for user_data in data["users"]:
+-                existing_user = User.objects.filter(
+-                    models.Q(email=user_data["email"])
+-                    | models.Q(username=user_data["username"])
+-                ).first()
+-
+-                if existing_user:
+-                    if existing_user.email == user_data["email"]:
+-                        self.stdout.write(
+-                            f'- {user_data["role"].title()} user already exists (email): {user_data["email"]}'
+-                        )
+-                    else:
+-                        self.stdout.write(
+-                            f'- Username "{user_data["username"]}" already exists for user: {existing_user.email}'
+-                        )
+-                    user = existing_user
+-                    created = False
+-                else:
+-                    user = User.objects.create(
+-                        email=user_data["email"],
+-                        username=user_data["username"],
+-                        first_name=user_data["first_name"],
+-                        last_name=user_data["last_name"],
+-                        role=user_data["role"],
+-                        is_staff=user_data.get("is_staff", False),
+-                        is_superuser=user_data.get("is_superuser", False),
+-                    )
+-                    user.set_password(user_data["password"])
+-                    user.save()
+-                    created = True
+-
+-                if created:
+-                    user.set_password(user_data["password"])
+-                    user.save()
+-                    self.stdout.write(
+-                        f'Γ£ô Created {user_data["role"]} user: {user.email}'
+-                    )
+-                else:
+-                    self.stdout.write(
+-                        f'- {user_data["role"].title()} user already exists: {user.email}'
+-                    )
+-
+-                profile_data = user_data.get("profile", {})
+-
+-                skills_data = profile_data.pop("skills", [])
+-                experiences_data = profile_data.pop("experiences", [])
+-                projects_data = profile_data.pop("projects", [])
+-                education_data = profile_data.pop("education", [])
+-                certifications_data = profile_data.pop("certifications", [])
+-                social_links_data = profile_data.pop("social_links", {})
+-
+-                profile, profile_created = Profile.objects.get_or_create(
+-                    user=user, defaults=profile_data
+-                )
+-
+-                if profile_created and profile_data:
+-                    self.stdout.write(f"  Γ£ô Created profile for: {user.email}")
+-                elif not profile_created and profile_data:
+-                    for key, value in profile_data.items():
+-                        setattr(profile, key, value)
+-                    profile.save()
+-                    self.stdout.write(f"  Γ£ô Updated profile for: {user.email}")
+-
+-                if social_links_data:
+-                    social_links, _ = SocialLinks.objects.get_or_create(
+-                        profile=profile, defaults=social_links_data
+-                    )
+-                    self.stdout.write(f"    Γ£ô Created social links for: {user.email}")
+-
+-                if skills_data:
+-                    Skill.objects.filter(profile=profile).delete()
+-                    for skill_data in skills_data:
+-                        Skill.objects.create(profile=profile, **skill_data)
+-                    self.stdout.write(
+-                        f"    Γ£ô Created {len(skills_data)} skills for: {user.email}"
+-                    )
+-
+-                if experiences_data:
+-                    Experience.objects.filter(profile=profile).delete()
+-                    for exp_data in experiences_data:
+-                        Experience.objects.create(profile=profile, **exp_data)
+-                    self.stdout.write(
+-                        f"    Γ£ô Created {len(experiences_data)} experiences for: {user.email}"
+-                    )
+-
+-                if projects_data:
+-                    Project.objects.filter(profile=profile).delete()
+-                    for project_data in projects_data:
+-                        Project.objects.create(profile=profile, **project_data)
+-                    self.stdout.write(
+-                        f"    Γ£ô Created {len(projects_data)} projects for: {user.email}"
+-                    )
+-
+-                if education_data:
+-                    Education.objects.filter(profile=profile).delete()
+-                    
+-                    # Auto-create and link profile.college and profile.department from the first education institution
+-                    first_edu = education_data[0] if education_data else {}
+-                    first_institution = first_edu.get("institution", "")
+-                    first_department = first_edu.get("department", "")
+-                    
+-                    for edu_data in education_data:
+-                        # Extract fields that are not part of the Education model
+-                        inst = edu_data.pop("institution", "")
+-                        dept = edu_data.pop("department", "")
+-                        
+-                        # Re-add institution for model creation, as Education model expects it
+-                        if inst:
+-                             edu_data["institution"] = inst
+-                             
+-                        Education.objects.create(profile=profile, **edu_data)
+-                    self.stdout.write(
+-                        f"    Γ£ô Created {len(education_data)} education records for: {user.email}"
+-                    )
+-
+-                    # Auto-create and link profile.college and profile.department from the first education institution
+-                    first_edu = education_data[0]
+-                    first_institution = first_edu.get("institution", "")
+-                    first_department = first_edu.get("department", "")
+-
+-                    if first_institution and not profile.college:
+-                        college, col_created = College.objects.get_or_create(
+-                            name__iexact=first_institution,
+-                            defaults={"name": first_institution, "verification_status": "approved"}
+-                        )
+-                        profile.college = college
+-                        profile.save(update_fields=["college"])
+-                        if col_created:
+-                            self.stdout.write(
+-                                f"    Γ£ô Created college '{college.name}' and linked to: {user.email}"
+-                            )
+-                        else:
+-                            self.stdout.write(
+-                                f"    Γ£ô Linked existing college '{college.name}' to: {user.email}"
+-                            )
+-                        
+-                        # Now handle department if present
+-                        if first_department and not profile.department:
+-                            from authentication.models import Department
+-                            department, dept_created = Department.objects.get_or_create(
+-                                college=college,
+-                                name__iexact=first_department,
+-                                defaults={"name": first_department}
+-                            )
+-                            profile.department = department
+-                            profile.save(update_fields=["department"])
+-                            if dept_created:
+-                                self.stdout.write(
+-                                    f"    Γ£ô Created department '{department.name}' and linked to: {user.email}"
+-                                )
+-                            else:
+-                                self.stdout.write(
+-                                    f"    Γ£ô Linked existing department '{department.name}' to: {user.email}"
+-                                )
+-
+-                if certifications_data:
+-                    Certification.objects.filter(profile=profile).delete()
+-                    for cert_data in certifications_data:
+-                        Certification.objects.create(profile=profile, **cert_data)
+-                    self.stdout.write(
+-                        f"    Γ£ô Created {len(certifications_data)} certifications for: {user.email}"
+-                    )
+-
+-            self.stdout.write(
+-                self.style.SUCCESS(
+-                    "\nSuccessfully created test users with comprehensive profiles!"
+-                )
+-            )
+-
+-            admin_count = User.objects.filter(role="admin").count()
+-            instructor_count = User.objects.filter(role="instructor").count()
+-            recruiter_count = User.objects.filter(role="recruiter").count()
+-            student_count = User.objects.filter(role="student").count()
+-
+-            self.stdout.write(f"\nUser Summary:")
+-            self.stdout.write(f"- Admins: {admin_count}")
+-            self.stdout.write(f"- Instructors: {instructor_count}")
+-            self.stdout.write(f"- Recruiters: {recruiter_count}")
+-            self.stdout.write(f"- Students: {student_count}")
+-            self.stdout.write(f"- Total Users: {User.objects.count()}")
+-
+-            self.stdout.write(f"\nProfile Data Summary:")
+-            self.stdout.write(f"- Profiles: {Profile.objects.count()}")
+-            self.stdout.write(f"- Social Links: {SocialLinks.objects.count()}")
+-            self.stdout.write(f"- Skills: {Skill.objects.count()}")
+-            self.stdout.write(f"- Experiences: {Experience.objects.count()}")
+-            self.stdout.write(f"- Projects: {Project.objects.count()}")
+-            self.stdout.write(f"- Education Records: {Education.objects.count()}")
+-            self.stdout.write(f"- Certifications: {Certification.objects.count()}")
+-
+-        except Exception as e:
+-            self.stdout.write(self.style.ERROR(f"Error creating test users: {str(e)}"))
+-            import traceback
+-
+-            self.stdout.write(self.style.ERROR(traceback.format_exc()))
+diff --git a/ycode-backend-api/authentication/migrations/0005_remove_user_is_otp_login.py b/ycode-backend-api/authentication/migrations/0005_remove_user_is_otp_login.py
+new file mode 100644
+index 00000000..97edf16f
+--- /dev/null
++++ b/ycode-backend-api/authentication/migrations/0005_remove_user_is_otp_login.py
+@@ -0,0 +1,17 @@
++# Generated by Django
++
++from django.db import migrations
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('authentication', '0004_user_is_otp_login'),
++    ]
++
++    operations = [
++        migrations.RemoveField(
++            model_name='user',
++            name='is_otp_login',
++        ),
++    ]
+diff --git a/ycode-backend-api/authentication/models.py b/ycode-backend-api/authentication/models.py
+index f502f690..0ac8987a 100644
+--- a/ycode-backend-api/authentication/models.py
++++ b/ycode-backend-api/authentication/models.py
+@@ -16,7 +16,6 @@ class User(AbstractUser):
+     email = models.EmailField(unique=True)
+     username = models.CharField(max_length=150, unique=True)
+     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="student")
+-    is_otp_login = models.BooleanField(default=False)
+ 
+     USERNAME_FIELD = "email"
+     REQUIRED_FIELDS = ["username"]
+diff --git a/ycode-backend-api/authentication/urls.py b/ycode-backend-api/authentication/urls.py
+index 9976381c..0f12db78 100644
+--- a/ycode-backend-api/authentication/urls.py
++++ b/ycode-backend-api/authentication/urls.py
+@@ -1,7 +1,7 @@
+ from django.urls import path, include
+ from rest_framework.routers import DefaultRouter
+ from . import views
+-from .views import admin_users, google_login_view
++from .views import admin_users
+ 
+ app_name = "authentication"
+ 
+@@ -10,13 +10,6 @@ router.register(r'colleges', views.CollegeViewSet, basename='college')
+ router.register(r'departments', views.DepartmentViewSet, basename='department')
+ 
+ urlpatterns = [
+-    path("register/", views.UserRegistrationView.as_view(), name="register"),
+-    path("login/", views.login_view, name="login"),
+-    path("google/", google_login_view, name="google_login"),
+-    path("logout/", views.logout_view, name="logout"),
+-    path(
+-        "token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"
+-    ),
+     path("profile/", views.UserProfileView.as_view(), name="user_profile"),
+     path("profile/detail/", views.ProfileDetailView.as_view(), name="profile_detail"),
+     path(
+@@ -25,15 +18,6 @@ urlpatterns = [
+         name="profile_upload_image",
+     ),
+     path("user/", views.user_info_view, name="user_info"),
+-    path(
+-        "forgot-password/", views.ForgotPasswordView.as_view(), name="forgot_password"
+-    ),
+-    path(
+-        "reset-password/<uidb64>/<token>/",
+-        views.ResetPasswordView.as_view(),
+-        name="reset_password",
+-    ),
+-    path("change-password/", views.change_password_view, name="change_password"),
+     path("admin-users/", admin_users, name="admin_users"),
+     path("users/", views.UsersListCreateView.as_view(), name="users_list"),
+     path("users/<uuid:pk>/", views.UserDetailView.as_view(), name="user_detail"),
+@@ -43,9 +27,9 @@ urlpatterns = [
+         name="user_toggle_status",
+     ),
+ 
+-    path("user/", views.user_info_view, name="current_user"),
+     path("resume/generate-pdf/", views.generate_resume_pdf, name="generate_resume_pdf"),
+     path("resume/templates/", views.get_resume_templates, name="get_resume_templates"),
+     path("resume/config/", views.resume_config_view, name="resume_config"),
++    path("sync-shadow-user/", views.sync_shadow_user, name="sync_shadow_user"),
+     path("", include(router.urls)),
+ ]
+diff --git a/ycode-backend-api/authentication/views.py b/ycode-backend-api/authentication/views.py
+index dc01ad45..258d518a 100644
+--- a/ycode-backend-api/authentication/views.py
++++ b/ycode-backend-api/authentication/views.py
+@@ -864,3 +864,59 @@ def change_password_view(request):
+     user.save()
+ 
+     return Response({"message": "Password changed successfully."})
++
++@api_view(["POST"])
++@permission_classes([IsAdminUser])
++def sync_shadow_user(request):
++    """
++    Sync a shadow user from YHub. Requires Admin access (via ProductJWTAuthentication).
++    """
++    data = request.data
++    user_id = data.get("id")
++    if not user_id:
++        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
++
++    email = data.get("email", "")
++    username = data.get("username", email or str(user_id))
++    first_name = data.get("first_name", "")
++    last_name = data.get("last_name", "")
++    roles = data.get("roles", {})
++    password_hash = data.get("password_hash")
++    is_active = data.get("is_active", True)
++    
++    local_role = roles.get("ycode", "student")
++
++    defaults = {
++        "username": username,
++        "email": email,
++        "first_name": first_name,
++        "last_name": last_name,
++        "role": local_role,
++        "is_active": is_active,
++        "is_staff": (local_role == "admin"),
++        "is_superuser": (local_role == "admin"),
++    }
++
++    existing_user = User.objects.filter(email=email).first()
++    if existing_user and str(existing_user.id) != str(user_id):
++        # Since YHub is the IdP, if we find a local user with the same email 
++        # but a different UUID (e.g., from an old fixture), we remove the old 
++        # local user so the new YHub user can be created seamlessly.
++        existing_user.delete()
++
++    user, created = User.objects.update_or_create(
++        id=user_id,
++        defaults=defaults
++    )
++
++    if password_hash:
++        # Save the hashed password directly so they can login to Django admin if they are admin
++        user.password = password_hash
++        user.save(update_fields=["password"])
++    else:
++        user.set_unusable_password()
++        user.save(update_fields=["password"])
++        
++    Profile.objects.get_or_create(user=user)
++
++    return Response({"message": "User synced successfully.", "created": created})
+diff --git a/ycode-backend-api/core/management/commands/setup_fixtures_data.py b/ycode-backend-api/core/management/commands/setup_fixtures_data.py
+index 2a4a9283..e749dd9f 100644
+--- a/ycode-backend-api/core/management/commands/setup_fixtures_data.py
++++ b/ycode-backend-api/core/management/commands/setup_fixtures_data.py
+@@ -38,12 +38,6 @@ class Command(BaseCommand):
+                     self.style.SUCCESS("Γ£ô Database migrations completed\n")
+                 )
+ 
+-            self.stdout.write("≡ƒæÑ Setting up test users...")
+-            if options["clear"]:
+-                call_command("create_test_users", "--clear", deploy_env=options["deploy_env"], verbosity=1)
+-            else:
+-                call_command("create_test_users", deploy_env=options["deploy_env"], verbosity=1)
+-            self.stdout.write("")
+ 
+             self.stdout.write("≡ƒôÜ Loading sample course data...")
+             if options["clear"]:
+@@ -78,7 +72,7 @@ class Command(BaseCommand):
+                     "≡ƒÄë setup completed successfully!"
+                 )
+             )
+-            self.stdout.write(self.style.SUCCESS("Γ£ô Test users created"))
++
+             self.stdout.write(self.style.SUCCESS("Γ£ô Sample courses loaded"))
+             self.stdout.write(self.style.SUCCESS("Γ£ô Sample companies and jobs loaded"))
+             self.stdout.write(self.style.SUCCESS("Γ£ô Sample assessment tests loaded"))
+diff --git a/ycode-backend-api/core/yuvro_middleware.py b/ycode-backend-api/core/yuvro_middleware.py
+new file mode 100644
+index 00000000..c8b9992d
+--- /dev/null
++++ b/ycode-backend-api/core/yuvro_middleware.py
+@@ -0,0 +1,68 @@
++from rest_framework_simplejwt.authentication import JWTAuthentication
++from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
++from django.contrib.auth import get_user_model
++from rest_framework_simplejwt.settings import api_settings
++from authentication.models import Profile
++
++User = get_user_model()
++
++class ProductJWTAuthentication(JWTAuthentication):
++    def authenticate(self, request):
++        header = self.get_header(request)
++        if header is None:
++            return None
++
++        raw_token = self.get_raw_token(header)
++        if raw_token is None:
++            return None
++
++        validated_token = self.get_validated_token(raw_token)
++
++        products = validated_token.get("products", [])
++        if "ycode" not in products:
++            raise AuthenticationFailed("Token is not valid for this product.")
++
++        user = self.get_user(validated_token)
++        return user, validated_token
++
++    def get_user(self, validated_token):
++        """
++        Attempts to find and return a user using the given validated token.
++        If the user does not exist, it creates a shadow user.
++        """
++        try:
++            user_id = validated_token[api_settings.USER_ID_CLAIM]
++        except KeyError:
++            raise InvalidToken("Token contained no recognizable user identification")
++
++        try:
++            user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
++        except User.DoesNotExist:
++            username = validated_token.get("username", str(user_id))
++            email = validated_token.get("email", "")
++            
++            roles = validated_token.get("roles", {})
++            local_role = roles.get("ycode", "student")
++
++            user = User(
++                **{api_settings.USER_ID_FIELD: user_id},
++                username=username,
++                email=email,
++                first_name=validated_token.get("first_name", ""),
++                last_name=validated_token.get("last_name", ""),
++                role=local_role,
++                is_active=True,
++                is_staff=(local_role == "admin"),
++                is_superuser=(local_role == "admin"),
++            )
++            user.set_unusable_password()
++            
++            # Do not persist the internal sync user to the database
++            if email != "admin_sync@yhub.internal":
++                user.save()
++                Profile.objects.get_or_create(user=user)
++
++        if not user.is_active:
++            raise AuthenticationFailed("User is inactive", code="user_inactive")
++
++        return user
+diff --git a/ycode-backend-api/yc-backend-api/settings.py b/ycode-backend-api/yc-backend-api/settings.py
+index 4ce9bd3d..f22cb567 100644
+--- a/ycode-backend-api/yc-backend-api/settings.py
++++ b/ycode-backend-api/yc-backend-api/settings.py
+@@ -162,7 +162,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+ # Django REST Framework
+ REST_FRAMEWORK = {
+     "DEFAULT_AUTHENTICATION_CLASSES": [
+-        "rest_framework_simplejwt.authentication.JWTAuthentication",
++        "core.yuvro_middleware.ProductJWTAuthentication",
+     ],
+     "DEFAULT_PERMISSION_CLASSES": [
+         "rest_framework.permissions.IsAuthenticated",
+@@ -185,8 +185,7 @@ SIMPLE_JWT = {
+     "BLACKLIST_AFTER_ROTATION": True,
+     "UPDATE_LAST_LOGIN": True,
+     "ALGORITHM": "HS256",
+-    "SIGNING_KEY": SECRET_KEY,
+-    "VERIFYING_KEY": None,
++    "SIGNING_KEY": config("JWT_SECRET_KEY", default=SECRET_KEY),
+     "AUTH_HEADER_TYPES": ("Bearer",),
+     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+     "USER_ID_FIELD": "id",
+diff --git a/yhub-backend-api/.env.dev b/yhub-backend-api/.env.dev
+index 70d43586..15cc54fc 100644
+--- a/yhub-backend-api/.env.dev
++++ b/yhub-backend-api/.env.dev
+@@ -14,3 +14,6 @@ JWT_REFRESH_TOKEN_LIFETIME=7
+ 
+ # Frontend URL
+ FRONTEND_URL=https://hub-dev.yuvro.ai
++
++YCODE_BACKEND_URL=https://backend-code-dev.yuvro.ai
++YLABS_BACKEND_URL=https://backend-labs-dev.yuvro.ai
+diff --git a/yhub-backend-api/.env.local b/yhub-backend-api/.env.local
+index 07078c9f..65c0e252 100644
+--- a/yhub-backend-api/.env.local
++++ b/yhub-backend-api/.env.local
+@@ -21,3 +21,5 @@ JWT_REFRESH_TOKEN_LIFETIME=7
+ 
+ # Frontend URL
+ FRONTEND_URL=http://localhost:3002
++YCODE_BACKEND_URL=http://ycode-backend:8000
++YLABS_BACKEND_URL=http://ylabs-backend:8000
+diff --git a/yhub-backend-api/authentication/admin.py b/yhub-backend-api/authentication/admin.py
+index 92e5440c..8a9568b0 100644
+--- a/yhub-backend-api/authentication/admin.py
++++ b/yhub-backend-api/authentication/admin.py
+@@ -1,33 +1,47 @@
+ from django.contrib import admin
+ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+-from .models import User, Profile
++from .models import User
+ 
+ 
+ @admin.register(User)
+ class UserAdmin(BaseUserAdmin):
+-    list_display = ("email", "username", "first_name", "last_name", "role", "is_staff", "is_active", "date_joined")
+-    list_filter = ("role", "is_staff", "is_active", "date_joined")
++    list_display = (
++        "email",
++        "username",
++        "first_name",
++        "last_name",
++        "is_staff",
++        "is_active",
++        "date_joined",
++    )
++    list_filter = ("is_staff", "is_active", "date_joined")
+     search_fields = ("email", "username", "first_name", "last_name")
+     ordering = ("-date_joined",)
+ 
+     fieldsets = (
+         (None, {"fields": ("email", "username", "password")}),
+         ("Personal Info", {"fields": ("first_name", "last_name")}),
+-        ("Role", {"fields": ("role",)}),
+-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
++        (
++            "Permissions",
++            {
++                "fields": (
++                    "is_active",
++                    "is_staff",
++                    "is_superuser",
++                    "groups",
++                    "user_permissions",
++                )
++            },
++        ),
+         ("Important Dates", {"fields": ("last_login", "date_joined")}),
+     )
+ 
+     add_fieldsets = (
+-        (None, {
+-            "classes": ("wide",),
+-            "fields": ("email", "username", "role", "password1", "password2"),
+-        }),
++        (
++            None,
++            {
++                "classes": ("wide",),
++                "fields": ("email", "username", "password1", "password2"),
++            },
++        ),
+     )
+-
+-
+-@admin.register(Profile)
+-class ProfileAdmin(admin.ModelAdmin):
+-    list_display = ("user", "full_name", "title", "location", "gender", "created_at")
+-    search_fields = ("user__email", "user__username", "full_name")
+-    readonly_fields = ("created_at", "updated_at")
+diff --git a/yhub-backend-api/authentication/apps.py b/yhub-backend-api/authentication/apps.py
+index 833582bc..bf8bd190 100644
+--- a/yhub-backend-api/authentication/apps.py
++++ b/yhub-backend-api/authentication/apps.py
+@@ -5,5 +5,6 @@ class AuthenticationConfig(AppConfig):
+     default_auto_field = "django.db.models.BigAutoField"
+     name = "authentication"
+ 
++
+     def ready(self):
+-        import authentication.signals
++        pass
+diff --git a/ycode-backend-api/authentication/fixtures/dev/test_users_data.json b/yhub-backend-api/authentication/fixtures/dev/test_users_data.json
+similarity index 84%
+rename from ycode-backend-api/authentication/fixtures/dev/test_users_data.json
+rename to yhub-backend-api/authentication/fixtures/dev/test_users_data.json
+index bde96768..6df1efcc 100644
+--- a/ycode-backend-api/authentication/fixtures/dev/test_users_data.json
++++ b/yhub-backend-api/authentication/fixtures/dev/test_users_data.json
+@@ -5,7 +5,6 @@
+       "username": "admin",
+       "first_name": "Admin",
+       "last_name": "User",
+-      "role": "admin",
+       "password": "admin123",
+       "is_staff": true,
+       "is_superuser": true,
+@@ -15,6 +14,10 @@
+         "location": "San Francisco, CA",
+         "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
+         "gender": "prefer_not_to_say"
++      },
++      "roles": {
++        "ycode": "admin",
++        "ylabs": "admin"
+       }
+     },
+     {
+@@ -22,7 +25,6 @@
+       "username": "instructor_ds",
+       "first_name": "Data Structures",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -32,6 +34,9 @@
+         "location": "Boston, MA",
+         "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
+         "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -39,7 +44,6 @@
+       "username": "instructor_python",
+       "first_name": "Python",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -49,6 +53,9 @@
+         "location": "Seattle, WA",
+         "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
+         "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -56,7 +63,6 @@
+       "username": "instructor_java",
+       "first_name": "Java",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -66,6 +72,9 @@
+         "location": "Austin, TX",
+         "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
+         "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -73,7 +82,6 @@
+       "username": "instructor_mysql",
+       "first_name": "MySQL",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -83,6 +91,9 @@
+         "location": "New York, NY",
+         "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
+         "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -90,7 +101,6 @@
+       "username": "instructor_mongodb",
+       "first_name": "MongoDB",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -100,6 +110,9 @@
+         "location": "Denver, CO",
+         "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
+         "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -107,7 +120,6 @@
+       "username": "instructor_ai",
+       "first_name": "AI",
+       "last_name": "Instructor",
+-      "role": "instructor",
+       "password": "instructor123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -117,6 +129,9 @@
+         "location": "Palo Alto, CA",
+         "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
+         "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
+       }
+     },
+     {
+@@ -124,7 +139,6 @@
+       "username": "recruiter_admin",
+       "first_name": "Recruiter",
+       "last_name": "Admin",
+-      "role": "recruiter",
+       "password": "recruiter123",
+       "is_staff": true,
+       "is_superuser": false,
+@@ -134,6 +148,9 @@
+         "location": "India",
+         "about": "Recruiter admin with access to manage candidates and hiring workflows.",
+         "gender": "prefer_not_to_say"
++      },
++      "roles": {
++        "ycode": "recruiter"
+       }
+     },
+     {
+@@ -141,7 +158,6 @@
+       "username": "recruiter",
+       "first_name": "Tech",
+       "last_name": "Recruiter",
+-      "role": "recruiter",
+       "password": "recruiter123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -151,6 +167,9 @@
+         "location": "San Francisco, CA",
+         "about": "Technical recruiter specializing in software engineering and data science positions with 8+ years of experience in tech talent acquisition.",
+         "gender": "female"
++      },
++      "roles": {
++        "ycode": "recruiter"
+       }
+     },
+     {
+@@ -158,7 +177,6 @@
+       "username": "shilpa",
+       "first_name": "Shilpa",
+       "last_name": "Dora",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -271,6 +289,133 @@
+           "portfolio": "https://shilpadora.dev",
+           "email": "shilpa@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "sreelekha@gmail.com",
++      "username": "sreelekha",
++      "first_name": "sreelekha",
++      "last_name": "Mucharla",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "sreelekha saidul",
++        "title": "Full Stack Developer",
++        "location": "Hyderabad, India",
++        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
++        "gender": "female",
++        "skills": [
++          {
++            "name": "React.js",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Node.js",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "JavaScript",
++            "level": "Advanced",
++            "percentage": 90
++          },
++          {
++            "name": "Python",
++            "level": "Intermediate",
++            "percentage": 70
++          },
++          {
++            "name": "MongoDB",
++            "level": "Intermediate",
++            "percentage": 65
++          }
++        ],
++        "experiences": [
++          {
++            "company": "TechStart Solutions",
++            "role": "Frontend Developer Intern",
++            "duration": "Jun 2023 - Dec 2023",
++            "description_list": [
++              "Developed responsive web applications using React.js and TypeScript",
++              "Collaborated with design team to implement pixel-perfect UI components",
++              "Optimized application performance resulting in 30% faster load times"
++            ],
++            "technologies": [
++              "React.js",
++              "TypeScript",
++              "CSS3",
++              "Git"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "E-commerce Platform",
++            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
++            "role": "Full Stack Developer",
++            "tech_stack": [
++              "React.js",
++              "Node.js",
++              "MongoDB",
++              "Express.js",
++              "Stripe API"
++            ],
++            "github_link": "https://github.com/shilpa/ecommerce-platform",
++            "live_link": "https://shilpa-ecommerce.netlify.app"
++          },
++          {
++            "title": "Task Management App",
++            "description": "Collaborative task management application with real-time updates and team collaboration features",
++            "role": "Frontend Developer",
++            "tech_stack": [
++              "React.js",
++              "Socket.io",
++              "Material-UI",
++              "Firebase"
++            ],
++            "github_link": "https://github.com/shilpa/task-manager",
++            "live_link": "https://task-manager-shilpa.vercel.app"
++          }
++        ],
++        "education": [
++          {
++            "institution": "JNTU Hyderabad",
++            "degree": "Bachelor of Technology",
++            "field": "Computer Science Engineering",
++            "duration": "2021 - 2025",
++            "cgpa": "8.5",
++            "start_year": 2021,
++            "end_year": 2025
++          }
++        ],
++        "certifications": [
++          {
++            "name": "React Developer Certification",
++            "issuer": "Meta",
++            "completion_date": "March 2024"
++          },
++          {
++            "name": "JavaScript Algorithms and Data Structures",
++            "issuer": "freeCodeCamp",
++            "completion_date": "January 2024"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/shilpadora",
++          "linkedin": "https://linkedin.com/in/shilpadora",
++          "portfolio": "https://shilpadora.dev",
++          "email": "shilpa@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "developer"
+       }
+     },
+     {
+@@ -278,7 +423,6 @@
+       "username": "devendra",
+       "first_name": "Devendra",
+       "last_name": "Dora",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -390,6 +534,10 @@
+           "linkedin": "https://linkedin.com/in/devendradora",
+           "email": "devendra@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
+       }
+     },
+     {
+@@ -397,7 +545,6 @@
+       "username": "rohith",
+       "first_name": "Rohith",
+       "last_name": "Krishna",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -510,6 +657,10 @@
+           "linkedin": "https://linkedin.com/in/rohithkrishna",
+           "email": "rohith@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
+       }
+     },
+     {
+@@ -517,7 +668,6 @@
+       "username": "manikanta",
+       "first_name": "Manikanta",
+       "last_name": "Reddy",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -627,6 +777,10 @@
+           "portfolio": "https://manikanta.dev",
+           "email": "manikanta@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
+       }
+     },
+     {
+@@ -634,7 +788,6 @@
+       "username": "harsha",
+       "first_name": "Harsha",
+       "last_name": "Vardhan",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -746,6 +899,10 @@
+           "linkedin": "https://linkedin.com/in/harshavardhan",
+           "email": "harsha@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
+       }
+     },
+     {
+@@ -753,7 +910,6 @@
+       "username": "vinod",
+       "first_name": "Vinod",
+       "last_name": "Kumar",
+-      "role": "student",
+       "password": "student123",
+       "is_staff": false,
+       "is_superuser": false,
+@@ -860,7 +1016,7 @@
+           },
+           {
+             "name": "CISSP Associate",
+-            "issuer": "(ISC)┬▓",
++            "issuer": "(ISC)\u00b2",
+             "completion_date": "February 2024"
+           }
+         ],
+@@ -870,6 +1026,10 @@
+           "website": "https://vinodkumar-security.com",
+           "email": "vinod@gmail.com"
+         }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
+       }
+     }
+   ]
+diff --git a/yhub-backend-api/authentication/fixtures/prod/test_users_data.json b/yhub-backend-api/authentication/fixtures/prod/test_users_data.json
+new file mode 100644
+index 00000000..6df1efcc
+--- /dev/null
++++ b/yhub-backend-api/authentication/fixtures/prod/test_users_data.json
+@@ -0,0 +1,1036 @@
++{
++  "users": [
++    {
++      "email": "admin@yuvro.com",
++      "username": "admin",
++      "first_name": "Admin",
++      "last_name": "User",
++      "password": "admin123",
++      "is_staff": true,
++      "is_superuser": true,
++      "profile": {
++        "full_name": "Admin User",
++        "title": "System Administrator",
++        "location": "San Francisco, CA",
++        "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
++        "gender": "prefer_not_to_say"
++      },
++      "roles": {
++        "ycode": "admin",
++        "ylabs": "admin"
++      }
++    },
++    {
++      "email": "instructor_ds@yuvro.com",
++      "username": "instructor_ds",
++      "first_name": "Data Structures",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Dr. Sarah Johnson",
++        "title": "Data Structures & Algorithms Instructor",
++        "location": "Boston, MA",
++        "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
++        "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "instructor_python@yuvro.com",
++      "username": "instructor_python",
++      "first_name": "Python",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Michael Chen",
++        "title": "Python Programming Instructor",
++        "location": "Seattle, WA",
++        "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
++        "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "instructor_java@yuvro.com",
++      "username": "instructor_java",
++      "first_name": "Java",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Robert Martinez",
++        "title": "Java Programming Instructor",
++        "location": "Austin, TX",
++        "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
++        "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "instructor_mysql@yuvro.com",
++      "username": "instructor_mysql",
++      "first_name": "MySQL",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Lisa Wang",
++        "title": "Database Systems Instructor",
++        "location": "New York, NY",
++        "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
++        "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "instructor_mongodb@yuvro.com",
++      "username": "instructor_mongodb",
++      "first_name": "MongoDB",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "David Kumar",
++        "title": "NoSQL Database Instructor",
++        "location": "Denver, CO",
++        "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
++        "gender": "male"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "instructor_ai@yuvro.com",
++      "username": "instructor_ai",
++      "first_name": "AI",
++      "last_name": "Instructor",
++      "password": "instructor123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Dr. Emily Rodriguez",
++        "title": "AI & Machine Learning Instructor",
++        "location": "Palo Alto, CA",
++        "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
++        "gender": "female"
++      },
++      "roles": {
++        "ycode": "instructor"
++      }
++    },
++    {
++      "email": "recruiter_admin@yuvro.com",
++      "username": "recruiter_admin",
++      "first_name": "Recruiter",
++      "last_name": "Admin",
++      "password": "recruiter123",
++      "is_staff": true,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Recruiter Admin",
++        "title": "Recruitment Admin",
++        "location": "India",
++        "about": "Recruiter admin with access to manage candidates and hiring workflows.",
++        "gender": "prefer_not_to_say"
++      },
++      "roles": {
++        "ycode": "recruiter"
++      }
++    },
++    {
++      "email": "recruiter@yuvro.com",
++      "username": "recruiter",
++      "first_name": "Tech",
++      "last_name": "Recruiter",
++      "password": "recruiter123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Jennifer Thompson",
++        "title": "Senior Technical Recruiter",
++        "location": "San Francisco, CA",
++        "about": "Technical recruiter specializing in software engineering and data science positions with 8+ years of experience in tech talent acquisition.",
++        "gender": "female"
++      },
++      "roles": {
++        "ycode": "recruiter"
++      }
++    },
++    {
++      "email": "shilpa@gmail.com",
++      "username": "shilpa",
++      "first_name": "Shilpa",
++      "last_name": "Dora",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Shilpa Dora",
++        "title": "Full Stack Developer",
++        "location": "Hyderabad, India",
++        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
++        "gender": "female",
++        "skills": [
++          {
++            "name": "React.js",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Node.js",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "JavaScript",
++            "level": "Advanced",
++            "percentage": 90
++          },
++          {
++            "name": "Python",
++            "level": "Intermediate",
++            "percentage": 70
++          },
++          {
++            "name": "MongoDB",
++            "level": "Intermediate",
++            "percentage": 65
++          }
++        ],
++        "experiences": [
++          {
++            "company": "TechStart Solutions",
++            "role": "Frontend Developer Intern",
++            "duration": "Jun 2023 - Dec 2023",
++            "description_list": [
++              "Developed responsive web applications using React.js and TypeScript",
++              "Collaborated with design team to implement pixel-perfect UI components",
++              "Optimized application performance resulting in 30% faster load times"
++            ],
++            "technologies": [
++              "React.js",
++              "TypeScript",
++              "CSS3",
++              "Git"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "E-commerce Platform",
++            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
++            "role": "Full Stack Developer",
++            "tech_stack": [
++              "React.js",
++              "Node.js",
++              "MongoDB",
++              "Express.js",
++              "Stripe API"
++            ],
++            "github_link": "https://github.com/shilpa/ecommerce-platform",
++            "live_link": "https://shilpa-ecommerce.netlify.app"
++          },
++          {
++            "title": "Task Management App",
++            "description": "Collaborative task management application with real-time updates and team collaboration features",
++            "role": "Frontend Developer",
++            "tech_stack": [
++              "React.js",
++              "Socket.io",
++              "Material-UI",
++              "Firebase"
++            ],
++            "github_link": "https://github.com/shilpa/task-manager",
++            "live_link": "https://task-manager-shilpa.vercel.app"
++          }
++        ],
++        "education": [
++          {
++            "institution": "JNTU Hyderabad",
++            "degree": "Bachelor of Technology",
++            "field": "Computer Science Engineering",
++            "duration": "2021 - 2025",
++            "cgpa": "8.5",
++            "start_year": 2021,
++            "end_year": 2025
++          }
++        ],
++        "certifications": [
++          {
++            "name": "React Developer Certification",
++            "issuer": "Meta",
++            "completion_date": "March 2024"
++          },
++          {
++            "name": "JavaScript Algorithms and Data Structures",
++            "issuer": "freeCodeCamp",
++            "completion_date": "January 2024"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/shilpadora",
++          "linkedin": "https://linkedin.com/in/shilpadora",
++          "portfolio": "https://shilpadora.dev",
++          "email": "shilpa@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "sreelekha@gmail.com",
++      "username": "sreelekha",
++      "first_name": "sreelekha",
++      "last_name": "Mucharla",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "sreelekha saidul",
++        "title": "Full Stack Developer",
++        "location": "Hyderabad, India",
++        "about": "Passionate full-stack developer with expertise in React, Node.js, and modern web technologies. Currently pursuing Computer Science degree with focus on web development and user experience design.",
++        "gender": "female",
++        "skills": [
++          {
++            "name": "React.js",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Node.js",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "JavaScript",
++            "level": "Advanced",
++            "percentage": 90
++          },
++          {
++            "name": "Python",
++            "level": "Intermediate",
++            "percentage": 70
++          },
++          {
++            "name": "MongoDB",
++            "level": "Intermediate",
++            "percentage": 65
++          }
++        ],
++        "experiences": [
++          {
++            "company": "TechStart Solutions",
++            "role": "Frontend Developer Intern",
++            "duration": "Jun 2023 - Dec 2023",
++            "description_list": [
++              "Developed responsive web applications using React.js and TypeScript",
++              "Collaborated with design team to implement pixel-perfect UI components",
++              "Optimized application performance resulting in 30% faster load times"
++            ],
++            "technologies": [
++              "React.js",
++              "TypeScript",
++              "CSS3",
++              "Git"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "E-commerce Platform",
++            "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
++            "role": "Full Stack Developer",
++            "tech_stack": [
++              "React.js",
++              "Node.js",
++              "MongoDB",
++              "Express.js",
++              "Stripe API"
++            ],
++            "github_link": "https://github.com/shilpa/ecommerce-platform",
++            "live_link": "https://shilpa-ecommerce.netlify.app"
++          },
++          {
++            "title": "Task Management App",
++            "description": "Collaborative task management application with real-time updates and team collaboration features",
++            "role": "Frontend Developer",
++            "tech_stack": [
++              "React.js",
++              "Socket.io",
++              "Material-UI",
++              "Firebase"
++            ],
++            "github_link": "https://github.com/shilpa/task-manager",
++            "live_link": "https://task-manager-shilpa.vercel.app"
++          }
++        ],
++        "education": [
++          {
++            "institution": "JNTU Hyderabad",
++            "degree": "Bachelor of Technology",
++            "field": "Computer Science Engineering",
++            "duration": "2021 - 2025",
++            "cgpa": "8.5",
++            "start_year": 2021,
++            "end_year": 2025
++          }
++        ],
++        "certifications": [
++          {
++            "name": "React Developer Certification",
++            "issuer": "Meta",
++            "completion_date": "March 2024"
++          },
++          {
++            "name": "JavaScript Algorithms and Data Structures",
++            "issuer": "freeCodeCamp",
++            "completion_date": "January 2024"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/shilpadora",
++          "linkedin": "https://linkedin.com/in/shilpadora",
++          "portfolio": "https://shilpadora.dev",
++          "email": "shilpa@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "developer"
++      }
++    },
++    {
++      "email": "devendra@gmail.com",
++      "username": "devendra",
++      "first_name": "Devendra",
++      "last_name": "Dora",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Devendra Dora",
++        "title": "Backend Developer",
++        "location": "Bangalore, India",
++        "about": "Backend developer specializing in Python, Django, and cloud technologies. Experienced in building scalable APIs and microservices architecture.",
++        "gender": "male",
++        "skills": [
++          {
++            "name": "Python",
++            "level": "Advanced",
++            "percentage": 88
++          },
++          {
++            "name": "Django",
++            "level": "Advanced",
++            "percentage": 82
++          },
++          {
++            "name": "PostgreSQL",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "AWS",
++            "level": "Intermediate",
++            "percentage": 70
++          },
++          {
++            "name": "Docker",
++            "level": "Intermediate",
++            "percentage": 68
++          }
++        ],
++        "experiences": [
++          {
++            "company": "CloudTech Innovations",
++            "role": "Backend Developer Intern",
++            "duration": "Jan 2024 - Present",
++            "description_list": [
++              "Developed RESTful APIs using Django REST Framework",
++              "Implemented authentication and authorization systems",
++              "Optimized database queries reducing response time by 40%"
++            ],
++            "technologies": [
++              "Python",
++              "Django",
++              "PostgreSQL",
++              "Redis",
++              "AWS"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "Social Media API",
++            "description": "RESTful API for social media platform with user management, posts, comments, and real-time notifications",
++            "role": "Backend Developer",
++            "tech_stack": [
++              "Django",
++              "PostgreSQL",
++              "Redis",
++              "Celery",
++              "WebSocket"
++            ],
++            "github_link": "https://github.com/devendra/social-api"
++          },
++          {
++            "title": "Inventory Management System",
++            "description": "Complete inventory management system with barcode scanning and automated reorder functionality",
++            "role": "Full Stack Developer",
++            "tech_stack": [
++              "Django",
++              "React.js",
++              "PostgreSQL",
++              "Docker"
++            ],
++            "github_link": "https://github.com/devendra/inventory-system"
++          }
++        ],
++        "education": [
++          {
++            "institution": "PES University",
++            "department": "Computer Science",
++            "degree": "Bachelor of Engineering",
++            "field": "Computer Science",
++            "duration": "2020 - 2024",
++            "cgpa": "8.8",
++            "start_year": 2020,
++            "end_year": 2024
++          }
++        ],
++        "certifications": [
++          {
++            "name": "AWS Certified Developer Associate",
++            "issuer": "Amazon Web Services",
++            "completion_date": "February 2024"
++          },
++          {
++            "name": "Python for Data Science",
++            "issuer": "IBM",
++            "completion_date": "December 2023"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/devendradora",
++          "linkedin": "https://linkedin.com/in/devendradora",
++          "email": "devendra@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "rohith@gmail.com",
++      "username": "rohith",
++      "first_name": "Rohith",
++      "last_name": "Krishna",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Rohith Krishna",
++        "title": "Data Science Enthusiast",
++        "location": "Chennai, India",
++        "about": "Data science enthusiast with strong foundation in machine learning and statistical analysis. Passionate about extracting insights from data to solve real-world problems.",
++        "gender": "male",
++        "skills": [
++          {
++            "name": "Python",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Machine Learning",
++            "level": "Intermediate",
++            "percentage": 78
++          },
++          {
++            "name": "SQL",
++            "level": "Advanced",
++            "percentage": 80
++          },
++          {
++            "name": "Pandas",
++            "level": "Advanced",
++            "percentage": 82
++          },
++          {
++            "name": "TensorFlow",
++            "level": "Intermediate",
++            "percentage": 72
++          }
++        ],
++        "experiences": [
++          {
++            "company": "DataInsights Corp",
++            "role": "Data Analyst Intern",
++            "duration": "May 2023 - Nov 2023",
++            "description_list": [
++              "Analyzed customer behavior data to identify trends and patterns",
++              "Built predictive models using scikit-learn and TensorFlow",
++              "Created interactive dashboards using Tableau and Power BI"
++            ],
++            "technologies": [
++              "Python",
++              "Pandas",
++              "Scikit-learn",
++              "Tableau",
++              "SQL"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "Customer Churn Prediction",
++            "description": "Machine learning model to predict customer churn with 89% accuracy using ensemble methods",
++            "role": "Data Scientist",
++            "tech_stack": [
++              "Python",
++              "Scikit-learn",
++              "Pandas",
++              "Matplotlib",
++              "Jupyter"
++            ],
++            "github_link": "https://github.com/rohith/churn-prediction"
++          },
++          {
++            "title": "Stock Price Forecasting",
++            "description": "Time series analysis and LSTM neural network for stock price prediction",
++            "role": "ML Engineer",
++            "tech_stack": [
++              "Python",
++              "TensorFlow",
++              "Keras",
++              "NumPy",
++              "Plotly"
++            ],
++            "github_link": "https://github.com/rohith/stock-forecasting"
++          }
++        ],
++        "education": [
++          {
++            "institution": "IIT Madras",
++            "department": "Computer Science and Engineering",
++            "degree": "Bachelor of Technology",
++            "field": "Computer Science and Engineering",
++            "duration": "2021 - 2025",
++            "cgpa": "9.1",
++            "start_year": 2021,
++            "end_year": 2025
++          }
++        ],
++        "certifications": [
++          {
++            "name": "Machine Learning Specialization",
++            "issuer": "Stanford University (Coursera)",
++            "completion_date": "January 2024"
++          },
++          {
++            "name": "Data Science Professional Certificate",
++            "issuer": "IBM",
++            "completion_date": "November 2023"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/rohithkrishna",
++          "linkedin": "https://linkedin.com/in/rohithkrishna",
++          "email": "rohith@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "manikanta@gmail.com",
++      "username": "manikanta",
++      "first_name": "Manikanta",
++      "last_name": "Reddy",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Manikanta Reddy",
++        "title": "Mobile App Developer",
++        "location": "Pune, India",
++        "about": "Mobile app developer with expertise in React Native and Flutter. Passionate about creating intuitive mobile experiences and cross-platform development.",
++        "gender": "male",
++        "skills": [
++          {
++            "name": "React Native",
++            "level": "Advanced",
++            "percentage": 83
++          },
++          {
++            "name": "Flutter",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "JavaScript",
++            "level": "Advanced",
++            "percentage": 87
++          },
++          {
++            "name": "Dart",
++            "level": "Intermediate",
++            "percentage": 70
++          },
++          {
++            "name": "Firebase",
++            "level": "Intermediate",
++            "percentage": 72
++          }
++        ],
++        "experiences": [
++          {
++            "company": "MobileTech Solutions",
++            "role": "Mobile Developer Intern",
++            "duration": "Aug 2023 - Feb 2024",
++            "description_list": [
++              "Developed cross-platform mobile applications using React Native",
++              "Integrated third-party APIs and payment gateways",
++              "Implemented push notifications and real-time chat features"
++            ],
++            "technologies": [
++              "React Native",
++              "Firebase",
++              "Redux",
++              "AsyncStorage"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "Food Delivery App",
++            "description": "Complete food delivery application with user authentication, restaurant listings, and order tracking",
++            "role": "Mobile Developer",
++            "tech_stack": [
++              "React Native",
++              "Firebase",
++              "Google Maps API",
++              "Stripe"
++            ],
++            "github_link": "https://github.com/manikanta/food-delivery-app"
++          },
++          {
++            "title": "Fitness Tracker",
++            "description": "Personal fitness tracking app with workout plans, progress monitoring, and social features",
++            "role": "Flutter Developer",
++            "tech_stack": [
++              "Flutter",
++              "Dart",
++              "SQLite",
++              "Provider"
++            ],
++            "github_link": "https://github.com/manikanta/fitness-tracker"
++          }
++        ],
++        "education": [
++          {
++            "institution": "Pune Institute of Technology",
++            "degree": "Bachelor of Engineering",
++            "field": "Information Technology",
++            "duration": "2020 - 2024",
++            "cgpa": "8.3",
++            "start_year": 2020,
++            "end_year": 2024
++          }
++        ],
++        "certifications": [
++          {
++            "name": "React Native Developer",
++            "issuer": "Meta",
++            "completion_date": "March 2024"
++          },
++          {
++            "name": "Flutter Development Bootcamp",
++            "issuer": "Google Developers",
++            "completion_date": "January 2024"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/manikantareddy",
++          "linkedin": "https://linkedin.com/in/manikantareddy",
++          "portfolio": "https://manikanta.dev",
++          "email": "manikanta@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "harsha@gmail.com",
++      "username": "harsha",
++      "first_name": "Harsha",
++      "last_name": "Vardhan",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Harsha Vardhan",
++        "title": "DevOps Engineer",
++        "location": "Mumbai, India",
++        "about": "DevOps engineer with expertise in cloud infrastructure, containerization, and CI/CD pipelines. Passionate about automation and scalable system architecture.",
++        "gender": "male",
++        "skills": [
++          {
++            "name": "Docker",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Kubernetes",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "AWS",
++            "level": "Advanced",
++            "percentage": 80
++          },
++          {
++            "name": "Jenkins",
++            "level": "Intermediate",
++            "percentage": 72
++          },
++          {
++            "name": "Terraform",
++            "level": "Intermediate",
++            "percentage": 68
++          }
++        ],
++        "experiences": [
++          {
++            "company": "CloudOps Technologies",
++            "role": "DevOps Intern",
++            "duration": "Sep 2023 - Mar 2024",
++            "description_list": [
++              "Automated deployment pipelines using Jenkins and GitLab CI",
++              "Managed containerized applications with Docker and Kubernetes",
++              "Implemented infrastructure as code using Terraform"
++            ],
++            "technologies": [
++              "Docker",
++              "Kubernetes",
++              "Jenkins",
++              "AWS",
++              "Terraform"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "Microservices Deployment Platform",
++            "description": "Automated deployment platform for microservices using Kubernetes and Helm charts",
++            "role": "DevOps Engineer",
++            "tech_stack": [
++              "Kubernetes",
++              "Helm",
++              "Docker",
++              "Prometheus",
++              "Grafana"
++            ],
++            "github_link": "https://github.com/harsha/microservices-platform"
++          },
++          {
++            "title": "CI/CD Pipeline Automation",
++            "description": "Complete CI/CD pipeline with automated testing, security scanning, and deployment",
++            "role": "DevOps Engineer",
++            "tech_stack": [
++              "Jenkins",
++              "Docker",
++              "SonarQube",
++              "AWS",
++              "Ansible"
++            ],
++            "github_link": "https://github.com/harsha/cicd-automation"
++          }
++        ],
++        "education": [
++          {
++            "institution": "Mumbai University",
++            "degree": "Bachelor of Engineering",
++            "field": "Computer Engineering",
++            "duration": "2020 - 2024",
++            "cgpa": "8.6",
++            "start_year": 2020,
++            "end_year": 2024
++          }
++        ],
++        "certifications": [
++          {
++            "name": "AWS Certified Solutions Architect",
++            "issuer": "Amazon Web Services",
++            "completion_date": "February 2024"
++          },
++          {
++            "name": "Certified Kubernetes Administrator",
++            "issuer": "Cloud Native Computing Foundation",
++            "completion_date": "December 2023"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/harshavardhan",
++          "linkedin": "https://linkedin.com/in/harshavardhan",
++          "email": "harsha@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    },
++    {
++      "email": "vinod@gmail.com",
++      "username": "vinod",
++      "first_name": "Vinod",
++      "last_name": "Kumar",
++      "password": "student123",
++      "is_staff": false,
++      "is_superuser": false,
++      "profile": {
++        "full_name": "Vinod Kumar",
++        "title": "Cybersecurity Specialist",
++        "location": "Delhi, India",
++        "about": "Cybersecurity specialist with focus on ethical hacking, penetration testing, and security architecture. Passionate about protecting digital assets and building secure systems.",
++        "gender": "male",
++        "skills": [
++          {
++            "name": "Ethical Hacking",
++            "level": "Advanced",
++            "percentage": 88
++          },
++          {
++            "name": "Network Security",
++            "level": "Advanced",
++            "percentage": 85
++          },
++          {
++            "name": "Python",
++            "level": "Intermediate",
++            "percentage": 75
++          },
++          {
++            "name": "Linux",
++            "level": "Advanced",
++            "percentage": 90
++          },
++          {
++            "name": "Cryptography",
++            "level": "Intermediate",
++            "percentage": 70
++          }
++        ],
++        "experiences": [
++          {
++            "company": "SecureNet Solutions",
++            "role": "Security Analyst Intern",
++            "duration": "Jul 2023 - Jan 2024",
++            "description_list": [
++              "Conducted vulnerability assessments and penetration testing",
++              "Developed security policies and incident response procedures",
++              "Monitored network traffic for suspicious activities"
++            ],
++            "technologies": [
++              "Kali Linux",
++              "Metasploit",
++              "Wireshark",
++              "Nmap",
++              "Burp Suite"
++            ]
++          }
++        ],
++        "projects": [
++          {
++            "title": "Network Security Scanner",
++            "description": "Automated network vulnerability scanner with reporting and remediation suggestions",
++            "role": "Security Developer",
++            "tech_stack": [
++              "Python",
++              "Nmap",
++              "SQLite",
++              "Flask",
++              "Bootstrap"
++            ],
++            "github_link": "https://github.com/vinod/network-scanner"
++          },
++          {
++            "title": "Secure Chat Application",
++            "description": "End-to-end encrypted chat application with advanced security features",
++            "role": "Security Engineer",
++            "tech_stack": [
++              "Python",
++              "Cryptography",
++              "Socket.io",
++              "React.js"
++            ],
++            "github_link": "https://github.com/vinod/secure-chat"
++          }
++        ],
++        "education": [
++          {
++            "institution": "Delhi Technological University",
++            "degree": "Bachelor of Technology",
++            "field": "Computer Science and Engineering",
++            "duration": "2021 - 2025",
++            "cgpa": "8.9",
++            "start_year": 2021,
++            "end_year": 2025
++          }
++        ],
++        "certifications": [
++          {
++            "name": "Certified Ethical Hacker (CEH)",
++            "issuer": "EC-Council",
++            "completion_date": "March 2024"
++          },
++          {
++            "name": "CompTIA Security+",
++            "issuer": "CompTIA",
++            "completion_date": "January 2024"
++          },
++          {
++            "name": "CISSP Associate",
++            "issuer": "(ISC)\u00b2",
++            "completion_date": "February 2024"
++          }
++        ],
++        "social_links": {
++          "github": "https://github.com/vinodkumar",
++          "linkedin": "https://linkedin.com/in/vinodkumar-security",
++          "website": "https://vinodkumar-security.com",
++          "email": "vinod@gmail.com"
++        }
++      },
++      "roles": {
++        "ycode": "student",
++        "ylabs": "student"
++      }
++    }
++  ]
++}
+\ No newline at end of file
+diff --git a/yhub-backend-api/authentication/management/__init__.py b/yhub-backend-api/authentication/management/__init__.py
+new file mode 100644
+index 00000000..65cb83ac
+--- /dev/null
++++ b/yhub-backend-api/authentication/management/__init__.py
+@@ -0,0 +1 @@
++# Management commands package
+diff --git a/yhub-backend-api/authentication/management/commands/__init__.py b/yhub-backend-api/authentication/management/commands/__init__.py
+new file mode 100644
+index 00000000..2c1c7c15
+--- /dev/null
++++ b/yhub-backend-api/authentication/management/commands/__init__.py
+@@ -0,0 +1 @@
++# Management commands
+diff --git a/yhub-backend-api/authentication/management/commands/create_test_users.py b/yhub-backend-api/authentication/management/commands/create_test_users.py
+new file mode 100644
+index 00000000..00cb6b33
+--- /dev/null
++++ b/yhub-backend-api/authentication/management/commands/create_test_users.py
+@@ -0,0 +1,166 @@
++import json
++import os
++from django.core.management.base import BaseCommand
++from django.contrib.auth import get_user_model
++from django.db import models
++import requests
++from authentication.serializers import CustomTokenObtainPairSerializer
++from decouple import config
++
++User = get_user_model()
++
++
++class Command(BaseCommand):
++    help = "Create test users with different roles and comprehensive profile data for development and testing"
++
++    def add_arguments(self, parser):
++        parser.add_argument(
++            "--clear",
++            action="store_true",
++            help="Clear existing test users before creating new ones",
++        )
++        parser.add_argument(
++            "--deploy_env",
++            type=str,
++            default="dev",
++            choices=["local", "dev", "prod"],
++            help="Environment to load fixtures from: local, dev or prod",
++        )
++        parser.add_argument(
++            "--file",
++            type=str,
++            default="test_users_data.json",
++            help="Filename within fixtures/<deploy_env>/ to load",
++        )
++        parser.add_argument('--ycode-url', type=str, default=config('YCODE_BACKEND_URL', default='http://localhost:8001'), help='Base URL of YCode API.')
++        parser.add_argument('--ylabs-url', type=str, default=config('YLABS_BACKEND_URL', default='http://localhost:8002'), help='Base URL of YLabs API.')
++
++    def handle(self, *args, **options):
++        if options["clear"]:
++            self.stdout.write(self.style.WARNING("Clearing existing test users..."))
++            User.objects.all().delete()
++            self.stdout.write(self.style.SUCCESS("Existing test users cleared."))
++
++        self.stdout.write("Creating test users with comprehensive profile data...")
++        
++        ycode_url = options['ycode_url'].rstrip('/')
++        ylabs_url = options['ylabs_url'].rstrip('/')
++
++        # 1. Ensure a local superuser exists to generate a valid admin JWT
++        admin_user, admin_created = User.objects.get_or_create(
++            email='admin_sync@yhub.internal',
++            defaults={
++                'username': 'admin_sync',
++                'is_staff': True,
++                'is_superuser': True,
++                'is_active': True,
++                'roles': {'ycode': 'admin', 'ylabs': 'admin'}
++            }
++        )
++        if admin_created:
++            admin_user.set_unusable_password()
++            admin_user.save()
++
++        # Generate JWT for sync
++        token_serializer = CustomTokenObtainPairSerializer()
++        token_data = token_serializer.get_token(admin_user)
++        token_data["products"] = ["ycode", "ylabs"]
++        access_token = str(token_data.access_token)
++        headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
++
++        try:
++            current_dir = os.path.dirname(os.path.abspath(__file__))
++            auth_app_dir = os.path.dirname(os.path.dirname(current_dir))
++            deploy_env = "dev" if options["deploy_env"] == "local" else options["deploy_env"]
++            json_file_path = os.path.join(auth_app_dir, "fixtures", deploy_env, options["file"])
++
++            if not os.path.exists(json_file_path):
++                self.stdout.write(
++                    self.style.ERROR(f"JSON file not found: {json_file_path}")
++                )
++                return
++
++            with open(json_file_path, "r", encoding="utf-8") as file:
++                data = json.load(file)
++
++            for user_data in data["users"]:
++                existing_user = User.objects.filter(
++                    models.Q(email=user_data["email"])
++                    | models.Q(username=user_data["username"])
++                ).first()
++
++                if existing_user:
++                    user = existing_user
++                    created = False
++                else:
++                    user = User.objects.create(
++                        email=user_data["email"],
++                        username=user_data["username"],
++                        first_name=user_data["first_name"],
++                        last_name=user_data["last_name"],
++                        roles=user_data.get("roles", {}),
++                        is_staff=user_data.get("is_staff", False),
++                        is_superuser=user_data.get("is_superuser", False),
++                    )
++                    user.set_password(user_data["password"])
++                    user.save()
++                    created = True
++
++                if created:
++                    user.set_password(user_data["password"])
++                    user.save()
++                    msg = f"{user.username} created"
++                else:
++                    msg = f"{user.username} already exists"
++                
++                # Sync logic for this user
++                if user.email != 'admin_sync@yhub.internal':
++                    payload = {
++                        "id": str(user.id),
++                        "email": user.email,
++                        "username": user.username,
++                        "first_name": user.first_name,
++                        "last_name": user.last_name,
++                        "roles": user.roles,
++                        "password_hash": user.password,
++                        "is_active": user.is_active
++                    }
++                    
++                    try:
++                        resp = requests.post(f"{ycode_url}/api/auth/sync-shadow-user/", json=payload, headers=headers)
++                        if resp.status_code in (200, 201):
++                            msg += f", {user.username} synced to ycode"
++                        else:
++                            msg += f", failed to sync {user.username} to ycode"
++                    except requests.RequestException as e:
++                        msg += f", failed to sync {user.username} to ycode"
++
++                    try:
++                        resp = requests.post(f"{ylabs_url}/api/auth/sync-shadow-user/", json=payload, headers=headers)
++                        if resp.status_code in (200, 201):
++                            msg += f", {user.username} synced to ylab"
++                        else:
++                            msg += f", failed to sync {user.username} to ylab"
++                    except requests.RequestException as e:
++                        msg += f", failed to sync {user.username} to ylab"
++
++                self.stdout.write(self.style.SUCCESS(msg))
++
++
++
++            self.stdout.write(
++                self.style.SUCCESS(
++                    "\nSuccessfully created test users with comprehensive profiles!"
++                )
++            )
++
++            self.stdout.write(f"\nUser Summary:")
++            self.stdout.write(f"- Total Users: {User.objects.count()}")
++
++
++
++        except Exception as e:
++            self.stdout.write(self.style.ERROR(f"Error creating test users: {str(e)}"))
++            import traceback
++
++            self.stdout.write(self.style.ERROR(traceback.format_exc()))
+diff --git a/yhub-backend-api/authentication/migrations/0002_remove_user_role_user_google_id_user_is_otp_login_and_more.py b/yhub-backend-api/authentication/migrations/0002_remove_user_role_user_google_id_user_is_otp_login_and_more.py
+new file mode 100644
+index 00000000..69e50a43
+--- /dev/null
++++ b/yhub-backend-api/authentication/migrations/0002_remove_user_role_user_google_id_user_is_otp_login_and_more.py
+@@ -0,0 +1,87 @@
++# Generated by Django 5.1.5 on 2026-06-29 18:30
++
++from django.db import migrations, models
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ("auth", "0012_alter_user_first_name_max_length"),
++        ("authentication", "0001_initial"),
++    ]
++
++    operations = [
++        migrations.RemoveField(
++            model_name="user",
++            name="role",
++        ),
++        migrations.AddField(
++            model_name="user",
++            name="google_id",
++            field=models.CharField(blank=True, max_length=100, null=True, unique=True),
++        ),
++        migrations.AddField(
++            model_name="user",
++            name="is_otp_login",
++            field=models.BooleanField(default=False),
++        ),
++        migrations.AddField(
++            model_name="user",
++            name="roles",
++            field=models.JSONField(blank=True, default=dict),
++        ),
++        migrations.AlterField(
++            model_name="user",
++            name="groups",
++            field=models.ManyToManyField(
++                blank=True,
++                help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
++                related_name="user_set",
++                related_query_name="user",
++                to="auth.group",
++                verbose_name="groups",
++            ),
++        ),
++        migrations.AlterField(
++            model_name="user",
++            name="is_active",
++            field=models.BooleanField(
++                default=True,
++                help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
++                verbose_name="active",
++            ),
++        ),
++        migrations.AlterField(
++            model_name="user",
++            name="is_staff",
++            field=models.BooleanField(
++                default=False,
++                help_text="Designates whether the user can log into this admin site.",
++                verbose_name="staff status",
++            ),
++        ),
++        migrations.AlterField(
++            model_name="user",
++            name="is_superuser",
++            field=models.BooleanField(
++                default=False,
++                help_text="Designates that this user has all permissions without explicitly assigning them.",
++                verbose_name="superuser status",
++            ),
++        ),
++        migrations.AlterField(
++            model_name="user",
++            name="user_permissions",
++            field=models.ManyToManyField(
++                blank=True,
++                help_text="Specific permissions for this user.",
++                related_name="user_set",
++                related_query_name="user",
++                to="auth.permission",
++                verbose_name="user permissions",
++            ),
++        ),
++        migrations.DeleteModel(
++            name="Profile",
++        ),
++    ]
+diff --git a/yhub-backend-api/authentication/models.py b/yhub-backend-api/authentication/models.py
+index 238a29a6..ada44866 100644
+--- a/yhub-backend-api/authentication/models.py
++++ b/yhub-backend-api/authentication/models.py
+@@ -1,18 +1,30 @@
+ import uuid
+ from django.contrib.auth.models import AbstractUser
+ from django.db import models
++from django.core.exceptions import ValidationError
+ 
++YCODE_ROLE_CHOICES = [
++    ("student", "Student"),
++    ("instructor", "Instructor"),
++    ("recruiter", "Recruiter"),
++    ("admin", "Administrator"),
++    ("guest", "Guest"),
++]
++
++YLABS_ROLE_CHOICES = [
++    ("student", "Student"),
++    ("developer", "Developer"),
++    ("admin", "Administrator"),
++]
+ 
+-class User(AbstractUser):
+-    ROLE_CHOICES = [
+-        ("user", "User"),
+-        ("admin", "Administrator"),
+-    ]
+ 
++class User(AbstractUser):
+     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+     email = models.EmailField(unique=True)
+     username = models.CharField(max_length=150, unique=True)
+-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="user")
++    is_otp_login = models.BooleanField(default=False)
++    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
++    roles = models.JSONField(default=dict, blank=True)
+ 
+     USERNAME_FIELD = "email"
+     REQUIRED_FIELDS = ["username"]
+@@ -20,36 +32,21 @@ class User(AbstractUser):
+     def __str__(self):
+         return self.email
+ 
+-    def is_admin(self):
+-        return self.role == "admin"
++    def clean(self):
++        super().clean()
++        if not isinstance(self.roles, dict):
++            raise ValidationError({"roles": "Roles must be a JSON dictionary."})
++        
++        ycode_role = self.roles.get("ycode")
++        ycode_valid_keys = [r[0] for r in YCODE_ROLE_CHOICES]
++        if ycode_role and ycode_role not in ycode_valid_keys:
++            raise ValidationError({"roles": f"Invalid ycode role. Allowed: {', '.join(ycode_valid_keys)}"})
++            
++        ylabs_role = self.roles.get("ylabs")
++        ylabs_valid_keys = [r[0] for r in YLABS_ROLE_CHOICES]
++        if ylabs_role and ylabs_role not in ylabs_valid_keys:
++            raise ValidationError({"roles": f"Invalid ylabs role. Allowed: {', '.join(ylabs_valid_keys)}"})
+ 
+     def save(self, *args, **kwargs):
+-        if self.is_superuser:
+-            self.role = "admin"
++        self.clean()
+         super().save(*args, **kwargs)
+-
+-
+-class Profile(models.Model):
+-    GENDER_CHOICES = [
+-        ("male", "Male"),
+-        ("female", "Female"),
+-        ("other", "Other"),
+-        ("prefer_not_to_say", "Prefer not to say"),
+-    ]
+-
+-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+-
+-    profile_image = models.URLField(blank=True, null=True)
+-    cover_image = models.URLField(blank=True, null=True)
+-    full_name = models.CharField(max_length=200, blank=True, null=True)
+-    title = models.CharField(max_length=200, blank=True, null=True)
+-    location = models.CharField(max_length=200, blank=True, null=True)
+-    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+-    about = models.TextField(blank=True, null=True)
+-    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True, null=True)
+-    created_at = models.DateTimeField(auto_now_add=True)
+-    updated_at = models.DateTimeField(auto_now=True)
+-
+-    def __str__(self):
+-        return f"{self.user.email}'s Profile"
+diff --git a/yhub-backend-api/authentication/permissions.py b/yhub-backend-api/authentication/permissions.py
+index e2a4ce5c..7cb64d9d 100644
+--- a/yhub-backend-api/authentication/permissions.py
++++ b/yhub-backend-api/authentication/permissions.py
+@@ -1,25 +1,276 @@
++from rest_framework import permissions
+ from rest_framework.permissions import BasePermission, SAFE_METHODS
+ 
++# ============================================================================
++# Base Permission Classes
++# ============================================================================
++
+ 
+ class IsAdminUser(BasePermission):
++    """
++    Permission class that allows access only to admin users.
++    """
++
+     def has_permission(self, request, view):
+-        return request.user and request.user.is_authenticated and request.user.is_admin()
++        return (
++            request.user and request.user.is_authenticated and request.user.is_admin()
++        )
+ 
+ 
+ class IsAuthenticatedUser(BasePermission):
++    """
++    Permission class that allows access only to authenticated users.
++    """
++
+     def has_permission(self, request, view):
+         return request.user and request.user.is_authenticated
+ 
+ 
++# ============================================================================
++# Role-Based Permission Classes
++# ============================================================================
++
++
++class IsInstructorOrAdmin(BasePermission):
++    """
++    Permission class that allows access to instructors and admins.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and (request.user.is_instructor() or request.user.is_admin())
++        )
++
++
++class IsStudentUser(BasePermission):
++    """
++    Permission class that allows access only to student users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user and request.user.is_authenticated and request.user.is_student()
++        )
++
++
++class IsRecruiterUser(BasePermission):
++    """
++    Permission class that allows access only to recruiter users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and request.user.is_recruiter()
++        )
++
++
++class ReadOnlyPermission(BasePermission):
++    """
++    Permission class that allows only read operations.
++    """
++
++    def has_permission(self, request, view):
++        return request.method in SAFE_METHODS
++
++
++class IsAuthenticatedOrReadOnly(BasePermission):
++    """
++    Permission class that allows read access to everyone,
++    but write access only to authenticated users.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++        return request.user and request.user.is_authenticated
++
++
++# ============================================================================
++# Object-Level Permission Classes
++# ============================================================================
++
++
+ class IsOwnerOrAdmin(BasePermission):
++    """
++    Permission class that allows access to the owner of the object or admin users.
++    """
++
+     def has_permission(self, request, view):
+         return request.user and request.user.is_authenticated
+ 
+     def has_object_permission(self, request, view, obj):
++        # Admin users have full access
+         if request.user.is_admin():
+             return True
++
++        # Check if the object has a user field (for user-owned objects)
+         if hasattr(obj, "user"):
+             return obj.user == request.user
++
++        # Check if the object has a created_by field
++        if hasattr(obj, "created_by"):
++            return obj.created_by == request.user
++
++        # Check if the object is the user itself
+         if hasattr(obj, "id") and hasattr(request.user, "id"):
+             return obj.id == request.user.id
++
++        return False
++
++
++class IsOwnerOrReadOnly(BasePermission):
++    """
++    Custom permission to only allow owners of an object to edit it.
++    Read permissions are allowed to any request,
++    so we'll always allow GET, HEAD or OPTIONS requests.
++    """
++
++    def has_object_permission(self, request, view, obj):
++        # Read permissions are allowed to any request,
++        # so we'll always allow GET, HEAD or OPTIONS requests.
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions are only allowed to the owner of the object.
++        return obj.user == request.user
++
++
++# ============================================================================
++# Content Management Permission Classes
++# ============================================================================
++
++
++class CanManageContent(BasePermission):
++    """
++    Permission class for content management operations.
++    Allows content admins and admins to create/update/delete content.
++    Students can only read.
++    """
++
++    def has_permission(self, request, view):
++        if not request.user or not request.user.is_authenticated:
++            return False
++
++        # Read permissions for all authenticated users
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions only for instructors and admins
++        return request.user.can_manage_content()
++
++
++class CanManageCourses(BasePermission):
++    """
++    Permission class for course management operations.
++    Allows instructors and admins to manage courses.
++    """
++
++    def has_permission(self, request, view):
++        if not request.user or not request.user.is_authenticated:
++            return False
++
++        # Read permissions for all authenticated users
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions only for instructors and admins
++        return (
++            request.user.is_instructor()
++            or request.user.is_admin()
++            or request.user.can_manage_content()
++        )
++
++
++class CanManageUsers(BasePermission):
++    """
++    Permission class for user management operations.
++    Only admins can manage users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and request.user.can_manage_users()
++        )
++
++
++# ============================================================================
++# Job-Related Permission Classes
++# ============================================================================
++
++
++class IsHRorReadOnly(BasePermission):
++    """
++    Permission class for HR operations.
++    Allows read access to everyone, write access only to HR staff.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++        return request.user and request.user.is_staff
++
++
++# ============================================================================
++# Combined Permission Classes
++# ============================================================================
++
++
++class IsInstructorOrAdminOrReadOnly(BasePermission):
++    """
++    Permission class that allows read access to everyone,
++    but write access only to instructors and admins.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++
++        return (
++            request.user
++            and request.user.is_authenticated
++            and (request.user.is_admin() or request.user.is_instructor())
++        )
++
++
++class IsOwnerOrInstructorOrAdmin(BasePermission):
++    """
++    Permission class that allows access to:
++    - Object owners
++    - Instructors (for content they can manage)
++    - Admins (full access)
++    """
++
++    def has_permission(self, request, view):
++        return request.user and request.user.is_authenticated
++
++    def has_object_permission(self, request, view, obj):
++        # Safe methods: GET, HEAD, OPTIONS
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Admin users have full access
++        if (
++            request.user.is_admin()
++            or request.user.is_staff
++            or request.user.is_superuser
++        ):
++            return True
++
++        # Instructors have access to content management
++        if request.user.is_instructor():
++            return True
++
++        # Check ownership
++        if hasattr(obj, "created_by"):
++            return obj.created_by == request.user
++
++        if hasattr(obj, "user"):
++            return obj.user == request.user
++
+         return False
+diff --git a/yhub-backend-api/authentication/serializers.py b/yhub-backend-api/authentication/serializers.py
+index b03d785c..5e427801 100644
+--- a/yhub-backend-api/authentication/serializers.py
++++ b/yhub-backend-api/authentication/serializers.py
+@@ -1,45 +1,40 @@
+ from rest_framework import serializers
+ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+-from .models import User, Profile
+ 
++from .models import User
+ 
+-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
++
++class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
+     @classmethod
+     def get_token(cls, user):
+         token = super().get_token(user)
+-        token["role"] = user.role
++
++        # Add custom claims
+         token["username"] = user.username
+         token["email"] = user.email
+         token["first_name"] = user.first_name
+         token["last_name"] = user.last_name
+-        return token
++        token["roles"] = user.roles
+ 
+-
+-class ProfileSerializer(serializers.ModelSerializer):
+-    class Meta:
+-        model = Profile
+-        fields = [
+-            "profile_image", "cover_image", "full_name",
+-            "title", "location", "about", "gender",
+-        ]
++        return token
+ 
+ 
+ class UserSerializer(serializers.ModelSerializer):
+-    profile = ProfileSerializer(read_only=True)
+-    full_name = serializers.SerializerMethodField()
+-
+     class Meta:
+         model = User
+         fields = [
+-            "id", "username", "email", "first_name", "last_name",
+-            "full_name", "role", "is_active", "date_joined", "last_login",
+-            "profile",
++            "id",
++            "username",
++            "email",
++            "first_name",
++            "last_name",
++            "roles",
++            "is_active",
++            "date_joined",
++            "last_login",
+         ]
+         read_only_fields = ["id", "date_joined", "last_login"]
+ 
+-    def get_full_name(self, obj):
+-        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
+-
+ 
+ class UserLoginSerializer(serializers.Serializer):
+     email = serializers.EmailField()
+@@ -58,8 +53,10 @@ class UserLoginSerializer(serializers.Serializer):
+                     raise serializers.ValidationError("User account is disabled.")
+                 attrs["user"] = user
+                 return attrs
+-            raise serializers.ValidationError("Invalid email or password.")
+-        raise serializers.ValidationError("Must include email and password.")
++            else:
++                raise serializers.ValidationError("Invalid email or password.")
++        else:
++            raise serializers.ValidationError("Must include email and password.")
+ 
+ 
+ class UserRegistrationSerializer(serializers.ModelSerializer):
+@@ -69,8 +66,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
+     class Meta:
+         model = User
+         fields = [
+-            "username", "email", "password", "password_confirm",
+-            "first_name", "last_name",
++            "username",
++            "email",
++            "password",
++            "password_confirm",
++            "first_name",
++            "last_name",
++            "roles",
+         ]
+ 
+     def validate(self, attrs):
+@@ -81,10 +83,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
+     def create(self, validated_data):
+         validated_data.pop("password_confirm")
+         password = validated_data.pop("password")
+-        return User.objects.create_user(password=password, **validated_data)
++        user = User.objects.create_user(password=password, **validated_data)
++        return user
+ 
+ 
+ class UserUpdateSerializer(serializers.ModelSerializer):
+     class Meta:
+         model = User
+         fields = ["username", "email", "first_name", "last_name"]
++
+diff --git a/yhub-backend-api/authentication/tests.py b/yhub-backend-api/authentication/tests.py
+index 2e9cb5f6..7ce503c2 100644
+--- a/yhub-backend-api/authentication/tests.py
++++ b/yhub-backend-api/authentication/tests.py
+@@ -1 +1,3 @@
+ from django.test import TestCase
++
++# Create your tests here.
+diff --git a/yhub-backend-api/authentication/urls.py b/yhub-backend-api/authentication/urls.py
+index 8eacacad..62585afe 100644
+--- a/yhub-backend-api/authentication/urls.py
++++ b/yhub-backend-api/authentication/urls.py
+@@ -1,21 +1,26 @@
+ from django.urls import path
+ from . import views
++from .views import admin_users, google_login_view
+ 
+ app_name = "authentication"
+ 
+ urlpatterns = [
+     path("register/", views.UserRegistrationView.as_view(), name="register"),
+     path("login/", views.login_view, name="login"),
+-    path("google/", views.google_login_view, name="google_login"),
++    path("google/", google_login_view, name="google_login"),
+     path("logout/", views.logout_view, name="logout"),
+-    path("token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"),
+-    path("profile/", views.UserProfileView.as_view(), name="user_profile"),
+-    path("profile/detail/", views.ProfileDetailView.as_view(), name="profile_detail"),
++    path(
++        "token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"
++    ),
+     path("user/", views.user_info_view, name="user_info"),
+-    path("forgot-password/", views.ForgotPasswordView.as_view(), name="forgot_password"),
+-    path("reset-password/<uidb64>/<token>/", views.ResetPasswordView.as_view(), name="reset_password"),
+-    path("admin-users/", views.admin_users, name="admin_users"),
+-    path("users/", views.UsersListCreateView.as_view(), name="users_list"),
+-    path("users/<uuid:pk>/", views.UserDetailView.as_view(), name="user_detail"),
+-    path("users/<uuid:pk>/toggle-status/", views.UserToggleStatusView.as_view(), name="user_toggle_status"),
++    path(
++        "forgot-password/", views.ForgotPasswordView.as_view(), name="forgot_password"
++    ),
++    path(
++        "reset-password/<uidb64>/<token>/",
++        views.ResetPasswordView.as_view(),
++        name="reset_password",
++    ),
++    path("change-password/", views.change_password_view, name="change_password"),
++    path("admin-users/", admin_users, name="admin_users"),
+ ]
+diff --git a/yhub-backend-api/authentication/views.py b/yhub-backend-api/authentication/views.py
+index 4be01445..1fc47c91 100644
+--- a/yhub-backend-api/authentication/views.py
++++ b/yhub-backend-api/authentication/views.py
+@@ -1,67 +1,77 @@
++import logging
+ import requests as http_requests
+-from rest_framework import status, generics, permissions, filters
++from urllib.parse import urlparse
++
++from rest_framework import status, generics, permissions
+ from rest_framework.decorators import api_view, permission_classes
+ from rest_framework.response import Response
+-from rest_framework.views import APIView
+-from rest_framework.pagination import PageNumberPagination
+ from rest_framework_simplejwt.tokens import RefreshToken
+-from rest_framework_simplejwt.views import TokenRefreshView
++from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+-from django.contrib.auth import login, get_user_model
++
++from django.contrib.auth import login, authenticate, get_user_model
+ from django.contrib.auth.tokens import PasswordResetTokenGenerator
+-from django.contrib.auth.password_validation import validate_password
+-from django.core.exceptions import ValidationError
+-from django.core.mail import send_mail
+-from django.conf import settings
+-from django.db.models import Q
+ from django.utils.encoding import force_bytes, force_str
+ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
++from django.core.mail import send_mail
++from django.conf import settings
++from django.contrib.auth.password_validation import validate_password
++from django.core.exceptions import ValidationError
+ 
+-from .models import Profile
++from authentication.permissions import (
++    IsAdminUser,
++    IsAuthenticatedUser,
++)
+ from .serializers import (
+     CustomTokenObtainPairSerializer,
+     UserRegistrationSerializer,
+     UserSerializer,
+-    UserUpdateSerializer,
+     UserLoginSerializer,
+-    ProfileSerializer,
+ )
+-from .permissions import IsAdminUser, IsAuthenticatedUser, IsOwnerOrAdmin
+ 
++logger = logging.getLogger(__name__)
+ User = get_user_model()
+ 
+-try:
+-    from django_filters.rest_framework import DjangoFilterBackend
+-except ImportError:
+-    DjangoFilterBackend = None
+-
+-
+-# ΓöÇΓöÇ Login ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+ @api_view(["POST"])
+ @permission_classes([permissions.AllowAny])
+ def login_view(request):
+-    """Email + password login."""
++    """User login endpoint."""
+     serializer = UserLoginSerializer(data=request.data)
+     serializer.is_valid(raise_exception=True)
+-
++    
+     user = serializer.validated_data["user"]
+     login(request, user)
++    
++    token_serializer = CustomTokenObtainPairSerializer()
++    refresh = token_serializer.get_token(user)
++    
++    product = request.query_params.get("product") or request.data.get("product")
++    if product:
++        refresh["products"] = [product]
++    else:
++        refresh["products"] = ["ycode", "ylabs", "ycampus"]
++    
++    return Response(
++        {
++            "user": UserSerializer(user).data,
++            "refresh": str(refresh),
++            "access": str(refresh.access_token),
++        },
++        status=status.HTTP_200_OK,
++    )
+ 
+-    refresh = CustomTokenObtainPairSerializer.get_token(user)
+-    return Response({
+-        "user": UserSerializer(user).data,
+-        "refresh": str(refresh),
+-        "access": str(refresh.access_token),
+-    })
+ 
++class CustomTokenObtainPairView(TokenObtainPairView):
++    serializer_class = CustomTokenObtainPairSerializer
+ 
+-# ΓöÇΓöÇ Google OAuth ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+ @api_view(["POST"])
+ @permission_classes([permissions.AllowAny])
+ def google_login_view(request):
+-    """Google OAuth2 login ΓÇö accepts access_token from frontend."""
++    """
++    Authenticate with a Google OAuth2 access_token.
++    """
+     access_token = request.data.get("token")
+     if not access_token:
+         return Response({"error": "token is required"}, status=status.HTTP_400_BAD_REQUEST)
+@@ -74,40 +84,53 @@ def google_login_view(request):
+     if google_resp.status_code != 200:
+         return Response({"error": "Invalid Google token"}, status=status.HTTP_401_UNAUTHORIZED)
+ 
+-    data = google_resp.json()
+-    email = data.get("email")
+-    google_id = data.get("sub")
+-    first_name = data.get("given_name", "")
+-    last_name = data.get("family_name", "")
++    google_data = google_resp.json()
++    email = google_data.get("email")
++    google_id = google_data.get("sub")
++    first_name = google_data.get("given_name", "")
++    last_name = google_data.get("family_name", "")
+ 
+     if not email:
+         return Response({"error": "Could not retrieve email from Google"}, status=status.HTTP_400_BAD_REQUEST)
+ 
+-    user, _ = User.objects.get_or_create(
++    user, created = User.objects.get_or_create(
+         email=email,
+         defaults={
+             "username": email,
+             "first_name": first_name,
+             "last_name": last_name,
+             "is_active": True,
++            "google_id": google_id,
+         },
+     )
++    
++    if not user.google_id:
++        user.google_id = google_id
++        update_fields = ["google_id"]
++        product = request.query_params.get("product") or request.data.get("product")
++        if product and not user.roles:
++            user.roles = {product: "student"}
++            update_fields.append("roles")
++        user.save(update_fields=update_fields)
++
++    token_serializer = CustomTokenObtainPairSerializer()
++    refresh = token_serializer.get_token(user)
++    
++    product = request.query_params.get("product") or request.data.get("product")
++    if product:
++        refresh["products"] = [product]
++    else:
++        refresh["products"] = ["ycode", "ylabs", "ycampus"]
++
++    return Response(
++        {
++            "user": UserSerializer(user).data,
++            "refresh": str(refresh),
++            "access": str(refresh.access_token),
++        },
++        status=status.HTTP_200_OK,
++    )
+ 
+-    # Store google_id on Profile ΓÇö never overwrite existing password
+-    profile, _ = Profile.objects.get_or_create(user=user)
+-    if not profile.google_id:
+-        profile.google_id = google_id
+-        profile.save(update_fields=["google_id"])
+-
+-    refresh = CustomTokenObtainPairSerializer.get_token(user)
+-    return Response({
+-        "user": UserSerializer(user).data,
+-        "refresh": str(refresh),
+-        "access": str(refresh.access_token),
+-    }, status=status.HTTP_200_OK)
+-
+-
+-# ΓöÇΓöÇ Register ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+ class UserRegistrationView(generics.CreateAPIView):
+     queryset = User.objects.all()
+@@ -119,15 +142,26 @@ class UserRegistrationView(generics.CreateAPIView):
+         serializer.is_valid(raise_exception=True)
+         user = serializer.save()
+ 
+-        refresh = CustomTokenObtainPairSerializer.get_token(user)
+-        return Response({
+-            "user": UserSerializer(user).data,
+-            "refresh": str(refresh),
+-            "access": str(refresh.access_token),
+-        }, status=status.HTTP_201_CREATED)
+-
++        token_serializer = CustomTokenObtainPairSerializer()
++        refresh = token_serializer.get_token(user)
++
++        product = request.query_params.get("product") or request.data.get("product")
++        if product:
++            user.roles = {product: "student"}
++            user.save(update_fields=["roles"])
++            refresh["products"] = [product]
++        else:
++            refresh["products"] = ["ycode", "ylabs", "ycampus"]
++
++        return Response(
++            {
++                "user": UserSerializer(user).data,
++                "refresh": str(refresh),
++                "access": str(refresh.access_token),
++            },
++            status=status.HTTP_201_CREATED,
++        )
+ 
+-# ΓöÇΓöÇ Logout ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+ @api_view(["POST"])
+ @permission_classes([IsAuthenticatedUser])
+@@ -135,16 +169,23 @@ def logout_view(request):
+     try:
+         refresh_token = request.data.get("refresh")
+         if not refresh_token:
+-            return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+-        RefreshToken(refresh_token).blacklist()
++            return Response(
++                {"error": "Refresh token is required."},
++                status=status.HTTP_400_BAD_REQUEST,
++            )
++
++        token = RefreshToken(refresh_token)
++        token.blacklist()
+         return Response({"message": "Successfully logged out."})
+     except TokenError as e:
+-        return Response({"error": f"Token error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
++        return Response(
++            {"error": f"Token error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
++        )
+     except Exception as e:
+-        return Response({"error": f"Logout failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+-
++        return Response(
++            {"error": f"Logout failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
++        )
+ 
+-# ΓöÇΓöÇ Token refresh ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+ class CustomTokenRefreshView(TokenRefreshView):
+     def post(self, request, *args, **kwargs):
+@@ -154,41 +195,14 @@ class CustomTokenRefreshView(TokenRefreshView):
+             raise InvalidToken(e.args[0])
+ 
+ 
+-# ΓöÇΓöÇ Current user ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+-
+ @api_view(["GET"])
+ @permission_classes([IsAuthenticatedUser])
+ def user_info_view(request):
+-    return Response(UserSerializer(request.user).data)
+-
+-
+-# ΓöÇΓöÇ Profile ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+-
+-class UserProfileView(generics.RetrieveUpdateAPIView):
+-    serializer_class = UserUpdateSerializer
+-    permission_classes = [IsAuthenticatedUser]
+-
+-    def get_object(self):
+-        return self.request.user
+-
+-
+-class ProfileDetailView(generics.RetrieveUpdateAPIView):
+-    serializer_class = ProfileSerializer
+-    permission_classes = [IsAuthenticatedUser]
+-
+-    def get_object(self):
+-        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+-        return profile
+-
+-    def update(self, request, *args, **kwargs):
+-        instance = self.get_object()
+-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+-        serializer.is_valid(raise_exception=True)
+-        return Response(ProfileSerializer(serializer.save()).data)
++    """Get current user information."""
++    serializer = UserSerializer(request.user)
++    return Response(serializer.data)
+ 
+ 
+-# ΓöÇΓöÇ Password reset ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+-
+ class ForgotPasswordView(generics.GenericAPIView):
+     permission_classes = [permissions.AllowAny]
+ 
+@@ -196,16 +210,17 @@ class ForgotPasswordView(generics.GenericAPIView):
+         email = request.data.get("email")
+         if not email:
+             return Response({"error": "Email is required"}, status=400)
++
+         try:
+             user = User.objects.get(email=email)
+         except User.DoesNotExist:
+-            return Response({"message": "If this email exists, a reset link will be sent."})
++            return Response(
++                {"message": "If this email exists, a reset link will be sent."}
++            )
+ 
+         token = PasswordResetTokenGenerator().make_token(user)
+         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+ 
+-        # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
+-        from urllib.parse import urlparse
+         origin = request.META.get("HTTP_ORIGIN")
+         if not origin:
+             referer = request.META.get("HTTP_REFERER")
+@@ -217,13 +232,28 @@ class ForgotPasswordView(generics.GenericAPIView):
+ 
+         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
+ 
++        from django.template.loader import render_to_string
++        context = {
++            "user": user,
++            "reset_link": reset_link,
++            "frontend_url": frontend_url,
++        }
++        try:
++            html_message = render_to_string("emails/password_reset.html", context)
++        except:
++            html_message = f"Click the link to reset your password: {reset_link}"
++
++        plain_message = f"Click the link to reset your password: {reset_link}"
++
+         send_mail(
+             subject="Password Reset Request",
+-            message=f"Click the link to reset your password: {reset_link}",
++            message=plain_message,
+             from_email=settings.DEFAULT_FROM_EMAIL,
+             recipient_list=[user.email],
++            html_message=html_message,
+             fail_silently=False,
+         )
++
+         return Response({"message": "If this email exists, a reset link will be sent."})
+ 
+ 
+@@ -234,14 +264,17 @@ class ResetPasswordView(generics.GenericAPIView):
+         password = request.data.get("password")
+         if not password:
+             return Response({"error": "Password is required"}, status=400)
++
+         try:
+             uid = force_str(urlsafe_base64_decode(uidb64))
+             user = User.objects.get(pk=uid)
+-        except Exception:
++        except:
+             return Response({"error": "Invalid reset link"}, status=400)
+ 
+         if not PasswordResetTokenGenerator().check_token(user, token):
+-            return Response({"error": "Reset link has expired or is invalid"}, status=400)
++            return Response(
++                {"error": "Reset link has expired or is invalid"}, status=400
++            )
+ 
+         try:
+             validate_password(password, user)
+@@ -250,65 +283,41 @@ class ResetPasswordView(generics.GenericAPIView):
+ 
+         user.set_password(password)
+         user.save()
++
+         return Response({"message": "Password reset successful. You may now login."})
+ 
+ 
+-# ΓöÇΓöÇ Admin: user management ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++@api_view(["POST"])
++@permission_classes([IsAuthenticatedUser])
++def change_password_view(request):
++    """Allow logged-in users to change their password."""
++    password = request.data.get("password")
++    if not password:
++        return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+ 
+-@api_view(["GET"])
+-@permission_classes([IsAdminUser])
+-def admin_users(request):
+-    admins = User.objects.filter(is_staff=True).values("id", "email", "username")
+-    return Response(list(admins))
++    first_name = request.data.get("first_name")
++    last_name = request.data.get("last_name")
+ 
++    user = request.user
+ 
+-class UsersPagination(PageNumberPagination):
+-    page_size = 20
+-    page_size_query_param = "page_size"
+-    max_page_size = 100
+-
+-
+-class UsersListCreateView(generics.ListCreateAPIView):
+-    queryset = User.objects.all().order_by("-date_joined")
+-    serializer_class = UserSerializer
+-    pagination_class = UsersPagination
+-    permission_classes = [IsAdminUser]
+-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+-    search_fields = ["username", "email", "first_name", "last_name"]
+-    ordering_fields = ["date_joined", "last_login", "username", "email"]
+-    ordering = ["-date_joined"]
+-
+-    def get_queryset(self):
+-        queryset = super().get_queryset()
+-        role = self.request.query_params.get("role")
+-        if role:
+-            queryset = queryset.filter(role=role)
+-        is_active = self.request.query_params.get("is_active")
+-        if is_active is not None:
+-            queryset = queryset.filter(is_active=is_active.lower() == "true")
+-        search = self.request.query_params.get("search")
+-        if search:
+-            queryset = queryset.filter(
+-                Q(username__icontains=search) | Q(email__icontains=search) |
+-                Q(first_name__icontains=search) | Q(last_name__icontains=search)
+-            )
+-        return queryset
++    try:
++        validate_password(password, user)
++    except ValidationError as e:
++        return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+ 
++    user.set_password(password)
++    if first_name:
++        user.first_name = first_name
++    if last_name:
++        user.last_name = last_name
+ 
+-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+-    queryset = User.objects.all()
+-    serializer_class = UserSerializer
+-    permission_classes = [IsAdminUser]
++    user.save()
+ 
++    return Response({"message": "Password changed successfully."})
+ 
+-class UserToggleStatusView(APIView):
+-    permission_classes = [IsAdminUser]
+ 
+-    def patch(self, request, pk):
+-        try:
+-            user = User.objects.get(pk=pk)
+-            user.is_active = not user.is_active
+-            user.save()
+-            return Response(UserSerializer(user).data)
+-        except User.DoesNotExist:
+-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
++@api_view(["GET"])
++@permission_classes([IsAdminUser])
++def admin_users(request):
++    admins = User.objects.filter(is_staff=True).values("id", "email", "username")
++    return Response(list(admins))
+diff --git a/yhub-backend-api/core/__init__.py b/yhub-backend-api/core/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/yhub-backend-api/core/management/__init__.py b/yhub-backend-api/core/management/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/yhub-backend-api/core/management/commands/__init__.py b/yhub-backend-api/core/management/commands/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/yhub-backend-api/core/management/commands/setup_fixtures_data.py b/yhub-backend-api/core/management/commands/setup_fixtures_data.py
+new file mode 100644
+index 00000000..a51a197e
+--- /dev/null
++++ b/yhub-backend-api/core/management/commands/setup_fixtures_data.py
+@@ -0,0 +1,63 @@
++from django.core.management.base import BaseCommand
++from django.core.management import call_command
++
++
++class Command(BaseCommand):
++    help = "Setup all mandatory fixture data for environment"
++
++    def add_arguments(self, parser):
++        parser.add_argument(
++            "--clear",
++            action="store_true",
++            help="Clear existing data before setting up (WARNING: This will delete existing data)",
++        )
++        parser.add_argument(
++            "--skip-migrations",
++            action="store_true",
++            help="Skip running migrations",
++        )
++        parser.add_argument(
++            "--deploy_env",
++            type=str,
++            default="dev",
++            choices=["local", "dev", "prod"],
++            help="Environment to load fixtures from: local, dev or prod",
++        )
++
++    def handle(self, *args, **options):
++        deploy_env = "dev" if options["deploy_env"] == "local" else options["deploy_env"]
++        self.stdout.write(
++            self.style.SUCCESS(f"≡ƒÜÇ Setting up YHub fixtures for {deploy_env}...\n")
++        )
++
++        try:
++            if not options["skip_migrations"]:
++                self.stdout.write("≡ƒôª Running database migrations...")
++                call_command("migrate", verbosity=0)
++                self.stdout.write(
++                    self.style.SUCCESS("Γ£ô Database migrations completed\n")
++                )
++
++            self.stdout.write("≡ƒæÑ Loading YHub test users...")
++            if options["clear"]:
++                call_command("create_test_users", "--clear", deploy_env=deploy_env, verbosity=1)
++            else:
++                call_command("create_test_users", deploy_env=deploy_env, verbosity=1)
++            self.stdout.write("")
++
++
++
++            self.stdout.write(
++                self.style.SUCCESS(
++                    "≡ƒÄë YHub setup completed successfully!"
++                )
++            )
++
++            self.stdout.write(self.style.SUCCESS("Γ£ô Test users created"))
++
++            self.stdout.write("")
++            self.stdout.write("≡ƒÜÇ You can now start testing the application!")
++
++        except Exception as e:
++            self.stdout.write(self.style.ERROR(f"Γ¥î Error during setup: {str(e)}"))
++            raise e
+diff --git a/yhub-backend-api/yhub-backend-api/settings.py b/yhub-backend-api/yhub-backend-api/settings.py
+index 1a43a9fc..b014e313 100644
+--- a/yhub-backend-api/yhub-backend-api/settings.py
++++ b/yhub-backend-api/yhub-backend-api/settings.py
+@@ -30,6 +30,7 @@ INSTALLED_APPS = [
+     "allauth.socialaccount",
+     "allauth.socialaccount.providers.google",
+     # Local ΓÇö auth only
++    "core",
+     "authentication",
+ ]
+ 
+@@ -114,7 +115,7 @@ SIMPLE_JWT = {
+     "BLACKLIST_AFTER_ROTATION": True,
+     "UPDATE_LAST_LOGIN": True,
+     "ALGORITHM": "HS256",
+-    "SIGNING_KEY": SECRET_KEY,
++    "SIGNING_KEY": config("JWT_SECRET_KEY", default=SECRET_KEY),
+     "AUTH_HEADER_TYPES": ("Bearer",),
+     "USER_ID_FIELD": "id",
+     "USER_ID_CLAIM": "user_id",
+diff --git a/ylabs-backend-api/.env.local b/ylabs-backend-api/.env.local
+index 652f93d1..ba991313 100644
+--- a/ylabs-backend-api/.env.local
++++ b/ylabs-backend-api/.env.local
+@@ -4,7 +4,7 @@ DEPLOY_ENV=local
+ DEPLOY_TYPE=docker
+ 
+ DEBUG=True
+-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
++ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,ylabs-backend
+ CORS_ALLOWED_ORIGINS=http://localhost:3002
+ 
+ SECRET_KEY=your-strong-secret-key-change-this
+diff --git a/ylabs-backend-api/authentication/__init__.py b/ylabs-backend-api/authentication/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/ylabs-backend-api/authentication/admin.py b/ylabs-backend-api/authentication/admin.py
+new file mode 100644
+index 00000000..4f5c49c5
+--- /dev/null
++++ b/ylabs-backend-api/authentication/admin.py
+@@ -0,0 +1,70 @@
++from django.contrib import admin
++from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
++from .models import (
++    User,
++    Profile,
++)
++
++
++@admin.register(User)
++class UserAdmin(BaseUserAdmin):
++    list_display = (
++        "email",
++        "username",
++        "first_name",
++        "last_name",
++        "role",
++        "is_staff",
++        "is_active",
++        "date_joined",
++    )
++    list_filter = ("role", "is_staff", "is_active", "date_joined")
++    search_fields = ("email", "username", "first_name", "last_name")
++    ordering = ("-date_joined",)
++
++    fieldsets = (
++        (None, {"fields": ("email", "username", "password")}),
++        ("Personal Info", {"fields": ("first_name", "last_name")}),
++        ("Role", {"fields": ("role",)}),
++        (
++            "Permissions",
++            {
++                "fields": (
++                    "is_active",
++                    "is_staff",
++                    "is_superuser",
++                    "groups",
++                    "user_permissions",
++                )
++            },
++        ),
++        ("Important Dates", {"fields": ("last_login", "date_joined")}),
++    )
++
++    add_fieldsets = (
++        (
++            None,
++            {
++                "classes": ("wide",),
++                "fields": ("email", "username", "role", "password1", "password2"),
++            },
++        ),
++    )
++
++
++@admin.register(Profile)
++class ProfileAdmin(admin.ModelAdmin):
++    list_display = ("user", "full_name", "title", "location", "gender", "created_at")
++    search_fields = ("user__email", "user__username", "full_name", "title", "location")
++    readonly_fields = ("created_at", "updated_at")
++
++    fieldsets = (
++        (None, {"fields": ("user",)}),
++        ("Profile Media", {"fields": ("profile_image", "cover_image")}),
++        (
++            "Personal Info",
++            {"fields": ("full_name", "title", "location", "about", "gender")},
++        ),
++        ("OAuth Info", {"fields": ("google_id",)}),
++        ("Timestamps", {"fields": ("created_at", "updated_at")}),
++    )
+diff --git a/ylabs-backend-api/authentication/apps.py b/ylabs-backend-api/authentication/apps.py
+new file mode 100644
+index 00000000..356a3a9c
+--- /dev/null
++++ b/ylabs-backend-api/authentication/apps.py
+@@ -0,0 +1,10 @@
++from django.apps import AppConfig
++
++
++class AuthenticationConfig(AppConfig):
++    default_auto_field = "django.db.models.BigAutoField"
++    name = "authentication"
++
++
++    def ready(self):
++        import authentication.signals
+diff --git a/ylabs-backend-api/authentication/management/__init__.py b/ylabs-backend-api/authentication/management/__init__.py
+new file mode 100644
+index 00000000..65cb83ac
+--- /dev/null
++++ b/ylabs-backend-api/authentication/management/__init__.py
+@@ -0,0 +1 @@
++# Management commands package
+diff --git a/ylabs-backend-api/authentication/management/commands/__init__.py b/ylabs-backend-api/authentication/management/commands/__init__.py
+new file mode 100644
+index 00000000..2c1c7c15
+--- /dev/null
++++ b/ylabs-backend-api/authentication/management/commands/__init__.py
+@@ -0,0 +1 @@
++# Management commands
+diff --git a/ylabs-backend-api/authentication/migrations/0001_initial.py b/ylabs-backend-api/authentication/migrations/0001_initial.py
+new file mode 100644
+index 00000000..ab995903
+--- /dev/null
++++ b/ylabs-backend-api/authentication/migrations/0001_initial.py
+@@ -0,0 +1,284 @@
++# Generated by Django 5.1.5 on 2026-06-29 18:13
++
++import django.contrib.auth.models
++import django.db.models.deletion
++import django.utils.timezone
++import uuid
++from django.conf import settings
++from django.db import migrations, models
++
++
++class Migration(migrations.Migration):
++
++    initial = True
++
++    dependencies = [
++        ("auth", "0012_alter_user_first_name_max_length"),
++    ]
++
++    operations = [
++        migrations.CreateModel(
++            name="College",
++            fields=[
++                (
++                    "id",
++                    models.UUIDField(
++                        default=uuid.uuid4,
++                        editable=False,
++                        primary_key=True,
++                        serialize=False,
++                    ),
++                ),
++                ("name", models.CharField(max_length=255, unique=True)),
++                (
++                    "verification_status",
++                    models.CharField(
++                        choices=[
++                            ("pending", "Pending"),
++                            ("approved", "Approved"),
++                            ("rejected", "Rejected"),
++                        ],
++                        default="pending",
++                        max_length=20,
++                    ),
++                ),
++                ("created_at", models.DateTimeField(auto_now_add=True)),
++                ("updated_at", models.DateTimeField(auto_now=True)),
++            ],
++        ),
++        migrations.CreateModel(
++            name="Department",
++            fields=[
++                (
++                    "id",
++                    models.UUIDField(
++                        default=uuid.uuid4,
++                        editable=False,
++                        primary_key=True,
++                        serialize=False,
++                    ),
++                ),
++                ("name", models.CharField(max_length=255, unique=True)),
++                (
++                    "verification_status",
++                    models.CharField(
++                        choices=[
++                            ("pending", "Pending"),
++                            ("approved", "Approved"),
++                            ("rejected", "Rejected"),
++                        ],
++                        default="approved",
++                        max_length=20,
++                    ),
++                ),
++                ("created_at", models.DateTimeField(auto_now_add=True)),
++                ("updated_at", models.DateTimeField(auto_now=True)),
++            ],
++        ),
++        migrations.CreateModel(
++            name="User",
++            fields=[
++                ("password", models.CharField(max_length=128, verbose_name="password")),
++                (
++                    "last_login",
++                    models.DateTimeField(
++                        blank=True, null=True, verbose_name="last login"
++                    ),
++                ),
++                (
++                    "is_superuser",
++                    models.BooleanField(
++                        default=False,
++                        help_text="Designates that this user has all permissions without explicitly assigning them.",
++                        verbose_name="superuser status",
++                    ),
++                ),
++                (
++                    "first_name",
++                    models.CharField(
++                        blank=True, max_length=150, verbose_name="first name"
++                    ),
++                ),
++                (
++                    "last_name",
++                    models.CharField(
++                        blank=True, max_length=150, verbose_name="last name"
++                    ),
++                ),
++                (
++                    "is_staff",
++                    models.BooleanField(
++                        default=False,
++                        help_text="Designates whether the user can log into this admin site.",
++                        verbose_name="staff status",
++                    ),
++                ),
++                (
++                    "is_active",
++                    models.BooleanField(
++                        default=True,
++                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
++                        verbose_name="active",
++                    ),
++                ),
++                (
++                    "date_joined",
++                    models.DateTimeField(
++                        default=django.utils.timezone.now, verbose_name="date joined"
++                    ),
++                ),
++                (
++                    "id",
++                    models.UUIDField(
++                        default=uuid.uuid4,
++                        editable=False,
++                        primary_key=True,
++                        serialize=False,
++                    ),
++                ),
++                ("email", models.EmailField(max_length=254, unique=True)),
++                ("username", models.CharField(max_length=150, unique=True)),
++                (
++                    "role",
++                    models.CharField(
++                        choices=[
++                            ("student", "Student"),
++                            ("developer", "Developer"),
++                            ("admin", "Administrator"),
++                        ],
++                        default="student",
++                        max_length=20,
++                    ),
++                ),
++                (
++                    "groups",
++                    models.ManyToManyField(
++                        blank=True,
++                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
++                        related_name="user_set",
++                        related_query_name="user",
++                        to="auth.group",
++                        verbose_name="groups",
++                    ),
++                ),
++                (
++                    "user_permissions",
++                    models.ManyToManyField(
++                        blank=True,
++                        help_text="Specific permissions for this user.",
++                        related_name="user_set",
++                        related_query_name="user",
++                        to="auth.permission",
++                        verbose_name="user permissions",
++                    ),
++                ),
++            ],
++            options={
++                "verbose_name": "user",
++                "verbose_name_plural": "users",
++                "abstract": False,
++            },
++            managers=[
++                ("objects", django.contrib.auth.models.UserManager()),
++            ],
++        ),
++        migrations.CreateModel(
++            name="Profile",
++            fields=[
++                (
++                    "id",
++                    models.UUIDField(
++                        default=uuid.uuid4,
++                        editable=False,
++                        primary_key=True,
++                        serialize=False,
++                    ),
++                ),
++                ("profile_image", models.URLField(blank=True, null=True)),
++                ("cover_image", models.URLField(blank=True, null=True)),
++                ("full_name", models.CharField(blank=True, max_length=200, null=True)),
++                ("title", models.CharField(blank=True, max_length=200, null=True)),
++                ("location", models.CharField(blank=True, max_length=200, null=True)),
++                (
++                    "college_other",
++                    models.CharField(
++                        blank=True,
++                        help_text="Free-text college name when student's college is not in verified list",
++                        max_length=255,
++                        null=True,
++                    ),
++                ),
++                (
++                    "department_other",
++                    models.CharField(
++                        blank=True,
++                        help_text="Free-text department name when student's department is not in verified list",
++                        max_length=255,
++                        null=True,
++                    ),
++                ),
++                ("student_id", models.CharField(blank=True, max_length=100, null=True)),
++                ("id_card_image", models.URLField(blank=True, null=True)),
++                (
++                    "google_id",
++                    models.CharField(
++                        blank=True, max_length=100, null=True, unique=True
++                    ),
++                ),
++                ("about", models.TextField(blank=True, null=True)),
++                (
++                    "gender",
++                    models.CharField(
++                        blank=True,
++                        choices=[
++                            ("male", "Male"),
++                            ("female", "Female"),
++                            ("other", "Other"),
++                            ("prefer_not_to_say", "Prefer not to say"),
++                        ],
++                        max_length=20,
++                        null=True,
++                    ),
++                ),
++                ("created_at", models.DateTimeField(auto_now_add=True)),
++                ("updated_at", models.DateTimeField(auto_now=True)),
++                (
++                    "resume_config",
++                    models.JSONField(
++                        blank=True,
++                        default=dict,
++                        help_text="Resume builder configuration: template, typography, colors, section order, etc.",
++                        null=True,
++                    ),
++                ),
++                (
++                    "college",
++                    models.ForeignKey(
++                        blank=True,
++                        null=True,
++                        on_delete=django.db.models.deletion.SET_NULL,
++                        related_name="students",
++                        to="authentication.college",
++                    ),
++                ),
++                (
++                    "department",
++                    models.ForeignKey(
++                        blank=True,
++                        null=True,
++                        on_delete=django.db.models.deletion.SET_NULL,
++                        related_name="students",
++                        to="authentication.department",
++                    ),
++                ),
++                (
++                    "user",
++                    models.OneToOneField(
++                        on_delete=django.db.models.deletion.CASCADE,
++                        related_name="profile",
++                        to=settings.AUTH_USER_MODEL,
++                    ),
++                ),
++            ],
++        ),
++    ]
+diff --git a/ylabs-backend-api/authentication/migrations/__init__.py b/ylabs-backend-api/authentication/migrations/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/ylabs-backend-api/authentication/models.py b/ylabs-backend-api/authentication/models.py
+new file mode 100644
+index 00000000..c7e05ca8
+--- /dev/null
++++ b/ylabs-backend-api/authentication/models.py
+@@ -0,0 +1,116 @@
++import uuid
++from django.contrib.auth.models import AbstractUser
++from django.db import models
++
++
++class User(AbstractUser):
++    ROLE_CHOICES = [
++        ("student", "Student"),
++        ("developer", "Developer"),
++        ("admin", "Administrator"),
++    ]
++
++    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
++    email = models.EmailField(unique=True)
++    username = models.CharField(max_length=150, unique=True)
++    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="student")
++
++    USERNAME_FIELD = "email"
++    REQUIRED_FIELDS = ["username"]
++
++    def __str__(self):
++        return self.email
++
++    def is_admin(self):
++        return self.role == "admin"
++
++    def is_developer(self):
++        return self.role == "developer"
++
++    def is_student(self):
++        return self.role == "student"
++
++    def can_manage_content(self):
++        return self.role in ["admin", "developer"]
++
++    def can_manage_users(self):
++        return self.role == "admin"
++
++    def save(self, *args, **kwargs):
++        if self.is_superuser:
++            self.role = "admin"
++        super().save(*args, **kwargs)
++
++
++class College(models.Model):
++    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
++    name = models.CharField(max_length=255, unique=True)
++    verification_status = models.CharField(
++        max_length=20,
++        choices=[("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")],
++        default="pending"
++    )
++    created_at = models.DateTimeField(auto_now_add=True)
++    updated_at = models.DateTimeField(auto_now=True)
++
++    def __str__(self):
++        return self.name
++
++
++class Department(models.Model):
++    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
++    name = models.CharField(max_length=255, unique=True)
++    verification_status = models.CharField(
++        max_length=20,
++        choices=[("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")],
++        default="approved"
++    )
++    created_at = models.DateTimeField(auto_now_add=True)
++    updated_at = models.DateTimeField(auto_now=True)
++
++    def __str__(self):
++        return self.name
++
++
++class Profile(models.Model):
++    GENDER_CHOICES = [
++        ("male", "Male"),
++        ("female", "Female"),
++        ("other", "Other"),
++        ("prefer_not_to_say", "Prefer not to say"),
++    ]
++
++    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
++    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
++
++    profile_image = models.URLField(blank=True, null=True)
++    cover_image = models.URLField(blank=True, null=True)
++
++    full_name = models.CharField(max_length=200, blank=True, null=True)
++    title = models.CharField(max_length=200, blank=True, null=True)
++    location = models.CharField(max_length=200, blank=True, null=True)
++
++    college = models.ForeignKey(College, on_delete=models.SET_NULL, null=True, blank=True, related_name="students")
++    college_other = models.CharField(max_length=255, blank=True, null=True, help_text="Free-text college name when student's college is not in verified list")
++    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="students")
++    department_other = models.CharField(max_length=255, blank=True, null=True, help_text="Free-text department name when student's department is not in verified list")
++    student_id = models.CharField(max_length=100, blank=True, null=True)
++    id_card_image = models.URLField(blank=True, null=True)
++
++    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
++    about = models.TextField(blank=True, null=True)
++    gender = models.CharField(
++        max_length=20, choices=GENDER_CHOICES, blank=True, null=True
++    )
++    created_at = models.DateTimeField(auto_now_add=True)
++    updated_at = models.DateTimeField(auto_now=True)
++
++    resume_config = models.JSONField(
++        default=dict,
++        blank=True,
++        null=True,
++        help_text="Resume builder configuration: template, typography, colors, section order, etc."
++    )
++
++    def __str__(self):
++        return f"{self.user.email}'s Profile"
+diff --git a/ylabs-backend-api/authentication/permissions.py b/ylabs-backend-api/authentication/permissions.py
+new file mode 100644
+index 00000000..7cb64d9d
+--- /dev/null
++++ b/ylabs-backend-api/authentication/permissions.py
+@@ -0,0 +1,276 @@
++from rest_framework import permissions
++from rest_framework.permissions import BasePermission, SAFE_METHODS
++
++# ============================================================================
++# Base Permission Classes
++# ============================================================================
++
++
++class IsAdminUser(BasePermission):
++    """
++    Permission class that allows access only to admin users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user and request.user.is_authenticated and request.user.is_admin()
++        )
++
++
++class IsAuthenticatedUser(BasePermission):
++    """
++    Permission class that allows access only to authenticated users.
++    """
++
++    def has_permission(self, request, view):
++        return request.user and request.user.is_authenticated
++
++
++# ============================================================================
++# Role-Based Permission Classes
++# ============================================================================
++
++
++class IsInstructorOrAdmin(BasePermission):
++    """
++    Permission class that allows access to instructors and admins.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and (request.user.is_instructor() or request.user.is_admin())
++        )
++
++
++class IsStudentUser(BasePermission):
++    """
++    Permission class that allows access only to student users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user and request.user.is_authenticated and request.user.is_student()
++        )
++
++
++class IsRecruiterUser(BasePermission):
++    """
++    Permission class that allows access only to recruiter users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and request.user.is_recruiter()
++        )
++
++
++class ReadOnlyPermission(BasePermission):
++    """
++    Permission class that allows only read operations.
++    """
++
++    def has_permission(self, request, view):
++        return request.method in SAFE_METHODS
++
++
++class IsAuthenticatedOrReadOnly(BasePermission):
++    """
++    Permission class that allows read access to everyone,
++    but write access only to authenticated users.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++        return request.user and request.user.is_authenticated
++
++
++# ============================================================================
++# Object-Level Permission Classes
++# ============================================================================
++
++
++class IsOwnerOrAdmin(BasePermission):
++    """
++    Permission class that allows access to the owner of the object or admin users.
++    """
++
++    def has_permission(self, request, view):
++        return request.user and request.user.is_authenticated
++
++    def has_object_permission(self, request, view, obj):
++        # Admin users have full access
++        if request.user.is_admin():
++            return True
++
++        # Check if the object has a user field (for user-owned objects)
++        if hasattr(obj, "user"):
++            return obj.user == request.user
++
++        # Check if the object has a created_by field
++        if hasattr(obj, "created_by"):
++            return obj.created_by == request.user
++
++        # Check if the object is the user itself
++        if hasattr(obj, "id") and hasattr(request.user, "id"):
++            return obj.id == request.user.id
++
++        return False
++
++
++class IsOwnerOrReadOnly(BasePermission):
++    """
++    Custom permission to only allow owners of an object to edit it.
++    Read permissions are allowed to any request,
++    so we'll always allow GET, HEAD or OPTIONS requests.
++    """
++
++    def has_object_permission(self, request, view, obj):
++        # Read permissions are allowed to any request,
++        # so we'll always allow GET, HEAD or OPTIONS requests.
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions are only allowed to the owner of the object.
++        return obj.user == request.user
++
++
++# ============================================================================
++# Content Management Permission Classes
++# ============================================================================
++
++
++class CanManageContent(BasePermission):
++    """
++    Permission class for content management operations.
++    Allows content admins and admins to create/update/delete content.
++    Students can only read.
++    """
++
++    def has_permission(self, request, view):
++        if not request.user or not request.user.is_authenticated:
++            return False
++
++        # Read permissions for all authenticated users
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions only for instructors and admins
++        return request.user.can_manage_content()
++
++
++class CanManageCourses(BasePermission):
++    """
++    Permission class for course management operations.
++    Allows instructors and admins to manage courses.
++    """
++
++    def has_permission(self, request, view):
++        if not request.user or not request.user.is_authenticated:
++            return False
++
++        # Read permissions for all authenticated users
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Write permissions only for instructors and admins
++        return (
++            request.user.is_instructor()
++            or request.user.is_admin()
++            or request.user.can_manage_content()
++        )
++
++
++class CanManageUsers(BasePermission):
++    """
++    Permission class for user management operations.
++    Only admins can manage users.
++    """
++
++    def has_permission(self, request, view):
++        return (
++            request.user
++            and request.user.is_authenticated
++            and request.user.can_manage_users()
++        )
++
++
++# ============================================================================
++# Job-Related Permission Classes
++# ============================================================================
++
++
++class IsHRorReadOnly(BasePermission):
++    """
++    Permission class for HR operations.
++    Allows read access to everyone, write access only to HR staff.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++        return request.user and request.user.is_staff
++
++
++# ============================================================================
++# Combined Permission Classes
++# ============================================================================
++
++
++class IsInstructorOrAdminOrReadOnly(BasePermission):
++    """
++    Permission class that allows read access to everyone,
++    but write access only to instructors and admins.
++    """
++
++    def has_permission(self, request, view):
++        if request.method in SAFE_METHODS:
++            return True
++
++        return (
++            request.user
++            and request.user.is_authenticated
++            and (request.user.is_admin() or request.user.is_instructor())
++        )
++
++
++class IsOwnerOrInstructorOrAdmin(BasePermission):
++    """
++    Permission class that allows access to:
++    - Object owners
++    - Instructors (for content they can manage)
++    - Admins (full access)
++    """
++
++    def has_permission(self, request, view):
++        return request.user and request.user.is_authenticated
++
++    def has_object_permission(self, request, view, obj):
++        # Safe methods: GET, HEAD, OPTIONS
++        if request.method in SAFE_METHODS:
++            return True
++
++        # Admin users have full access
++        if (
++            request.user.is_admin()
++            or request.user.is_staff
++            or request.user.is_superuser
++        ):
++            return True
++
++        # Instructors have access to content management
++        if request.user.is_instructor():
++            return True
++
++        # Check ownership
++        if hasattr(obj, "created_by"):
++            return obj.created_by == request.user
++
++        if hasattr(obj, "user"):
++            return obj.user == request.user
++
++        return False
+diff --git a/ylabs-backend-api/authentication/serializers.py b/ylabs-backend-api/authentication/serializers.py
+new file mode 100644
+index 00000000..001c2edb
+--- /dev/null
++++ b/ylabs-backend-api/authentication/serializers.py
+@@ -0,0 +1,128 @@
++from rest_framework import serializers
++from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
++
++from .models import (
++    User,
++    College,
++    Department,
++)
++
++class DepartmentSerializer(serializers.ModelSerializer):
++    class Meta:
++        model = Department
++        fields = ["id", "name", "verification_status", "created_at"]
++        read_only_fields = ["id", "created_at"]
++
++
++class CollegeSerializer(serializers.ModelSerializer):
++    class Meta:
++        model = College
++        fields = ["id", "name", "verification_status", "created_at"]
++        read_only_fields = ["id", "created_at", "verification_status"]
++
++
++class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
++    @classmethod
++    def get_token(cls, user):
++        token = super().get_token(user)
++
++        # Add custom claims
++        token["role"] = user.role
++        token["username"] = user.username
++        token["email"] = user.email
++        token["first_name"] = user.first_name
++        token["last_name"] = user.last_name
++
++        return token
++
++
++class UserSerializer(serializers.ModelSerializer):
++    class Meta:
++        model = User
++        fields = [
++            "id",
++            "username",
++            "email",
++            "first_name",
++            "last_name",
++            "role",
++            "is_active",
++            "date_joined",
++            "last_login",
++        ]
++        read_only_fields = ["id", "date_joined", "last_login"]
++
++
++class UserLoginSerializer(serializers.Serializer):
++    email = serializers.EmailField()
++    password = serializers.CharField(write_only=True)
++
++    def validate(self, attrs):
++        from django.contrib.auth import authenticate
++
++        email = attrs.get("email")
++        password = attrs.get("password")
++
++        if email and password:
++            user = authenticate(username=email, password=password)
++            if user:
++                if not user.is_active:
++                    raise serializers.ValidationError("User account is disabled.")
++                attrs["user"] = user
++                return attrs
++            else:
++                raise serializers.ValidationError("Invalid email or password.")
++        else:
++            raise serializers.ValidationError("Must include email and password.")
++
++
++class UserRegistrationSerializer(serializers.ModelSerializer):
++    password = serializers.CharField(write_only=True, min_length=8)
++    password_confirm = serializers.CharField(write_only=True)
++
++    class Meta:
++        model = User
++        fields = [
++            "username",
++            "email",
++            "password",
++            "password_confirm",
++            "first_name",
++            "last_name",
++            "role",
++        ]
++
++    def validate(self, attrs):
++        if attrs["password"] != attrs["password_confirm"]:
++            raise serializers.ValidationError("Passwords don't match.")
++        return attrs
++
++    def validate_role(self, value):
++        allowed_roles = ["student"]
++        if value not in allowed_roles:
++            raise serializers.ValidationError(
++                f"Invalid role. Allowed roles for registration: {', '.join(allowed_roles)}"
++            )
++        return value
++
++    def create(self, validated_data):
++        validated_data.pop("password_confirm")
++        password = validated_data.pop("password")
++        user = User.objects.create_user(password=password, **validated_data)
++        return user
++
++
++class UserUpdateSerializer(serializers.ModelSerializer):
++    class Meta:
++        model = User
++        fields = ["username", "email", "first_name", "last_name", "role"]
++
++    def validate_role(self, value):
++        request = self.context.get("request")
++        if request and request.user:
++            if not request.user.can_manage_users():
++                if self.instance and self.instance.role != value:
++                    raise serializers.ValidationError(
++                        "You don't have permission to change user roles."
++                    )
++        return value
+diff --git a/yhub-backend-api/authentication/signals.py b/ylabs-backend-api/authentication/signals.py
+similarity index 93%
+rename from yhub-backend-api/authentication/signals.py
+rename to ylabs-backend-api/authentication/signals.py
+index 183babc5..875aac5e 100644
+--- a/yhub-backend-api/authentication/signals.py
++++ b/ylabs-backend-api/authentication/signals.py
+@@ -1,7 +1,8 @@
+ from django.db.models.signals import post_save
+ from django.dispatch import receiver
+-from django.contrib.auth import get_user_model
++from django.conf import settings
+ from .models import Profile
++from django.contrib.auth import get_user_model
+ 
+ User = get_user_model()
+ 
+diff --git a/ylabs-backend-api/authentication/tests.py b/ylabs-backend-api/authentication/tests.py
+new file mode 100644
+index 00000000..7ce503c2
+--- /dev/null
++++ b/ylabs-backend-api/authentication/tests.py
+@@ -0,0 +1,3 @@
++from django.test import TestCase
++
++# Create your tests here.
+diff --git a/ylabs-backend-api/authentication/urls.py b/ylabs-backend-api/authentication/urls.py
+new file mode 100644
+index 00000000..42ade024
+--- /dev/null
++++ b/ylabs-backend-api/authentication/urls.py
+@@ -0,0 +1,9 @@
++from django.urls import path
++from . import views
++
++app_name = "authentication"
++
++urlpatterns = [
++    path("user/", views.user_info_view, name="user_info"),
++    path("sync-shadow-user/", views.sync_shadow_user, name="sync_shadow_user"),
++]
+diff --git a/ylabs-backend-api/authentication/views.py b/ylabs-backend-api/authentication/views.py
+new file mode 100644
+index 00000000..2dd6a66a
+--- /dev/null
++++ b/ylabs-backend-api/authentication/views.py
+@@ -0,0 +1,70 @@
++from rest_framework import status
++from rest_framework.response import Response
++from rest_framework.decorators import api_view, permission_classes
++from rest_framework.permissions import IsAuthenticated
++from .permissions import IsAdminUser
++from django.contrib.auth import get_user_model
++from .serializers import UserSerializer
++
++User = get_user_model()
++
++@api_view(['GET'])
++@permission_classes([IsAuthenticated])
++def user_info_view(request):
++    """Get current user information."""
++    serializer = UserSerializer(request.user)
++    return Response(serializer.data)
++
++
++@api_view(["POST"])
++@permission_classes([IsAuthenticated, IsAdminUser])
++def sync_shadow_user(request):
++    """
++    Sync a shadow user from YHub. Requires Admin access (via ProductJWTAuthentication).
++    """
++    data = request.data
++    user_id = data.get("id")
++    if not user_id:
++        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
++
++    email = data.get("email", "")
++    username = data.get("username", email or str(user_id))
++    first_name = data.get("first_name", "")
++    last_name = data.get("last_name", "")
++    roles = data.get("roles", {})
++    password_hash = data.get("password_hash")
++    is_active = data.get("is_active", True)
++    
++    local_role = roles.get("ylabs", "student")
++
++    defaults = {
++        "username": username,
++        "email": email,
++        "first_name": first_name,
++        "last_name": last_name,
++        "role": local_role,
++        "is_active": is_active,
++        "is_staff": (local_role == "admin"),
++        "is_superuser": (local_role == "admin"),
++    }
++
++    existing_user = User.objects.filter(email=email).first()
++    if existing_user and str(existing_user.id) != str(user_id):
++        # Since YHub is the IdP, if we find a local user with the same email 
++        # but a different UUID (e.g., from an old fixture), we remove the old 
++        # local user so the new YHub user can be created seamlessly.
++        existing_user.delete()
++
++    user, created = User.objects.update_or_create(
++        id=user_id,
++        defaults=defaults
++    )
++
++    if password_hash:
++        # Save the hashed password directly so they can login to Django admin if they are admin
++        user.password = password_hash
++        user.save(update_fields=["password"])
++    else:
++        user.set_unusable_password()
++
++    return Response({"status": "success", "created": created})
+diff --git a/ylabs-backend-api/core/__init__.py b/ylabs-backend-api/core/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/ylabs-backend-api/core/yuvro_middleware.py b/ylabs-backend-api/core/yuvro_middleware.py
+new file mode 100644
+index 00000000..0f20ac19
+--- /dev/null
++++ b/ylabs-backend-api/core/yuvro_middleware.py
+@@ -0,0 +1,68 @@
++from rest_framework_simplejwt.authentication import JWTAuthentication
++from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
++from django.contrib.auth import get_user_model
++from rest_framework_simplejwt.settings import api_settings
++from authentication.models import Profile
++
++User = get_user_model()
++
++class ProductJWTAuthentication(JWTAuthentication):
++    def authenticate(self, request):
++        header = self.get_header(request)
++        if header is None:
++            return None
++
++        raw_token = self.get_raw_token(header)
++        if raw_token is None:
++            return None
++
++        validated_token = self.get_validated_token(raw_token)
++
++        products = validated_token.get("products", [])
++        if "ylabs" not in products:
++            raise AuthenticationFailed("Token is not valid for this product.")
++
++        user = self.get_user(validated_token)
++        return user, validated_token
++
++    def get_user(self, validated_token):
++        """
++        Attempts to find and return a user using the given validated token.
++        If the user does not exist, it creates a shadow user.
++        """
++        try:
++            user_id = validated_token[api_settings.USER_ID_CLAIM]
++        except KeyError:
++            raise InvalidToken("Token contained no recognizable user identification")
++
++        try:
++            user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
++        except User.DoesNotExist:
++            username = validated_token.get("username", str(user_id))
++            email = validated_token.get("email", "")
++            
++            roles = validated_token.get("roles", {})
++            local_role = roles.get("ylabs", "student")
++
++            user = User(
++                **{api_settings.USER_ID_FIELD: user_id},
++                username=username,
++                email=email,
++                first_name=validated_token.get("first_name", ""),
++                last_name=validated_token.get("last_name", ""),
++                role=local_role,
++                is_active=True,
++                is_staff=(local_role == "admin"),
++                is_superuser=(local_role == "admin"),
++            )
++            user.set_unusable_password()
++            
++            # Do not persist the internal sync user to the database
++            if email != "admin_sync@yhub.internal":
++                user.save()
++                Profile.objects.get_or_create(user=user)
++
++        if not user.is_active:
++            raise AuthenticationFailed("User is inactive", code="user_inactive")
++
++        return user
+diff --git a/ylabs-backend-api/ylabs-backend-api/settings.py b/ylabs-backend-api/ylabs-backend-api/settings.py
+index 594cea11..7234e05f 100644
+--- a/ylabs-backend-api/ylabs-backend-api/settings.py
++++ b/ylabs-backend-api/ylabs-backend-api/settings.py
+@@ -29,6 +29,7 @@ INSTALLED_APPS = [
+     "allauth.account",
+     "allauth.socialaccount",
+     "allauth.socialaccount.providers.google",
++    "authentication",
+ ]
+ 
+ MIDDLEWARE = [
+@@ -88,7 +89,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+ 
+ REST_FRAMEWORK = {
+     "DEFAULT_AUTHENTICATION_CLASSES": [
+-        "rest_framework_simplejwt.authentication.JWTAuthentication",
++        "core.yuvro_middleware.ProductJWTAuthentication",
+     ],
+     "DEFAULT_PERMISSION_CLASSES": [
+         "rest_framework.permissions.IsAuthenticated",
+@@ -110,12 +111,11 @@ SIMPLE_JWT = {
+     "BLACKLIST_AFTER_ROTATION": True,
+     "UPDATE_LAST_LOGIN": True,
+     "ALGORITHM": "HS256",
+-    "SIGNING_KEY": SECRET_KEY,
++    "SIGNING_KEY": config("JWT_SECRET_KEY", default=SECRET_KEY),
+     "AUTH_HEADER_TYPES": ("Bearer",),
+     "USER_ID_FIELD": "id",
+     "USER_ID_CLAIM": "user_id",
+     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+-    "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.CustomTokenObtainPairSerializer",
+ }
+ 
+ CORS_ALLOW_ALL_ORIGINS = True
+@@ -180,3 +180,5 @@ SPECTACULAR_SETTINGS = {
+     "SERVE_INCLUDE_SCHEMA": False,
+     "SCHEMA_PATH_PREFIX": "/api/",
+ }
++
++AUTH_USER_MODEL = "authentication.User"
+diff --git a/ylabs-backend-api/ylabs-backend-api/urls.py b/ylabs-backend-api/ylabs-backend-api/urls.py
+index 01080c4b..fc4ca8a3 100644
+--- a/ylabs-backend-api/ylabs-backend-api/urls.py
++++ b/ylabs-backend-api/ylabs-backend-api/urls.py
+@@ -13,7 +13,6 @@ from django.conf.urls.static import static
+ def health_check(request):
+     return JsonResponse({"status": "healthy", "service": "ylabs-backend-api"})
+ 
+-
+ urlpatterns = [
+     path("admin/", admin.site.urls),
+     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+@@ -21,6 +20,7 @@ urlpatterns = [
+     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+     path("api/health/", health_check, name="health_check"),
+     path("accounts/", include("allauth.urls")),
++    path("api/auth/", include("authentication.urls")),
+ ]
+ 
+ if settings.DEBUG:

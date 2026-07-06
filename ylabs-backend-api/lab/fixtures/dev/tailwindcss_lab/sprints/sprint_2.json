@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 2 - Interactivity, States & Dark Mode",
+  "description": "",
+  "order_index": 2,
+  "lab_title": "Tailwind CSS Lab",
+  "tickets": [
+    {
+      "title": "Interactive Form Controls",
+      "ticket_slug": "tailwind-2-1-1",
+      "description": "Styles an input field and button that react smoothly to user focus and hover interactions. ",
+      "tasks": [
+        "Styles an input field and button that react smoothly to user focus and hover interactions."
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"focus:ring-2\")` `check_class_used(\"hover:bg-indigo-700\")` `check_class_used(\"transition-colors\")` **[A] Visual (40 pts)**: 40 pts if the focus ring activates cleanly without layout shift. **[B] Logic (40 pts)**: 40 pts for implementing `focus:`, `hover:`, and `active:` variants. **[C] Quality (10 pts)**: 10 pts for adding `transition` classes for smooth state changes. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Don't write custom CSS. Check the Tailwind documentation for the correct utility class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <form class=\"space-y-4 max-w-sm\">\n            <input \n              type=\"email\" \n              placeholder=\"Email address\" \n              class=\"w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200\"\n            >\n            <button class=\"w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors duration-200\">\n              Sign In\n            </button>\n          </form>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 120,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Dark Mode Toggle",
+      "ticket_slug": "tailwind-2-1-2",
+      "description": "Implements the `dark:` variant across typography and backgrounds, assuming dark mode is toggled via a `.dark` class on the `<html>` tag. ",
+      "tasks": [
+        "Implements the `dark:` variant across typography and backgrounds, assuming dark mode is toggled via a `.dark` class on the `<html>` tag."
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"dark:bg-slate-900\")` `check_class_used(\"dark:text-white\")` **[B] Logic (80 pts)**: 80 pts for comprehensive inclusion of `dark:` variants on text, borders, and backgrounds. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Don't write custom CSS. Check the Tailwind documentation for the correct utility class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"bg-white dark:bg-slate-900 min-h-screen p-8 transition-colors duration-300\">\n            <h1 class=\"text-slate-900 dark:text-white text-3xl font-bold\">Dashboard</h1>\n            <div class=\"mt-6 bg-slate-100 dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700\">\n              <p class=\"text-slate-600 dark:text-slate-300\">\n                Your analytics are looking great today.\n              </p>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 130,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

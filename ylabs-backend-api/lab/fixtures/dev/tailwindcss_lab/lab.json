@@ -1,0 +1,19 @@
+{
+  "labs": [
+    {
+      "title": "Tailwind CSS Lab",
+      "type": "FRONTEND",
+      "description": "Master utility-first styling by building pixel-perfect designs with Tailwind CSS.",
+      "difficulty": "EASY",
+      "icon": "tailwind",
+      "prerequisites": "HTML, CSS",
+      "skills": [
+        "Tailwind CSS",
+        "Responsive Design",
+        "Utility-First CSS"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

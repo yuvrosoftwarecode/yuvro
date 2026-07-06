@@ -14477,7 +14477,7 @@
                     "expected_output": "Access Denied"
                 },
                 {
-                    "input": "admin123",
+                    "input": "instructor123",
                     "expected_output": "Access Denied"
                 },
                 {

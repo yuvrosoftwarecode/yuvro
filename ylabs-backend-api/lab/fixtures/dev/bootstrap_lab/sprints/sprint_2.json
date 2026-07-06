@@ -1,0 +1,115 @@
+{
+  "title": "Sprint 2 - Components & Forms",
+  "description": "",
+  "order_index": 2,
+  "lab_title": "Bootstrap 5 Lab",
+  "tickets": [
+    {
+      "title": "Responsive Navbar",
+      "ticket_slug": "bootstrap-2-1-1",
+      "description": "Builds a dark-themed responsive navbar with a hamburger menu for mobile screens and a dropdown menu item. ",
+      "tasks": [
+        "Builds a dark-themed responsive navbar with a hamburger menu for mobile screens and a dropdown menu item."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"navbar-expand-lg\")` `check_attribute_used(\"data-bs-toggle\", \"collapse\")` `check_class_used(\"dropdown-menu\")` **[A] Visual (40 pts)**: 40 pts if mobile menu collapses correctly. **[B] Logic (40 pts)**: 40 pts for correct `data-bs-*` attributes linking toggler to collapse div. **[C] Quality (10 pts)**: 10 pts for aria roles on dropdowns. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting the data-bs-toggle attributes for the hamburger menu."
+      ],
+      "hints": [
+        "Check the Bootstrap documentation for navbar-expand classes to handle mobile collapsing."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">\n            <div class=\"container-fluid\">\n              <a class=\"navbar-brand\" href=\"#\">ApexBank</a>\n              <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNav\">\n                <span class=\"navbar-toggler-icon\"></span>\n              </button>\n              <div class=\"collapse navbar-collapse\" id=\"navbarNav\">\n                <ul class=\"navbar-nav\">\n                  <li class=\"nav-item\">\n                    <a class=\"nav-link active\" href=\"#\">Home</a>\n                  </li>\n                  <li class=\"nav-item dropdown\">\n                    <a class=\"nav-link dropdown-toggle\" href=\"#\" role=\"button\" data-bs-toggle=\"dropdown\">\n                      Services\n                    </a>\n                    <ul class=\"dropdown-menu\">\n                      <li><a class=\"dropdown-item\" href=\"#\">Loans</a></li>\n                      <li><a class=\"dropdown-item\" href=\"#\">Credit Cards</a></li>\n                    </ul>\n                  </li>\n                </ul>\n              </div>\n            </div>\n          </nav>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Profile Cards",
+      "ticket_slug": "bootstrap-2-1-2",
+      "description": "Uses the `card` component to build a user profile display with a header image, body text, and a footer with a primary button. ",
+      "tasks": [
+        "Uses the `card` component to build a user profile display with a header image, body text, and a footer with a primary button."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"card-body\")` `check_class_used(\"btn-primary\")` `check_class_used(\"w-100\")` **[A] Visual (40 pts)**: 40 pts for exact border radius and padding matching. **[B] Logic (40 pts)**: 40 pts for `card-img-top`, `card-body`, and `card-footer` usage. **[C] Quality (10 pts)**: 10 pts for `alt` tags on images. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"card\" style=\"width: 18rem;\">\n            <img src=\"...\" class=\"card-img-top\" alt=\"User Avatar\">\n            <div class=\"card-body\">\n              <h5 class=\"card-title\">Jane Doe</h5>\n              <p class=\"card-text\">Senior Software Engineer</p>\n            </div>\n            <div class=\"card-footer text-muted text-center\">\n              <a href=\"#\" class=\"btn btn-primary w-100\">View Profile</a>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 80,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Forms & Validation",
+      "ticket_slug": "bootstrap-2-1-3",
+      "description": "Builds a login form with a floating label for email, a password field, and a submit button. ",
+      "tasks": [
+        "Builds a login form with a floating label for email, a password field, and a submit button."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"form-floating\")` `check_class_used(\"form-control\")` `check_class_used(\"w-100\")` **[A] Visual (40 pts)**: 40 pts if form inputs match Bootstrap's floating style. **[B] Logic (40 pts)**: 40 pts for using `form-control` and `form-floating`. **[C] Quality (10 pts)**: 10 pts for valid semantic `<label>` elements linked to inputs. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"container mt-5\" style=\"max-width: 400px;\">\n            <form>\n              <div class=\"form-floating mb-3\">\n                <input type=\"email\" class=\"form-control\" id=\"floatingInput\" placeholder=\"name@example.com\">\n                <label for=\"floatingInput\">Email address</label>\n              </div>\n              <div class=\"form-floating mb-3\">\n                <input type=\"password\" class=\"form-control\" id=\"floatingPassword\" placeholder=\"Password\">\n                <label for=\"floatingPassword\">Password</label>\n              </div>\n              <button type=\"submit\" class=\"btn btn-primary w-100\">Sign In</button>\n            </form>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 90,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 3
+    }
+  ]
+}

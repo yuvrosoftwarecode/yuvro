@@ -1,11 +1,11 @@
 {
   "users": [
     {
-      "email": "admin@yuvro.com",
-      "username": "admin",
+      "email": "instructor_admin@yuvro.com",
+      "username": "instructor_admin",
       "first_name": "Admin",
       "last_name": "User",
-      "password": "admin123",
+      "password": "instructor123",
       "is_staff": true,
       "is_superuser": true,
       "profile": {
@@ -135,7 +135,7 @@
       }
     },
     {
-      "email": "recruiter_admin@yuvro.com",
+      "email": "recruiter_instructor_admin@yuvro.com",
       "username": "recruiter_admin",
       "first_name": "Recruiter",
       "last_name": "Admin",

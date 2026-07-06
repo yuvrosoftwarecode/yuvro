@@ -264,7 +264,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                     </button>
                     {collegeDropdownOpen && (
                       <div className="absolute z-[99999] mt-1 w-full max-h-[200px] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg">
-                        {colleges.map(c => (
+                        {colleges.map((c: { id: any; name: any; }) => (
                           <button
                             key={c.id}
                             type="button"

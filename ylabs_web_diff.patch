@@ -1,0 +1,954 @@
+﻿diff --git a/ylabs-web/src/components/TopNav.tsx b/ylabs-web/src/components/TopNav.tsx
+index 1b139d52..edb1d75d 100644
+--- a/ylabs-web/src/components/TopNav.tsx
++++ b/ylabs-web/src/components/TopNav.tsx
+@@ -48,7 +48,7 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
+           <span className="hidden sm:flex items-center gap-1 text-warning"><Flame className="h-4 w-4" />{me.streak}</span>
+           <span className="hidden sm:flex items-center gap-1 text-primary"><Zap className="h-4 w-4" />{me.xp.toLocaleString()} XP</span>
+           <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
+-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">{me.avatar}</div>
++          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">{user ? user.first_name?.charAt(0)?.toUpperCase() || user.username?.charAt(0)?.toUpperCase() : "U"}</div>
+           {user && (
+             <button onClick={() => { logout(); nav({ to: "/" }); }} title="Sign out"
+               className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground">
+diff --git a/ylabs-web/src/lib/auth.tsx b/ylabs-web/src/lib/auth.tsx
+index 8d59baff..9739a594 100644
+--- a/ylabs-web/src/lib/auth.tsx
++++ b/ylabs-web/src/lib/auth.tsx
+@@ -1,40 +1,210 @@
+-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
++import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
++import authService from '../services/authService';
+ 
+-export type Role = "student" | "developer" | "admin" | "job_seeker" | "recruiter";
+-export interface AuthUser { email: string; name: string; role: Role; }
++export interface User {
++  id: string;
++  email: string;
++  username: string;
++  first_name?: string;
++  last_name?: string;
++  role?: string;
++  roles?: {
++    ycode?: string;
++    ylabs?: string;
++  };
++  is_active?: boolean;
++  date_joined?: string;
++  last_login?: string;
++  profile?: {
++    about?: string;
++    avatar?: string;
++  };
++}
+ 
+-const KEY = "yuvro-auth";
++interface AuthState {
++  user: User | null;
++  token: string | null;
++  isLoading: boolean;
++  isAuthenticated: boolean;
++}
+ 
+-interface AuthCtx {
+-  user: AuthUser | null;
+-  login: (u: AuthUser) => void;
++type AuthAction =
++  | { type: 'LOGIN_START' }
++  | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string } }
++  | { type: 'LOGIN_FAILURE' }
++  | { type: 'LOGOUT' }
++  | { type: 'UPDATE_USER'; payload: User }
++  | { type: 'SET_LOADING'; payload: boolean };
++
++export interface AuthContextType extends AuthState {
++  login: (user: User, token: string) => void;
+   logout: () => void;
++  updateUser: (user: User) => void;
+ }
+-const Ctx = createContext<AuthCtx>({ user: null, login: () => {}, logout: () => {} });
++
++const authReducer = (state: AuthState, action: AuthAction): AuthState => {
++  switch (action.type) {
++    case 'LOGIN_START':
++      return { ...state, isLoading: true };
++    case 'LOGIN_SUCCESS':
++      return {
++        ...state,
++        isLoading: false,
++        isAuthenticated: true,
++        user: action.payload.user,
++        token: action.payload.token,
++      };
++    case 'LOGIN_FAILURE':
++      return {
++        ...state,
++        isLoading: false,
++        isAuthenticated: false,
++        user: null,
++        token: null,
++      };
++    case 'LOGOUT':
++      return {
++        ...state,
++        isAuthenticated: false,
++        user: null,
++        token: null,
++      };
++    case 'UPDATE_USER':
++      return {
++        ...state,
++        user: action.payload,
++      };
++    case 'SET_LOADING':
++      return {
++        ...state,
++        isLoading: action.payload,
++      };
++    default:
++      return state;
++  }
++};
++
++const getInitialState = (): AuthState => {
++  if (typeof window === 'undefined') {
++    return {
++      user: null,
++      token: null,
++      isLoading: false,
++      isAuthenticated: false,
++    };
++  }
++
++  const accessToken = localStorage.getItem('access');
++  const storedUser = localStorage.getItem('user');
++
++  let user = null;
++  if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
++    try {
++      user = JSON.parse(storedUser);
++    } catch (e) {
++      console.warn('Failed to parse stored user data:', e);
++      localStorage.removeItem('user');
++    }
++  }
++
++  if (accessToken) {
++    return {
++      user,
++      token: accessToken,
++      isLoading: true,
++      isAuthenticated: true,
++    };
++  }
++  return {
++    user: null,
++    token: null,
++    isLoading: false,
++    isAuthenticated: false,
++  };
++};
++
++const AuthContext = createContext<AuthContextType | undefined>(undefined);
+ 
+ export function AuthProvider({ children }: { children: ReactNode }) {
+-  const [user, setUser] = useState<AuthUser | null>(null);
++  const [state, dispatch] = useReducer(authReducer, getInitialState());
++
+   useEffect(() => {
+-    try {
+-      const raw = typeof window !== "undefined" ? localStorage.getItem(KEY) : null;
+-      if (raw) setUser(JSON.parse(raw));
+-    } catch {}
++    if (state.isAuthenticated && state.token) {
++      localStorage.setItem('access', state.token);
++      authService.setAuthToken(state.token);
++    } else {
++      localStorage.removeItem('access');
++      localStorage.removeItem('refresh');
++    }
++  }, [state.isAuthenticated, state.token]);
++
++  useEffect(() => {
++    const accessToken = localStorage.getItem('access');
++
++    if (accessToken) {
++      authService.setAuthToken(accessToken);
++      authService.initializeFromStorage();
++
++      authService
++        .getCurrentUser()
++        .then((userData) => {
++          localStorage.setItem('user', JSON.stringify(userData));
++          dispatch({
++            type: 'LOGIN_SUCCESS',
++            payload: { user: userData, token: accessToken },
++          });
++        })
++        .catch((error) => {
++          console.error('Failed to fetch user on load:', error);
++          if (error.status === 401) {
++            authService.logoutUser();
++            dispatch({ type: 'LOGIN_FAILURE' });
++          } else {
++            dispatch({ type: 'SET_LOADING', payload: false });
++          }
++        });
++    } else {
++      dispatch({ type: 'SET_LOADING', payload: false });
++    }
+   }, []);
+-  const login = (u: AuthUser) => {
+-    setUser(u);
+-    try { localStorage.setItem(KEY, JSON.stringify(u)); } catch {}
++
++  const login = (user: User, token: string) => {
++    localStorage.setItem('user', JSON.stringify(user));
++    dispatch({
++      type: 'LOGIN_SUCCESS',
++      payload: { user, token },
++    });
+   };
++
+   const logout = () => {
+-    setUser(null);
+-    try { localStorage.removeItem(KEY); } catch {}
++    localStorage.removeItem('user');
++    authService.logoutUser();
++    dispatch({ type: 'LOGOUT' });
+   };
+-  return <Ctx.Provider value={{ user, login, logout }}>{children}</Ctx.Provider>;
+-}
+ 
+-export const useAuth = () => useContext(Ctx);
++  const updateUser = (user: User) => {
++    localStorage.setItem('user', JSON.stringify(user));
++    dispatch({ type: 'UPDATE_USER', payload: user });
++  };
++
++  return (
++    <AuthContext.Provider
++      value={{
++        ...state,
++        login,
++        logout,
++        updateUser,
++      }}
++    >
++      {children}
++    </AuthContext.Provider>
++  );
++}
+ 
+-export const DEMO_ACCOUNTS: Record<string, { password: string; user: AuthUser }> = {
+-  "student@yuvrolabs.com": { password: "student123", user: { email: "student@yuvrolabs.com", name: "Alex Student", role: "student" } },
+-  "developer@yuvrolabs.com": { password: "developer123", user: { email: "developer@yuvrolabs.com", name: "Dev Patel", role: "developer" } },
+-  "admin@yuvrolabs.com": { password: "admin123", user: { email: "admin@yuvrolabs.com", name: "Admin Yuvro", role: "admin" } },
++export const useAuth = () => {
++  const context = useContext(AuthContext);
++  if (context === undefined) {
++    throw new Error('useAuth must be used within an AuthProvider');
++  }
++  return context;
+ };
+diff --git a/ylabs-web/src/routes/admin.tsx b/ylabs-web/src/routes/admin.tsx
+index 71b9499b..0f320d69 100644
+--- a/ylabs-web/src/routes/admin.tsx
++++ b/ylabs-web/src/routes/admin.tsx
+@@ -1,3 +1,31 @@
+-import { createFileRoute, Outlet } from "@tanstack/react-router";
++import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+ 
+-export const Route = createFileRoute("/admin")({ component: () => <Outlet /> });
++export const Route = createFileRoute("/admin")({ 
++  beforeLoad: () => {
++    if (typeof window !== "undefined") {
++      const token = localStorage.getItem('access');
++      if (!token) {
++        throw redirect({ to: '/auth', search: { tab: 'signin' } });
++      }
++      const userStr = localStorage.getItem('user');
++      if (userStr) {
++        let user;
++        try {
++          user = JSON.parse(userStr);
++        } catch (e) {
++          throw redirect({ to: '/auth', search: { tab: 'signin' } });
++        }
++        
++        if (user) {
++          const role = user.roles?.ylabs || user.role;
++          if (role !== 'admin') {
++            throw redirect({ to: '/dashboard' });
++          }
++        }
++      } else {
++        throw redirect({ to: '/auth', search: { tab: 'signin' } });
++      }
++    }
++  },
++  component: () => <Outlet /> 
++});
+diff --git a/ylabs-web/src/routes/auth.tsx b/ylabs-web/src/routes/auth.tsx
+index 7952f7fe..b0cd4178 100644
+--- a/ylabs-web/src/routes/auth.tsx
++++ b/ylabs-web/src/routes/auth.tsx
+@@ -1,9 +1,11 @@
+ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+ import { useState } from "react";
+ import { z } from "zod";
+-import { useAuth, DEMO_ACCOUNTS, Role } from "@/lib/auth";
++import { useAuth } from "@/lib/auth";
+ import { ArrowRight, Github, Eye, EyeOff, Bot, Activity, GitBranch, Layers, CheckCircle2 } from "lucide-react";
+ 
++type Role = "student" | "developer" | "admin" | "job_seeker" | "recruiter";
++
+ const searchSchema = z.object({ tab: z.enum(["signin", "signup"]).default("signin").catch("signin") });
+ 
+ export const Route = createFileRoute("/auth")({
+@@ -32,7 +34,7 @@ function AuthPage() {
+             <button onClick={() => setTab("signup")} className={`flex-1 rounded-md py-2 transition ${tab === "signup" ? "bg-gradient-to-r from-primary to-ui text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}>Create Account</button>
+           </div>
+           {tab === "signin" ? <SignInForm /> : <SignUpForm />}
+-          <DemoCreds />
++
+           <p className="mt-6 text-center text-xs text-muted-foreground">
+             <Link to="/" className="hover:text-foreground">ΓåÉ Back to home</Link>
+           </p>
+@@ -115,16 +117,18 @@ function SignInForm() {
+   const [remember, setRemember] = useState(true);
+   const [err, setErr] = useState("");
+ 
+-  const submit = (e: React.FormEvent) => {
++  const submit = async (e: React.FormEvent) => {
+     e.preventDefault();
+     setErr("");
+-    const acc = DEMO_ACCOUNTS[email.toLowerCase().trim()];
+-    if (!acc || acc.password !== password) {
+-      setErr("Invalid email or password. Try a demo account below.");
+-      return;
++    try {
++      // @ts-ignore (we know authService exists, we will import it)
++      const res = await import("@/services/authService").then(m => m.default.login(email, password));
++      login(res.user, res.access);
++      const role = res.user.roles?.ylabs || res.user.role;
++      nav({ to: role === "admin" ? "/admin" : "/dashboard" });
++    } catch (error: any) {
++      setErr(error?.message || "Invalid email or password.");
+     }
+-    login(acc.user);
+-    nav({ to: acc.user.role === "admin" ? "/admin" : "/dashboard" });
+   };
+ 
+   return (
+@@ -165,14 +169,27 @@ function SignUpForm() {
+   const [agree, setAgree] = useState(false);
+   const [err, setErr] = useState("");
+ 
+-  const submit = (e: React.FormEvent) => {
++  const submit = async (e: React.FormEvent) => {
+     e.preventDefault();
+     setErr("");
+     if (pwd.length < 6) return setErr("Password must be at least 6 characters.");
+     if (pwd !== confirm) return setErr("Passwords do not match.");
+     if (!agree) return setErr("Please accept the terms and privacy policy.");
+-    login({ email: email.trim(), name: name.trim(), role });
+-    nav({ to: role === "admin" ? "/admin" : "/dashboard" });
++    
++    try {
++      // @ts-ignore
++      const res = await import("@/services/authService").then(m => m.default.register({
++        email: email.trim(),
++        username: email.trim(),
++        password: pwd,
++        password_confirm: confirm
++      }));
++      login(res.user, res.access);
++      const userRole = res.user.roles?.ylabs || res.user.role;
++      nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
++    } catch (error: any) {
++      setErr(error?.message || "Registration failed.");
++    }
+   };
+ 
+   return (
+@@ -223,42 +240,6 @@ function OAuthButtons() {
+   );
+ }
+ 
+-function DemoCreds() {
+-  const { login } = useAuth();
+-  const nav = useNavigate();
+-  const fill = (email: string) => {
+-    const acc = DEMO_ACCOUNTS[email];
+-    if (!acc) return;
+-    login(acc.user);
+-    nav({ to: acc.user.role === "admin" ? "/admin" : "/dashboard" });
+-  };
+-  const demos = [
+-    { label: "Student", email: "student@yuvrolabs.com", pwd: "student123", c: "primary" },
+-    { label: "Developer", email: "developer@yuvrolabs.com", pwd: "developer123", c: "ui" },
+-    { label: "Admin", email: "admin@yuvrolabs.com", pwd: "admin123", c: "warning" },
+-  ];
+-  return (
+-    <div className="mt-6 rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4">
+-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Demo Credentials ΓÇö one click to enter</div>
+-      <div className="mt-3 space-y-2">
+-        {demos.map((d) => (
+-          <div key={d.email} className="flex items-center justify-between gap-3 rounded-md border border-border/50 bg-background/40 p-2.5">
+-            <div className="min-w-0">
+-              <div className="flex items-center gap-2 text-xs">
+-                <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ color: `var(--${d.c})`, background: `color-mix(in oklab, var(--${d.c}) 15%, transparent)` }}>{d.label}</span>
+-                <span className="font-mono truncate">{d.email}</span>
+-              </div>
+-              <div className="mt-0.5 text-[10px] text-muted-foreground font-mono">password: {d.pwd}</div>
+-            </div>
+-            <button onClick={() => fill(d.email)} className="shrink-0 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 transition">
+-              Enter <ArrowRight className="h-3 w-3" />
+-            </button>
+-          </div>
+-        ))}
+-      </div>
+-    </div>
+-  );
+-}
+ 
+ function Field({ label, children }: { label: string; children: React.ReactNode }) {
+   return (
+diff --git a/ylabs-web/src/routes/dashboard.tsx b/ylabs-web/src/routes/dashboard.tsx
+index 700aef18..1bb308c2 100644
+--- a/ylabs-web/src/routes/dashboard.tsx
++++ b/ylabs-web/src/routes/dashboard.tsx
+@@ -1,13 +1,39 @@
+-import { createFileRoute, Link } from "@tanstack/react-router";
++import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+ import { TopNav } from "@/components/TopNav";
+ import { ProgressRing } from "@/components/ProgressRing";
+ import { DiffBadge } from "@/components/Badges";
+ import { labs, me } from "@/lib/dummy";
+ import { ArrowRight, Sparkles, Flame, Zap, Trophy } from "lucide-react";
++import { useAuth } from "@/lib/auth";
+ 
+-export const Route = createFileRoute("/dashboard")({ component: Hub });
++export const Route = createFileRoute("/dashboard")({ 
++  beforeLoad: () => {
++    if (typeof window !== "undefined") {
++      const token = localStorage.getItem('access');
++      if (!token) {
++        throw redirect({ to: '/auth', search: { tab: 'signin' } });
++      }
++      const userStr = localStorage.getItem('user');
++      if (userStr) {
++        let user;
++        try {
++          user = JSON.parse(userStr);
++        } catch (e) {}
++        
++        if (user) {
++          const role = user.roles?.ylabs || user.role;
++          if (role === 'admin') {
++            throw redirect({ to: '/admin' });
++          }
++        }
++      }
++    }
++  },
++  component: Hub 
++});
+ 
+ function Hub() {
++  const { user } = useAuth();
+   return (
+     <div className="min-h-screen">
+       <TopNav />
+@@ -20,7 +46,7 @@ function Hub() {
+               <Sparkles className="h-3 w-3" /> New season ┬╖ 2026 cohort live
+             </span>
+             <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight">
+-              Master practical skills through <span className="text-primary">real-world projects</span>
++              Welcome back, <span className="text-primary">{user?.first_name || user?.username}</span>!
+             </h1>
+             <p className="mt-3 text-muted-foreground max-w-xl">
+               Solve Jira-style tickets in a full in-browser IDE. Get progressive hints, run tests, and ship code that recruiters actually read.
+diff --git a/ylabs-web/src/routes/index.tsx b/ylabs-web/src/routes/index.tsx
+index 90299214..9670bfbf 100644
+--- a/ylabs-web/src/routes/index.tsx
++++ b/ylabs-web/src/routes/index.tsx
+@@ -1,11 +1,34 @@
+-import { createFileRoute, Link } from "@tanstack/react-router";
++import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+ import {
+   ArrowRight, Sparkles, Code2, Users, Brain, ShieldCheck, BarChart3, Trophy,
+   GitBranch, Bug, Database, Server, Cpu, Layers, Zap, CheckCircle2, Play, Bot,
+   Star, Activity, Award, Briefcase, Rocket, Quote
+ } from "lucide-react";
+ 
+-export const Route = createFileRoute("/")({ component: Landing });
++export const Route = createFileRoute("/")({ 
++  beforeLoad: () => {
++    if (typeof window !== "undefined") {
++      const token = localStorage.getItem('access');
++      if (token) {
++        const userStr = localStorage.getItem('user');
++        if (userStr) {
++          try {
++            const user = JSON.parse(userStr);
++            const role = user.roles?.ylabs || user.role;
++            if (role === 'admin') {
++              throw redirect({ to: '/admin' });
++            } else {
++              throw redirect({ to: '/dashboard' });
++            }
++          } catch (e) {
++            // ignore parsing error
++          }
++        }
++      }
++    }
++  },
++  component: Landing 
++});
+ 
+ function Landing() {
+   return (
+diff --git a/ylabs-web/src/services/authService.ts b/ylabs-web/src/services/authService.ts
+new file mode 100644
+index 00000000..865f93d2
+--- /dev/null
++++ b/ylabs-web/src/services/authService.ts
+@@ -0,0 +1,102 @@
++import type { User } from '../lib/auth';
++import { restApiAuthUtil, yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
++
++export interface LoginResponse {
++  access: string;
++  refresh: string;
++  user: User;
++}
++
++export interface RegisterRequest {
++  email: string;
++  username: string;
++  password: string;
++  password_confirm: string;
++}
++
++class AuthService {
++  setAuthToken(token: string): void {
++    restApiAuthUtil.setAuthToken(token);
++    yhubApiAuthUtil.setAuthToken(token);
++  }
++
++  isAuthenticated(): boolean {
++    return restApiAuthUtil.isAuthenticated();
++  }
++
++  getAuthToken(): string | null {
++    return restApiAuthUtil.getAuthToken();
++  }
++
++  async refreshToken(): Promise<boolean> {
++    return yhubApiAuthUtil.forceRefreshToken();
++  }
++
++  initializeFromStorage(): void {
++    const token = localStorage.getItem('access');
++    if (token) {
++      restApiAuthUtil.setAuthToken(token);
++      yhubApiAuthUtil.setAuthToken(token);
++    }
++  }
++
++  async login(email: string, password: string): Promise<LoginResponse> {
++    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/login/?product=ylabs', { email, password });
++
++    localStorage.setItem('access', response.access);
++    localStorage.setItem('refresh', response.refresh);
++    restApiAuthUtil.setAuthToken(response.access);
++    yhubApiAuthUtil.setAuthToken(response.access);
++
++    return response;
++  }
++
++  async register(data: RegisterRequest): Promise<LoginResponse> {
++    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/register/?product=ylabs', data);
++
++    localStorage.setItem('access', response.access);
++    localStorage.setItem('refresh', response.refresh);
++    restApiAuthUtil.setAuthToken(response.access);
++    yhubApiAuthUtil.setAuthToken(response.access);
++
++    return response;
++  }
++
++  async loginWithGoogle(token: string): Promise<LoginResponse> {
++    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/google/?product=ylabs', { token });
++
++    localStorage.setItem('access', response.access);
++    localStorage.setItem('refresh', response.refresh);
++    restApiAuthUtil.setAuthToken(response.access);
++    yhubApiAuthUtil.setAuthToken(response.access);
++
++    return response;
++  }
++
++  async getCurrentUser(): Promise<User> {
++    return await restApiAuthUtil.get<User>('/auth/user/');
++  }
++
++  async updateUser(userData: Partial<User>): Promise<User> {
++    return await restApiAuthUtil.put<User>('/auth/user/', userData);
++  }
++
++  async logoutUser(): Promise<void> {
++    const refreshToken = localStorage.getItem('refresh');
++    if (refreshToken) {
++      yhubApiAuthUtil.post('/auth/logout/', { refresh: refreshToken }).catch(error => {
++        console.warn('Logout error:', error);
++      });
++    }
++    restApiAuthUtil.clearAuthToken();
++    yhubApiAuthUtil.clearAuthToken();
++    window.location.href = '/auth?tab=signin';
++  }
++
++  async healthCheck(): Promise<{ status: string }> {
++    return await restApiAuthUtil.get<{ status: string }>('/health/');
++  }
++}
++
++export const authService = new AuthService();
++export default authService;
+\ No newline at end of file
+diff --git a/ylabs-web/src/utils/RestApiAuthUtil.ts b/ylabs-web/src/utils/RestApiAuthUtil.ts
+new file mode 100644
+index 00000000..8a100856
+--- /dev/null
++++ b/ylabs-web/src/utils/RestApiAuthUtil.ts
+@@ -0,0 +1,164 @@
++import { RestApiUtil, ApiError } from './RestApiUtil';
++
++const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
++
++interface RequestOptions extends RequestInit {
++    params?: Record<string, string>;
++}
++
++class RestApiAuthUtil extends RestApiUtil {
++    private token: string | null = null;
++    private isRefreshing: boolean = false;
++    private refreshSubscribers: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
++
++    constructor(baseURL: string) {
++        super(baseURL);
++    }
++
++    private onRefreshed(token: string) {
++        this.refreshSubscribers.forEach((cb) => cb.resolve(token));
++        this.refreshSubscribers = [];
++    }
++
++    private onRefreshFailed(error: any) {
++        this.refreshSubscribers.forEach((cb) => cb.reject(error));
++        this.refreshSubscribers = [];
++    }
++
++    private addSubscriber(resolve: (token: string) => void, reject: (err: any) => void) {
++        this.refreshSubscribers.push({ resolve, reject });
++    }
++
++    setAuthToken(token: string) {
++        this.token = token;
++    }
++
++    getAuthToken(): string | null {
++        const t = this.token || localStorage.getItem('access');
++        // Filter out junk values that can get stuck in localStorage
++        if (!t || t === 'undefined' || t === 'null') return null;
++        return t;
++    }
++
++    clearAuthToken() {
++        this.token = null;
++        localStorage.removeItem('access');
++        localStorage.removeItem('refresh');
++        localStorage.removeItem('user');
++    }
++
++    isAuthenticated(): boolean {
++        return !!this.getAuthToken();
++    }
++
++    async forceRefreshToken(): Promise<boolean> {
++        console.log('Force refreshing token...');
++        return await this.refreshToken();
++    }
++
++    private getAuthHeaders(): HeadersInit {
++        const headers: HeadersInit = { 'Content-Type': 'application/json' };
++        const token = this.getAuthToken();
++        if (token) {
++            headers['Authorization'] = `Bearer ${token}`;
++        }
++        return headers;
++    }
++
++    private async refreshToken(): Promise<boolean> {
++        const refreshToken = localStorage.getItem('refresh');
++        if (!refreshToken) {
++            console.warn('No refresh token available');
++            return false;
++        }
++
++        try {
++            console.log('Attempting to refresh token...');
++            const response = await super.post<{ access: string; refresh?: string }>('/auth/token/refresh/', { refresh: refreshToken });
++
++            localStorage.setItem('access', response.access);
++            if (response.refresh) {
++                localStorage.setItem('refresh', response.refresh);
++            }
++            this.token = response.access;
++            console.log('Token refreshed successfully');
++            return true;
++        } catch (err) {
++            console.error('Token refresh failed:', err);
++            this.logout();
++            return false;
++        }
++    }
++
++    private logout(): void {
++        console.log('Logging out user due to authentication failure');
++        const currentPath = window.location.pathname + window.location.search;
++        this.clearAuthToken();
++        if (!window.location.pathname.includes('/auth')) {
++            window.location.href = `/auth?tab=signin&redirect=${encodeURIComponent(currentPath)}`;
++        }
++    }
++
++    protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
++        let authHeaders = this.getAuthHeaders() as Record<string, string>;
++
++        if (options.body instanceof FormData) {
++            delete authHeaders['Content-Type'];
++        }
++
++        let optionsWithAuth = {
++            ...options,
++            headers: {
++                ...authHeaders,
++                ...options.headers,
++            },
++        };
++
++        try {
++            return await super.request<T>(endpoint, optionsWithAuth);
++        } catch (error) {
++            if (error instanceof ApiError && error.status === 401) {
++                const isAuthEndpoint = endpoint.includes('/auth/login') ||
++                    endpoint.includes('/auth/register') ||
++                    endpoint.includes('/auth/token/refresh');
++
++                if (isAuthEndpoint) {
++                    throw error;
++                }
++
++                if (!this.isRefreshing) {
++                    this.isRefreshing = true;
++                    this.refreshToken().then((success) => {
++                        this.isRefreshing = false;
++                        if (success && this.token) {
++                            this.onRefreshed(this.token);
++                        } else {
++                            this.onRefreshFailed(error);
++                        }
++                    });
++                }
++
++                return new Promise<T>((resolve, reject) => {
++                    this.addSubscriber((newToken) => {
++                        const retryHeaders: HeadersInit = {
++                            ...options.headers,
++                            'Authorization': `Bearer ${newToken}`,
++                            ...((authHeaders as Record<string, string>)['Content-Type'] ? { 'Content-Type': (authHeaders as Record<string, string>)['Content-Type'] } : {})
++                        };
++
++                        const retryOptionsWithAuth = {
++                            ...options,
++                            headers: retryHeaders,
++                        };
++                        resolve(super.request<T>(endpoint, retryOptionsWithAuth));
++                    }, reject);
++                });
++            }
++            throw error;
++        }
++    }
++}
++
++export const restApiAuthUtil = new RestApiAuthUtil(API_BASE_URL);
++export const yhubApiAuthUtil = new RestApiAuthUtil(import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL);
++export default restApiAuthUtil;
+\ No newline at end of file
+diff --git a/ylabs-web/src/utils/RestApiUtil.ts b/ylabs-web/src/utils/RestApiUtil.ts
+new file mode 100644
+index 00000000..4fcf8513
+--- /dev/null
++++ b/ylabs-web/src/utils/RestApiUtil.ts
+@@ -0,0 +1,155 @@
++
++
++const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
++
++export class ApiError extends Error {
++    status: number;
++    details?: Record<string, any>;
++
++    constructor(message: string, status: number, details?: Record<string, any>) {
++        super(message);
++        this.name = 'ApiError';
++        this.status = status;
++        this.details = details;
++    }
++}
++
++interface RequestOptions extends RequestInit {
++    params?: Record<string, string>;
++}
++
++class RestApiUtil {
++    private baseURL: string;
++
++    constructor(baseURL: string) {
++        this.baseURL = baseURL;
++    }
++
++    private buildUrl(endpoint: string, params?: Record<string, string>): string {
++        const url = new URL(`${this.baseURL}${endpoint}`);
++        if (params) {
++            Object.entries(params).forEach(([key, value]) => {
++                url.searchParams.append(key, value);
++            });
++        }
++        return url.toString();
++    }
++
++    protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
++        const { params, ...fetchOptions } = options;
++        const url = this.buildUrl(endpoint, params);
++        const startTime = performance.now();
++
++        const isFormData = fetchOptions.body instanceof FormData;
++        const defaultHeaders: Record<string, string> = {};
++        if (!isFormData) {
++            defaultHeaders['Content-Type'] = 'application/json';
++        }
++
++        const config: RequestInit = {
++            headers: {
++                ...defaultHeaders,
++                ...fetchOptions.headers,
++            },
++            ...fetchOptions,
++        };
++
++
++        try {
++            const response = await fetch(url, config);
++            const duration = performance.now() - startTime;
++            
++
++            if (!response.ok) {
++                let errorData: any = {};
++                try {
++                    const text = await response.text();
++                    if (text && text.trim()) {
++                        errorData = JSON.parse(text);
++                    }
++                } catch (e) {
++                    console.warn('Failed to parse error response as JSON:', e);
++                    errorData = {};
++                }
++
++                let errorMessage = 'Request failed';
++
++                if (errorData.detail) {
++                    errorMessage = errorData.detail;
++                } else if (errorData.message) {
++                    errorMessage = errorData.message;
++                } else if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
++                    errorMessage = errorData.non_field_errors[0];
++                } else if (errorData.error) {
++                    errorMessage = errorData.error;
++                } else if (typeof errorData === 'string') {
++                    errorMessage = errorData;
++                } else {
++                    const firstFieldError = Object.values(errorData).find(value =>
++                        Array.isArray(value) && value.length > 0
++                    );
++                    if (firstFieldError && Array.isArray(firstFieldError)) {
++                        errorMessage = firstFieldError[0];
++                    }
++                }
++
++                throw new ApiError(errorMessage, response.status, errorData);
++            }
++
++            const contentType = response.headers.get('content-type');
++            if (contentType && contentType.includes('application/json')) {
++                const text = await response.text();
++                if (text && text.trim()) {
++                    return JSON.parse(text);
++                }
++                return {} as T;
++            }
++
++            return response.text() as unknown as T;
++        } catch (error) {
++            const duration = performance.now() - startTime;
++            if (error instanceof ApiError) {
++                
++                throw error;
++            }
++            
++            throw new ApiError('Network error occurred', 0);
++        }
++    }
++
++    async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
++        return this.request<T>(endpoint, { method: 'GET', ...options });
++    }
++
++    async post<T>(endpoint: string, data?: any, options?: RequestOptions): Promise<T> {
++        return this.request<T>(endpoint, {
++            method: 'POST',
++            body: (data instanceof FormData) ? data : (data ? JSON.stringify(data) : undefined),
++            ...options,
++        });
++    }
++
++    async put<T>(endpoint: string, data?: any, options?: RequestOptions): Promise<T> {
++        return this.request<T>(endpoint, {
++            method: 'PUT',
++            body: (data instanceof FormData) ? data : (data ? JSON.stringify(data) : undefined),
++            ...options,
++        });
++    }
++
++    async patch<T>(endpoint: string, data?: any, options?: RequestOptions): Promise<T> {
++        return this.request<T>(endpoint, {
++            method: 'PATCH',
++            body: (data instanceof FormData) ? data : (data ? JSON.stringify(data) : undefined),
++            ...options,
++        });
++    }
++
++    async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
++        return this.request<T>(endpoint, { method: 'DELETE', ...options });
++    }
++}
++
++export { RestApiUtil };
++export const restApiUtil = new RestApiUtil(API_BASE_URL);
++export default restApiUtil;

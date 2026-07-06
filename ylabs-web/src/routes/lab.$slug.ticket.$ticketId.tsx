@@ -1,8 +1,10 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toBlob } from "html-to-image";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
-import { tickets, labs } from "@/lib/dummy";
+import { tickets, labs, saveTicketState } from "@/lib/dummy";
+import { getTargetUI } from "@/lib/targetUIs";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
   FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
@@ -367,7 +369,7 @@ Open http://127.0.0.1:8000/ to use the app.
 
 /* ---------- Per-lab starter kits ---------- */
 
-type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui";
+type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "react";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -642,7 +644,215 @@ your code live (it re-runs whenever you save).
   },
 };
 
-function getKit(slug: string, tag: string): Kit {
+const REACT_KITS: Record<string, Kit> = {
+  "REACT-101": {
+    name: "react", rootLabel: "todo-app", primary: "TaskItem.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "TaskItem.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import TaskItem from "./TaskItem";\nimport "./App.css";\n\nexport default function App() {\n  const sampleTask = { id: 1, text: "Learn React basics", completed: false };\n  return (\n    <div className="app-container">\n      <h1>To-Do List</h1>\n      <ul className="task-list">\n        <TaskItem task={sampleTask} />\n      </ul>\n    </div>\n  );\n}`,
+      "TaskItem.jsx": `// Write your TaskItem component here\n// It should accept a 'task' prop (an object with 'text' and 'completed').\n\nexport default function TaskItem({ task }) {\n  return (\n    <li className="task-item">\n      {/* TODO: Add a checkbox input (checked if task is completed) */}\n      {/* TODO: Add a span containing the task text */}\n      {/* TODO: Add a delete button (🗑) */}\n    </li>\n  );\n}`,
+      "App.css": `.app-container { max-width: 400px; margin: 2rem auto; font-family: sans-serif; }\n.task-list { list-style: none; padding: 0; }\n.task-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee; }\n.task-text { flex: 1; }\n.del-btn { background: none; border: none; cursor: pointer; color: #dc2626; }`,
+      "README.md": `# REACT-101 · Task Item Component\n\nCreate a reusable \`TaskItem\` component for our To-Do list.\n\n## Requirements:\n- It must accept a \`task\` object via props.\n- Render an \`<input type="checkbox">\` (checked if \`task.completed\`).\n- Render a \`<span className="task-text">\` with the \`task.text\`.\n- Render a \`<button className="del-btn">\` for deleting the task.\n`
+    }
+  },
+  "REACT-102": {
+    name: "react", rootLabel: "todo-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "TaskItem.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport TaskItem from "./TaskItem";\nimport "./App.css";\n\nexport default function App() {\n  // TODO: Initialize 'tasks' state as an empty array []\n  // TODO: Initialize 'newTaskText' state as an empty string ""\n\n  const addTask = (e) => {\n    e.preventDefault();\n    // TODO: Add the new task to the 'tasks' array and clear the input\n  };\n\n  return (\n    <div className="app-container">\n      <h1>To-Do List</h1>\n      <form onSubmit={addTask} className="add-form">\n        {/* TODO: Create a controlled input field bound to 'newTaskText' */}\n        <button type="submit">Add Task</button>\n      </form>\n      <ul className="task-list">\n        {/* TODO: map over 'tasks' and render a TaskItem for each */}\n      </ul>\n    </div>\n  );\n}`,
+      "TaskItem.jsx": `export default function TaskItem({ task }) {\n  return (\n    <li className="task-item">\n      <input type="checkbox" checked={task.completed} readOnly />\n      <span className="task-text">{task.text}</span>\n      <button className="del-btn">🗑</button>\n    </li>\n  );\n}`,
+      "App.css": `.app-container { max-width: 400px; margin: 2rem auto; font-family: sans-serif; }\n.add-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }\n.add-form input { flex: 1; padding: 0.5rem; }\n.task-list { list-style: none; padding: 0; }\n.task-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee; }\n.task-text { flex: 1; }\n.del-btn { background: none; border: none; cursor: pointer; color: #dc2626; }`,
+      "README.md": `# REACT-102 · Task List State\n\nManage the list of tasks using React state.\n\n## Requirements:\n- Initialize a \`tasks\` state variable (array).\n- Initialize a \`newTaskText\` state variable for the input.\n- Create a form with a controlled text input.\n- Map over the \`tasks\` array and render a \`TaskItem\` for each.\n`
+    }
+  },
+  "REACT-103": {
+    name: "react", rootLabel: "todo-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "TaskItem.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport TaskItem from "./TaskItem";\nimport "./App.css";\n\nexport default function App() {\n  const [tasks, setTasks] = useState([\n    { id: 1, text: "Learn React Hooks", completed: false },\n    { id: 2, text: "Build a To-Do App", completed: false }\n  ]);\n  const [newTaskText, setNewTaskText] = useState("");\n\n  const addTask = (e) => {\n    e.preventDefault();\n    if (!newTaskText.trim()) return;\n    setTasks([...tasks, { id: Date.now(), text: newTaskText.trim(), completed: false }]);\n    setNewTaskText("");\n  };\n\n  // TODO: Create toggleTask(id) function to flip completed status\n  // TODO: Create deleteTask(id) function to remove task from array\n\n  return (\n    <div className="app-container">\n      <h1>To-Do List</h1>\n      <form onSubmit={addTask} className="add-form">\n        <input value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Add a task" />\n        <button type="submit">Add Task</button>\n      </form>\n      <ul className="task-list">\n        {tasks.map(task => (\n          <TaskItem key={task.id} task={task} />\n          // TODO: Pass toggleTask and deleteTask as props to TaskItem\n        ))}\n      </ul>\n    </div>\n  );\n}`,
+      "TaskItem.jsx": `// TODO: Accept onToggle and onDelete props and wire them up to the elements\n\nexport default function TaskItem({ task }) {\n  return (\n    <li className={\`task-item \${task.completed ? 'completed' : ''}\`}>\n      <input type="checkbox" checked={task.completed} />\n      <span className="task-text">{task.text}</span>\n      <button className="del-btn">🗑</button>\n    </li>\n  );\n}`,
+      "App.css": `.app-container { max-width: 400px; margin: 2rem auto; font-family: sans-serif; }\n.add-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }\n.add-form input { flex: 1; padding: 0.5rem; }\n.task-list { list-style: none; padding: 0; }\n.task-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee; }\n.task-item.completed .task-text { text-decoration: line-through; color: #888; }\n.task-text { flex: 1; }\n.del-btn { background: none; border: none; cursor: pointer; color: #dc2626; }`,
+      "README.md": `# REACT-103 · Task Actions\n\nImplement the ability to toggle and delete tasks.\n\n## Requirements:\n- Write \`toggleTask(id)\` and \`deleteTask(id)\` functions in App.\n- Pass these functions down to \`TaskItem\` as props (\`onToggle\` and \`onDelete\`).\n- Update \`TaskItem.jsx\` to fire these functions on \`onChange\` (checkbox) and \`onClick\` (delete button).\n`
+    }
+  },
+  "REACT-104": {
+    name: "react", rootLabel: "todo-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "TaskItem.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState, useEffect } from "react";\nimport TaskItem from "./TaskItem";\nimport "./App.css";\n\nexport default function App() {\n  // TODO: Initialize 'tasks' by loading from localStorage, or default to an empty array\n  const [tasks, setTasks] = useState([]);\n  const [newTaskText, setNewTaskText] = useState("");\n\n  // TODO: Add a useEffect to save 'tasks' to localStorage whenever the array changes\n\n  const addTask = (e) => {\n    e.preventDefault();\n    if (!newTaskText.trim()) return;\n    setTasks([...tasks, { id: Date.now(), text: newTaskText.trim(), completed: false }]);\n    setNewTaskText("");\n  };\n\n  const toggleTask = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));\n  const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));\n\n  return (\n    <div className="app-container">\n      <h1>To-Do List</h1>\n      <form onSubmit={addTask} className="add-form">\n        <input value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Add a task" />\n        <button type="submit">Add Task</button>\n      </form>\n      <ul className="task-list">\n        {tasks.map(task => (\n          <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />\n        ))}\n      </ul>\n    </div>\n  );\n}`,
+      "TaskItem.jsx": `export default function TaskItem({ task, onToggle, onDelete }) {\n  return (\n    <li className={\`task-item \${task.completed ? 'completed' : ''}\`}>\n      <input type="checkbox" checked={task.completed} onChange={() => onToggle(task.id)} />\n      <span className="task-text">{task.text}</span>\n      <button className="del-btn" onClick={() => onDelete(task.id)}>🗑</button>\n    </li>\n  );\n}`,
+      "App.css": `.app-container { max-width: 400px; margin: 2rem auto; font-family: sans-serif; }\n.add-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }\n.add-form input { flex: 1; padding: 0.5rem; }\n.task-list { list-style: none; padding: 0; }\n.task-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee; }\n.task-item.completed .task-text { text-decoration: line-through; color: #888; }\n.task-text { flex: 1; }\n.del-btn { background: none; border: none; cursor: pointer; color: #dc2626; }`,
+      "README.md": `# REACT-104 · Persisting Tasks\n\nUse React Effects to save and load data.\n\n## Requirements:\n- Initialize the \`tasks\` state by reading from \`localStorage.getItem('todo_tasks')\`. Parse it as JSON, or use \`[]\` if null.\n- Write a \`useEffect\` hook that runs whenever \`tasks\` changes, and saves the array to \`localStorage.setItem('todo_tasks')\`.\n`
+    }
+  },
+  "REACT-105": {
+    name: "react", rootLabel: "todo-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "Dashboard.jsx", "TaskItem.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport Dashboard from "./Dashboard";\nimport TaskItem from "./TaskItem";\nimport "./App.css";\n\nexport default function App() {\n  const [tasks, setTasks] = useState([\n    { id: 1, text: "Learn React", completed: true },\n    { id: 2, text: "Build Router", completed: false }\n  ]);\n  // TODO: Add 'currentView' state (\"list\" or \"dashboard\")\n\n  return (\n    <div className="app-container">\n      <nav className="nav-bar">\n        {/* TODO: Add buttons to switch between \"list\" and \"dashboard\" views */}\n      </nav>\n      \n      {/* TODO: Conditionally render the Dashboard component or the Task List */}\n      <ul className="task-list">\n        {tasks.map(task => <TaskItem key={task.id} task={task} onToggle={()=>{}} onDelete={()=>{}} />)}\n      </ul>\n    </div>\n  );\n}`,
+      "Dashboard.jsx": `// TODO: Create a Dashboard component that takes 'tasks' as a prop and displays Total Tasks and Completed Tasks.\nexport default function Dashboard({ tasks }) {\n  return (\n    <div className="dashboard">\n      <h2>Dashboard</h2>\n      {/* Add stats here */}\n    </div>\n  );\n}`,
+      "TaskItem.jsx": `export default function TaskItem({ task, onToggle, onDelete }) {\n  return (\n    <li className={\`task-item \${task.completed ? 'completed' : ''}\`}>\n      <input type="checkbox" checked={task.completed} onChange={() => onToggle(task.id)} />\n      <span className="task-text">{task.text}</span>\n      <button className="del-btn" onClick={() => onDelete(task.id)}>🗑</button>\n    </li>\n  );\n}`,
+      "App.css": `.app-container { max-width: 400px; margin: 2rem auto; font-family: sans-serif; }\n.nav-bar { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }\n.nav-bar button { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0.5rem; }\n.task-list { list-style: none; padding: 0; }\n.task-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee; }\n.task-text { flex: 1; }\n.dashboard { padding: 1rem; background: #f9fafb; border-radius: 8px; }`,
+      "README.md": `# REACT-105 · Dashboard Routing\n\nAdd conditional rendering to switch views.\n\n## Requirements:\n- Create a \`currentView\` state in \`App.jsx\`.\n- Create a \`Dashboard.jsx\` component that displays the total number of tasks and completed tasks.\n- In \`App.jsx\`, add navigation buttons to switch views.\n- Conditionally render either the \`<Dashboard>\` or the task list \`<ul>\` based on \`currentView\`.\n`
+    }
+  },
+  "REACT-106": {
+    name: "react", rootLabel: "todo-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "ThemeContext.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useContext } from "react";\nimport { ThemeProvider, ThemeContext } from "./ThemeContext";\nimport "./App.css";\n\nfunction MainApp() {\n  // TODO: Consume ThemeContext here to get 'theme' and 'toggleTheme'\n\n  return (\n    // TODO: Apply \`theme-\${theme}\` class to this container\n    <div className="app-container">\n      <div className="header">\n        <h1>To-Do List</h1>\n        {/* TODO: Add a button that calls toggleTheme */}\n      </div>\n      <p>Tasks would go here...</p>\n    </div>\n  );\n}\n\nexport default function App() {\n  return (\n    // TODO: Wrap MainApp in ThemeProvider\n    <MainApp />\n  );\n}`,
+      "ThemeContext.jsx": `import React, { createContext, useState } from "react";\n\n// TODO: Create and export ThemeContext\n\nexport function ThemeProvider({ children }) {\n  // TODO: Manage 'theme' state (\"light\" or \"dark\")\n  // TODO: Return ThemeContext.Provider wrapping children\n  return <>{children}</>;\n}`,
+      "App.css": `.app-container { min-height: 100vh; padding: 2rem; font-family: sans-serif; transition: all 0.3s; }\n.header { display: flex; justify-content: space-between; align-items: center; }\n.theme-light { background: #ffffff; color: #111827; }\n.theme-dark { background: #111827; color: #f9fafb; }\n.theme-toggle { padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #888; background: transparent; color: inherit; cursor: pointer; }`,
+      "README.md": `# REACT-106 · Theme Context\n\nUse React Context to manage a global Dark Mode theme.\n\n## Requirements:\n- Implement \`ThemeContext.jsx\` with a \`ThemeProvider\` that manages a \`theme\` state ("light" or "dark").\n- Wrap your app in \`ThemeProvider\`.\n- Consume the context in \`MainApp\` to apply a CSS class (\`theme-light\` or \`theme-dark\`).\n- Add a button to toggle the theme.\n`
+    }
+  },
+  "REACT-201": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport "./App.css";\n\nexport default function App() {\n  const [columns, setColumns] = useState([\n    { id: "todo", title: "To Do", tasks: [{ id: 1, text: "Design Schema" }, { id: 2, text: "Create API" }] },\n    { id: "doing", title: "In Progress", tasks: [{ id: 3, text: "Setup React" }] },\n    { id: "done", title: "Done", tasks: [] }\n  ]);\n\n  return (\n    <div className="board-container">\n      <h1>Kanban Board</h1>\n      <div className="board">\n        {/* TODO: Map over columns array to render a .column div for each */}\n        {/* TODO: Inside each column, map over its tasks array to render a .task div */}\n      </div>\n    </div>\n  );\n}`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }`,
+      "README.md": `# REACT-201 · Board & Columns Layout\n\nWelcome to Sprint 2! You're building a real Kanban Board.\n\n## Requirements:\n- Map over the \`columns\` state to render a \`<div className="column">\` for each column.\n- Render the column's \`title\` inside an \`<h3>\`.\n- Inside each column, map over its \`tasks\` array and render a \`<div className="task">\` for each task.\n`,
+    }
+  },
+  "REACT-202": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport "./App.css";\n\nexport default function App() {\n  const [columns, setColumns] = useState([\n    { id: "todo", title: "To Do", tasks: [{ id: 1, text: "Design Schema" }] },\n    { id: "done", title: "Done", tasks: [] }\n  ]);\n\n  // TODO: Create handleDragStart(e, taskId, sourceColumnId)\n  // TODO: Create handleDragOver(e) { e.preventDefault(); }\n  // TODO: Create handleDrop(e, targetColumnId)\n\n  return (\n    <div className="board-container">\n      <h1>Kanban Board</h1>\n      <div className="board">\n        {columns.map(col => (\n          <div key={col.id} className="column">\n            {/* TODO: Add onDragOver and onDrop to this column */}\n            <h3>{col.title}</h3>\n            {col.tasks.map(task => (\n              <div key={task.id} className="task">\n                {/* TODO: Add draggable={true} and onDragStart to this task */}\n                {task.text}\n              </div>\n            ))}\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-202 · HTML5 Drag & Drop\n\nLet's make our tasks draggable using the native HTML5 Drag and Drop API.\n\n## Requirements:\n- Add \`draggable={true}\` to each task \`<div>\`.\n- Implement \`onDragStart\` on tasks to save the dragged \`taskId\` to the dataTransfer object.\n- Add \`onDragOver\` to the column \`<div>\` and call \`e.preventDefault()\` to allow dropping.\n- Add \`onDrop\` to the column \`<div>\` to handle moving the task to the new column.\n`,
+    }
+  },
+  "REACT-203": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { BoardProvider } from "./BoardContext";\nimport "./App.css";\n\nexport default function App() {\n  return (\n    <BoardProvider>\n      <div className="board-container">\n        <h1>Kanban Board</h1>\n        {/* TODO: Consume BoardContext here to render the columns instead of local state */}\n      </div>\n    </BoardProvider>\n  );\n}`,
+      "BoardContext.jsx": `import { createContext, useReducer } from "react";\n\nconst initialState = [\n  { id: "todo", title: "To Do", tasks: [{ id: 1, text: "Design Schema" }] },\n  { id: "done", title: "Done", tasks: [] }\n];\n\n// TODO: Create boardReducer to handle 'MOVE_TASK' action\nfunction boardReducer(state, action) {\n  return state;\n}\n\nexport const BoardContext = createContext();\n\nexport function BoardProvider({ children }) {\n  // TODO: Use useReducer instead of useState\n  return <BoardContext.Provider value={{}}>{children}</BoardContext.Provider>;\n}`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-203 · Context & Reducers\n\nThe drag-and-drop state logic is getting messy. Let's refactor it out of the component and into a global reducer.\n\n## Requirements:\n- Implement \`boardReducer\` to handle the \`MOVE_TASK\` action.\n- Use \`useReducer\` in \`BoardProvider\` instead of \`useState\`.\n- Provide the state and the \`dispatch\` function via Context.\n- Refactor \`App.jsx\` to consume the Context and dispatch actions.\n`,
+    }
+  },
+
+  "REACT-301": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { BoardProvider } from "./BoardContext";\nimport "./App.css";\n\nexport default function App() {\n  return (\n    <BoardProvider>\n      <div className="board-container">\n        <h1>Kanban Board</h1>\n        {/* columns rendered here */}\n      </div>\n    </BoardProvider>\n  );\n}`,
+      "BoardContext.jsx": `import { createContext, useReducer, useEffect } from "react";\n\n// TODO: Add useEffect to listen for 'storage' event on window\n// TODO: When 'storage' event fires with key 'kanban-state', dispatch an action to sync state.\n\nfunction boardReducer(state, action) {\n  return state;\n}\n\nexport const BoardContext = createContext();\n\nexport function BoardProvider({ children }) {\n  return <BoardContext.Provider value={{}}>{children}</BoardContext.Provider>;\n}`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-301 · Cross-Tab Storage Sync\n\nLet's simulate a real-time multiplayer backend using the browser's Storage event!\n\n## Requirements:\n- In \`BoardContext.jsx\`, add a \`useEffect\` that adds an event listener for the \`storage\` event on \`window\`.\n- When a task is moved, stringify the state and save it to \`localStorage\`.\n- When the \`storage\` event fires (because another tab changed the data), dispatch a sync action to update the local reducer state.\n`,
+    }
+  },
+  "REACT-302": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-302 Workspace</div>; }`,
+      "BoardContext.jsx": `// TODO: Implement Optimistic UI API simulation`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-302 · Optimistic UI Updates\n\n## Requirements:\n- Simulate a slow backend API call with \`setTimeout\` when moving a task.\n- Update the UI instantly before the API call finishes.\n- Roll back the UI to its previous state if the API fails.\n`,
+    }
+  },
+  "REACT-303": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-303 Workspace</div>; }`,
+      "BoardContext.jsx": `// TODO: Implement conflict resolution logic`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-303 · Conflicting State Resolution\n\n## Requirements:\n- Add a version number or lock to the tasks.\n- If two tabs try to edit the same task, prevent the second edit and show a conflict error.\n`,
+    }
+  },
+
+  "REACT-401": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "Task.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-401 Workspace</div>; }`,
+      "BoardContext.jsx": `// TODO: Memoize components`,
+      "Task.jsx": `// TODO: Create a Task component and wrap it in React.memo`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-401 · Memoization\n\n## Requirements:\n- Wrap the Column component in \`React.memo\`.\n- Wrap the Task component in \`React.memo\`.\n- Use \`useMemo\` and \`useCallback\` in the BoardContext to prevent unnecessary re-renders.\n`,
+    }
+  },
+  "REACT-402": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "Task.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-402 Workspace</div>; }`,
+      "BoardContext.jsx": `// TODO: Carry over from previous sprint`,
+      "Task.jsx": `// TODO: Task Component`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-402 · Virtualized Lists\n\n## Requirements:\n- Implement a virtualized scrolling window inside each column.\n- Only render the tasks that are currently visible on the screen.\n`,
+    }
+  },
+  "REACT-403": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "ThemeContext.jsx", "Task.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-403 Workspace</div>; }`,
+      "ThemeContext.jsx": `// TODO: Paste your ThemeContext from REACT-106`,
+      "Task.jsx": `// TODO: Task Component`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-403 · Dark Mode Polish\n\n## Requirements:\n- Wrap the App in the \`ThemeProvider\` you built in Sprint 1.\n- Toggle a \`theme-dark\` class on the board based on the global state.\n`,
+    }
+  },
+  "REACT-404": {
+    name: "react", rootLabel: "kanban-board", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "BoardContext.jsx", "ThemeContext.jsx", "Task.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `export default function App() { return <div>REACT-404 Workspace</div>; }`,
+      "BoardContext.jsx": `// TODO: Carry over from previous sprint`,
+      "ThemeContext.jsx": `// TODO: Carry over from previous sprint`,
+      "Task.jsx": `// TODO: Task Component`,
+      "App.css": `.board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n.board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n.board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n.column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n.column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n.task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n.task:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-left-color: #2563eb; }\n.task:active { cursor: grabbing; transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }`,
+      "README.md": `# REACT-404 · Confetti on Complete\n\n## Requirements:\n- Detect when all tasks are moved to the "Done" column.\n- Trigger a canvas confetti animation!\n`,
+    }
+  },
+  "REACT-501": {
+    name: "react", rootLabel: "chat-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useState } from "react";\nimport "./App.css";\n\nexport default function App() {\n  const [messages, setMessages] = useState([\n    { id: 1, user: "Alice", text: "Hello!" },\n    { id: 2, user: "Bob", text: "Hi Alice!" }\n  ]);\n  const [input, setInput] = useState("");\n\n  return (\n    <div className="chat-container">\n      <div className="chat-header">General Chat</div>\n      <div className="chat-feed">\n        {/* TODO: Map over messages here */}\n      </div>\n      <div className="chat-input-area">\n        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message..." />\n        <button>Send</button>\n      </div>\n    </div>\n  );\n}`,
+      "App.css": `.chat-container { display: flex; flex-direction: column; height: 100vh; font-family: 'Inter', sans-serif; background: #f9fafb; }\n.chat-header { padding: 1.5rem; background: #ffffff; border-bottom: 1px solid #e5e7eb; font-size: 1.25rem; font-weight: 600; }\n.chat-feed { flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }\n.chat-input-area { padding: 1.5rem; background: #ffffff; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; }\n.chat-input-area input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; outline: none; }\n.chat-input-area button { padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }`,
+      "README.md": `# REACT-501 · Message Feed UI\n\nWelcome to Sprint 5! Let's build a real-time chat app.\n\n## Requirements:\n- Map over the \`messages\` state to render the chat messages inside \`.chat-feed\`.\n- Build out a simple flex layout so the input is sticky at the bottom.\n`,
+    }
+  },
+  "REACT-502": {
+    name: "react", rootLabel: "chat-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useEffect } from "react";\n\nexport default function App() {\n  // TODO: Implement WebSocket connection inside useEffect\n  return <div>REACT-502 Workspace</div>;\n}`,
+      "App.css": `.chat-container { display: flex; flex-direction: column; height: 100vh; }`,
+      "README.md": `# REACT-502 · WebSocket Integration\n\n## Requirements:\n- Use \`useEffect\` to create a new \`WebSocket('wss://...')\` connection.\n- Listen for \`onmessage\` and append incoming messages to the feed.\n- Cleanup the WebSocket connection on component unmount.\n`,
+    }
+  },
+  "REACT-503": {
+    name: "react", rootLabel: "chat-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useRef } from "react";\n\nexport default function App() {\n  // TODO: Use useRef to scroll to the bottom of the feed automatically\n  return <div>REACT-503 Workspace</div>;\n}`,
+      "App.css": `.chat-container { display: flex; flex-direction: column; height: 100vh; }`,
+      "README.md": `# REACT-503 · Auto-Scroll to Bottom\n\n## Requirements:\n- Use a \`useRef\` hook attached to the bottom of the chat feed.\n- When a new message arrives, call \`scrollIntoView()\` on the ref.\n`,
+    }
+  },
+  "REACT-504": {
+    name: "react", rootLabel: "chat-app", primary: "App.jsx", runtime: "React 18 · Babel",
+    fileList: ["App.jsx", "App.css", "README.md"],
+    files: {
+      "App.jsx": `import { useEffect } from "react";\n\nexport default function App() {\n  // TODO: Implement Intersection Observer for infinite scrolling\n  return <div>REACT-504 Workspace</div>;\n}`,
+      "App.css": `.chat-container { display: flex; flex-direction: column; height: 100vh; }`,
+      "README.md": `# REACT-504 · Infinite Scroll Pagination\n\n## Requirements:\n- Attach an IntersectionObserver to a sentinel \`div\` at the top of the feed.\n- When the sentinel becomes visible, fetch older messages and prepend them to the array.\n`,
+    }
+  }
+};
+
+function getKit(slug: string, tag: string, ticketId: string): Kit {
+  if (slug === "react") {
+    return REACT_KITS[ticketId] ?? REACT_KITS["REACT-101"];
+  }
   if (tag === "Django Todo") {
     return {
       name: "django", rootLabel: "todo-app", primary: "todos/views.py", runtime: "Python 3.12 · Django 5",
@@ -653,12 +863,569 @@ function getKit(slug: string, tag: string): Kit {
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
   if (slug === "sql") return SQL_KIT_DEFAULT;
   if (slug === "mongo") return MONGO_KIT_DEFAULT;
-  if (slug === "ui") return UI_KIT_DEFAULT;
+  if (slug === "ui" || slug === "bootstrap" || slug === "tailwind") return UI_KIT_DEFAULT;
   return {
     name: "java", rootLabel: "java-101", primary: "Main.java", runtime: "Java 17",
     fileList: [...FILE_LIST],
     files: { "Main.java": STARTER_MAIN, "MainTest.java": STARTER_TEST, "README.md": STARTER_README },
   };
+}
+
+function getReactSrcDoc(files: Record<string, string>) {
+  const virtualFiles: Record<string, string> = {};
+  let cssText = "";
+  for (const [name, content] of Object.entries(files)) {
+    if (name.endsWith(".jsx") || name.endsWith(".js")) {
+      virtualFiles[name] = content;
+    } else if (name.endsWith(".css")) {
+      cssText += content + "\n";
+    }
+  }
+  // Use the current dev server origin so srcdoc iframe can resolve local public/ files
+  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="${origin}/react.production.min.js"><\/script>
+  <script src="${origin}/react-dom.production.min.js"><\/script>
+  <script src="${origin}/babel.min.js"><\/script>
+  <script src="https://unpkg.com/react-window/dist/index.umd.js"><\/script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"><\/script>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    ${cssText}
+  </style>
+</head>
+<body>
+  <div id="root"><div style="padding:8px;color:#888;font-family:monospace;font-size:12px">Loading…</div></div>
+  <script>
+    window.onerror = function(msg, src, line, col, err) {
+      var root = document.getElementById('root');
+      if (root) root.innerHTML = '<div style="color:#b00;padding:1rem;font-family:monospace;white-space:pre-wrap"><b>Script Error</b><br>' + msg + '</div>';
+    };
+
+    window.__files = ${JSON.stringify(virtualFiles)};
+    window.__modules = {
+      "react-window": {
+        exports: {
+          FixedSizeList: function(props) {
+            var items = [];
+            var limit = Math.min(props.itemCount, 50);
+            for (var i = 0; i < limit; i++) {
+              items.push(props.children({ index: i, style: { height: props.itemSize, boxSizing: "border-box" } }));
+            }
+            return React.createElement('div', { style: { height: props.height, width: props.width, overflow: 'auto', position: 'relative' } }, items);
+          }
+        }
+      },
+      "canvas-confetti": {
+        exports: function() { if (window.confetti) window.confetti.apply(this, arguments); }
+      }
+    };
+    
+    window.require = function(path) {
+      var cleanPath = path.replace(/^\\.\\//, "");
+      
+      // CSS is already inlined via <style> tag — return empty module
+      if (cleanPath.endsWith(".css") || path.endsWith(".css")) return {};
+      
+      if (!cleanPath.endsWith(".jsx") && !cleanPath.endsWith(".js")) {
+        if (window.__files[cleanPath + ".jsx"]) cleanPath = cleanPath + ".jsx";
+        else if (window.__files[cleanPath + ".js"]) cleanPath = cleanPath + ".js";
+      }
+      
+      if (cleanPath === "react") return window.React;
+      if (cleanPath === "react-dom" || cleanPath === "react-dom/client") return window.ReactDOM;
+      if (window.__modules[cleanPath]) return window.__modules[cleanPath].exports;
+      
+      var code = window.__files[cleanPath];
+      if (code === undefined) {
+        console.warn("Module not found: " + path + " — returning empty module");
+        return {};
+      }
+      
+      try {
+        window.__loading = window.__loading || {};
+        if (window.__loading[cleanPath]) {
+          throw new Error("Circular dependency detected: " + cleanPath + " is importing itself or part of a require loop.");
+        }
+        window.__loading[cleanPath] = true;
+
+        var compiled = Babel.transform(code, { 
+          presets: [
+            ["react", { runtime: "classic" }], 
+            ["env", { modules: "commonjs" }]
+          ] 
+        }).code;
+        var mod = { exports: {} };
+        window.__modules[cleanPath] = mod; // cache before execution to prevent loop
+        
+        var fn = new Function("exports", "module", "require", compiled);
+        fn(mod.exports, mod, window.require);
+        
+        delete window.__loading[cleanPath];
+        return mod.exports;
+      } catch (err) {
+        var root = document.getElementById('root');
+        if (root) root.innerHTML = '<div style="color:#b00;padding:1rem;font-family:monospace;white-space:pre-wrap"><b>Compile Error in ' + cleanPath + '</b><br>' + (err && err.message || err) + '</div>';
+        throw err;
+      }
+    };
+    
+    function mountApp() {
+      try {
+        if (!window.React || !window.ReactDOM || !window.Babel) {
+          document.getElementById('root').innerHTML = '<div style="color:#b00;padding:1rem;font-family:monospace">Loading React runtime... If this persists, check your internet connection.</div>';
+          return;
+        }
+        window.__modules = {};
+        var App = window.require("App.jsx").default;
+        if (!App) throw new Error('App.jsx did not export a default component');
+        var rootEl = document.getElementById("root");
+        if (rootEl._reactRoot) {
+          rootEl._reactRoot.render(React.createElement(App));
+        } else {
+          rootEl._reactRoot = ReactDOM.createRoot(rootEl);
+          rootEl._reactRoot.render(React.createElement(App));
+        }
+      } catch (e) {
+        document.getElementById("root").innerHTML = 
+          '<div style="color:#b00; padding:1rem; font-family:monospace; white-space:pre-wrap;">' +
+          '<b>Render Error</b><br>' + (e && (e.stack || e.message) || e) +
+          '</div>';
+      }
+    }
+
+    // Poll until all three CDN scripts are ready (handles async loading order)
+    var _poll = setInterval(function() {
+      if (window.React && window.ReactDOM && window.Babel) {
+        clearInterval(_poll);
+        mountApp();
+      }
+    }, 50);
+
+    // Fallback: also try on load event
+    window.addEventListener('load', function() {
+      clearInterval(_poll);
+      mountApp();
+    });
+  <\/script>
+</body>
+</html>`;
+}
+
+function getUITests(ticketId: string, files: Record<string, string>): TestResult[] {
+  const html = files["index.html"] ?? "";
+  
+  if (ticketId.startsWith("BS-")) {
+    return [
+      { name: "Test 1 · Bootstrap CDN Included", pass: /bootstrap(\.min)?\.css/.test(html) || /bootstrap@5/.test(html), time: "3ms" },
+      { name: "Test 2 · Container & Row Usage", pass: /class=(['"])[^'"]*\b(container|container-fluid)\b/.test(html) && /class=(['"])[^'"]*\brow\b/.test(html), time: "2ms" },
+      { name: "Test 3 · Bootstrap Components/Grid", pass: /class=(['"])[^'"]*\b(col\b|col-|navbar|card|btn\b|alert|modal)\b/.test(html), time: "1ms" },
+    ];
+  }
+  if (ticketId.startsWith("TW-")) {
+    return [
+      { name: "Test 1 · Tailwind Script Included", pass: /cdn\.tailwindcss\.com/.test(html), time: "3ms" },
+      { name: "Test 2 · Layout Utilities Applied", pass: /class=(['"])[^'"]*\b(flex|grid|block)\b/.test(html), time: "4ms" },
+      { name: "Test 3 · Styling Utilities Applied", pass: /class=(['"])[^'"]*\b(p-\d+|m-\d+|text-|bg-|rounded)\b/.test(html), time: "2ms" },
+    ];
+  }
+  
+  return [
+    { name: "Test 1 · HTML Structure", pass: /<!DOCTYPE html>/.test(html), time: "5ms" },
+    { name: "Test 2 · Custom Code Added", pass: html.length > 300 && !html.includes("Build pixel-perfect UI"), time: "2ms" },
+  ];
+}
+
+function calculateUIMatchScore(ticketId: string, files: Record<string, string>): number {
+  const tests = getUITests(ticketId, files);
+  if (tests.length === 0) return 0;
+  const passed = tests.filter(t => t.pass).length;
+  return Math.round((passed / tests.length) * 100);
+}
+
+function calculateReactMatchScore(ticketId: string, files: Record<string, string>): number {
+  const jsx = ticketId === "REACT-101" ? (files["TaskItem.jsx"] ?? "") : (files["App.jsx"] ?? "");
+  const css = files["App.css"] ?? "";
+  
+  let score = 0;
+  
+  if (ticketId === "REACT-101") {
+    const cardBody = jsx.replace(/function TaskItem[^{]*\{/, "");
+    if (/props\.task|task\s*\}/.test(jsx)) score += 20;
+    if (/<input[^>]*type\s*=\s*(['"])checkbox\1/.test(cardBody)) score += 30;
+    if (/task\.text/.test(cardBody)) score += 30;
+    if (/<button[^>]*>/.test(cardBody)) score += 20;
+  } else if (ticketId === "REACT-102") {
+    if (/useState/.test(jsx)) score += 25;
+    if (/<form[^>]*onSubmit/.test(jsx)) score += 25;
+    if (/<input[^>]*onChange/.test(jsx)) score += 25;
+    if (/\.map/.test(jsx)) score += 25;
+  } else if (ticketId === "REACT-103") {
+    if (/\.map/.test(jsx) && /!.*completed/.test(jsx)) score += 35; // toggle logic
+    if (/\.filter/.test(jsx) && /!==/.test(jsx)) score += 35; // delete logic
+    if (/onToggle/.test(jsx) || /onDelete/.test(jsx)) score += 30;
+  } else if (ticketId === "REACT-104") {
+    if (/useEffect/.test(jsx)) score += 30;
+    if (/localStorage\.getItem/.test(jsx)) score += 35;
+    if (/localStorage\.setItem/.test(jsx)) score += 35;
+  } else if (ticketId === "REACT-105") {
+    if (/useState/.test(jsx)) score += 25;
+    if (/<Dashboard/.test(jsx)) score += 30;
+    if (/===/.test(jsx) && /\?/.test(jsx)) score += 25; // conditional rendering
+    if (/onClick/.test(jsx)) score += 20;
+  } else if (ticketId === "REACT-106") {
+    if (/createContext/.test(jsx) || /createContext/.test(files["ThemeContext.jsx"] ?? "")) score += 30;
+    if (/useContext/.test(jsx) || /ThemeContext/.test(jsx)) score += 30;
+    if (/Provider/.test(jsx) || /Provider/.test(files["ThemeContext.jsx"] ?? "")) score += 40;
+  } else if (ticketId === "REACT-201") {
+    if (/\.map/.test(jsx)) score += 50;
+    if (/className=["']column/.test(jsx)) score += 25;
+    if (/className=["']task/.test(jsx)) score += 25;
+  } else if (ticketId === "REACT-202") {
+    if (/draggable=/.test(jsx)) score += 25;
+    if (/onDragStart=/.test(jsx)) score += 25;
+    if (/onDragOver=/.test(jsx) || /preventDefault/.test(jsx)) score += 25;
+    if (/onDrop=/.test(jsx)) score += 25;
+  } else if (ticketId === "REACT-203") {
+    if (/useReducer/.test(files["BoardContext.jsx"] ?? "")) score += 40;
+    if (/createContext/.test(files["BoardContext.jsx"] ?? "")) score += 30;
+    if (/useContext/.test(jsx)) score += 30;
+  } else if (ticketId === "REACT-301") {
+    if (/useEffect/.test(files["BoardContext.jsx"] ?? "")) score += 50;
+    if (/addEventListener\(['"]storage['"]/.test(files["BoardContext.jsx"] ?? "")) score += 50;
+  } else if (ticketId === "REACT-302") {
+    if (/setTimeout/.test(files["BoardContext.jsx"] ?? "")) score += 100;
+  } else if (ticketId === "REACT-303") {
+    if (/version/.test(files["BoardContext.jsx"] ?? "") || /lock/.test(files["BoardContext.jsx"] ?? "")) score += 100;
+  } else if (ticketId === "REACT-401") {
+    if (/memo/.test(jsx) || /useMemo/.test(jsx) || /useCallback/.test(jsx)) score += 100;
+  } else if (ticketId === "REACT-402") {
+    if (/FixedSizeList/.test(jsx) || /List/.test(jsx) || /window/.test(jsx)) score += 100;
+  } else if (ticketId === "REACT-403") {
+    if (/ThemeProvider/.test(jsx) || /theme-dark/.test(jsx)) score += 100;
+  } else if (ticketId === "REACT-404") {
+    if (/confetti/.test(jsx) || /canvas/.test(jsx)) score += 100;
+  } else if (ticketId === "REACT-501") {
+    if (/\.map/.test(jsx)) score += 50;
+    if (/className=["']chat-feed/.test(jsx)) score += 25;
+    if (/className=["']chat-input-area/.test(jsx)) score += 25;
+  } else if (ticketId === "REACT-502") {
+    if (/useEffect/.test(jsx)) score += 40;
+    if (/WebSocket/.test(jsx)) score += 60;
+  } else if (ticketId === "REACT-503") {
+    if (/useRef/.test(jsx)) score += 50;
+    if (/scrollIntoView/.test(jsx)) score += 50;
+  } else if (ticketId === "REACT-504") {
+    if (/IntersectionObserver/.test(jsx)) score += 100;
+  } else {
+    score = 100;
+  }
+  
+  return Math.min(100, score);
+}
+
+function getReactTests(ticketId: string, files: Record<string, string>): TestResult[] {
+  const jsx = ticketId === "REACT-101" ? (files["TaskItem.jsx"] ?? "") : (files["App.jsx"] ?? "");
+  const css = files["App.css"] ?? "";
+  
+  if (ticketId === "REACT-101") {
+    return [
+      { name: "Verify TaskItem Component Definition", pass: /function TaskItem/.test(jsx) || /const TaskItem/.test(jsx), time: "10ms" },
+      { name: "Verify Component Accepts Props", pass: /TaskItem\s*\(\s*\{\s*task|TaskItem\s*\(\s*props/.test(jsx), time: "5ms" },
+      { name: "Verify Checkbox Input Rendered", pass: /<input[^>]*type\s*=\s*(['"])checkbox\1/.test(jsx), time: "8ms" },
+      { name: "Verify Task Text Rendered", pass: /\{\s*task\.text\s*\}/.test(jsx) || /task\.text/.test(jsx), time: "11ms" },
+      { name: "Verify Delete Button Rendered", pass: /<button[^>]*>/.test(jsx), time: "6ms" },
+    ];
+  }
+  if (ticketId === "REACT-102") {
+    return [
+      { name: "Verify useState Tasks Array Initialization", pass: /useState\(\s*\[\s*\]\s*\)/.test(jsx) || /useState/.test(jsx), time: "9ms" },
+      { name: "Verify Controlled Input Form Event Handler", pass: /<form[^>]*onSubmit/.test(jsx), time: "7ms" },
+      { name: "Verify Input Value and onChange Handler", pass: /<input[^>]*onChange/.test(jsx), time: "12ms" },
+      { name: "Verify Mapping Task Array Elements", pass: /tasks\.map/.test(jsx), time: "8ms" },
+    ];
+  }
+  if (ticketId === "REACT-103") {
+    return [
+      { name: "Verify Toggle Complete Mutator Function", pass: /!.*completed/.test(jsx) || /completed/.test(jsx), time: "10ms" },
+      { name: "Verify Delete Task Array Filter Logic", pass: /\.filter/.test(jsx), time: "9ms" },
+      { name: "Verify onToggle Prop Passed Down", pass: /onToggle=/.test(jsx), time: "11ms" },
+      { name: "Verify onDelete Prop Passed Down", pass: /onDelete=/.test(jsx), time: "14ms" },
+    ];
+  }
+  if (ticketId === "REACT-104") {
+    return [
+      { name: "Verify useEffect Hook for Persistence", pass: /useEffect/.test(jsx), time: "15ms" },
+      { name: "Verify localStorage.getItem Read Operation", pass: /localStorage\.getItem/.test(jsx), time: "6ms" },
+      { name: "Verify localStorage.setItem Write Operation", pass: /localStorage\.setItem/.test(jsx), time: "9ms" },
+    ];
+  }
+  if (ticketId === "REACT-105") {
+    return [
+      { name: "Verify currentView Router State", pass: /useState/.test(jsx), time: "8ms" },
+      { name: "Verify Navigation Button Event Handlers", pass: /onClick/.test(jsx) || /setView/.test(jsx), time: "10ms" },
+      { name: "Verify Conditional Dashboard Render View", pass: /<Dashboard/.test(jsx) || /===/.test(jsx), time: "12ms" },
+    ];
+  }
+  if (ticketId === "REACT-106") {
+    return [
+      { name: "Verify ThemeContext React API Creation", pass: /createContext/.test(jsx) || /createContext/.test(files["ThemeContext.jsx"] ?? ""), time: "14ms" },
+      { name: "Verify Context Consumer useContext Hook", pass: /useContext/.test(jsx), time: "8ms" },
+      { name: "Verify ThemeProvider Wrapper Context Provider", pass: /Provider/.test(jsx) || /Provider/.test(files["ThemeContext.jsx"] ?? ""), time: "10ms" },
+    ];
+  }
+  if (ticketId === "REACT-201") {
+    return [
+      { name: "Verify array mapping for columns and tasks", pass: /\.map/.test(jsx), time: "10ms" },
+      { name: "Verify column structural div classes", pass: /className=["']column/.test(jsx), time: "5ms" },
+      { name: "Verify task card div classes", pass: /className=["']task/.test(jsx), time: "8ms" },
+    ];
+  }
+  if (ticketId === "REACT-202") {
+    return [
+      { name: "Verify draggable attribute", pass: /draggable=/.test(jsx), time: "4ms" },
+      { name: "Verify onDragStart event handler", pass: /onDragStart=/.test(jsx), time: "5ms" },
+      { name: "Verify onDragOver preventDefault", pass: /onDragOver=/.test(jsx) || /preventDefault/.test(jsx), time: "6ms" },
+      { name: "Verify onDrop target zone handler", pass: /onDrop=/.test(jsx), time: "5ms" },
+    ];
+  }
+  if (ticketId === "REACT-203") {
+    return [
+      { name: "Verify Global Reducer Architecture", pass: /useReducer/.test(files["BoardContext.jsx"] ?? ""), time: "12ms" },
+      { name: "Verify BoardContext setup", pass: /createContext/.test(files["BoardContext.jsx"] ?? ""), time: "8ms" },
+    ];
+  }
+  if (ticketId === "REACT-301") {
+    return [
+      { name: "Verify useEffect side effect", pass: /useEffect/.test(files["BoardContext.jsx"] ?? ""), time: "10ms" },
+      { name: "Verify Cross-Tab Window Storage Listener", pass: /addEventListener\(['"]storage['"]/.test(files["BoardContext.jsx"] ?? ""), time: "12ms" },
+    ];
+  }
+  if (ticketId === "REACT-302") {
+    return [{ name: "Verify Optimistic API Timer Simulation", pass: /setTimeout/.test(files["BoardContext.jsx"] ?? ""), time: "9ms" }];
+  }
+  if (ticketId === "REACT-303") {
+    return [{ name: "Verify Concurrency Locking Model", pass: /version/.test(files["BoardContext.jsx"] ?? "") || /lock/.test(files["BoardContext.jsx"] ?? ""), time: "14ms" }];
+  }
+  if (ticketId === "REACT-401") {
+    return [{ name: "Verify React Profiler Memoization", pass: /memo/.test(jsx) || /useMemo/.test(jsx) || /useCallback/.test(jsx), time: "18ms" }];
+  }
+  if (ticketId === "REACT-402") {
+    return [{ name: "Verify Virtualized FixedList Rendering", pass: /FixedSizeList/.test(jsx) || /List/.test(jsx) || /window/.test(jsx), time: "22ms" }];
+  }
+  if (ticketId === "REACT-403") {
+    return [{ name: "Verify Dynamic CSS Theme Properties", pass: /ThemeProvider/.test(jsx) || /theme-dark/.test(jsx), time: "11ms" }];
+  }
+  if (ticketId === "REACT-404") {
+    return [{ name: "Verify HTML5 Canvas Confetti Drop", pass: /confetti/.test(jsx) || /canvas/.test(jsx), time: "30ms" }];
+  }
+  if (ticketId === "REACT-501") {
+    return [
+      { name: "Verify message array mapping", pass: /\.map/.test(jsx), time: "10ms" },
+      { name: "Verify sticky input flexbox wrapper", pass: /chat-input-area/.test(jsx), time: "8ms" },
+    ];
+  }
+  if (ticketId === "REACT-502") {
+    return [
+      { name: "Verify WebSocket initialization hook", pass: /WebSocket/.test(jsx), time: "15ms" },
+      { name: "Verify useEffect side effect", pass: /useEffect/.test(jsx), time: "12ms" },
+    ];
+  }
+  if (ticketId === "REACT-503") {
+    return [
+      { name: "Verify useRef DOM reference", pass: /useRef/.test(jsx), time: "8ms" },
+      { name: "Verify scrollIntoView invocation", pass: /scrollIntoView/.test(jsx), time: "10ms" },
+    ];
+  }
+  if (ticketId === "REACT-504") {
+    return [{ name: "Verify IntersectionObserver Pagination", pass: /IntersectionObserver/.test(jsx), time: "14ms" }];
+  }
+  
+  return [];
+}
+
+function ReactReferenceView({ ticketId }: { ticketId: string }) {
+  switch (ticketId) {
+    case "REACT-101":
+      return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif", display: "flex", justifyContent: "center", color: "#111827" }}>
+          <ul style={{ listStyle: "none", padding: 0, width: "100%", maxWidth: "400px" }}>
+            <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+              <input type="checkbox" readOnly />
+              <span style={{ flex: 1 }}>Learn React basics</span>
+              <button style={{ background: "none", border: "none", color: "#dc2626" }}>🗑</button>
+            </li>
+          </ul>
+        </div>
+      );
+    case "REACT-102":
+    case "REACT-103":
+    case "REACT-104":
+      return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif", display: "flex", justifyContent: "center", color: "#111827", textAlign: "left" }}>
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            <h1 style={{ marginTop: 0, fontSize: "2em", fontWeight: "bold" }}>To-Do List</h1>
+            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+              <input placeholder="Add a task" disabled style={{ flex: 1, padding: "0.5rem", border: "1px solid #ccc", borderRadius: "2px" }} />
+              <button style={{ padding: "0.5rem", border: "1px solid #888", background: "#efefef", color: "#000", borderRadius: "2px", whiteSpace: "nowrap" }}>Add Task</button>
+            </div>
+            <ul style={{ listStyle: "none", padding: 0, margin: "1em 0" }}>
+              <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+                <input type="checkbox" readOnly style={{ margin: "3px 3px 3px 4px", WebkitAppearance: "checkbox", appearance: "auto" }} />
+                <span style={{ flex: 1 }}>Learn React Hooks</span>
+                <button style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer" }}>🗑</button>
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+                <input type="checkbox" readOnly style={{ margin: "3px 3px 3px 4px", WebkitAppearance: "checkbox", appearance: "auto" }} />
+                <span style={{ flex: 1 }}>Build a To-Do App</span>
+                <button style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer" }}>🗑</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    case "REACT-105":
+      return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif", display: "flex", justifyContent: "center", color: "#111827" }}>
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            <nav style={{ display: "flex", gap: "1rem", marginBottom: "1rem", borderBottom: "2px solid #eee", paddingBottom: "0.5rem" }}>
+              <button style={{ background: "none", border: "none", fontSize: "1rem", fontWeight: "bold" }}>List</button>
+              <button style={{ background: "none", border: "none", fontSize: "1rem", color: "#666" }}>Dashboard</button>
+            </nav>
+            <div style={{ padding: "1rem", background: "#f9fafb", borderRadius: "8px" }}>
+              <h2 style={{ marginTop: 0 }}>Dashboard</h2>
+              <p>Total Tasks: 2</p>
+              <p>Completed: 1</p>
+            </div>
+          </div>
+        </div>
+      );
+    case "REACT-106":
+      return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif", display: "flex", justifyContent: "center", background: "#111827", color: "#f9fafb", minHeight: "100%" }}>
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h1 style={{ marginTop: 0 }}>To-Do List</h1>
+              <button style={{ padding: "0.5rem 1rem", borderRadius: "4px", border: "1px solid #888", background: "transparent", color: "inherit" }}>Toggle Theme</button>
+            </div>
+            <p>Tasks would go here...</p>
+          </div>
+        </div>
+      );
+    case "REACT-201":
+    case "REACT-202":
+    case "REACT-203":
+    case "REACT-301":
+    case "REACT-302":
+    case "REACT-303":
+    case "REACT-401":
+    case "REACT-402":
+    case "REACT-404":
+      return (
+        <div style={{ padding: "3rem 2rem", fontFamily: "'Inter', sans-serif", background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)", color: "#1f2937", minHeight: "100%" }}>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: "800", letterSpacing: "-0.025em", margin: "0 0 2rem 0", textAlign: "center", color: "#2563eb" }}>Kanban Board</h1>
+          <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", maxWidth: "1200px", margin: "0 auto" }}>
+            <div style={{ flex: 1, background: "rgba(239, 246, 255, 0.8)", backdropFilter: "blur(10px)", border: "2px solid #bfdbfe", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.1)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#1d4ed8", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid #bfdbfe", paddingBottom: "0.5rem" }}>To Do 🔵</h3>
+              <div style={{ background: "white", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)", marginBottom: "0.75rem", borderLeft: "4px solid #3b82f6", color: "#4b5563", fontWeight: "600" }}>Design Schema</div>
+              <div style={{ background: "white", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)", marginBottom: "0.75rem", borderLeft: "4px solid #3b82f6", color: "#4b5563", fontWeight: "600" }}>Create API</div>
+            </div>
+            <div style={{ flex: 1, background: "rgba(254, 252, 232, 0.8)", backdropFilter: "blur(10px)", border: "2px solid #fef08a", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(234, 179, 8, 0.1)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#a16207", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid #fef08a", paddingBottom: "0.5rem" }}>In Progress 🟡</h3>
+              <div style={{ background: "white", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)", marginBottom: "0.75rem", borderLeft: "4px solid #eab308", color: "#4b5563", fontWeight: "600" }}>Setup React</div>
+            </div>
+            <div style={{ flex: 1, background: "rgba(240, 253, 244, 0.8)", backdropFilter: "blur(10px)", border: "2px solid #bbf7d0", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(34, 197, 94, 0.1)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#15803d", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid #bbf7d0", paddingBottom: "0.5rem" }}>Done 🟢</h3>
+            </div>
+          </div>
+        </div>
+      );
+    case "REACT-403":
+      return (
+        <div style={{ padding: "3rem 2rem", fontFamily: "'Inter', sans-serif", background: "#111827", color: "#f9fafb", minHeight: "100%" }}>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: "800", letterSpacing: "-0.025em", margin: "0 0 2rem 0", textAlign: "center" }}>Kanban Board</h1>
+          <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", maxWidth: "1200px", margin: "0 auto" }}>
+            <div style={{ flex: 1, background: "#1f2937", border: "1px solid #374151", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#e5e7eb", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em" }}>To Do</h3>
+              <div style={{ background: "#374151", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", marginBottom: "0.75rem", border: "1px solid #4b5563", color: "#f3f4f6", fontWeight: "500" }}>Design Schema</div>
+              <div style={{ background: "#374151", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", marginBottom: "0.75rem", border: "1px solid #4b5563", color: "#f3f4f6", fontWeight: "500" }}>Create API</div>
+            </div>
+            <div style={{ flex: 1, background: "#1f2937", border: "1px solid #374151", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#e5e7eb", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em" }}>In Progress</h3>
+              <div style={{ background: "#374151", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", marginBottom: "0.75rem", border: "1px solid #4b5563", color: "#f3f4f6", fontWeight: "500" }}>Setup React</div>
+            </div>
+            <div style={{ flex: 1, background: "#1f2937", border: "1px solid #374151", borderRadius: "12px", padding: "1.25rem", minHeight: "300px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.1rem", color: "#e5e7eb", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em" }}>Done</h3>
+            </div>
+          </div>
+        </div>
+      );
+    case "REACT-501":
+    case "REACT-502":
+    case "REACT-503":
+    case "REACT-504":
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "'Inter', sans-serif", background: "#f9fafb" }}>
+          <div style={{ padding: "1.5rem", background: "#ffffff", borderBottom: "1px solid #e5e7eb", fontSize: "1.25rem", fontWeight: "600", color: "#1f2937" }}>General Chat</div>
+          <div style={{ flex: 1, padding: "1.5rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <span style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem", fontWeight: "600" }}>Alice</span>
+              <div style={{ padding: "0.75rem 1rem", background: "#e5e7eb", borderRadius: "12px 12px 12px 0", color: "#1f2937", maxWidth: "80%" }}>Hello!</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <span style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem", fontWeight: "600" }}>Bob</span>
+              <div style={{ padding: "0.75rem 1rem", background: "#3b82f6", borderRadius: "12px 12px 12px 0", color: "white", maxWidth: "80%" }}>Hi Alice!</div>
+            </div>
+          </div>
+          <div style={{ padding: "1.5rem", background: "#ffffff", borderTop: "1px solid #e5e7eb", display: "flex", gap: "1rem" }}>
+            <input placeholder="Type a message..." disabled style={{ flex: 1, padding: "0.75rem 1rem", border: "1px solid #d1d5db", borderRadius: "8px", outline: "none", background: "#f3f4f6" }} />
+            <button style={{ padding: "0.75rem 1.5rem", background: "#3b82f6", color: "white", border: "none", borderRadius: "8px", fontWeight: "600" }}>Send</button>
+          </div>
+        </div>
+      );
+    default:
+      return <div>No Target Design preview available.</div>;
+  }
+}
+
+function UiReferenceView({ ticketId }: { ticketId: string }) {
+  let htmlContent = getTargetUI(ticketId);
+
+  if (!htmlContent) {
+    htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f3f4f6; color: #374151; text-align: center; }
+    .card { background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 400px; }
+    h1 { margin-top: 0; font-size: 1.25rem; }
+    p { color: #6b7280; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Target Design: ${ticketId}</h1>
+    <p>Construct the layout and components as described in the ticket specification.</p>
+  </div>
+</body>
+</html>`;
+  }
+
+  return (
+    <iframe
+      title="UI Target Preview"
+      srcDoc={htmlContent}
+      className="w-full h-full border-0 bg-white"
+      sandbox="allow-scripts allow-same-origin"
+    />
+  );
 }
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
@@ -678,7 +1445,6 @@ export function StudentTicketView({
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const baseTicket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
 
-
   const ticket = useMemo(() => {
     if (!previewOverride) return baseTicket;
     return {
@@ -692,12 +1458,13 @@ export function StudentTicketView({
     };
   }, [baseTicket, previewOverride]);
 
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
+  const kit = useMemo(() => getKit(slug, ticket.tag, ticket.id), [slug, ticket.tag, ticket.id]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
+  const isReact = kit.name === "react";
   const isPython = kit.name === "python";
   const isMultiLang = slug === "programming" || slug === "datastructures";
   type ProgLang = "python" | "c" | "cpp" | "js";
@@ -972,6 +1739,11 @@ export function StudentTicketView({
       setRunning(false);
       return;
     }
+    if (isReact) {
+      setOutput(`▶ Compiled virtual components using Babel Standalone.\n▶ Mounted React tree inside preview frame.\n✓ Hot reload OK.`);
+      setRunning(false);
+      return;
+    }
     if (isDjango) {
       setOutput(`$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`);
       setRunning(false);
@@ -1010,6 +1782,18 @@ export function StudentTicketView({
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
     setTimeout(() => {
+      if (isReact) {
+        const next = getReactTests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        return;
+      }
+      if (isUi) {
+        const next = getUITests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        return;
+      }
       const m = files["Main.java"];
       const next: TestResult[] = [
         { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
@@ -1027,6 +1811,35 @@ export function StudentTicketView({
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
     setTimeout(() => {
+      if (isReact) {
+        const next = getReactTests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        if (next.every((t) => t.pass)) {
+          const finalScore = calculateReactMatchScore(ticket.id, files);
+          saveTicketState(ticket.id, { status: "Completed", score: finalScore });
+          ticket.status = "Completed";
+          ticket.score = finalScore;
+          navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        } else {
+          showToast("Fix failing tests before submitting");
+        }
+        return;
+      }
+      if (isUi) {
+        const next = getUITests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        if (next.every((t) => t.pass)) {
+          saveTicketState(ticket.id, { status: "Completed", score: 100 });
+          ticket.status = "Completed";
+          ticket.score = 100;
+          navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        } else {
+          showToast("Fix failing tests before submitting");
+        }
+        return;
+      }
       const m = files["Main.java"];
       const next: TestResult[] = [
         { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
@@ -1083,6 +1896,10 @@ export function StudentTicketView({
   function updateCode(v: string) {
     setFiles((f) => ({ ...f, [activeFile]: v }));
     setDirty((d) => ({ ...d, [activeFile]: true }));
+    if (ticket.status === "Not Started") {
+      saveTicketState(ticket.id, { status: "In Progress" });
+      ticket.status = "In Progress";
+    }
   }
 
   function toggleTheme() {
@@ -1124,6 +1941,11 @@ export function StudentTicketView({
           <button onClick={() => setSidePanel((p) => p === "mentor" ? null : "mentor")}
             className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}>
             <Sparkles className="h-3 w-3" />AI Mentor
+          </button>
+          <button onClick={handleReset} title="Reset to starter template"
+            className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent text-muted-foreground hover:text-foreground">
+            <RotateCcw className="h-3 w-3" />
+            <span className="hidden md:inline">Reset</span>
           </button>
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
@@ -1328,6 +2150,7 @@ export function StudentTicketView({
                     isSql    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
                     isMongo  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                     isUi     ? <UiPreview files={files} /> :
+                    isReact  ? <UiPreview files={files} /> :
                     isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                                <PreviewView />
                   )}
@@ -1369,7 +2192,7 @@ export function StudentTicketView({
                 </div>
                 <div className="flex-1 overflow-auto scrollbar-thin p-3 text-xs min-w-0">
                   {sidePanel === "preview"
-                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} />
+                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} ticketId={ticket.id} />
                     : <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />}
                 </div>
               </aside>
@@ -1604,11 +2427,105 @@ function PreviewView() {
   );
 }
 
-function SidePreview({ device, kit, files, activeFile }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string }) {
+function SidePreview({ device, kit, files, activeFile, ticketId }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; ticketId: string }) {
+  const isReact = kit.name === "react";
+  const isUi = kit.name === "ui";
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
+  
+  const [finalScore, setFinalScore] = useState<number | null>(null);
+  const [visualScore, setVisualScore] = useState<number | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  const handleCalculateScore = async (codeScore: number) => {
+    setIsCalculating(true);
+    try {
+      const uiAContainer = document.getElementById("ui-a-capture");
+      const uiB = document.getElementById("ui-b-capture");
+      
+      const uiAIframe = uiAContainer?.querySelector("iframe");
+      const uiA = uiAIframe?.contentDocument?.body;
+      
+      if (!uiA || !uiB) {
+        alert("Missing UI elements to capture. Could not access iframe content.");
+        return;
+      }
+      
+      // Pass { logging: false, useCORS: true } if needed, though srcDoc should be fine
+      const blobA = await toBlob(uiA, { cacheBust: true, backgroundColor: '#ffffff' });
+      const blobB = await toBlob(uiB, { cacheBust: true, backgroundColor: '#ffffff' });
+      
+      if (!blobA || !blobB) return;
+      
+      const formData = new FormData();
+      formData.append("image2", blobA); // Student UI
+      formData.append("image1", blobB); // Target UI
+      
+      const res = await fetch("http://localhost:5000/api/compare", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      
+      if (data.score !== undefined) {
+        setVisualScore(data.score);
+        // Average the Regex Code score and the Visual SSIM score (50/50 weighting)
+        const combined = (codeScore * 0.5) + (data.score * 0.5);
+        setFinalScore(combined);
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert("Error capturing screenshot: " + (e.message || String(e)));
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+  
+  if (isReact || isUi) {
+    const score = isReact ? calculateReactMatchScore(ticketId, files) : calculateUIMatchScore(ticketId, files);
+    return (
+      <div className="flex flex-col h-full gap-2 text-xs">
+        <div className="flex items-center justify-between border-b pb-1.5 font-medium">
+          <span className="inline-flex items-center gap-2">
+            <Gauge className="h-3.5 w-3.5 text-primary" /> Visual Similarity Score
+            <button 
+              onClick={() => handleCalculateScore(score)}
+              disabled={isCalculating}
+              className="ml-2 px-2 py-0.5 bg-blue-600 text-white rounded text-[10px] hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isCalculating ? "Calculating..." : "Calculate Final Score"}
+            </button>
+          </span>
+          <div className="text-right">
+            <span className="text-sm font-semibold text-success">
+              {finalScore !== null ? `${finalScore.toFixed(1)}% Match` : `${score}% Match (Code)`}
+            </span>
+            {visualScore !== null && (
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {score}% Code + {visualScore.toFixed(1)}% Visual
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 grid grid-cols-2 gap-3 min-h-0">
+          <div className="flex flex-col min-h-0 border rounded overflow-hidden">
+            <div className="bg-accent/40 px-2 py-1 border-b font-medium text-[9px] uppercase tracking-wide">UI A: Your Component</div>
+            <div id="ui-a-capture" className="flex-1 min-h-0 relative bg-white">
+              <UiPreview files={files} fullHeight />
+            </div>
+          </div>
+          <div className="flex flex-col min-h-0 border rounded overflow-hidden">
+            <div className="bg-accent/40 px-2 py-1 border-b font-medium text-[9px] uppercase tracking-wide">UI B: Target Design</div>
+            <div id="ui-b-capture" className="flex-1 min-h-0 overflow-auto bg-white">
+              {isReact ? <ReactReferenceView ticketId={ticketId} /> : <UiReferenceView ticketId={ticketId} />}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const body =
     kit.name === "django" ? <DjangoTodoApp /> :
-    kit.name === "ui"     ? <UiPreview files={files} fullHeight /> :
     kit.name === "sql"    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
     kit.name === "mongo"  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
     kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
@@ -1784,74 +2701,210 @@ function Minimap({ code }: { code: string }) {
 }
 
 function ProblemPanel({ ticket }: { ticket: typeof tickets[number] }) {
+  const isJava = ticket.id.startsWith("JAVA-");
+  const isReact = ticket.id.startsWith("REACT-");
+
+  // Default fallback details
+  let descriptionText = ticket.description;
+  let learningObjectives = [
+    "Understand the core features of this task",
+    "Implement the solutions matching instructions",
+    "Test edge-cases and handle errors cleanly",
+    "Verify performance and correct layout"
+  ];
+  let tasks = [
+    { title: "Understand requirements", items: ["Read the files and comments in the editor", "Identify core functions and variables to implement"] },
+    { title: "Implement functionality", items: ["Write clean, well-documented code", "Follow language-specific guidelines"] },
+    { title: "Verify output", items: ["Run program and match expected results", "Execute test cases to ensure correct logic"] }
+  ];
+  let expectedOutput = "See target specification or runs tab for detail.";
+  let commonMistakes = [
+    "Forgetting to save changes before running tests",
+    "Failing to handle null or undefined input bounds",
+    "Syntax errors in type casting or function parameters"
+  ];
+
+  if (isReact) {
+    if (ticket.id === "REACT-101") {
+      learningObjectives = [
+        "Create reusable React components using functional syntax",
+        "Pass and destructure custom props dynamically",
+        "Render JSX elements based on props data"
+      ];
+      tasks = [
+        { title: "Task 1 · Create TaskItem Component", items: ["Accept a 'task' prop containing text and completed status", "Render an input checkbox bound to completed status", "Render the task text and a delete button", "Export component as default"] }
+      ];
+      expectedOutput = `TaskItem renders:
+- Checkbox input
+- Task text label
+- Delete button`;
+      commonMistakes = [
+        "Incorrect props naming (case-sensitivity)",
+        "Forgot default export statement in TaskItem",
+        "Not wrapping the component return in a single parent element (e.g., <li>)"
+      ];
+    } else if (ticket.id === "REACT-102") {
+      learningObjectives = [
+        "Manage local state with the useState hook",
+        "Implement controlled form inputs",
+        "Render arrays dynamically using the .map() function"
+      ];
+      tasks = [
+        { title: "Task 1 · State Initialization", items: ["Declare tasks state initialized to an empty array", "Declare newTaskText state for the input"] },
+        { title: "Task 2 · Add Task Form", items: ["Create a controlled input bound to newTaskText", "Handle form submit to append a new task to the tasks array"] },
+        { title: "Task 3 · Render Task List", items: ["Map over the tasks array", "Render a TaskItem component for each task"] }
+      ];
+      expectedOutput = `To-Do UI:
+- Form to type and submit new tasks
+- List of tasks updating dynamically
+- Clear input field after submission`;
+      commonMistakes = [
+        "Mutating the tasks array directly (e.g. tasks.push) instead of using the setter",
+        "Forgetting to prevent default on form submit",
+        "Missing the 'key' prop on mapped TaskItem elements"
+      ];
+    } else if (ticket.id === "REACT-103") {
+      learningObjectives = [
+        "Pass callback functions down to child components as props",
+        "Update specific array objects immutably",
+        "Filter elements out of arrays in React state"
+      ];
+      tasks = [
+        { title: "Task 1 · Action Functions", items: ["Implement toggleTask to flip completed status", "Implement deleteTask to filter a task out of the array"] },
+        { title: "Task 2 · Pass Props", items: ["Pass toggleTask and deleteTask as props to TaskItem"] },
+        { title: "Task 3 · Trigger Callbacks", items: ["Trigger onToggle when the checkbox changes", "Trigger onDelete when the trash button is clicked"] }
+      ];
+      expectedOutput = `Interactive Task List:
+- Clicking a checkbox toggles its state (and strikethrough styling)
+- Clicking the delete button removes the task instantly`;
+      commonMistakes = [
+        "Mutating the task object directly instead of returning a new object in .map()",
+        "Calling the delete function immediately during render instead of wrapping it in an arrow function (onClick={() => onDelete(id)})"
+      ];
+    } else if (ticket.id === "REACT-104") {
+      learningObjectives = [
+        "Execute side effects using the useEffect hook",
+        "Read from and write to browser localStorage",
+        "Synchronize React state with external persistence"
+      ];
+      tasks = [
+        { title: "Task 1 · Initial Load", items: ["Initialize tasks state by reading from localStorage", "Parse the JSON string, or default to an empty array"] },
+        { title: "Task 2 · Save Changes", items: ["Add a useEffect hook that triggers whenever 'tasks' changes", "Stringify and save the 'tasks' array to localStorage"] }
+      ];
+      expectedOutput = `Persistent To-Do App:
+- Added tasks survive a page reload
+- Deleted or toggled tasks retain their new state after a reload`;
+      commonMistakes = [
+        "Missing or incorrect dependency array in useEffect",
+        "Failing to handle null returns from localStorage.getItem",
+        "Not using JSON.stringify() when saving to localStorage"
+      ];
+    } else if (ticket.id === "REACT-105") {
+      learningObjectives = [
+        "Understand conditional rendering",
+        "Implement view switching states in a Single Page Application",
+        "Render complex UI conditionally based on state"
+      ];
+      tasks = [
+        { title: "Task 1 · View Switcher State", items: ["Create a currentView state variable initialized to 'list'", "Add navigation buttons to set currentView to 'list' or 'dashboard'"] },
+        { title: "Task 2 · Dashboard Component", items: ["Create a Dashboard component that takes tasks as a prop", "Display total number of tasks and total completed tasks"] },
+        { title: "Task 3 · Conditional Render", items: ["Render either the Dashboard or the Task List conditionally based on currentView"] }
+      ];
+      expectedOutput = `Router UI:
+- Navigation bar switches between List and Dashboard views
+- Dashboard calculates and displays live task statistics`;
+      commonMistakes = [
+        "Using anchor <a> tags that trigger a full page refresh instead of buttons",
+        "Not passing the tasks array as a prop to the Dashboard component"
+      ];
+    } else if (ticket.id === "REACT-106") {
+      learningObjectives = [
+        "Understand global state sharing with React Context",
+        "Create React context using createContext API",
+        "Provide context values using Provider wrapper",
+        "Consume context values in components with useContext"
+      ];
+      tasks = [
+        { title: "Task 1 · Context Creation", items: ["Define ThemeContext and ThemeProvider", "Manage a 'theme' state ('light' or 'dark') inside the provider", "Provide current theme and toggleTheme function"] },
+        { title: "Task 2 · App Integration", items: ["Wrap root App with ThemeProvider", "Consume context in MainApp to apply 'theme-light' or 'theme-dark' class"] },
+        { title: "Task 3 · Theme Toggle", items: ["Add a button that calls toggleTheme on click"] }
+      ];
+      expectedOutput = `Theme Context UI:
+- Light / Dark theme toggle button
+- Background and text colors change globally across the entire app
+- Deeply nested components can access the theme context`;
+      commonMistakes = [
+        "Forgetting to export/import the created ThemeContext",
+        "Not wrapping children in the ThemeProvider return statement",
+        "Failing to wrap the root application component with the Provider"
+      ];
+    }
+  } else if (isJava) {
+    learningObjectives = [
+      "Understand primitive data types",
+      "Declare and initialize variables",
+      "Perform type casting",
+      "Work with String operations"
+    ];
+    tasks = [
+      { title: "Task 1 · Create variables for all primitive types", items: ["int, double, boolean, char, long, float, byte, short", "Initialize with appropriate values", "Print them to console"] },
+      { title: "Task 2 · Perform type casting", items: ["Implicit: int → double", "Explicit: double → int", "Show before and after values"] },
+      { title: "Task 3 · Work with Strings", items: ["Create a String variable", "Use length(), charAt(), substring()", "Print the results"] }
+    ];
+    expectedOutput = `Integer: 42
+Double: 3.14
+Boolean: true
+String: Hello Java
+Length: 10
+Character at index 0: H`;
+    commonMistakes = [
+      "Type mismatch: double → int requires explicit cast",
+      "Forgetting (int) when narrowing",
+      "charAt out-of-bounds on empty strings"
+    ];
+  }
+
   return (
     <>
       <div>
         <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{ticket.id} · {ticket.tag}</div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        <p className="mt-2 text-muted-foreground">📋 Create a program demonstrating Java variables and data types.</p>
+        <p className="mt-2 text-muted-foreground">📋 {descriptionText}</p>
       </div>
 
       <Section title="🎯 Learning objectives">
         <ul className="space-y-1 text-muted-foreground">
-          <li>✓ Understand primitive data types</li>
-          <li>✓ Declare and initialize variables</li>
-          <li>✓ Perform type casting</li>
-          <li>✓ Work with String operations</li>
+          {learningObjectives.map((o, idx) => <li key={idx}>✓ {o}</li>)}
         </ul>
       </Section>
 
       <Section title="✅ Tasks">
         <div className="space-y-2 text-muted-foreground">
-          <div>
-            <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>int, double, boolean, char, long, float, byte, short</li>
-              <li>Initialize with appropriate values</li>
-              <li>Print them to console</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 2 · Perform type casting</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Implicit: int → double</li>
-              <li>Explicit: double → int</li>
-              <li>Show before and after values</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 3 · Work with Strings</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Create a String variable</li>
-              <li>Use length(), charAt(), substring()</li>
-              <li>Print the results</li>
-            </ul>
-          </div>
+          {tasks.map((t, idx) => (
+            <div key={idx}>
+              <div className="text-foreground">{t.title}</div>
+              <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                {t.items.map((item, itemIdx) => <li key={itemIdx}>{item}</li>)}
+              </ul>
+            </div>
+          ))}
         </div>
       </Section>
 
       <Section title="📥 Expected output">
-        <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground">{`Integer: 42
-Double: 3.14
-Boolean: true
-String: Hello Java
-Length: 10
-Character at index 0: H`}</pre>
+        <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground whitespace-pre-wrap">{expectedOutput}</pre>
       </Section>
 
       <Section title="🔗 Related concepts">
         <ul className="space-y-1 text-info">
-          <li>→ JAVA-102 · Control Flow & Loops</li>
-          <li>→ JAVA-105 · Strings Deep Dive</li>
-          <li>→ Docs: Primitive vs reference types</li>
+          <li>→ {ticket.id.split("-")[0]}-102 · Advanced Concepts</li>
+          <li>→ Docs: Best practices and pattern syntax</li>
         </ul>
       </Section>
 
       <Section title="⚠️ Common mistakes">
         <ul className="space-y-1 text-muted-foreground">
-          <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
-          <li>• Forgetting <code>(int)</code> when narrowing</li>
-          <li>• <code>charAt</code> out-of-bounds on empty strings</li>
+          {commonMistakes.map((m, idx) => <li key={idx}>• {m}</li>)}
         </ul>
       </Section>
     </>
@@ -2319,7 +3372,11 @@ function MongoResultsView({ query }: { query: string }) {
 /* ---------- UI iframe preview (HTML/CSS/JS) ---------- */
 
 function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullHeight?: boolean }) {
+  const isReact = files["App.jsx"] !== undefined;
   const srcDoc = useMemo(() => {
+    if (isReact) {
+      return getReactSrcDoc(files);
+    }
     const html = files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
     const cssText = files["styles.css"] ?? "";
     const jsText = files["app.js"] ?? "";
@@ -2336,7 +3393,7 @@ function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullH
   return (
     <iframe
       title="UI preview"
-      sandbox="allow-scripts"
+      sandbox="allow-scripts allow-same-origin allow-forms"
       srcDoc={srcDoc}
       className={`w-full rounded border bg-white ${fullHeight ? "h-full" : "h-48"}`}
     />

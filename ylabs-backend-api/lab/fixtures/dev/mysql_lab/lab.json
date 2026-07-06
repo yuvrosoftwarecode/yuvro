@@ -1,0 +1,19 @@
+{
+  "labs": [
+    {
+      "title": "MySQL Lab",
+      "type": "DATABASE",
+      "description": "Master relational database management, querying, and optimization using MySQL.",
+      "difficulty": "MEDIUM",
+      "icon": "mysql",
+      "prerequisites": "None",
+      "skills": [
+        "MySQL",
+        "Database Design",
+        "SQL Queries"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

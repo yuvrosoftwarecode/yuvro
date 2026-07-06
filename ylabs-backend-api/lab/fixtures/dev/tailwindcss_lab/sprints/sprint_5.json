@@ -1,0 +1,42 @@
+{
+  "title": "Sprint 5 - Capstone Project",
+  "description": "",
+  "order_index": 5,
+  "lab_title": "Tailwind CSS Lab",
+  "tickets": [
+    {
+      "title": "Full Page Architecture",
+      "ticket_slug": "tailwind-5-1-1",
+      "description": "Builds a complete landing page featuring a hero section with gradient text, a feature bento-grid, a pricing table, and a footer. Must be fully responsive and support dark mode. ",
+      "tasks": [
+        "Builds a complete landing page featuring a hero section with gradient text, a feature bento-grid, a pricing table, and a footer. Must be fully responsive and support dark mode."
+      ],
+      "learning_objectives": [
+        "Master Tailwind's CSS Grid utility classes."
+      ],
+      "evaluation": "**Hero Section**: Checks for `bg-gradient-to-r`, `text-transparent`, `bg-clip-text`. **Responsiveness**: Checks for a minimum of 15 responsive prefixes (`md:`, `lg:`). **Dark Mode**: Checks for a minimum of 10 `dark:` variants. **[A] Visual (250 pts)**: High-fidelity SSIM match across Mobile, Tablet, and Desktop viewport tests. **[B] Logic (250 pts)**: Exhaustive AST scan for component structure, gradient utilities, and state variants. **[C] Quality (100 pts)**: 100 pts for clean semantic HTML5 landmarks (`<header>`, `<main>`, `<section>`, `<footer>`). ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Applying 'md:' to mobile styles instead of desktop styles."
+      ],
+      "hints": [
+        "Tailwind's grid system uses 'grid' and 'grid-cols-*' utilities.",
+        "Use 'gap-*' to add spacing between grid items."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {},
+      "yuvro_points": 600,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    }
+  ]
+}

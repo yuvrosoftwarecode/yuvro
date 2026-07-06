@@ -1,0 +1,152 @@
+{
+  "title": "Sprint 5 - Real-Time Chat App (Slack Clone) \ud83c\udd95",
+  "description": "The ultimate capstone. A fully Real-Time WebSocket-driven chat application.",
+  "order_index": 5,
+  "lab_title": "React Lab",
+  "tickets": [
+    {
+      "title": "Message Feed UI",
+      "ticket_slug": "react-501",
+      "description": "Build the core chat interface with a sticky message input.",
+      "tasks": [
+        "Build the core chat interface with a sticky message input."
+      ],
+      "learning_objectives": [
+        "Flexbox `flex-direction: column` layouts and scrolling containers."
+      ],
+      "evaluation": "Visual Grader expects a bottom-aligned input area and the \"General Chat\" header. Logic Grader expects array mapping (`.map`) and specific CSS classes (`.chat-input-area`).",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([\n        { id: 1, text: \"Hello!\" },\n        { id: 2, text: \"Hi there!\" }\n      ]);\n      const [text, setText] = useState(\"\");\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => (\n              <div key={msg.id} className=\"message\">{msg.text}</div>\n            ))}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={() => {\n              setMessages([...messages, { id: Date.now(), text }]);\n              setText(\"\");\n            }}>\n              Send\n            </button>\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "WebSocket Integration",
+      "ticket_slug": "react-502",
+      "description": "Connect to a live WebSocket server to listen for new messages instantly without polling.",
+      "tasks": [
+        "Connect to a live WebSocket server to listen for new messages instantly without polling."
+      ],
+      "learning_objectives": [
+        "Initializing WebSockets, cleaning up connections on unmount, and managing external subscriptions in React."
+      ],
+      "evaluation": "Logic Grader explicitly checks for `useEffect` and `WebSocket` initialization.",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState, useEffect } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => (\n              <div key={msg.id} className=\"message\">{msg.text}</div>\n            ))}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Auto-Scroll to Bottom",
+      "ticket_slug": "react-503",
+      "description": "Automatically scroll the chat window down when a new message arrives.",
+      "tasks": [
+        "Automatically scroll the chat window down when a new message arrives."
+      ],
+      "learning_objectives": [
+        "Using the `useRef` hook to directly access and manipulate DOM nodes."
+      ],
+      "evaluation": "Logic Grader expects `useRef` and `scrollIntoView` invocations.",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState, useEffect, useRef } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n      const bottomRef = useRef(null);\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      useEffect(() => {\n        // Smooth scroll to the bottom element whenever messages array changes\n        bottomRef.current?.scrollIntoView({ behavior: \"smooth\" });\n      }, [messages]);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {messages.map(msg => <div key={msg.id} className=\"message\">{msg.text}</div>)}\n            {/* Invisible anchor div at the bottom of the feed */}\n            <div ref={bottomRef} /> \n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Infinite Scroll Pagination",
+      "ticket_slug": "react-504",
+      "description": "When the user scrolls to the top of the chat, automatically fetch the next page of older messages.",
+      "tasks": [
+        "When the user scrolls to the top of the chat, automatically fetch the next page of older messages."
+      ],
+      "learning_objectives": [
+        "The `IntersectionObserver` API and scroll position retention."
+      ],
+      "evaluation": "Logic Grader explicitly checks for the usage of `IntersectionObserver`.",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "App.jsx": "    import { useState, useEffect, useRef } from \"react\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [messages, setMessages] = useState([]);\n      const [ws, setWs] = useState(null);\n      const [text, setText] = useState(\"\");\n      const topRef = useRef(null);\n\n      const fetchOlderMessages = async () => {\n        // Simulated fetch: generate 20 messages so it pushes the sentinel out of view!\n        const batch = Array.from({ length: 20 }).map((_, i) => ({\n          id: Date.now() + i,\n          text: `Older message...`\n        }));\n        setMessages(prev => [...batch, ...prev]);\n      };\n\n      useEffect(() => {\n        const observer = new IntersectionObserver(([entry]) => {\n          // If the top sentinel is visible in the viewport, fetch more data\n          if (entry.isIntersecting) {\n            fetchOlderMessages();\n          }\n        });\n\n        if (topRef.current) {\n          observer.observe(topRef.current);\n        }\n\n        return () => observer.disconnect();\n      }, []);\n\n      useEffect(() => {\n        // Using a real public echo server so you can see it work!\n        const socket = new WebSocket(\"wss://ws.postman-echo.com/raw\");\n        \n        socket.onmessage = (event) => {\n          const newMsg = JSON.parse(event.data);\n          setMessages(prev => [...prev, newMsg]);\n        };\n\n        setWs(socket);\n\n        return () => {\n          socket.close();\n        };\n      }, []);\n\n      const sendMessage = () => {\n        if (ws && ws.readyState === WebSocket.OPEN) {\n          ws.send(JSON.stringify({ id: Date.now(), text }));\n          setText(\"\");\n        }\n      };\n\n      return (\n        <div className=\"chat-container\">\n          <div className=\"chat-header\">General Chat</div>\n          <div className=\"chat-feed\">\n            {/* Invisible sentinel div at the top of the feed */}\n            <div ref={topRef} />\n            {messages.map(msg => <div key={msg.id} className=\"message\">{msg.text}</div>)}\n          </div>\n          <div className=\"chat-input-area\">\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Type a message...\" \n            />\n            <button onClick={sendMessage}>Send</button>\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 4
+    }
+  ]
+}

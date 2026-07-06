@@ -27,15 +27,15 @@ export interface Lab {
   skills: { name: string; pct: number }[];
 }
 
-export const labs: Lab[] = [
+const baseLabs: Lab[] = [
   { slug: "java", name: "Java Lab", icon: "☕", color: "java", difficulty: "Intermediate", completed: 8, total: 25, hoursLeft: 14, description: "Master Java fundamentals to advanced OOP.", skills: [
     { name: "Core Syntax", pct: 85 }, { name: "OOP Concepts", pct: 65 }, { name: "Exception Handling", pct: 45 }, { name: "Collections", pct: 30 }
   ]},
   { slug: "python", name: "Python Lab", icon: "🐍", color: "python", difficulty: "Beginner", completed: 12, total: 30, hoursLeft: 10, description: "From scripting to data structures and APIs.", skills: [
     { name: "Syntax", pct: 90 }, { name: "Functions", pct: 72 }, { name: "Modules", pct: 55 }, { name: "Async I/O", pct: 25 }
   ]},
-  { slug: "ui", name: "UI Lab", icon: "🎨", color: "ui", difficulty: "Intermediate", completed: 5, total: 20, hoursLeft: 18, description: "Build pixel-perfect interfaces with HTML, CSS, React.", skills: [
-    { name: "HTML/CSS", pct: 80 }, { name: "Flex/Grid", pct: 70 }, { name: "React", pct: 50 }, { name: "Accessibility", pct: 35 }
+  { slug: "ui", name: "UI Lab", icon: "🎨", color: "ui", difficulty: "Intermediate", completed: 5, total: 17, hoursLeft: 14, description: "Build pixel-perfect interfaces with HTML and CSS.", skills: [
+    { name: "HTML/CSS", pct: 80 }, { name: "Flex/Grid", pct: 70 }, { name: "Accessibility", pct: 35 }
   ]},
   { slug: "sql", name: "MySQL Lab", icon: "🗄️", color: "sql", difficulty: "Advanced", completed: 3, total: 18, hoursLeft: 22, description: "MySQL queries, joins, window functions and tuning.", skills: [
     { name: "SELECT", pct: 95 }, { name: "JOINs", pct: 60 }, { name: "Windows", pct: 30 }, { name: "Tuning", pct: 15 }
@@ -76,6 +76,15 @@ export const labs: Lab[] = [
   { slug: "qa", name: "QA Lab", icon: "🧪", color: "ui", difficulty: "Intermediate", completed: 0, total: 15, hoursLeft: 22, description: "Manual and automated testing: test cases, API tests, Playwright/Selenium and CI integration.", skills: [
     { name: "Test Cases", pct: 0 }, { name: "API Testing", pct: 0 }, { name: "Automation", pct: 0 }, { name: "CI/CD", pct: 0 }
   ]},
+  { slug: "react", name: "React Lab", icon: "⚛️", color: "ui", difficulty: "Intermediate", completed: 0, total: 16, hoursLeft: 12, description: "Build modern, interactive web interfaces with components, state, effects, routing, and context.", skills: [
+    { name: "JSX & Props", pct: 0 }, { name: "State & Events", pct: 0 }, { name: "Hooks & Effects", pct: 0 }, { name: "Context & Router", pct: 0 }
+  ]},
+  { slug: "bootstrap", name: "Bootstrap 5 Lab", icon: "🟪", color: "ui", difficulty: "Beginner", completed: 0, total: 10, hoursLeft: 8, description: "Build responsive, mobile-first websites using Bootstrap's powerful grid system, components, and utilities.", skills: [
+    { name: "Grid System", pct: 0 }, { name: "Components", pct: 0 }, { name: "Interactive JS", pct: 0 }, { name: "Layouts", pct: 0 }
+  ]},
+  { slug: "tailwind", name: "Tailwind CSS Lab", icon: "🌊", color: "ui", difficulty: "Intermediate", completed: 0, total: 9, hoursLeft: 12, description: "Rapidly build modern websites without ever leaving your HTML using Tailwind's utility-first framework.", skills: [
+    { name: "Utility-First", pct: 0 }, { name: "Flex/Grid", pct: 0 }, { name: "Interactivity", pct: 0 }, { name: "Plugins", pct: 0 }
+  ]},
 ];
 
 const mk = (i: number, title: string, diff: Difficulty, st: Status, tag: string, mins = 45, xp = 150, progress?: number, score?: number): Ticket => ({
@@ -83,7 +92,7 @@ const mk = (i: number, title: string, diff: Difficulty, st: Status, tag: string,
   description: `Implement and test ${title.toLowerCase()}. Focus on clean idiomatic code and edge cases.`,
 });
 
-export const tickets: Ticket[] = [
+const baseTickets: Ticket[] = [
   mk(1, "Variables & Types", "Beginner", "Completed", "Fundamentals", 30, 100, undefined, 95),
   mk(2, "Control Flow", "Beginner", "Completed", "Fundamentals", 35, 120, undefined, 88),
   mk(3, "Arrays & Loops", "Beginner", "Completed", "Fundamentals", 40, 130, undefined, 92),
@@ -228,13 +237,6 @@ export const tickets: Ticket[] = [
   { id: "UI-105", title: "Mobile-first media queries", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "Layout", status: "Not Started",
     description: "Convert a desktop layout to mobile-first with breakpoints at 640/768/1024px." },
 
-  // ---- UI Lab · React ----
-  { id: "UI-201", title: "React: Todo with useState", difficulty: "Intermediate", estMin: 60, xp: 240, tag: "React", status: "Not Started",
-    description: "Build a todo app with add, toggle, delete and filter All/Active/Done using useState." },
-  { id: "UI-202", title: "useEffect & data fetching", difficulty: "Intermediate", estMin: 55, xp: 240, tag: "React", status: "Not Started",
-    description: "Fetch posts from an API on mount. Handle loading, error and empty states cleanly." },
-  { id: "UI-203", title: "Custom hook: useLocalStorage", difficulty: "Advanced", estMin: 50, xp: 260, tag: "React", status: "Not Started",
-    description: "Write a reusable hook that syncs a state value to localStorage with SSR safety." },
 
   // ---- UI Lab · Accessibility ----
   { id: "UI-301", title: "Keyboard-accessible modal", difficulty: "Advanced", estMin: 60, xp: 280, tag: "Accessibility", status: "Not Started",
@@ -435,7 +437,185 @@ export const tickets: Ticket[] = [
   { id: "SEC-116", title: "Secrets management & rotation", difficulty: "Advanced", estMin: 45, xp: 210, tag: "Sec Cloud", status: "Not Started", description: "Store secrets in a vault and rotate database credentials without downtime." },
   { id: "SEC-117", title: "Container hardening", difficulty: "Advanced", estMin: 55, xp: 240, tag: "Sec Cloud", status: "Not Started", description: "Run containers as non-root, drop caps and pin image digests." },
   { id: "SEC-118", title: "Incident response basics", difficulty: "Intermediate", estMin: 40, xp: 190, tag: "Sec Cloud", status: "Not Started", description: "Draft an IR runbook covering detect, contain, eradicate and recover." },
+  // ---- React Lab ----
+  { id: "REACT-101", title: "Task Item Component", difficulty: "Beginner", estMin: 25, xp: 100, tag: "React Basics", status: "Not Started",
+    description: "Create a reusable TaskItem component that renders a task's text, checkbox, and delete button using props." },
+  { id: "REACT-102", title: "Task List State", difficulty: "Beginner", estMin: 35, xp: 120, tag: "React State", status: "Not Started",
+    description: "Create a list of tasks using state, and build a form with a controlled input to add new tasks." },
+  { id: "REACT-103", title: "Task Actions", difficulty: "Intermediate", estMin: 45, xp: 150, tag: "React State", status: "Not Started",
+    description: "Pass callback functions as props to implement toggling task completion and deleting tasks from the state." },
+  { id: "REACT-104", title: "Persisting Tasks", difficulty: "Intermediate", estMin: 50, xp: 180, tag: "React Effects", status: "Not Started",
+    description: "Use the useEffect hook to load and save the task list to localStorage so tasks survive page reloads." },
+  { id: "REACT-105", title: "Dashboard Routing", difficulty: "Advanced", estMin: 60, xp: 200, tag: "React Architecture", status: "Not Started",
+    description: "Implement conditional routing to switch between the Task List view and a Dashboard view displaying completion stats." },
+  { id: "REACT-106", title: "Theme Context", difficulty: "Intermediate", estMin: 45, xp: 150, tag: "React Architecture", status: "Not Started",
+    description: "Create a ThemeContext to switch the entire To-Do app between Light and Dark mode." },
+
+  // ---- React Lab: Sprint 2 (Kanban Board) ----
+  { id: "REACT-201", title: "Board & Columns Layout", difficulty: "Beginner", estMin: 35, xp: 150, tag: "React Architecture", status: "Not Started",
+    description: "Render a flexbox board with 3 columns (To Do, In Progress, Done). Map over a complex nested data structure." },
+  { id: "REACT-202", title: "HTML5 Drag & Drop", difficulty: "Intermediate", estMin: 55, xp: 220, tag: "React DOM", status: "Not Started",
+    description: "Add draggable attributes. Wire up onDragStart, onDragOver, and onDrop to move tasks between columns." },
+  { id: "REACT-203", title: "Context & Reducers", difficulty: "Advanced", estMin: 60, xp: 250, tag: "React State", status: "Not Started",
+    description: "Refactor the board state into a Global Context using useReducer to handle actions cleanly (MOVE_TASK, ADD_COLUMN)." },
+
+  // ---- React Lab: Sprint 3 (Real-Time Sync) ----
+  { id: "REACT-301", title: "Cross-Tab Storage Sync", difficulty: "Intermediate", estMin: 45, xp: 180, tag: "React Effects", status: "Not Started",
+    description: "Use useEffect to listen to the window 'storage' event. When a task is moved in one browser tab, it instantly updates in the other tab." },
+  { id: "REACT-302", title: "Optimistic UI Updates", difficulty: "Advanced", estMin: 50, xp: 200, tag: "React Architecture", status: "Not Started",
+    description: "Simulate a slow backend API with setTimeout. Update the UI instantly when a user drags a task, but roll it back if the API fails." },
+  { id: "REACT-303", title: "Conflicting State Resolution", difficulty: "Advanced", estMin: 65, xp: 300, tag: "React Architecture", status: "Not Started",
+    description: "Handle the edge case where two tabs edit the exact same task simultaneously using basic operational transformation/locking." },
+
+  // ---- React Lab: Sprint 4 (Performance & Polish) ----
+  { id: "REACT-401", title: "Memoization (React.memo)", difficulty: "Intermediate", estMin: 40, xp: 160, tag: "React Perf", status: "Not Started",
+    description: "Prevent the entire board from re-rendering when a single task is moved by wrapping columns and tasks in React.memo." },
+  { id: "REACT-402", title: "Virtualized Lists", difficulty: "Advanced", estMin: 70, xp: 350, tag: "React Perf", status: "Not Started",
+    description: "Implement a virtualized scrolling list to only render visible tasks, improving performance for columns with 1000+ tasks." },
+  { id: "REACT-403", title: "Dark Mode Polish", difficulty: "Beginner", estMin: 30, xp: 120, tag: "React UI", status: "Not Started",
+    description: "Integrate the ThemeContext from Sprint 1 to make the Kanban board switch between Light and Dark mode dynamically." },
+  { id: "REACT-404", title: "Confetti on Complete", difficulty: "Beginner", estMin: 25, xp: 100, tag: "React UI", status: "Not Started",
+    description: "Trigger a confetti animation using canvas when all tasks are moved to the Done column!" },
+
+  // ---- React Lab: Sprint 5 (Chat App) ----
+  { id: "REACT-501", title: "Message Feed UI", difficulty: "Beginner", estMin: 35, xp: 130, tag: "React DOM", status: "Not Started",
+    description: "Build the chat UI with a flex-reverse message feed and a sticky bottom input area." },
+  { id: "REACT-502", title: "WebSocket Integration", difficulty: "Advanced", estMin: 60, xp: 260, tag: "React Effects", status: "Not Started",
+    description: "Use useEffect to connect to a live WebSocket server. Append new messages to the feed in real-time." },
+  { id: "REACT-503", title: "Auto-Scroll to Bottom", difficulty: "Intermediate", estMin: 45, xp: 190, tag: "React DOM", status: "Not Started",
+    description: "Use useRef and DOM scroll APIs to automatically scroll the chat down when a new message arrives, unless the user is scrolling up." },
+  { id: "REACT-504", title: "Infinite Scroll Pagination", difficulty: "Advanced", estMin: 65, xp: 290, tag: "React Perf", status: "Not Started",
+    description: "Implement Intersection Observer to fetch older messages when the user scrolls to the top of the feed." },
+
+  // ---- Bootstrap 5 Lab ----
+  { id: "BS-101", title: "Basic 12-Column Grid", difficulty: "Beginner", estMin: 20, xp: 70, tag: "Grid", status: "Not Started",
+    description: "Build a 3-column equal-width layout using container, row, and col classes." },
+  { id: "BS-102", title: "Responsive Grid Breakpoints", difficulty: "Beginner", estMin: 25, xp: 80, tag: "Grid", status: "Not Started",
+    description: "Create a gallery layout that adapts from 1 column on mobile to 4 on desktop." },
+  { id: "BS-103", title: "Typography & Buttons", difficulty: "Beginner", estMin: 20, xp: 70, tag: "UI", status: "Not Started",
+    description: "Apply standard typography classes and style action buttons." },
+  { id: "BS-201", title: "Responsive Navbar", difficulty: "Intermediate", estMin: 35, xp: 100, tag: "Components", status: "Not Started",
+    description: "Build a collapsible navbar with dropdowns and branding." },
+  { id: "BS-202", title: "Profile Cards & Alerts", difficulty: "Beginner", estMin: 25, xp: 80, tag: "Components", status: "Not Started",
+    description: "Design user profile cards and stateful alert banners." },
+  { id: "BS-203", title: "Forms & Validation", difficulty: "Intermediate", estMin: 30, xp: 90, tag: "Forms", status: "Not Started",
+    description: "Style a login form with floating labels and visual validation feedback." },
+  { id: "BS-301", title: "Triggering Modals", difficulty: "Intermediate", estMin: 35, xp: 100, tag: "JS Components", status: "Not Started",
+    description: "Wire up a confirmation dialog using data-bs-toggle and modal targets." },
+  { id: "BS-302", title: "Carousels & Accordions", difficulty: "Intermediate", estMin: 30, xp: 90, tag: "JS Components", status: "Not Started",
+    description: "Build an interactive image slider and a collapsible FAQ accordion." },
+  { id: "BS-401", title: "Admin Dashboard Layout", difficulty: "Advanced", estMin: 45, xp: 120, tag: "Advanced Layout", status: "Not Started",
+    description: "Construct a fixed sidebar layout alongside a scrolling main content pane using flex utilities." },
+  { id: "BS-402", title: "Sass Customization", difficulty: "Advanced", estMin: 30, xp: 80, tag: "Customization", status: "Not Started",
+    description: "Override Bootstrap Sass variables to customize colors and borders." },
+
+  // ---- Tailwind CSS Lab ----
+  { id: "TW-101", title: "The Box Model & Colors", difficulty: "Beginner", estMin: 25, xp: 70, tag: "Utility", status: "Not Started",
+    description: "Style a basic card with precise margins, padding, rounded corners, and shadows." },
+  { id: "TW-102", title: "Responsive Flexbox Nav", difficulty: "Beginner", estMin: 30, xp: 80, tag: "Layout", status: "Not Started",
+    description: "Use md: flexbox utilities to switch between stacked mobile and horizontal desktop navigations." },
+  { id: "TW-201", title: "Interactive Form Controls", difficulty: "Intermediate", estMin: 35, xp: 120, tag: "States", status: "Not Started",
+    description: "Implement hover, focus, and active states with smooth transitions on form inputs." },
+  { id: "TW-202", title: "Dark Mode Toggle", difficulty: "Intermediate", estMin: 40, xp: 130, tag: "States", status: "Not Started",
+    description: "Add dark: variants across typography and backgrounds for a seamless dark theme." },
+  { id: "TW-301", title: "Bento Box Grid Layout", difficulty: "Advanced", estMin: 45, xp: 130, tag: "Advanced Layout", status: "Not Started",
+    description: "Construct a complex asymmetrical bento grid using col-span and row-span utilities." },
+  { id: "TW-302", title: "Custom Keyframe Animations", difficulty: "Advanced", estMin: 40, xp: 120, tag: "Animations", status: "Not Started",
+    description: "Extend tailwind.config.js to define and apply a custom wiggle animation." },
+  { id: "TW-401", title: "Reusability with @apply", difficulty: "Intermediate", estMin: 35, xp: 100, tag: "Maintainability", status: "Not Started",
+    description: "Extract long utility strings into custom CSS components using the @apply directive." },
+  { id: "TW-402", title: "Typography Plugin", difficulty: "Advanced", estMin: 45, xp: 150, tag: "Plugins", status: "Not Started",
+    description: "Utilize @tailwindcss/typography's prose classes to format raw HTML markdown content beautifully." },
+  { id: "TW-501", title: "Capstone: Landing Page", difficulty: "Advanced", estMin: 120, xp: 600, tag: "Capstone", status: "Not Started",
+    description: "Combine all skills to build a production-ready SaaS landing page featuring gradients, grids, and dark mode." },
 ];
+
+const LOCAL_STORAGE_TICKETS_KEY = "yuvro-ylabs-tickets-state";
+
+export function loadTicketsState(base: Ticket[]): Ticket[] {
+  if (typeof window === "undefined") return base;
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_TICKETS_KEY);
+    if (!raw) return base;
+    const stored = JSON.parse(raw) as Record<string, { status: Status; progress?: number; score?: number }>;
+    return base.map(t => {
+      if (stored[t.id]) {
+        return { ...t, ...stored[t.id] };
+      }
+      return t;
+    });
+  } catch {
+    return base;
+  }
+}
+
+export function saveTicketState(ticketId: string, updates: Partial<Ticket>) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_TICKETS_KEY);
+    const stored = raw ? JSON.parse(raw) : {};
+    stored[ticketId] = { ...(stored[ticketId] ?? {}), ...updates };
+    localStorage.setItem(LOCAL_STORAGE_TICKETS_KEY, JSON.stringify(stored));
+    
+    // Update in-memory arrays so any reads in the current session are up to date
+    const tIdx = tickets.findIndex(t => t.id === ticketId);
+    if (tIdx >= 0) {
+      tickets[tIdx] = { ...tickets[tIdx], ...updates };
+    }
+    
+    // Re-evaluate labs based on the updated tickets
+    const updatedLabs = loadLabsWithStatus(baseLabs, tickets);
+    for (let i = 0; i < labs.length; i++) {
+      labs[i] = updatedLabs[i];
+    }
+  } catch {}
+}
+
+export function loadLabsWithStatus(bLabs: Lab[], curTickets: Ticket[]): Lab[] {
+  return bLabs.map(l => {
+    const matchingTickets = curTickets.filter(t => {
+      const isJava = l.slug === "java" && t.id.startsWith("JAVA-");
+      const isPython = l.slug === "python" && t.id.startsWith("PY-");
+      const isUi = l.slug === "ui" && t.id.startsWith("UI-");
+      const isSql = l.slug === "sql" && t.id.startsWith("SQL-");
+      const isPostgres = l.slug === "postgres" && t.id.startsWith("PG-");
+      const isPyDjango = l.slug === "pydjango" && t.id.startsWith("PYDJ-");
+      const isPyFlask = l.slug === "pyflask" && t.id.startsWith("PYFL-");
+      const isJavaSpring = l.slug === "javaspring" && t.id.startsWith("SPR-");
+      const isGit = l.slug === "git" && t.id.startsWith("GIT-");
+      const isMongo = l.slug === "mongo" && t.id.startsWith("MDB-");
+      const isProg = l.slug === "programming" && t.id.startsWith("PROG-");
+      const isDs = l.slug === "datastructures" && t.id.startsWith("DS-");
+      const isReact = l.slug === "react" && t.id.startsWith("REACT-");
+      const isBootstrap = l.slug === "bootstrap" && t.id.startsWith("BS-");
+      const isTailwind = l.slug === "tailwind" && t.id.startsWith("TW-");
+      return isJava || isPython || isUi || isSql || isPostgres || isPyDjango || isPyFlask || isJavaSpring || isGit || isMongo || isProg || isDs || isReact || isBootstrap || isTailwind;
+    });
+    
+    const completed = matchingTickets.filter(t => t.status === "Completed").length;
+    const total = matchingTickets.length || l.total;
+    
+    // Update skills progress percentage
+    const skills = l.skills.map(s => {
+      // Filter by tag similarity to skill name
+      const baselineCompleted = matchingTickets.filter(t => t.status === "Completed" && t.tag.toLowerCase().includes(s.name.toLowerCase().substring(0, 4))).length;
+      const baselineTotal = matchingTickets.filter(t => t.tag.toLowerCase().includes(s.name.toLowerCase().substring(0, 4))).length;
+      const pct = baselineTotal > 0 ? Math.round((baselineCompleted / baselineTotal) * 100) : (completed > 0 ? Math.round((completed / total) * 100) : 0);
+      return { ...s, pct };
+    });
+    
+    return {
+      ...l,
+      completed,
+      total,
+      skills
+    };
+  });
+}
+
+// Perform initial load
+export const tickets: Ticket[] = loadTicketsState(baseTickets);
+export const labs: Lab[] = loadLabsWithStatus(baseLabs, tickets);
 
 export const leaderboard = [
   { rank: 1, name: "Aarav S.", xp: 12480, streak: 42, avatar: "AS" },

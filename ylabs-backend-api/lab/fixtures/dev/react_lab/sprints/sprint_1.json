@@ -1,0 +1,229 @@
+{
+  "title": "Sprint 1 - The To-Do List (React Fundamentals)",
+  "description": "Build a fully functional, controlled To-Do List from scratch while learning Component structure and Hooks.",
+  "order_index": 1,
+  "lab_title": "React Lab",
+  "tickets": [
+    {
+      "title": "Component Skeleton",
+      "ticket_slug": "react-101",
+      "description": "Build a static `TaskItem` component that receives `task` object props.",
+      "tasks": [
+        "Build a static `TaskItem` component that receives `task` object props."
+      ],
+      "learning_objectives": [
+        "JSX fundamentals, component extraction, and passing props."
+      ],
+      "evaluation": "Logic Grader checks for `function TaskItem(props)`, `<input type=\"checkbox\">`, and `task.text` in the JSX.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "TaskItem.jsx": "    export default function TaskItem({ task }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} readOnly />\n          <span>{task.text}</span>\n          <button>Delete</button>\n        </div>\n      );\n    }\n",
+        "App.jsx": "    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n    export default function App() {\n      const sampleTask = { id: 1, text: \"Learn React\", completed: false };\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <TaskItem task={sampleTask} />\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Task List State",
+      "ticket_slug": "react-102",
+      "description": "Introduce `useState` and controlled inputs to add new tasks.",
+      "tasks": [
+        "Introduce `useState` and controlled inputs to add new tasks."
+      ],
+      "learning_objectives": [
+        "State arrays, controlled forms (`value` + `onChange`), and mapping lists."
+      ],
+      "evaluation": "Logic Grader checks for `useState`, `<form onSubmit>`, `<input onChange>`, and `array.map`.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "TaskItem.jsx": "    export default function TaskItem({ task }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} readOnly />\n          <span>{task.text}</span>\n          <button>Delete</button>\n        </div>\n      );\n    }\n",
+        "App.jsx": "    import { useState } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState([]);\n      const [text, setText] = useState(\"\");\n\n      const addTask = (e) => {\n        e.preventDefault();\n        if (!text.trim()) return;\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input \n              value={text} \n              onChange={(e) => setText(e.target.value)} \n              placeholder=\"Add a new task...\"\n            />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => <TaskItem key={task.id} task={task} />)}\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Task Actions (Prop Drilling)",
+      "ticket_slug": "react-103",
+      "description": "Pass callback functions down to the `TaskItem` to toggle completion or delete tasks.",
+      "tasks": [
+        "Pass callback functions down to the `TaskItem` to toggle completion or delete tasks."
+      ],
+      "learning_objectives": [
+        "Event bubbling, Array `filter()`, and Prop Drilling limitations."
+      ],
+      "evaluation": "Logic Grader checks for `onToggle`, `onDelete`, array `.map`, and array `.filter`.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "TaskItem.jsx": "    export default function TaskItem({ task, onToggle, onDelete }) {\n      return (\n        <div className=\"task-item\">\n          <input \n            type=\"checkbox\" \n            checked={task.completed} \n            onChange={() => onToggle(task.id)} \n          />\n          <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>\n            {task.text}\n          </span>\n          <button onClick={() => onDelete(task.id)}>Delete</button>\n        </div>\n      );\n    }\n",
+        "App.jsx": "    import { useState } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState([]);\n      const [text, setText] = useState(\"\");\n\n      const addTask = (e) => {\n        e.preventDefault();\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n\n      const toggleTask = (id) => {\n        setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));\n      };\n\n      const deleteTask = (id) => {\n        setTasks(tasks.filter(t => t.id !== id));\n      };\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input value={text} onChange={(e) => setText(e.target.value)} />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => (\n              <TaskItem \n                key={task.id} \n                task={task} \n                onToggle={toggleTask} \n                onDelete={deleteTask} \n              />\n            ))}\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Data Persistence",
+      "ticket_slug": "react-104",
+      "description": "Save the list to `localStorage` so it survives refresh.",
+      "tasks": [
+        "Save the list to `localStorage` so it survives refresh."
+      ],
+      "learning_objectives": [
+        "The `useEffect` lifecycle hook and side effects."
+      ],
+      "evaluation": "Logic Grader specifically looks for `useEffect`, `localStorage.getItem`, and `localStorage.setItem`.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the dependency array and causing an infinite loop."
+      ],
+      "hints": [
+        "Don't forget the dependency array!",
+        "Make sure to clean up any subscriptions if needed."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "TaskItem.jsx": "    export default function TaskItem({ task, onToggle, onDelete }) {\n      return (\n        <div className=\"task-item\">\n          <input type=\"checkbox\" checked={task.completed} onChange={() => onToggle(task.id)} />\n          <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>{task.text}</span>\n          <button onClick={() => onDelete(task.id)}>Delete</button>\n        </div>\n      );\n    }\n",
+        "App.jsx": "    import { useState, useEffect } from \"react\";\n    import TaskItem from \"./TaskItem\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [tasks, setTasks] = useState(() => {\n        const saved = localStorage.getItem(\"tasks\");\n        return saved ? JSON.parse(saved) : [];\n      });\n      const [text, setText] = useState(\"\");\n\n      useEffect(() => {\n        localStorage.setItem(\"tasks\", JSON.stringify(tasks));\n      }, [tasks]);\n\n      const addTask = (e) => {\n        e.preventDefault();\n        setTasks([...tasks, { id: Date.now(), text, completed: false }]);\n        setText(\"\");\n      };\n      const toggleTask = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));\n      const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));\n\n      return (\n        <div className=\"app-container\">\n          <h1>To-Do List</h1>\n          <form onSubmit={addTask}>\n            <input value={text} onChange={(e) => setText(e.target.value)} />\n            <button type=\"submit\">Add</button>\n          </form>\n          <div className=\"task-list\">\n            {tasks.map(task => <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />)}\n          </div>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Dashboard Routing",
+      "ticket_slug": "react-105",
+      "description": "Build conditional views (List View vs Dashboard View).",
+      "tasks": [
+        "Build conditional views (List View vs Dashboard View)."
+      ],
+      "learning_objectives": [
+        "Conditional rendering and client-side routing concepts."
+      ],
+      "evaluation": "Visual Grader ensures the dashboard layout matches the target. Logic Grader checks for ternary operators (`=== ?`).",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "Dashboard.jsx": "    export default function Dashboard({ tasks }) {\n      const completed = tasks.filter(t => t.completed).length;\n      return (\n        <div>\n          <h2>Dashboard</h2>\n          <p>Total Tasks: {tasks.length}</p>\n          <p>Completed: {completed}</p>\n        </div>\n      );\n    }\n",
+        "App.jsx": "    import { useState } from \"react\";\n    import Dashboard from \"./Dashboard\";\n    import \"./App.css\";\n\n    export default function App() {\n      const [view, setView] = useState(\"list\");\n      const [tasks, setTasks] = useState([]);\n\n      return (\n        <div className=\"app-container\">\n          <nav>\n            <button onClick={() => setView(\"list\")}>To-Do List</button>\n            <button onClick={() => setView(\"dashboard\")}>Dashboard</button>\n          </nav>\n          <main>\n            {view === \"list\" ? (\n               <div>{tasks.length} tasks in list view (simulated)</div>\n            ) : (\n              <Dashboard tasks={tasks} />\n            )}\n          </main>\n        </div>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Theme Context",
+      "ticket_slug": "react-106",
+      "description": "Build a global `ThemeContext` to avoid prop-drilling a dark mode boolean.",
+      "tasks": [
+        "Build a global `ThemeContext` to avoid prop-drilling a dark mode boolean."
+      ],
+      "learning_objectives": [
+        "`createContext`, `useContext`, and global state providers."
+      ],
+      "evaluation": "Logic Grader checks for `createContext`, `useContext`, and the `Provider` component.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "ThemeContext.jsx": "    import { createContext, useState } from \"react\";\n\n    export const ThemeContext = createContext();\n\n    export function ThemeProvider({ children }) {\n      const [theme, setTheme] = useState(\"light\");\n      const toggleTheme = () => setTheme(prev => prev === \"light\" ? \"dark\" : \"light\");\n      \n      return (\n        <ThemeContext.Provider value={{ theme, toggleTheme }}>\n          {children}\n        </ThemeContext.Provider>\n      );\n    }\n",
+        "App.jsx": "    import { useContext } from \"react\";\n    import { ThemeProvider, ThemeContext } from \"./ThemeContext\";\n    import \"./App.css\";\n\n    function Layout() {\n      const { theme, toggleTheme } = useContext(ThemeContext);\n      return (\n        <div className={`app-container ${theme}`}>\n           <button onClick={toggleTheme}>Toggle Theme</button>\n           <h1>Theme is {theme}</h1>\n        </div>\n      );\n    }\n\n    export default function App() {\n      return (\n        <ThemeProvider>\n          <Layout />\n        </ThemeProvider>\n      );\n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 6
+    }
+  ]
+}

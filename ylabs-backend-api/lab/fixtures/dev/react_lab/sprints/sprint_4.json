@@ -1,0 +1,163 @@
+{
+  "title": "Sprint 4 - Performance & Polish",
+  "description": "Optimize the Kanban board so it doesn't freeze the browser at scale.",
+  "order_index": 4,
+  "lab_title": "React Lab",
+  "tickets": [
+    {
+      "title": "Memoization (React.memo)",
+      "ticket_slug": "react-401",
+      "description": "Wrap components in React's cache so they don't re-render unless props change.",
+      "tasks": [
+        "Wrap components in React's cache so they don't re-render unless props change."
+      ],
+      "learning_objectives": [
+        "React's rendering lifecycle, `useMemo`, and `useCallback`."
+      ],
+      "evaluation": "Logic Grader checks for `memo`, `useMemo`, or `useCallback` invocations.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "Task.jsx": "    import React from 'react';\n\n    const Task = React.memo(({ task, onDragStart, colId }) => {\n      return (\n        <div \n          className=\"task\"\n          draggable={true}\n          onDragStart={(e) => onDragStart(e, task.id, colId)}\n        >\n          {task.text}\n        </div>\n      );\n    });\n    export default Task;\n",
+        "BoardContext.jsx": "    *(Exact same as REACT-303)*\n\n",
+        "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n\n      // Memoize the drag and drop callbacks!\n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) {\n            alert(\"API Error! Rolling back changes.\");\n            dispatch({ type: \"SYNC\", payload: previousState }); \n          }\n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                {col.tasks.map(task => (\n                  <Task key={task.id} task={task} onDragStart={handleDragStart} colId={col.id} />\n                ))}\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { return <BoardProvider><Board /></BoardProvider>; }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Virtualized Lists",
+      "ticket_slug": "react-402",
+      "description": "Implement a virtualized scrolling window to render only the 10 visible tasks in a column of 1000.",
+      "tasks": [
+        "Implement a virtualized scrolling window to render only the 10 visible tasks in a column of 1000."
+      ],
+      "learning_objectives": [
+        "Windowing algorithms and DOM manipulation performance."
+      ],
+      "evaluation": "Logic Grader checks for virtualization libraries (`FixedSizeList`) or `window` calculations.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+        "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+        "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      \n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => {\n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className=\"board-container\">\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { return <BoardProvider><Board /></BoardProvider>; }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Dark Mode Polish",
+      "ticket_slug": "react-403",
+      "description": "Integrate the ThemeContext from Sprint 1 to turn the glassmorphic board completely dark.",
+      "tasks": [
+        "Integrate the ThemeContext from Sprint 1 to turn the glassmorphic board completely dark."
+      ],
+      "learning_objectives": [
+        "CSS Variables and Context consumption."
+      ],
+      "evaluation": "Visual Grader strictly requires a dark mode palette (`#111827` background). Logic Grader looks for `ThemeProvider`.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "ThemeContext.jsx": "    import { createContext, useState } from \"react\";\n    export const ThemeContext = createContext();\n    export function ThemeProvider({ children }) {\n      const [theme, setTheme] = useState(\"dark\");\n      return (\n        <ThemeContext.Provider value={{ theme }}>\n          {children}\n        </ThemeContext.Provider>\n      );\n    }\n",
+        "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+        "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+        "App.jsx": "    import { useContext, useCallback } from \"react\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import { ThemeContext, ThemeProvider } from \"./ThemeContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      const { theme } = useContext(ThemeContext);\n      \n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => { \n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className={`board-container ${theme === 'dark' ? 'dark-mode' : ''}`}>\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { \n      return (\n        <ThemeProvider>\n          <BoardProvider>\n            <Board />\n          </BoardProvider>\n        </ThemeProvider>\n      ); \n    }\n",
+        "App.css": "    .board-container { padding: 3rem 2rem; font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }\n    .board-container h1 { font-size: 2.5rem; color: #2563eb; margin-bottom: 2rem; text-align: center; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }\n    .board { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; }\n    .column { flex: 1; background: rgba(239, 246, 255, 0.8); backdrop-filter: blur(10px); border: 2px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; min-height: 300px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }\n    .column h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #1d4ed8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #bfdbfe; padding-bottom: 0.5rem; }\n    .task { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid #3b82f6; color: #4b5563; font-weight: 600; }\n    \n    .dark-mode { background: #111827 !important; color: #f9fafb; }\n    .dark-mode .column { background: rgba(31, 41, 55, 0.8) !important; border-color: #374151 !important; }\n    .dark-mode h1 { color: #f9fafb; }\n    .dark-mode h3 { color: #f9fafb; }\n    .dark-mode .task { background: #374151; color: #f9fafb; }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Confetti on Complete",
+      "ticket_slug": "react-404",
+      "description": "Trigger an animation when all tasks hit the \"Done\" column.",
+      "tasks": [
+        "Trigger an animation when all tasks hit the \"Done\" column."
+      ],
+      "learning_objectives": [
+        "Integrating non-React DOM libraries (Canvas)."
+      ],
+      "evaluation": "Logic Grader checks for `confetti` or `canvas` usage.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles instead of CSS classes.",
+        "Forgetting to export the component."
+      ],
+      "hints": [
+        "Review the documentation for the hooks mentioned in the learning objectives.",
+        "Try logging your variables to the console to see their values."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "ThemeContext.jsx": "    *(Same as REACT-403)*\n    \n",
+        "Task.jsx": "    *(Same as REACT-401)*\n    \n",
+        "BoardContext.jsx": "    *(Same as REACT-303)*\n\n",
+        "App.jsx": "    import { useEffect, useContext, useCallback } from \"react\";\n    import confetti from \"canvas-confetti\";\n    import { FixedSizeList as List } from 'react-window';\n    import { BoardContext, BoardProvider } from \"./BoardContext\";\n    import { ThemeContext, ThemeProvider } from \"./ThemeContext\";\n    import Task from \"./Task\";\n    import \"./App.css\";\n\n    function Board() {\n      const { state, dispatch } = useContext(BoardContext);\n      const { theme } = useContext(ThemeContext);\n\n      useEffect(() => {\n        if (state.columns[0].tasks.length === 0 && state.columns[1].tasks.length === 0) {\n          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });\n        }\n      }, [state.columns]);\n\n      const handleDragStart = useCallback((e, taskId, colId) => {\n        e.dataTransfer.setData(\"taskId\", taskId);\n        e.dataTransfer.setData(\"sourceColId\", colId);\n      }, []);\n\n      const handleDrop = useCallback((e, targetColId) => { \n        const taskId = parseInt(e.dataTransfer.getData(\"taskId\"));\n        const sourceColId = e.dataTransfer.getData(\"sourceColId\");\n        const previousState = { ...state }; \n        dispatch({ type: \"MOVE_TASK\", payload: { taskId, sourceColId, targetColId, baseVersion: state.version } });\n        setTimeout(() => {\n          if (Math.random() > 0.8) dispatch({ type: \"SYNC\", payload: previousState }); \n        }, 1000);\n      }, [dispatch, state.version, state]);\n\n      return (\n        <div className={`board-container ${theme === 'dark' ? 'dark-mode' : ''}`}>\n          <h1>Kanban Board</h1>\n          <div className=\"board\">\n            {state.columns.map(col => (\n              <div key={col.id} className=\"column\" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, col.id)}>\n                <h3>{col.title}</h3>\n                <List height={400} itemCount={col.tasks.length} itemSize={50} width=\"100%\">\n                  {({ index, style }) => (\n                    <div style={style}>\n                      <Task task={col.tasks[index]} onDragStart={handleDragStart} colId={col.id} />\n                    </div>\n                  )}\n                </List>\n              </div>\n            ))}\n          </div>\n        </div>\n      );\n    }\n    export default function App() { \n      return (\n        <ThemeProvider>\n          <BoardProvider>\n            <Board />\n          </BoardProvider>\n        </ThemeProvider>\n      ); \n    }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "JAVASCRIPT",
+        "REACT"
+      ],
+      "order_index": 4
+    }
+  ]
+}

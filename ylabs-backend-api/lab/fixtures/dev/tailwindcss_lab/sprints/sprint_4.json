@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 4 - Component Extraction & Plugins",
+  "description": "",
+  "order_index": 4,
+  "lab_title": "Tailwind CSS Lab",
+  "tickets": [
+    {
+      "title": "Reusability with @apply",
+      "ticket_slug": "tailwind-4-1-1",
+      "description": "Extracts a long string of utility classes for a button into a custom CSS class using the `@apply` directive to DRY up the HTML. Code (`styles.css`): Code (`buttons.html`): ",
+      "tasks": [
+        "Extracts a long string of utility classes for a button into a custom CSS class using the `@apply` directive to DRY up the HTML.",
+        "Code (`styles.css`):",
+        "Code (`buttons.html`):"
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_css_directive(\"@apply\")` `check_css_directive(\"@layer components\")` `check_class_used(\"btn-primary\")` **[B] Logic (80 pts)**: 80 pts for correct usage of `@layer` and `@apply` to build a custom component class. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Don't write custom CSS. Check the Tailwind documentation for the correct utility class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {},
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Typography Plugin (Prose)",
+      "ticket_slug": "tailwind-4-1-2",
+      "description": "Installs `@tailwindcss/typography` and uses the `prose` class to beautifully format raw, un-classed HTML (like from a CMS). ",
+      "tasks": [
+        "Installs `@tailwindcss/typography` and uses the `prose` class to beautifully format raw, un-classed HTML (like from a CMS)."
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_plugin_installed(\"@tailwindcss/typography\")` `check_class_used(\"prose\")` `check_class_used(\"dark:prose-invert\")` **[A] Visual (40 pts)**: 40 pts if the unclassed `<h1>` and `<ul>` elements are correctly styled with proper vertical rhythm. **[B] Logic (40 pts)**: 40 pts for modifying the prose theme and size (`prose-lg`, `prose-slate`). ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Don't write custom CSS. Check the Tailwind documentation for the correct utility class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <!-- Assume this inner HTML comes from a database/markdown parser -->\n          <article class=\"prose prose-slate prose-lg lg:prose-xl mx-auto dark:prose-invert\">\n            <h1>Garlic bread with cheese: What the science tells us</h1>\n            <p>For years parents have espoused the health benefits of eating garlic bread with cheese to their children, with the food earning such an iconic status in our culture that kids will often dress up as warm, cheesy loaf for Halloween.</p>\n            <ul>\n              <li>It tastes good</li>\n              <li>It is warm</li>\n            </ul>\n          </article>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 150,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "labs": [
+    {
+      "title": "PostgreSQL Lab",
+      "type": "DATABASE",
+      "description": "Master advanced relational database management, querying, and optimization using PostgreSQL.",
+      "difficulty": "MEDIUM",
+      "icon": "postgresql",
+      "prerequisites": "None",
+      "skills": [
+        "PostgreSQL",
+        "Database Design",
+        "SQL Queries"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

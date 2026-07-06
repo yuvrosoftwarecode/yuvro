@@ -34,8 +34,7 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
   const uiGroups = [
     { id: "US1", name: "Sprint 1 · HTML & CSS", goal: "Semantic markup, box model and specificity", range: "Apr 1 – Apr 10", tags: ["HTML/CSS"] },
     { id: "US2", name: "Sprint 2 · Layout", goal: "Flexbox, Grid and responsive breakpoints", range: "Apr 11 – Apr 20", tags: ["Layout"] },
-    { id: "US3", name: "Sprint 3 · React Essentials", goal: "Components, state, effects and custom hooks", range: "Apr 21 – May 4", tags: ["React"] },
-    { id: "US4", name: "Sprint 4 · Accessibility", goal: "Build inclusive UI: keyboard, focus, contrast", range: "May 5 – May 12", tags: ["Accessibility"] },
+    { id: "US3", name: "Sprint 3 · Accessibility", goal: "Build inclusive UI: keyboard, focus, contrast", range: "May 5 – May 12", tags: ["Accessibility"] },
   ];
   const sqlGroups = [
     { id: "QS1", name: "Sprint 1 · Querying", goal: "SELECT, filtering, aggregates and CTEs", range: "Apr 1 – Apr 10", tags: ["Querying"] },
@@ -72,6 +71,26 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     { id: "DS9", name: "Sprint 9 · Sorting", goal: "Bubble, merge and quick sort", range: "May 15 – May 19", tags: ["DS Sorting"] },
     { id: "DS10", name: "Sprint 10 · Searching", goal: "Binary search and rotated array search", range: "May 20 – May 23", tags: ["DS Searching"] },
   ];
+  const reactGroups = [
+    { id: "RS1", name: "Sprint 1 · The To-Do List", goal: "React Fundamentals", range: "Apr 1 – Apr 10", tags: [] },
+    { id: "RS2", name: "Sprint 2 · Kanban Board", goal: "Advanced State & Drag/Drop", range: "Apr 11 – Apr 20", tags: [] },
+    { id: "RS3", name: "Sprint 3 · Real-Time Sync", goal: "Concurrency & Optimistic UI", range: "Apr 21 – May 2", tags: [] },
+    { id: "RS4", name: "Sprint 4 · Performance & Polish", goal: "React Profiler & Virtualization", range: "May 3 – May 12", tags: [] },
+    { id: "RS5", name: "Sprint 5 · Real-Time Chat App", goal: "Slack Clone with WebSockets", range: "May 13 – May 26", tags: [] },
+  ];
+  const bootstrapGroups = [
+    { id: "BS1", name: "Sprint 1 · Grid & Typography", goal: "Master the 12-column grid and typography", range: "May 1 – May 7", tags: [] },
+    { id: "BS2", name: "Sprint 2 · Components & Forms", goal: "Navbars, cards, and form validation", range: "May 8 – May 14", tags: [] },
+    { id: "BS3", name: "Sprint 3 · Interactive JS", goal: "Modals, carousels, and accordions", range: "May 15 – May 21", tags: [] },
+    { id: "BS4", name: "Sprint 4 · Advanced Layouts", goal: "Admin dashboard and Sass customization", range: "May 22 – May 28", tags: [] },
+  ];
+  const tailwindGroups = [
+    { id: "TWS1", name: "Sprint 1 · Fundamentals & Layouts", goal: "Box model, colors, flexbox and grid", range: "May 1 – May 7", tags: [] },
+    { id: "TWS2", name: "Sprint 2 · States & Dark Mode", goal: "Hover, focus, dark mode and transitions", range: "May 8 – May 14", tags: [] },
+    { id: "TWS3", name: "Sprint 3 · Advanced Layouts", goal: "Bento grids, spans and custom animations", range: "May 15 – May 21", tags: [] },
+    { id: "TWS4", name: "Sprint 4 · Plugins & @apply", goal: "Typography, forms and component extraction", range: "May 22 – May 28", tags: [] },
+    { id: "TWS5", name: "Sprint 5 · Capstone", goal: "Build a complete SaaS landing page", range: "May 29 – Jun 5", tags: [] },
+  ];
   const groups =
     slug === "python" ? pythonGroups :
     slug === "ui" ? uiGroups :
@@ -79,9 +98,34 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     slug === "mongo" ? mongoGroups :
     slug === "programming" ? progGroups :
     slug === "datastructures" ? dsGroups :
+    slug === "react" ? reactGroups :
+    slug === "bootstrap" ? bootstrapGroups :
+    slug === "tailwind" ? tailwindGroups :
     javaGroups;
   return groups.map((g) => {
-    const ts = allTickets.filter((t) => g.tags.includes(t.tag));
+    const ts = allTickets.filter((t) => {
+      if (slug === "react") {
+        if (g.id === "RS1") return t.id.startsWith("REACT-1");
+        if (g.id === "RS2") return t.id.startsWith("REACT-2");
+        if (g.id === "RS3") return t.id.startsWith("REACT-3");
+        if (g.id === "RS4") return t.id.startsWith("REACT-4");
+        if (g.id === "RS5") return t.id.startsWith("REACT-5");
+      }
+      if (slug === "bootstrap") {
+        if (g.id === "BS1") return t.id.startsWith("BS-1");
+        if (g.id === "BS2") return t.id.startsWith("BS-2");
+        if (g.id === "BS3") return t.id.startsWith("BS-3");
+        if (g.id === "BS4") return t.id.startsWith("BS-4");
+      }
+      if (slug === "tailwind") {
+        if (g.id === "TWS1") return t.id.startsWith("TW-1");
+        if (g.id === "TWS2") return t.id.startsWith("TW-2");
+        if (g.id === "TWS3") return t.id.startsWith("TW-3");
+        if (g.id === "TWS4") return t.id.startsWith("TW-4");
+        if (g.id === "TWS5") return t.id.startsWith("TW-5");
+      }
+      return g.tags.includes(t.tag);
+    });
     const completed = ts.filter((t) => t.status === "Completed").length;
     const inProgress = ts.some((t) => t.status === "In Progress");
     const status: SprintStatus = completed === ts.length && ts.length ? "Completed" : inProgress || completed > 0 ? "Active" : "Upcoming";

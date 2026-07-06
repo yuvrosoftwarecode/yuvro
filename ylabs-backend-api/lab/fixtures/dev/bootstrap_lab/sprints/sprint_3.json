@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 3 - Interactive JavaScript Components",
+  "description": "",
+  "order_index": 3,
+  "lab_title": "Bootstrap 5 Lab",
+  "tickets": [
+    {
+      "title": "Triggering Modals",
+      "ticket_slug": "bootstrap-3-1-1",
+      "description": "Wires up a \"Confirm Purchase\" button to open a centered Modal dialog via data attributes. ",
+      "tasks": [
+        "Wires up a \"Confirm Purchase\" button to open a centered Modal dialog via data attributes."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_attribute_used(\"data-bs-toggle\", \"modal\")` `check_attribute_match(\"data-bs-target\", \"#confirmModal\")` `check_class_used(\"modal-dialog-centered\")` **[A] Visual (40 pts)**: 40 pts if modal centering class is applied. **[B] Logic (40 pts)**: 40 pts if target ID matches the modal ID exactly. **[C] Quality (10 pts)**: 10 pts for `aria-labelledby` and `tabindex=\"-1\"` accessibility tags. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <!-- Trigger Button -->\n          <button type=\"button\" class=\"btn btn-success\" data-bs-toggle=\"modal\" data-bs-target=\"#confirmModal\">\n            Checkout\n          </button>\n    \n          <!-- Modal -->\n          <div class=\"modal fade\" id=\"confirmModal\" tabindex=\"-1\" aria-labelledby=\"modalLabel\" aria-hidden=\"true\">\n            <div class=\"modal-dialog modal-dialog-centered\">\n              <div class=\"modal-content\">\n                <div class=\"modal-header\">\n                  <h5 class=\"modal-title\" id=\"modalLabel\">Confirm Purchase</h5>\n                  <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n                </div>\n                <div class=\"modal-body\">\n                  Are you sure you want to charge $99.00 to your card?\n                </div>\n                <div class=\"modal-footer\">\n                  <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button>\n                  <button type=\"button\" class=\"btn btn-primary\">Confirm</button>\n                </div>\n              </div>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Accordion FAQs",
+      "ticket_slug": "bootstrap-3-1-2",
+      "description": "Builds an accordion where only one item can be open at a time (using `data-bs-parent`). ",
+      "tasks": [
+        "Builds an accordion where only one item can be open at a time (using `data-bs-parent`)."
+      ],
+      "learning_objectives": [
+        "Apply Bootstrap utility classes correctly.",
+        "Build components without relying on custom CSS."
+      ],
+      "evaluation": "`check_attribute_used(\"data-bs-parent\", \"#faqAccordion\")` **[B] Logic (80 pts)**: 80 pts for properly linking `data-bs-parent` to ensure only one panel stays open. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Writing custom CSS for things Bootstrap utilities can already do (e.g. margin, padding)."
+      ],
+      "hints": [
+        "Make sure you are using exact Bootstrap utility classes instead of inline styles.",
+        "Use browser developer tools to inspect elements."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"accordion\" id=\"faqAccordion\">\n            <div class=\"accordion-item\">\n              <h2 class=\"accordion-header\" id=\"headingOne\">\n                <button class=\"accordion-button\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapseOne\" aria-expanded=\"true\">\n                  What is YLabs?\n                </button>\n              </h2>\n              <div id=\"collapseOne\" class=\"accordion-collapse collapse show\" data-bs-parent=\"#faqAccordion\">\n                <div class=\"accordion-body\">YLabs is an interactive learning platform.</div>\n              </div>\n            </div>\n            <div class=\"accordion-item\">\n              <h2 class=\"accordion-header\" id=\"headingTwo\">\n                <button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapseTwo\" aria-expanded=\"false\">\n                  How do I get graded?\n                </button>\n              </h2>\n              <div id=\"collapseTwo\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n                <div class=\"accordion-body\">Automatically via our grading engine.</div>\n              </div>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 80,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

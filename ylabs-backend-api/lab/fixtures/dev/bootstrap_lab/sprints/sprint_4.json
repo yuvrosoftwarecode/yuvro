@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 4 - Advanced Layouts & Customization",
+  "description": "",
+  "order_index": 4,
+  "lab_title": "Bootstrap 5 Lab",
+  "tickets": [
+    {
+      "title": "Fixed Sidebar Layout",
+      "ticket_slug": "bootstrap-4-1-1",
+      "description": "Uses CSS flexbox utility classes (`d-flex`, `flex-column`, `vh-100`) to build a fixed sidebar next to a scrolling main content area. ",
+      "tasks": [
+        "Uses CSS flexbox utility classes (`d-flex`, `flex-column`, `vh-100`) to build a fixed sidebar next to a scrolling main content area."
+      ],
+      "learning_objectives": [
+        "Master the 12-column grid system.",
+        "Implement responsive layout breakpoints."
+      ],
+      "evaluation": "`check_class_used(\"vh-100\")` `check_class_used(\"flex-shrink-0\")` `check_class_used(\"flex-grow-1\")` **[A] Visual (40 pts)**: 40 pts if the sidebar spans 100% of the viewport height without scrolling the body. **[B] Logic (40 pts)**: 40 pts for utilizing Bootstrap flex-grow/shrink utilities instead of custom CSS. **[C] Quality (10 pts)**: 10 pts for `nav-pills` usage for sidebar links. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting to wrap .col elements in a .container and .row.",
+        "Using col-12 on desktop instead of a specific breakpoint like col-md-4."
+      ],
+      "hints": [
+        "Remember that Bootstrap uses a 12-column grid system.",
+        "Make sure columns are wrapped inside a .row class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" />\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"d-flex vh-100\">\n            <!-- Sidebar -->\n            <div class=\"bg-dark text-white p-3 flex-shrink-0\" style=\"width: 250px;\">\n              <h4>Admin Panel</h4>\n              <ul class=\"nav nav-pills flex-column mb-auto mt-4\">\n                <li class=\"nav-item\">\n                  <a href=\"#\" class=\"nav-link active\">Dashboard</a>\n                </li>\n                <li>\n                  <a href=\"#\" class=\"nav-link text-white\">Users</a>\n                </li>\n              </ul>\n            </div>\n            <!-- Main Content -->\n            <div class=\"flex-grow-1 p-4 bg-light overflow-auto\">\n              <h1>Welcome Back</h1>\n              <div class=\"row mt-4\">\n                 <!-- Cards go here -->\n              </div>\n            </div>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 120,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Sass Variable Override Simulation",
+      "ticket_slug": "bootstrap-4-1-2",
+      "description": "Writes Sass code to override the default primary color and border-radius before importing Bootstrap. ",
+      "tasks": [
+        "Writes Sass code to override the default primary color and border-radius before importing Bootstrap."
+      ],
+      "learning_objectives": [
+        "Master the 12-column grid system.",
+        "Implement responsive layout breakpoints."
+      ],
+      "evaluation": "`check_regex_match(r\"\\$primary:\\s*#[0-9a-fA-F]{3,6}\")` `check_regex_order([\"$primary\", \"@import\"])` **[B] Logic (80 pts)**: 80 pts for declaring the override variables *before* the `@import` statement. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting to wrap .col elements in a .container and .row.",
+        "Using col-12 on desktop instead of a specific breakpoint like col-md-4."
+      ],
+      "hints": [
+        "Remember that Bootstrap uses a 12-column grid system.",
+        "Make sure columns are wrapped inside a .row class."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 50,
+        "clean_code": 10
+      },
+      "solution": {},
+      "yuvro_points": 80,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

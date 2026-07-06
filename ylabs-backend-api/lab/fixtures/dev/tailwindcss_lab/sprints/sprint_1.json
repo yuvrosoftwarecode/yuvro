@@ -1,0 +1,80 @@
+{
+  "title": "Sprint 1 - Utility-First Fundamentals & Layouts",
+  "description": "",
+  "order_index": 1,
+  "lab_title": "Tailwind CSS Lab",
+  "tickets": [
+    {
+      "title": "Styling a Basic Card",
+      "ticket_slug": "tailwind-1-1-1",
+      "description": "Builds a simple card with padding, rounded corners, a subtle shadow, and slate/blue colors. ",
+      "tasks": [
+        "Builds a simple card with padding, rounded corners, a subtle shadow, and slate/blue colors."
+      ],
+      "learning_objectives": [
+        "Apply utility-first CSS styling concepts.",
+        "Build pixel-perfect UI without custom CSS."
+      ],
+      "evaluation": "`check_class_used(\"rounded-lg\")` `check_class_used(\"shadow-md\")` `check_class_used(\"p-6\")` `check_no_inline_styles()` **[A] Visual (40 pts)**: 40 pts if exact padding, border-radius, and font sizes match. **[B] Logic (40 pts)**: 40 pts for strictly using Tailwind utility classes. **[C] Quality (10 pts)**: 10 pts for avoiding the `style` attribute entirely. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Tailwind's grid system uses 'grid' and 'grid-cols-*' utilities.",
+        "Use 'gap-*' to add spacing between grid items."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <div class=\"max-w-sm rounded-lg overflow-hidden shadow-md bg-white p-6 m-4 border border-slate-200\">\n            <h2 class=\"text-xl font-bold text-slate-800 mb-2\">Welcome to Tailwind</h2>\n            <p class=\"text-slate-600 text-base\">\n              Utility-first CSS framework packed with classes like flex, pt-4, text-center and rotate-90 that can be composed to build any design, directly in your markup.\n            </p>\n          </div>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 70,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Responsive Flexbox Navigation",
+      "ticket_slug": "tailwind-1-1-2",
+      "description": "Creates a navigation bar that stacks links vertically on mobile, but uses flexbox to align them horizontally on medium (`md:`) screens and above. ",
+      "tasks": [
+        "Creates a navigation bar that stacks links vertically on mobile, but uses flexbox to align them horizontally on medium (`md:`) screens and above."
+      ],
+      "learning_objectives": [
+        "Understand Flexbox layout with Tailwind utilities."
+      ],
+      "evaluation": "`check_class_used(\"flex-col\")` `check_class_used(\"md:flex-row\")` `check_class_used(\"md:space-x-4\")` **[A] Visual (40 pts)**: 40 pts if navigation links flow horizontally above 768px. **[B] Logic (40 pts)**: 40 pts for correctly utilizing responsive prefix `md:`. **[C] Quality (10 pts)**: 10 pts for using `space-x/y` utilities instead of individual margins on items. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using inline styles or a custom stylesheet instead of composing utility classes."
+      ],
+      "hints": [
+        "Use 'flex', 'justify-center', and 'items-center' to quickly center content."
+      ],
+      "scoring_rules": {
+        "visual_accuracy": 40,
+        "logic_score": 40,
+        "clean_code": 10,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "index.html": "    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n      <meta charset=\"UTF-8\" />\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n      <title>UI Lab</title>\n      <script src=\"https://cdn.tailwindcss.com\"></script>\n      <link rel=\"stylesheet\" href=\"styles.css\" />\n    </head>\n    <body>\n      <header class=\"site-header\">\n        <a class=\"logo\" href=\"#\">\u25c6 Acme</a>\n        <nav>\n          <a href=\"#\">Product</a>\n          <a href=\"#\">Pricing</a>\n          <a href=\"#\">Docs</a>\n        </nav>\n        <button id=\"cta\" class=\"cta\">Get started</button>\n      </header>\n    \n      <main>\n        <section class=\"hero\">\n          <h1>Build pixel-perfect UI</h1>\n          <p>Compose components with Flexbox, Grid and modern CSS.</p>\n          <p>Clicks: <output id=\"count\">0</output></p>\n        </section>\n      </main>\n    \n      <nav class=\"bg-indigo-600 p-4\">\n            <div class=\"flex flex-col md:flex-row md:justify-between md:items-center\">\n              <a href=\"#\" class=\"text-white font-bold text-2xl mb-4 md:mb-0\">BrandLogo</a>\n              <div class=\"flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0\">\n                <a href=\"#\" class=\"text-indigo-100 hover:text-white\">Home</a>\n                <a href=\"#\" class=\"text-indigo-100 hover:text-white\">Features</a>\n                <a href=\"#\" class=\"text-indigo-100 hover:text-white\">Pricing</a>\n              </div>\n            </div>\n          </nav>\n    \n      <script src=\"app.js\"></script>\n    </body>\n    </html>\n"
+      },
+      "yuvro_points": 80,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "HTML",
+        "CSS"
+      ],
+      "order_index": 2
+    }
+  ]
+}

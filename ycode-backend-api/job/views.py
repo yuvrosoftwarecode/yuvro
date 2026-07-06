@@ -319,8 +319,8 @@ class JobViewSet(viewsets.ModelViewSet):
     def pending_approval(self, request):
         allowed_emails = [
             "recruiter@yuvro.com",
-            "recruiter_admin@yuvro.com",
-            "admin@yuvro.com",
+            "recruiter_instructor_admin@yuvro.com",
+            "instructor_admin@yuvro.com",
         ]
         if request.user.email not in allowed_emails:
             return Response(
@@ -350,8 +350,8 @@ class JobViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         allowed_emails = [
             "recruiter@yuvro.com",
-            "recruiter_admin@yuvro.com",
-            "admin@yuvro.com",
+            "recruiter_instructor_admin@yuvro.com",
+            "instructor_admin@yuvro.com",
         ]
         if request.user.email not in allowed_emails:
             return Response(
@@ -393,8 +393,8 @@ class JobViewSet(viewsets.ModelViewSet):
     def reject(self, request, pk=None):
         allowed_emails = [
             "recruiter@yuvro.com",
-            "recruiter_admin@yuvro.com",
-            "admin@yuvro.com",
+            "recruiter_instructor_admin@yuvro.com",
+            "instructor_admin@yuvro.com",
         ]
         if request.user.email not in allowed_emails:
             return Response(
