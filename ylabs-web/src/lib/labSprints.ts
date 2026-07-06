@@ -23,6 +23,10 @@ export interface LabTask {
   language: Language;
   starterCode: string;
   starterPath?: string;
+  hints?: string;
+  solution?: string;
+  /** When set with 2+ entries, the ticket editor lets learners switch language. */
+  allowedLanguages?: Language[];
 }
 
 export interface LabSprint {
@@ -34,25 +38,45 @@ export interface LabSprint {
 
 const KEY = "yuvro-admin-lab-sprints";
 
-type Store = Record<string, LabSprint[]>;
+import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
-function readAll(): Store {
-  if (typeof window === "undefined") return {};
-  try { const raw = localStorage.getItem(KEY); return raw ? (JSON.parse(raw) as Store) : {}; } catch { return {}; }
-}
-function writeAll(store: Store) {
-  if (typeof window === "undefined") return;
-  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {}
+export async function loadSprints(labId: string): Promise<LabSprint[]> {
+  try {
+    const sprints = await restApiAuthUtil.get<any[]>(`/lab/sprints/?lab=${labId}`);
+    
+    const fullSprints = await Promise.all(sprints.map(async (sprint: any) => {
+      const tickets = await restApiAuthUtil.get<any[]>(`/lab/tickets/?sprint=${sprint.id}`);
+      return {
+        id: sprint.id,
+        name: sprint.title,
+        description: sprint.description,
+        order_index: sprint.order_index || 0,
+        tasks: tickets.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+          xp: t.yuvro_points,
+          estMin: t.minutes_max,
+          editor: "code",
+          language: t.accepted_programming_languages?.[0] || "python",
+          starterCode: "",
+          hints: typeof t.hints === 'string' ? t.hints : JSON.stringify(t.hints),
+          solution: typeof t.solution === 'string' ? t.solution : JSON.stringify(t.solution),
+          allowedLanguages: t.accepted_programming_languages,
+          order_index: t.order_index || 0,
+        })).sort((a: any, b: any) => a.order_index - b.order_index)
+      };
+    }));
+    return fullSprints.sort((a: any, b: any) => a.order_index - b.order_index);
+  } catch (err) {
+    console.error("Failed to load sprints from API", err);
+    return [];
+  }
 }
 
-export function loadSprints(labId: string): LabSprint[] {
-  return readAll()[labId] ?? [];
-}
-
-export function saveSprints(labId: string, sprints: LabSprint[]) {
-  const store = readAll();
-  store[labId] = sprints;
-  writeAll(store);
+export async function saveSprints(labId: string, sprints: LabSprint[]) {
+  console.log("saveSprints API sync pending bulk update endpoint");
 }
 
 export const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -64,7 +88,7 @@ export function newSprint(): LabSprint {
 export function newTask(): LabTask {
   return {
     id: newId("tk"),
-    title: "New Task",
+    title: "New Ticket",
     description: "",
     difficulty: "Beginner",
     xp: 100,
@@ -72,6 +96,8 @@ export function newTask(): LabTask {
     editor: "code",
     language: "python",
     starterCode: "# Write your solution here\n",
+    hints: "",
+    solution: "",
   };
 }
 
@@ -175,6 +201,39 @@ const SPRINT_GROUPS: Record<string, { id: string; name: string; goal: string; ta
     { id: "DS9", name: "Sprint 9 · Sorting", goal: "Bubble, merge and quick sort", tags: ["DS Sorting"] },
     { id: "DS10", name: "Sprint 10 · Searching", goal: "Binary search and rotated array search", tags: ["DS Searching"] },
   ],
+  linux: [
+    { id: "L1", name: "Sprint 1 · Basics", goal: "Filesystem navigation and everyday file ops", tags: ["Linux Basics"] },
+    { id: "L2", name: "Sprint 2 · Files & Text", goal: "View, edit, pipe and transform text", tags: ["Linux Files"] },
+    { id: "L3", name: "Sprint 3 · Users & Permissions", goal: "chmod, chown and user/group management", tags: ["Linux Perms"] },
+    { id: "L4", name: "Sprint 4 · Processes", goal: "Inspect and control running processes", tags: ["Linux Processes"] },
+    { id: "L5", name: "Sprint 5 · Networking", goal: "SSH, curl and network diagnostics", tags: ["Linux Network"] },
+    { id: "L6", name: "Sprint 6 · Shell Scripting", goal: "Write bash scripts with loops and conditionals", tags: ["Linux Shell"] },
+    { id: "L7", name: "Sprint 7 · Packages & Services", goal: "Package managers and systemd services", tags: ["Linux Services"] },
+  ],
+  qa: [
+    { id: "Q1", name: "Sprint 1 · Testing Fundamentals", goal: "Plans, test cases and bug reports", tags: ["QA Fundamentals"] },
+    { id: "Q2", name: "Sprint 2 · Manual Testing", goal: "Regression and exploratory sessions", tags: ["QA Manual"] },
+    { id: "Q3", name: "Sprint 3 · API Testing", goal: "Postman, supertest and schema validation", tags: ["QA API"] },
+    { id: "Q4", name: "Sprint 4 · UI Automation", goal: "Playwright end-to-end tests and POM", tags: ["QA UI"] },
+    { id: "Q5", name: "Sprint 5 · Performance", goal: "Load tests and performance analysis", tags: ["QA Perf"] },
+    { id: "Q6", name: "Sprint 6 · CI Integration", goal: "Run tests and publish reports in CI", tags: ["QA CI"] },
+  ],
+  systemdesign: [
+    { id: "SD1", name: "Sprint 1 · Fundamentals", goal: "CAP, SLOs and API design", tags: ["SD Fundamentals"] },
+    { id: "SD2", name: "Sprint 2 · Scalability", goal: "Scaling, load balancing and rate limiting", tags: ["SD Scalability"] },
+    { id: "SD3", name: "Sprint 3 · Caching", goal: "Cache-aside, CDN and Redis patterns", tags: ["SD Caching"] },
+    { id: "SD4", name: "Sprint 4 · Databases", goal: "SQL vs NoSQL, sharding and replication", tags: ["SD Databases"] },
+    { id: "SD5", name: "Sprint 5 · Messaging", goal: "Queues and event-driven architecture", tags: ["SD Messaging"] },
+    { id: "SD6", name: "Sprint 6 · Case Studies", goal: "Design real systems end to end", tags: ["SD Cases"] },
+  ],
+  cybersecurity: [
+    { id: "CS1", name: "Sprint 1 · Foundations", goal: "Threat modeling and least privilege", tags: ["Sec Foundations"] },
+    { id: "CS2", name: "Sprint 2 · OWASP Top 10", goal: "Exploit and patch common web vulns", tags: ["Sec OWASP"] },
+    { id: "CS3", name: "Sprint 3 · Authentication", goal: "Passwords, OAuth and JWTs", tags: ["Sec Auth"] },
+    { id: "CS4", name: "Sprint 4 · Cryptography", goal: "Symmetric, asymmetric and TLS", tags: ["Sec Crypto"] },
+    { id: "CS5", name: "Sprint 5 · Network Security", goal: "Scanning and firewalls", tags: ["Sec Network"] },
+    { id: "CS6", name: "Sprint 6 · Cloud & Ops", goal: "Secrets, containers and incident response", tags: ["Sec Cloud"] },
+  ],
 };
 
 const SLUG_LANGUAGE: Record<string, Language> = {
@@ -183,6 +242,11 @@ const SLUG_LANGUAGE: Record<string, Language> = {
   systemdesign: "javascript", cybersecurity: "python",
   pydjango: "python", pyflask: "python", javaspring: "java",
   postgres: "sql", git: "bash",
+  linux: "bash", qa: "javascript",
+};
+
+const SLUG_EDITOR: Record<string, EditorKind> = {
+  systemdesign: "none",
 };
 
 const STARTERS: Record<Language, string> = {
@@ -197,12 +261,17 @@ const STARTERS: Record<Language, string> = {
   sql: "-- Write your query here\n", bash: "#!/usr/bin/env bash\n",
 };
 
-function ticketToTask(t: Ticket, lang: Language): LabTask {
-  const editor: EditorKind = lang === "sql" ? "sql" : "code";
+const MULTI_LANG_SLUGS: Record<string, Language[]> = {
+  datastructures: ["python", "javascript", "typescript", "java", "cpp", "c"],
+  programming: ["python", "javascript", "typescript", "java"],
+};
+
+function ticketToTask(t: Ticket, lang: Language, editor: EditorKind, allowed?: Language[]): LabTask {
   return {
     id: t.id, title: t.title, description: t.description,
     difficulty: t.difficulty, xp: t.xp, estMin: t.estMin,
-    editor, language: lang, starterCode: STARTERS[lang] ?? "",
+    editor, language: lang, starterCode: editor === "none" ? "" : (STARTERS[lang] ?? ""),
+    allowedLanguages: allowed,
   };
 }
 
@@ -210,14 +279,16 @@ export function seedSprintsFromCatalog(slug: string): LabSprint[] {
   const groups = SPRINT_GROUPS[slug];
   if (!groups) return [];
   const lang = SLUG_LANGUAGE[slug] ?? "python";
+  const editor: EditorKind = SLUG_EDITOR[slug] ?? (lang === "sql" ? "sql" : "code");
+  const allowed = MULTI_LANG_SLUGS[slug];
   return groups.map(g => ({
     id: g.id, name: g.name, description: g.goal,
-    tasks: catalogTickets.filter(t => g.tags.includes(t.tag)).map(t => ticketToTask(t, lang)),
+    tasks: catalogTickets.filter(t => g.tags.includes(t.tag)).map(t => ticketToTask(t, lang, editor, allowed)),
   }));
 }
 
-export function loadSprintsWithSeed(labId: string, slug: string): LabSprint[] {
-  const stored = loadSprints(labId);
+export async function loadSprintsWithSeed(labId: string, slug: string): Promise<LabSprint[]> {
+  const stored = await loadSprints(labId);
   if (stored.length) return stored;
   return seedSprintsFromCatalog(slug);
 }

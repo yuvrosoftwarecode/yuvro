@@ -1,0 +1,282 @@
+{
+  "sub_unit_name": "Introduction to Java",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Java?",
+      "description": "Java is a high-level, object-oriented, platform-independent programming language developed by Sun Microsystems (now Oracle). It is widely used for developing web, desktop, mobile, and enterprise applications."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Java</strong> was introduced in 1995 with the philosophy <em>'Write Once, Run Anywhere (WORA)'</em>. Java programs are compiled into bytecode, which runs on the Java Virtual Machine (JVM), making Java platform-independent.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Java?",
+      "content": "Java is one of the most popular programming languages because of its simplicity, security, portability, and strong community support."
+    },
+    {
+      "type": "diagram",
+      "title": "Java Program Execution",
+      "steps": [
+        "Write Java Source Code (.java)",
+        "Compile using javac",
+        "Generate Bytecode (.class)",
+        "Run on JVM",
+        "Execute on Any Operating System"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Features of Java"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java provides several powerful features that make it suitable for building reliable and scalable applications.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Major Features",
+      "items": [
+        {
+          "question": "Platform Independent",
+          "answer": "Java programs run on any system that has a JVM."
+        },
+        {
+          "question": "Object-Oriented",
+          "answer": "Everything in Java revolves around objects and classes."
+        },
+        {
+          "question": "Secure",
+          "answer": "Java provides built-in security features such as bytecode verification and runtime checks."
+        },
+        {
+          "question": "Robust",
+          "answer": "Automatic memory management and exception handling make Java reliable."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Java Platform Components"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Java platform consists of three important components that work together to execute Java programs.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Java Architecture",
+      "steps": [
+        "Java Source Code",
+        "Compiler (javac)",
+        "Bytecode",
+        "JVM",
+        "Operating System",
+        "Program Output"
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "JDK, JRE, and JVM Relationship",
+      "steps": [
+        "JDK contains JRE",
+        "JRE contains JVM",
+        "JVM executes Bytecode",
+        "Application Runs Successfully"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "JDK",
+      "description": "The Java Development Kit (JDK) contains tools required to develop, compile, and run Java applications."
+    },
+    {
+      "type": "concept-card",
+      "title": "JRE",
+      "description": "The Java Runtime Environment (JRE) provides the libraries and runtime needed to execute Java applications."
+    },
+    {
+      "type": "concept-card",
+      "title": "JVM",
+      "description": "The Java Virtual Machine (JVM) executes Java bytecode and enables platform independence."
+    },
+    {
+      "type": "complexity-card",
+      "title": "Compilation Process",
+      "time_complexity": "Varies with Program Size",
+      "space_complexity": "Depends on Application"
+    },
+    {
+      "type": "heading",
+      "content": "Write Your First Java Program"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The first Java program traditionally prints <strong>Hello, World!</strong> to the console. Every Java application starts execution from the <code>main()</code> method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Hello World Program",
+      "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Program Execution Flow",
+      "steps": [
+        "Write HelloWorld.java",
+        "Compile using javac HelloWorld.java",
+        "Run using java HelloWorld",
+        "Output: Hello, World!"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications of Java"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java is used across multiple domains due to its reliability, scalability, and portability.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Domain",
+        "Example"
+      ],
+      "rows": [
+        ["Web Development", "Spring Boot Applications"],
+        ["Android Development", "Android Apps"],
+        ["Enterprise Software", "Banking Systems"],
+        ["Desktop Applications", "JavaFX & Swing"],
+        ["Cloud Applications", "Microservices"]
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Industry Usage",
+      "content": "Java powers millions of enterprise applications in banking, healthcare, e-commerce, and cloud computing."
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Java"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Platform Independent",
+        "Secure",
+        "Large Community",
+        "Automatic Memory Management"
+      ],
+      "right_points": [
+        "Higher Memory Usage",
+        "Slower than Native Languages",
+        "Verbose Syntax",
+        "Startup Time Can Be Higher"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Universal Language Translator",
+      "content": "Imagine writing a letter in a universal language that can be translated and understood by people from any country. Similarly, Java bytecode is understood by the JVM on any operating system."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers often begin Java interviews by asking about JDK, JRE, JVM, platform independence, and Java's key features."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why doesn't the program run?",
+          "answer": "The filename must exactly match the public class name."
+        },
+        {
+          "question": "What is a common beginner mistake?",
+          "answer": "Forgetting to write the main() method."
+        },
+        {
+          "question": "Why is Java called platform-independent?",
+          "answer": "Because bytecode runs on the JVM instead of directly on the operating system."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "JDK is used for development, JRE provides the runtime environment, and JVM executes Java bytecode."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Component",
+        "Purpose",
+        "Used By"
+      ],
+      "rows": [
+        ["JDK", "Development Tools", "Developers"],
+        ["JRE", "Runtime Environment", "Users"],
+        ["JVM", "Executes Bytecode", "Every Java Program"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Java is an object-oriented programming language.",
+        "Java follows Write Once, Run Anywhere.",
+        "Programs are compiled into bytecode.",
+        "JVM executes bytecode on different operating systems.",
+        "JDK contains JRE, and JRE contains JVM."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which component executes Java bytecode?",
+      "options": [
+        "JDK",
+        "JVM",
+        "JRE",
+        "Compiler"
+      ],
+      "answer": "JVM"
+    },
+    {
+      "type": "quiz",
+      "question": "What does JDK stand for?",
+      "options": [
+        "Java Development Kit",
+        "Java Deployment Kit",
+        "Java Design Kit",
+        "Java Dynamic Kernel"
+      ],
+      "answer": "Java Development Kit"
+    },
+    {
+      "type": "quiz",
+      "question": "Why is Java called platform-independent?",
+      "options": [
+        "It runs only on Windows",
+        "It uses Assembly Language",
+        "Bytecode runs on JVM across platforms",
+        "It does not require compilation"
+      ],
+      "answer": "Bytecode runs on JVM across platforms"
+    }
+  ]
+}

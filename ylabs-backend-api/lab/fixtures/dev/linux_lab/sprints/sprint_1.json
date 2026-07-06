@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 1 \u2014 Getting Comfortable with Linux",
+  "description": "Work entirely from the Linux terminal.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Install Ubuntu and Complete Initial Setup",
+      "ticket_slug": "ticket-1",
+      "description": "Task\nInstall Ubuntu Desktop or Server in a VM.\nUpdate the OS.\nInstall VS Code, Git, Curl, Htop, Tree, Vim.\nConfigure the terminal with a custom prompt.\nDeliverable\nA working Linux machine ready for development.",
+      "tasks": [],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Build Your Personal Workspace",
+      "ticket_slug": "ticket-2",
+      "description": "Task\nCreate a workspace like:\n~/workspace\nprojects\nscripts\ndownloads\nbackups\nnotes\nCreate everything only through terminal commands.\nAdd aliases for quickly navigating to these folders.",
+      "tasks": [],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Organize a Messy Downloads Folder",
+      "ticket_slug": "ticket-3",
+      "description": "Task\nGiven 100 mixed files,\nWrite commands/script that automatically moves\nPDFs\nImages\nVideos\nZIP files\nDocuments\ninto separate folders.\nNo GUI allowed.",
+      "tasks": [],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Recover Lost Files",
+      "ticket_slug": "ticket-4",
+      "description": "A project folder has hundreds of files.\nFind\nevery Python file\nevery log file\nevery file larger than 50MB\nevery file modified today\nGenerate reports.",
+      "tasks": [],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 5 \u2014 Create a Team Workspace",
+      "ticket_slug": "ticket-5",
+      "description": "Create\n5 users\n3 groups\nConfigure permissions so\nDevelopers can edit code\nTesters can only read\nHR cannot access Engineering folder\nTest using different users.",
+      "tasks": [],
+      "order_index": 5,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 6 \u2014 Build a Secure Shared Folder",
+      "ticket_slug": "ticket-6",
+      "description": "Requirements\nEveryone can upload files\nNobody can delete someone else's files\nOwner retains full control",
+      "tasks": [],
+      "order_index": 6,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 7 \u2014 Install Development Tools",
+      "ticket_slug": "ticket-7",
+      "description": "Install\nPython\nNode\nGit\nDocker\nMySQL Client\nVerify versions.\nCreate a shell script that installs everything automatically.",
+      "tasks": [],
+      "order_index": 7,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 8 \u2014 Deliver a Linux Development Machine",
+      "ticket_slug": "ticket-8",
+      "description": "Package everything into documentation so another developer can reproduce your environment.",
+      "tasks": [],
+      "order_index": 8,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 1,
+  "lab_title": "Linux Lab"
+}

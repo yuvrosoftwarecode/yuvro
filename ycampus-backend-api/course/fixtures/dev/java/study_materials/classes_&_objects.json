@@ -1,0 +1,315 @@
+{
+  "sub_unit_name": "Classes & Objects",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Classes and Objects?",
+      "description": "A class is a blueprint that defines the properties and behaviors of an object, while an object is a real instance of that class with its own data and functionality."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java is an <strong>Object-Oriented Programming (OOP)</strong> language. Everything revolves around <strong>classes</strong> and <strong>objects</strong>. A class defines what an object should contain, and an object is the actual entity created using that class.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Classes & Objects?",
+      "content": "Classes and objects are the foundation of Object-Oriented Programming. Understanding them is essential before learning inheritance, polymorphism, encapsulation, and abstraction."
+    },
+    {
+      "type": "diagram",
+      "title": "Class to Object Flow",
+      "steps": [
+        "Create Class",
+        "Define Variables & Methods",
+        "Create Object",
+        "Access Members",
+        "Perform Operations"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Understanding a Class"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A class is a user-defined blueprint that groups related variables (called fields) and methods (called behaviors) together. No memory is allocated for a class until an object is created.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Class",
+      "code": "class Student {\n    String name;\n    int age;\n\n    void display(){\n        System.out.println(name + \" \" + age);\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Class Components",
+      "description": "A class typically contains fields (variables), constructors, methods, and nested classes if required."
+    },
+    {
+      "type": "heading",
+      "content": "Understanding an Object"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An object is an instance of a class. When an object is created using the <code>new</code> keyword, memory is allocated, and the object's fields and methods become accessible.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating an Object",
+      "code": "Student s1 = new Student();"
+    },
+    {
+      "type": "diagram",
+      "title": "Object Creation",
+      "steps": [
+        "Class Defined",
+        "new Keyword Used",
+        "Memory Allocated",
+        "Reference Variable Points to Object"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Accessing Object Members"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The dot (<code>.</code>) operator is used to access an object's variables and methods.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Accessing Fields and Methods",
+      "code": "Student s1 = new Student();\ns1.name = \"Rahul\";\ns1.age = 20;\ns1.display();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Object Usage Process",
+      "steps": [
+        "Create Object",
+        "Assign Values",
+        "Call Methods",
+        "Perform Operations",
+        "Display Results"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Multiple Objects"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Multiple objects can be created from the same class. Each object maintains its own copy of instance variables while sharing the same method definitions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Multiple Objects Example",
+      "code": "Student s1 = new Student();\nStudent s2 = new Student();\n\ns1.name = \"Amit\";\ns2.name = \"Priya\";"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "One class can create any number of objects, and each object stores its own independent data."
+    },
+    {
+      "type": "heading",
+      "content": "Instance Variables and Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Instance variables belong to individual objects, whereas instance methods operate on the data stored inside those objects.</p>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Member",
+        "Purpose",
+        "Example"
+      ],
+      "rows": [
+        [
+          "Instance Variable",
+          "Stores object data",
+          "String name"
+        ],
+        [
+          "Instance Method",
+          "Performs object behavior",
+          "display()"
+        ],
+        [
+          "Reference Variable",
+          "Stores object reference",
+          "Student s1"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Constructors Overview"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A constructor is a special method that is automatically called when an object is created. It initializes the object's data.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Default Constructor",
+      "code": "class Student {\n    Student(){\n        System.out.println(\"Object Created\");\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Class vs Object"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Class",
+      "right_title": "Object",
+      "left_points": [
+        "Blueprint or template",
+        "No memory allocated",
+        "Defines properties and methods",
+        "Created once"
+      ],
+      "right_points": [
+        "Instance of a class",
+        "Memory allocated",
+        "Contains actual values",
+        "Many objects can be created"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Memory Representation"
+    },
+    {
+      "type": "diagram",
+      "title": "How Objects are Stored",
+      "steps": [
+        "Student s1",
+        "Reference Variable",
+        "Points to Heap Memory",
+        "Object Stores Data"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Blueprint and House",
+      "content": "A class is like the blueprint of a house that describes its structure. An object is the actual house built using that blueprint. Many houses can be constructed from the same blueprint, just as many objects can be created from one class."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about classes, objects, object creation, constructors, instance variables, reference variables, and memory allocation are among the most common Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can methods be called without creating an object?",
+          "answer": "Instance methods require an object. Only static methods can be called without creating an object."
+        },
+        {
+          "question": "Why is the new keyword necessary?",
+          "answer": "Because it allocates memory for the object and returns a reference to it."
+        },
+        {
+          "question": "What happens if object fields are not initialized?",
+          "answer": "Java automatically assigns default values such as 0, false, or null depending on the data type."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "A class defines the structure, while objects represent real entities created from that structure. Multiple objects can be created from a single class."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Concept",
+        "Description",
+        "Example"
+      ],
+      "rows": [
+        [
+          "Class",
+          "Blueprint",
+          "class Student"
+        ],
+        [
+          "Object",
+          "Instance of class",
+          "new Student()"
+        ],
+        [
+          "Field",
+          "Stores object data",
+          "int age"
+        ],
+        [
+          "Method",
+          "Defines behavior",
+          "display()"
+        ]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "A class is a blueprint for creating objects.",
+        "Objects are instances of classes.",
+        "The new keyword creates objects.",
+        "Dot operator is used to access object members.",
+        "Each object has its own copy of instance variables."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What is an object in Java?",
+      "options": [
+        "A package",
+        "An instance of a class",
+        "A method",
+        "A data type"
+      ],
+      "answer": "An instance of a class"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to create an object?",
+      "options": [
+        "create",
+        "new",
+        "class",
+        "object"
+      ],
+      "answer": "new"
+    },
+    {
+      "type": "quiz",
+      "question": "Which operator is used to access an object's fields and methods?",
+      "options": [
+        "::",
+        ".",
+        "->",
+        "#"
+      ],
+      "answer": "."
+    }
+  ]
+}

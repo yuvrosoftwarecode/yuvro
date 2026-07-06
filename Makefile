@@ -301,6 +301,9 @@ run: _validate-deploy
 		echo "   YLabs Backend:     http://localhost:8002"; \
 		echo "   YHub Backend:      http://localhost:8003"; \
 		echo "   Code Executor:     http://localhost:8009"; \
+		echo ""; \
+		echo "📺 Showing live logs. Press Ctrl+C to stop."; \
+			docker compose $(COMPOSE_FILES) logs -f; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \

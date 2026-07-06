@@ -545,9 +545,9 @@ def upload_profile_image(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
     try:
-        from core.storage import upload_image
+        from core.storage import upload_file
 
-        stored_name = upload_image(
+        stored_name = upload_file(
             key=f"profile/{request.user.id}/{target_field}.{ext}",
             file_obj=image_file,
             replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),

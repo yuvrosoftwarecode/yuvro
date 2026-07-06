@@ -1,0 +1,433 @@
+{
+  "sub_unit_name": "Queue Basics",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is a Queue?",
+      "description": "A Queue is a linear data structure that follows the FIFO (First In, First Out) principle, where the first element inserted is the first one removed."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A Queue works similarly to a line of people waiting at a ticket counter. The person who arrives first gets served first. This behavior makes Queues extremely useful in scheduling, resource management, operating systems, networking, and real-time systems.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Key Principle",
+      "content": "Queue follows FIFO (First In, First Out), unlike Stack which follows LIFO (Last In, First Out)."
+    },
+
+    {
+      "type": "heading",
+      "content": "Why Do We Need Queues?"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Many real-world systems process tasks in the order they arrive. Queues help ensure fairness and maintain the correct processing sequence.</p>"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Without Queue",
+      "right_title": "With Queue",
+      "left_points": [
+        "Tasks processed randomly",
+        "Possible starvation",
+        "Poor resource management",
+        "Unpredictable execution"
+      ],
+      "right_points": [
+        "Tasks processed fairly",
+        "FIFO ordering",
+        "Better scheduling",
+        "Predictable execution"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Queue at a Ticket Counter",
+      "steps": [
+        "Person A arrives",
+        "Person B arrives",
+        "Person C arrives",
+        "A served first",
+        "B served second",
+        "C served third"
+      ]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Think Like a Queue",
+      "description": "The earliest element entering the queue always leaves first."
+    },
+
+    {
+      "type": "heading",
+      "content": "Queue Structure"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Queue has two important pointers:</p><ul><li><strong>Front</strong> → Points to the first element.</li><li><strong>Rear</strong> → Points to the last element.</li></ul>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Queue Representation",
+      "steps": [
+        "Front → [10] [20] [30] [40] ← Rear",
+        "10 leaves first",
+        "40 entered last"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Important Terms",
+      "content": "Insertion happens at the Rear, while deletion happens at the Front."
+    },
+
+    {
+      "type": "heading",
+      "content": "Basic Queue Operations"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Core Operations",
+      "items": [
+        {
+          "question": "Enqueue",
+          "answer": "Insert an element at the rear of the queue."
+        },
+        {
+          "question": "Dequeue",
+          "answer": "Remove an element from the front of the queue."
+        },
+        {
+          "question": "Front",
+          "answer": "View the first element without removing it."
+        },
+        {
+          "question": "Rear",
+          "answer": "View the last inserted element."
+        },
+        {
+          "question": "isEmpty",
+          "answer": "Check whether the queue contains elements."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Enqueue Operation"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Enqueue adds a new element to the rear of the queue.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Enqueue Process",
+      "steps": [
+        "Check Queue Capacity",
+        "Insert Element at Rear",
+        "Move Rear Forward",
+        "Queue Updated"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Enqueue Example",
+      "steps": [
+        "Queue: [10, 20, 30]",
+        "Enqueue 40",
+        "Insert at Rear",
+        "Queue: [10, 20, 30, 40]"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Enqueue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Dequeue Operation"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Dequeue removes the oldest element from the front of the queue.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Dequeue Process",
+      "steps": [
+        "Check Queue Empty",
+        "Remove Front Element",
+        "Move Front Forward",
+        "Queue Updated"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Dequeue Example",
+      "steps": [
+        "Queue: [10, 20, 30]",
+        "Remove 10",
+        "Front Moves",
+        "Queue: [20, 30]"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Dequeue Complexity",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Front and Rear Operations"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Front",
+      "right_title": "Rear",
+      "left_points": [
+        "Oldest element",
+        "Removed first",
+        "Dequeue location",
+        "Peek operation"
+      ],
+      "right_points": [
+        "Newest element",
+        "Inserted last",
+        "Enqueue location",
+        "Recent entry"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Queue Example Walkthrough"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Complete Queue Flow",
+      "steps": [
+        "Enqueue 10",
+        "Enqueue 20",
+        "Enqueue 30",
+        "Dequeue → 10",
+        "Enqueue 40",
+        "Dequeue → 20"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Observation",
+      "content": "Elements always leave in the same order they entered."
+    },
+
+    {
+      "type": "heading",
+      "content": "Queue vs Stack"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Queue",
+      "right_title": "Stack",
+      "left_points": [
+        "FIFO",
+        "Front and Rear",
+        "First element removed first",
+        "Scheduling tasks"
+      ],
+      "right_points": [
+        "LIFO",
+        "Single Top",
+        "Last element removed first",
+        "Function calls"
+      ]
+    },
+
+    {
+      "type": "table",
+      "headers": ["Feature", "Queue", "Stack"],
+      "rows": [
+        ["Ordering", "FIFO", "LIFO"],
+        ["Insertion", "Rear", "Top"],
+        ["Deletion", "Front", "Top"],
+        ["Pointers", "Front & Rear", "Top"],
+        ["Use Cases", "Scheduling", "Recursion"]
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Applications of Queue"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Where Queues Are Used",
+      "items": [
+        {
+          "question": "CPU Scheduling",
+          "answer": "Operating systems schedule processes using queues."
+        },
+        {
+          "question": "Printer Management",
+          "answer": "Print jobs wait in a queue."
+        },
+        {
+          "question": "Customer Service Systems",
+          "answer": "Customers are served in arrival order."
+        },
+        {
+          "question": "Network Packets",
+          "answer": "Routers process packets using queues."
+        },
+        {
+          "question": "Task Scheduling",
+          "answer": "Jobs wait until resources become available."
+        }
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Printer Queue Example",
+      "steps": [
+        "Job A Submitted",
+        "Job B Submitted",
+        "Job C Submitted",
+        "Print A",
+        "Print B",
+        "Print C"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Advantages of Queue"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Fair Processing",
+          "answer": "Tasks are handled in arrival order."
+        },
+        {
+          "question": "Simple Operations",
+          "answer": "Enqueue and Dequeue are efficient."
+        },
+        {
+          "question": "Widely Applicable",
+          "answer": "Used across software and hardware systems."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Common Errors"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Queue Overflow",
+          "answer": "Occurs when inserting into a full queue."
+        },
+        {
+          "question": "Queue Underflow",
+          "answer": "Occurs when removing from an empty queue."
+        },
+        {
+          "question": "Confusing FIFO and LIFO",
+          "answer": "Queue follows FIFO, Stack follows LIFO."
+        }
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "When you see problems involving processing tasks in arrival order, scheduling, buffering, or waiting lines, think about Queue as a possible solution."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Many advanced structures such as Circular Queue, Deque, Priority Queue, and BFS traversal are built on top of Queue fundamentals."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Queue follows FIFO.",
+        "Insertion occurs at Rear.",
+        "Deletion occurs at Front.",
+        "Front stores oldest element.",
+        "Rear stores newest element.",
+        "Enqueue and Dequeue are O(1).",
+        "Queues are widely used in scheduling.",
+        "Operating systems heavily rely on queues.",
+        "Printer systems use queues.",
+        "Queue is one of the most important linear data structures."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "What principle does a Queue follow?",
+      "options": ["LIFO", "FIFO", "Random Access", "Priority First"],
+      "answer": "FIFO"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Where is a new element inserted in a Queue?",
+      "options": ["Front", "Middle", "Rear", "Anywhere"],
+      "answer": "Rear"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which operation removes an element from a Queue?",
+      "options": ["Push", "Pop", "Enqueue", "Dequeue"],
+      "answer": "Dequeue"
+    }
+  ]
+}

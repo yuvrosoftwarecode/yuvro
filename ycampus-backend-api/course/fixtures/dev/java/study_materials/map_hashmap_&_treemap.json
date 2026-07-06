@@ -1,0 +1,280 @@
+{
+  "sub_unit_name": "Map, HashMap & TreeMap",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Map, HashMap & TreeMap?",
+      "description": "Map is an interface used to store data as key-value pairs. HashMap is a hash table implementation that provides fast access, while TreeMap stores entries in sorted order based on keys."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike collections such as <strong>List</strong> and <strong>Set</strong>, a <strong>Map</strong> stores data as <strong>key-value pairs</strong>. Every key must be unique, while values may be duplicated. The most commonly used implementations are <strong>HashMap</strong> for fast lookups and <strong>TreeMap</strong> for maintaining sorted keys.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Maps?",
+      "content": "Maps are widely used for fast searching, caching, configuration management, databases, and storing relationships between keys and values."
+    },
+    {
+      "type": "diagram",
+      "title": "Map Hierarchy",
+      "steps": [
+        "Map Interface",
+        "HashMap",
+        "LinkedHashMap",
+        "TreeMap",
+        "Key-Value Storage"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Map"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A <code>Map</code> associates every unique key with a value. Duplicate keys are not allowed, but duplicate values are permitted.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Description"],
+      "rows": [
+        ["Keys", "Must be unique"],
+        ["Values", "Duplicates allowed"],
+        ["Ordering", "Depends on implementation"],
+        ["Access", "Using keys"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Maps are optimized for retrieving values using unique keys rather than indexes."
+    },
+    {
+      "type": "heading",
+      "content": "HashMap"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>HashMap</code> stores entries using a hash table. It provides fast insertion, deletion, and searching, but it does not guarantee any ordering of keys.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "HashMap Example",
+      "code": "import java.util.*;\n\nMap<Integer, String> students = new HashMap<>();\nstudents.put(101, \"Alice\");\nstudents.put(102, \"Bob\");\nstudents.put(103, \"Charlie\");\nSystem.out.println(students.get(102));"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "HashMap allows one null key and multiple null values."
+    },
+    {
+      "type": "heading",
+      "content": "TreeMap"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><code>TreeMap</code> stores entries in sorted order of keys using a Red-Black Tree. It is useful when ordered data is required.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "TreeMap Example",
+      "code": "Map<Integer, String> marks = new TreeMap<>();\nmarks.put(3, \"C\");\nmarks.put(1, \"A\");\nmarks.put(2, \"B\");\nSystem.out.println(marks);"
+    },
+    {
+      "type": "fact-box",
+      "title": "Sorting Feature",
+      "content": "TreeMap automatically sorts entries according to the natural ordering of keys or a custom Comparator."
+    },
+    {
+      "type": "heading",
+      "content": "Common Map Methods"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose"],
+      "rows": [
+        ["put()", "Insert or update an entry"],
+        ["get()", "Retrieve value using key"],
+        ["remove()", "Delete an entry"],
+        ["containsKey()", "Check if key exists"],
+        ["containsValue()", "Check if value exists"],
+        ["keySet()", "Return all keys"],
+        ["values()", "Return all values"],
+        ["entrySet()", "Return key-value pairs"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Traversing a Map",
+      "code": "for(Map.Entry<Integer, String> entry : students.entrySet()){\n    System.out.println(entry.getKey() + \" : \" + entry.getValue());\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Working with Maps",
+      "steps": [
+        "Create Map",
+        "Insert Key-Value Pairs",
+        "Retrieve Data Using Key",
+        "Update or Remove Entries",
+        "Traverse Using entrySet()"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "HashMap vs TreeMap"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "HashMap",
+      "right_title": "TreeMap",
+      "left_points": [
+        "Uses hashing",
+        "No ordering",
+        "Faster operations",
+        "Allows one null key"
+      ],
+      "right_points": [
+        "Uses Red-Black Tree",
+        "Sorted keys",
+        "Slightly slower",
+        "Null keys not allowed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Time Complexity"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "HashMap", "TreeMap"],
+      "rows": [
+        ["put()", "O(1)", "O(log n)"],
+        ["get()", "O(1)", "O(log n)"],
+        ["remove()", "O(1)", "O(log n)"],
+        ["Traversal", "O(n)", "O(n)"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Map Performance",
+      "time_complexity": "HashMap: O(1) Average, TreeMap: O(log n)",
+      "space_complexity": "O(n)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Maps Used?",
+      "items": [
+        {
+          "question": "Student Records",
+          "answer": "Store roll numbers as keys and student names as values."
+        },
+        {
+          "question": "Caching",
+          "answer": "Retrieve data quickly using unique keys."
+        },
+        {
+          "question": "Dictionary Applications",
+          "answer": "Store words and their meanings."
+        },
+        {
+          "question": "Configuration Settings",
+          "answer": "Store property names and corresponding values."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Phone Contacts",
+      "content": "A Map is like your phone contacts. Each phone number (key) uniquely identifies a contact (value). You search using the number or name key to find the corresponding information."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about HashMap internals, hashing, collision handling, TreeMap sorting, null keys, equals(), hashCode(), and differences between HashMap, LinkedHashMap, and TreeMap."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can duplicate keys exist in a Map?",
+          "answer": "No. Inserting the same key replaces the existing value."
+        },
+        {
+          "question": "Does HashMap maintain insertion order?",
+          "answer": "No. Use LinkedHashMap when insertion order is required."
+        },
+        {
+          "question": "Can TreeMap store null keys?",
+          "answer": "No. TreeMap throws a NullPointerException for null keys."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use HashMap for fast lookups and TreeMap when sorted keys are required."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "HashMap", "TreeMap"],
+      "rows": [
+        ["Ordering", "Not Guaranteed", "Sorted"],
+        ["Implementation", "Hash Table", "Red-Black Tree"],
+        ["Null Key", "One Allowed", "Not Allowed"],
+        ["Performance", "Faster", "Slightly Slower"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Map stores key-value pairs.",
+        "Keys must be unique.",
+        "HashMap provides fast access using hashing.",
+        "TreeMap keeps keys sorted.",
+        "Use put() to insert and get() to retrieve values.",
+        "entrySet() is commonly used for traversing maps."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which Map implementation automatically sorts keys?",
+      "options": ["HashMap", "LinkedHashMap", "TreeMap", "Hashtable"],
+      "answer": "TreeMap"
+    },
+    {
+      "type": "quiz",
+      "question": "Which statement about HashMap is correct?",
+      "options": [
+        "It stores duplicate keys.",
+        "It maintains sorted keys.",
+        "It provides fast average-time lookup using hashing.",
+        "It does not allow null keys."
+      ],
+      "answer": "It provides fast average-time lookup using hashing."
+    },
+    {
+      "type": "quiz",
+      "question": "Which method retrieves a value using its key?",
+      "options": ["put()", "containsKey()", "get()", "entrySet()"],
+      "answer": "get()"
+    }
+  ]
+}

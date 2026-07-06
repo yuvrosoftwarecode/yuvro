@@ -1,0 +1,277 @@
+{
+  "sub_unit_name": "Functional Interfaces",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Functional Interfaces?",
+      "description": "A Functional Interface is an interface that contains exactly one abstract method. It serves as the foundation for Lambda Expressions and the functional programming features introduced in Java 8."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Functional interfaces enable Java to support functional programming. They allow behavior to be passed as data through <strong>Lambda Expressions</strong> and <strong>Method References</strong>. Although a functional interface contains only one abstract method, it can also have any number of default, static, and private methods.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Functional Interfaces?",
+      "content": "Functional interfaces make code more concise, reusable, readable, and are the backbone of Java's Streams API, Lambda Expressions, and asynchronous programming."
+    },
+    {
+      "type": "diagram",
+      "title": "Functional Interface Workflow",
+      "steps": [
+        "Define Functional Interface",
+        "Single Abstract Method",
+        "Implement Using Lambda",
+        "Pass as Argument",
+        "Execute Behavior"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Characteristics of Functional Interfaces"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A functional interface must contain exactly one abstract method. However, it may include multiple default methods, static methods, and methods inherited from the <code>Object</code> class.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Allowed?"],
+      "rows": [
+        ["One Abstract Method", "Yes (Required)"],
+        ["Default Methods", "Yes"],
+        ["Static Methods", "Yes"],
+        ["Private Methods (Java 9+)", "Yes"]
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Every Lambda Expression in Java represents an implementation of a functional interface."
+    },
+    {
+      "type": "heading",
+      "content": "@FunctionalInterface Annotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>@FunctionalInterface</code> annotation is optional but recommended. It tells the compiler that the interface should contain only one abstract method and generates an error if additional abstract methods are added.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Creating a Functional Interface",
+      "code": "@FunctionalInterface\ninterface Greeting {\n    void sayHello();\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Compiler Safety",
+      "content": "Using @FunctionalInterface helps prevent accidental modification of an interface into a non-functional interface."
+    },
+    {
+      "type": "heading",
+      "content": "Implementing with Lambda Expression"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Instead of creating anonymous classes, Lambda Expressions provide a concise implementation of the single abstract method.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Lambda Example",
+      "code": "Greeting greeting = () -> System.out.println(\"Hello Java\");\ngreeting.sayHello();"
+    },
+    {
+      "type": "heading",
+      "content": "Built-in Functional Interfaces"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>java.util.function</code> package provides several predefined functional interfaces for common programming tasks.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Interface", "Purpose", "Method"],
+      "rows": [
+        ["Predicate<T>", "Tests a condition", "test()"],
+        ["Function<T,R>", "Transforms an object", "apply()"],
+        ["Consumer<T>", "Consumes data", "accept()"],
+        ["Supplier<T>", "Supplies data", "get()"],
+        ["UnaryOperator<T>", "Operates on same type", "apply()"],
+        ["BinaryOperator<T>", "Combines two values", "apply()"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Predicate Example",
+      "code": "Predicate<Integer> isEven = n -> n % 2 == 0;\n\nSystem.out.println(isEven.test(8));"
+    },
+    {
+      "type": "heading",
+      "content": "Custom Functional Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Developers can create their own functional interfaces whenever the built-in interfaces do not satisfy application requirements.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Custom Functional Interface",
+      "code": "@FunctionalInterface\ninterface Calculator {\n    int calculate(int a, int b);\n}\n\nCalculator add = (a, b) -> a + b;\nSystem.out.println(add.calculate(5, 10));"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Functional Interfaces",
+      "steps": [
+        "Create Functional Interface",
+        "Declare Single Abstract Method",
+        "Implement Using Lambda",
+        "Assign to Interface Reference",
+        "Invoke Method"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Custom vs Built-in Interfaces"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Built-in Interfaces",
+      "right_title": "Custom Interfaces",
+      "left_points": [
+        "Available in java.util.function",
+        "Well-tested",
+        "Reusable",
+        "Suitable for common tasks"
+      ],
+      "right_points": [
+        "Created by developers",
+        "Application-specific",
+        "Flexible",
+        "Used for unique requirements"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Functional Interface Operations",
+      "time_complexity": "Depends on the implemented method",
+      "space_complexity": "Typically O(1), excluding processed data"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Functional Interfaces Used?",
+      "items": [
+        {
+          "question": "Streams API",
+          "answer": "Filtering, mapping, sorting, and reducing collections."
+        },
+        {
+          "question": "Collections Framework",
+          "answer": "Sorting, iteration, and custom operations."
+        },
+        {
+          "question": "Executor Framework",
+          "answer": "Passing tasks as Runnable or Callable."
+        },
+        {
+          "question": "Event Handling",
+          "answer": "Implementing listeners using concise lambda expressions."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Single Responsibility Worker",
+      "content": "Imagine hiring a specialist whose job is to perform exactly one task efficiently. A functional interface similarly defines one specific responsibility through a single abstract method."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Functional interfaces, @FunctionalInterface, Predicate, Function, Consumer, Supplier, Lambda Expressions, Method References, Streams API, and default methods are among the most commonly asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a functional interface have multiple abstract methods?",
+          "answer": "No. It must contain exactly one abstract method."
+        },
+        {
+          "question": "Are default methods counted as abstract methods?",
+          "answer": "No. Default and static methods do not affect functional interface status."
+        },
+        {
+          "question": "Is @FunctionalInterface mandatory?",
+          "answer": "No. It is optional but strongly recommended for compile-time validation."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "A functional interface contains one abstract method and enables Lambda Expressions and functional programming in Java."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Functional Interface", "Regular Interface"],
+      "rows": [
+        ["Abstract Methods", "Exactly One", "One or More"],
+        ["Lambda Support", "Yes", "No"],
+        ["@FunctionalInterface", "Recommended", "Not Applicable"],
+        ["Primary Use", "Functional Programming", "General Abstraction"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "A functional interface contains exactly one abstract method.",
+        "Lambda expressions implement functional interfaces.",
+        "@FunctionalInterface provides compile-time validation.",
+        "Default and static methods are allowed.",
+        "Common built-in interfaces include Predicate, Function, Consumer, and Supplier.",
+        "Functional interfaces are widely used with Streams and the Executor Framework."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "How many abstract methods can a functional interface contain?",
+      "options": ["Zero", "One", "Two", "Unlimited"],
+      "answer": "One"
+    },
+    {
+      "type": "quiz",
+      "question": "Which annotation indicates a functional interface?",
+      "options": ["@Override", "@FunctionalInterface", "@Interface", "@Lambda"],
+      "answer": "@FunctionalInterface"
+    },
+    {
+      "type": "quiz",
+      "question": "Which package contains Java's built-in functional interfaces?",
+      "options": [
+        "java.lang",
+        "java.util.concurrent",
+        "java.util.function",
+        "java.io"
+      ],
+      "answer": "java.util.function"
+    }
+  ]
+}

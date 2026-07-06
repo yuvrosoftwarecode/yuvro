@@ -1,0 +1,403 @@
+{
+  "sub_unit_name": "Memoization and Tabulation",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "Why Dynamic Programming?",
+      "description": "Dynamic Programming (DP) helps solve complex problems by breaking them into smaller overlapping subproblems and storing previously computed results."
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Many recursive solutions repeatedly solve the same subproblems. Dynamic Programming eliminates this redundancy by storing intermediate results, dramatically improving performance.</p>"
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Real-World Applications",
+      "content": "Route optimization, resource allocation, stock trading, AI decision making, scheduling systems, and sequence analysis all use Dynamic Programming."
+    },
+
+    {
+      "type": "heading",
+      "content": "What is Dynamic Programming?"
+    },
+
+    {
+      "type": "definition-card",
+      "term": "Dynamic Programming",
+      "definition": "An optimization technique that solves problems by breaking them into smaller overlapping subproblems and storing their results."
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>DP is applicable when a problem exhibits <strong>Overlapping Subproblems</strong> and <strong>Optimal Substructure</strong>.</p>"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Core DP Properties",
+      "items": [
+        {
+          "question": "Overlapping Subproblems",
+          "answer": "The same subproblems are solved multiple times."
+        },
+        {
+          "question": "Optimal Substructure",
+          "answer": "An optimal solution can be built from optimal solutions of smaller subproblems."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "The Fibonacci Problem"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The Fibonacci sequence is one of the most common examples used to understand Dynamic Programming.</p>"
+    },
+
+    {
+      "type": "definition-card",
+      "term": "Fibonacci Formula",
+      "definition": "F(n) = F(n-1) + F(n-2)"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Recursive Fibonacci Calls",
+      "steps": [
+        "F(5)",
+        "├── F(4)",
+        "│   ├── F(3)",
+        "│   └── F(2)",
+        "└── F(3)",
+        "    ├── F(2)",
+        "    └── F(1)"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Problem with Recursion",
+      "content": "Notice that F(3) and F(2) are calculated multiple times. This repetition causes inefficiency."
+    },
+
+    {
+      "type": "heading",
+      "content": "Memoization (Top-Down DP)"
+    },
+
+    {
+      "type": "definition-card",
+      "term": "Memoization",
+      "definition": "A top-down DP approach where recursion is used and previously computed results are stored in a cache."
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Memoization starts from the original problem and recursively solves smaller subproblems. Whenever a result is computed, it is stored so future calls can reuse it.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Memoization Workflow",
+      "steps": [
+        "Start with Original Problem",
+        "Recursively Solve Smaller Problems",
+        "Store Computed Results",
+        "Reuse Stored Results",
+        "Avoid Repeated Calculations"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Memoization Example",
+      "steps": [
+        "Compute F(5)",
+        "Store F(2)=1",
+        "Store F(3)=2",
+        "Store F(4)=3",
+        "Store F(5)=5"
+      ]
+    },
+
+    {
+      "type": "code-example",
+      "language": "java",
+      "title": "Memoization Example",
+      "code": "int fib(int n, int[] dp){ if(n<=1) return n; if(dp[n]!=-1) return dp[n]; return dp[n]=fib(n-1,dp)+fib(n-2,dp); }"
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Memoization Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Advantages of Memoization"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Easy Conversion",
+          "answer": "Recursive solutions can be converted into DP easily."
+        },
+        {
+          "question": "Natural Problem Solving",
+          "answer": "Closely follows recursive thinking."
+        },
+        {
+          "question": "Avoids Repetition",
+          "answer": "Stores previously solved subproblems."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Tabulation (Bottom-Up DP)"
+    },
+
+    {
+      "type": "definition-card",
+      "term": "Tabulation",
+      "definition": "A bottom-up DP approach where smaller subproblems are solved first and used to build larger solutions."
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Tabulation eliminates recursion entirely. Instead, a table is filled from the smallest subproblems up to the final answer.</p>"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Tabulation Workflow",
+      "steps": [
+        "Create DP Table",
+        "Initialize Base Cases",
+        "Fill Table Iteratively",
+        "Build Larger Solutions",
+        "Return Final Answer"
+      ]
+    },
+
+    {
+      "type": "diagram",
+      "title": "Tabulation for Fibonacci",
+      "steps": [
+        "dp[0] = 0",
+        "dp[1] = 1",
+        "dp[2] = 1",
+        "dp[3] = 2",
+        "dp[4] = 3",
+        "dp[5] = 5"
+      ]
+    },
+
+    {
+      "type": "code-example",
+      "language": "java",
+      "title": "Tabulation Example",
+      "code": "int[] dp = new int[n+1]; dp[0]=0; dp[1]=1; for(int i=2;i<=n;i++){ dp[i]=dp[i-1]+dp[i-2]; }"
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Tabulation Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(n)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Memoization vs Tabulation"
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Memoization",
+      "right_title": "Tabulation",
+      "left_points": [
+        "Top-Down Approach",
+        "Uses Recursion",
+        "Stores Computed Results",
+        "Natural Recursive Thinking",
+        "May Cause Stack Overflow"
+      ],
+      "right_points": [
+        "Bottom-Up Approach",
+        "Uses Iteration",
+        "No Recursion Stack",
+        "Often Faster",
+        "Requires DP Table Design"
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Space Optimization"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Many DP problems only require a few previous states. Instead of storing the entire table, we can store only necessary values.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Optimized Fibonacci",
+      "steps": [
+        "prev2 = 0",
+        "prev1 = 1",
+        "current = prev1 + prev2",
+        "Update Values",
+        "Repeat"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Optimized Fibonacci",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Common DP Problem Patterns"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Frequently Asked DP Problems",
+      "items": [
+        {
+          "question": "Fibonacci Numbers",
+          "answer": "Classic introduction to Dynamic Programming."
+        },
+        {
+          "question": "Climbing Stairs",
+          "answer": "Count ways to reach the top."
+        },
+        {
+          "question": "House Robber",
+          "answer": "Choose non-adjacent houses for maximum profit."
+        },
+        {
+          "question": "Coin Change",
+          "answer": "Find minimum coins or total combinations."
+        },
+        {
+          "question": "Longest Common Subsequence",
+          "answer": "Compare two sequences efficiently."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Steps to Solve DP Problems"
+    },
+
+    {
+      "type": "process_flow",
+      "title": "DP Problem Solving Framework",
+      "steps": [
+        "Identify Subproblems",
+        "Define DP State",
+        "Find Recurrence Relation",
+        "Determine Base Cases",
+        "Choose Memoization or Tabulation",
+        "Optimize Space if Possible"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Interview Strategy",
+      "content": "Most interviewers expect candidates to first derive the recursive solution and then optimize it using Dynamic Programming."
+    },
+
+    {
+      "type": "heading",
+      "content": "Complexity Comparison"
+    },
+
+    {
+      "type": "table",
+      "headers": ["Approach", "Time Complexity", "Space Complexity"],
+      "rows": [
+        ["Naive Fibonacci Recursion", "O(2ⁿ)", "O(n)"],
+        ["Memoization", "O(n)", "O(n)"],
+        ["Tabulation", "O(n)", "O(n)"],
+        ["Space Optimized DP", "O(n)", "O(1)"]
+      ]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Common Mistake",
+      "content": "Many learners memorize DP solutions without understanding the recurrence relation. Always focus on deriving the state transition first."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Whenever you notice repeated recursive calls solving the same subproblem, think about Dynamic Programming and consider Memoization or Tabulation."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Dynamic Programming stores results of subproblems.",
+        "DP requires overlapping subproblems.",
+        "DP requires optimal substructure.",
+        "Memoization is a Top-Down approach.",
+        "Memoization uses recursion.",
+        "Tabulation is a Bottom-Up approach.",
+        "Tabulation uses iteration.",
+        "Both approaches avoid redundant calculations.",
+        "Space optimization can reduce memory usage.",
+        "Fibonacci is the classic DP example."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which DP approach uses recursion?",
+      "options": ["Tabulation", "Memoization", "Greedy", "Backtracking"],
+      "answer": "Memoization"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which DP approach builds solutions from smaller subproblems upward?",
+      "options": ["Memoization", "Tabulation", "Divide and Conquer", "DFS"],
+      "answer": "Tabulation"
+    },
+
+    {
+      "type": "quiz",
+      "question": "What are the two essential properties required for Dynamic Programming?",
+      "options": [
+        "Sorting and Searching",
+        "Greedy Choice and BFS",
+        "Overlapping Subproblems and Optimal Substructure",
+        "Trees and Graphs"
+      ],
+      "answer": "Overlapping Subproblems and Optimal Substructure"
+    }
+  ]
+}

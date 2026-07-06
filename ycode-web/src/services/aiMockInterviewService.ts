@@ -1,9 +1,9 @@
-import { restApiAuthUtil } from '@/utils/RestApiAuthUtil';
+import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 
 class AIMockInterviewService {
   async uploadResume(jdText: string, resumeText: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>('/assessment/mock-interview/submissions/upload_resume/', {
+      const response = await yhubApiAuthUtil.post<any>('/interview/submissions/upload_resume/', {
         jd_text: jdText,
         resume_text: resumeText,
       });
@@ -20,7 +20,7 @@ class AIMockInterviewService {
       formData.append('jd_text', jdText);
       formData.append('resume', resumeFile);
 
-      const response = await restApiAuthUtil.post<any>('/assessment/mock-interview/submissions/upload_resume_pdf/', formData);
+      const response = await yhubApiAuthUtil.post<any>('/interview/submissions/upload_resume_pdf/', formData);
       return response;
     } catch (error) {
       console.error('Error uploading/analyzing resume PDF:', error);
@@ -37,7 +37,7 @@ class AIMockInterviewService {
     resumeText: string = ''
   ): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>('/assessment/mock-interview/submissions/start_interview/', {
+      const response = await yhubApiAuthUtil.post<any>('/interview/submissions/start_interview/', {
         analysis,
         difficulty,
         num_questions: numQuestions,
@@ -54,7 +54,7 @@ class AIMockInterviewService {
 
   async nextQuestion(submissionId: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interview/submissions/${submissionId}/next_question/`, {});
+      const response = await yhubApiAuthUtil.post<any>(`/interview/submissions/${submissionId}/next_question/`, {});
       return response;
     } catch (error) {
       console.error('Error fetching next question:', error);
@@ -76,8 +76,8 @@ class AIMockInterviewService {
       if (answerDurationSeconds !== undefined) {
         payload.answer_duration_seconds = answerDurationSeconds;
       }
-      const response = await restApiAuthUtil.post<any>(
-        `/assessment/mock-interview/submissions/${submissionId}/submit_answer/`,
+      const response = await yhubApiAuthUtil.post<any>(
+        `/interview/submissions/${submissionId}/submit_answer/`,
         payload
       );
       return response;
@@ -89,7 +89,7 @@ class AIMockInterviewService {
 
   async getHint(submissionId: string, questionId: number, partialAnswer: string = ''): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interview/submissions/${submissionId}/get_hint/`, {
+      const response = await yhubApiAuthUtil.post<any>(`/interview/submissions/${submissionId}/get_hint/`, {
         question_id: questionId,
         partial_answer: partialAnswer,
       });
@@ -110,8 +110,8 @@ class AIMockInterviewService {
     }
   ): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(
-        `/assessment/mock-interview/submissions/${submissionId}/interview_cue/`,
+      const response = await yhubApiAuthUtil.post<any>(
+        `/interview/submissions/${submissionId}/interview_cue/`,
         data
       );
       return response;
@@ -123,7 +123,7 @@ class AIMockInterviewService {
 
   async faceEnroll(submissionId: string, imageB64: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interview/submissions/${submissionId}/face_enroll/`, {
+      const response = await yhubApiAuthUtil.post<any>(`/interview/submissions/${submissionId}/face_enroll/`, {
         image: imageB64,
       });
       return response;
@@ -135,7 +135,7 @@ class AIMockInterviewService {
 
   async faceVerify(submissionId: string, imageB64: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interview/submissions/${submissionId}/face_verify/`, {
+      const response = await yhubApiAuthUtil.post<any>(`/interview/submissions/${submissionId}/face_verify/`, {
         image: imageB64,
       });
       return response;
@@ -147,7 +147,7 @@ class AIMockInterviewService {
 
   async generateReport(submissionId: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interview/submissions/${submissionId}/generate_report/`, {});
+      const response = await yhubApiAuthUtil.post<any>(`/interview/submissions/${submissionId}/generate_report/`, {});
       return response;
     } catch (error) {
       console.error('Error generating report:', error);
@@ -157,7 +157,7 @@ class AIMockInterviewService {
 
   async getSubmission(submissionId: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${submissionId}/`);
+      const response = await yhubApiAuthUtil.get<any>(`/interview/submissions/${submissionId}/`);
       return response;
     } catch (error) {
       console.error('Error fetching submission:', error);
@@ -166,7 +166,7 @@ class AIMockInterviewService {
   }
   async getCustomSubmissions(): Promise<any[]> {
     try {
-      const response = await restApiAuthUtil.get<any[]>('/assessment/mock-interview/submissions/');
+      const response = await yhubApiAuthUtil.get<any[]>('/interview/submissions/');
       return response.filter((sub: any) => !sub.mock_interview);
     } catch (error) {
       console.error('Error fetching custom submissions:', error);

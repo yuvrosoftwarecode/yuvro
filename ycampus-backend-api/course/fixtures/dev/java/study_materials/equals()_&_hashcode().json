@@ -1,0 +1,261 @@
+{
+  "sub_unit_name": "equals() & hashCode()",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are equals() and hashCode()?",
+      "description": "equals() and hashCode() are two important methods of the Object class. They are used to compare objects and support efficient storage and retrieval in hash-based collections such as HashMap and HashSet."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>equals()</code> method checks whether two objects are logically equal, while the <code>hashCode()</code> method returns an integer hash value for an object. These two methods work together and must follow a specific contract to ensure collections behave correctly.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Are They Important?",
+      "content": "Without correctly overriding equals() and hashCode(), collections like HashMap and HashSet may store duplicate objects or fail to retrieve existing ones."
+    },
+    {
+      "type": "diagram",
+      "title": "Object Comparison Flow",
+      "steps": [
+        "Create Objects",
+        "Call hashCode()",
+        "Locate Hash Bucket",
+        "Call equals()",
+        "Determine Equality"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The equals() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>equals()</code> method determines whether two objects should be considered logically equal. By default, Object compares memory references, but most classes override it to compare object data.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Default equals() Behavior",
+      "code": "Student s1 = new Student();\nStudent s2 = new Student();\n\nSystem.out.println(s1.equals(s2));\n// false"
+    },
+    {
+      "type": "heading",
+      "content": "Overriding equals()"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Custom classes typically override equals() so that objects with the same data are treated as equal instead of comparing memory locations.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "equals() Example",
+      "code": "class Student {\n    int id;\n\n    Student(int id){\n        this.id = id;\n    }\n\n    @Override\n    public boolean equals(Object obj){\n        Student s = (Student)obj;\n        return this.id == s.id;\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "equals() compares object contents, not memory addresses, when it is properly overridden."
+    },
+    {
+      "type": "heading",
+      "content": "The hashCode() Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>hashCode()</code> method generates an integer value representing an object. Java collections use this value to quickly locate objects in hash-based data structures.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "hashCode() Example",
+      "code": "String language = \"Java\";\nSystem.out.println(language.hashCode());"
+    },
+    {
+      "type": "fact-box",
+      "title": "Hash-Based Collections",
+      "content": "HashMap, HashSet, Hashtable, and LinkedHashMap all depend on hashCode() for efficient searching and storage."
+    },
+    {
+      "type": "heading",
+      "content": "The equals() and hashCode() Contract"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Whenever equals() is overridden, hashCode() should also be overridden. Objects that are equal must always return the same hash code.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Rule", "Description"],
+      "rows": [
+        ["Equal Objects", "Must return the same hash code."],
+        ["Different Objects", "May return different hash codes."],
+        ["Same Hash Code", "Objects may or may not be equal."],
+        [
+          "Override Together",
+          "equals() and hashCode() should be overridden together."
+        ]
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "HashMap Lookup Process",
+      "steps": [
+        "Call hashCode()",
+        "Locate Bucket",
+        "Call equals()",
+        "Match Object",
+        "Return Value"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "equals() vs == Operator"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "equals()",
+      "right_title": "== Operator",
+      "left_points": [
+        "Compares object contents",
+        "Can be overridden",
+        "Checks logical equality",
+        "Frequently used with custom classes"
+      ],
+      "right_points": [
+        "Compares memory references",
+        "Cannot be overridden",
+        "Checks reference equality",
+        "Used with primitive values and object references"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Overriding Both Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Best practice is to override both methods together so collections can correctly identify equal objects.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "equals() and hashCode() Together",
+      "code": "@Override\npublic boolean equals(Object obj){\n    Student s = (Student)obj;\n    return id == s.id;\n}\n\n@Override\npublic int hashCode(){\n    return Integer.hashCode(id);\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where They Are Used",
+      "items": [
+        {
+          "question": "HashMap",
+          "answer": "Stores and retrieves key-value pairs efficiently."
+        },
+        {
+          "question": "HashSet",
+          "answer": "Prevents duplicate objects."
+        },
+        {
+          "question": "LinkedHashMap",
+          "answer": "Maintains insertion order while using hashing."
+        },
+        {
+          "question": "Caching Systems",
+          "answer": "Efficient object lookup depends on proper hashing."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Library Books",
+      "content": "A library first uses the shelf number (hashCode) to locate a section quickly and then checks the book title and author (equals) to find the exact book. Java collections follow the same approach."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Questions about equals(), hashCode(), their contract, HashMap internals, HashSet behavior, and the difference between equals() and == are extremely common in Java interviews."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can equals() be overridden without hashCode()?",
+          "answer": "Technically yes, but it breaks the contract and causes incorrect behavior in hash-based collections."
+        },
+        {
+          "question": "Does the same hash code always mean objects are equal?",
+          "answer": "No. Different objects can produce the same hash code (hash collision)."
+        },
+        {
+          "question": "Does == compare object data?",
+          "answer": "No. It compares object references."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "equals() checks logical equality, while hashCode() supports efficient searching. Always override both methods together when defining object equality."
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "Purpose", "Used In"],
+      "rows": [
+        ["equals()", "Compare object contents", "Object comparison"],
+        ["hashCode()", "Generate hash value", "HashMap, HashSet"],
+        ["==", "Compare references", "Reference equality"],
+        ["Object", "Parent class", "Provides both methods"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "equals() compares logical equality.",
+        "hashCode() generates an object's hash value.",
+        "HashMap first uses hashCode(), then equals().",
+        "Equal objects must have equal hash codes.",
+        "Always override equals() and hashCode() together."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which method is used to compare object contents?",
+      "options": ["hashCode()", "equals()", "compareTo()", "clone()"],
+      "answer": "equals()"
+    },
+    {
+      "type": "quiz",
+      "question": "Which collection heavily depends on hashCode()?",
+      "options": ["ArrayList", "LinkedList", "HashMap", "Vector"],
+      "answer": "HashMap"
+    },
+    {
+      "type": "quiz",
+      "question": "If two objects are equal according to equals(), what must be true?",
+      "options": [
+        "They must have different hash codes.",
+        "They must have the same hash code.",
+        "They must point to the same memory address.",
+        "They cannot be stored in HashMap."
+      ],
+      "answer": "They must have the same hash code."
+    }
+  ]
+}

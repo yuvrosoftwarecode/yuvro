@@ -272,3 +272,73 @@ All colors MUST be HSL.
     background: transparent;
   }
 }
+
+/* ─── TipTap Rich Text Editor Styles ─────────────────────────────────────── */
+.tiptap-editor .ProseMirror {
+  outline: none;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* TipTap prose content */
+.ProseMirror {
+  min-height: 80px;
+}
+
+.ProseMirror > * + * {
+  margin-top: 0.5em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror a {
+  color: #4f46e5;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: #4338ca;
+}
+
+.ProseMirror strong {
+  font-weight: 700;
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
+
+.ProseMirror s {
+  text-decoration: line-through;
+}
+
+.ProseMirror p {
+  line-height: 1.6;
+}
+
+/* ─── Study Material Renderer Prose Styles ────────────────────────────────── */
+.study-material-prose h1 { font-size: 1.75rem; font-weight: 800; color: #0f172a; margin-top: 2rem; margin-bottom: 0.5rem; }
+.study-material-prose h2 { font-size: 1.375rem; font-weight: 700; color: #1e293b; margin-top: 1.5rem; margin-bottom: 0.25rem; }
+.study-material-prose p  { font-size: 0.9375rem; line-height: 1.75; color: #374151; margin-bottom: 0.75rem; }
+.study-material-prose ul { list-style: disc; padding-left: 1.5rem; }
+.study-material-prose ol { list-style: decimal; padding-left: 1.5rem; }
+.study-material-prose li { margin-bottom: 0.25rem; }
+.study-material-prose a  { color: #4f46e5; text-decoration: underline; }

@@ -1,0 +1,263 @@
+{
+  "sub_unit_name": "Interfaces",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is an Interface?",
+      "description": "An interface is a blueprint of a class that defines a contract of methods which implementing classes must provide. It supports abstraction and multiple inheritance in Java."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An <strong>interface</strong> specifies <em>what</em> a class should do rather than <em>how</em> it should do it. Classes implement interfaces using the <code>implements</code> keyword and provide implementations for the declared methods. Interfaces promote loose coupling and improve code flexibility.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Interfaces?",
+      "content": "Interfaces enable abstraction, support multiple inheritance, improve code maintainability, and allow different classes to follow the same contract."
+    },
+    {
+      "type": "diagram",
+      "title": "Interface Workflow",
+      "steps": [
+        "Define Interface",
+        "Declare Methods",
+        "Create Implementing Class",
+        "Implement Methods",
+        "Use Objects Through Interface Reference"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Creating an Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An interface is declared using the <code>interface</code> keyword. Its methods are public and abstract by default unless they are default or static methods.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Interface Declaration",
+      "code": "interface Animal {\n    void sound();\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Interface as a Contract",
+      "description": "Every class implementing an interface must provide implementations for all of its abstract methods unless the class itself is declared abstract."
+    },
+    {
+      "type": "heading",
+      "content": "Implementing an Interface"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A class implements an interface using the <code>implements</code> keyword and defines the behavior of all declared methods.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Implementing an Interface",
+      "code": "interface Animal {\n    void sound();\n}\n\nclass Dog implements Animal {\n    public void sound(){\n        System.out.println(\"Dog Barks\");\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Implementation Process",
+      "steps": [
+        "Create Interface",
+        "Declare Methods",
+        "Create Class",
+        "Use implements",
+        "Override All Methods"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Multiple Interface Implementation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java does not support multiple inheritance using classes, but it allows a class to implement multiple interfaces.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Multiple Interfaces",
+      "code": "interface Printable {\n    void print();\n}\n\ninterface Scannable {\n    void scan();\n}\n\nclass Printer implements Printable, Scannable {\n    public void print(){}\n    public void scan(){}\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Multiple Interface Implementation",
+      "steps": [
+        "Printable Interface",
+        "Scannable Interface",
+        "↓",
+        "Printer Class Implements Both"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Default and Static Methods"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Since Java 8, interfaces can contain default and static methods, allowing common functionality without breaking existing implementations.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Default Method",
+      "code": "interface Vehicle {\n    default void start(){\n        System.out.println(\"Vehicle Started\");\n    }\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Java 8 Feature",
+      "content": "Default methods allow new functionality to be added to interfaces while maintaining backward compatibility."
+    },
+    {
+      "type": "heading",
+      "content": "Interface Reference"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An interface reference can refer to objects of any class that implements the interface. This supports runtime polymorphism.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Interface Reference Example",
+      "code": "Animal obj = new Dog();\nobj.sound();"
+    },
+    {
+      "type": "heading",
+      "content": "Abstract Class vs Interface"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Abstract Class",
+      "right_points": [
+        "Can have constructors",
+        "Can contain instance variables",
+        "Supports partial abstraction",
+        "Uses extends keyword"
+      ],
+      "right_title": "Interface",
+      "left_points": [
+        "No constructors",
+        "Contains constants",
+        "Supports full abstraction (primarily)",
+        "Uses implements keyword"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages of Interfaces"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Supports Multiple Inheritance",
+          "answer": "A class can implement multiple interfaces simultaneously."
+        },
+        {
+          "question": "Promotes Loose Coupling",
+          "answer": "Code depends on interfaces rather than concrete implementations."
+        },
+        {
+          "question": "Improves Flexibility",
+          "answer": "Different classes can provide their own implementations of the same interface."
+        },
+        {
+          "question": "Encourages Reusability",
+          "answer": "Common contracts can be reused across multiple projects."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Electrical Socket",
+      "content": "An electrical socket defines a standard interface. Different devices like fans, chargers, and televisions can plug into the same socket while providing different functionality internally. Similarly, different classes implement the same interface in different ways."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Interviewers frequently ask about interfaces, the difference between interfaces and abstract classes, multiple inheritance, default methods, static methods, and interface-based polymorphism."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can an interface be instantiated?",
+          "answer": "No. Objects cannot be created directly from an interface."
+        },
+        {
+          "question": "Can a class implement multiple interfaces?",
+          "answer": "Yes. Java fully supports multiple interface implementation."
+        },
+        {
+          "question": "Must implemented methods be public?",
+          "answer": "Yes. Interface methods are public by default, so implementing methods must also be public."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Interfaces define contracts, not implementations. They enable abstraction, multiple inheritance, and runtime polymorphism while keeping applications loosely coupled."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["interface", "Define contract", "interface Animal"],
+        ["implements", "Implement interface", "class Dog implements Animal"],
+        [
+          "Default Method",
+          "Provide common implementation",
+          "default void start()"
+        ],
+        ["Interface Reference", "Runtime polymorphism", "Animal a = new Dog();"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Interfaces define contracts for classes.",
+        "Classes use the implements keyword to implement interfaces.",
+        "A class can implement multiple interfaces.",
+        "Default and static methods were introduced in Java 8.",
+        "Interfaces support abstraction and runtime polymorphism."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to implement an interface?",
+      "options": ["extends", "inherits", "implements", "interface"],
+      "answer": "implements"
+    },
+    {
+      "type": "quiz",
+      "question": "How many interfaces can a Java class implement?",
+      "options": ["Only one", "Only two", "Unlimited (multiple)", "None"],
+      "answer": "Unlimited (multiple)"
+    },
+    {
+      "type": "quiz",
+      "question": "Which Java version introduced default methods in interfaces?",
+      "options": ["Java 5", "Java 6", "Java 7", "Java 8"],
+      "answer": "Java 8"
+    }
+  ]
+}

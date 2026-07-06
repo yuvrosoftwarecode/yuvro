@@ -1,0 +1,285 @@
+{
+  "sub_unit_name": "Garbage Collection",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Garbage Collection?",
+      "description": "Garbage Collection (GC) is Java's automatic memory management mechanism that identifies and removes objects that are no longer reachable, freeing heap memory for future use."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Unlike languages that require developers to manually allocate and free memory, Java automatically manages memory using the <strong>Garbage Collector</strong>. It periodically scans the heap, identifies objects that are no longer referenced by the program, and reclaims their memory, helping prevent memory leaks and improving application stability.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Garbage Collection?",
+      "content": "Garbage Collection automates memory management, reduces programmer effort, minimizes memory leaks, and helps improve application reliability."
+    },
+    {
+      "type": "diagram",
+      "title": "Garbage Collection Workflow",
+      "steps": [
+        "Objects Created",
+        "Objects Used by Application",
+        "Some Objects Become Unreachable",
+        "Garbage Collector Detects Them",
+        "Memory Reclaimed"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "How Garbage Collection Works"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java stores objects in the heap memory. When an object is no longer referenced by any part of the application, it becomes eligible for garbage collection. The JVM automatically removes such objects during a garbage collection cycle.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Garbage Collection Process",
+      "steps": [
+        "Create Object",
+        "Store in Heap",
+        "Reference Removed",
+        "Object Becomes Unreachable",
+        "GC Marks Object",
+        "Memory Reclaimed"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "An object is eligible for garbage collection only when it is no longer reachable by any live reference."
+    },
+    {
+      "type": "heading",
+      "content": "Making Objects Eligible for GC"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Objects become eligible for garbage collection when their references are removed or become inaccessible.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Nullifying a Reference",
+      "code": "Student s = new Student();\ns = null; // Object becomes eligible for GC"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reassigning a Reference",
+      "code": "Student s1 = new Student();\ns1 = new Student(); // First object becomes eligible for GC"
+    },
+    {
+      "type": "heading",
+      "content": "Requesting Garbage Collection"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The JVM automatically decides when to perform garbage collection. Developers can request it using <code>System.gc()</code>, but the JVM is not obligated to execute it immediately.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Requesting GC",
+      "code": "System.gc();"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important",
+      "content": "Calling System.gc() is only a request. The JVM decides whether and when garbage collection actually occurs."
+    },
+    {
+      "type": "heading",
+      "content": "Heap Memory Structure"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The Java heap is generally divided into generations to optimize garbage collection performance.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Memory Area", "Purpose"],
+      "rows": [
+        ["Young Generation", "Stores newly created objects"],
+        ["Old Generation", "Stores long-lived objects"],
+        ["Metaspace", "Stores class metadata"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Popular Garbage Collectors"
+    },
+    {
+      "type": "table",
+      "headers": ["Garbage Collector", "Characteristics"],
+      "rows": [
+        ["Serial GC", "Single-threaded, suitable for small applications"],
+        ["Parallel GC", "Multiple threads for better throughput"],
+        ["G1 GC", "Balanced performance with predictable pauses"],
+        ["ZGC", "Very low pause times for large heaps"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages vs Limitations"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Automatic memory management",
+        "Reduces memory leaks",
+        "Simplifies programming",
+        "Improves application reliability"
+      ],
+      "right_points": [
+        "Consumes CPU resources",
+        "Pause times may occur",
+        "Execution timing is unpredictable",
+        "Cannot manually free objects"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Object Lifecycle"
+    },
+    {
+      "type": "diagram",
+      "title": "Lifecycle of an Object",
+      "steps": [
+        "Object Created",
+        "Object Referenced",
+        "Reference Lost",
+        "Eligible for GC",
+        "Garbage Collected"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Garbage Collection",
+      "time_complexity": "Depends on heap size, algorithm, and number of live objects",
+      "space_complexity": "Requires additional JVM memory for GC metadata and processing"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Garbage Collection Important?",
+      "items": [
+        {
+          "question": "Web Applications",
+          "answer": "Automatically manages memory for large numbers of user requests."
+        },
+        {
+          "question": "Enterprise Systems",
+          "answer": "Maintains application stability during long-running execution."
+        },
+        {
+          "question": "Android Applications",
+          "answer": "Helps reclaim memory for mobile applications."
+        },
+        {
+          "question": "Cloud Services",
+          "answer": "Optimizes memory usage in distributed applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Cleaning an Office",
+      "content": "Imagine an office where employees discard old papers they no longer need. A cleaning staff periodically removes those unused papers, creating space for new work. Garbage Collection performs the same task by removing unused objects from memory."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Garbage Collection, heap memory, eligible objects, System.gc(), generations, G1 GC, Parallel GC, Serial GC, ZGC, memory leaks, and JVM memory management are among the most frequently asked Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Does System.gc() guarantee immediate garbage collection?",
+          "answer": "No. It only requests the JVM to perform garbage collection."
+        },
+        {
+          "question": "Can developers manually destroy Java objects?",
+          "answer": "No. Memory is automatically reclaimed by the JVM."
+        },
+        {
+          "question": "Is an object garbage collected immediately after becoming unreachable?",
+          "answer": "Not necessarily. The JVM determines the appropriate time for collection."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Garbage Collection automatically frees memory occupied by unreachable objects, allowing developers to focus on application logic rather than manual memory management."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        ["Heap", "Stores objects", "new Student()"],
+        ["Garbage Collector", "Reclaims unused memory", "Automatic"],
+        ["System.gc()", "Requests garbage collection", "System.gc();"],
+        ["Eligible Object", "No active references", "obj = null;"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Garbage Collection automatically manages heap memory.",
+        "Only unreachable objects are eligible for GC.",
+        "System.gc() is only a request to the JVM.",
+        "Heap memory includes Young Generation, Old Generation, and Metaspace.",
+        "Modern JVMs provide collectors such as G1 GC and ZGC.",
+        "Automatic memory management reduces memory leaks and simplifies development."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "When does an object become eligible for garbage collection?",
+      "options": [
+        "Immediately after creation",
+        "When it becomes unreachable",
+        "After calling its constructor",
+        "When it is printed"
+      ],
+      "answer": "When it becomes unreachable"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the purpose of System.gc()?",
+      "options": [
+        "Destroy objects immediately",
+        "Allocate heap memory",
+        "Request garbage collection",
+        "Stop the JVM"
+      ],
+      "answer": "Request garbage collection"
+    },
+    {
+      "type": "quiz",
+      "question": "Which memory area generally stores newly created objects?",
+      "options": ["Metaspace", "Stack", "Young Generation", "Old Generation"],
+      "answer": "Young Generation"
+    }
+  ]
+}

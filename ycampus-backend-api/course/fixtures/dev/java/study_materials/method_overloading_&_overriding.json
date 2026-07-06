@@ -1,0 +1,294 @@
+{
+  "sub_unit_name": "Method Overloading & Overriding",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Method Overloading and Method Overriding?",
+      "description": "Method Overloading and Method Overriding are two important features of Java that implement polymorphism. Overloading provides compile-time polymorphism, while overriding provides runtime polymorphism."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p><strong>Method Overloading</strong> allows multiple methods with the same name but different parameter lists within the same class. <strong>Method Overriding</strong> allows a child class to provide its own implementation of a method already defined in the parent class. Together, they make Java programs flexible, reusable, and easier to maintain.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Overloading & Overriding?",
+      "content": "These concepts are the foundation of Java polymorphism and are among the most frequently asked interview topics."
+    },
+    {
+      "type": "diagram",
+      "title": "Polymorphism Overview",
+      "steps": [
+        "Method Overloading",
+        "Compile-Time Decision",
+        "Method Overriding",
+        "Runtime Decision",
+        "Flexible Program Behavior"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Overloading"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method overloading occurs when multiple methods in the same class share the same name but have different parameter lists. The compiler determines which method to invoke based on the arguments.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method Overloading Example",
+      "code": "class Calculator {\n    int add(int a, int b){\n        return a + b;\n    }\n\n    int add(int a, int b, int c){\n        return a + b + c;\n    }\n\n    double add(double a, double b){\n        return a + b;\n    }\n}"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Rule",
+      "description": "Overloaded methods must differ in the number, type, or order of parameters. Changing only the return type is not sufficient."
+    },
+    {
+      "type": "heading",
+      "content": "Rules for Method Overloading"
+    },
+    {
+      "type": "accordion",
+      "title": "Overloading Rules",
+      "items": [
+        {
+          "question": "Can parameter count differ?",
+          "answer": "Yes. Methods can have different numbers of parameters."
+        },
+        {
+          "question": "Can parameter types differ?",
+          "answer": "Yes. Different parameter types create valid overloaded methods."
+        },
+        {
+          "question": "Can only the return type be changed?",
+          "answer": "No. Changing only the return type causes a compilation error."
+        }
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Compile-Time Resolution",
+      "steps": [
+        "Method Call",
+        "Compiler Checks Arguments",
+        "Matching Method Found",
+        "Selected Method Executes"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Overriding"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method overriding occurs when a subclass provides its own implementation of a method already defined in its superclass. The JVM determines which version of the method to execute at runtime.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Method Overriding Example",
+      "code": "class Animal {\n    void sound(){\n        System.out.println(\"Animal Sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    void sound(){\n        System.out.println(\"Dog Barks\");\n    }\n}"
+    },
+    {
+      "type": "diagram",
+      "title": "Runtime Method Dispatch",
+      "steps": [
+        "Parent Reference",
+        "Child Object",
+        "Method Invoked",
+        "JVM Chooses Child Method"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Rules for Method Overriding"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>To override a method, the subclass must use the same method name, parameter list, and compatible return type as the superclass method.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Overriding Rules",
+      "items": [
+        {
+          "question": "Can private methods be overridden?",
+          "answer": "No. Private methods are not inherited."
+        },
+        {
+          "question": "Can static methods be overridden?",
+          "answer": "No. Static methods are hidden rather than overridden."
+        },
+        {
+          "question": "Can final methods be overridden?",
+          "answer": "No. Final methods cannot be overridden."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Runtime Polymorphism",
+      "code": "Animal obj = new Dog();\nobj.sound();\n// Output: Dog Barks"
+    },
+    {
+      "type": "fact-box",
+      "title": "The @Override Annotation",
+      "content": "The @Override annotation helps the compiler verify that a method correctly overrides a superclass method."
+    },
+    {
+      "type": "heading",
+      "content": "Overloading vs Overriding"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Method Overloading",
+      "right_title": "Method Overriding",
+      "left_points": [
+        "Compile-time polymorphism",
+        "Occurs in same class",
+        "Different parameter list",
+        "Compiler selects method"
+      ],
+      "right_points": [
+        "Runtime polymorphism",
+        "Occurs in parent-child classes",
+        "Same method signature",
+        "JVM selects method"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Complete Comparison"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Overloading", "Overriding"],
+      "rows": [
+        ["Polymorphism", "Compile-Time", "Runtime"],
+        ["Inheritance Required", "No", "Yes"],
+        ["Parameter List", "Must Differ", "Must Be Same"],
+        ["Return Type", "May Differ (with parameters)", "Must Be Compatible"],
+        ["Decision Taken By", "Compiler", "JVM"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages"
+    },
+    {
+      "type": "accordion",
+      "title": "Benefits",
+      "items": [
+        {
+          "question": "Why use Method Overloading?",
+          "answer": "It improves readability by allowing related operations to share the same method name."
+        },
+        {
+          "question": "Why use Method Overriding?",
+          "answer": "It allows subclasses to provide specialized implementations while maintaining a common interface."
+        },
+        {
+          "question": "How do they improve reusability?",
+          "answer": "Common logic can be reused while supporting different behaviors."
+        },
+        {
+          "question": "Why are they important in OOP?",
+          "answer": "They are key techniques for implementing polymorphism."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Teacher Explaining a Topic",
+      "content": "A teacher may explain the same topic differently to school students, college students, and professionals. The method name (teaching) remains the same, but the implementation changes depending on the audience. Similarly, overriding changes behavior while keeping the same method."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Nearly every Java interview includes questions on the differences between method overloading and method overriding, runtime polymorphism, @Override, inheritance, static methods, and final methods."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can methods be overloaded by changing only the return type?",
+          "answer": "No. The parameter list must also change."
+        },
+        {
+          "question": "Can private methods be overridden?",
+          "answer": "No. Private methods are not inherited."
+        },
+        {
+          "question": "Can final methods be overridden?",
+          "answer": "No. Final methods cannot be overridden."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Method overloading uses different parameter lists for compile-time polymorphism, while method overriding uses inheritance and identical method signatures for runtime polymorphism."
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose", "Example"],
+      "rows": [
+        [
+          "Overloading",
+          "Same method, different parameters",
+          "add(int), add(double)"
+        ],
+        ["Overriding", "Modify inherited behavior", "sound()"],
+        ["@Override", "Verify overriding", "@Override void sound()"],
+        ["Dynamic Dispatch", "Runtime method selection", "Animal a = new Dog()"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Method overloading provides compile-time polymorphism.",
+        "Method overriding provides runtime polymorphism.",
+        "Overloading requires different parameter lists.",
+        "Overriding requires inheritance and identical method signatures.",
+        "The JVM performs dynamic method dispatch for overridden methods."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which type of polymorphism is implemented using method overloading?",
+      "options": [
+        "Runtime Polymorphism",
+        "Compile-Time Polymorphism",
+        "Dynamic Binding",
+        "Inheritance"
+      ],
+      "answer": "Compile-Time Polymorphism"
+    },
+    {
+      "type": "quiz",
+      "question": "Which annotation is commonly used while overriding methods?",
+      "options": ["@Static", "@Override", "@Inherited", "@Method"],
+      "answer": "@Override"
+    },
+    {
+      "type": "quiz",
+      "question": "Who decides which overridden method is executed at runtime?",
+      "options": ["Compiler", "JVM", "IDE", "Operating System"],
+      "answer": "JVM"
+    }
+  ]
+}

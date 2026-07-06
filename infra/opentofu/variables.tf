@@ -162,3 +162,12 @@ variable "skip_final_snapshot" {
   type        = bool
   default     = false
 }
+
+variable "s3_cors_allowed_origins" {
+  description = "List of allowed origins for S3 CORS configuration"
+  type        = list(string)
+  default     = [
+    "https://*.yuvro.ai",
+    "https://yuvro.ai",
+  ]
+}

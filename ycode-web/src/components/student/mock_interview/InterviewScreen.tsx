@@ -27,6 +27,9 @@ interface InterviewScreenProps {
   onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
 
+// Global array to prevent Chrome GC from destroying the utterance before it speaks
+const globalUtterances: SpeechSynthesisUtterance[] = [];
+
 const InterviewScreen: React.FC<InterviewScreenProps> = ({
   role,
   difficulty,
@@ -49,6 +52,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isInterviewCompleted, setIsInterviewCompleted] = useState(false);
+  const isInterviewCompletedRef = useRef(false);
+
+  // Sync state to ref
+  useEffect(() => {
+    isInterviewCompletedRef.current = isInterviewCompleted;
+  }, [isInterviewCompleted]);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
@@ -282,7 +291,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
 
     if (selectedVoice) utterance.voice = selectedVoice;
-    utterance.rate = role.voice_speed || 1;
+    utterance.rate = Number(role.voice_speed) || 1;
     utterance.pitch = 1;
     utterance.volume = 1;
 
@@ -305,13 +314,32 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     utterance.onerror = (event) => {
       console.error("[InterviewEngine] Speech synthesis error:", event);
       // Recovery: fall back to listening state so the interview doesn't get stuck
-      if (!isInterviewCompleted) {
+      if (!isInterviewCompletedRef.current) {
         setInterviewStateSync('listening');
         setIsRecording(true);
+        setIsUserTyping(true);
       }
     };
 
-    window.speechSynthesis.speak(utterance);
+    console.log("[InterviewEngine] Preparing to speak:", JSON.stringify({
+      textLength: text.length,
+      voiceSelected: !!selectedVoice,
+      voiceName: selectedVoice?.name,
+      totalVoices: voices.length,
+      rate: utterance.rate,
+      targetVoiceName: targetVoiceName || 'undefined'
+    }));
+
+    globalUtterances.push(utterance);
+
+    // Small delay after cancel prevents Chrome from dropping the speak request
+    setTimeout(() => {
+      console.log("[InterviewEngine] Executing speak()");
+      window.speechSynthesis.speak(utterance);
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 250);
   };
 
   useEffect(() => {
@@ -438,6 +466,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     // Avoid repeated end flow
     if (isInterviewCompleted) return;
     setIsInterviewCompleted(true);
+    isInterviewCompletedRef.current = true;
 
     try {
       setLoadingExit(true);
@@ -536,7 +565,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         console.log("[InterviewEngine] Speech recognition session ended");
         // Always try to restart the recognition itself if the component is still active
         // and interview is not completed. This handles browser-side timeouts.
-        if (!isInterviewCompleted) {
+        if (!isInterviewCompletedRef.current) {
           try { 
             console.log("[InterviewEngine] Restarting speech recognition...");
             recognition.start(); 
@@ -574,9 +603,9 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
     
     // Check ref and processing flag for latest state
-    if (isInterviewCompleted || interviewStateRef.current !== 'listening' || isProcessingRef.current) {
+    if (isInterviewCompletedRef.current || interviewStateRef.current !== 'listening' || isProcessingRef.current) {
       console.log("[InterviewEngine] Skipping submit: state check failed", { 
-        completed: isInterviewCompleted, 
+        completed: isInterviewCompletedRef.current, 
         state: interviewStateRef.current,
         processing: isProcessingRef.current 
       });

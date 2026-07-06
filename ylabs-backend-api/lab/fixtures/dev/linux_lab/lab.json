@@ -1,0 +1,11 @@
+{
+  "labs": [
+    {
+      "title": "Linux Lab",
+      "type": "DEVOPS",
+      "description": "Complete Linux administration and development environment setup.",
+      "difficulty": "MEDIUM",
+      "icon": "linux"
+    }
+  ]
+}

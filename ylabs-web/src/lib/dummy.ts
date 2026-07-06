@@ -70,6 +70,12 @@ export const labs: Lab[] = [
   { slug: "cybersecurity", name: "Cyber Security Lab", icon: "🛡️", color: "sec", difficulty: "Advanced", completed: 0, total: 18, hoursLeft: 30, description: "Hands-on offensive and defensive security: OWASP, auth, crypto, network and cloud hardening.", skills: [
     { name: "OWASP Top 10", pct: 20 }, { name: "AuthN/AuthZ", pct: 15 }, { name: "Cryptography", pct: 10 }, { name: "Network Sec", pct: 10 }
   ]},
+  { slug: "linux", name: "Linux Lab", icon: "🐧", color: "prog", difficulty: "Beginner", completed: 0, total: 16, hoursLeft: 20, description: "Master the Linux command line: files, permissions, processes, networking and shell scripting.", skills: [
+    { name: "CLI", pct: 0 }, { name: "Permissions", pct: 0 }, { name: "Shell", pct: 0 }, { name: "Networking", pct: 0 }
+  ]},
+  { slug: "qa", name: "QA Lab", icon: "🧪", color: "ui", difficulty: "Intermediate", completed: 0, total: 15, hoursLeft: 22, description: "Manual and automated testing: test cases, API tests, Playwright/Selenium and CI integration.", skills: [
+    { name: "Test Cases", pct: 0 }, { name: "API Testing", pct: 0 }, { name: "Automation", pct: 0 }, { name: "CI/CD", pct: 0 }
+  ]},
 ];
 
 const mk = (i: number, title: string, diff: Difficulty, st: Status, tag: string, mins = 45, xp = 150, progress?: number, score?: number): Ticket => ({
@@ -356,6 +362,79 @@ export const tickets: Ticket[] = [
 
   { id: "DS-1001", title: "Binary search", difficulty: "Beginner", estMin: 30, xp: 130, tag: "DS Searching", status: "Not Started", description: "Implement iterative and recursive binary search." },
   { id: "DS-1002", title: "Search in rotated array", difficulty: "Advanced", estMin: 55, xp: 240, tag: "DS Searching", status: "Not Started", description: "Search a target in a rotated sorted array in O(log n)." },
+
+  // ---- Linux Lab ----
+  { id: "LNX-101", title: "Navigate the filesystem", difficulty: "Beginner", estMin: 20, xp: 80, tag: "Linux Basics", status: "Not Started", description: "Use pwd, ls, cd, tree and man to move around and inspect the filesystem." },
+  { id: "LNX-102", title: "File & directory operations", difficulty: "Beginner", estMin: 25, xp: 100, tag: "Linux Basics", status: "Not Started", description: "Create, copy, move and remove files/directories with touch, mkdir, cp, mv, rm." },
+  { id: "LNX-103", title: "View & edit text files", difficulty: "Beginner", estMin: 30, xp: 120, tag: "Linux Files", status: "Not Started", description: "Read files with cat/less/head/tail and edit them in nano or vim." },
+  { id: "LNX-104", title: "File permissions with chmod", difficulty: "Beginner", estMin: 30, xp: 130, tag: "Linux Perms", status: "Not Started", description: "Set rwx bits with symbolic and numeric chmod and read ls -l output." },
+  { id: "LNX-105", title: "Ownership with chown & chgrp", difficulty: "Intermediate", estMin: 30, xp: 140, tag: "Linux Perms", status: "Not Started", description: "Change file owner and group; understand user vs group vs other." },
+  { id: "LNX-106", title: "User & group management", difficulty: "Intermediate", estMin: 35, xp: 150, tag: "Linux Perms", status: "Not Started", description: "Create users and groups with useradd/groupadd and manage /etc/passwd." },
+  { id: "LNX-107", title: "Process inspection: ps & top", difficulty: "Intermediate", estMin: 35, xp: 150, tag: "Linux Processes", status: "Not Started", description: "Inspect running processes with ps aux, top and htop. Filter by user and CPU." },
+  { id: "LNX-108", title: "Signals & kill", difficulty: "Intermediate", estMin: 30, xp: 140, tag: "Linux Processes", status: "Not Started", description: "Send SIGTERM/SIGKILL/SIGHUP with kill and pkill; understand nohup and disown." },
+  { id: "LNX-109", title: "Pipes & I/O redirection", difficulty: "Intermediate", estMin: 30, xp: 140, tag: "Linux Files", status: "Not Started", description: "Chain commands with |, redirect stdout/stderr with >, >>, 2>&1 and tee." },
+  { id: "LNX-110", title: "grep, awk & sed", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Linux Files", status: "Not Started", description: "Search with grep -r, transform text with sed, extract columns with awk." },
+  { id: "LNX-111", title: "SSH & scp basics", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "Linux Network", status: "Not Started", description: "Generate an ed25519 key, add it to a remote host and copy files with scp/rsync." },
+  { id: "LNX-112", title: "Network tools: curl, ping, ss", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "Linux Network", status: "Not Started", description: "Probe connectivity with ping/traceroute, inspect sockets with ss and fetch URLs with curl." },
+  { id: "LNX-113", title: "Shell scripting basics", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Linux Shell", status: "Not Started", description: "Write a bash script with variables, arguments, exit codes and shebang." },
+  { id: "LNX-114", title: "Loops & conditionals in bash", difficulty: "Intermediate", estMin: 45, xp: 210, tag: "Linux Shell", status: "Not Started", description: "Use for/while, if/[[ ]] and case to script a small backup routine." },
+  { id: "LNX-115", title: "Package managers (apt/yum/dnf)", difficulty: "Beginner", estMin: 30, xp: 130, tag: "Linux Services", status: "Not Started", description: "Install, update and remove packages; understand repositories." },
+  { id: "LNX-116", title: "systemctl & services", difficulty: "Intermediate", estMin: 40, xp: 190, tag: "Linux Services", status: "Not Started", description: "Start, enable and inspect systemd services; write a simple unit file." },
+
+  // ---- QA Lab ----
+  { id: "QA-101", title: "Write a test plan", difficulty: "Beginner", estMin: 30, xp: 120, tag: "QA Fundamentals", status: "Not Started", description: "Draft a test plan with scope, entry/exit criteria, risks and deliverables." },
+  { id: "QA-102", title: "Positive & negative test cases", difficulty: "Beginner", estMin: 30, xp: 130, tag: "QA Fundamentals", status: "Not Started", description: "Design happy-path and edge-case test cases for a login form." },
+  { id: "QA-103", title: "Bug reports that don't suck", difficulty: "Beginner", estMin: 25, xp: 110, tag: "QA Fundamentals", status: "Not Started", description: "File a reproducible bug report with steps, expected/actual results and severity." },
+  { id: "QA-104", title: "Manual regression checklist", difficulty: "Intermediate", estMin: 40, xp: 170, tag: "QA Manual", status: "Not Started", description: "Build a smoke/regression checklist for a small e-commerce app." },
+  { id: "QA-105", title: "Exploratory testing session", difficulty: "Intermediate", estMin: 45, xp: 180, tag: "QA Manual", status: "Not Started", description: "Run a timeboxed charter-based exploratory session and log findings." },
+  { id: "QA-106", title: "REST API testing with Postman", difficulty: "Intermediate", estMin: 45, xp: 190, tag: "QA API", status: "Not Started", description: "Build a Postman collection with environment vars and assertions for a CRUD API." },
+  { id: "QA-107", title: "Automate an API test with supertest", difficulty: "Intermediate", estMin: 55, xp: 230, tag: "QA API", status: "Not Started", description: "Write Jest + supertest tests for a Node REST API with auth headers and JSON assertions." },
+  { id: "QA-108", title: "JSON Schema validation", difficulty: "Advanced", estMin: 55, xp: 240, tag: "QA API", status: "Not Started", description: "Validate API responses against a JSON schema using ajv." },
+  { id: "QA-109", title: "First Playwright test", difficulty: "Intermediate", estMin: 50, xp: 220, tag: "QA UI", status: "Not Started", description: "Set up Playwright and write a test that logs into an app and asserts the dashboard." },
+  { id: "QA-110", title: "Page Object Model in Playwright", difficulty: "Advanced", estMin: 65, xp: 280, tag: "QA UI", status: "Not Started", description: "Refactor tests into page objects with reusable actions and selectors." },
+  { id: "QA-111", title: "Cross-browser & mobile viewport", difficulty: "Advanced", estMin: 55, xp: 240, tag: "QA UI", status: "Not Started", description: "Run the suite on Chromium, WebKit and a mobile viewport in Playwright." },
+  { id: "QA-112", title: "Load test with k6", difficulty: "Advanced", estMin: 60, xp: 270, tag: "QA Perf", status: "Not Started", description: "Model a ramp-up load test with k6 and assert p95 latency thresholds." },
+  { id: "QA-113", title: "Analyze a performance report", difficulty: "Advanced", estMin: 45, xp: 210, tag: "QA Perf", status: "Not Started", description: "Interpret a k6/Lighthouse report and identify the top bottleneck." },
+  { id: "QA-114", title: "Run tests in GitHub Actions", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "QA CI", status: "Not Started", description: "Configure a GitHub Actions workflow that installs deps and runs the test suite on PRs." },
+  { id: "QA-115", title: "Publish HTML report artifact", difficulty: "Intermediate", estMin: 40, xp: 190, tag: "QA CI", status: "Not Started", description: "Upload the Playwright HTML report as a build artifact for reviewers." },
+
+  // ---- System Design Lab ----
+  { id: "SD-101", title: "CAP theorem & tradeoffs", difficulty: "Advanced", estMin: 40, xp: 180, tag: "SD Fundamentals", status: "Not Started", description: "Explain consistency vs availability vs partition tolerance with realistic scenarios." },
+  { id: "SD-102", title: "Latency, throughput & SLOs", difficulty: "Intermediate", estMin: 35, xp: 160, tag: "SD Fundamentals", status: "Not Started", description: "Define p50/p95/p99 latency, error budgets and pick SLOs for a service." },
+  { id: "SD-103", title: "API design & versioning", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "SD Fundamentals", status: "Not Started", description: "Design a REST API for a booking service. Pick a versioning strategy." },
+  { id: "SD-104", title: "Horizontal vs vertical scaling", difficulty: "Intermediate", estMin: 35, xp: 160, tag: "SD Scalability", status: "Not Started", description: "Compare scale-up and scale-out with cost, failure and elasticity in mind." },
+  { id: "SD-105", title: "Load balancers & health checks", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "SD Scalability", status: "Not Started", description: "Design L4 vs L7 load balancing and add active/passive health checks." },
+  { id: "SD-106", title: "Rate limiting strategies", difficulty: "Advanced", estMin: 45, xp: 200, tag: "SD Scalability", status: "Not Started", description: "Compare fixed window, sliding window and token bucket rate limiting." },
+  { id: "SD-107", title: "Cache-aside pattern", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "SD Caching", status: "Not Started", description: "Design a read-through cache-aside flow with TTLs and invalidation." },
+  { id: "SD-108", title: "CDN & edge caching", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "SD Caching", status: "Not Started", description: "Choose which assets to push to a CDN and how to invalidate them." },
+  { id: "SD-109", title: "Redis caching patterns", difficulty: "Advanced", estMin: 45, xp: 210, tag: "SD Caching", status: "Not Started", description: "Compare cache-aside, write-through and write-behind with Redis." },
+  { id: "SD-110", title: "SQL vs NoSQL choice", difficulty: "Intermediate", estMin: 40, xp: 190, tag: "SD Databases", status: "Not Started", description: "Pick a datastore for social feed, analytics and order ledger workloads." },
+  { id: "SD-111", title: "Sharding & partitioning", difficulty: "Advanced", estMin: 55, xp: 240, tag: "SD Databases", status: "Not Started", description: "Design a shard key for a users table. Handle hotspots and re-sharding." },
+  { id: "SD-112", title: "Replication & consistency", difficulty: "Advanced", estMin: 55, xp: 240, tag: "SD Databases", status: "Not Started", description: "Compare sync vs async replication and pick a consistency model." },
+  { id: "SD-113", title: "Message queues (Kafka/SQS)", difficulty: "Advanced", estMin: 55, xp: 240, tag: "SD Messaging", status: "Not Started", description: "Model producer/consumer topology, partitioning and consumer groups." },
+  { id: "SD-114", title: "Event-driven architecture", difficulty: "Advanced", estMin: 55, xp: 250, tag: "SD Messaging", status: "Not Started", description: "Design an event-driven checkout flow with idempotent consumers." },
+  { id: "SD-115", title: "Design a URL shortener", difficulty: "Advanced", estMin: 60, xp: 280, tag: "SD Cases", status: "Not Started", description: "End-to-end design: hashing, storage, cache and redirect analytics at scale." },
+  { id: "SD-116", title: "Design a chat system", difficulty: "Advanced", estMin: 70, xp: 320, tag: "SD Cases", status: "Not Started", description: "Design 1:1 and group chat with presence, delivery receipts and offline queues." },
+
+  // ---- Cyber Security Lab ----
+  { id: "SEC-101", title: "Threat modeling with STRIDE", difficulty: "Intermediate", estMin: 45, xp: 190, tag: "Sec Foundations", status: "Not Started", description: "Build a STRIDE threat model for a small web app and rank mitigations." },
+  { id: "SEC-102", title: "Principle of least privilege", difficulty: "Intermediate", estMin: 30, xp: 140, tag: "Sec Foundations", status: "Not Started", description: "Audit IAM roles for a service and remove unused permissions." },
+  { id: "SEC-103", title: "SQL injection lab", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Sec OWASP", status: "Not Started", description: "Exploit and then patch a vulnerable login endpoint with parameterized queries." },
+  { id: "SEC-104", title: "XSS: reflected & stored", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Sec OWASP", status: "Not Started", description: "Reproduce reflected and stored XSS, then fix with output encoding and CSP." },
+  { id: "SEC-105", title: "CSRF protection", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "Sec OWASP", status: "Not Started", description: "Attack a session-cookie form and defend with SameSite cookies and CSRF tokens." },
+  { id: "SEC-106", title: "Broken access control", difficulty: "Advanced", estMin: 50, xp: 220, tag: "Sec OWASP", status: "Not Started", description: "Exploit an IDOR and fix it with server-side authorization checks." },
+  { id: "SEC-107", title: "SSRF exploitation & defense", difficulty: "Advanced", estMin: 55, xp: 240, tag: "Sec OWASP", status: "Not Started", description: "Trigger SSRF against a metadata endpoint and mitigate with allow-lists." },
+  { id: "SEC-108", title: "Password hashing with bcrypt", difficulty: "Intermediate", estMin: 35, xp: 160, tag: "Sec Auth", status: "Not Started", description: "Hash and verify passwords with bcrypt at an appropriate cost factor." },
+  { id: "SEC-109", title: "OAuth 2.0 authorization code flow", difficulty: "Advanced", estMin: 60, xp: 260, tag: "Sec Auth", status: "Not Started", description: "Walk through OAuth authorization code + PKCE end to end." },
+  { id: "SEC-110", title: "JWT security pitfalls", difficulty: "Advanced", estMin: 45, xp: 210, tag: "Sec Auth", status: "Not Started", description: "Explore alg=none, key confusion and expiration; implement safe verification." },
+  { id: "SEC-111", title: "Symmetric encryption with AES", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Sec Crypto", status: "Not Started", description: "Encrypt data with AES-GCM using a random nonce and authenticated tag." },
+  { id: "SEC-112", title: "Asymmetric encryption & signatures", difficulty: "Advanced", estMin: 55, xp: 240, tag: "Sec Crypto", status: "Not Started", description: "Sign and verify a payload with RSA/ed25519 keys." },
+  { id: "SEC-113", title: "TLS handshake explained", difficulty: "Intermediate", estMin: 40, xp: 180, tag: "Sec Crypto", status: "Not Started", description: "Trace a TLS 1.3 handshake and explain each message." },
+  { id: "SEC-114", title: "nmap port scan lab", difficulty: "Intermediate", estMin: 45, xp: 200, tag: "Sec Network", status: "Not Started", description: "Scan a lab host with nmap; identify open services and versions." },
+  { id: "SEC-115", title: "Firewall rules with iptables", difficulty: "Advanced", estMin: 50, xp: 220, tag: "Sec Network", status: "Not Started", description: "Restrict inbound traffic to SSH and HTTPS only with iptables/nftables." },
+  { id: "SEC-116", title: "Secrets management & rotation", difficulty: "Advanced", estMin: 45, xp: 210, tag: "Sec Cloud", status: "Not Started", description: "Store secrets in a vault and rotate database credentials without downtime." },
+  { id: "SEC-117", title: "Container hardening", difficulty: "Advanced", estMin: 55, xp: 240, tag: "Sec Cloud", status: "Not Started", description: "Run containers as non-root, drop caps and pin image digests." },
+  { id: "SEC-118", title: "Incident response basics", difficulty: "Intermediate", estMin: 40, xp: 190, tag: "Sec Cloud", status: "Not Started", description: "Draft an IR runbook covering detect, contain, eradicate and recover." },
 ];
 
 export const leaderboard = [

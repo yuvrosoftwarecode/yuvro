@@ -1,0 +1,274 @@
+{
+  "sub_unit_name": "Exception Handling",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Exception Handling?",
+      "description": "Exception Handling is a mechanism in Java that allows programs to detect, handle, and recover from runtime errors without terminating unexpectedly."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>During program execution, unexpected situations such as dividing by zero, accessing an invalid array index, or reading a missing file may occur. These situations are called <strong>exceptions</strong>. Java provides exception handling using <code>try</code>, <code>catch</code>, <code>finally</code>, <code>throw</code>, and <code>throws</code> to ensure programs remain stable and continue execution whenever possible.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Learn Exception Handling?",
+      "content": "Proper exception handling improves application reliability, prevents crashes, simplifies debugging, and provides a better user experience."
+    },
+    {
+      "type": "diagram",
+      "title": "Exception Handling Workflow",
+      "steps": [
+        "Normal Program Execution",
+        "Exception Occurs",
+        "Exception Thrown",
+        "Catch Block Handles Exception",
+        "Program Continues"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "What is an Exception?"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An exception is an object that represents an abnormal condition during program execution. When an exception occurs, Java interrupts the normal flow and searches for a matching exception handler.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Exception Example",
+      "code": "int a = 10;\nint b = 0;\nSystem.out.println(a / b);\n// ArithmeticException"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Exceptions are objects that describe runtime errors and can be handled to prevent program termination."
+    },
+    {
+      "type": "heading",
+      "content": "Types of Exceptions"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java classifies exceptions into checked exceptions, unchecked exceptions, and errors.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Description", "Example"],
+      "rows": [
+        ["Checked Exception", "Checked at compile time", "IOException"],
+        ["Unchecked Exception", "Occurs at runtime", "NullPointerException"],
+        ["Error", "Serious JVM problem", "OutOfMemoryError"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The try-catch Block"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>try</code> block contains code that may throw an exception. If an exception occurs, control transfers to the matching <code>catch</code> block.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "try-catch Example",
+      "code": "try {\n    int result = 10 / 0;\n} catch (ArithmeticException e) {\n    System.out.println(\"Cannot divide by zero.\");\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "try-catch Execution",
+      "steps": [
+        "Execute try Block",
+        "Exception Occurs",
+        "Find Matching catch",
+        "Handle Exception",
+        "Continue Execution"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "The finally Block"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>finally</code> block executes whether an exception occurs or not. It is commonly used for resource cleanup such as closing files or database connections.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "finally Example",
+      "code": "try {\n    System.out.println(\"Inside try\");\n} finally {\n    System.out.println(\"Always executes\");\n}"
+    },
+    {
+      "type": "fact-box",
+      "title": "Best Practice",
+      "content": "Use the finally block to release resources such as files, sockets, and database connections."
+    },
+    {
+      "type": "heading",
+      "content": "throw and throws"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>The <code>throw</code> keyword explicitly throws an exception, while <code>throws</code> declares that a method may pass an exception to its caller.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "throw Example",
+      "code": "if(age < 18){\n    throw new ArithmeticException(\"Not Eligible\");\n}"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "throws Example",
+      "code": "public void readFile() throws IOException {\n    // File reading code\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Multiple Catch Blocks"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A single try block can have multiple catch blocks to handle different types of exceptions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Multiple catch Example",
+      "code": "try {\n    // risky code\n} catch (ArithmeticException e) {\n    System.out.println(\"Arithmetic Error\");\n} catch (NullPointerException e) {\n    System.out.println(\"Null Reference\");\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Common Exceptions"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Encountered Exceptions",
+      "items": [
+        {
+          "question": "ArithmeticException",
+          "answer": "Occurs when an illegal arithmetic operation such as division by zero is performed."
+        },
+        {
+          "question": "NullPointerException",
+          "answer": "Occurs when attempting to use a null reference."
+        },
+        {
+          "question": "ArrayIndexOutOfBoundsException",
+          "answer": "Occurs when accessing an invalid array index."
+        },
+        {
+          "question": "NumberFormatException",
+          "answer": "Occurs when converting an invalid string into a number."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Checked vs Unchecked Exceptions"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Checked Exceptions",
+      "right_title": "Unchecked Exceptions",
+      "left_points": [
+        "Checked by compiler",
+        "Must be handled or declared",
+        "Derived from Exception",
+        "Example: IOException"
+      ],
+      "right_points": [
+        "Occur during runtime",
+        "Handling is optional",
+        "Derived from RuntimeException",
+        "Example: NullPointerException"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Car Safety Features",
+      "content": "A seatbelt and airbag cannot prevent every accident, but they reduce damage and allow passengers to stay safe. Similarly, exception handling cannot stop errors from occurring, but it allows the program to recover gracefully."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Exception handling is a core Java interview topic. Questions commonly cover checked vs unchecked exceptions, try-catch-finally, throw vs throws, custom exceptions, and the exception hierarchy."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can a try block exist without catch or finally?",
+          "answer": "No. A try block must be followed by at least one catch block or a finally block."
+        },
+        {
+          "question": "Should Exception be caught everywhere?",
+          "answer": "No. Catch specific exceptions whenever possible."
+        },
+        {
+          "question": "Does finally always execute?",
+          "answer": "Yes, except in rare situations such as JVM termination."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Use try for risky code, catch to handle exceptions, finally for cleanup, throw to create exceptions, and throws to declare possible exceptions."
+    },
+    {
+      "type": "table",
+      "headers": ["Keyword", "Purpose", "Example"],
+      "rows": [
+        ["try", "Contains risky code", "try { ... }"],
+        ["catch", "Handles exception", "catch(Exception e)"],
+        ["finally", "Always executes", "finally { ... }"],
+        ["throw", "Throws exception", "throw new Exception()"],
+        ["throws", "Declares exception", "method() throws IOException"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Exceptions represent runtime problems.",
+        "Use try-catch to handle exceptions.",
+        "finally executes for cleanup operations.",
+        "throw explicitly creates an exception.",
+        "throws declares exceptions that a method may produce.",
+        "Checked exceptions are verified by the compiler, while unchecked exceptions occur at runtime."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to handle an exception?",
+      "options": ["throw", "throws", "catch", "final"],
+      "answer": "catch"
+    },
+    {
+      "type": "quiz",
+      "question": "Which block executes regardless of whether an exception occurs?",
+      "options": ["try", "catch", "finally", "throw"],
+      "answer": "finally"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to explicitly generate an exception?",
+      "options": ["throws", "throw", "catch", "try"],
+      "answer": "throw"
+    }
+  ]
+}

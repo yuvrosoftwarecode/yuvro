@@ -1,29 +1,47 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Plus, FlaskConical, Trash2, Pencil, ExternalLink, ListChecks } from "lucide-react";
+import { Plus, FlaskConical, Trash2, Pencil, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { loadLabs, deleteLab, CATEGORIES, type AdminLab } from "@/lib/adminLabs";
+import { loadLabs, deleteLab, LAB_TYPES, labTypeLabel, difficultyLabel, type AdminLab, type LabType } from "@/lib/adminLabs";
 
 export const Route = createFileRoute("/admin/labs/")({ component: LabsPage });
 
 function LabsPage() {
   const [labs, setLabs] = useState<AdminLab[]>([]);
-  const [cat, setCat] = useState<string | null>(null);
+  const [type, setType] = useState<LabType | null>(null);
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLabs(loadLabs()); }, []);
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      const data = await loadLabs();
+      setLabs(data);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
 
-  const refresh = () => setLabs(loadLabs());
+  useEffect(() => { refresh(); }, []);
 
   const filtered = useMemo(() => {
     return labs.filter(l =>
-      (!cat || l.cat === cat) &&
-      (!q || l.name.toLowerCase().includes(q.toLowerCase()) || l.description.toLowerCase().includes(q.toLowerCase()))
+      (!type || l.type === type) &&
+      (!q || l.title.toLowerCase().includes(q.toLowerCase()) || l.description.toLowerCase().includes(q.toLowerCase()))
     );
-  }, [labs, cat, q]);
+  }, [labs, type, q]);
 
-  const remove = (id: string) => { deleteLab(id); setConfirmId(null); refresh(); };
+  const remove = async (id: string) => { 
+    await deleteLab(id); 
+    setConfirmId(null); 
+    refresh(); 
+  };
+
+  const activeCount = labs.filter(l => l.is_active).length;
+  const typesCovered = new Set(labs.map(l => l.type)).size;
+  const totalSkills = labs.reduce((a, l) => a + (l.skills?.length || 0), 0);
 
   return (
     <AdminShell title="Labs" breadcrumb={["Engineering", "Labs"]} right={
@@ -31,16 +49,16 @@ function LabsPage() {
     }>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Total labs" value={labs.length} color="primary" icon={FlaskConical} />
-        <KpiCard label="Active learners" value={labs.reduce((a, l) => a + l.users, 0).toLocaleString()} color="success" />
-        <KpiCard label="Total tickets" value={labs.reduce((a, l) => a + l.tickets, 0)} color="ui" />
-        <KpiCard label="Avg completion" value={`${Math.round(labs.reduce((a,l)=>a+l.comp,0) / Math.max(labs.length,1))}%`} color="warning" />
+        <KpiCard label="Active labs" value={activeCount} color="success" icon={CheckCircle2} />
+        <KpiCard label="Types covered" value={typesCovered} color="ui" />
+        <KpiCard label="Skills catalogued" value={totalSkills} color="warning" />
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search labs…" className="text-xs px-3 py-1.5 rounded-md border border-border bg-transparent w-56" />
-        <button onClick={() => setCat(null)} className={`text-xs px-3 py-1.5 rounded-full border ${!cat ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"}`}>All</button>
-        {CATEGORIES.map(c => (
-          <button key={c} onClick={() => setCat(c)} className={`text-xs px-3 py-1.5 rounded-full border ${cat === c ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"}`}>{c}</button>
+        <button onClick={() => setType(null)} className={`text-xs px-3 py-1.5 rounded-full border ${!type ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"}`}>All</button>
+        {LAB_TYPES.map(t => (
+          <button key={t.value} onClick={() => setType(t.value)} className={`text-xs px-3 py-1.5 rounded-full border ${type === t.value ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"}`}>{t.label}</button>
         ))}
       </div>
 
@@ -48,38 +66,35 @@ function LabsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
-              <tr>{["Lab","Category","Active","Tickets","Sprints","Difficulty","Completion","Rating","Actions"].map(h => <th key={h} className="text-left font-medium px-4 py-2">{h}</th>)}</tr>
+              <tr>{["Lab","Type","Difficulty","Skills","Actions"].map(h => <th key={h} className="text-left font-medium px-4 py-2">{h}</th>)}</tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-10 text-center text-muted-foreground text-xs">No labs match your filters. <Link to="/admin/labs/new" className="text-primary hover:underline">Create one →</Link></td></tr>
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground text-xs">No labs match your filters. <Link to="/admin/labs/new" className="text-primary hover:underline">Create one →</Link></td></tr>
               )}
               {filtered.map(l => (
-                <tr key={l.id} className="border-t border-border/40 hover:bg-accent/30">
+                <tr key={l.id} className="border-t border-border/40 hover:bg-accent/30 align-top">
                   <td className="px-4 py-2.5 font-medium">
                     <div className="flex items-center gap-2">
                       <span className="text-base">{l.icon}</span>
-                      <span>{l.name}</span>
-                      {l.custom && <Badge tone="success">new</Badge>}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2"><span>{l.title}</span>{l.custom && <Badge tone="success">new</Badge>}</div>
+                        <div className="text-[11px] text-muted-foreground truncate max-w-[280px]">{l.description}</div>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-4 py-2.5"><Badge tone="primary">{l.cat}</Badge></td>
-                  <td className="px-4 py-2.5 font-mono">{l.users.toLocaleString()}</td>
-                  <td className="px-4 py-2.5 font-mono">{l.tickets}</td>
-                  <td className="px-4 py-2.5 font-mono">{l.sprints}</td>
-                  <td className="px-4 py-2.5"><Badge tone={l.diff === "Hard" ? "destructive" : l.diff === "Medium" ? "warning" : "success"}>{l.diff}</Badge></td>
+                  <td className="px-4 py-2.5"><Badge tone="primary">{labTypeLabel(l.type)}</Badge></td>
+                  <td className="px-4 py-2.5"><Badge tone={l.difficulty === "hard" ? "destructive" : l.difficulty === "medium" ? "warning" : "success"}>{difficultyLabel(l.difficulty)}</Badge></td>
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 rounded-full bg-muted/40 overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${l.comp}%` }} /></div>
-                      <span className="text-xs">{l.comp}%</span>
+                    <div className="flex flex-wrap gap-1 max-w-[260px]">
+                      {(l.skills || []).slice(0, 4).map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-muted/20">{s}</span>)}
+                      {(l.skills || []).length > 4 && <span className="text-[10px] text-muted-foreground">+{(l.skills || []).length - 4}</span>}
+                      {!(l.skills || []).length && <span className="text-[11px] text-muted-foreground">—</span>}
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 font-mono">{l.rating}</td>
                   <td className="px-4 py-2.5 text-xs">
                     <div className="flex items-center gap-3">
-                      <Link to="/admin/labs/$id/sprints" params={{ id: l.id }} className="text-ui hover:underline inline-flex items-center gap-1"><ListChecks className="h-3 w-3" /> Sprints</Link>
                       <Link to="/admin/labs/$id/edit" params={{ id: l.id }} className="text-primary hover:underline inline-flex items-center gap-1"><Pencil className="h-3 w-3" /> Edit</Link>
-                      <Link to="/lab/$slug" params={{ slug: l.slug }} target="_blank" className="text-muted-foreground hover:underline inline-flex items-center gap-1"><ExternalLink className="h-3 w-3" /> View</Link>
                       <button onClick={() => setConfirmId(l.id)} className="text-destructive hover:underline inline-flex items-center gap-1"><Trash2 className="h-3 w-3" /> Delete</button>
                     </div>
                   </td>

@@ -1,0 +1,486 @@
+{
+  "sub_unit_name": "Searching and Utility Operations",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Utility Operations?",
+      "description": "Utility operations are supporting operations that help analyze, navigate, and manipulate Linked Lists beyond insertion and deletion."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>After learning insertion and deletion, the next important step is understanding how to search, traverse, count nodes, find positions, calculate length, and perform various utility operations in a Linked List.</p>"
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Searching and utility operations are frequently used as building blocks in advanced Linked List problems."
+    },
+
+    {
+      "type": "heading",
+      "content": "Common Utility Operations"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Operations Overview",
+      "items": [
+        {
+          "question": "Traversal",
+          "answer": "Visit every node in the list."
+        },
+        {
+          "question": "Search",
+          "answer": "Find a node containing a target value."
+        },
+        {
+          "question": "Count Nodes",
+          "answer": "Determine total nodes present."
+        },
+        {
+          "question": "Find Length",
+          "answer": "Calculate list size."
+        },
+        {
+          "question": "Check Empty",
+          "answer": "Verify whether the list contains nodes."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Traversal Operation"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Traversal is the process of visiting each node sequentially starting from the Head node until NULL is reached.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Traversal Example",
+      "steps": [
+        "Head → [10]",
+        "Move → [20]",
+        "Move → [30]",
+        "Move → [40]",
+        "Reach NULL"
+      ]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Traversal Steps",
+      "steps": [
+        "Start at Head",
+        "Visit Current Node",
+        "Move to Next Node",
+        "Repeat Until NULL"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Traversal Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Searching for a Value"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Searching involves finding whether a target value exists inside the Linked List.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Searching for 30",
+      "steps": [
+        "[10] → [20] → [30] → [40]",
+        "Check 10 ❌",
+        "Check 20 ❌",
+        "Check 30 ✅",
+        "Element Found"
+      ]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Linear Search Steps",
+      "steps": [
+        "Start from Head",
+        "Compare Current Node",
+        "Move Forward",
+        "Repeat Until Match or NULL"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Important Observation",
+      "content": "Unlike arrays, Linked Lists do not support direct indexing, so searching requires traversal."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Search Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Length of Linked List"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The length of a Linked List is the total number of nodes present in the list.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Length Example",
+      "steps": ["[10] → [20] → [30] → [40]", "Count = 4 Nodes"]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Length Calculation",
+      "steps": [
+        "Initialize Count = 0",
+        "Traverse Nodes",
+        "Increment Count",
+        "Return Count"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Length Calculation",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Counting Occurrences"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Sometimes we need to count how many times a particular value appears in a Linked List.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Count Occurrences of 20",
+      "steps": ["[10] → [20] → [30] → [20] → [20]", "Occurrences = 3"]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Count Occurrences",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Position of an Element"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>This operation returns the position or index where a target value first appears.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Position Search",
+      "steps": ["[10] → [20] → [30] → [40]", "Find 30", "Position = 3"]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Common Use",
+      "content": "Position finding is frequently used before insertion or deletion operations."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Position Search",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Checking if List is Empty"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A Linked List is considered empty when the Head pointer is NULL.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Empty List Check",
+      "steps": ["Head = NULL", "No Nodes Exist", "List is Empty"]
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Simple Rule",
+      "description": "If Head == NULL, the Linked List is empty."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Empty Check",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding First Node"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The first node can be accessed directly using the Head pointer.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "First Node",
+      "steps": ["Head → [10]", "First Node Value = 10"]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Access First Node",
+      "time_complexity": "O(1)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Last Node"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>The last node is found by traversing until a node whose next pointer is NULL.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Last Node Search",
+      "steps": [
+        "[10] → [20] → [30] → [40]",
+        "Traverse Forward",
+        "Reach 40",
+        "Next = NULL"
+      ]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Find Last Node",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Middle Node"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>A common interview problem involves finding the middle node of a Linked List.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Middle Node Example",
+      "steps": ["[10] → [20] → [30] → [40] → [50]", "Middle Node = 30"]
+    },
+
+    {
+      "type": "process_flow",
+      "title": "Fast & Slow Pointer Technique",
+      "steps": [
+        "Slow Moves One Step",
+        "Fast Moves Two Steps",
+        "Fast Reaches End",
+        "Slow Reaches Middle"
+      ]
+    },
+
+    {
+      "type": "fact-box",
+      "title": "Popular Pattern",
+      "content": "The Fast and Slow Pointer technique is one of the most frequently asked Linked List interview patterns."
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Find Middle Node",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Finding Maximum and Minimum Values"
+    },
+
+    {
+      "type": "paragraph",
+      "content": "<p>Traversal can be used to identify the largest and smallest values stored in a Linked List.</p>"
+    },
+
+    {
+      "type": "diagram",
+      "title": "Max-Min Example",
+      "steps": ["[15] → [8] → [40] → [25]", "Maximum = 40", "Minimum = 8"]
+    },
+
+    {
+      "type": "complexity-card",
+      "title": "Max-Min Search",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+
+    {
+      "type": "heading",
+      "content": "Real-World Applications"
+    },
+
+    {
+      "type": "accordion",
+      "title": "Where Utility Operations Are Used",
+      "items": [
+        {
+          "question": "Search Engines",
+          "answer": "Search through linked data structures."
+        },
+        {
+          "question": "Task Management Systems",
+          "answer": "Locate active tasks."
+        },
+        {
+          "question": "Music Applications",
+          "answer": "Search songs in playlists."
+        },
+        {
+          "question": "Operating Systems",
+          "answer": "Manage process lists."
+        }
+      ]
+    },
+
+    {
+      "type": "heading",
+      "content": "Complexity Summary"
+    },
+
+    {
+      "type": "table",
+      "headers": ["Operation", "Time Complexity"],
+      "rows": [
+        ["Traversal", "O(n)"],
+        ["Search", "O(n)"],
+        ["Find Length", "O(n)"],
+        ["Count Occurrences", "O(n)"],
+        ["Find Position", "O(n)"],
+        ["Check Empty", "O(1)"],
+        ["Access First Node", "O(1)"],
+        ["Find Last Node", "O(n)"],
+        ["Find Middle Node", "O(n)"],
+        ["Find Max/Min", "O(n)"]
+      ]
+    },
+
+    {
+      "type": "comparison-card",
+      "left_title": "Fast Operations",
+      "right_title": "Traversal-Based Operations",
+      "left_points": [
+        "Check Empty",
+        "Access Head",
+        "Known Node Access",
+        "O(1)"
+      ],
+      "right_points": ["Search", "Length", "Find Middle", "O(n)"]
+    },
+
+    {
+      "type": "warning-box",
+      "title": "Interview Tip",
+      "content": "Whenever a problem requires finding the middle node, cycle detection, or nth node from the end, think about the Fast and Slow Pointer technique."
+    },
+
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Searching and utility operations form the foundation for advanced Linked List algorithms such as cycle detection, palindrome checking, list splitting, and merging."
+    },
+
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Traversal visits every node.",
+        "Searching requires linear traversal.",
+        "Length calculation counts nodes.",
+        "Position finding returns index location.",
+        "Empty list means Head = NULL.",
+        "First node is accessed through Head.",
+        "Last node requires traversal.",
+        "Middle node can be found using Fast-Slow pointers.",
+        "Maximum and minimum require full traversal.",
+        "Utility operations are building blocks for advanced problems."
+      ]
+    },
+
+    {
+      "type": "quiz",
+      "question": "What is the time complexity of searching in a Linked List?",
+      "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"],
+      "answer": "O(n)"
+    },
+
+    {
+      "type": "quiz",
+      "question": "Which pointer technique is commonly used to find the middle node?",
+      "options": [
+        "Binary Search",
+        "Recursion",
+        "Fast and Slow Pointer",
+        "Hashing"
+      ],
+      "answer": "Fast and Slow Pointer"
+    },
+
+    {
+      "type": "quiz",
+      "question": "When is a Linked List considered empty?",
+      "options": ["Tail = NULL", "Head = NULL", "Size = 1", "First Node = 0"],
+      "answer": "Head = NULL"
+    }
+  ]
+}

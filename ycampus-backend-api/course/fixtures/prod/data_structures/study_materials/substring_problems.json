@@ -1,0 +1,314 @@
+{
+  "sub_unit_name": "Substring Problems",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is a Substring?",
+      "description": "A substring is a contiguous sequence of characters extracted from a string. The characters must appear in the same order and occupy consecutive positions."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Substring problems are among the most frequently asked topics in coding interviews. Many string-based questions involve finding, counting, comparing, or optimizing substrings based on specific conditions.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Important Note",
+      "content": "A substring is always contiguous, whereas a subsequence can skip characters."
+    },
+    {
+      "type": "diagram",
+      "title": "Substring Example",
+      "steps": [
+        "String: PROGRAMMING",
+        "Substring: GRA",
+        "Indices: 3 to 5",
+        "Characters are contiguous"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Understanding Substrings"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Every string contains multiple possible substrings. By selecting different starting and ending positions, we can generate numerous valid substrings.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Formula",
+      "description": "For a string of length n, the total number of substrings is n × (n + 1) / 2."
+    },
+    {
+      "type": "diagram",
+      "title": "Substring Count Example",
+      "steps": [
+        "String: ABC",
+        "Substrings: A, B, C",
+        "AB, BC",
+        "ABC",
+        "Total = 6"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Generating All Substrings",
+      "time_complexity": "O(n²)",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Common Types of Substring Problems"
+    },
+    {
+      "type": "accordion",
+      "title": "Frequently Asked Problems",
+      "items": [
+        {
+          "question": "Longest Unique Substring",
+          "answer": "Find the longest substring without repeating characters."
+        },
+        {
+          "question": "Substring Search",
+          "answer": "Determine whether a pattern exists within a string."
+        },
+        {
+          "question": "Longest Palindromic Substring",
+          "answer": "Find the longest substring that reads the same forward and backward."
+        },
+        {
+          "question": "Minimum Window Substring",
+          "answer": "Find the smallest substring containing all required characters."
+        },
+        {
+          "question": "Count Valid Substrings",
+          "answer": "Count substrings satisfying specific conditions."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Longest Unique Substring"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>One of the most popular interview problems asks us to find the longest substring that contains no repeated characters.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Example",
+      "steps": [
+        "String: abcabcbb",
+        "Longest Unique Substring",
+        "abc",
+        "Length = 3"
+      ]
+    },
+    {
+      "type": "process_flow",
+      "title": "Sliding Window Approach",
+      "steps": [
+        "Maintain left and right pointers",
+        "Expand window",
+        "Track visited characters",
+        "Remove duplicates",
+        "Update maximum length"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Optimized Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(k)"
+    },
+    {
+      "type": "heading",
+      "content": "Substring Search"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Substring search determines whether a smaller pattern exists inside a larger string. Search engines, editors, and text-processing systems use this operation extensively.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Pattern Search Example",
+      "steps": [
+        "Text: programming",
+        "Pattern: gram",
+        "Compare characters",
+        "Pattern Found ✓"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Real-World Usage",
+      "content": "Search bars, browser find features, and autocomplete systems perform substring searches continuously."
+    },
+    {
+      "type": "heading",
+      "content": "Longest Palindromic Substring"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A palindrome is a string that reads the same forward and backward. This problem asks us to find the longest palindromic substring within a given string.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Palindrome Example",
+      "steps": [
+        "String: babad",
+        "Possible Palindromes",
+        "bab",
+        "aba",
+        "Longest Length = 3"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Observation",
+      "description": "Every palindrome expands around a center. This observation helps optimize the solution."
+    },
+    {
+      "type": "heading",
+      "content": "Minimum Window Substring"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>This advanced Sliding Window problem requires finding the smallest substring that contains all characters of another string.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Minimum Window Example",
+      "steps": ["Text: ADOBECODEBANC", "Target: ABC", "Smallest Window", "BANC"]
+    },
+    {
+      "type": "flow-diagram",
+      "title": "Window Management",
+      "steps": [
+        "Expand right pointer",
+        "Include required characters",
+        "Shrink left pointer",
+        "Maintain validity",
+        "Track smallest window"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Sliding Window Efficiency",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(k)"
+    },
+    {
+      "type": "heading",
+      "content": "Sliding Window & Substrings"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Most optimized substring problems use the Sliding Window technique because substrings are always contiguous.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Brute Force",
+      "right_title": "Sliding Window",
+      "left_points": [
+        "Generate all substrings",
+        "Nested loops",
+        "O(n²) or O(n³)",
+        "Slow for large strings"
+      ],
+      "right_points": [
+        "Maintain active window",
+        "Single traversal",
+        "O(n)",
+        "Interview-friendly solution"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Pattern",
+      "content": "Whenever a problem mentions longest substring, shortest substring, unique characters, or window size, think about Sliding Window."
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Reading a Sentence",
+      "content": "Imagine highlighting consecutive words in a sentence. The highlighted section forms a substring. Expanding or shrinking the highlighted area is similar to the Sliding Window technique."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "What is the most common mistake?",
+          "answer": "Confusing substrings with subsequences."
+        },
+        {
+          "question": "Why do solutions become slow?",
+          "answer": "Generating and checking every possible substring repeatedly."
+        },
+        {
+          "question": "Why is Sliding Window preferred?",
+          "answer": "It avoids redundant computations and processes characters efficiently."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Most substring interview questions can be solved using Sliding Window, Hash Maps, Character Frequency Arrays, or Two Pointer techniques."
+    },
+    {
+      "type": "table",
+      "headers": ["Problem Type", "Recommended Technique", "Time Complexity"],
+      "rows": [
+        ["Substring Search", "Traversal", "O(n)"],
+        ["Longest Unique Substring", "Sliding Window", "O(n)"],
+        ["Minimum Window", "Sliding Window", "O(n)"],
+        ["Palindrome Substring", "Expand Around Center", "O(n²)"],
+        ["Generate All Substrings", "Nested Loops", "O(n²)"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Substrings are contiguous portions of a string.",
+        "Total substrings = n × (n + 1) / 2.",
+        "Sliding Window is the most important substring technique.",
+        "Longest Unique Substring is a classic interview problem.",
+        "Minimum Window Substring is a popular advanced question.",
+        "Substring problems frequently use Hash Maps and Two Pointers."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which technique is most commonly used for optimized substring problems?",
+      "options": ["DFS", "Heap", "Sliding Window", "Recursion"],
+      "answer": "Sliding Window"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the total number of substrings in a string of length n?",
+      "options": ["n²", "n(n+1)/2", "2ⁿ", "n!"],
+      "answer": "n(n+1)/2"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the key property of a substring?",
+      "options": [
+        "Characters must be sorted",
+        "Characters must be contiguous",
+        "Characters must be unique",
+        "Characters must be uppercase"
+      ],
+      "answer": "Characters must be contiguous"
+    }
+  ]
+}

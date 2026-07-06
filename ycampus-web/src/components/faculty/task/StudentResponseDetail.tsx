@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Send, CheckCircle, XCircle, FileText, Eye, History, AlertCircle } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { TaskSubmission, TaskComment } from '@/services/taskService';
+import { TaskSubmission, TaskComment, Task } from '@/services/taskService';
 import { format } from 'date-fns';
 import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
 import CodeExecutionPanel from '@/components/code-editor/CodeExecutionPanel';
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface StudentResponseDetailProps {
+  task?: Task;
   response: TaskSubmission;
   onAddComment: (comment: string) => void;
   onReview: (data: { status: 'accepted' | 'rejected', grade?: number, rejection_reason?: string, rejection_comment?: string }) => void;
@@ -37,6 +38,7 @@ const REJECTION_REASONS = [
 ];
 
 const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
+  task,
   response,
   onAddComment,
   onReview,
@@ -207,15 +209,21 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <div className="space-y-8">
               {response.answer && (
                 <div className="space-y-3">
-                  <h4 className="text-[13px] font-bold  px-1 ">Submitted answer</h4>
-                  <CodeExecutionPanel 
-                    problem={{ id: response.task, title: 'Submitted Answer', description: '' }}
-                    initialCode={response.answer}
-                    readOnly={true}
-                    className="border-slate-200 shadow-sm rounded-xl overflow-hidden"
-                    showSubmitButton={false}
-                    showRunButton={true}
-                  />
+                  <h4 className="text-[13px] font-semibold  px-1 ">Submitted answer</h4>
+                  {task?.task_type === 'descriptive' ? (
+                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl whitespace-pre-wrap text-sm text-slate-800 shadow-sm">
+                      {response.answer}
+                    </div>
+                  ) : (
+                    <CodeExecutionPanel 
+                      problem={{ id: response.task, title: 'Submitted Answer', description: '' }}
+                      initialCode={response.answer}
+                      readOnly={true}
+                      className="border-slate-200 shadow-sm rounded-xl overflow-hidden"
+                      showSubmitButton={false}
+                      showRunButton={true}
+                    />
+                  )}
                 </div>
               )}
 
@@ -254,7 +262,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
           {/* Attempt History Section */}
           {response.history && response.history.length > 0 && (
             <div className="space-y-4 pt-6 border-t border-slate-100">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-800">
                 <History className="h-5 w-5 text-slate-500" />
                 Attempt History
               </h3>
@@ -263,7 +271,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                   <Card key={hist.id || idx} className="bg-slate-50/50 shadow-sm border-slate-200">
                     <CardHeader className="py-3 px-4 border-b border-slate-100 bg-slate-100/50">
                       <div className="flex justify-between items-center">
-                        <CardTitle className="text-sm font-bold text-slate-700">Attempt {hist.attempt_number}</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-slate-700">Attempt {hist.attempt_number}</CardTitle>
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-slate-500">
                             {hist.submitted_at ? format(new Date(hist.submitted_at), 'MMM dd, HH:mm') : 'N/A'}
@@ -310,7 +318,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                    {response.comments.length === 0 ? (
                     <div className="h-80 flex flex-col items-center justify-center text-center opacity-40">
                       <Send className="h-10 w-10 mb-2" />
-                      <p className="text-sm font-bold text-slate-500">No messages yet</p>
+                      <p className="text-sm ">No messages yet</p>
                     </div>
                   ) : (
                     response.comments.map((comment: TaskComment) => {

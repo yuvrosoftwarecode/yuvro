@@ -1,0 +1,314 @@
+{
+  "sub_unit_name": "Method References",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What are Method References?",
+      "description": "Method References, introduced in Java 8, provide a shorthand syntax for referring to existing methods using the :: operator, making code more readable and concise."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Sometimes a Lambda Expression simply calls an existing method without adding any additional logic. In such cases, Java allows developers to replace the lambda with a <strong>Method Reference</strong>. Method references improve readability while reducing boilerplate code and work seamlessly with functional interfaces and the Streams API.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Use Method References?",
+      "content": "Method references simplify lambda expressions, improve code readability, encourage code reuse, and integrate naturally with functional programming features introduced in Java 8."
+    },
+    {
+      "type": "diagram",
+      "title": "Method Reference Workflow",
+      "steps": [
+        "Existing Method",
+        "Functional Interface",
+        "Method Reference (::)",
+        "Method Invoked",
+        "Result Returned"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method Reference Syntax"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A method reference uses the double-colon (<code>::</code>) operator to refer to an existing method instead of writing an equivalent lambda expression.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "General Syntax",
+      "code": "ClassName::methodName\nobjectReference::methodName\nClassName::new"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Use a method reference when a lambda expression only calls an existing method without additional processing."
+    },
+    {
+      "type": "heading",
+      "content": "Lambda vs Method Reference"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method references provide a cleaner alternative when the lambda expression simply delegates execution to another method.</p>"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Lambda Expression",
+      "right_title": "Method Reference",
+      "left_points": [
+        "(s) -> System.out.println(s)",
+        "More verbose",
+        "Useful for custom logic",
+        "Introduced in Java 8"
+      ],
+      "right_points": [
+        "System.out::println",
+        "Short and readable",
+        "Calls existing method",
+        "Cleaner syntax"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Example",
+      "code": "List<String> names = Arrays.asList(\"Alice\", \"Bob\", \"Charlie\");\n\nnames.forEach(System.out::println);"
+    },
+    {
+      "type": "heading",
+      "content": "Types of Method References"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Java supports four different kinds of method references depending on what is being referenced.</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Example"],
+      "rows": [
+        ["Static Method", "Math::abs"],
+        ["Instance Method of Particular Object", "printer::print"],
+        ["Instance Method of Arbitrary Object", "String::toUpperCase"],
+        ["Constructor Reference", "ArrayList::new"]
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Static Method Reference"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A static method reference points to a static method of a class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Method Example",
+      "code": "Function<Integer, Integer> absolute = Math::abs;\n\nSystem.out.println(absolute.apply(-10));"
+    },
+    {
+      "type": "heading",
+      "content": "Instance Method Reference"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>An instance method reference points to a method belonging to a specific object or any object of a particular class.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Instance Method Example",
+      "code": "List<String> names = Arrays.asList(\"java\", \"python\", \"c++\");\n\nnames.stream()\n     .map(String::toUpperCase)\n     .forEach(System.out::println);"
+    },
+    {
+      "type": "heading",
+      "content": "Constructor Reference"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Constructor references provide a concise way to create new objects without explicitly calling constructors inside lambda expressions.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Constructor Reference Example",
+      "code": "Supplier<List<String>> listSupplier = ArrayList::new;\n\nList<String> list = listSupplier.get();"
+    },
+    {
+      "type": "process_flow",
+      "title": "Using Method References",
+      "steps": [
+        "Identify Functional Interface",
+        "Find Existing Method",
+        "Replace Lambda with ::",
+        "Compile",
+        "Execute"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Method References with Streams"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Method references are widely used in Streams API operations such as <code>map()</code>, <code>filter()</code>, and <code>forEach()</code> to make pipelines shorter and easier to understand.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Streams Example",
+      "code": "names.stream()\n     .map(String::toUpperCase)\n     .sorted()\n     .forEach(System.out::println);"
+    },
+    {
+      "type": "complexity-card",
+      "title": "Method References",
+      "time_complexity": "Same as the referenced method",
+      "space_complexity": "O(1), excluding referenced method operations"
+    },
+    {
+      "type": "heading",
+      "content": "Advantages & Limitations"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Limitations",
+      "left_points": [
+        "Cleaner syntax",
+        "Improves readability",
+        "Encourages code reuse",
+        "Works seamlessly with Streams"
+      ],
+      "right_points": [
+        "Cannot replace every lambda",
+        "Requires compatible method signature",
+        "Less flexible for custom logic",
+        "May be confusing for beginners"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where are Method References Used?",
+      "items": [
+        {
+          "question": "Streams API",
+          "answer": "Used with map(), filter(), sorted(), and forEach()."
+        },
+        {
+          "question": "Collections",
+          "answer": "Sorting and processing collection elements."
+        },
+        {
+          "question": "Event Handling",
+          "answer": "Passing existing methods as event handlers."
+        },
+        {
+          "question": "Functional Programming",
+          "answer": "Simplifying Lambda Expressions throughout Java applications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Using a Contact Shortcut",
+      "content": "Instead of typing someone's full phone number every time, you simply tap their saved contact. Method references similarly point directly to an existing method instead of rewriting its invocation."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Method References, Lambda Expressions, Functional Interfaces, Constructor References, Streams API, Predicate, Function, Consumer, Supplier, and the :: operator are common Java interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Can every lambda be replaced with a method reference?",
+          "answer": "No. Only lambdas that directly call an existing method without additional logic can be replaced."
+        },
+        {
+          "question": "Does a method reference execute immediately?",
+          "answer": "No. It simply provides a reference that is invoked when the functional interface method is called."
+        },
+        {
+          "question": "Can constructor references create objects?",
+          "answer": "Yes. Constructor references use the ::new syntax to instantiate objects."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Method references provide a concise way to reuse existing methods with functional interfaces by using the :: operator."
+    },
+    {
+      "type": "table",
+      "headers": ["Reference Type", "Example", "Purpose"],
+      "rows": [
+        ["Static Method", "Math::abs", "Call static methods"],
+        ["Instance Method", "printer::print", "Call object methods"],
+        [
+          "Arbitrary Object Method",
+          "String::length",
+          "Call instance methods of objects"
+        ],
+        ["Constructor", "ArrayList::new", "Create objects"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Method references were introduced in Java 8.",
+        "They use the :: operator.",
+        "They work with functional interfaces.",
+        "There are four types of method references.",
+        "Constructor references use ClassName::new.",
+        "Method references improve readability by replacing simple lambda expressions."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which operator is used for method references in Java?",
+      "options": ["->", "::", "=>", "."],
+      "answer": "::"
+    },
+    {
+      "type": "quiz",
+      "question": "Which method reference creates new objects?",
+      "options": [
+        "Static Method Reference",
+        "Instance Method Reference",
+        "Constructor Reference",
+        "Lambda Expression"
+      ],
+      "answer": "Constructor Reference"
+    },
+    {
+      "type": "quiz",
+      "question": "Method references can replace which type of lambda expressions?",
+      "options": [
+        "Only recursive lambdas",
+        "Lambdas that simply call an existing method",
+        "Lambdas with multiple statements",
+        "All lambda expressions"
+      ],
+      "answer": "Lambdas that simply call an existing method"
+    }
+  ]
+}

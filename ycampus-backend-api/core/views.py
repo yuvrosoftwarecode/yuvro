@@ -1735,20 +1735,27 @@ class FileUploadViewSet(viewsets.ViewSet):
         if not file_obj:
             return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
         
-        from django.core.files.storage import default_storage
+        from core.storage import upload_file, build_public_url
         import os
         from django.utils import timezone
+        import logging
+        
+        logger = logging.getLogger(__name__)
         
         # Create a unique filename
         ext = os.path.splitext(file_obj.name)[1]
         timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
-        new_filename = f'uploads/{request.user.id}/{timestamp}_{file_obj.name}'
+        key = f'uploads/{request.user.id}/{timestamp}{ext}'
         
-        file_name = default_storage.save(new_filename, file_obj)
-        file_url = default_storage.url(file_name)
-        
-        # Ensure it's an absolute URL
-        if not file_url.startswith('http'):
-            file_url = request.build_absolute_uri(file_url)
+        try:
+            stored_key = upload_file(key=key, file_obj=file_obj)
+            file_url = build_public_url(stored_key)
             
-        return Response({"url": file_url}, status=status.HTTP_201_CREATED)
+
+            if file_url and not file_url.startswith('http'):
+                file_url = request.build_absolute_uri(file_url)
+                
+            return Response({"url": file_url}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.exception("File upload failed")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

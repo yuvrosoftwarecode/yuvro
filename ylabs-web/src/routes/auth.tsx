@@ -5,8 +5,6 @@ import { useAuth } from "@/lib/auth";
 import { ArrowRight, Github, Eye, EyeOff, Bot, Activity, GitBranch, Layers, CheckCircle2 } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
-type Role = "student" | "developer" | "admin" | "job_seeker" | "recruiter";
-
 const searchSchema = z.object({ tab: z.enum(["signin", "signup"]).default("signin").catch("signin") });
 
 export const Route = createFileRoute("/auth")({
@@ -166,24 +164,30 @@ function SignUpForm() {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [role, setRole] = useState<Role>("student");
   const [agree, setAgree] = useState(false);
   const [err, setErr] = useState("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
+    if (!name.trim()) return setErr("Please enter your full name.");
     if (pwd.length < 6) return setErr("Password must be at least 6 characters.");
     if (pwd !== confirm) return setErr("Passwords do not match.");
     if (!agree) return setErr("Please accept the terms and privacy policy.");
-    
+
+    const names = name.trim().split(/\s+/);
+    const first_name = names.shift() || "";
+    const last_name = names.join(" ");
+
     try {
       // @ts-ignore
       const res = await import("@/services/authService").then(m => m.default.register({
         email: email.trim(),
         username: email.trim(),
+        first_name,
+        last_name,
         password: pwd,
-        password_confirm: confirm
+        password_confirm: confirm,
       }));
       login(res.user, res.access);
       const userRole = res.user.roles?.ylabs || res.user.role;
@@ -202,16 +206,6 @@ function SignUpForm() {
         <Field label="Password"><input type="password" required value={pwd} onChange={(e) => setPwd(e.target.value)} className="input" placeholder="••••••••" /></Field>
         <Field label="Confirm Password"><input type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} className="input" placeholder="••••••••" /></Field>
       </div>
-      <Field label="Role">
-        <div className="grid grid-cols-2 gap-2">
-          {(["student", "job_seeker", "developer", "recruiter"] as Role[]).map((r) => (
-            <button type="button" key={r} onClick={() => setRole(r)}
-              className={`rounded-md border px-3 py-2 text-xs capitalize transition ${role === r ? "border-primary bg-primary/10 text-primary" : "border-border bg-card/40 text-muted-foreground hover:text-foreground"}`}>
-              {r.replace("_", " ")}
-            </button>
-          ))}
-        </div>
-      </Field>
       <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-border" />
         <span>I agree to the <a href="#" className="text-primary hover:underline">terms</a> and <a href="#" className="text-primary hover:underline">privacy policy</a>.</span>
@@ -228,7 +222,8 @@ function SignUpForm() {
 function OAuthButtons() {
   const { login } = useAuth();
   const nav = useNavigate();
-  
+  const [oauthError, setOauthError] = useState("");
+
   const handleGoogleSuccess = async (tokenResponse: any) => {
     try {
       // @ts-ignore
@@ -237,26 +232,45 @@ function OAuthButtons() {
       const userRole = res.user.roles?.ylabs || res.user.role;
       nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
     } catch (error: any) {
-       console.error("Google login failed", error);
+      console.error("Google login failed", error);
+      setOauthError("Google login failed. Please try again later.");
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: handleGoogleSuccess,
-    onError: () => console.error('Google Login Failed'),
-  });
+  let googleLogin: (() => void) | undefined;
+
+  try {
+    googleLogin = useGoogleLogin({
+      onSuccess: handleGoogleSuccess,
+      onError: () => {
+        console.error('Google Login Failed');
+        setOauthError('Google Sign In was unsuccessful.');
+      },
+    });
+  } catch (_e) {
+    googleLogin = undefined;
+  }
 
   return (
     <>
       <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div><div className="relative flex justify-center text-[10px] uppercase tracking-wider"><span className="bg-background px-2 text-muted-foreground">or continue with</span></div></div>
       <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={() => googleLogin()} className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition cursor-pointer">
+        <button
+          type="button"
+          onClick={() => googleLogin?.()}
+          disabled={!googleLogin}
+          className={`inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm transition ${googleLogin ? 'hover:bg-accent cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+        >
           <GoogleIcon /> Google
         </button>
         <button type="button" className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card/40 px-3 py-2 text-sm hover:bg-accent transition opacity-50 cursor-not-allowed">
           <Github className="h-4 w-4" /> GitHub
         </button>
       </div>
+      {!googleLogin && (
+        <p className="mt-2 text-xs text-muted-foreground">Google login is not configured for this environment.</p>
+      )}
+      {oauthError && <p className="mt-2 text-xs text-destructive">{oauthError}</p>}
     </>
   );
 }

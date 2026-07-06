@@ -1,0 +1,295 @@
+{
+  "sub_unit_name": "Synchronization",
+  "subject_short_code": "JAVA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Synchronization?",
+      "description": "Synchronization is a mechanism in Java that controls access to shared resources, ensuring that only one thread executes a critical section of code at a time to prevent data inconsistency."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In multithreaded applications, multiple threads may access the same resource simultaneously. Without proper synchronization, this can lead to inconsistent results known as <strong>race conditions</strong>. Java provides the <code>synchronized</code> keyword to ensure thread-safe access to shared resources.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Synchronization?",
+      "content": "Synchronization prevents race conditions, ensures data consistency, and enables safe communication between multiple threads accessing shared resources."
+    },
+    {
+      "type": "diagram",
+      "title": "Synchronization Workflow",
+      "steps": [
+        "Multiple Threads",
+        "Request Shared Resource",
+        "Acquire Lock",
+        "Execute Critical Section",
+        "Release Lock",
+        "Next Thread Continues"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Why Synchronization is Needed"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>If two or more threads modify the same object simultaneously, unexpected results may occur. Synchronization ensures that only one thread accesses the critical section at any given time.</p>"
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Synchronization protects the critical section of code where shared data is read or modified."
+    },
+    {
+      "type": "heading",
+      "content": "Race Condition"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A race condition occurs when multiple threads update shared data simultaneously, causing unpredictable and incorrect results.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Race Condition Example",
+      "steps": [
+        "Balance = 1000",
+        "Thread A Withdraws 200",
+        "Thread B Withdraws 300",
+        "Updates Overlap",
+        "Incorrect Final Balance"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Common Problem",
+      "content": "Race conditions occur only when threads share mutable data without proper synchronization."
+    },
+    {
+      "type": "heading",
+      "content": "Synchronized Method"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Marking an entire method as <code>synchronized</code> ensures that only one thread can execute that method on a particular object at a time.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Synchronized Method Example",
+      "code": "class Counter {\n    private int count = 0;\n\n    public synchronized void increment() {\n        count++;\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Synchronized Block"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A synchronized block locks only a specific portion of code, improving performance by minimizing the locked section.</p>"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Synchronized Block Example",
+      "code": "public void increment() {\n    synchronized(this) {\n        count++;\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "content": "Object Lock vs Class Lock"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Object Lock",
+      "right_title": "Class Lock",
+      "left_points": [
+        "Locks a specific object",
+        "Uses synchronized instance methods",
+        "Different objects have different locks",
+        "Most commonly used"
+      ],
+      "right_points": [
+        "Locks the entire class",
+        "Uses synchronized static methods",
+        "One lock shared by all objects",
+        "Used for static data"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Static Synchronization",
+      "code": "class Demo {\n    public static synchronized void display() {\n        System.out.println(\"Class level lock\");\n    }\n}"
+    },
+    {
+      "type": "process_flow",
+      "title": "Synchronization Process",
+      "steps": [
+        "Thread Requests Lock",
+        "Lock Available?",
+        "Enter Critical Section",
+        "Execute Code",
+        "Release Lock",
+        "Next Thread Gets Lock"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Advantages & Disadvantages"
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Advantages",
+      "right_title": "Disadvantages",
+      "left_points": [
+        "Prevents race conditions",
+        "Maintains data consistency",
+        "Thread-safe execution",
+        "Easy to implement"
+      ],
+      "right_points": [
+        "Reduces parallelism",
+        "Performance overhead",
+        "Can lead to deadlocks",
+        "Threads may spend time waiting"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Important Synchronization Concepts"
+    },
+    {
+      "type": "table",
+      "headers": ["Concept", "Purpose"],
+      "rows": [
+        ["Monitor Lock", "Controls access to synchronized code"],
+        ["Critical Section", "Code accessing shared resources"],
+        ["Mutual Exclusion", "Only one thread executes at a time"],
+        ["Race Condition", "Incorrect results due to concurrent updates"],
+        ["Thread Safety", "Correct execution under concurrent access"]
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Synchronization Cost",
+      "time_complexity": "Lock acquisition is generally O(1), but waiting time depends on contention",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Applications"
+    },
+    {
+      "type": "accordion",
+      "title": "Where is Synchronization Used?",
+      "items": [
+        {
+          "question": "Banking Systems",
+          "answer": "Prevent multiple users from updating the same account simultaneously."
+        },
+        {
+          "question": "Inventory Management",
+          "answer": "Ensure stock quantities remain accurate when multiple orders are processed."
+        },
+        {
+          "question": "Reservation Systems",
+          "answer": "Avoid double booking of seats, rooms, or tickets."
+        },
+        {
+          "question": "Shared Caches",
+          "answer": "Protect shared data structures from concurrent modifications."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Single ATM Machine",
+      "content": "Imagine multiple people waiting to use one ATM. Only one person can use it at a time while others wait. Once the current user finishes, the next person gets access. Synchronization works similarly by allowing only one thread into the critical section."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Synchronization, race conditions, critical sections, object locks, class locks, synchronized methods, synchronized blocks, deadlocks, and thread safety are among the most frequently asked Java multithreading interview topics."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Should every method be synchronized?",
+          "answer": "No. Synchronize only code that accesses shared mutable data to avoid unnecessary performance overhead."
+        },
+        {
+          "question": "Does synchronization completely eliminate concurrency?",
+          "answer": "No. Only the synchronized section is protected while other independent code can execute concurrently."
+        },
+        {
+          "question": "Can synchronization prevent deadlocks?",
+          "answer": "No. Incorrect lock ordering can still lead to deadlocks."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Remember This",
+      "description": "Synchronization ensures that only one thread executes a critical section at a time, preventing race conditions and maintaining data consistency."
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Synchronized Method", "Synchronized Block"],
+      "rows": [
+        ["Lock Scope", "Entire Method", "Specific Code Block"],
+        ["Performance", "Lower", "Higher"],
+        ["Flexibility", "Less", "More"],
+        ["Recommended", "Simple Cases", "Performance-Critical Code"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Synchronization provides thread safety.",
+        "Race conditions occur when shared data is modified concurrently.",
+        "Use synchronized methods or synchronized blocks.",
+        "Every Java object has an intrinsic monitor lock.",
+        "Object locks and class locks are different.",
+        "Excessive synchronization can reduce performance."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "What is the primary purpose of synchronization in Java?",
+      "options": [
+        "Increase memory",
+        "Prevent race conditions",
+        "Create more threads",
+        "Reduce compilation time"
+      ],
+      "answer": "Prevent race conditions"
+    },
+    {
+      "type": "quiz",
+      "question": "Which keyword is used to synchronize methods and blocks in Java?",
+      "options": ["thread", "lock", "synchronized", "volatile"],
+      "answer": "synchronized"
+    },
+    {
+      "type": "quiz",
+      "question": "Which synchronization technique locks only a specific section of code?",
+      "options": [
+        "Static Method",
+        "Synchronized Block",
+        "Runnable",
+        "Thread Class"
+      ],
+      "answer": "Synchronized Block"
+    }
+  ]
+}
