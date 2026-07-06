@@ -56,7 +56,7 @@ class PaymentService:
 
         payment.gateway_order_or_intent_id = payment_response.get("order_id") or payment_response.get("payment_id")
         payment.gateway_session_reference_id = payment_response.get("session_id")
-        payment.latest_payment = payment_response
+        payment.latest_successfull_payment = payment_response
         payment.gateway_response["payment_response"] = payment_response
         payment.status = payment_response.get("status", PaymentStatus.PENDING)
         payment.payment_attempts.append(payment_response)
@@ -64,7 +64,7 @@ class PaymentService:
             update_fields=[
                 "gateway_order_or_intent_id",
                 "gateway_session_reference_id",
-                "latest_payment",
+                "latest_successfull_payment",
                 "gateway_response",
                 "status",
                 "payment_attempts",

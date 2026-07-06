@@ -21,8 +21,13 @@ class RazorpayGateway(BasePaymentGateway):
         return (self.key_id, self.key_secret)
 
     def _post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        response = requests.post(f"{self.base_url}/{path}", data=data, auth=self._auth())
-        response.raise_for_status()
+        response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            import logging
+            logging.error(f"Razorpay API Error: {response.text}")
+            raise
         return response.json()
 
     def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -34,7 +39,8 @@ class RazorpayGateway(BasePaymentGateway):
         data = {
             "name": customer.get("name"),
             "email": customer.get("email"),
-            "notes": json.dumps(customer.get("metadata", {})),
+            "notes": customer.get("metadata", {}),
+            "fail_existing": "0",
         }
         resp = self._post("customers", data)
         return {"customer_id": resp["id"], "raw": resp}
@@ -45,7 +51,7 @@ class RazorpayGateway(BasePaymentGateway):
             "currency": payment["currency"].upper(),
             "customer_id": payment["customer_id"],
             "receipt": payment.get("payment_id"),
-            "notes": json.dumps(payment.get("metadata", {})),
+            "notes": payment.get("metadata", {}),
         }
         resp = self._post("orders", data)
         return {
@@ -71,6 +77,12 @@ class RazorpayGateway(BasePaymentGateway):
 
     def get_refund(self, refund_id: str) -> Dict[str, Any]:
         return self._get(f"refunds/{refund_id}")
+
+    def verify_signature(self, order_id: str, payment_id: str, signature: str) -> bool:
+        secret = settings.RAZORPAY_KEY_SECRET
+        payload = f"{order_id}|{payment_id}"
+        expected = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(signature, expected)
 
     def verify_webhook(self, request) -> bool:
         signature = request.headers.get("X-Razorpay-Signature")
