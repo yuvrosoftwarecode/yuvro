@@ -1,0 +1,111 @@
+{
+  "title": "Sprint 2 \u2014 Querying & Filtering",
+  "description": "Master MongoDB query operators for real-world data retrieval: comparison, logical, array, regex.",
+  "xp_pool": 500,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Comparison & Logical Operators",
+      "ticket_slug": "ticket-1",
+      "description": "Use comparison operators.\nUse logical operators.\nApply projection and sorting.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 2.1.1 \u2014 Comparison Operators",
+          "task_slug": "task-2-1-1",
+          "description": "Filter documents using comparison operators to find values greater than, less than, or equal to specific criteria.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.1.2 \u2014 Logical Operators: $and, $or, $not, $nor",
+          "task_slug": "task-2-1-2",
+          "description": "Combine multiple query conditions using logical operators to refine your search results.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.1.3 \u2014 Projection & Sorting",
+          "task_slug": "task-2-1-3",
+          "description": "Specify which fields to include or exclude in your query results, and sort the returned documents in ascending or descending order.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Array & Element Operators",
+      "ticket_slug": "ticket-2",
+      "description": "Use array query operators.\nUse element and evaluation operators.\nUse array update operators.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 2.2.1 \u2014 Array Query Operators",
+          "task_slug": "task-2-2-1",
+          "description": "Query documents based on array contents, finding elements that match specific values or conditions.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.2.2 \u2014 Element & Evaluation Operators",
+          "task_slug": "task-2-2-2",
+          "description": "Filter documents by checking for the existence of fields, their types, or using regular expressions for pattern matching.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.2.3 \u2014 Array Update Operators",
+          "task_slug": "task-2-2-3",
+          "description": "Modify arrays within documents by adding, removing, or updating specific array elements.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Advanced Querying",
+      "ticket_slug": "ticket-3",
+      "description": "Use cursor methods and count.\nUpsert with findOneAndUpdate.\nPerform bulk operations.",
+      "xp_reward": 130,
+      "tasks": [
+        {
+          "title": "Task 2.3.1 \u2014 Cursor Methods & Count",
+          "task_slug": "task-2-3-1",
+          "description": "Use cursor methods to count the number of documents matching a query and manage large result sets.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.3.2 \u2014 Upsert & findOneAndUpdate",
+          "task_slug": "task-2-3-2",
+          "description": "Perform operations that either update an existing document or insert a new one if it doesn't exist.",
+          "points": 45,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.3.3 \u2014 Bulk Operations",
+          "task_slug": "task-2-3-3",
+          "description": "Execute multiple write operations efficiently in a single bulk request.",
+          "points": 45,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 2,
+  "lab_title": "MongoDB Lab"
+}

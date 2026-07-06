@@ -1,69 +1,108 @@
 {
-  "title": "Sprint 2 \u2014 Everyday Linux Productivity",
-  "description": "Solve real developer problems.",
+  "title": "Sprint 2 \u2014 Files, Permissions & Text Processing",
+  "description": "Master file operations, ownership models, and become proficient in text processing.",
+  "xp_pool": 1100,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Analyze a 2GB Log File",
+      "title": "Ticket 1 \u2014 File Operations & Archiving",
       "ticket_slug": "ticket-1",
-      "description": "Given a large log,\nFind\nErrors\nWarnings\nTop 20 IPs\nFailed requests\nGenerate a summary.",
-      "tasks": [],
+      "description": "Safely create, copy, move, and manage files and directories.\nLearn to archive and compress files efficiently.\nUnderstand the differences between various types of file links.",
+      "xp_reward": 200,
+      "tasks": [
+        {
+          "title": "Task 2.1.1 \u2014 CRUD Operations",
+          "task_slug": "task-2-1-1",
+          "description": "Build directory structures and practice essential file operations such as copying, moving, and securely removing data.",
+          "points": 60,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.1.2 \u2014 tar, gzip, zip",
+          "task_slug": "task-2-1-2",
+          "description": "Learn how to bundle multiple files into archives and compress them to save storage space.",
+          "points": 70,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.1.3 \u2014 Links: Hard vs Soft",
+          "task_slug": "task-2-1-3",
+          "description": "Create different types of file links and observe how they behave when original files are modified or deleted.",
+          "points": 70,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 1,
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
-      "title": "Ticket 2 \u2014 Build a Disk Cleanup Tool",
+      "title": "Ticket 2 \u2014 Permissions, Ownership & ACLs",
       "ticket_slug": "ticket-2",
-      "description": "Create a Bash script that\nFinds duplicate files\nFinds empty folders\nFinds files over 500MB\nDeletes cache\nPrint reclaimed space.",
-      "tasks": [],
+      "description": "Configure access permissions using various notations.\nUnderstand special permissions and their security implications.\nApply default permissions and extended access control lists.",
+      "xp_reward": 300,
+      "tasks": [
+        {
+          "title": "Task 2.2.1 \u2014 chmod & chown",
+          "task_slug": "task-2-2-1",
+          "description": "Practice securing files by assigning precise permissions and changing file ownership to specific users and groups.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.2.2 \u2014 Special Permissions",
+          "task_slug": "task-2-2-2",
+          "description": "Explore advanced permission settings and understand how they impact system security and executable behaviors.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.2.3 \u2014 umask & ACLs",
+          "task_slug": "task-2-2-3",
+          "description": "Configure default permissions for new files and establish fine-grained access control rules for specific users.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 2,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 3 \u2014 Create an Automatic Backup System",
+      "title": "Ticket 3 \u2014 Text Processing Power Tools",
       "ticket_slug": "ticket-3",
-      "description": "Backup\nprojects/\nCompress\nTimestamp\nKeep last 7 backups.",
-      "tasks": [],
+      "description": "Extract specific information from logs using pattern matching.\nPerform automated text transformations on data streams.\nAggregate and analyze structured data efficiently.",
+      "xp_reward": 300,
+      "tasks": [
+        {
+          "title": "Task 2.3.1 \u2014 grep & regex",
+          "task_slug": "task-2-3-1",
+          "description": "Learn to search through text files and extract specific patterns like IP addresses, dates, or error codes using regular expressions.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.3.2 \u2014 sed & Stream Editing",
+          "task_slug": "task-2-3-2",
+          "description": "Automate text editing tasks by performing in-place substitutions, deletions, and multi-line transformations on configuration files.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.3.3 \u2014 awk for Reporting",
+          "task_slug": "task-2-3-3",
+          "description": "Process structured data files to calculate totals, filter information based on thresholds, and generate formatted reports.",
+          "points": 100,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
       "order_index": 3,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 4 \u2014 Monitor Running Processes",
-      "ticket_slug": "ticket-4",
-      "description": "Build a script that reports\nTop CPU consumers\nTop Memory consumers\nZombie processes\nProcesses older than 24 hours",
-      "tasks": [],
-      "order_index": 4,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 5 \u2014 Diagnose Network Problems",
-      "ticket_slug": "ticket-5",
-      "description": "Find\nCurrent IP\nGateway\nDNS\nOpen ports\nSlow connections\nDocument findings.",
-      "tasks": [],
-      "order_index": 5,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 6 \u2014 Build a System Information Command",
-      "ticket_slug": "ticket-6",
-      "description": "Create\nsystem-info\nOutput\nCPU\nRAM\nDisk\nOS\nKernel\nIP\nUptime\nTemperature",
-      "tasks": [],
-      "order_index": 6,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 7 \u2014 Automate Daily Tasks",
-      "ticket_slug": "ticket-7",
-      "description": "Create\ndaily-maintenance.sh\nIt should\nUpdate packages\nDelete temp files\nBackup projects\nShow disk usage",
-      "tasks": [],
-      "order_index": 7,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 8 \u2014 Build Your Own Linux Toolbox",
-      "ticket_slug": "ticket-8",
-      "description": "Create\nlinux-tools/\nInclude\nBackup\nCleanup\nMonitor\nSearch\nNetwork checker",
-      "tasks": [],
-      "order_index": 8,
       "difficulty": "MEDIUM"
     }
   ],

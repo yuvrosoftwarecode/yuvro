@@ -25,8 +25,14 @@ class LabViewSet(viewsets.ModelViewSet):
 class LabSprintViewSet(viewsets.ModelViewSet):
     queryset = LabSprint.objects.all()
     serializer_class = LabSprintSerializer
-    filterset_fields = ['lab']
     
+    def get_queryset(self):
+        queryset = LabSprint.objects.all()
+        lab = self.request.query_params.get('lab')
+        if lab is not None:
+            queryset = queryset.filter(lab=lab)
+        return queryset
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
@@ -38,7 +44,13 @@ class LabSprintViewSet(viewsets.ModelViewSet):
 class LabSprintTicketViewSet(viewsets.ModelViewSet):
     queryset = LabSprintTicket.objects.all()
     serializer_class = LabSprintTicketSerializer
-    filterset_fields = ['sprint']
+    
+    def get_queryset(self):
+        queryset = LabSprintTicket.objects.all()
+        sprint = self.request.query_params.get('sprint')
+        if sprint is not None:
+            queryset = queryset.filter(sprint=sprint)
+        return queryset
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:

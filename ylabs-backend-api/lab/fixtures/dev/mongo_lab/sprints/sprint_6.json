@@ -1,0 +1,103 @@
+{
+  "title": "Sprint 6 \u2014 Real-World Patterns & Capstone",
+  "description": "Apply everything learned. Build a real data model, optimize it, and solve production-grade queries.",
+  "xp_pool": 500,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Change Streams & Real-Time Data",
+      "ticket_slug": "ticket-1",
+      "description": "Watch for collection changes.\nUse filtered change streams.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 6.1.1 \u2014 Watch for Collection Changes",
+          "task_slug": "task-6-1-1",
+          "description": "Listen for real-time changes to data in a collection using change streams.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 6.1.2 \u2014 Filtered Change Streams",
+          "task_slug": "task-6-1-2",
+          "description": "Process only specific types of changes in real-time by applying filters to change streams.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Advanced Patterns",
+      "ticket_slug": "ticket-2",
+      "description": "Apply the computed pattern.\nApply the outlier pattern.\nApply the polymorphic pattern.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 6.2.1 \u2014 The Computed Pattern",
+          "task_slug": "task-6-2-1",
+          "description": "Optimize read performance by pre-computing and storing values that are frequently read but rarely updated.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 6.2.2 \u2014 The Outlier Pattern",
+          "task_slug": "task-6-2-2",
+          "description": "Handle edge cases in your data model, such as documents that exceed the maximum size limit.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 6.2.3 \u2014 The Polymorphic Pattern",
+          "task_slug": "task-6-2-3",
+          "description": "Design collections to store documents with similar but slightly varying schemas.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Capstone Project",
+      "ticket_slug": "ticket-3",
+      "description": "Design and build a complete data model.\nBuild an analytics dashboard pipeline.\nHarden the system for production.",
+      "xp_reward": 250,
+      "tasks": [
+        {
+          "title": "Task 6.3.1 \u2014 Design & Build a Complete Data Model",
+          "task_slug": "task-6-3-1",
+          "description": "Apply advanced data modeling patterns to build a robust schema for a complex application.",
+          "points": 100,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 6.3.2 \u2014 Analytics Dashboard Pipeline",
+          "task_slug": "task-6-3-2",
+          "description": "Construct a comprehensive aggregation pipeline to power a data-intensive analytics dashboard.",
+          "points": 80,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 6.3.3 \u2014 Production Hardening",
+          "task_slug": "task-6-3-3",
+          "description": "Implement security, performance, and reliability best practices to prepare a database for production.",
+          "points": 70,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "HARD"
+    }
+  ],
+  "order_index": 6,
+  "lab_title": "MongoDB Lab"
+}
