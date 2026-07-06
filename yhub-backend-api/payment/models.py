@@ -8,14 +8,10 @@ class PaymentGateway(models.TextChoices):
 
 
 class PaymentStatus(models.TextChoices):
-    INITIATED = "initiated", "Initiated"
-    ORDER_CREATED = "order_created", "Order Created"
-    PROCESSING = "processing", "Processing"
     CREATED = "created", "Created"
     PENDING = "pending", "Pending"
     AUTHORIZED = "authorized", "Authorized"
     SUCCESS_OR_CAPTURED = "success_or_captured", "Success or Captured"
-    SUCCESS = "success", "Success"
     FAILED = "failed", "Failed"
     CANCELLED = "cancelled", "Cancelled"
     EXPIRED = "expired", "Expired"
@@ -61,7 +57,7 @@ class Payment(models.Model):
     status = models.CharField(
         max_length=20,
         choices=PaymentStatus.choices,
-        default=PaymentStatus.INITIATED,
+        default=PaymentStatus.CREATED,
     )
 
     gateway_order_or_intent_id = models.CharField(max_length=255, blank=True, null=True)

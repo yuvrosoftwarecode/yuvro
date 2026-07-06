@@ -77,7 +77,7 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
                 return Response({"message": "Invalid signature", "status": "FAILED"}, status=status.HTTP_400_BAD_REQUEST)
 
         payment.gateway_payment_or_charge_id = gateway_payment_id
-        payment.status = PaymentStatus.SUCCESS
+        payment.status = PaymentStatus.SUCCESS_OR_CAPTURED
         payment.completed_at = timezone.now()
         payment.save(update_fields=["gateway_payment_or_charge_id", "status", "completed_at"])
 
