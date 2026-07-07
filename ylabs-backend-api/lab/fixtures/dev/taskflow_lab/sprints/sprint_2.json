@@ -1,0 +1,348 @@
+{
+  "title": "Sprint 2 \u2014 Team & Workspace Management",
+  "description": "Goal: Implement teams, workspaces, and role-based access control.",
+  "order_index": 2,
+  "lab_title": "TaskFlow - Full Stack SaaS",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Create Workspace API",
+      "ticket_slug": "ticket-2-1",
+      "description": "Build the Create Workspace API.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2014 Create Workspace API"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2014 Create Workspace API",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2014 Invite Members",
+      "ticket_slug": "ticket-2-2",
+      "description": "Implement the Invite Members functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2014 Invite Members"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2014 Invite Members",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2014 Accept Invitation",
+      "ticket_slug": "ticket-2-3",
+      "description": "Build the Accept Invitation feature.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2014 Accept Invitation"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2014 Accept Invitation",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2014 Role Management",
+      "ticket_slug": "ticket-2-4",
+      "description": "Roles:\nAdmin\nManager\nMember\nViewer",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2014 Role Management"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2014 Role Management",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2014 Workspace Switcher (React)",
+      "ticket_slug": "ticket-2-5",
+      "description": "Implement Workspace Switcher in the React frontend.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2014 Workspace Switcher (React)"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2014 Workspace Switcher (React)",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2014 Member Management Page",
+      "ticket_slug": "ticket-2-6",
+      "description": "Build the Member Management Page UI and integrate API.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2014 Member Management Page"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2014 Member Management Page",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2014 Workspace Settings",
+      "ticket_slug": "ticket-2-7",
+      "description": "Build the Workspace Settings functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2014 Workspace Settings"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2014 Workspace Settings",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Ticket 8 \u2014 Avatar Upload",
+      "ticket_slug": "ticket-2-8",
+      "description": "Implement Avatar Upload for Workspaces/Users.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 8 \u2014 Avatar Upload"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 8 \u2014 Avatar Upload",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Ticket 9 \u2014 Workspace Search",
+      "ticket_slug": "ticket-2-9",
+      "description": "Implement Workspace Search.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 9 \u2014 Workspace Search"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 9 \u2014 Workspace Search",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Ticket 10 \u2014 Deliver Complete Workspace Module",
+      "ticket_slug": "ticket-2-10",
+      "description": "Finalize and deliver the Workspace Module.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 10 \u2014 Deliver Complete Workspace Module"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 10 \u2014 Deliver Complete Workspace Module",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 10
+    }
+  ]
+}
