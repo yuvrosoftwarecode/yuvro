@@ -1,70 +1,75 @@
 {
-  "title": "Sprint 1 \u2014 Getting Comfortable with Linux",
-  "description": "Work entirely from the Linux terminal.",
+  "title": "Sprint 1 \u2014 Linux Foundations & Shell Basics",
+  "description": "Get comfortable with the terminal environment, system structure, and essential navigation concepts.",
+  "xp_pool": 900,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Install Ubuntu and Complete Initial Setup",
+      "title": "Ticket 1 \u2014 Welcome to the Shell",
       "ticket_slug": "ticket-1",
-      "description": "Task\nInstall Ubuntu Desktop or Server in a VM.\nUpdate the OS.\nInstall VS Code, Git, Curl, Htop, Tree, Vim.\nConfigure the terminal with a custom prompt.\nDeliverable\nA working Linux machine ready for development.",
-      "tasks": [],
+      "description": "Explore Linux distributions and shell architecture.\nNavigate the filesystem and understand your current location within the system.\nDiscover how to find documentation and access help for system tools.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 1.1.1 \u2014 What Is Linux?",
+          "task_slug": "task-1-1-1",
+          "description": "Discover the core components of the Linux operating system, exploring the kernel, popular distributions, and the purpose of the shell.",
+          "points": 30,
+          "method": "MCQ Quiz Engine (Method 2)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.1.2 \u2014 Your First Commands",
+          "task_slug": "task-1-1-2",
+          "description": "Gain confidence in navigating the filesystem, moving seamlessly between directories, and viewing their contents in detail.",
+          "points": 40,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.1.3 \u2014 Getting Help",
+          "task_slug": "task-1-1-3",
+          "description": "Learn how to efficiently access built-in system documentation and manual pages directly from your terminal environment.",
+          "points": 30,
+          "method": "MCQ Quiz Engine (Method 2)",
+          "order_index": 3
+        }
+      ],
       "order_index": 1,
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
-      "title": "Ticket 2 \u2014 Build Your Personal Workspace",
+      "title": "Ticket 2 \u2014 Filesystem Hierarchy Standard (FHS)",
       "ticket_slug": "ticket-2",
-      "description": "Task\nCreate a workspace like:\n~/workspace\nprojects\nscripts\ndownloads\nbackups\nnotes\nCreate everything only through terminal commands.\nAdd aliases for quickly navigating to these folders.",
-      "tasks": [],
+      "description": "Understand the standard structure of the Linux filesystem.\nDifferentiate between path types and accurately identify various file types.\nEffectively search for files and directories across the system.",
+      "xp_reward": 200,
+      "tasks": [
+        {
+          "title": "Task 1.2.1 \u2014 Directory Deep Dive",
+          "task_slug": "task-1-2-1",
+          "description": "Understand the purpose of core system directories and discover where essential configuration, operational data, and system information are stored.",
+          "points": 60,
+          "method": "MCQ Quiz Engine (Method 2)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.2.2 \u2014 File Types & Paths",
+          "task_slug": "task-1-2-2",
+          "description": "Practice navigating the system using both full and relative paths, and learn to distinguish between different types of system files and links.",
+          "points": 60,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.2.3 \u2014 Searching the Filesystem",
+          "task_slug": "task-1-2-3",
+          "description": "Master the ability to search for files across the system based on specific criteria such as name, size, type, and recent modifications.",
+          "points": 80,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 2,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 3 \u2014 Organize a Messy Downloads Folder",
-      "ticket_slug": "ticket-3",
-      "description": "Task\nGiven 100 mixed files,\nWrite commands/script that automatically moves\nPDFs\nImages\nVideos\nZIP files\nDocuments\ninto separate folders.\nNo GUI allowed.",
-      "tasks": [],
-      "order_index": 3,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 4 \u2014 Recover Lost Files",
-      "ticket_slug": "ticket-4",
-      "description": "A project folder has hundreds of files.\nFind\nevery Python file\nevery log file\nevery file larger than 50MB\nevery file modified today\nGenerate reports.",
-      "tasks": [],
-      "order_index": 4,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 5 \u2014 Create a Team Workspace",
-      "ticket_slug": "ticket-5",
-      "description": "Create\n5 users\n3 groups\nConfigure permissions so\nDevelopers can edit code\nTesters can only read\nHR cannot access Engineering folder\nTest using different users.",
-      "tasks": [],
-      "order_index": 5,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 6 \u2014 Build a Secure Shared Folder",
-      "ticket_slug": "ticket-6",
-      "description": "Requirements\nEveryone can upload files\nNobody can delete someone else's files\nOwner retains full control",
-      "tasks": [],
-      "order_index": 6,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 7 \u2014 Install Development Tools",
-      "ticket_slug": "ticket-7",
-      "description": "Install\nPython\nNode\nGit\nDocker\nMySQL Client\nVerify versions.\nCreate a shell script that installs everything automatically.",
-      "tasks": [],
-      "order_index": 7,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 8 \u2014 Deliver a Linux Development Machine",
-      "ticket_slug": "ticket-8",
-      "description": "Package everything into documentation so another developer can reproduce your environment.",
-      "tasks": [],
-      "order_index": 8,
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     }
   ],
   "order_index": 1,

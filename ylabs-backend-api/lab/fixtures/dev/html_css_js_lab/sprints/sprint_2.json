@@ -1,0 +1,145 @@
+{
+  "title": "Sprint 2 \u2014 CSS Fundamentals & Layout",
+  "description": "Bring your web pages to life with modern styling and responsive layouts, ensuring they look great on any device.",
+  "xp_pool": 500,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 CSS Basics & Box Model",
+      "ticket_slug": "ticket-1",
+      "description": "Master the basics of visual design. You will learn how to target elements for styling, control spacing, and create a consistent system for colors and typography.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 2.1.1 \u2014 Selectors & Specificity",
+          "task_slug": "task-2-1-1",
+          "description": "Apply specific visual styles to various elements on your page to create a cohesive look.",
+          "points": 35,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.1.2 \u2014 The Box Model",
+          "task_slug": "task-2-1-2",
+          "description": "Design a polished card component by carefully managing its dimensions and inner spacing.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.1.3 \u2014 Typography & Colors",
+          "task_slug": "task-2-1-3",
+          "description": "Establish a scalable typography and color system to keep your page designs consistent.",
+          "points": 45,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Flexbox",
+      "ticket_slug": "ticket-2",
+      "description": "Create flexible and dynamic layouts. You will build responsive navigation bars, adaptable grids, and easily align content.",
+      "xp_reward": 130,
+      "tasks": [
+        {
+          "title": "Task 2.2.1 \u2014 Flex Navigation Bar",
+          "task_slug": "task-2-2-1",
+          "description": "Create a modern, adaptable navigation bar to help users seamlessly browse your site.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.2.2 \u2014 Card Grid with Flexbox",
+          "task_slug": "task-2-2-2",
+          "description": "Construct a grid of content cards that automatically adjust to fit different screen sizes smoothly.",
+          "points": 45,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.2.3 \u2014 Centering Challenge",
+          "task_slug": "task-2-2-3",
+          "description": "Learn robust techniques to perfectly center various elements across your designs.",
+          "points": 45,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 CSS Grid",
+      "ticket_slug": "ticket-3",
+      "description": "Take control of complex, two-dimensional page structures and responsive galleries for advanced page organization.",
+      "xp_reward": 130,
+      "tasks": [
+        {
+          "title": "Task 2.3.1 \u2014 Grid Basics & Template Areas",
+          "task_slug": "task-2-3-1",
+          "description": "Design a comprehensive, full-page layout featuring headers, sidebars, and main content areas.",
+          "points": 45,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.3.2 \u2014 Responsive Grid Gallery",
+          "task_slug": "task-2-3-2",
+          "description": "Create a beautiful image gallery that intelligently reshapes itself based on the viewer's screen.",
+          "points": 45,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.3.3 \u2014 Grid vs Flexbox Decision Task",
+          "task_slug": "task-2-3-3",
+          "description": "Apply the right layout strategies to tackle various everyday design challenges efficiently.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Responsive Design",
+      "ticket_slug": "ticket-4",
+      "description": "Ensure your applications provide an excellent experience on screens of all sizes, starting from mobile devices.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 2.4.1 \u2014 Mobile-First Media Queries",
+          "task_slug": "task-2-4-1",
+          "description": "Optimize your page layout to gracefully adapt across mobile, tablet, and desktop views.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2.4.2 \u2014 Responsive Typography",
+          "task_slug": "task-2-4-2",
+          "description": "Make your text smoothly scale in size to maintain optimal readability on any device.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 2.4.3 \u2014 Responsive Navigation (Hamburger Menu)",
+          "task_slug": "task-2-4-3",
+          "description": "Implement a space-saving, interactive mobile menu to keep your site easily navigable on smaller screens.",
+          "points": 40,
+          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 2,
+  "lab_title": "HTML, CSS & JavaScript Lab"
+}

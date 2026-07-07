@@ -1,70 +1,143 @@
 {
-  "title": "Sprint 5 \u2014 Production Operations",
-  "description": "Handle production incidents and automate server management.",
+  "title": "Sprint 5 \u2014 System Administration & Security",
+  "description": "Master system administration by managing storage, securing user access, hardening systems, and optimizing performance.",
+  "xp_pool": 2000,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Investigate a High CPU Incident",
+      "title": "Ticket 1 \u2014 Storage & Disk Management",
       "ticket_slug": "ticket-1",
-      "description": "Find the process.\nIdentify the cause.\nResolve it.\nDocument the investigation.",
-      "tasks": [],
+      "description": "Prepare storage devices by creating partitions and filesystems.\nImplement flexible storage solutions using logical volumes.\nManage storage consumption by enforcing user and group quotas.",
+      "xp_reward": 400,
+      "tasks": [
+        {
+          "title": "Task 5.1.1 \u2014 Partitioning & Filesystems",
+          "task_slug": "task-5-1-1",
+          "description": "Initialize new storage drives, divide them into manageable partitions, apply filesystems, and ensure they are accessible upon reboot.",
+          "points": 140,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.1.2 \u2014 LVM (Logical Volume Management)",
+          "task_slug": "task-5-1-2",
+          "description": "Configure advanced storage pools, allocate flexible volumes, and expand storage capacity seamlessly without interrupting services.",
+          "points": 140,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.1.3 \u2014 Disk Quotas",
+          "task_slug": "task-5-1-3",
+          "description": "Establish storage limits for system users, defining both warning thresholds and strict boundaries to prevent disk exhaustion.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 1,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 2 \u2014 Recover from a Disk Full Incident",
+      "title": "Ticket 2 \u2014 User Administration & sudo",
       "ticket_slug": "ticket-2",
-      "description": "Locate large files.\nFree space safely.\nPrevent recurrence.",
-      "tasks": [],
+      "description": "Administer system users and groups with specific attributes.\nProvide controlled administrative access without sharing passwords.\nEnhance authentication security with robust modular policies.",
+      "xp_reward": 350,
+      "tasks": [
+        {
+          "title": "Task 5.2.1 \u2014 User & Group Management",
+          "task_slug": "task-5-2-1",
+          "description": "Create system accounts with precise identifiers, organize them into appropriate groups, and enforce strict password policies.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.2.2 \u2014 sudo Configuration",
+          "task_slug": "task-5-2-2",
+          "description": "Configure administrative privileges to allow specific users to execute essential commands securely while restricting broad access.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.2.3 \u2014 PAM Configuration",
+          "task_slug": "task-5-2-3",
+          "description": "Implement advanced authentication rules to mandate password complexity, restrict repeated failures, and enhance overall login security.",
+          "points": 110,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 2,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 3 \u2014 Build a Server Health Dashboard",
+      "title": "Ticket 3 \u2014 System Security & Hardening",
       "ticket_slug": "ticket-3",
-      "description": "Create a Bash script that reports\nCPU\nMemory\nDisk\nLoad\nRunning services\nFailed services",
-      "tasks": [],
+      "description": "Secure remote access configurations against common vulnerabilities.\nEnforce mandatory access controls to limit application behaviors.\nEstablish comprehensive logging to audit system activity and compliance.",
+      "xp_reward": 500,
+      "tasks": [
+        {
+          "title": "Task 5.3.1 \u2014 SSH Hardening",
+          "task_slug": "task-5-3-1",
+          "description": "Strengthen remote access by restricting administrative logins, requiring cryptographic keys, and implementing connection rate limits.",
+          "points": 180,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.3.2 \u2014 SELinux / AppArmor",
+          "task_slug": "task-5-3-2",
+          "description": "Enable strict access control policies, troubleshoot permission denials, and create custom security profiles for specific applications.",
+          "points": 160,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.3.3 \u2014 Audit & Compliance",
+          "task_slug": "task-5-3-3",
+          "description": "Configure the system to record critical security events, track sensitive file access, and analyze the resulting audit trails.",
+          "points": 160,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 3,
-      "difficulty": "MEDIUM"
+      "difficulty": "HARD"
     },
     {
-      "title": "Ticket 4 \u2014 Automate User Provisioning",
+      "title": "Ticket 4 \u2014 Performance Monitoring & Tuning",
       "ticket_slug": "ticket-4",
-      "description": "Given a CSV of employees,\nAutomatically\nCreate users\nAssign groups\nCreate home directories\nSet permissions",
-      "tasks": [],
+      "description": "Identify performance bottlenecks across various system resources.\nOptimize system behavior by adjusting kernel parameters.\nIsolate applications and restrict their resource consumption.",
+      "xp_reward": 450,
+      "tasks": [
+        {
+          "title": "Task 5.4.1 \u2014 System Monitoring",
+          "task_slug": "task-5-4-1",
+          "description": "Establish performance baselines and utilize diagnostic tools to pinpoint whether issues stem from processing, memory, or storage constraints.",
+          "points": 150,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.4.2 \u2014 Kernel Tuning with sysctl",
+          "task_slug": "task-5-4-2",
+          "description": "Modify core system parameters to optimize behavior under high loads and ensure these optimizations persist across restarts.",
+          "points": 150,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.4.3 \u2014 cgroups & Resource Limits",
+          "task_slug": "task-5-4-3",
+          "description": "Implement strict resource boundaries to limit the maximum processing power and memory that specific applications can consume.",
+          "points": 150,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 4,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 5 \u2014 Build a Log Monitoring System",
-      "ticket_slug": "ticket-5",
-      "description": "Continuously monitor logs.\nAlert when\nERROR appears\nDisk reaches 90%\nService stops",
-      "tasks": [],
-      "order_index": 5,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 6 \u2014 Perform a Complete Server Backup and Restore",
-      "ticket_slug": "ticket-6",
-      "description": "Take a backup.\nDelete the application.\nRestore everything successfully.\nVerify data integrity.",
-      "tasks": [],
-      "order_index": 6,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 7 \u2014 Secure a Production Server",
-      "ticket_slug": "ticket-7",
-      "description": "Apply a security checklist including:\nDisable root SSH login\nEnforce SSH key authentication\nConfigure automatic security updates\nInstall and configure Fail2Ban\nRemove unused packages and services\nAudit user accounts and permissions\nDocument every change and verify the server remains accessible.",
-      "tasks": [],
-      "order_index": 7,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 8 \u2014 Capstone: Build a Production Linux Server",
-      "ticket_slug": "ticket-8",
-      "description": "Provision a fresh Ubuntu server and configure it end-to-end:\nSecure remote access with SSH keys\nFirewall and intrusion protection\nDocker and Docker Compose\nPostgreSQL or MySQL\nNginx reverse proxy\nDeploy a Django application\nAutomated backups\nHealth monitoring scripts\nLog management\nOne-command deployment script\nComplete setup and recovery documentation",
-      "tasks": [],
-      "order_index": 8,
-      "difficulty": "MEDIUM"
+      "difficulty": "HARD"
     }
   ],
   "order_index": 5,
