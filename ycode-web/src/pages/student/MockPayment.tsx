@@ -105,6 +105,10 @@ const PaymentPage: React.FC = () => {
                                 throw new Error(backendResponse.message || 'Contest registration failed');
                             }
                         } else {
+                            await yhubApiUtil.post('/payment/fail/', {
+                                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                                reason: 'Payment signature verification failed'
+                            });
                             throw new Error(verifyRes.message || 'Payment signature verification failed');
                         }
                     } catch (error: any) {
@@ -121,14 +125,35 @@ const PaymentPage: React.FC = () => {
                     color: '#4f46e5'
                 },
                 modal: {
-                    ondismiss: function() {
+                    ondismiss: async function() {
                         setStatus('pending');
                         toast.info('Payment cancelled');
+                        try {
+                            await yhubApiUtil.post('/payment/fail/', {
+                                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                                reason: 'User closed the payment modal'
+                            });
+                        } catch (e) {
+                            console.error('Failed to report cancellation', e);
+                        }
                     }
                 }
             };
 
             const paymentObject = new (window as any).Razorpay(options);
+            
+            paymentObject.on('payment.failed', async function (response: any) {
+                try {
+                    await yhubApiUtil.post('/payment/fail/', {
+                        gateway_order_id: orderRes.gateway_order_or_intent_id,
+                        gateway_payment_id: response.error.metadata.payment_id,
+                        reason: response.error.description || 'Payment failed in gateway'
+                    });
+                } catch (e) {
+                    console.error('Failed to report payment failure', e);
+                }
+            });
+
             paymentObject.open();
 
         } catch (error: any) {

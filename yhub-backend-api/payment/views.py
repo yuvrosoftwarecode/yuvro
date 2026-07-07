@@ -36,6 +36,14 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             )
             purpose = f"Payment for {item_type} {item_id}"
 
+        # Find existing pending payment
+        existing_payment = None
+        if purchasable_item:
+            existing_payment = Payment.objects.filter(
+                user=request.user,
+                purchasable_item=purchasable_item
+            ).exclude(status__in=[PaymentStatus.SUCCESS_OR_CAPTURED, PaymentStatus.REFUNDED]).first()
+
         payment_service = PaymentService()
         payment = payment_service.create_payment(
             user=request.user,
@@ -45,6 +53,7 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             description=serializer.validated_data.get("description", ""),
             metadata=serializer.validated_data.get("metadata") or {},
             gateway_name=serializer.validated_data.get("gateway", "razorpay"),
+            payment=existing_payment
         )
         
         if purchasable_item:
@@ -79,7 +88,29 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         payment.gateway_payment_or_charge_id = gateway_payment_id
         payment.status = PaymentStatus.SUCCESS_OR_CAPTURED
         payment.completed_at = timezone.now()
-        payment.save(update_fields=["gateway_payment_or_charge_id", "status", "completed_at"])
+        payment.latest_successfull_payment = {
+            "status": PaymentStatus.SUCCESS_OR_CAPTURED.value,
+            "amount": float(payment.amount),
+            "currency": payment.currency,
+            "gateway_order_id": gateway_order_id,
+            "gateway_payment_id": gateway_payment_id,
+            "signature": signature,
+            "verified_at": payment.completed_at.isoformat()
+        }
+        
+        # append the successful attempt
+        attempts = list(payment.payment_attempts)
+        attempts.append({
+            "attempt_number": len(attempts) + 1,
+            "gateway_payment_id": gateway_payment_id,
+            "amount": float(payment.amount),
+            "currency": payment.currency,
+            "status": PaymentStatus.SUCCESS_OR_CAPTURED.value,
+            "signature": signature
+        })
+        payment.payment_attempts = attempts
+
+        payment.save(update_fields=["gateway_payment_or_charge_id", "status", "completed_at", "latest_successfull_payment", "payment_attempts"])
 
         if payment.purchasable_item:
             UserEntitlement.objects.create(
@@ -89,6 +120,38 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             )
 
         return Response({"status": "SUCCESS", "message": "Payment verified successfully"})
+
+    @action(detail=False, methods=["post"], url_path="fail")
+    def fail(self, request):
+        gateway_order_id = request.data.get("gateway_order_id")
+        reason = request.data.get("reason", "Payment failed or cancelled by user")
+        
+        if not gateway_order_id:
+            return Response({"message": "Missing gateway_order_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            payment = Payment.objects.get(gateway_order_or_intent_id=gateway_order_id, user=request.user)
+        except Payment.DoesNotExist:
+            return Response({"message": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if payment.status not in [PaymentStatus.SUCCESS_OR_CAPTURED, PaymentStatus.REFUNDED]:
+            payment.status = PaymentStatus.FAILED
+            payment.failure_reason = reason
+            
+            attempts = list(payment.payment_attempts)
+            attempts.append({
+                "attempt_number": len(attempts) + 1,
+                "gateway_payment_id": request.data.get("gateway_payment_id"),
+                "amount": float(payment.amount),
+                "currency": payment.currency,
+                "status": PaymentStatus.FAILED.value,
+                "failure_reason": reason
+            })
+            payment.payment_attempts = attempts
+            
+            payment.save(update_fields=["status", "failure_reason", "payment_attempts"])
+
+        return Response({"status": "FAILED", "message": "Payment marked as failed"})
 
     def retrieve(self, request, *args, **kwargs):
         payment = self.get_object()
