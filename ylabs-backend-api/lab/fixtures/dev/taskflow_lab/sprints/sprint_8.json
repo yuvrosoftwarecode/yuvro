@@ -1,0 +1,348 @@
+{
+  "title": "Sprint 8 \u2014 Deployment & DevOps",
+  "description": "Goal: Dockerize and deploy the application using a CI/CD pipeline.",
+  "order_index": 8,
+  "lab_title": "TaskFlow - Full Stack SaaS",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Dockerize React",
+      "ticket_slug": "ticket-8-1",
+      "description": "Create Dockerfile for React frontend.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2014 Dockerize React"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2014 Dockerize React",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2014 Dockerize Express",
+      "ticket_slug": "ticket-8-2",
+      "description": "Create Dockerfile for Express backend.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2014 Dockerize Express"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2014 Dockerize Express",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2014 Docker Compose",
+      "ticket_slug": "ticket-8-3",
+      "description": "Create docker-compose.yml for Application, Database, Redis.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2014 Docker Compose"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2014 Docker Compose",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2014 Configure Nginx Reverse Proxy",
+      "ticket_slug": "ticket-8-4",
+      "description": "Configure Nginx Reverse Proxy.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2014 Configure Nginx Reverse Proxy"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2014 Configure Nginx Reverse Proxy",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2014 GitHub Actions CI/CD",
+      "ticket_slug": "ticket-8-5",
+      "description": "Set up GitHub Actions CI/CD pipeline.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2014 GitHub Actions CI/CD"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2014 GitHub Actions CI/CD",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2014 Deploy Backend",
+      "ticket_slug": "ticket-8-6",
+      "description": "Deploy the Backend.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2014 Deploy Backend"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2014 Deploy Backend",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2014 Deploy Frontend",
+      "ticket_slug": "ticket-8-7",
+      "description": "Deploy the Frontend.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2014 Deploy Frontend"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2014 Deploy Frontend",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Ticket 8 \u2014 Configure Domain & HTTPS",
+      "ticket_slug": "ticket-8-8",
+      "description": "Configure Domain & HTTPS.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 8 \u2014 Configure Domain & HTTPS"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 8 \u2014 Configure Domain & HTTPS",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Ticket 9 \u2014 Monitoring & Health Checks",
+      "ticket_slug": "ticket-8-9",
+      "description": "Implement Monitoring & Health Checks (/health endpoint, Application logs, Uptime monitoring).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 9 \u2014 Monitoring & Health Checks"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 9 \u2014 Monitoring & Health Checks",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Ticket 10 \u2014 Final Capstone",
+      "ticket_slug": "ticket-8-10",
+      "description": "Deliver a production-ready TaskFlow application with all specified requirements.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 10 \u2014 Final Capstone"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 10 \u2014 Final Capstone",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 10
+    }
+  ]
+}

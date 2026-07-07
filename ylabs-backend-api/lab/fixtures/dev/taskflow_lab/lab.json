@@ -1,0 +1,24 @@
+{
+  "labs": [
+    {
+      "title": "TaskFlow - Full Stack SaaS",
+      "type": "FULL_STACK",
+      "description": "Build a production-grade SaaS application (similar to Jira + Trello) from scratch across 8 sprints.",
+      "difficulty": "HARD",
+      "icon": "AppWindow",
+      "skills": [
+        "React",
+        "Express",
+        "Node.js",
+        "MongoDB",
+        "PostgreSQL",
+        "Docker",
+        "DevOps",
+        "Authentication"
+      ],
+      "prerequisites": "Basic understanding of JavaScript and web development.",
+      "git_repo_starter_url": "https://github.com/yuvro/taskflow-starter",
+      "is_active": true
+    }
+  ]
+}
