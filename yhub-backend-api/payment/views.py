@@ -22,7 +22,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         serializer = PaymentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Link to PurchasableItem if provided
         item_type = serializer.validated_data.get("item_type")
         item_id = serializer.validated_data.get("item_id")
         purchasable_item = None
@@ -36,7 +35,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             )
             purpose = f"Payment for {item_type} {item_id}"
 
-        # Find existing pending payment
         existing_payment = None
         if purchasable_item:
             existing_payment = Payment.objects.filter(
@@ -79,7 +77,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         service = PaymentService()
         gateway = service.gateway_factory.get_gateway(payment.gateway)
         
-        # Verify signature
         if hasattr(gateway, 'verify_signature'):
             is_valid = gateway.verify_signature(gateway_order_id, gateway_payment_id, signature)
             if not is_valid:
@@ -98,7 +95,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             "verified_at": payment.completed_at.isoformat()
         }
         
-        # append the successful attempt
         attempts = list(payment.payment_attempts)
         attempts.append({
             "attempt_number": len(attempts) + 1,

@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { RestApiUtil } from '@/utils/RestApiUtil';
 import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 
-// We now use the authenticated yhubApiAuthUtil
 const yhubApiUtil = yhubApiAuthUtil;
 
 const loadRazorpayScript = () => {
@@ -58,7 +57,6 @@ const PaymentPage: React.FC = () => {
         try {
             const amount = getTokenAmount();
             
-            // 1. Create the Razorpay order securely on the backend (yhub)
             const orderRes = await yhubApiUtil.post<{
                 id: string;
                 gateway_order_or_intent_id: string;
@@ -77,15 +75,15 @@ const PaymentPage: React.FC = () => {
             }
 
             const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T56EPoR3Lpa9xz', // Public Key ID (matches backend test key)
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: amount,
                 currency: 'INR',
                 name: 'Yuvro Code',
                 description: 'Contest Registration Payment',
-                order_id: orderRes.gateway_order_or_intent_id, // Order ID from backend
+                order_id: orderRes.gateway_order_or_intent_id, 
                 handler: async function (response: any) {
                     try {
-                        // 2. Verify signature securely on the backend (yhub)
+                       
                         const verifyRes = await yhubApiUtil.post<{ status: string; message: string }>('/payment/verify/', {
                             gateway_order_id: response.razorpay_order_id,
                             gateway_payment_id: response.razorpay_payment_id,
@@ -93,7 +91,6 @@ const PaymentPage: React.FC = () => {
                         });
                         
                         if (verifyRes.status === 'SUCCESS') {
-                            // 3. Mark the contest registration as complete in ycode assessment service
                             const backendResponse = await contestService.verifyPayment(contestId!, token!);
                             
                             if (backendResponse.status === 'success') {
