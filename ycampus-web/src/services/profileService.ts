@@ -195,7 +195,7 @@ export const uploadProfileImage = async (
   const form = new FormData();
   form.append('image', file);
   form.append('field', field);
-  return restApiAuthUtil.post<Profile>('/auth/profile/upload-image/', form);
+  return restApiAuthUtil.post<Profile>('/auth/profile/upload-file/', form);
 };
 
 export const deleteProfileImage = async () => {
