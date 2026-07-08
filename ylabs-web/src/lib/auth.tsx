@@ -15,6 +15,7 @@ export interface User {
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
+  github_connected?: boolean;
   profile?: {
     about?: string;
     avatar?: string;

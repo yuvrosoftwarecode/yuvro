@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollaborationIndexRouteImport } from './routes/collaboration.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as LabSlugRouteImport } from './routes/lab.$slug'
+import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as CollaborationSquadsRouteImport } from './routes/collaboration.squads'
 import { Route as CollaborationConnectionsRouteImport } from './routes/collaboration.connections'
 import { Route as CollaborationBrowseRouteImport } from './routes/collaboration.browse'
@@ -116,6 +117,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const LabSlugRoute = LabSlugRouteImport.update({
   id: '/lab/$slug',
   path: '/lab/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GithubCallbackRoute = GithubCallbackRouteImport.update({
+  id: '/github/callback',
+  path: '/github/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollaborationSquadsRoute = CollaborationSquadsRouteImport.update({
@@ -304,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/collaboration/browse': typeof CollaborationBrowseRoute
   '/collaboration/connections': typeof CollaborationConnectionsRoute
   '/collaboration/squads': typeof CollaborationSquadsRoute
+  '/github/callback': typeof GithubCallbackRoute
   '/lab/$slug': typeof LabSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/collaboration/': typeof CollaborationIndexRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByTo {
   '/collaboration/browse': typeof CollaborationBrowseRoute
   '/collaboration/connections': typeof CollaborationConnectionsRoute
   '/collaboration/squads': typeof CollaborationSquadsRoute
+  '/github/callback': typeof GithubCallbackRoute
   '/lab/$slug': typeof LabSlugRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/collaboration': typeof CollaborationIndexRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/collaboration/browse': typeof CollaborationBrowseRoute
   '/collaboration/connections': typeof CollaborationConnectionsRoute
   '/collaboration/squads': typeof CollaborationSquadsRoute
+  '/github/callback': typeof GithubCallbackRoute
   '/lab/$slug': typeof LabSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/collaboration/': typeof CollaborationIndexRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/collaboration/browse'
     | '/collaboration/connections'
     | '/collaboration/squads'
+    | '/github/callback'
     | '/lab/$slug'
     | '/admin/'
     | '/collaboration/'
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/collaboration/browse'
     | '/collaboration/connections'
     | '/collaboration/squads'
+    | '/github/callback'
     | '/lab/$slug'
     | '/admin'
     | '/collaboration'
@@ -526,6 +537,7 @@ export interface FileRouteTypes {
     | '/collaboration/browse'
     | '/collaboration/connections'
     | '/collaboration/squads'
+    | '/github/callback'
     | '/lab/$slug'
     | '/admin/'
     | '/collaboration/'
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   ForumRoute: typeof ForumRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ProfileRoute: typeof ProfileRoute
+  GithubCallbackRoute: typeof GithubCallbackRoute
   LabSlugRoute: typeof LabSlugRouteWithChildren
 }
 
@@ -649,6 +662,13 @@ declare module '@tanstack/react-router' {
       path: '/lab/$slug'
       fullPath: '/lab/$slug'
       preLoaderRoute: typeof LabSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/github/callback': {
+      id: '/github/callback'
+      path: '/github/callback'
+      fullPath: '/github/callback'
+      preLoaderRoute: typeof GithubCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collaboration/squads': {
@@ -1019,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForumRoute: ForumRoute,
   LeaderboardRoute: LeaderboardRoute,
   ProfileRoute: ProfileRoute,
+  GithubCallbackRoute: GithubCallbackRoute,
   LabSlugRoute: LabSlugRouteWithChildren,
 }
 export const routeTree = rootRouteImport

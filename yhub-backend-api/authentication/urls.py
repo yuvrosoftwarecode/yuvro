@@ -23,4 +23,6 @@ urlpatterns = [
     ),
     path("change-password/", views.change_password_view, name="change_password"),
     path("admin-users/", admin_users, name="admin_users"),
+    path("github/connect/", views.GithubConnectView.as_view(), name="github_connect"),
+    path("internal/github-token/<uuid:user_id>/", views.internal_github_token_view, name="internal_github_token"),
 ]

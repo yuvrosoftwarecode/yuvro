@@ -18,6 +18,11 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+from rest_framework.views import APIView
+from .models import GithubConnection
+import base64
+import os   
+
 from authentication.permissions import (
     IsAdminUser,
     IsAuthenticatedUser,
@@ -320,3 +325,101 @@ def change_password_view(request):
 def admin_users(request):
     admins = User.objects.filter(is_staff=True).values("id", "email", "username")
     return Response(list(admins))
+
+class GithubConnectView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def get(self, request):
+        client_id = getattr(settings, 'GITHUB_CLIENT_ID', os.environ.get('GITHUB_CLIENT_ID'))
+        redirect_uri = getattr(settings, 'GITHUB_REDIRECT_URI', os.environ.get('GITHUB_REDIRECT_URI'))
+        
+        if not client_id:
+            return Response({"error": "GitHub client ID not configured"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        github_url = f"https://github.com/login/oauth/authorize?client_id={client_id}&scope=repo,read:user"
+        if redirect_uri:
+            github_url += f"&redirect_uri={redirect_uri}"
+        
+        return Response({"authorization_url": github_url})
+
+    def post(self, request):
+        code = request.data.get("code")
+        
+        if not code:
+            return Response({"error": "Authorization code is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        client_id = getattr(settings, 'GITHUB_CLIENT_ID', os.environ.get('GITHUB_CLIENT_ID'))
+        client_secret = getattr(settings, 'GITHUB_CLIENT_SECRET', os.environ.get('GITHUB_CLIENT_SECRET'))
+        redirect_uri = getattr(settings, 'GITHUB_REDIRECT_URI', os.environ.get('GITHUB_REDIRECT_URI'))
+        
+        token_url = "https://github.com/login/oauth/access_token"
+        headers = {"Accept": "application/json"}
+        data = {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+        }
+        if redirect_uri:
+            data["redirect_uri"] = redirect_uri
+        
+        response = http_requests.post(token_url, headers=headers, data=data)
+        if response.status_code != 200:
+            return Response({"error": "Failed to exchange token with GitHub"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        token_data = response.json()
+        access_token = token_data.get("access_token")
+        scopes = token_data.get("scope", "")
+        
+        if not access_token:
+            return Response({"error": f"No access token in GitHub response. GitHub said: {token_data}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user_url = "https://api.github.com/user"
+        user_headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+        user_response = http_requests.get(user_url, headers=user_headers)
+        
+        if user_response.status_code != 200:
+            logger.error(f"GitHub user info failed: {user_response.status_code} {user_response.text}")
+            return Response({"error": f"Failed to get user info from GitHub: {user_response.text}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        github_user_info = user_response.json()
+        github_user_id = str(github_user_info.get("id"))
+        github_username = github_user_info.get("login")
+        
+        encrypted_token = base64.b64encode(access_token.encode()).decode()
+        
+        connection, created = GithubConnection.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "github_user_id": github_user_id,
+                "github_username": github_username,
+                "access_token": encrypted_token,
+                "scopes": scopes
+            }
+        )
+        
+        return Response({"message": "GitHub connected successfully", "github_username": github_username})
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def internal_github_token_view(request, user_id):
+    internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
+    provided_secret = request.headers.get('X-Internal-Secret')
+    
+    if not provided_secret or provided_secret != internal_secret:
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        
+    try:
+        connection = GithubConnection.objects.get(user_id=user_id)
+    except GithubConnection.DoesNotExist:
+        return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    import base64
+    try:
+        decrypted_token = base64.b64decode(connection.access_token).decode()
+    except Exception:
+        return Response({"error": "Failed to decrypt token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return Response({
+        "github_username": connection.github_username,
+        "access_token": decrypted_token,
+    })

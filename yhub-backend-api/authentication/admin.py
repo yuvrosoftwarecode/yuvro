@@ -1,8 +1,29 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, GithubConnection
 
 
+@admin.register(GithubConnection)
+class GithubConnectionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'github_username', 'github_user_id', 'scopes', 'connected_at', 'updated_at')
+    search_fields = ('user__email', 'user__username', 'github_username', 'github_user_id')
+    list_filter = ('connected_at', 'updated_at')
+    readonly_fields = ('id', 'access_token', 'connected_at', 'updated_at')
+    
+    fieldsets = (
+        (None, {
+            'fields': ('id', 'user')
+        }),
+        ('GitHub Details', {
+            'fields': ('github_username', 'github_user_id', 'scopes')
+        }),
+        ('Security & Tokens', {
+            'fields': ('access_token',)
+        }),
+        ('Timestamps', {
+            'fields': ('connected_at', 'updated_at')
+        }),
+    )
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = (

@@ -74,11 +74,11 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<User> {
-    return await restApiAuthUtil.get<User>('/auth/user/');
+    return await yhubApiAuthUtil.get<User>('/auth/user/');
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
-    return await restApiAuthUtil.put<User>('/auth/user/', userData);
+    return await yhubApiAuthUtil.put<User>('/auth/user/', userData);
   }
 
   async logoutUser(): Promise<void> {
