@@ -501,7 +501,7 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticatedUser])
 def upload_profile_image(request):
     """
-    POST /api/auth/profile/upload-image/
+    POST /api/auth/profile/upload-file/
 
     multipart/form-data:
         image:    file (required, ≤10 MB)

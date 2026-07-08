@@ -367,7 +367,7 @@ Open http://127.0.0.1:8000/ to use the app.
 
 /* ---------- Per-lab starter kits ---------- */
 
-type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui";
+type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -642,6 +642,15 @@ your code live (it re-runs whenever you save).
   },
 };
 
+const LINUX_KIT_DEFAULT: Kit = {
+  name: "bash", rootLabel: "linux-lab", primary: "script.sh", runtime: "Ubuntu 24.04 · Bash",
+  fileList: ["script.sh", "README.md"],
+  files: {
+    "script.sh": `#!/usr/bin/env bash\n\n# Write your solution here\n`,
+    "README.md": `# Linux Lab\n\nWrite your bash script in \`script.sh\` and run it.\n`,
+  },
+};
+
 function getKit(slug: string, tag: string): Kit {
   if (tag === "Django Todo") {
     return {
@@ -654,6 +663,7 @@ function getKit(slug: string, tag: string): Kit {
   if (slug === "sql") return SQL_KIT_DEFAULT;
   if (slug === "mongo") return MONGO_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
+  if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
   return {
     name: "java", rootLabel: "java-101", primary: "Main.java", runtime: "Java 17",
     fileList: [...FILE_LIST],
@@ -673,24 +683,88 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
+  const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+
+  const [resolvedTicket, setResolvedTicket] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    setResolvedTicket(null);
+
+    const dummyTicket = tickets.find((t) => t.id === ticketId);
+    if (dummyTicket) {
+      setResolvedTicket(dummyTicket);
+      setLoading(false);
+      return;
+    }
+
+    let active = true;
+    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+      api.get<any>(`/lab/tickets/${ticketId}/`)
+        .then(t => {
+          if (!active) return;
+          setResolvedTicket({
+            id: t.id,
+            title: t.title,
+            description: t.description ?? "",
+            difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+            xp: t.yuvro_points ?? 100,
+            estMin: t.minutes_max ?? 30,
+            tag: t.accepted_programming_languages?.[0] ?? "bash",
+            status: "Not Started",
+          });
+          setLoading(false);
+        })
+        .catch(() => {
+          if (active) {
+            // show first dummy ticket as safe fallback (shouldn't normally reach here)
+            setResolvedTicket(tickets[0]);
+            setLoading(false);
+          }
+        });
+    });
+    return () => { active = false; };
+  }, [ticketId]);
+
+  if (reviewMatch) return <Outlet />;
+
+  if (loading || !resolvedTicket) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
+        <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
+        <span className="text-sm">Loading ticket…</span>
+      </div>
+    );
+  }
+
+  const ticket = previewOverride
+    ? {
+        ...resolvedTicket,
+        title: previewOverride.title ?? resolvedTicket.title,
+        description: previewOverride.description ?? resolvedTicket.description,
+        difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
+        xp: previewOverride.xp ?? resolvedTicket.xp,
+        estMin: previewOverride.estMin ?? resolvedTicket.estMin,
+        tag: previewOverride.tag ?? resolvedTicket.tag,
+      }
+    : resolvedTicket;
+
+  return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
+}
+
+function TicketIDE({
+  slug,
+  ticket,
+  previewOverride,
+}: {
+  slug: string;
+  ticket: any;
+  previewOverride: StudentPreviewOverride | null;
+}) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const baseTicket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
-
-
-  const ticket = useMemo(() => {
-    if (!previewOverride) return baseTicket;
-    return {
-      ...baseTicket,
-      title: previewOverride.title ?? baseTicket.title,
-      description: previewOverride.description ?? baseTicket.description,
-      difficulty: (previewOverride.difficulty as typeof baseTicket.difficulty) ?? baseTicket.difficulty,
-      xp: previewOverride.xp ?? baseTicket.xp,
-      estMin: previewOverride.estMin ?? baseTicket.estMin,
-      tag: previewOverride.tag ?? baseTicket.tag,
-    };
-  }, [baseTicket, previewOverride]);
 
   const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
   const isDjango = kit.name === "django";
@@ -699,6 +773,10 @@ export function StudentTicketView({
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
+  const isBash = kit.name === "bash";
+
+  const isReal = !tickets.some(t => t.id === ticket.id);
+
   const isMultiLang = slug === "programming" || slug === "datastructures";
   type ProgLang = "python" | "c" | "cpp" | "js";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js" };
@@ -706,11 +784,15 @@ export function StudentTicketView({
   const [progLang, setProgLang] = useState<ProgLang>("python");
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
-    if (previewOverride?.starterCode && kit.primary) {
-      return { ...kit.files, [kit.primary]: previewOverride.starterCode };
+    const s = { ...kit.files };
+    if (isReal && s["README.md"]) {
+      s["README.md"] = `# ${ticket.title}\n\n${ticket.description}`;
     }
-    return kit.files;
-  }, [kit, previewOverride]);
+    if (previewOverride?.starterCode && kit.primary) {
+      s[kit.primary] = previewOverride.starterCode;
+    }
+    return s;
+  }, [kit, isReal, previewOverride, ticket.title, ticket.description]);
   const primaryFile = kit.primary;
 
 
@@ -977,6 +1059,18 @@ export function StudentTicketView({
       setRunning(false);
       return;
     }
+    if (isBash) {
+      setOutput(`$ bash ${file}\n…running…`);
+      setTimeout(() => {
+        const echoRe = /echo\s+["']?([^"'\n]+)["']?/g;
+        const out: string[] = [];
+        let m;
+        while ((m = echoRe.exec(src))) out.push(m[1]);
+        setOutput(`$ bash ${file}\n${out.join("\n")}\n\n✓ Script finished (0.2s)`);
+        setRunning(false);
+      }, 400);
+      return;
+    }
     // Java fallback
     setOutput("$ javac Main.java\n$ java Main\n…running…\n");
     setTimeout(() => {
@@ -1185,7 +1279,7 @@ export function StudentTicketView({
               </button>
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-              {tab === "problem" && <ProblemPanel ticket={ticket} />}
+              {tab === "problem" && <ProblemPanel ticket={ticket} isReal={!tickets.some(t => t.id === ticket.id)} />}
               {tab === "hints" && <HintsPanel level={hintLevel} setLevel={setHintLevel} elapsed={elapsed} onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)} />}
               {tab === "discuss" && <DiscussPanel />}
             </div>
@@ -1783,23 +1877,29 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ ticket }: { ticket: typeof tickets[number] }) {
+function ProblemPanel({ ticket, isReal }: { ticket: typeof tickets[number]; isReal?: boolean }) {
   return (
     <>
       <div>
         <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{ticket.id} · {ticket.tag}</div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        <p className="mt-2 text-muted-foreground">📋 Create a program demonstrating Java variables and data types.</p>
+        <p className="mt-2 text-muted-foreground">{isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}</p>
       </div>
 
-      <Section title="🎯 Learning objectives">
-        <ul className="space-y-1 text-muted-foreground">
-          <li>✓ Understand primitive data types</li>
-          <li>✓ Declare and initialize variables</li>
-          <li>✓ Perform type casting</li>
-          <li>✓ Work with String operations</li>
-        </ul>
-      </Section>
+      {isReal ? (
+        <Section title="🎯 Details">
+          <div className="text-muted-foreground whitespace-pre-wrap">{ticket.description}</div>
+        </Section>
+      ) : (
+        <>
+          <Section title="🎯 Learning objectives">
+            <ul className="space-y-1 text-muted-foreground">
+              <li>✓ Understand primitive data types</li>
+              <li>✓ Declare and initialize variables</li>
+              <li>✓ Perform type casting</li>
+              <li>✓ Work with String operations</li>
+            </ul>
+          </Section>
 
       <Section title="✅ Tasks">
         <div className="space-y-2 text-muted-foreground">
@@ -1847,13 +1947,15 @@ Character at index 0: H`}</pre>
         </ul>
       </Section>
 
-      <Section title="⚠️ Common mistakes">
-        <ul className="space-y-1 text-muted-foreground">
-          <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
-          <li>• Forgetting <code>(int)</code> when narrowing</li>
-          <li>• <code>charAt</code> out-of-bounds on empty strings</li>
-        </ul>
-      </Section>
+        <Section title="⚠️ Common mistakes">
+          <ul className="space-y-1 text-muted-foreground">
+            <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
+            <li>• Forgetting <code>(int)</code> when narrowing</li>
+            <li>• <code>charAt</code> out-of-bounds on empty strings</li>
+          </ul>
+        </Section>
+      </>
+      )}
     </>
   );
 }
