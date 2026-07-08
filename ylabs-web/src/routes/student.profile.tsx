@@ -3,7 +3,12 @@ import { TopNav } from "@/components/TopNav";
 import { me, labs } from "@/lib/dummy";
 import { Github, Linkedin, Mail, Award } from "lucide-react";
 
-export const Route = createFileRoute("/profile")({ component: Profile });
+
+
+export const Route = createFileRoute("/student/profile")({ 
+  
+  component: Profile 
+});
 
 function Profile() {
   return (
@@ -37,7 +42,7 @@ function Profile() {
           <div className="mb-3 text-sm font-medium">Labs</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {labs.map((l) => (
-              <Link key={l.slug} to="/lab/$slug" params={{ slug: l.slug }} className="rounded-md border p-3 hover:border-primary/50">
+              <Link key={l.slug} to="/student/lab/$slug" params={{ slug: l.slug }} className="rounded-md border p-3 hover:border-primary/50">
                 <div className="flex items-center gap-2 text-sm font-medium">{l.icon} {l.name}</div>
                 <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden"><div className="h-full" style={{ width: `${(l.completed/l.total)*100}%`, background: `var(--${l.color})` }} /></div>
                 <div className="mt-1 text-xs text-muted-foreground">{l.completed}/{l.total} tickets</div>

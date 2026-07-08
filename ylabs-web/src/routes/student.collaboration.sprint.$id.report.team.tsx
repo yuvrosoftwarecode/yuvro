@@ -5,7 +5,7 @@ import { Avatar } from "@/components/collab/Avatar";
 
 const COLORS = ["#3b82f6", "#22c55e", "#f97316", "#a855f7", "#eab308", "#ef4444"];
 
-export const Route = createFileRoute("/collaboration/sprint/$id/report/team")({ component: TeamReport });
+export const Route = createFileRoute("/student/collaboration/sprint/$id/report/team")({ component: TeamReport });
 
 function TeamReport() {
   const { id } = Route.useParams();
@@ -15,7 +15,7 @@ function TeamReport() {
   return (
     <main className="mx-auto max-w-[1100px] px-4 sm:px-6 py-6 space-y-6">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Link to="/collaboration/sprint/$id/report/individual" params={{ id }} className="rounded-md border px-3 py-1 hover:bg-accent">My Report</Link>
+        <Link to="/student/collaboration/sprint/$id/report/individual" params={{ id }} className="rounded-md border px-3 py-1 hover:bg-accent">My Report</Link>
         <span className="rounded-md bg-primary text-primary-foreground px-3 py-1">Team Report</span>
       </div>
 

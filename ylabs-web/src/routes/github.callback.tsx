@@ -31,7 +31,7 @@ function GithubCallbackComponent() {
         // Fetch updated user to reflect github_connected status
         const userData = await authService.getCurrentUser();
         updateUser(userData);
-        navigate({ to: '/dashboard' });
+        navigate({ to: '/student/dashboard' });
       } catch (err: any) {
         // If it fails, allow retry
         hasRun.current = false;
@@ -48,7 +48,7 @@ function GithubCallbackComponent() {
           <h2 className="text-lg font-semibold mb-2">GitHub Connection Failed</h2>
           <p className="text-sm">{error}</p>
           <button 
-            onClick={() => navigate({ to: '/dashboard' })}
+            onClick={() => navigate({ to: '/student/dashboard' })}
             className="mt-6 px-4 py-2 bg-background border rounded-md text-foreground hover:bg-accent"
           >
             Return to Dashboard

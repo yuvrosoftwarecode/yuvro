@@ -5,7 +5,7 @@ import { Avatar, LevelBadge } from "@/components/collab/Avatar";
 import { ME_ID } from "@/lib/collab/data";
 import { Plus, X, Users, Trash2, LogOut } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/squads")({ component: Squads });
+export const Route = createFileRoute("/student/collaboration/squads")({ component: Squads });
 
 function Squads() {
   const { squads, users, user, createSquad, removeFromSquad, leaveSquad, disbandSquad, inviteToSquad } = useCollab();

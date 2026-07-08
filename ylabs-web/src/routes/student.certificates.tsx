@@ -3,7 +3,12 @@ import { TopNav } from "@/components/TopNav";
 import { certificates, me } from "@/lib/dummy";
 import { Award, Download, Share2 } from "lucide-react";
 
-export const Route = createFileRoute("/certificates")({ component: Certificates });
+
+
+export const Route = createFileRoute("/student/certificates")({ 
+  
+  component: Certificates 
+});
 
 function Certificates() {
   return (

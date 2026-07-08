@@ -66,9 +66,7 @@ export function AdminShell({ title, breadcrumb, right, children }: {
     return next;
   });
 
-  useEffect(() => {
-    if (user && user.role !== "admin") nav({ to: "/dashboard" });
-  }, [user, nav]);
+// Role check is now handled in the parent admin layout (admin.tsx)
 
   const isActive = (to: string) =>
     to === "/admin" ? pathname === "/admin" : pathname === to || pathname.startsWith(to + "/");

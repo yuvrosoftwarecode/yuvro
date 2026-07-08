@@ -21,15 +21,7 @@ export default defineConfig({
         polyfill: false,
       },
       rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom', '@tanstack/react-router', '@tanstack/react-start'],
-            ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
-            editor: ['@uiw/react-codemirror'],
-            charts: ['recharts'],
-            query: ['@tanstack/react-query'],
-          },
-        },
+        output: {},
       },
       chunkSizeWarningLimit: 1000,
     },

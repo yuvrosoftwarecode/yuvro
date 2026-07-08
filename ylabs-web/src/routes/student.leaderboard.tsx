@@ -3,7 +3,12 @@ import { TopNav } from "@/components/TopNav";
 import { leaderboard } from "@/lib/dummy";
 import { Trophy, Flame } from "lucide-react";
 
-export const Route = createFileRoute("/leaderboard")({ component: Leaderboard });
+
+
+export const Route = createFileRoute("/student/leaderboard")({ 
+  
+  component: Leaderboard 
+});
 
 function Leaderboard() {
   return (

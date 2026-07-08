@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useCollab } from "@/lib/collab/store";
 import { ArrowLeft, Save } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/sprint/$id/ticket/$ticketId")({ component: TicketWorkspace });
+export const Route = createFileRoute("/student/collaboration/sprint/$id/ticket/$ticketId")({ component: TicketWorkspace });
 
 function TicketWorkspace() {
   const { id, ticketId } = Route.useParams();
@@ -25,12 +25,12 @@ function TicketWorkspace() {
   return (
     <main className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
       <div className="text-xs text-muted-foreground mb-3 flex items-center gap-2 flex-wrap">
-        <Link to="/collaboration" className="hover:text-foreground">Collaboration Hub</Link> <span>›</span>
-        <Link to="/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="hover:text-foreground">{sprint.title}</Link> <span>›</span>
+        <Link to="/student/collaboration" className="hover:text-foreground">Collaboration Hub</Link> <span>›</span>
+        <Link to="/student/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="hover:text-foreground">{sprint.title}</Link> <span>›</span>
         <span>#{ticket.id.split("-").pop()}</span>
       </div>
 
-      <Link to="/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-3"><ArrowLeft className="h-3 w-3" /> Back to board</Link>
+      <Link to="/student/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-3"><ArrowLeft className="h-3 w-3" /> Back to board</Link>
 
       <h1 className="text-2xl font-semibold">{ticket.title}</h1>
       <div className="flex items-center gap-2 mt-2 text-xs">

@@ -6,13 +6,13 @@ import { useAuth } from "@/lib/auth";
 import { useState, useEffect } from "react";
 
 const links = [
-  { to: "/dashboard", label: "Individual Hub", icon: LayoutDashboard },
-  { to: "/collaboration", label: "Collaboration Hub", icon: Users },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { to: "/forum", label: "Forum", icon: MessagesSquare },
-  { to: "/certificates", label: "Certificates", icon: Award },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/student/dashboard", label: "Individual Hub", icon: LayoutDashboard },
+  { to: "/student/collaboration", label: "Collaboration Hub", icon: Users },
+  { to: "/student/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/student/leaderboard", label: "Leaderboard", icon: Trophy },
+  { to: "/student/forum", label: "Forum", icon: MessagesSquare },
+  { to: "/student/certificates", label: "Certificates", icon: Award },
+  { to: "/student/profile", label: "Profile", icon: User },
 ];
 
 export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactNode; activeOverride?: string } = {}) {
@@ -44,13 +44,13 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
   return (
     <header className="sticky top-0 z-40 glass border-b border-border">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
-        <Link to="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
+        <Link to="/student/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
           <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">Y</div>
           <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
           {links.map((l) => {
-            const active = l.to === "/dashboard" ? activePath === "/dashboard" : activePath.startsWith(l.to);
+            const active = l.to === "/student/dashboard" ? activePath === "/student/dashboard" : activePath.startsWith(l.to);
             const Icon = l.icon;
             return (
               <Link key={l.to} to={l.to}

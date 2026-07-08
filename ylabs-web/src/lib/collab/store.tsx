@@ -109,19 +109,19 @@ export function CollabProvider({ children }: { children: ReactNode }) {
       else members.push({ userId: ME_ID, role, status: "joined" });
       return { ...s, members, meId: role };
     }));
-    pushNotification({ type: "sprint-invite", message: `You joined as ${role}.`, link: `/collaboration/sprint/${sprintId}/workspace` });
+    pushNotification({ type: "sprint-invite", message: `You joined as ${role}.`, link: `/student/collaboration/sprint/${sprintId}/workspace` });
   };
 
   const startSprint = (sprintId: string) => {
     const now = Date.now();
     setSprints(sp => sp.map(s => s.id === sprintId ? { ...s, status: "In Progress", startedAt: now, deadlineAt: now + s.durationDays * 24 * 60 * 60 * 1000, members: s.members.map(m => m.status === "open" && s.aiAutoFill ? { ...m, userId: null, status: "ai" as MemberStatus } : m) } : s));
-    pushNotification({ type: "sprint-started", message: `Sprint started. Timer running.`, link: `/collaboration/sprint/${sprintId}/workspace` });
+    pushNotification({ type: "sprint-started", message: `Sprint started. Timer running.`, link: `/student/collaboration/sprint/${sprintId}/workspace` });
   };
 
   const submitSprint = (sprintId: string) => {
     setSprints(sp => sp.map(s => s.id === sprintId ? { ...s, status: "Completed", submittedAt: Date.now() } : s));
-    pushNotification({ type: "sprint-submitted", message: `Sprint submitted. Report generating...`, link: `/collaboration/sprint/${sprintId}/report/individual` });
-    setTimeout(() => pushNotification({ type: "report-ready", message: `Your sprint report is ready.`, link: `/collaboration/sprint/${sprintId}/report/individual` }), 3000);
+    pushNotification({ type: "sprint-submitted", message: `Sprint submitted. Report generating...`, link: `/student/collaboration/sprint/${sprintId}/report/individual` });
+    setTimeout(() => pushNotification({ type: "report-ready", message: `Your sprint report is ready.`, link: `/student/collaboration/sprint/${sprintId}/report/individual` }), 3000);
   };
 
   const updateTicket = (sprintId: string, ticketId: string, patch: Partial<Ticket>) =>
@@ -148,7 +148,7 @@ export function CollabProvider({ children }: { children: ReactNode }) {
     };
     setPRs(p => ({ ...p, [sprintId]: [pr, ...p[sprintId]] }));
     updateTicket(sprintId, ticketId, { prId: id });
-    pushNotification({ type: "pr-review", message: `You raised PR on ${ticketId}.`, link: `/collaboration/sprint/${sprintId}/workspace?tab=pr` });
+    pushNotification({ type: "pr-review", message: `You raised PR on ${ticketId}.`, link: `/student/collaboration/sprint/${sprintId}/workspace?tab=pr` });
     return id;
   };
 
@@ -207,7 +207,7 @@ export function CollabProvider({ children }: { children: ReactNode }) {
   const disbandSquad = (squadId: string) => setSquads(s => s.filter(sq => sq.id !== squadId));
 
   const connect = (userId: string) => {
-    pushNotification({ type: "connection", message: `Connection request sent.`, link: "/collaboration/connections" });
+    pushNotification({ type: "connection", message: `Connection request sent.`, link: "/student/collaboration/connections" });
   };
   const acceptConnect = (userId: string) => {
     setPendingIncoming(p => p.filter(id => id !== userId));
@@ -227,8 +227,8 @@ export function CollabProvider({ children }: { children: ReactNode }) {
     };
     setTeams(t => [team, ...t]);
     joinSprint(sprintId, myRole);
-    invites.forEach(i => pushNotification({ type: "sprint-invite", message: `Invite sent to ${user(i.userId)?.name ?? i.userId} for ${i.role}.`, link: `/collaboration/sprint/${sprintId}` }));
-    openRoles.forEach(r => pushNotification({ type: "role-request", message: `Public request posted: ${r.role}.`, link: `/collaboration/sprint/${sprintId}` }));
+    invites.forEach(i => pushNotification({ type: "sprint-invite", message: `Invite sent to ${user(i.userId)?.name ?? i.userId} for ${i.role}.`, link: `/student/collaboration/sprint/${sprintId}` }));
+    openRoles.forEach(r => pushNotification({ type: "role-request", message: `Public request posted: ${r.role}.`, link: `/student/collaboration/sprint/${sprintId}` }));
     return id;
   };
 

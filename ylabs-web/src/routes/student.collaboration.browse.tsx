@@ -4,7 +4,7 @@ import { useCollab } from "@/lib/collab/store";
 import { ALL_DOMAINS, DOMAIN_COLORS, type Domain } from "@/lib/collab/data";
 import { Search, Inbox, CheckCircle2, Circle, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/browse")({ component: Browse });
+export const Route = createFileRoute("/student/collaboration/browse")({ component: Browse });
 
 function Browse() {
   const { sprints } = useCollab();
@@ -72,7 +72,7 @@ function Browse() {
                   </div>
                 </div>
 
-                <Link to="/collaboration/sprint/$id" params={{ id: s.id }} className="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90">
+                <Link to="/student/collaboration/sprint/$id" params={{ id: s.id }} className="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90">
                   View Sprint <ArrowRight className="h-3 w-3 ml-1" />
                 </Link>
               </div>
