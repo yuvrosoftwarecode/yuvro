@@ -67,7 +67,12 @@ export function AdminShell({ title, breadcrumb, right, children }: {
   });
 
   useEffect(() => {
-    if (user && user.role !== "admin") nav({ to: "/dashboard" });
+    if (user) {
+      const role = user.roles?.ylabs || user.role;
+      if (role !== "admin") {
+        nav({ to: "/dashboard" });
+      }
+    }
   }, [user, nav]);
 
   const isActive = (to: string) =>

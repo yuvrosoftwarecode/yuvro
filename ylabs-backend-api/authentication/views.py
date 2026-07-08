@@ -11,7 +11,6 @@ User = get_user_model()
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_info_view(request):
-    """Get current user information."""
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
@@ -19,9 +18,6 @@ def user_info_view(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def sync_shadow_user(request):
-    """
-    Sync a shadow user from YHub. Requires Admin access (via ProductJWTAuthentication).
-    """
     data = request.data
     user_id = data.get("id")
     if not user_id:
@@ -50,9 +46,6 @@ def sync_shadow_user(request):
 
     existing_user = User.objects.filter(email=email).first()
     if existing_user and str(existing_user.id) != str(user_id):
-        # Since YHub is the IdP, if we find a local user with the same email 
-        # but a different UUID (e.g., from an old fixture), we remove the old 
-        # local user so the new YHub user can be created seamlessly.
         existing_user.delete()
 
     user, created = User.objects.update_or_create(
@@ -61,10 +54,35 @@ def sync_shadow_user(request):
     )
 
     if password_hash:
-        # Save the hashed password directly so they can login to Django admin if they are admin
         user.password = password_hash
         user.save(update_fields=["password"])
     else:
         user.set_unusable_password()
 
     return Response({"status": "success", "created": created})
+
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def get_all_users(request):
+    users = User.objects.select_related("profile", "profile__college").all()
+    result = []
+    for u in users:
+        college_name = None
+        if hasattr(u, "profile"):
+            college_name = (
+                u.profile.college.name if u.profile.college else u.profile.college_other
+            )
+        result.append({
+            "id": str(u.id),
+            "username": u.username,
+            "email": u.email,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "role": u.role,
+            "is_active": u.is_active,
+            "date_joined": u.date_joined,
+            "last_login": u.last_login,
+            "college": college_name,
+        })
+    return Response(result)

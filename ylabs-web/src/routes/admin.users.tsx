@@ -1,30 +1,63 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
 import { Users, UserPlus, Download, Filter, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/admin/users")({ component: UsersPage });
 
 const ROLES = ["Student", "Job Seeker", "Recruiter", "Mentor", "Admin"];
 const COLLEGES = ["IIT Bombay", "BITS Pilani", "VIT", "NIT Trichy", "Anna Univ", "—"];
 
-const USERS = Array.from({ length: 40 }, (_, i) => ({
-  id: `u_${1000 + i}`,
-  name: ["Priya Sharma","Marcus Kim","Sana Ahmed","Lina Park","Rohith S.","Aarav P.","Mei Chen","Diego R.","Yuki T.","Noah L."][i % 10] + (i > 9 ? ` ${i}` : ""),
-  email: `user${i + 1}@yuvrolabs.com`,
-  role: ROLES[i % ROLES.length],
+const getPlaceholderData = (i: number) => ({
   college: COLLEGES[i % COLLEGES.length],
   skill: 60 + ((i * 7) % 40),
   collab: 50 + ((i * 11) % 50),
   reliability: 70 + ((i * 3) % 30),
   active: ["2m", "8m", "21m", "1h", "3h", "1d", "2d"][i % 7] + " ago",
   status: i % 9 === 0 ? "suspended" : i % 5 === 0 ? "invited" : "active",
-}));
+});
 
 function UsersPage() {
   const [q, setQ] = useState("");
   const [role, setRole] = useState("All");
-  const filtered = USERS.filter(u =>
+  const [users, setUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await restApiAuthUtil.get<any[]>('/auth/users/');
+        const mappedUsers = response.map((u, i) => {
+          const mock = getPlaceholderData(i);
+          let userRole = "Student";
+          if (u.role === "admin") {
+            userRole = "Admin";
+          } else if (u.role === "developer") {
+            userRole = "Mentor";
+          }
+          
+          return {
+            id: u.id,
+            name: (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.username || `User ${i}`,
+            email: u.email,
+            role: userRole,
+            college: u.college || mock.college,
+            skill: mock.skill,
+            collab: mock.collab,
+            reliability: mock.reliability,
+            active: u.last_login ? new Date(u.last_login).toLocaleDateString() : mock.active,
+            status: u.is_active ? "active" : mock.status,
+          };
+        });
+        setUsers(mappedUsers);
+      } catch (err) {
+        console.error("Failed to fetch users from backend", err);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  const filtered = users.filter(u =>
     (role === "All" || u.role === role) &&
     (u.name.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()))
   );
@@ -53,7 +86,7 @@ function UsersPage() {
             <option>All</option>{ROLES.map(r => <option key={r}>{r}</option>)}
           </select>
           <button className="text-xs px-2 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1"><Filter className="h-3.5 w-3.5" /> More filters</button>
-          <span className="ml-auto text-xs text-muted-foreground">{filtered.length.toLocaleString()} of {USERS.length} shown</span>
+          <span className="ml-auto text-xs text-muted-foreground">{filtered.length.toLocaleString()} of {users.length} shown</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
