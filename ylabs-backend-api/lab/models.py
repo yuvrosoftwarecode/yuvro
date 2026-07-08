@@ -141,3 +141,45 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.email} -> {self.lab_sprint_ticket.title}"
+
+
+# ---------------------------------------------------------------------------
+# GitHub Integration
+# ---------------------------------------------------------------------------
+
+class UserGitHubIntegration(BaseTimestampedModel):
+    """Stores a student's GitHub connection (PAT encrypted with Django SECRET_KEY)."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="github_integration",
+    )
+    github_username = models.CharField(max_length=255)
+    github_repo = models.CharField(max_length=255, help_text="e.g. my-labs-repo")
+    # PAT stored as base64-encoded Fernet-encrypted bytes
+    pat_encrypted = models.TextField(help_text="Fernet-encrypted Personal Access Token")
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.email} → github.com/{self.github_username}/{self.github_repo}"
+
+    # --- Encryption helpers (uses Django SECRET_KEY) ---
+
+    @staticmethod
+    def _fernet():
+        import base64, hashlib
+        from cryptography.fernet import Fernet
+        raw = settings.SECRET_KEY.encode()
+        key = base64.urlsafe_b64encode(hashlib.sha256(raw).digest())
+        return Fernet(key)
+
+    def set_pat(self, pat: str) -> None:
+        """Encrypt and store the PAT."""
+        f = self._fernet()
+        self.pat_encrypted = f.encrypt(pat.encode()).decode()
+
+    def get_pat(self) -> str:
+        """Decrypt and return the PAT."""
+        f = self._fernet()
+        return f.decrypt(self.pat_encrypted.encode()).decode()

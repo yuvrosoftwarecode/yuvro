@@ -1,16 +1,26 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import {
+  fetchFileTree,
+  fetchFile,
+  writeFile as wsWriteFile,
+  deleteWorkspaceFile,
+  getTerminalWsUrl,
+  type FileTreeNode,
+} from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
+import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
   FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
-  FilePlus, FolderPlus, Pencil, Trash2,
+  FilePlus, FolderPlus, Pencil, Trash2, X,
 } from "lucide-react";
+import "@xterm/xterm/css/xterm.css";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { java } from "@codemirror/lang-java";
@@ -713,6 +723,9 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
+            tasks: Array.isArray(t.tasks) ? t.tasks : [],
+            learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
+            common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
           });
           setLoading(false);
         })
@@ -777,6 +790,13 @@ function TicketIDE({
 
   const isReal = !tickets.some(t => t.id === ticket.id);
 
+  const { user } = useAuth();
+  const userId = useMemo(() => {
+    return user?.id?.toString() ?? "guest";
+  }, [user]);
+  const labId = slug;
+  const sprintId = ticket.id?.toString() ?? "0";
+  const [wsLoaded, setWsLoaded] = useState(false);
   const isMultiLang = slug === "programming" || slug === "datastructures";
   type ProgLang = "python" | "c" | "cpp" | "js";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js" };
@@ -784,6 +804,7 @@ function TicketIDE({
   const [progLang, setProgLang] = useState<ProgLang>("python");
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
+    if (isReal) return {};
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
       s["README.md"] = `# ${ticket.title}\n\n${ticket.description}`;
@@ -795,10 +816,88 @@ function TicketIDE({
   }, [kit, isReal, previewOverride, ticket.title, ticket.description]);
   const primaryFile = kit.primary;
 
+  const [files, setFiles] = useState<Record<string, string>>(starters);
+  const [activeFile, setActiveFile] = useState<FileName>(initialFileList[0]);
+  const [dirty, setDirty] = useState<Record<string, boolean>>({});
+  const fileList = useMemo(() => Object.keys(files), [files]);
+  const [openTabs, setOpenTabs] = useState<string[]>(isReal ? [] : [...initialFileList]);
+
+  function openFile(path: string) {
+    setOpenTabs(prev => prev.includes(path) ? prev : [...prev, path]);
+    setActiveFile(path);
+  }
+
+  function closeTab(path: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setOpenTabs(prev => {
+      const next = prev.filter(p => p !== path);
+      if (activeFile === path) {
+        setActiveFile(next.length > 0 ? next[next.length - 1] : "");
+      }
+      return next;
+    });
+  }
+
+  // Load workspace file tree and first file content from executor on mount (real tickets only)
+  const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
+    if (!isReal) return;
+    setWsLoaded(false);
+    try {
+      const res = await fetchFileTree(userId, labId, sprintId, starters);
+      const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
+        if (node.type === "file") { acc[node.path] = ""; }
+        else node.children?.forEach(c => flatten(c, acc));
+        return acc;
+      };
+      const paths = flatten(res.tree, {});
+      if (Object.keys(paths).length > 0) {
+        setFiles(prev => {
+          // preserve contents of already loaded files if possible
+          const next = { ...paths };
+          for (const p of Object.keys(next)) {
+            if (prev[p]) next[p] = prev[p];
+          }
+          return next;
+        });
+        const firstPath = Object.keys(paths)[0];
+        if (!preserveActive && firstPath) {
+          setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
+          setActiveFile(firstPath);
+          try {
+            const content = await fetchFile(userId, labId, sprintId, firstPath);
+            setFiles(f => ({ ...f, [firstPath]: content }));
+          } catch { /* ignore */ }
+        }
+      }
+      setWsLoaded(true);
+    } catch {
+      setWsLoaded(true); // fall back to local starters on error
+    }
+  }, [isReal, userId, labId, sprintId, starters]);
+
+  useEffect(() => {
+    loadWorkspaceFiles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ticket.id, isReal, userId]);
+
+  // Lazy-load file content when the active file changes (real tickets only)
+  const loadedFiles = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!isReal || !wsLoaded) return;
+    if (loadedFiles.current.has(activeFile)) return;
+    if (files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
+    fetchFile(userId, labId, sprintId, activeFile)
+      .then(content => {
+        setFiles(f => ({ ...f, [activeFile]: content }));
+        loadedFiles.current.add(activeFile);
+      })
+      .catch(() => { loadedFiles.current.add(activeFile); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFile, isReal, wsLoaded]);
+
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [activeFile, setActiveFile] = useState<FileName>(initialFileList[0]);
   const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
@@ -837,9 +936,6 @@ function TicketIDE({
   }
 
   useEffect(() => { setSideWidth(null); }, [sidePanel]);
-  const [files, setFiles] = useState<Record<string, string>>(starters);
-  const [dirty, setDirty] = useState<Record<string, boolean>>({});
-  const fileList = useMemo(() => Object.keys(files), [files]);
 
   // Reset file state when switching tickets (esp. between Java and Django sets)
   useEffect(() => {
@@ -886,21 +982,33 @@ function TicketIDE({
     if (files[trimmed] !== undefined) { showToast("File already exists"); return; }
     setFiles((f) => ({ ...f, [trimmed]: contents }));
     setDirty((d) => ({ ...d, [trimmed]: true }));
+    setOpenTabs(prev => prev.includes(trimmed) ? prev : [...prev, trimmed]);
     setActiveFile(trimmed);
+    if (isReal) {
+      wsWriteFile(userId, labId, sprintId, trimmed, contents)
+        .then(() => loadedFiles.current.add(trimmed))
+        .catch(() => showToast(`⚠ Could not persist ${trimmed}`));
+    }
   }
   function renameFile(oldPath: string, newPath: string) {
     const trimmed = newPath.trim().replace(/^\/+/, "");
     if (!trimmed || trimmed === oldPath) return;
     if (files[trimmed] !== undefined) { showToast("Target path already exists"); return; }
+    const content = files[oldPath] ?? "";
     setFiles((f) => {
-      const { [oldPath]: content, ...rest } = f;
-      return { ...rest, [trimmed]: content ?? "" };
+      const { [oldPath]: _, ...rest } = f;
+      return { ...rest, [trimmed]: content };
     });
     setDirty((d) => {
       const { [oldPath]: was, ...rest } = d;
       return { ...rest, [trimmed]: true };
     });
     if (activeFile === oldPath) setActiveFile(trimmed);
+    if (isReal) {
+      wsWriteFile(userId, labId, sprintId, trimmed, content)
+        .then(() => deleteWorkspaceFile(userId, labId, sprintId, oldPath))
+        .catch(() => showToast(`⚠ Could not rename ${oldPath}`));
+    }
   }
   function deleteFile(path: string) {
     if (!confirm(`Delete ${path}?`)) return;
@@ -915,6 +1023,10 @@ function TicketIDE({
     if (activeFile === path) {
       const next = Object.keys(files).filter((p) => p !== path)[0];
       if (next) setActiveFile(next);
+    }
+    if (isReal) {
+      deleteWorkspaceFile(userId, labId, sprintId, path)
+        .catch(() => showToast(`⚠ Could not delete ${path}`));
     }
   }
   function deleteFolder(prefix: string) {
@@ -934,6 +1046,10 @@ function TicketIDE({
     if (targets.includes(activeFile)) {
       const remaining = Object.keys(files).filter((p) => !targets.includes(p));
       if (remaining[0]) setActiveFile(remaining[0]);
+    }
+    if (isReal) {
+      deleteWorkspaceFile(userId, labId, sprintId, prefix)
+        .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
     }
   }
   const [output, setOutput] = useState<string>("");
@@ -969,7 +1085,7 @@ function TicketIDE({
   const allPass = testsRan && passed === tests.length;
   const timeStr = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
 
-  const code = files[activeFile];
+  const code = files[activeFile] ?? "";
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
@@ -1143,6 +1259,13 @@ function TicketIDE({
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
     const now = new Date();
     setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+    if (isReal) {
+      // Persist all dirty files to the workspace
+      const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
+      Promise.all(
+        dirtyPaths.map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+      ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
+    }
     showToast("Saved");
   }
 
@@ -1279,7 +1402,7 @@ function TicketIDE({
               </button>
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-              {tab === "problem" && <ProblemPanel ticket={ticket} isReal={!tickets.some(t => t.id === ticket.id)} />}
+              {tab === "problem" && <ProblemPanel ticket={ticket} slug={slug} isReal={!tickets.some(t => t.id === ticket.id)} />}
               {tab === "hints" && <HintsPanel level={hintLevel} setLevel={setHintLevel} elapsed={elapsed} onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)} />}
               {tab === "discuss" && <DiscussPanel />}
             </div>
@@ -1314,15 +1437,22 @@ function TicketIDE({
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     ><FolderPlus className="h-3.5 w-3.5" /></button>
+                    <button
+                      title="Refresh Workspace"
+                      onClick={() => loadWorkspaceFiles(true)}
+                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
                   </div>
                 </div>
                 <div className="flex-1 overflow-auto px-1 pb-2">
                   <FileTree
-                    rootLabel={kit.rootLabel}
+                    rootLabel={isReal ? (ticket.title || "Project") : kit.rootLabel}
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
-                    onOpenFile={setActiveFile}
+                    onOpenFile={openFile}
                     onCreateFile={createFile}
                     onRenameFile={renameFile}
                     onDeleteFile={deleteFile}
@@ -1342,11 +1472,14 @@ function TicketIDE({
 
               {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
-                {fileList.map((f) => (
+                {openTabs.map((f) => (
                   <button key={f} onClick={() => setActiveFile(f)}
-                    className={`flex items-center gap-2 border-r px-3 py-2 whitespace-nowrap ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                    className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}>
                     <FileCode2 className="h-3 w-3" />{f.split("/").pop()}
                     {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
+                    <div onClick={(e) => closeTab(f, e)} className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive p-0.5 rounded-sm hover:bg-muted/50">
+                      <X className="h-3 w-3" />
+                    </div>
                   </button>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
@@ -1376,7 +1509,7 @@ function TicketIDE({
               {/* Breadcrumb path (VS Code style) */}
               <div className="flex items-center gap-1 border-b bg-editor-bg/60 px-3 py-1 text-[11px] text-muted-foreground overflow-x-auto whitespace-nowrap">
                 <Folder className="h-3 w-3 text-info shrink-0" />
-                {activeFile.split("/").map((seg, i, arr) => {
+                {(activeFile || "").split("/").map((seg, i, arr) => {
                   const isLast = i === arr.length - 1;
                   return (
                     <span key={i} className="inline-flex items-center gap-1">
@@ -1425,7 +1558,11 @@ function TicketIDE({
                     isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                                <PreviewView />
                   )}
-                  {bottomTab === "terminal" && <TerminalView />}
+                  {bottomTab === "terminal" && (
+                    <TerminalView
+                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId) : null}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -1839,13 +1976,179 @@ function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
   );
 }
 
-function TerminalView() {
+function TerminalView({ wsUrl }: { wsUrl: string | null }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const termRef = useRef<any>(null);
+  const fitRef = useRef<any>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [libs, setLibs] = useState<{ Terminal: any; FitAddon: any } | null>(null);
+
+  // Lazy-load xterm to avoid SSR issues
+  useEffect(() => {
+    Promise.all([
+      import("@xterm/xterm"),
+      import("@xterm/addon-fit"),
+    ]).then(([xterm, fit]) => {
+      setLibs({ Terminal: xterm.Terminal, FitAddon: fit.FitAddon });
+    }).catch(() => setError("Failed to load terminal library"));
+  }, []);
+
+  // Mount xterm when libs are ready and container is available
+  useEffect(() => {
+    if (!libs || !containerRef.current) return;
+    if (termRef.current) return; // already mounted
+
+    const term = new libs.Terminal({
+      cursorBlink: true,
+      fontSize: 13,
+      fontFamily: "\"JetBrains Mono\", \"Fira Code\", monospace",
+      theme: {
+        background: "#0d1117",
+        foreground: "#e6edf3",
+        cursor: "#58a6ff",
+        black: "#0d1117",
+        brightBlack: "#484f58",
+        red: "#ff7b72",
+        brightRed: "#ffa198",
+        green: "#3fb950",
+        brightGreen: "#56d364",
+        yellow: "#d29922",
+        brightYellow: "#e3b341",
+        blue: "#58a6ff",
+        brightBlue: "#79c0ff",
+        magenta: "#bc8cff",
+        brightMagenta: "#d2a8ff",
+        cyan: "#39c5cf",
+        brightCyan: "#56d4dd",
+        white: "#b1bac4",
+        brightWhite: "#e6edf3",
+      },
+      scrollback: 5000,
+      allowProposedApi: true,
+    });
+
+    const fitAddon = new libs.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(containerRef.current);
+    fitAddon.fit();
+
+    termRef.current = term;
+    fitRef.current = fitAddon;
+
+    // Resize observer
+    const ro = new ResizeObserver(() => {
+      try { fitAddon.fit(); } catch { /* ignore */ }
+    });
+    ro.observe(containerRef.current);
+
+    return () => {
+      ro.disconnect();
+      term.dispose();
+      termRef.current = null;
+      fitRef.current = null;
+    };
+  }, [libs]);
+
+  // Connect WebSocket
+  const connect = useCallback(() => {
+    if (!wsUrl || !termRef.current) return;
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    setError(null);
+    setConnected(false);
+    termRef.current.clear();
+    termRef.current.writeln("\x1b[33mConnecting to workspace terminal...\x1b[0m");
+
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      setConnected(true);
+      setError(null);
+      termRef.current?.writeln("\x1b[32m✓ Connected\x1b[0m\r\n");
+      // Resize hint
+      try { fitRef.current?.fit(); } catch { /* ignore */ }
+    };
+
+    ws.onmessage = (ev) => {
+      if (!termRef.current) return;
+      if (typeof ev.data === "string") {
+        termRef.current.write(ev.data);
+      } else {
+        // Fallback for blobs if any
+        if (ev.data instanceof Blob) {
+          ev.data.text().then(t => termRef.current?.write(t));
+        }
+      }
+    };
+
+    ws.onerror = () => {
+      setError("Terminal connection error — check that the code executor is running");
+      setConnected(false);
+    };
+
+    // Forward keystrokes from xterm → websocket
+    const dataListener = termRef.current?.onData((data: string) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+      }
+    });
+
+    ws.onclose = () => {
+      setConnected(false);
+      wsRef.current = null;
+      dataListener?.dispose();
+      termRef.current?.writeln("\r\n\x1b[31m[disconnected]\x1b[0m");
+    };
+  }, [wsUrl]);
+
+  useEffect(() => {
+    if (!termRef.current || !wsUrl) return;
+    connect();
+    return () => { wsRef.current?.close(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wsUrl, libs]);
+
+  // If no wsUrl (dummy ticket), show static mock
+  if (!wsUrl) {
+    return (
+      <div className="font-mono text-muted-foreground space-y-0.5">
+        <div><span className="text-success">student@labs</span>:<span className="text-info">~/workspace</span>$ ls</div>
+        <div className="text-foreground">script.sh  README.md</div>
+        <div><span className="text-success">student@labs</span>:<span className="text-info">~/workspace</span>$ <span className="animate-pulse">▌</span></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="font-mono text-muted-foreground space-y-0.5">
-      <div><span className="text-success">alex@labs</span>:<span className="text-info">~/java-101</span>$ javac Main.java</div>
-      <div><span className="text-success">alex@labs</span>:<span className="text-info">~/java-101</span>$ java Main</div>
-      <div className="text-foreground">{"> Build successful in 1.2s"}</div>
-      <div><span className="text-success">alex@labs</span>:<span className="text-info">~/java-101</span>$ <span className="animate-pulse">▌</span></div>
+    <div className="flex flex-col h-full w-full bg-black text-white p-1 rounded">
+      {/* Status bar */}
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <span className={`h-2 w-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-destructive"}`} />
+        <span className="text-muted-foreground text-[10px] font-mono">
+          {connected ? "Connected to workspace terminal" : error ?? "Disconnected"}
+        </span>
+        {!connected && (
+          <button
+            onClick={connect}
+            className="ml-auto rounded border px-2 py-0.5 text-[10px] hover:bg-accent text-muted-foreground hover:text-foreground"
+          >
+            Reconnect
+          </button>
+        )}
+      </div>
+      {/* xterm container */}
+      <div className="flex-1 w-full relative">
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+        />
+      </div>
     </div>
   );
 }
@@ -1877,19 +2180,136 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ ticket, isReal }: { ticket: typeof tickets[number]; isReal?: boolean }) {
+function ProblemPanel({ ticket, isReal, slug }: { ticket: any; isReal?: boolean; slug: string }) {
+  const tasks: any[] = Array.isArray(ticket.tasks) ? ticket.tasks : [];
+  const objectives: any[] = Array.isArray(ticket.learning_objectives) ? ticket.learning_objectives : [];
+  const mistakes: any[] = Array.isArray(ticket.common_mistakes) ? ticket.common_mistakes : [];
+
+  const { user } = useAuth();
+  const userId = user?.id?.toString() ?? "0";
+  const labId = slug;
+  const sprintId = ticket.id?.toString() ?? "0";
+
+  const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
+  const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
+
+  const handleEvaluate = async (taskSlug: string, requiredCommand: string) => {
+    setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+    try {
+      const { evaluateTask } = await import("@/services/workspaceService");
+      const result = await evaluateTask(userId, labId, sprintId, requiredCommand);
+      setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+    } catch (err: any) {
+      setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+    } finally {
+      setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+    }
+  };
+
   return (
     <>
       <div>
         <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{ticket.id} · {ticket.tag}</div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        <p className="mt-2 text-muted-foreground">{isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}</p>
+        <p className="mt-2 text-muted-foreground">
+          {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
+        </p>
       </div>
 
       {isReal ? (
-        <Section title="🎯 Details">
-          <div className="text-muted-foreground whitespace-pre-wrap">{ticket.description}</div>
-        </Section>
+        <>
+          {/* Tasks from DB */}
+          {tasks.length > 0 && (
+            <Section title="✅ Tasks">
+              <div className="space-y-2 text-muted-foreground">
+                {tasks.map((task: any, idx: number) => {
+                  const taskTitle = typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
+                  const taskDesc = typeof task === "object" ? task.description : null;
+                  const taskMethod = typeof task === "object" ? task.method : null;
+                  return (
+                    <div key={idx} className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
+                          {idx + 1}
+                        </span>
+                        <div className="flex-1">
+                          <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
+                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
+                          {taskMethod && (
+                            <div className="mt-3 flex items-center flex-wrap gap-2">
+                              <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-1 text-[11px] font-medium text-info">
+                                {taskMethod}
+                              </span>
+                              {taskMethod.includes("Method 1") && isReal && (
+                                <button
+                                  onClick={() => {
+                                    let reqCmd = "ls";
+                                    if (taskTitle.toLowerCase().includes("search")) reqCmd = "find";
+                                    if (taskTitle.toLowerCase().includes("git") || taskTitle.toLowerCase().includes("commit")) reqCmd = "git";
+                                    handleEvaluate(task.task_slug || `task-${idx}`, reqCmd);
+                                  }} 
+                                  disabled={evaluating[task.task_slug || `task-${idx}`]}
+                                  className="inline-flex items-center gap-1.5 rounded bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition"
+                                >
+                                  {evaluating[task.task_slug || `task-${idx}`] ? "Checking..." : "Check Solution"}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {evalResult[task.task_slug || `task-${idx}`] && (
+                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                              evalResult[task.task_slug || `task-${idx}`].passed 
+                                ? "border-success/20 bg-success/10 text-success" 
+                                : "border-destructive/20 bg-destructive/10 text-destructive"
+                            }`}>
+                              {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
+                              {evalResult[task.task_slug || `task-${idx}`].reason}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Section>
+          )}
+
+          {/* Learning Objectives from DB */}
+          {objectives.length > 0 && (
+            <Section title="🎯 Learning Objectives">
+              <ul className="space-y-1 text-muted-foreground">
+                {objectives.map((obj: any, i: number) => (
+                  <li key={i} className="flex items-start gap-1.5 text-[12px]">
+                    <span className="mt-0.5 text-success shrink-0">✓</span>
+                    <span>{typeof obj === "string" ? obj : obj.title ?? JSON.stringify(obj)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {/* Common Mistakes from DB */}
+          {mistakes.length > 0 && (
+            <Section title="⚠️ Common Mistakes">
+              <ul className="space-y-1 text-muted-foreground">
+                {mistakes.map((m: any, i: number) => (
+                  <li key={i} className="flex items-start gap-1.5 text-[12px]">
+                    <span className="text-warning shrink-0 mt-0.5">•</span>
+                    <span>{typeof m === "string" ? m : m.description ?? m.title ?? JSON.stringify(m)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {/* Fallback: full description */}
+          {tasks.length === 0 && (
+            <Section title="🎯 Details">
+              <div className="text-muted-foreground whitespace-pre-wrap">{ticket.description}</div>
+            </Section>
+          )}
+        </>
       ) : (
         <>
           <Section title="🎯 Learning objectives">
