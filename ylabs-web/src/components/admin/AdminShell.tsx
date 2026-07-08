@@ -29,7 +29,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
   {
     group: "Engineering",
     items: [
-      { to: "/admin/labs/", label: "Labs", icon: FlaskConical },
+      { to: "/admin/labs", label: "Labs", icon: FlaskConical },
       { to: "/admin/sprints", label: "Sprint Templates", icon: GitBranch },
       { to: "/admin/tickets", label: "Tickets", icon: Ticket },
       { to: "/admin/questions", label: "Question Bank", icon: Database },
@@ -77,6 +77,16 @@ export function AdminShell({ title, breadcrumb, right, children }: {
 
   const isActive = (to: string) =>
     to === "/admin" ? pathname === "/admin" : pathname === to || pathname.startsWith(to + "/");
+
+  const getBreadcrumbLink = (label: string) => {
+    for (const group of NAV) {
+      if (group.group === label) return group.items[0]?.to;
+      for (const item of group.items) {
+        if (item.label === label) return item.to;
+      }
+    }
+    return undefined;
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -128,13 +138,25 @@ export function AdminShell({ title, breadcrumb, right, children }: {
             {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </button>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>Admin</span>
-            {(breadcrumb ?? [title]).map((b, i) => (
-              <span key={i} className="flex items-center gap-1.5">
-                <ChevronRight className="h-3 w-3" />
-                <span className={i === (breadcrumb ?? [title]).length - 1 ? "text-foreground font-medium" : ""}>{b}</span>
-              </span>
-            ))}
+            <button onClick={() => nav({ to: "/admin" as any })} className="hover:text-foreground hover:underline transition-colors cursor-pointer">Admin</button>
+            {(breadcrumb ?? [title]).map((b, i) => {
+              const to = getBreadcrumbLink(b);
+              const isLast = i === (breadcrumb ?? [title]).length - 1;
+              return (
+                <span key={i} className="flex items-center gap-1.5">
+                  <ChevronRight className="h-3 w-3" />
+                  {to ? (
+                    <button onClick={() => nav({ to: to as any })} className={`hover:text-foreground transition-colors cursor-pointer ${isLast ? "text-foreground font-medium" : "hover:underline"}`}>
+                      {b}
+                    </button>
+                  ) : (
+                    <span className={isLast ? "text-foreground font-medium" : "hover:text-foreground"}>
+                      {b}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
           </div>
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden md:flex items-center gap-2 rounded-md border border-border bg-card/40 px-3 py-1.5 text-xs text-muted-foreground w-80">
