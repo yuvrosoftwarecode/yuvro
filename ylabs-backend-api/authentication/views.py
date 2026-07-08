@@ -45,7 +45,7 @@ def sync_shadow_user(request):
     }
 
     existing_user = User.objects.filter(email=email).first()
-    if existing_user and str(existing_user.id) != str(user_id):
+    if existing_user and str(existing_user.id) != str(user_id):                 
         existing_user.delete()
 
     user, created = User.objects.update_or_create(

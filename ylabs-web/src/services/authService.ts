@@ -1,5 +1,6 @@
 import type { User } from '../lib/auth';
 import { restApiAuthUtil, yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
+import { restApiUtil } from '../utils/RestApiUtil';
 
 export interface LoginResponse {
   access: string;
@@ -95,6 +96,14 @@ class AuthService {
 
   async healthCheck(): Promise<{ status: string }> {
     return await restApiAuthUtil.get<{ status: string }>('/health/');
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    return await yhubApiAuthUtil.post('/auth/forgot-password/', { email });
+  }
+
+  async resetPassword(uidb64: string, token: string, password: string): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
   }
 }
 
