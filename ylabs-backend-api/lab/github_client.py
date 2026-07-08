@@ -5,7 +5,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-class GithubIntegrationService:
+class GithubClient:
     def __init__(self, user_id):
         self.user_id = user_id
         self.yhub_internal_url = getattr(settings, 'YHUB_INTERNAL_URL', os.environ.get('YHUB_INTERNAL_URL', 'http://yhub-backend:8000'))
