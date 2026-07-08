@@ -1,0 +1,47 @@
+{
+  "title": "Sprint 3 - Network Security & Python Tooling",
+  "description": "",
+  "order_index": 3,
+  "lab_title": "Cyber Security Lab",
+  "tickets": [
+    {
+      "title": "Basic Port Scanner",
+      "ticket_slug": "cybersecurity-sec-301",
+      "description": "Write a Python script using the `socket` library to scan a target IP address for open TCP ports (e.g., 21, 22, 80, 443).",
+      "tasks": [
+        "Write a Python script using the `socket` library to scan a target IP address for open TCP ports (e.g., 21, 22, 80, 443)."
+      ],
+      "learning_objectives": [
+        "TCP Handshake",
+        "Sockets",
+        "and network timeouts."
+      ],
+      "evaluation": "Sandbox runs the script against a mock server with specific open ports and verifies the console output matches the open ports.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to close the socket connection after each attempt."
+      ],
+      "hints": [
+        "Use `socket.socket(socket.AF_INET, socket.SOCK_STREAM)`",
+        "Set a very short timeout (e.g",
+        "0.5 seconds) so your script doesn't hang indefinitely on filtered ports."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "scanner.py": "    import socket\n\n    def scan_ports(target_ip, ports_to_scan):\n        open_ports = []\n        \n        for port in ports_to_scan:\n            # Create a new socket for each port attempt\n            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n            s.settimeout(0.5) # Fast timeout\n            \n            # connect_ex returns 0 if successful\n            result = s.connect_ex((target_ip, port))\n            \n            if result == 0:\n                print(f\"[+] Port {port} is OPEN\")\n                open_ports.append(port)\n            \n            s.close()\n            \n        return open_ports\n\n    # Example: scan_ports('127.0.0.1', [21, 22, 80, 443, 8080])\n"
+      },
+      "yuvro_points": 120,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 1
+    }
+  ]
+}

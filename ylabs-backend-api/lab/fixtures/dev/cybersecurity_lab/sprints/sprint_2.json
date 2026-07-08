@@ -1,0 +1,89 @@
+{
+  "title": "Sprint 2 - Applied Cryptography & Authentication",
+  "description": "",
+  "order_index": 2,
+  "lab_title": "Cyber Security Lab",
+  "tickets": [
+    {
+      "title": "Secure Password Hashing (Bcrypt)",
+      "ticket_slug": "cybersecurity-sec-201",
+      "description": "Upgrade a legacy application that stores passwords in plaintext to use `bcrypt` hashing with a secure work factor.",
+      "tasks": [
+        "Upgrade a legacy application that stores passwords in plaintext to use `bcrypt` hashing with a secure work factor."
+      ],
+      "learning_objectives": [
+        "Salting",
+        "key stretching",
+        "bcrypt",
+        "and timing attacks."
+      ],
+      "evaluation": "Logic Grader checks for `bcrypt.hashpw` and `bcrypt.checkpw`.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Storing the salt separately in another database column (bcrypt includes the salt in the output hash string)",
+        "Using MD5 or SHA256 without a salt."
+      ],
+      "hints": [
+        "Bcrypt automatically handles salt generation",
+        "Remember to encode your strings to bytes before hashing them."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "auth.py": "    import bcrypt\n\n    def hash_password(plain_text_password):\n        # Convert password to bytes\n        password_bytes = plain_text_password.encode('utf-8')\n        \n        # Generate salt and hash (work factor / rounds is 12 by default)\n        salt = bcrypt.gensalt()\n        hashed = bcrypt.hashpw(password_bytes, salt)\n        \n        return hashed.decode('utf-8') # Store this string in the DB\n\n    def verify_password(plain_text_password, hashed_password):\n        # Check if the provided password matches the stored hash\n        password_bytes = plain_text_password.encode('utf-8')\n        hash_bytes = hashed_password.encode('utf-8')\n        \n        return bcrypt.checkpw(password_bytes, hash_bytes)\n"
+      },
+      "yuvro_points": 150,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "JWT Verification & Signature Checking",
+      "ticket_slug": "cybersecurity-sec-202",
+      "description": "Write a middleware function to parse a JSON Web Token (JWT) from the `Authorization` header and verify its signature using an HS256 secret key.",
+      "tasks": [
+        "Write a middleware function to parse a JSON Web Token (JWT) from the `Authorization` header and verify its signature using an HS256 secret key."
+      ],
+      "learning_objectives": [
+        "JWT structure (Header",
+        "Payload",
+        "Signature)",
+        "HMAC",
+        "and expiration validation."
+      ],
+      "evaluation": "Sandbox execution sends expired tokens and tokens signed with invalid keys to ensure the middleware rejects them with a 401.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Trusting the payload data without verifying the signature",
+        "Forgetting to check the `exp` (expiration) claim."
+      ],
+      "hints": [
+        "Use the `PyJWT` library",
+        "Ensure you explicitly pass the `algorithms=[\"HS256\"]` parameter to prevent algorithm confusion attacks."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "jwt_middleware.py": "    import jwt\n    from functools import wraps\n    from flask import request, jsonify\n\n    SECRET_KEY = \"super-secret-key-change-in-production\"\n\n    def require_jwt(f):\n        @wraps(f)\n        def decorated(*args, **kwargs):\n            auth_header = request.headers.get('Authorization')\n            \n            if not auth_header or not auth_header.startswith('Bearer '):\n                return jsonify({\"error\": \"Missing or invalid token\"}), 401\n                \n            token = auth_header.split(' ')[1]\n            \n            try:\n                # Decode and verify signature, algorithm, and expiration\n                payload = jwt.decode(token, SECRET_KEY, algorithms=[\"HS256\"])\n                # Attach the user payload to the request context\n                request.user = payload\n            except jwt.ExpiredSignatureError:\n                return jsonify({\"error\": \"Token has expired\"}), 401\n            except jwt.InvalidTokenError:\n                return jsonify({\"error\": \"Invalid token signature\"}), 401\n                \n            return f(*args, **kwargs)\n        return decorated\n"
+      },
+      "yuvro_points": 180,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 2
+    }
+  ]
+}

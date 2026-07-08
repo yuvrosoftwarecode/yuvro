@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 2 - Relational Joins & Schema Design",
+  "description": "",
+  "order_index": 2,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Churned Shoppers (LEFT JOIN)",
+      "ticket_slug": "mysql-2-1-1",
+      "description": "Performs a LEFT JOIN to find all customers who signed up but have never placed an order. ",
+      "tasks": [
+        "Performs a LEFT JOIN to find all customers who signed up but have never placed an order."
+      ],
+      "learning_objectives": [
+        "Master relational data retrieval across multiple tables."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"LEFT JOIN\")` `check_document_count(actual, expected_churned)` **[A] Correctness (40 pts)**: 40 pts for correct listing; 10 pts if INNER JOIN used instead (yielding empty result). **[B] Optimality (30 pts)**: 30 pts if index on `customer_id` is matched. **[C] Quality (20 pts)**: 20 pts for explicit alias definitions (`c` and `o`). ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using a CROSS JOIN accidentally by forgetting the ON clause.",
+        "Selecting ambiguous column names without table aliases."
+      ],
+      "hints": [
+        "Ensure you are joining on the correct primary and foreign keys.",
+        "Consider whether an INNER JOIN or LEFT JOIN is needed."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT c.id AS customer_id, c.name, c.email\n    FROM customers c\n    LEFT JOIN orders o ON o.customer_id = c.id\n    WHERE o.id IS NULL\n    ORDER BY c.name ASC;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Category Sales Performance (Three-Way JOIN)",
+      "ticket_slug": "mysql-2-1-2",
+      "description": "Joins the tables to calculate the total quantity sold and total revenue per product category. ",
+      "tasks": [
+        "Joins the tables to calculate the total quantity sold and total revenue per product category."
+      ],
+      "learning_objectives": [
+        "Master relational data retrieval across multiple tables."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"JOIN\")` `check_sort_order(actual, 'total_revenue', 'DESC')` **[A] Correctness (40 pts)**: 40 pts for category match and sums. **[B] Optimality (30 pts)**: 30 pts for join order execution. **[C] Quality (20 pts)**: 20 pts for explicit column calculations. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using a CROSS JOIN accidentally by forgetting the ON clause.",
+        "Selecting ambiguous column names without table aliases."
+      ],
+      "hints": [
+        "Ensure you are joining on the correct primary and foreign keys.",
+        "Consider whether an INNER JOIN or LEFT JOIN is needed."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      p.category,\n      SUM(oi.quantity) AS total_quantity,\n      SUM(oi.quantity * oi.price_per_unit) AS total_revenue\n    FROM order_items oi\n    JOIN products p ON oi.product_id = p.id\n    GROUP BY p.category\n    ORDER BY total_revenue DESC;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Product Recommendations (Self JOIN)",
+      "ticket_slug": "mysql-2-1-3",
+      "description": "Pairs distinct products in the same category that are within $15 price difference for shopping suggestions. ",
+      "tasks": [
+        "Pairs distinct products in the same category that are within $15 price difference for shopping suggestions."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"ABS\")` `check_join_condition(p1.id < p2.id to prevent duplication)` **[A] Correctness (40 pts)**: 40 pts for correct product pairings. **[B] Optimality (30 pts)**: 30 pts if pricing ranges leverage table indices. **[C] Quality (20 pts)**: 20 pts for removing self-pairing mirror records. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT p1.name AS prod_a, p2.name AS prod_b, p1.category, ABS(p1.price - p2.price) AS price_diff\n    FROM products p1\n    JOIN products p2 ON p1.category = p2.category AND p1.id < p2.id\n    WHERE ABS(p1.price - p2.price) <= 15.00\n    ORDER BY price_diff ASC;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

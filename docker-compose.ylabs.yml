@@ -59,6 +59,8 @@ services:
         required: false
       - path: ./ylabs-web/.env.local-secrets
         required: false
+    ports:
+      - "3002:3000"
     stdin_open: true
     tty: true
     depends_on:

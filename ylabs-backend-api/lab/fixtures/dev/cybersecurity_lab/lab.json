@@ -1,0 +1,19 @@
+{
+  "labs": [
+    {
+      "title": "Cyber Security Lab",
+      "type": "SECURITY",
+      "description": "Hands-on offensive and defensive security: OWASP, auth, crypto, network and cloud hardening.",
+      "difficulty": "HARD",
+      "icon": "shield",
+      "prerequisites": "Basic Python and Web",
+      "skills": [
+        "Python",
+        "Web Security",
+        "Cryptography"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "title": "Sprint 5 - Sorting, Limiting & Updating",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 5,
+  "lab_title": "SQLite Lab",
+  "tickets": [
+    {
+      "title": "Complete a Task",
+      "ticket_slug": "sqlite-51",
+      "description": "Task with `id = 1` has been finished. Change its status to 'completed'.",
+      "tasks": [
+        "Task with `id = 1` has been finished. Change its status to 'completed'."
+      ],
+      "learning_objectives": [
+        "Using UPDATE with a specific WHERE condition."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Delete Old Data",
+      "ticket_slug": "sqlite-52",
+      "description": "Delete any todos that belong to `user_id = 2`.",
+      "tasks": [
+        "Delete any todos that belong to `user_id = 2`."
+      ],
+      "learning_objectives": [
+        "Using DELETE."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "DELETE FROM todos WHERE user_id = 2;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Search by Title",
+      "ticket_slug": "sqlite-53",
+      "description": "Find all todos where the title contains the word \"database\".",
+      "tasks": [
+        "Find all todos where the title contains the word \"database\"."
+      ],
+      "learning_objectives": [
+        "Using LIKE with wildcards (%)."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

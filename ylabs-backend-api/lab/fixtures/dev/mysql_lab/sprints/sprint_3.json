@@ -1,0 +1,119 @@
+{
+  "title": "Sprint 3 - Window Functions & Advanced Analytics",
+  "description": "",
+  "order_index": 3,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Best-Selling Category Products (DENSE_RANK)",
+      "ticket_slug": "mysql-3-1-1",
+      "description": "Ranks products within each category by quantity sold and extracts the top 3 items. ",
+      "tasks": [
+        "Ranks products within each category by quantity sold and extracts the top 3 items."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"DENSE_RANK()\")` `check_command_used(\"OVER\")` **[A] Correctness (40 pts)**: 40 pts for top 3 ranked items. **[B] Optimality (30 pts)**: 30 pts for utilizing CTE instead of subquery. **[C] Quality (20 pts)**: 20 pts for partitioning correctly. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    WITH product_sales AS (\n      SELECT\n        p.category,\n        p.name AS product_name,\n        SUM(oi.quantity) AS total_units,\n        DENSE_RANK() OVER (PARTITION BY p.category ORDER BY SUM(oi.quantity) DESC) AS product_rank\n      FROM order_items oi\n      JOIN products p ON oi.product_id = p.id\n      GROUP BY p.category, p.name\n    )\n    SELECT category, product_name, total_units, product_rank\n    FROM product_sales\n    WHERE product_rank <= 3;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Month-over-Month Sales Growth (LAG)",
+      "ticket_slug": "mysql-3-1-2",
+      "description": "Computes monthly revenue totals and MoM sales growth percentage compared to the previous month. ",
+      "tasks": [
+        "Computes monthly revenue totals and MoM sales growth percentage compared to the previous month."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"LAG\")` **[A] Correctness (40 pts)**: 40 pts for correct revenue growth math. **[B] Optimality (30 pts)**: 30 pts for clean CTE definitions. **[C] Quality (20 pts)**: 20 pts for handling division edge cases. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    WITH monthly_rev AS (\n      SELECT\n        DATE_FORMAT(created_at, '%Y-%m') AS order_month,\n        SUM(total_amount) AS revenue\n      FROM orders\n      WHERE status = 'completed'\n      GROUP BY DATE_FORMAT(created_at, '%Y-%m')\n    )\n    SELECT\n      order_month,\n      revenue,\n      LAG(revenue, 1) OVER (ORDER BY order_month) AS prev_revenue,\n      ROUND(\n        ((revenue - LAG(revenue, 1) OVER (ORDER BY order_month)) / LAG(revenue, 1) OVER (ORDER BY order_month)) * 100,\n        2\n      ) AS growth_pct\n    FROM monthly_rev;\n"
+      },
+      "yuvro_points": 70,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Cumulative Customer Expenditure (SUM OVER)",
+      "ticket_slug": "mysql-3-1-3",
+      "description": "Selects orders and calculates a running total of purchases for each customer over time. ",
+      "tasks": [
+        "Selects orders and calculates a running total of purchases for each customer over time."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"SUM\")` `check_command_used(\"PARTITION BY\")` **[A] Correctness (40 pts)**: 40 pts for correct cumulative balances. **[B] Optimality (30 pts)**: 30 pts for using standard partitioning. **[C] Quality (20 pts)**: 20 pts for appropriate sorting on order timestamps. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      id AS order_id,\n      customer_id,\n      total_amount,\n      created_at,\n      SUM(total_amount) OVER (PARTITION BY customer_id ORDER BY created_at) AS running_spent\n    FROM orders\n    WHERE status = 'completed';\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

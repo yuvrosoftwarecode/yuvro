@@ -1,0 +1,120 @@
+{
+  "title": "Sprint 1 - Query Fundamentals & Filtering",
+  "description": "",
+  "order_index": 1,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "SELECT & WHERE",
+      "ticket_slug": "mysql-1-1-1",
+      "description": "Writes a query to retrieve active customers from the USA who signed up after '2024-01-01'. ",
+      "tasks": [
+        "Writes a query to retrieve active customers from the USA who signed up after '2024-01-01'."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_projected_fields(actual, included=['id', 'name', 'email', 'country', 'signed_up_at'], excluded=[])` `check_sort_order(actual, 'signed_up_at', 'DESC')` **[A] Correctness (40 pts)**: 40 pts if exact result set matches; 20 pts if USA filtered correctly but order is wrong. **[B] Optimality (30 pts)**: 30 pts if query executes in `< 5ms`; 10 pts if execution takes longer due to sub-optimal scans. **[C] Quality (20 pts)**: 20 pts if keywords are uppercase (`SELECT`, `FROM`, `WHERE`); 10 pts if lowercase. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT id, name, email, country, signed_up_at\n    FROM customers\n    WHERE country = 'USA' AND status = 'active' AND signed_up_at >= '2024-01-01'\n    ORDER BY signed_up_at DESC;\n"
+      },
+      "yuvro_points": 40,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Pattern Matching & Sorting",
+      "ticket_slug": "mysql-1-1-2",
+      "description": "Writes a query to select all customers whose names start with 'A', sorted by signup date DESC. ",
+      "tasks": [
+        "Writes a query to select all customers whose names start with 'A', sorted by signup date DESC."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"LIKE\")` `check_sort_order(actual, 'signed_up_at', 'DESC')` **[A] Correctness (40 pts)**: 40 pts for correct name filters and sort; 0 pts if `LIKE` pattern is incorrect. **[B] Optimality (30 pts)**: 30 pts for direct scanning using index. **[C] Quality (20 pts)**: 20 pts for structured indentation and casing. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT id, name, email, signed_up_at\n    FROM customers\n    WHERE name LIKE 'A%'\n    ORDER BY signed_up_at DESC;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Monthly Sales Revenue (HAVING)",
+      "ticket_slug": "mysql-1-2-1",
+      "description": "Calculates total sales revenue and average order value for each month in 2024. Filters out months with total sales less than or equal to $500. ",
+      "tasks": [
+        "Calculates total sales revenue and average order value for each month in 2024.",
+        "Filters out months with total sales less than or equal to $500."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"GROUP BY\")` `check_command_used(\"HAVING\")` **[A] Correctness (40 pts)**: 40 pts if aggregate sales matches; 20 pts if grouped by month but HAVING clause is missing. **[B] Optimality (30 pts)**: 30 pts if status filter executes first (reducing scan size). **[C] Quality (20 pts)**: 20 pts for using `ROUND()` to format aggregate decimal fields. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      DATE_FORMAT(created_at, '%Y-%m') AS order_month,\n      SUM(total_amount) AS total_sales,\n      ROUND(AVG(total_amount), 2) AS avg_order_value\n    FROM orders\n    WHERE status = 'completed'\n    GROUP BY DATE_FORMAT(created_at, '%Y-%m')\n    HAVING SUM(total_amount) > 500\n    ORDER BY order_month ASC;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

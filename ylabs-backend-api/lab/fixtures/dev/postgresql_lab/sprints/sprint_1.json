@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 1 - Ledger Querying & Aggregation",
+  "description": "",
+  "order_index": 1,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "High-Balance Accounts",
+      "ticket_slug": "postgresql-1-1-1",
+      "description": "Writes a query to retrieve active checking accounts with balances above $5,000. ",
+      "tasks": [
+        "Writes a query to retrieve active checking accounts with balances above $5,000."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_projected_fields(actual, included=['customer_id', 'account_type', 'balance', 'status'], excluded=[])` `check_sort_order(actual, 'balance', 'DESC')` **[A] Correctness (40 pts)**: 40 pts if exact result set matches; 20 pts if balance filtered correctly but status active check is missing. **[B] Optimality (30 pts)**: 30 pts if query executes in `< 5ms`. **[C] Quality (20 pts)**: 20 pts if keywords are uppercase (`SELECT`, `FROM`, `WHERE`); 10 pts if lowercase. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT customer_id, account_type, balance, status\n    FROM accounts\n    WHERE account_type = 'checking'\n      AND status = 'active'\n      AND balance > 5000.00\n    ORDER BY balance DESC;\n"
+      },
+      "yuvro_points": 40,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Suspended VIP Audits",
+      "ticket_slug": "postgresql-1-1-2",
+      "description": "Locates suspended high-risk customers who still have checking accounts in the database. ",
+      "tasks": [
+        "Locates suspended high-risk customers who still have checking accounts in the database."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"JOIN\")` **[A] Correctness (40 pts)**: 40 pts for finding correct matching records. **[B] Optimality (30 pts)**: 30 pts if query targets indexes. **[C] Quality (20 pts)**: 20 pts for structured join conditions. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT a.id AS account_id, c.name, c.email, a.balance\n    FROM accounts a\n    JOIN customers c ON a.customer_id = c.id\n    WHERE a.status = 'suspended' AND c.risk_level = 'High'\n    ORDER BY a.balance DESC;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Daily Transaction Volumes",
+      "ticket_slug": "postgresql-1-2-1",
+      "description": "Computes total transaction volume (using absolute amount values) and average transaction size per completed type per day. ",
+      "tasks": [
+        "Computes total transaction volume (using absolute amount values) and average transaction size per completed type per day."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"ABS\")` `check_command_used(\"GROUP BY\")` **[A] Correctness (40 pts)**: 40 pts if daily sums match; 20 pts if aggregates exclude failed status check. **[B] Optimality (30 pts)**: 30 pts if grouping matches indexing. **[C] Quality (20 pts)**: 20 pts for clear column aliases (`tx_date`, `total_volume`). ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Review the PostgreSQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      type,\n      DATE(created_at) AS tx_date,\n      COUNT(*) AS tx_count,\n      SUM(ABS(amount)) AS total_volume,\n      ROUND(AVG(ABS(amount)), 2) AS avg_size\n    FROM transactions\n    WHERE status = 'completed'\n    GROUP BY type, DATE(created_at)\n    ORDER BY type, tx_date;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

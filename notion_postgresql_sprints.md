@@ -58,6 +58,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_projected_fields(actual, included=['customer_id', 'account_type', 'balance', 'status'], excluded=[])`
@@ -82,6 +92,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     WHERE a.status = 'suspended' AND c.risk_level = 'High'
     ORDER BY a.balance DESC;
     ```
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
   * **Difficulty**: EASY
   * **Time Limit**: 45 minutes
@@ -122,6 +142,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("ABS")`
@@ -156,6 +186,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
   * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("LEFT JOIN")`
@@ -178,6 +218,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     FULL OUTER JOIN transactions t ON t.account_id = a.id
     WHERE a.id IS NULL OR t.id IS NULL;
     ```
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
   * **Learning Objectives**: Master relational data retrieval across multiple tables.
   * **Difficulty**: EASY
   * **Time Limit**: 45 minutes
@@ -223,6 +273,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("WITH RECURSIVE")`
@@ -259,6 +319,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
   * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("@>")`
@@ -289,6 +359,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
   * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("#>>")`
@@ -312,6 +392,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Understand semi-structured data querying using JSONB.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
+  * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
+  * **Learning Objectives**: Understand semi-structured data querying using JSONB.
+  * **Difficulty**: MEDIUM
   * **Time Limit**: 45 minutes
   * **Hints**: PostgreSQL has robust JSONB operators like -> and ->>., Check the Postgres documentation for JSON function syntax.
   * **Common Mistakes**: Confusing the -> operator (returns JSON) with ->> (returns text).
@@ -352,6 +442,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("SUM")`
@@ -387,6 +487,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("LAG")`
@@ -409,6 +519,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: MEDIUM
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
@@ -456,6 +576,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `check_trigger_exists("trg_audit_balance")`
   - `verify_audit_log_written_on_balance_update()`
@@ -489,6 +619,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
@@ -529,6 +669,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
@@ -574,6 +724,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `check_table_partitioned("partitioned_transactions")`
   - `verify_partition_exists("tx_2024")`
@@ -603,6 +763,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
 * **How the system evaluates**:
   - `check_materialized_view_exists("mv_branch_deposits")`
   - `verify_index_exists("idx_mv_branch_type")`
@@ -628,6 +798,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and PostgreSQL features.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Review the PostgreSQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without quotes.

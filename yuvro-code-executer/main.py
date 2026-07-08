@@ -12,6 +12,7 @@ import difflib
 import asyncio
 import json
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
+from services.sqlite_executor import SqliteExecutorService
 
 def kill_process_tree(pid: int):
     try:
@@ -144,6 +145,23 @@ class PlagiarismResult(BaseModel):
     is_plagiarized: bool
     max_similarity: float
     matches: List[PlagiarismMatch]
+
+class SqliteEvaluationRequest(BaseModel):
+    lab_id: str
+    task_id: str
+    database_identifier: str
+    user_query: str
+    system_query: str
+    points_possible: int = 10
+    check_order: bool = False
+    check_columns: bool = True
+
+class SqliteEvaluationResponse(BaseModel):
+    correct: bool
+    error: Optional[str] = None
+    execution_time_ms: float
+    user_result: List[Any] = []
+    expected_result: List[Any] = []
 
 @app.post("/plagiarism-check", response_model=PlagiarismResult)
 async def check_plagiarism(request: PlagiarismCheckRequest):
@@ -767,6 +785,21 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "code-executor"}
+
+@app.post("/evaluate-sqlite", response_model=SqliteEvaluationResponse)
+async def evaluate_sqlite(request: SqliteEvaluationRequest):
+    """Evaluate SQLite code and return correctness and results"""
+    try:
+        result = SqliteExecutorService.evaluate_submission(
+            user_query=request.user_query,
+            system_query=request.system_query,
+            db_identifier=request.database_identifier,
+            check_order=request.check_order,
+            check_columns=request.check_columns
+        )
+        return SqliteEvaluationResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/execute")
 async def execute_code(request: CodeExecutionRequest):

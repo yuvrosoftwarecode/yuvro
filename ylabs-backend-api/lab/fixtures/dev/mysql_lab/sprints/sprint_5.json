@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 5 - Stored Procedures, Triggers & Events",
+  "description": "",
+  "order_index": 5,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Automated Inventory Triggers",
+      "ticket_slug": "mysql-5-1-1",
+      "description": "Creates a trigger that automatically updates product inventory whenever an order is set to 'completed' or 'cancelled'. ",
+      "tasks": [
+        "Creates a trigger that automatically updates product inventory whenever an order is set to 'completed' or 'cancelled'."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`check_trigger_exists(\"trg_order_status_update\")` `verify_inventory_reduced_on_trigger()` **[A] Correctness (40 pts)**: 40 pts if inventory stock triggers successfully on order updates. **[B] Optimality (30 pts)**: 30 pts if it utilizes bulk joins rather than cursors. **[C] Quality (20 pts)**: 20 pts for clear checking loops of status codes. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE TRIGGER trg_order_status_update\n    AFTER UPDATE ON orders\n    FOR EACH ROW\n    BEGIN\n      IF NEW.status = 'completed' AND OLD.status != 'completed' THEN\n         UPDATE products p\n         JOIN order_items oi ON oi.product_id = p.id\n         SET p.stock = p.stock - oi.quantity\n         WHERE oi.order_id = NEW.id;\n      END IF;\n    END;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Monthly Sales Report Procedure",
+      "ticket_slug": "mysql-5-1-2",
+      "description": "Writes a stored procedure that outputs the total sales, completed orders count, and average order value for a given month parameters. ",
+      "tasks": [
+        "Writes a stored procedure that outputs the total sales, completed orders count, and average order value for a given month parameters."
+      ],
+      "learning_objectives": [
+        "Understand stored procedures and programmatic SQL."
+      ],
+      "evaluation": "`check_procedure_exists(\"GetMonthlySalesReport\")` `verify_procedure_output(\"GetMonthlySalesReport\", '2024-03')` **[A] Correctness (40 pts)**: 40 pts if variables write back to outputs correctly. **[B] Optimality (30 pts)**: 30 pts for bypassing sequential aggregates using indexed fields. **[C] Quality (20 pts)**: 20 pts for explicit typing on procedure variables. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE PROCEDURE GetMonthlySalesReport(IN report_month VARCHAR(7), OUT total_sales NUMERIC(15,2))\n    BEGIN\n      SELECT SUM(total_amount) INTO total_sales\n      FROM orders\n      WHERE status = 'completed' AND DATE_FORMAT(created_at, '%Y-%m') = report_month;\n    END;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Event Scheduler for Archive Logs",
+      "ticket_slug": "mysql-5-1-3",
+      "description": "Enables the MySQL Event Scheduler and defines a recurring event to purge cart logs older than 30 days. ",
+      "tasks": [
+        "Enables the MySQL Event Scheduler and defines a recurring event to purge cart logs older than 30 days."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`check_event_exists(\"purge_old_sessions\")` `verify_scheduler_active()` **[A] Correctness (40 pts)**: 40 pts if event schedules cleanups correctly. **[B] Optimality (30 pts)**: 30 pts for lightweight, partitioned deleting. **[C] Quality (20 pts)**: 20 pts for clear cron-style event loops. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE EVENT purge_old_sessions\n    ON SCHEDULE EVERY 1 DAY\n    DO\n      DELETE FROM session_logs\n      WHERE last_activity < NOW() - INTERVAL 30 DAY;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

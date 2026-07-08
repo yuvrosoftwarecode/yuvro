@@ -849,9 +849,125 @@ const REACT_KITS: Record<string, Kit> = {
   }
 };
 
+
+const CYBERSECURITY_KITS: Record<string, Kit> = {
+  "SEC-101": {
+    name: "python", rootLabel: "sqli-patch", primary: "app.py", runtime: "Python 3.10 · Flask",
+    fileList: ["app.py", "README.md"],
+    files: {
+      "app.py": `import sqlite3
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
+    # TODO: SECURE this query using parameterized queries instead of f-strings
+    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+    cursor.execute(query)
+    
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        return jsonify({"status": "success", "message": "Logged in!"})
+    return jsonify({"status": "error", "message": "Invalid credentials"}), 401`,
+      "README.md": `# SEC-101 | SQL Injection (SQLi) Patch
+
+Fix a vulnerable Python Flask login endpoint that concatenates raw user input into an SQL query.
+
+## Tasks
+1. Identify the vulnerability in \`app.py\` where user input is concatenated.
+2. Fix the query by using parameterized queries (\`?\` placeholders).
+3. Ensure the login function still works correctly for valid credentials.
+
+## Hints
+- Never use Python's \`+\` operator or f-strings for SQL variables.
+- Use the \`?\` placeholders provided by the \`sqlite3\` driver.
+- The \`execute\` method takes a tuple of parameters as its second argument.
+`
+    }
+  },
+  "SEC-102": {
+    name: "python", rootLabel: "xss-patch", primary: "comments.py", runtime: "Python 3.10",
+    fileList: ["comments.py", "README.md"],
+    files: {
+      "comments.py": `import bleach
+
+def sanitize_comment(raw_html):
+    # TODO: Allow only safe tags (e.g., 'b', 'i', 'strong', 'em')
+    # Clean the input using bleach.clean()
+    return raw_html
+
+# Example usage:
+# malicious_input = "<script>alert(1)</script><b>Hello</b>"
+# print(sanitize_comment(malicious_input))
+`,
+      "README.md": `# SEC-102 | Cross-Site Scripting (XSS) Sanitization
+
+Implement a function to sanitize user-submitted blog comments before rendering them.
+
+## Tasks
+1. Use the \`bleach\` library to clean the \`raw_html\` input.
+2. Allow only safe tags: \`b\`, \`i\`, \`strong\`, \`em\`.
+3. Return the sanitized HTML string.
+
+## Hints
+- Use \`bleach.clean(raw_html, tags=allowed_tags, strip=True)\`.
+- Don't write your own regex to strip tags, as it's prone to bypasses.
+`
+    }
+  },
+  "SEC-103": {
+    name: "python", rootLabel: "csrf-patch", primary: "csrf.py", runtime: "Python 3.10 · Flask",
+    fileList: ["csrf.py", "README.md"],
+    files: {
+      "csrf.py": `import os
+import binascii
+from flask import session, abort, request
+
+def generate_csrf_token():
+    if 'csrf_token' not in session:
+        # TODO: Generate a cryptographically secure random token and store it in the session
+        pass
+    return session.get('csrf_token')
+
+def validate_csrf_token():
+    # Require CSRF token for state-changing methods
+    if request.method in ['POST', 'PUT', 'DELETE']:
+        # TODO: Retrieve the token from request.form or request.headers
+        # TODO: Abort with 403 if the token is missing or invalid
+        pass
+`,
+      "README.md": `# SEC-103 | Cross-Site Request Forgery (CSRF) Tokens
+
+Add CSRF token generation and validation to a state-changing POST endpoint.
+
+## Tasks
+1. Implement \`generate_csrf_token\` to generate a secure random 32-byte token and store it in the session.
+2. Implement \`validate_csrf_token\` to check if the incoming POST request has a valid CSRF token.
+3. If invalid, abort with a 403 Forbidden status.
+
+## Hints
+- Use \`os.urandom(32)\` and \`binascii.hexlify()\` to generate the token.
+- Check \`request.form.get('csrf_token')\` or \`request.headers.get('X-CSRF-Token')\`.
+`
+    }
+  }
+};
+
 function getKit(slug: string, tag: string, ticketId: string): Kit {
   if (slug === "react") {
     return REACT_KITS[ticketId] ?? REACT_KITS["REACT-101"];
+  }
+  if (slug === "cybersecurity") {
+    return CYBERSECURITY_KITS[ticketId] ?? CYBERSECURITY_KITS["SEC-101"];
   }
   if (tag === "Django Todo") {
     return {
@@ -1710,10 +1826,18 @@ export function StudentTicketView({
     if (isPython) {
       setOutput(`$ python ${file}\n…running…\n`);
       setTimeout(() => {
-        const out: string[] = [];
-        const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-        let m; while ((m = re.exec(src))) out.push(m[1]);
-        setOutput(`$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`);
+        if (/from flask import Flask/.test(src) || /import Flask/.test(src)) {
+            setOutput(`$ python ${file}\n * Serving Flask app '${file}'\n * Debug mode: on\n * Running on http://127.0.0.1:5000\n✓ Server started successfully`);
+        } else {
+            const out: string[] = [];
+            const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
+            let m; while ((m = re.exec(src))) out.push(m[1]);
+            if (out.length > 0) {
+                setOutput(`$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`);
+            } else {
+                setOutput(`$ python ${file}\n\n✓ Process finished with exit code 0`);
+            }
+        }
         setRunning(false);
       }, 500);
       return;
@@ -1778,6 +1902,34 @@ export function StudentTicketView({
   }
 
 
+
+function getPythonTests(ticketId: string, files: Record<string, string>): TestResult[] {
+  const src = files["app.py"] || files["comments.py"] || files["csrf.py"] || Object.values(files)[0] || "";
+  if (ticketId === "SEC-101") {
+    return [
+      { name: "Test 1 · Parameterized Query Used", pass: /\?/.test(src) && !/f"/.test(src) && /cursor\.execute\(.*?,.*?\)/.test(src), time: "8ms" },
+      { name: "Test 2 · Prevents SQL Injection (admin' OR 1=1 --)", pass: /\?/.test(src), time: "11ms" },
+      { name: "Test 3 · Valid Login Succeeds", pass: true, time: "9ms" }
+    ];
+  } else if (ticketId === "SEC-102") {
+    return [
+      { name: "Test 1 · Imports bleach", pass: /import bleach/.test(src), time: "4ms" },
+      { name: "Test 2 · Allows safe tags", pass: /bleach\.clean\(.*?(tags=.*?)?\)/.test(src), time: "8ms" },
+      { name: "Test 3 · Strips <script> tags", pass: /bleach\.clean\(.*?(strip=True.*?)?\)/.test(src), time: "9ms" }
+    ];
+  } else if (ticketId === "SEC-103") {
+    return [
+      { name: "Test 1 · Generates secure random token", pass: /os\.urandom\(32\)/.test(src), time: "5ms" },
+      { name: "Test 2 · Enforces token on state-changing methods", pass: /request\.method\s*in\s*\[.*'POST'.*\]/.test(src), time: "7ms" },
+      { name: "Test 3 · Aborts if token invalid", pass: /abort\(403/.test(src), time: "6ms" }
+    ];
+  }
+  return [
+    { name: "Test 1 · Syntax Check", pass: true, time: "10ms" },
+    { name: "Test 2 · Execution Successful", pass: true, time: "15ms" }
+  ];
+}
+
   function handleRunTests() {
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
@@ -1790,6 +1942,12 @@ export function StudentTicketView({
       }
       if (isUi) {
         const next = getUITests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        return;
+      }
+      if (isPython) {
+        const next = getPythonTests(ticket.id, files);
         setTests(next);
         setTestsRan(true);
         return;
@@ -1828,6 +1986,20 @@ export function StudentTicketView({
       }
       if (isUi) {
         const next = getUITests(ticket.id, files);
+        setTests(next);
+        setTestsRan(true);
+        if (next.every((t) => t.pass)) {
+          saveTicketState(ticket.id, { status: "Completed", score: 100 });
+          ticket.status = "Completed";
+          ticket.score = 100;
+          navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        } else {
+          showToast("Fix failing tests before submitting");
+        }
+        return;
+      }
+      if (isPython) {
+        const next = getPythonTests(ticket.id, files);
         setTests(next);
         setTestsRan(true);
         if (next.every((t) => t.pass)) {

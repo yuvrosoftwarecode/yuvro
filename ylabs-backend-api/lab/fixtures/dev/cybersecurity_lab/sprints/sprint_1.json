@@ -1,0 +1,122 @@
+{
+  "title": "Sprint 1 - Web Vulnerabilities (OWASP Top 10)",
+  "description": "",
+  "order_index": 1,
+  "lab_title": "Cyber Security Lab",
+  "tickets": [
+    {
+      "title": "SQL Injection (SQLi) Patch",
+      "ticket_slug": "cybersecurity-sec-101",
+      "description": "Fix a vulnerable Python Flask login endpoint that concatenates raw user input into an SQL query.",
+      "tasks": [
+        "Fix a vulnerable Python Flask login endpoint that concatenates raw user input into an SQL query."
+      ],
+      "learning_objectives": [
+        "Parameterized queries",
+        "prepared statements",
+        "and SQL injection prevention."
+      ],
+      "evaluation": "Static Analysis checks for string formatting in SQL queries and the use of the `execute(query, params)` tuple syntax.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using string formatting (`f\"SELECT * FROM users WHERE username='{user}'\"`) instead of parameter binding."
+      ],
+      "hints": [
+        "Never use Python's `+` operator or f-strings for SQL variables",
+        "Use the `?` or `%s` placeholders provided by your database driver (like `sqlite3` or `psycopg2`)."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "app.py": "    import sqlite3\n    from flask import Flask, request, jsonify\n\n    app = Flask(__name__)\n\n    @app.route('/login', methods=['POST'])\n    def login():\n        username = request.json.get('username')\n        password = request.json.get('password')\n        \n        conn = sqlite3.connect('database.db')\n        cursor = conn.cursor()\n        \n        # SECURE: Using parameterized queries instead of f-strings\n        query = \"SELECT * FROM users WHERE username = ? AND password = ?\"\n        cursor.execute(query, (username, password))\n        \n        user = cursor.fetchone()\n        conn.close()\n        \n        if user:\n            return jsonify({\"status\": \"success\", \"message\": \"Logged in!\"})\n        return jsonify({\"status\": \"error\", \"message\": \"Invalid credentials\"}), 401\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Cross-Site Scripting (XSS) Sanitization",
+      "ticket_slug": "cybersecurity-sec-102",
+      "description": "Implement a middleware or function to sanitize user-submitted blog comments before rendering them.",
+      "tasks": [
+        "Implement a middleware or function to sanitize user-submitted blog comments before rendering them."
+      ],
+      "learning_objectives": [
+        "Stored XSS",
+        "HTML escaping",
+        "and Content Security Policy (CSP)."
+      ],
+      "evaluation": "Logic Grader checks for the import and usage of a recognized HTML sanitization library (e.g., `bleach.clean`).",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Only removing `<script>` tags (ignoring `onload` or `onerror` attributes in `<img>` tags)."
+      ],
+      "hints": [
+        "Use the `bleach` library in Python or `DOMPurify` in JavaScript",
+        "Don't try to write your own regex to strip `<script>` tags\u2014attackers will bypass it."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "comments.py": "    import bleach\n\n    def sanitize_comment(raw_html):\n        # Allow only safe tags (e.g., bold, italics)\n        allowed_tags = ['b', 'i', 'strong', 'em']\n        \n        # Clean the input using bleach\n        clean_html = bleach.clean(raw_html, tags=allowed_tags, strip=True)\n        return clean_html\n\n    # Example usage:\n    # malicious_input = \"<script>alert(1)</script><b>Hello</b>\"\n    # print(sanitize_comment(malicious_input)) # Outputs: <b>Hello</b>\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Cross-Site Request Forgery (CSRF) Tokens",
+      "ticket_slug": "cybersecurity-sec-103",
+      "description": "Add CSRF token generation and validation to a state-changing POST endpoint.",
+      "tasks": [
+        "Add CSRF token generation and validation to a state-changing POST endpoint."
+      ],
+      "learning_objectives": [
+        "Session management",
+        "CSRF tokens",
+        "and SameSite cookie attributes."
+      ],
+      "evaluation": "Grader inspects the session object for token storage and validates that POST requests missing the token return a 403 Forbidden.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Using predictable tokens (like MD5 of the username) or forgetting to validate the token on the server side."
+      ],
+      "hints": [
+        "A CSRF token should be cryptographically random and tied to the user's session",
+        "Ensure the token is passed in a hidden form field or a custom HTTP header (like `X-CSRF-Token`)."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "csrf.py": "    import os\n    import binascii\n    from flask import session, abort, request\n\n    def generate_csrf_token():\n        if 'csrf_token' not in session:\n            # Generate a cryptographically secure random token\n            session['csrf_token'] = binascii.hexlify(os.urandom(32)).decode('utf-8')\n        return session['csrf_token']\n\n    def validate_csrf_token():\n        # Require CSRF token for state-changing methods\n        if request.method in ['POST', 'PUT', 'DELETE']:\n            token = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')\n            if not token or token != session.get('csrf_token'):\n                abort(403, description=\"CSRF token missing or invalid\")\n"
+      },
+      "yuvro_points": 150,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "order_index": 3
+    }
+  ]
+}

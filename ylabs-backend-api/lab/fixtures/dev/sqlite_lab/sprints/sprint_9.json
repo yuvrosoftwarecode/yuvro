@@ -1,0 +1,113 @@
+{
+  "title": "Sprint 9 - Set Operations & Constraints",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 9,
+  "lab_title": "SQLite Lab",
+  "tickets": [
+    {
+      "title": "Find Alice's Tasks via Subquery",
+      "ticket_slug": "sqlite-91",
+      "description": "Find all task titles for the user 'alice_dev' without using a JOIN, but instead using a subquery.",
+      "tasks": [
+        "Find all task titles for the user 'alice_dev' without using a JOIN, but instead using a subquery."
+      ],
+      "learning_objectives": [
+        "Writing Subqueries in the WHERE clause."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "User Task Counts (CTE)",
+      "ticket_slug": "sqlite-92",
+      "description": "Use a Common Table Expression (CTE) named `user_counts` to calculate the total tasks per user_id, then select all records from the CTE.",
+      "tasks": [
+        "Use a Common Table Expression (CTE) named `user_counts` to calculate the total tasks per user_id, then select all records from the CTE."
+      ],
+      "learning_objectives": [
+        "Structuring queries with WITH (CTEs)."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Optimize Status Queries",
+      "ticket_slug": "sqlite-93",
+      "description": "Create an index called `idx_todos_status` on the `status` column of the `todos` table to speed up filtering.",
+      "tasks": [
+        "Create an index called `idx_todos_status` on the `status` column of the `todos` table to speed up filtering."
+      ],
+      "learning_objectives": [
+        "Using CREATE INDEX to optimize performance."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "title": "Sprint 3 - JSONB Payment Logs",
+  "description": "",
+  "order_index": 3,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "JSONB Containment query (@>)",
+      "ticket_slug": "postgresql-3-1-1",
+      "description": "Filters transaction logs containing a nested state `status: \"flagged\"` inside the JSONB payload. ",
+      "tasks": [
+        "Filters transaction logs containing a nested state `status: \"flagged\"` inside the JSONB payload."
+      ],
+      "learning_objectives": [
+        "Understand semi-structured data querying using JSONB."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"@>\")` `check_command_used(\"->>\")` **[A] Correctness (40 pts)**: 40 pts for exact filtered entries. **[B] Optimality (30 pts)**: 30 pts if query utilizes a GIN index on `payload`. **[C] Quality (20 pts)**: 20 pts for proper key extraction path formats. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Confusing the -> operator (returns JSON) with ->> (returns text)."
+      ],
+      "hints": [
+        "PostgreSQL has robust JSONB operators like -> and ->>.",
+        "Check the Postgres documentation for JSON function syntax."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      id,\n      event_type,\n      payload->>'user' AS user_involved,\n      payload->'meta'->>'gateway' AS gateway_name\n    FROM audit_logs\n    WHERE payload @> '{\"status\": \"flagged\"}';\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Extracting Nested Field Paths",
+      "ticket_slug": "postgresql-3-1-2",
+      "description": "Extracts nested routing fields using postgres jsonb path selectors. ",
+      "tasks": [
+        "Extracts nested routing fields using postgres jsonb path selectors."
+      ],
+      "learning_objectives": [
+        "Understand semi-structured data querying using JSONB."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"#>>\")` **[A] Correctness (40 pts)**: 40 pts for extracting correct gateway keys. **[B] Optimality (30 pts)**: 30 pts for casting parsing. **[C] Quality (20 pts)**: 20 pts for casting JSON string output explicitly to `numeric`. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Confusing the -> operator (returns JSON) with ->> (returns text)."
+      ],
+      "hints": [
+        "PostgreSQL has robust JSONB operators like -> and ->>.",
+        "Check the Postgres documentation for JSON function syntax."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT\n      id,\n      payload#>>'{meta, gateway}' AS gateway_used,\n      (payload->>'amount')::numeric AS transaction_amount\n    FROM audit_logs\n    WHERE event_type = 'transfer';\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Unnesting JSONB Array Elements",
+      "ticket_slug": "postgresql-3-1-3",
+      "description": "Unnests the JSON array nodes to create a flat list of gateways involved. ",
+      "tasks": [
+        "Unnests the JSON array nodes to create a flat list of gateways involved."
+      ],
+      "learning_objectives": [
+        "Understand semi-structured data querying using JSONB."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"jsonb_array_elements_text\")` **[A] Correctness (40 pts)**: 40 pts for correct unnested listings. **[B] Optimality (30 pts)**: 30 pts for memory-safe collection unnesting. **[C] Quality (20 pts)**: 20 pts for returning elements as standard texts. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Confusing the -> operator (returns JSON) with ->> (returns text)."
+      ],
+      "hints": [
+        "PostgreSQL has robust JSONB operators like -> and ->>.",
+        "Check the Postgres documentation for JSON function syntax."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT id, jsonb_array_elements_text(payload->'meta'->'nodes') AS gateway_node\n    FROM audit_logs\n    WHERE event_type = 'transfer';\n"
+      },
+      "yuvro_points": 65,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

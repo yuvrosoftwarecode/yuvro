@@ -129,6 +129,32 @@ print(fib(10))
     print(f"Plagiarism check: {response.status_code}")
     print(json.dumps(response.json(), indent=2))
 
+def test_sqlite_evaluation():
+    """Test SQLite evaluation flow"""
+    payload = {
+        "lab_id": "sqlite_lab",
+        "task_id": "task_1",
+        "database_identifier": "todo_management",
+        "user_query": "SELECT username FROM users;",
+        "system_query": "SELECT username FROM users;",
+        "points_possible": 10,
+        "check_order": False,
+        "check_columns": True
+    }
+    
+    print("Testing correct SQLite query...")
+    response = requests.post(f"{BASE_URL}/evaluate-sqlite", json=payload)
+    print(f"SQLite evaluation: {response.status_code}")
+    print(json.dumps(response.json(), indent=2))
+    
+    # Test a DML query (DELETE)
+    payload["user_query"] = "DELETE FROM users;"
+    payload["system_query"] = "SELECT * FROM users;"
+    print("Testing bad DELETE query against SELECT system query...")
+    response = requests.post(f"{BASE_URL}/evaluate-sqlite", json=payload)
+    print(f"SQLite evaluation (DELETE): {response.status_code}")
+    print(json.dumps(response.json(), indent=2))
+
 if __name__ == "__main__":
     print("Testing Code Executor FastAPI Service")
     print("=" * 50)
@@ -150,6 +176,9 @@ if __name__ == "__main__":
         print()
         
         test_plagiarism_check()
+        print()
+        
+        test_sqlite_evaluation()
         print()
         
     except requests.exceptions.ConnectionError:

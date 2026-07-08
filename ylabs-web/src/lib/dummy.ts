@@ -268,6 +268,14 @@ const baseTickets: Ticket[] = [
   { id: "SQL-302", title: "Normalize & denormalize", difficulty: "Advanced", estMin: 60, xp: 280, tag: "Tuning", status: "Not Started",
     description: "Take a flat reporting table to 3NF, then design a denormalized read model for a dashboard." },
 
+  // ---- Cyber Security Lab (Sprint 1) ----
+  { id: "SEC-101", title: "SQL Injection (SQLi) Patch", difficulty: "Beginner", estMin: 45, xp: 100, tag: "Sec OWASP", status: "Not Started",
+    description: "Fix a vulnerable Python Flask login endpoint that concatenates raw user input into an SQL query." },
+  { id: "SEC-102", title: "Cross-Site Scripting (XSS) Sanitization", difficulty: "Beginner", estMin: 45, xp: 100, tag: "Sec OWASP", status: "Not Started",
+    description: "Implement a middleware or function to sanitize user-submitted blog comments before rendering them." },
+  { id: "SEC-103", title: "Cross-Site Request Forgery (CSRF) Tokens", difficulty: "Intermediate", estMin: 60, xp: 150, tag: "Sec OWASP", status: "Not Started",
+    description: "Add CSRF token generation and validation to a state-changing POST endpoint." },
+
   // ---- MongoDB Lab · CRUD ----
   { id: "MDB-101", title: "Insert & find documents", difficulty: "Beginner", estMin: 30, xp: 120, tag: "Mongo CRUD", status: "In Progress", progress: 40,
     description: "Insert a few users with insertOne / insertMany, then read them back with find() and findOne()." },
@@ -589,7 +597,8 @@ export function loadLabsWithStatus(bLabs: Lab[], curTickets: Ticket[]): Lab[] {
       const isReact = l.slug === "react" && t.id.startsWith("REACT-");
       const isBootstrap = l.slug === "bootstrap" && t.id.startsWith("BS-");
       const isTailwind = l.slug === "tailwind" && t.id.startsWith("TW-");
-      return isJava || isPython || isUi || isSql || isPostgres || isPyDjango || isPyFlask || isJavaSpring || isGit || isMongo || isProg || isDs || isReact || isBootstrap || isTailwind;
+      const isCybersecurity = l.slug === "cybersecurity" && t.id.startsWith("SEC-");
+      return isJava || isPython || isUi || isSql || isPostgres || isPyDjango || isPyFlask || isJavaSpring || isGit || isMongo || isProg || isDs || isReact || isBootstrap || isTailwind || isCybersecurity;
     });
     
     const completed = matchingTickets.filter(t => t.status === "Completed").length;

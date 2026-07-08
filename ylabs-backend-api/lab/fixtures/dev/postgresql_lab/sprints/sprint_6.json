@@ -1,0 +1,118 @@
+{
+  "title": "Sprint 6 - Partitioning, Materialized Views & Fuzzy Search",
+  "description": "",
+  "order_index": 6,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "Declarative Table Partitioning by Timestamp Range",
+      "ticket_slug": "postgresql-6-1-1",
+      "description": "Creates a declaratively partitioned `transactions` table using timestamp ranges to split transaction rows by year. ",
+      "tasks": [
+        "Creates a declaratively partitioned `transactions` table using timestamp ranges to split transaction rows by year."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`check_table_partitioned(\"partitioned_transactions\")` `verify_partition_exists(\"tx_2024\")` **[A] Correctness (40 pts)**: 40 pts if partition tables map records successfully. **[B] Optimality (30 pts)**: 30 pts for correct range bounds without overlaps. **[C] Quality (20 pts)**: 20 pts for explicit timezone settings on partition ranges. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Review the PostgreSQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE TABLE partitioned_transactions (\n      id SERIAL,\n      account_id INT,\n      amount NUMERIC(12,2),\n      created_at TIMESTAMP WITH TIME ZONE,\n      PRIMARY KEY (id, created_at)\n    ) PARTITION BY RANGE (created_at);\n\n    CREATE TABLE tx_2023 PARTITION OF partitioned_transactions\n      FOR VALUES FROM ('2023-01-01 00:00:00+00') TO ('2024-01-01 00:00:00+00');\n\n    CREATE TABLE tx_2024 PARTITION OF partitioned_transactions\n      FOR VALUES FROM ('2024-01-01 00:00:00+00') TO ('2025-01-01 00:00:00+00');\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Materialized Views with Auto-Refresh",
+      "ticket_slug": "postgresql-6-1-2",
+      "description": "Generates a materialized view summarizing monthly branch customer deposit statistics, adding index coverage to fast-track reports. ",
+      "tasks": [
+        "Generates a materialized view summarizing monthly branch customer deposit statistics, adding index coverage to fast-track reports."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`check_materialized_view_exists(\"mv_branch_deposits\")` `verify_index_exists(\"idx_mv_branch_type\")` **[A] Correctness (40 pts)**: 40 pts if materialized sums match active balances. **[B] Optimality (30 pts)**: 30 pts if unique index enables concurrent refresh options. **[C] Quality (20 pts)**: 20 pts for structured view naming filters. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE MATERIALIZED VIEW mv_branch_deposits AS\n    SELECT a.account_type, SUM(a.balance) AS type_total\n    FROM accounts a\n    GROUP BY a.account_type;\n    \n    CREATE UNIQUE INDEX idx_mv_branch_type ON mv_branch_deposits(account_type);\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "pg_trgm Fuzzy Customer Name Search",
+      "ticket_slug": "postgresql-6-1-3",
+      "description": "Enables the `pg_trgm` extension and creates a GIN trigram index on customer name columns to facilitate fuzzy search matches. ",
+      "tasks": [
+        "Enables the `pg_trgm` extension and creates a GIN trigram index on customer name columns to facilitate fuzzy search matches."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`check_extension_active(\"pg_trgm\")` `verify_index_usage(\"idx_customers_name_trgm\")` `check_command_used(\"%\")` **[A] Correctness (40 pts)**: 40 pts if fuzzy similarity search returns close spelling variants. **[B] Optimality (30 pts)**: 30 pts for using GIN trigram index over standard sequential LIKE scans. **[C] Quality (20 pts)**: 20 pts for clean extension loading syntax. ",
+      "difficulty": "HARD",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Review the PostgreSQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE EXTENSION IF NOT EXISTS pg_trgm;\n    CREATE INDEX idx_customers_name_trgm ON customers USING gin (name gin_trgm_ops);\n    SELECT id, name\n    FROM customers\n    WHERE name % 'Bruce Wayne';\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "title": "Sprint 2 - Relational Auditing & Recursive Trees",
+  "description": "",
+  "order_index": 2,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "Dormant Account Auditing",
+      "ticket_slug": "postgresql-2-1-1",
+      "description": "Performs a LEFT JOIN to find all customer records who have no active accounts in the ledger. ",
+      "tasks": [
+        "Performs a LEFT JOIN to find all customer records who have no active accounts in the ledger."
+      ],
+      "learning_objectives": [
+        "Master relational data retrieval across multiple tables."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"LEFT JOIN\")` **[A] Correctness (40 pts)**: 40 pts for correct user ID listing. **[B] Optimality (30 pts)**: 30 pts if indexing on `customer_id` is matched. **[C] Quality (20 pts)**: 20 pts for correct aliasing. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using a CROSS JOIN accidentally by forgetting the ON clause.",
+        "Selecting ambiguous column names without table aliases."
+      ],
+      "hints": [
+        "Ensure you are joining on the correct primary and foreign keys.",
+        "Consider whether an INNER JOIN or LEFT JOIN is needed."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT c.id, c.name, c.email\n    FROM customers c\n    LEFT JOIN accounts a ON a.customer_id = c.id\n    WHERE a.id IS NULL;\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Full Transaction Reconciliation",
+      "ticket_slug": "postgresql-2-1-2",
+      "description": "Conducts a FULL OUTER JOIN to audit discrepancies between account files and transaction entries. ",
+      "tasks": [
+        "Conducts a FULL OUTER JOIN to audit discrepancies between account files and transaction entries."
+      ],
+      "learning_objectives": [
+        "Master relational data retrieval across multiple tables."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"FULL OUTER JOIN\")` **[A] Correctness (40 pts)**: 40 pts if missing links are captured. **[B] Optimality (30 pts)**: 30 pts for hashing-based join optimization. **[C] Quality (20 pts)**: 20 pts for explicitly naming output fields. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using a CROSS JOIN accidentally by forgetting the ON clause.",
+        "Selecting ambiguous column names without table aliases."
+      ],
+      "hints": [
+        "Ensure you are joining on the correct primary and foreign keys.",
+        "Consider whether an INNER JOIN or LEFT JOIN is needed."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    SELECT a.id AS account_id, t.id AS transaction_id, t.amount\n    FROM accounts a\n    FULL OUTER JOIN transactions t ON t.account_id = a.id\n    WHERE a.id IS NULL OR t.id IS NULL;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Recursive Referral Trees",
+      "ticket_slug": "postgresql-2-2-1",
+      "description": "Writes a recursive CTE to traverse ApexBank's referral structure, starting from Customer 1. ",
+      "tasks": [
+        "Writes a recursive CTE to traverse ApexBank's referral structure, starting from Customer 1."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and PostgreSQL features."
+      ],
+      "evaluation": "`compare_result_set(actual, expected)` `check_command_used(\"WITH RECURSIVE\")` **[A] Correctness (40 pts)**: 40 pts for exact tree output. **[B] Optimality (30 pts)**: 30 pts for CTE recursion speed. **[C] Quality (20 pts)**: 20 pts for structured joins within CTE limits. ",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without quotes."
+      ],
+      "hints": [
+        "Review the PostgreSQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    WITH RECURSIVE referral_tree AS (\n      SELECT referred_id, referrer_id, 1 AS depth\n      FROM referrals\n      WHERE referrer_id = 1\n      \n      UNION ALL\n      \n      SELECT r.referred_id, r.referrer_id, rt.depth + 1\n      FROM referrals r\n      JOIN referral_tree rt ON r.referrer_id = rt.referred_id\n    )\n    SELECT rt.referred_id AS customer_id, c.name AS customer_name, rt.depth\n    FROM referral_tree rt\n    JOIN customers c ON rt.referred_id = c.id\n    ORDER BY rt.depth, customer_name;\n"
+      },
+      "yuvro_points": 60,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

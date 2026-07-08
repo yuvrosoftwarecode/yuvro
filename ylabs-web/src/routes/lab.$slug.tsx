@@ -91,6 +91,9 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     { id: "TWS4", name: "Sprint 4 · Plugins & @apply", goal: "Typography, forms and component extraction", range: "May 22 – May 28", tags: [] },
     { id: "TWS5", name: "Sprint 5 · Capstone", goal: "Build a complete SaaS landing page", range: "May 29 – Jun 5", tags: [] },
   ];
+  const cybersecurityGroups = [
+    { id: "CS1", name: "Sprint 1 · OWASP Top 10", goal: "Understand and patch the most critical web vulnerabilities.", range: "May 1 – May 7", tags: ["Sec OWASP"] },
+  ];
   const groups =
     slug === "python" ? pythonGroups :
     slug === "ui" ? uiGroups :
@@ -101,6 +104,7 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     slug === "react" ? reactGroups :
     slug === "bootstrap" ? bootstrapGroups :
     slug === "tailwind" ? tailwindGroups :
+    slug === "cybersecurity" ? cybersecurityGroups :
     javaGroups;
   return groups.map((g) => {
     const ts = allTickets.filter((t) => {

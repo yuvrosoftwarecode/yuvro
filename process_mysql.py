@@ -50,7 +50,7 @@ def process_markdown():
     current_section = None
     solution_file = None
     
-    sprint_pattern = re.compile(r'^##\s+.*?Sprint\s+(\d+):\s+(.*)')
+    sprint_pattern = re.compile(r'^##\s+.*?Sprint\s+(\d+)[\s:—-]+(.*)')
     ticket_pattern = re.compile(r'^####\s+Task\s+(\d+\.\d+\.\d+)\s+—\s+(.*)')
     
     new_md_lines = []

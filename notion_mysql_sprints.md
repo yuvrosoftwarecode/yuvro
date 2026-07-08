@@ -56,6 +56,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_projected_fields(actual, included=['id', 'name', 'email', 'country', 'signed_up_at'], excluded=[])`
@@ -79,6 +89,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     WHERE name LIKE 'A%'
     ORDER BY signed_up_at DESC;
     ```
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
   * **Time Limit**: 45 minutes
@@ -120,6 +140,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("GROUP BY")`
@@ -150,6 +180,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     WHERE o.id IS NULL
     ORDER BY c.name ASC;
     ```
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
   * **Learning Objectives**: Master relational data retrieval across multiple tables.
   * **Difficulty**: EASY
   * **Time Limit**: 45 minutes
@@ -187,6 +227,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
   * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
+  * **Learning Objectives**: Master relational data retrieval across multiple tables.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Ensure you are joining on the correct primary and foreign keys., Consider whether an INNER JOIN or LEFT JOIN is needed.
+  * **Common Mistakes**: Using a CROSS JOIN accidentally by forgetting the ON clause., Selecting ambiguous column names without table aliases.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("JOIN")`
@@ -211,6 +261,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     WHERE ABS(p1.price - p2.price) <= 15.00
     ORDER BY price_diff ASC;
     ```
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
   * **Time Limit**: 45 minutes
@@ -259,6 +319,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("DENSE_RANK()")`
@@ -300,6 +370,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `compare_result_set(actual, expected)`
   - `check_command_used("LAG")`
@@ -328,6 +408,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
@@ -362,6 +452,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `verify_index_usage("idx_orders_date_status")`
   - `check_no_sequential_scan("orders")`
@@ -387,6 +487,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
@@ -431,6 +541,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: MEDIUM
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `validate_ddl_structure()`
   - `check_constraint_exists("normalized_orders", "customer_id")`
@@ -471,6 +591,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `check_trigger_exists("trg_order_status_update")`
   - `verify_inventory_reduced_on_trigger()`
@@ -500,6 +630,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Understand stored procedures and programmatic SQL.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Understand stored procedures and programmatic SQL.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `check_procedure_exists("GetMonthlySalesReport")`
   - `verify_procedure_output("GetMonthlySalesReport", '2024-03')`
@@ -525,6 +665,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
@@ -569,6 +719,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: HARD
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
 * **How the system evaluates**:
   - `check_table_partitioned("partitioned_orders")`
   - `verify_partition_boundaries("partitioned_orders")`
@@ -593,6 +753,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Review the MySQL documentation for exact syntax., Test your queries in smaller chunks first.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
@@ -623,6 +793,16 @@ Every task is scored across 3 dimensions (total = 100 pts per task):
     ```
   * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
   * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: EASY
+  * **Time Limit**: 45 minutes
+  * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
+  * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.
+  * **Learning Objectives**: Write efficient, standardized SQL queries., Understand relational database design and querying.
+  * **Difficulty**: HARD
   * **Time Limit**: 45 minutes
   * **Hints**: Remember to use GROUP BY for aggregate functions like SUM, COUNT, or AVG.
   * **Common Mistakes**: Forgetting semicolons at the end of statements., Using reserved keywords as column names without backticks.

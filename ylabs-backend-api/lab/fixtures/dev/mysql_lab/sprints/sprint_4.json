@@ -1,0 +1,119 @@
+{
+  "title": "Sprint 4 - Indexing, Transactions & Performance",
+  "description": "",
+  "order_index": 4,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Composite Indexing for Range Filters",
+      "ticket_slug": "mysql-4-1-1",
+      "description": "Evaluates slow scans on date filtering and creates a composite index on `(created_at, status)`. ",
+      "tasks": [
+        "Evaluates slow scans on date filtering and creates a composite index on `(created_at, status)`."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`verify_index_usage(\"idx_orders_date_status\")` `check_no_sequential_scan(\"orders\")` **[A] Correctness (40 pts)**: 40 pts if composite index exists and works. **[B] Optimality (30 pts)**: 30 pts if scan method changes to Index Scan. **[C] Quality (20 pts)**: 20 pts for descriptive index naming rules. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE INDEX idx_orders_date_status ON orders(created_at, status);\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Transaction Isolation & Stock Safety",
+      "ticket_slug": "mysql-4-1-2",
+      "description": "Writes a transaction block that locks the products row (FOR UPDATE) to prevent race conditions during stock reduction. ",
+      "tasks": [
+        "Writes a transaction block that locks the products row (FOR UPDATE) to prevent race conditions during stock reduction."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`check_command_used(\"FOR UPDATE\")` `check_transaction_committed()` **[A] Correctness (40 pts)**: 40 pts for successful transaction committing. **[B] Optimality (30 pts)**: 30 pts for locking row level only (avoiding table lock). **[C] Quality (20 pts)**: 20 pts for error handling checkpoints. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    START TRANSACTION;\n    SELECT price FROM products WHERE id = 1 FOR UPDATE;\n    UPDATE products SET stock = stock - 1 WHERE id = 1 AND stock > 0;\n    INSERT INTO order_items (order_id, product_id, quantity, price_per_unit) VALUES (10, 1, 1, 25.00);\n    COMMIT;\n"
+      },
+      "yuvro_points": 65,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Database Schema Normalization (3NF)",
+      "ticket_slug": "mysql-4-1-3",
+      "description": "Normalizes the flat log table into 3rd Normal Form (3NF) tables with foreign keys. ",
+      "tasks": [
+        "Normalizes the flat log table into 3rd Normal Form (3NF) tables with foreign keys."
+      ],
+      "learning_objectives": [
+        "Write efficient, standardized SQL queries.",
+        "Understand relational database design and querying."
+      ],
+      "evaluation": "`validate_ddl_structure()` `check_constraint_exists(\"normalized_orders\", \"customer_id\")` **[A] Correctness (40 pts)**: 40 pts if tables are generated in 3NF structure. **[B] Optimality (30 pts)**: 30 pts for appropriate data type sizes. **[C] Quality (20 pts)**: 20 pts for setting primary/foreign key constraint labels. ",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Forgetting semicolons at the end of statements.",
+        "Using reserved keywords as column names without backticks."
+      ],
+      "hints": [
+        "Review the MySQL documentation for exact syntax.",
+        "Test your queries in smaller chunks first."
+      ],
+      "scoring_rules": {
+        "correctness": 40,
+        "optimality": 30,
+        "quality": 20,
+        "speed_bonus": 10
+      },
+      "solution": {
+        "query.sql": "    CREATE TABLE normalized_customers (\n      id INT AUTO_INCREMENT PRIMARY KEY,\n      name VARCHAR(100) NOT NULL,\n      email VARCHAR(100) UNIQUE NOT NULL\n    );\n    CREATE TABLE normalized_products (\n      id INT AUTO_INCREMENT PRIMARY KEY,\n      name VARCHAR(100) NOT NULL,\n      category VARCHAR(50) NOT NULL,\n      price NUMERIC(10,2) NOT NULL\n    );\n    CREATE TABLE normalized_orders (\n      id INT AUTO_INCREMENT PRIMARY KEY,\n      customer_id INT REFERENCES normalized_customers(id),\n      product_id INT REFERENCES normalized_products(id),\n      quantity INT NOT NULL,\n      order_date TIMESTAMP NOT NULL\n    );\n"
+      },
+      "yuvro_points": 65,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}
