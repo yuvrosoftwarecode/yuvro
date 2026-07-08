@@ -105,6 +105,12 @@ class AuthService {
   async resetPassword(uidb64: string, token: string, password: string): Promise<any> {
     return await yhubApiAuthUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
   }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<any> {
+    return await yhubApiAuthUtil.post('/auth/change-password/', {
+      password: newPassword,
+    });
+  }
 }
 
 export const authService = new AuthService();

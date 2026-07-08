@@ -8,11 +8,18 @@ from .serializers import UserSerializer
 
 User = get_user_model()
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def user_info_view(request):
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    serializer = UserSerializer(request.user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])

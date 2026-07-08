@@ -194,12 +194,20 @@ class CustomTokenRefreshView(TokenRefreshView):
             raise InvalidToken(e.args[0])
 
 
-@api_view(["GET"])
+@api_view(["GET", "PUT", "PATCH"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    """Get current user information."""
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
+    """Get or update current user information."""
+    if request.method == "GET":
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    else:
+        from .serializers import UserUpdateSerializer
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(UserSerializer(request.user).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ForgotPasswordView(generics.GenericAPIView):
