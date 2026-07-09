@@ -6,6 +6,7 @@ from .views import (
     LabSprintTicketViewSet,
     UserLabEnrollmentViewSet,
     UserLabSprintTicketSubmissionViewSet,
+    student_stats_view,
 )
 
 router = DefaultRouter()
@@ -16,5 +17,6 @@ router.register(r'enrollments', UserLabEnrollmentViewSet, basename='lab-enrollme
 router.register(r'submissions', UserLabSprintTicketSubmissionViewSet, basename='lab-submission')
 
 urlpatterns = [
+    path('stats/', student_stats_view, name='student-stats'),
     path('', include(router.urls)),
 ]

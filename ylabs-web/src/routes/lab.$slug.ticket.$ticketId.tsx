@@ -852,6 +852,49 @@ function TicketIDE({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id]);
 
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  useEffect(() => {
+    if (previewOverride) return;
+    const isDummy = !isReal;
+
+    const RECENT_LAB_KEY = "ylabs-recent-lab";
+    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+      api.get<any>(`/lab/labs/${slug}/`)
+        .then((realLab) => {
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch {}
+        })
+        .catch(() => {
+          const labName = labs.find(l => l.slug === slug)?.name ?? slug;
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch {}
+        });
+    });
+
+    if (isDummy) return;
+
+    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+      api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`)
+        .then(async (subs) => {
+          if (subs.length === 0) {
+            const created = await api.post<any>("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: "in_progress",
+            });
+            setSubmissionId(created.id);
+          } else {
+            const sub = subs[0];
+            setSubmissionId(sub.id);
+            if (sub.ticket_status === "backlog") {
+              await api.patch<any>(`/lab/submissions/${sub.id}/`, {
+                ticket_status: "in_progress",
+              });
+            }
+          }
+        })
+        .catch(console.error);
+    });
+  }, [ticket.id, slug]);
+
+
   function progStarter(lang: ProgLang, title: string): string {
     const banner = `${title}`;
     switch (lang) {
@@ -1132,12 +1175,29 @@ function TicketIDE({
       setTests(next);
       setTestsRan(true);
       if (next.every((t) => t.pass)) {
+        if (isReal && submissionId) {
+          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+            api.patch(`/lab/submissions/${submissionId}/`, {
+              ticket_status: "in_review",
+              solution: files[Object.keys(files)[0]] ?? "",
+            }).catch(console.error);
+          });
+        } else if (isReal && !submissionId) {
+          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+            api.post("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: "in_review",
+              solution: files[Object.keys(files)[0]] ?? "",
+            }).catch(console.error);
+          });
+        }
         navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
       } else {
         showToast("Fix failing tests before submitting");
       }
     }, 600);
   }
+
 
   function handleSave() {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
