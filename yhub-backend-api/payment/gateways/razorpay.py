@@ -62,7 +62,32 @@ class RazorpayGateway(BasePaymentGateway):
         }
 
     def get_payment(self, payment: Dict[str, Any]) -> Dict[str, Any]:
-        return self._get(f"orders/{payment['payment_id']}")
+        return self._get(f"payments/{payment['payment_id']}")
+        
+    def get_order(self, order_id: str) -> Dict[str, Any]:
+        return self._get(f"orders/{order_id}")
+        
+    def map_status(self, gateway_status: str) -> str:
+        """
+        Map Razorpay native statuses to internal PaymentStatus.
+        Razorpay Order statuses: created, attempted, paid
+        Razorpay Payment statuses: created, authorized, captured, refunded, failed
+        """
+        from payment.models import PaymentStatus
+        
+        status_map = {
+            # Order statuses
+            "created": PaymentStatus.CREATED,
+            "attempted": PaymentStatus.PENDING,
+            "paid": PaymentStatus.SUCCESS_OR_CAPTURED,
+            
+            # Payment statuses
+            "authorized": PaymentStatus.AUTHORIZED,
+            "captured": PaymentStatus.SUCCESS_OR_CAPTURED,
+            "failed": PaymentStatus.FAILED,
+            "refunded": PaymentStatus.REFUNDED,
+        }
+        return status_map.get(gateway_status.lower(), PaymentStatus.PENDING)
 
     def capture_payment(self, payment: Dict[str, Any]) -> Dict[str, Any]:
         data = {"amount": payment.get("amount")}

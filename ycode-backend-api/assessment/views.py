@@ -467,6 +467,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             token = AccessToken.for_user(user)
             token['contest_id'] = str(contest.id)
             token['payment_pending'] = True
+            token['products'] = ['ycode']
             token['amount'] = float(contest.amount) if contest.amount else 0.0
             return Response({
                 "status": "payment_required", 
