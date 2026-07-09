@@ -104,9 +104,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             payment.latest_successfull_payment = {
                 "status": payment.status,
                 "amount": float(payment.amount),
-                "currency": payment.currency,
-                "gateway_order_id": gateway_order_id,
-                "gateway_payment_id": gateway_payment_id,
                 "signature": signature,
                 "verified_at": payment.completed_at.isoformat()
             }
@@ -127,7 +124,7 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             if payment.purchasable_item:
                 UserEntitlement.objects.create(
                     user=request.user,
-                    payment_transaction=payment,
+                    payment=payment,
                     purchasable_item=payment.purchasable_item
                 )
                 

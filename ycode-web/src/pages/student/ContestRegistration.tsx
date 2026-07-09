@@ -152,8 +152,8 @@ const ContestRegistration: React.FC = () => {
         }
         if (!phone.trim()) {
             newErrors.phone = 'Required';
-        } else if (!/^\+?[0-9]{7,15}$/.test(phone.replace(/[\s-]/g, ''))) {
-            newErrors.phone = 'Invalid number';
+        } else if (!/^[0-9]{10}$/.test(phone)) {
+            newErrors.phone = 'Must be exactly 10 digits';
         }
         if (!college.trim()) newErrors.college = 'Required';
         if (!semester.trim()) newErrors.semester = 'Required';
@@ -447,8 +447,10 @@ const ContestRegistration: React.FC = () => {
                                         type="tel"
                                         placeholder="Phone No.*"
                                         value={phone}
+                                        maxLength={10}
                                         onChange={(e) => {
-                                            setPhone(e.target.value);
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            setPhone(val);
                                             if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
                                         }}
                                         className={cn(inputClass, errors.phone && inputErrorClass)}

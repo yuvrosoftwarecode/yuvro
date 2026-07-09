@@ -1,7 +1,9 @@
+from django.http import response
 import hmac
 import hashlib
 import json
 from typing import Any, Dict, Optional
+import logging
 
 import requests
 from django.conf import settings
@@ -21,11 +23,10 @@ class RazorpayGateway(BasePaymentGateway):
         return (self.key_id, self.key_secret)
 
     def _post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
         try:
+            response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            import logging
             logging.error(f"Razorpay API Error: {response.text}")
             raise
         return response.json()

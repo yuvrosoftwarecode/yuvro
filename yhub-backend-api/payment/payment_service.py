@@ -25,25 +25,21 @@ class PaymentService:
 
         gateway = self.gateway_factory.get_gateway(gateway_name)
 
-        if not payment:
-            payment = Payment.objects.create(
-                user=user,
-                amount=amount,
-                currency=currency,
-                gateway=gateway_name,
-                purpose=purpose,
-                description=description,
-                metadata=metadata,
-                status=PaymentStatus.CREATED,
-            )
-        else:
-            payment.amount = amount
-            payment.currency = currency
-            payment.purpose = purpose
-            payment.description = description
-            payment.metadata = metadata
-            payment.status = PaymentStatus.CREATED
-            payment.save()
+        payment_id = payment.id if payment else None
+
+        payment, created = Payment.objects.update_or_create(
+            id=payment_id,
+            defaults={
+                "user": user,
+                "gateway": gateway_name,
+                "amount": amount,
+                "currency": currency,
+                "purpose": purpose,
+                "description": description,
+                "metadata": metadata,
+                "status": PaymentStatus.CREATED,
+            },
+        )
 
         customer_response = gateway.create_customer({
             "email": user.email,
