@@ -15,7 +15,7 @@ import shutil
 import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
-
+import re as _re
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -1711,6 +1711,8 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     children = []
     try:
         for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
+            if child.name == ".bash_history":
+                continue
             child_rel = child.relative_to(base)
             children.append(_build_tree(base, child_rel))
     except PermissionError:
@@ -1824,28 +1826,115 @@ class EvaluateRequest(BaseModel):
     user_id: str
     lab_id: str
     sprint_id: str
-    required_command: str
+    required_command: str = ""
+    task_slug: Optional[str] = None
+    scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
 
 @workspace_router.post("/evaluate")
 async def evaluate_task(body: EvaluateRequest):
     """
-    Check if a specific command string exists in the workspace's .bash_history
+    Generic regex-based evaluation engine.
+    Reads scoring_rules from the request body (originally stored in
+    LabSprintTicket.tasks[*].scoring_rules in the sprint JSON fixtures).
+
+    scoring_rules schema:
+    {
+      "checks": [
+        {
+          "label": "Human readable description",
+          "pattern": "<Python regex>",          # matched against each history line
+          "count_mode": false,                  # optional: count matching lines
+          "min_count": 1                        # optional: minimum matches required
+        }
+      ],
+      "file_checks": [
+        {
+          "label": "Human readable description",
+          "file": "relative/path",             # workspace-relative path
+          "exists": true,                       # optional: just check existence
+          "contains": "substring"              # optional: check file content
+        }
+      ],
+      "pass_message": "Success message",
+      "fail_hint": "What to run if this fails"
+    }
     """
+
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     history_file = ws / ".bash_history"
-    
+
     if not history_file.exists():
-        return {"passed": False, "reason": "No bash history found"}
-        
+        return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
+
     try:
         content = history_file.read_text(errors="replace")
-        lines = [line.strip() for line in content.splitlines()]
-        
-        # Simple substring match on each line
-        passed = any(body.required_command in line for line in lines)
-        return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
+        lines = [line.strip() for line in content.splitlines() if line.strip()]
+
+        rules = body.scoring_rules
+
+        # ── If no scoring_rules provided fall back to simple substring check ──
+        if not rules:
+            passed = any(body.required_command in line for line in lines)
+            return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
+
+        failed_labels: list[str] = []
+
+        # ── History-based checks ──────────────────────────────────────────────
+        for check in rules.get("checks", []):
+            pattern   = check.get("pattern", "")
+            label     = check.get("label", pattern)
+            count_mode = check.get("count_mode", False)
+            min_count = check.get("min_count", 1)
+
+            try:
+                compiled = _re.compile(pattern, _re.IGNORECASE)
+            except _re.error as e:
+                return {"passed": False, "reason": f"Invalid regex pattern '{pattern}': {e}"}
+
+            if count_mode:
+                # Count how many history lines match (e.g. for conventional commits)
+                matches = sum(1 for line in lines if compiled.search(line))
+                if matches < min_count:
+                    failed_labels.append(f"{label} (need {min_count}, found {matches})")
+            else:
+                if not any(compiled.search(line) for line in lines):
+                    failed_labels.append(label)
+
+        # ── File-based checks ────────────────────────────────────────────────
+        for fc in rules.get("file_checks", []):
+            label    = fc.get("label", "file check")
+            rel_path = fc.get("file", "")
+            check_exists   = fc.get("exists", False)
+            check_contains = fc.get("contains", None)
+
+            target = ws / rel_path
+
+            if check_exists or check_contains is not None:
+                if not target.exists():
+                    failed_labels.append(f"{label} (file not found: {rel_path})")
+                    continue
+
+            if check_contains is not None and target.exists():
+                file_content = target.read_text(errors="replace").lower()
+                if check_contains.lower() not in file_content:
+                    failed_labels.append(f"{label} ('{check_contains}' not found in {rel_path})")
+
+        # ── Build response ───────────────────────────────────────────────────
+        if not failed_labels:
+            return {
+                "passed": True,
+                "reason": rules.get("pass_message", "✓ All checks passed.")
+            }
+
+        fail_hint = rules.get("fail_hint", "")
+        reason = "✗ Failed checks:\n" + "\n".join(f"  • {l}" for l in failed_labels)
+        if fail_hint:
+            reason += f"\n\nHint: {fail_hint}"
+        return {"passed": False, "reason": reason}
+
     except Exception as e:
-        return {"passed": False, "reason": f"Error reading history: {e}"}
+        return {"passed": False, "reason": f"Error during evaluation: {e}"}
+
 
 async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
     """

@@ -20,7 +20,7 @@ import {
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
   FilePlus, FolderPlus, Pencil, Trash2, X,
 } from "lucide-react";
-import "@xterm/xterm/css/xterm.css";
+
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { java } from "@codemirror/lang-java";
@@ -723,7 +723,13 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
-            tasks: Array.isArray(t.tasks) ? t.tasks : [],
+            tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
+              if (typeof task === "object" && task.title && !task.task_slug) {
+                const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
+                if (slugMatch) task.task_slug = `task-${slugMatch[1].replace(/\./g, "-")}`;
+              }
+              return task;
+            }) : [],
             learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
             common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
           });
@@ -845,6 +851,7 @@ function TicketIDE({
     try {
       const res = await fetchFileTree(userId, labId, sprintId, starters);
       const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
+        if (node.name === ".bash_history") return acc;
         if (node.type === "file") { acc[node.path] = ""; }
         else node.children?.forEach(c => flatten(c, acc));
         return acc;
@@ -1233,7 +1240,55 @@ function TicketIDE({
     }, 600);
   }
 
-  function handleSubmit() {
+  const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
+  const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
+  const [ticketScore, setTicketScore] = useState<{ passed: number; total: number } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleEvaluate = async (taskSlug: string, requiredCommand: string, scoringRules?: Record<string, any>) => {
+    setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+    try {
+      const { evaluateTask } = await import("@/services/workspaceService");
+      const result = await evaluateTask(userId, labId, sprintId, requiredCommand, taskSlug, scoringRules);
+      setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+    } catch (err: any) {
+      setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+    } finally {
+      setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+    }
+  };
+
+  async function handleSubmit() {
+    if (isReal && ticket.tasks && ticket.tasks.length > 0) {
+      setTab("problem");
+      setLeftCollapsed(false);
+      setSubmitting(true);
+      let passedCount = 0;
+      const promises = ticket.tasks.map(async (task: any, idx: number) => {
+        const taskSlug = task.task_slug || `task-${idx}`;
+        // scoring_rules come directly from the task object (stored in the backend JSON field)
+        const scoringRules: Record<string, any> = task.scoring_rules ?? {};
+        // required_command is only a fallback for tasks without scoring_rules
+        const reqCmd = "git";
+        
+        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+        try {
+          const { evaluateTask } = await import("@/services/workspaceService");
+          const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules);
+          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+          if (result.passed) passedCount++;
+        } catch (err: any) {
+          setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+        } finally {
+          setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+        }
+      });
+      await Promise.all(promises);
+      setTicketScore({ passed: passedCount, total: ticket.tasks.length });
+      setSubmitting(false);
+      return;
+    }
+
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
     setTimeout(() => {
@@ -1310,6 +1365,19 @@ function TicketIDE({
     });
   }
 
+  const handleResetProgress = async () => {
+    if (!confirm("Are you sure you want to reset your progress? This will delete all your files and restart the ticket.")) return;
+    try {
+      const { deleteWorkspaceFile } = await import("@/services/workspaceService");
+      await deleteWorkspaceFile(userId, labId, sprintId, "");
+      setTicketScore(null);
+      setEvalResult({});
+      window.location.reload();
+    } catch (e: any) {
+      showToast("Failed to reset progress: " + e.message);
+    }
+  };
+
   if (reviewMatch) return <Outlet />;
 
   return (
@@ -1332,6 +1400,9 @@ function TicketIDE({
         <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>
         <span className="text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Est. {ticket.estMin}m · Elapsed <span className="font-mono text-foreground">{timeStr}</span></span>
         {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
+        <button onClick={handleResetProgress} title="Reset Progress" className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1">
+          <RotateCcw className="h-3 w-3" />Reset
+        </button>
 
         <div className="ml-auto flex items-center gap-1.5">
           <button onClick={() => setSidePanel((p) => p === "preview" ? null : "preview")}
@@ -1346,8 +1417,9 @@ function TicketIDE({
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
           <button onClick={handleSubmit}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90">
-            <Send className="h-3 w-3" />Submit
+            disabled={submitting}
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
+            <Send className="h-3 w-3" />{submitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -1402,7 +1474,17 @@ function TicketIDE({
               </button>
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-              {tab === "problem" && <ProblemPanel ticket={ticket} slug={slug} isReal={!tickets.some(t => t.id === ticket.id)} />}
+              {tab === "problem" && (
+                <ProblemPanel 
+                  ticket={ticket} 
+                  slug={slug} 
+                  isReal={!tickets.some(t => t.id === ticket.id)} 
+                  evaluating={evaluating}
+                  evalResult={evalResult}
+                  ticketScore={ticketScore}
+                  onEvaluate={handleEvaluate}
+                />
+              )}
               {tab === "hints" && <HintsPanel level={hintLevel} setLevel={setHintLevel} elapsed={elapsed} onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)} />}
               {tab === "discuss" && <DiscussPanel />}
             </div>
@@ -2180,31 +2262,26 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ ticket, isReal, slug }: { ticket: any; isReal?: boolean; slug: string }) {
+function ProblemPanel({ 
+  ticket, 
+  isReal, 
+  slug, 
+  evaluating, 
+  evalResult, 
+  ticketScore, 
+  onEvaluate 
+}: { 
+  ticket: any; 
+  isReal?: boolean; 
+  slug: string;
+  evaluating: Record<string, boolean>;
+  evalResult: Record<string, { passed: boolean; reason: string }>;
+  ticketScore: { passed: number; total: number } | null;
+  onEvaluate: (taskSlug: string, requiredCommand: string) => void;
+}) {
   const tasks: any[] = Array.isArray(ticket.tasks) ? ticket.tasks : [];
   const objectives: any[] = Array.isArray(ticket.learning_objectives) ? ticket.learning_objectives : [];
   const mistakes: any[] = Array.isArray(ticket.common_mistakes) ? ticket.common_mistakes : [];
-
-  const { user } = useAuth();
-  const userId = user?.id?.toString() ?? "0";
-  const labId = slug;
-  const sprintId = ticket.id?.toString() ?? "0";
-
-  const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
-  const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
-
-  const handleEvaluate = async (taskSlug: string, requiredCommand: string) => {
-    setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
-    try {
-      const { evaluateTask } = await import("@/services/workspaceService");
-      const result = await evaluateTask(userId, labId, sprintId, requiredCommand);
-      setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
-    } catch (err: any) {
-      setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
-    } finally {
-      setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
-    }
-  };
 
   return (
     <>
@@ -2240,20 +2317,6 @@ function ProblemPanel({ ticket, isReal, slug }: { ticket: any; isReal?: boolean;
                               <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-1 text-[11px] font-medium text-info">
                                 {taskMethod}
                               </span>
-                              {taskMethod.includes("Method 1") && isReal && (
-                                <button
-                                  onClick={() => {
-                                    let reqCmd = "ls";
-                                    if (taskTitle.toLowerCase().includes("search")) reqCmd = "find";
-                                    if (taskTitle.toLowerCase().includes("git") || taskTitle.toLowerCase().includes("commit")) reqCmd = "git";
-                                    handleEvaluate(task.task_slug || `task-${idx}`, reqCmd);
-                                  }} 
-                                  disabled={evaluating[task.task_slug || `task-${idx}`]}
-                                  className="inline-flex items-center gap-1.5 rounded bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition"
-                                >
-                                  {evaluating[task.task_slug || `task-${idx}`] ? "Checking..." : "Check Solution"}
-                                </button>
-                              )}
                             </div>
                           )}
                           {evalResult[task.task_slug || `task-${idx}`] && (
@@ -2271,6 +2334,13 @@ function ProblemPanel({ ticket, isReal, slug }: { ticket: any; isReal?: boolean;
                     </div>
                   );
                 })}
+              </div>
+              <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
+                {ticketScore && (
+                  <div className="mb-3 text-sm font-medium">
+                    Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> tasks completed
+                  </div>
+                )}
               </div>
             </Section>
           )}

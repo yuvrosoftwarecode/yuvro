@@ -88,7 +88,9 @@ export async function evaluateTask(
   userId: string,
   labId: string,
   sprintId: string,
-  requiredCommand: string
+  requiredCommand: string,
+  taskSlug?: string,
+  scoringRules?: Record<string, any>
 ): Promise<{ passed: boolean; reason: string }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/evaluate`, {
     method: "POST",
@@ -98,6 +100,8 @@ export async function evaluateTask(
       lab_id: labId,
       sprint_id: sprintId,
       required_command: requiredCommand,
+      task_slug: taskSlug,
+      scoring_rules: scoringRules ?? {},
     }),
   });
   if (!res.ok) throw new Error(`Evaluation failed: ${res.statusText}`);
