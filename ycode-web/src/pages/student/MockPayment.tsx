@@ -57,6 +57,8 @@ const PaymentPage: React.FC = () => {
         try {
             const amount = getTokenAmount();
             
+            const authOptions = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+            
             const orderRes = await yhubApiUtil.post<{
                 id: string;
                 gateway_order_or_intent_id: string;
@@ -65,7 +67,7 @@ const PaymentPage: React.FC = () => {
                 amount: amount,
                 item_type: 'contest',
                 item_id: contestId
-            });
+            }, authOptions);
 
             const isLoaded = await loadRazorpayScript();
             if (!isLoaded) {
@@ -88,7 +90,7 @@ const PaymentPage: React.FC = () => {
                             gateway_order_id: response.razorpay_order_id,
                             gateway_payment_id: response.razorpay_payment_id,
                             signature: response.razorpay_signature
-                        });
+                        }, authOptions);
                         
                         if (verifyRes.status === 'SUCCESS') {
                             const backendResponse = await contestService.verifyPayment(contestId!, token!);
@@ -105,7 +107,7 @@ const PaymentPage: React.FC = () => {
                             await yhubApiUtil.post('/payment/fail/', {
                                 gateway_order_id: orderRes.gateway_order_or_intent_id,
                                 reason: 'Payment signature verification failed'
-                            });
+                            }, authOptions);
                             throw new Error(verifyRes.message || 'Payment signature verification failed');
                         }
                     } catch (error: any) {
@@ -129,7 +131,7 @@ const PaymentPage: React.FC = () => {
                             await yhubApiUtil.post('/payment/fail/', {
                                 gateway_order_id: orderRes.gateway_order_or_intent_id,
                                 reason: 'User closed the payment modal'
-                            });
+                            }, authOptions);
                         } catch (e) {
                             console.error('Failed to report cancellation', e);
                         }
@@ -145,7 +147,7 @@ const PaymentPage: React.FC = () => {
                         gateway_order_id: orderRes.gateway_order_or_intent_id,
                         gateway_payment_id: response.error.metadata.payment_id,
                         reason: response.error.description || 'Payment failed in gateway'
-                    });
+                    }, authOptions);
                 } catch (e) {
                     console.error('Failed to report payment failure', e);
                 }

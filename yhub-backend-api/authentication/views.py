@@ -31,6 +31,9 @@ from .serializers import (
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+import random
+import string
+from django.core.cache import cache
 
 
 @api_view(["POST"])
@@ -160,6 +163,96 @@ class UserRegistrationView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_send_otp(request):
+    """
+    Sends an OTP for public registration.
+    """
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    contest_title = request.data.get('contest_title', 'Contest')
+    
+    if not email or not contest_id:
+        return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # Note: We skip checking contest registration here since it's on YCode, 
+    # but the frontend can check or we rely on registration failure later.
+    
+    otp = str(random.randint(100000, 999999))
+    cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
+    
+    from django.template.loader import render_to_string
+    context = {
+        "contest_title": contest_title,
+        "otp": otp,
+        "frontend_url": settings.FRONTEND_URL
+    }
+    
+    try:
+        html_message = render_to_string("emails/otp_verification.html", context)
+    except:
+        html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
+        
+    send_mail(
+        subject=f"OTP for Registration",
+        message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_message
+    )
+    
+    return Response({"status": "success", "message": "OTP sent successfully"})
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_verify_otp(request):
+    """
+    Verifies OTP and creates user if they don't exist.
+    """
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    otp = request.data.get('otp')
+    
+    if not email or not otp or not contest_id:
+        return Response({"error": "Email, contest_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
+    
+    if cached_otp and str(cached_otp) == str(otp):
+        # Create user if doesn't exist
+        user = User.objects.filter(email=email).first()
+        
+        if not user:
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            base_username = email.split('@')[0]
+            username = base_username
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{random.randint(100, 9999)}"
+            
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+            )
+            user.is_otp_login = True
+            user.roles = {"ycode": "student", "ylabs": "student"}
+            user.save()
+            
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        
+        return Response({
+            "status": "success", 
+            "message": "OTP verified",
+            "access_token": str(refresh.access_token)
+        })
+    
+    return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])

@@ -589,151 +589,78 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_send_otp(self, request, pk=None):
+    def check_registration(self, request, pk=None):
         contest = self.get_object()
         email = request.data.get('email')
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        otp = str(random.randint(100000, 999999))
-        
-        from django.core.cache import cache
-        cache.set(f"contest_registration_otp_{contest.id}_{email}", otp, timeout=300) # 5 minutes
-        
-        from django.core.mail import send_mail
-        from django.conf import settings
-        from django.template.loader import render_to_string
-        
-        context = {
-            "contest_title": contest.title,
-            "otp": otp,
-            "frontend_url": settings.FRONTEND_URL
-        }
-        html_message = render_to_string("emails/otp_verification.html", context)
-        
-        send_mail(
-            subject=f"OTP for Contest Registration: {contest.title}",
-            message=f"Your OTP for registering in the contest '{contest.title}' is: {otp}. It is valid for 5 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-            html_message=html_message
-        )
-        
-        return Response({"status": "success", "message": "OTP sent successfully"})
-
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_verify_otp(self, request, pk=None):
-        contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
             
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
+        from django.contrib.auth import get_user_model
+        from .models import ContestRegistration
         
-        if cached_otp and str(cached_otp) == str(otp):
-            return Response({"status": "success", "message": "OTP verified"})
-        
-        return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        User = get_user_model()
+        user = User.objects.filter(email=email).first()
+        if user and ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response({"error": "This email is already registered for this contest"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({"status": "available"})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
         contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        details = request.data.get('details', {})
         
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        # If user is authenticated via YHub JWT, use that user
+        if not request.user or not request.user.is_authenticated:
+            return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
+        user = request.user
+        email = user.email
         
-        if cached_otp and str(cached_otp) == str(otp):
-            from django.contrib.auth import get_user_model
-            from rest_framework_simplejwt.tokens import AccessToken
-            from .models import ContestRegistration
-            import string
+        from .models import ContestRegistration
+        
+        # Check if already registered
+        if ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response({"error": "This email is already registered for this contest"}, status=status.HTTP_400_BAD_REQUEST)
             
-            User = get_user_model()
-            user = User.objects.filter(email=email).first()
-            
-            if not user:
-                password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-                base_username = email.split('@')[0]
-                username = base_username
-                while User.objects.filter(username=username).exists():
-                    username = f"{base_username}{random.randint(100, 9999)}"
-                
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                )
-                user.is_otp_login = True
-                user.save(update_fields=['is_otp_login'])
-                
-            if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
-                token = AccessToken.for_user(user)
-                token['contest_id'] = str(contest.id)
-                token['payment_pending'] = True
-                token['amount'] = float(contest.amount) if contest.amount else 0.0
-                
-                cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-                return Response({
-                    "status": "payment_required", 
-                    "message": "Proceed to payment",
-                    "payment_token": str(token),
-                    "amount": contest.amount
-                })
-                
-            ContestRegistration.objects.get_or_create(
-                contest=contest, 
-                user=user,
-                defaults={'created_by': user}
-            )
-            
-            cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-            
-            token = AccessToken.for_user(user)
-            
+        if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
+            # We don't generate a custom payment_token anymore. 
+            # The frontend will use the YHub JWT for payment authorization.
             return Response({
-                "status": "success", 
-                "message": "Successfully registered",
-                "access_token": str(token)
+                "status": "payment_required", 
+                "message": "Proceed to payment",
+                "amount": contest.amount
             })
             
-        else:
-            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        ContestRegistration.objects.get_or_create(
+            contest=contest, 
+            user=user,
+            defaults={'created_by': user}
+        )
+        
+        from rest_framework_simplejwt.tokens import AccessToken
+        token = AccessToken.for_user(user)
+        
+        return Response({
+            "status": "success", 
+            "message": "Successfully registered",
+            "access_token": str(token)
+        })
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def verify_payment(self, request, pk=None):
         from rest_framework_simplejwt.tokens import AccessToken
-        from django.contrib.auth import get_user_model
         from .models import ContestRegistration
         from core.models import Transaction
         import uuid
         
-        token_str = request.data.get('payment_token')
-        if not token_str:
-            return Response({"error": "Payment token is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user or not request.user.is_authenticated:
+            return Response({"error": "Authentication required to verify payment"}, status=status.HTTP_401_UNAUTHORIZED)
             
+        user = request.user
+        contest = self.get_object()
+        amount = contest.amount if contest.amount else 0.0
+        
         try:
-            token = AccessToken(token_str)
-            user_id = token['user_id']
-            contest_id = token.get('contest_id')
-            amount = token.get('amount')
-            
-            if str(contest_id) != str(pk):
-                return Response({"error": "Invalid token for this contest"}, status=status.HTTP_400_BAD_REQUEST)
-                
-            User = get_user_model()
-            user = User.objects.get(id=user_id)
-            contest = self.get_object()
-            
             transaction = Transaction.objects.create(
                 user=user,
                 contest=contest,
