@@ -45,6 +45,7 @@ export function getLabTier(slug: string, name?: string): LabTier {
   }
   
   return "freemium";
+}
 
 const KEY = "yuvro-lab-unlocks-v1";
 function read(): string[] {
