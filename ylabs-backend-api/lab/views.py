@@ -27,6 +27,13 @@ class LabSprintViewSet(viewsets.ModelViewSet):
     serializer_class = LabSprintSerializer
     
     def get_queryset(self):
+        queryset = super().get_queryset()
+        lab_id = self.request.query_params.get('lab')
+        if lab_id:
+            queryset = queryset.filter(lab_id=lab_id)
+        return queryset
+    
+    def get_queryset(self):
         queryset = LabSprint.objects.all()
         lab = self.request.query_params.get('lab')
         if lab is not None:
@@ -46,10 +53,10 @@ class LabSprintTicketViewSet(viewsets.ModelViewSet):
     serializer_class = LabSprintTicketSerializer
     
     def get_queryset(self):
-        queryset = LabSprintTicket.objects.all()
-        sprint = self.request.query_params.get('sprint')
-        if sprint is not None:
-            queryset = queryset.filter(sprint=sprint)
+        queryset = super().get_queryset()
+        sprint_id = self.request.query_params.get('sprint')
+        if sprint_id:
+            queryset = queryset.filter(sprint_id=sprint_id)
         return queryset
     
     def get_permissions(self):
