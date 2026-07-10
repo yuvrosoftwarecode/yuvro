@@ -18,22 +18,32 @@ class PaymentService:
         description: str = "",
         metadata: Dict[str, Any] | None = None,
         gateway_name: str = "razorpay",
+        payment: Payment | None = None,
     ) -> Payment:
         if metadata is None:
             metadata = {}
 
         gateway = self.gateway_factory.get_gateway(gateway_name)
 
-        payment = Payment.objects.create(
-            user=user,
-            amount=amount,
-            currency=currency,
-            gateway=gateway_name,
-            purpose=purpose,
-            description=description,
-            metadata=metadata,
-            status=PaymentStatus.CREATED,
-        )
+        if not payment:
+            payment = Payment.objects.create(
+                user=user,
+                amount=amount,
+                currency=currency,
+                gateway=gateway_name,
+                purpose=purpose,
+                description=description,
+                metadata=metadata,
+                status=PaymentStatus.CREATED,
+            )
+        else:
+            payment.amount = amount
+            payment.currency = currency
+            payment.purpose = purpose
+            payment.description = description
+            payment.metadata = metadata
+            payment.status = PaymentStatus.CREATED
+            payment.save()
 
         customer_response = gateway.create_customer({
             "email": user.email,
@@ -45,31 +55,29 @@ class PaymentService:
         payment.gateway_response = {"customer_response": customer_response}
         payment.save(update_fields=["gateway_customer_reference_id", "gateway_response"])
 
-        payment_response = gateway.create_payment({
-            "amount": amount,
-            "currency": currency,
-            "customer_id": payment.gateway_customer_reference_id,
-            "metadata": metadata,
-            "description": description,
-            "payment_id": str(payment.id),
-        })
+        if not (payment and payment.gateway_order_or_intent_id):
+            payment_response = gateway.create_payment({
+                "amount": amount,
+                "currency": currency,
+                "customer_id": payment.gateway_customer_reference_id,
+                "metadata": metadata,
+                "description": description,
+                "payment_id": str(payment.id),
+            })
 
-        payment.gateway_order_or_intent_id = payment_response.get("order_id") or payment_response.get("payment_id")
-        payment.gateway_session_reference_id = payment_response.get("session_id")
-        payment.latest_payment = payment_response
-        payment.gateway_response["payment_response"] = payment_response
-        payment.status = payment_response.get("status", PaymentStatus.PENDING)
-        payment.payment_attempts.append(payment_response)
-        payment.save(
-            update_fields=[
-                "gateway_order_or_intent_id",
-                "gateway_session_reference_id",
-                "latest_payment",
-                "gateway_response",
-                "status",
-                "payment_attempts",
-            ]
-        )
+            payment.gateway_order_or_intent_id = payment_response.get("order_id") or payment_response.get("payment_id")
+            payment.gateway_session_reference_id = payment_response.get("session_id")
+            payment.gateway_response["payment_response"] = payment_response
+            payment.status = payment_response.get("status", PaymentStatus.PENDING)
+            
+            payment.save(
+                update_fields=[
+                    "gateway_order_or_intent_id",
+                    "gateway_session_reference_id",
+                    "gateway_response",
+                    "status",
+                ]
+            )
 
         return payment
 
