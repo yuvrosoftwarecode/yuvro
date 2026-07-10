@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/common/DashboardLayout";
+import authService from "@/services/authService";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -152,7 +153,7 @@ type CertificationForm = {
 };
 
 // Profile strength calculator
-const calculateProfileStrength = (profile: InstructorProfile) => {
+const calculateProfileStrength = (profile: InstructorProfile, user?: any) => {
   let score = 0;
 
   // Basic Info - 25%
@@ -183,20 +184,20 @@ const calculateProfileStrength = (profile: InstructorProfile) => {
   if (anySocial) score += 5;
 
   // Images - 5%
-  if (profile.profile_image) score += 3;
-  if (profile.cover_image) score += 2;
+  if (user?.profile_image) score += 3;
+  if (user?.cover_image) score += 2;
 
   return score;
 };
 
 // Profile improvement suggestions
-const generateSuggestions = (profile: InstructorProfile) => {
+const generateSuggestions = (profile: InstructorProfile, user?: any) => {
   const suggestions: { text: string; boost: number }[] = [];
 
-  if (!profile.profile_image)
+  if (!user?.profile_image)
     suggestions.push({ text: "Add a profile picture", boost: 3 });
 
-  if (!profile.cover_image)
+  if (!user?.cover_image)
     suggestions.push({ text: "Add a cover image", boost: 2 });
 
   if (!profile.title)
@@ -236,7 +237,7 @@ const generateSuggestions = (profile: InstructorProfile) => {
 };
 
 const InstructorProfile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<InstructorProfile | null>(null);
@@ -291,8 +292,11 @@ const InstructorProfile = () => {
         }
       };
       setProfile(mappedProfile);
-      if (response.profile_image) setProfilePic(response.profile_image);
-      if (response.cover_image) setCoverPic(response.cover_image);
+      // Images live on the YHub user; seed from auth context for cross-app sync
+      if (user?.profile_image) setProfilePic(user.profile_image);
+      else if (response.profile_image) setProfilePic(response.profile_image);
+      if (user?.cover_image) setCoverPic(user.cover_image);
+      else if (response.cover_image) setCoverPic(response.cover_image);
     } catch (err) {
       console.error("Failed to load profile:", err);
     } finally {
@@ -396,8 +400,8 @@ const InstructorProfile = () => {
 
   if (!profile) return null;
 
-  const profileStrength = calculateProfileStrength(profile);
-  const suggestions = generateSuggestions(profile);
+  const profileStrength = calculateProfileStrength(profile, user);
+  const suggestions = generateSuggestions(profile, user);
 
   // Image handlers
   const handleImageUpload = async (
@@ -414,13 +418,10 @@ const InstructorProfile = () => {
     reader.readAsDataURL(file);
 
     try {
-      const updated = await profileService.uploadProfileImage(file, field);
-      if (field === "profile_image" && updated.profile_image) {
-        setProfilePic(updated.profile_image);
-      } else if (field === "cover_image" && updated.cover_image) {
-        setCoverPic(updated.cover_image);
-      }
-      await loadProfile();
+      const updatedUser = await authService.uploadProfileImage(file, field);
+      updateUser(updatedUser);
+      if (field === "profile_image") setProfilePic(updatedUser.profile_image || "");
+      else setCoverPic(updatedUser.cover_image || "");
       toast.success(
         field === "profile_image"
           ? "Profile picture updated"
@@ -431,7 +432,23 @@ const InstructorProfile = () => {
       toast.error(
         `Failed to upload ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`,
       );
-      await loadProfile();
+      // Revert optimistic preview
+      if (field === "profile_image") setProfilePic(user?.profile_image || "");
+      else setCoverPic(user?.cover_image || "");
+    }
+  };
+
+  const removeImage = async (field: "profile_image" | "cover_image") => {
+    if (!confirm(`Are you sure you want to remove your ${field === "profile_image" ? "profile picture" : "cover image"}?`)) return;
+    try {
+      const updatedUser = await authService.removeProfileImage(field);
+      updateUser(updatedUser);
+      if (field === "profile_image") setProfilePic("");
+      else setCoverPic("");
+      toast.success(field === "profile_image" ? "Profile picture removed" : "Cover image removed");
+    } catch (err) {
+      console.error(`Failed to remove ${field}:`, err);
+      toast.error(`Failed to remove image. Please try again.`);
     }
   };
 
@@ -463,9 +480,9 @@ const InstructorProfile = () => {
                 <div className="relative">
                   {/* Cover Image */}
                   <div className="h-48 bg-gradient-to-r from-indigo-600 to-purple-600 relative group">
-                    {coverPic && (
+                    {(coverPic || user?.cover_image) && (
                       <img
-                        src={coverPic}
+                        src={coverPic || user?.cover_image || ''}
                         className="w-full h-full object-cover"
                         alt="Cover"
                       />
@@ -491,8 +508,8 @@ const InstructorProfile = () => {
                   {/* Profile Picture */}
                   <div className="absolute -bottom-16 left-8">
                     <Avatar className="h-32 w-32 border-4 border-background">
-                      {profilePic ? (
-                        <AvatarImage src={profilePic} alt="Profile" />
+                      {(profilePic || user?.profile_image) ? (
+                        <AvatarImage src={profilePic || user?.profile_image || ''} alt="Profile" />
                       ) : (
                         <AvatarFallback className="text-3xl">
                           {profile.full_name

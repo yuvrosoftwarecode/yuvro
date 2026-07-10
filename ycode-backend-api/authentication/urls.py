@@ -12,11 +12,6 @@ router.register(r'departments', views.DepartmentViewSet, basename='department')
 urlpatterns = [
     path("profile/", views.UserProfileView.as_view(), name="user_profile"),
     path("profile/detail/", views.ProfileDetailView.as_view(), name="profile_detail"),
-    path(
-        "profile/upload-image/",
-        views.upload_profile_image,
-        name="profile_upload_image",
-    ),
     path("user/", views.user_info_view, name="user_info"),
     path("admin-users/", admin_users, name="admin_users"),
     path("users/", views.UsersListCreateView.as_view(), name="users_list"),

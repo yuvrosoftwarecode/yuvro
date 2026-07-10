@@ -1,5 +1,6 @@
 import type { User } from '../lib/auth';
 import { restApiAuthUtil, yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
+import { restApiUtil } from '../utils/RestApiUtil';
 
 export interface LoginResponse {
   access: string;
@@ -74,11 +75,23 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<User> {
-    return await restApiAuthUtil.get<User>('/auth/user/');
+    // Fetch from YHub so profile_image / cover_image are always present
+    return await yhubApiAuthUtil.get<User>('/auth/user/');
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
     return await restApiAuthUtil.put<User>('/auth/user/', userData);
+  }
+
+  async uploadProfileImage(file: File, field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('field', field);
+    return await yhubApiAuthUtil.post<User>('/auth/profile/upload-image/', formData);
+  }
+
+  async removeProfileImage(field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
+    return await yhubApiAuthUtil.post<User>('/auth/profile/remove-image/', { field });
   }
 
   async logoutUser(): Promise<void> {
@@ -95,6 +108,20 @@ class AuthService {
 
   async healthCheck(): Promise<{ status: string }> {
     return await restApiAuthUtil.get<{ status: string }>('/health/');
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    return await yhubApiAuthUtil.post('/auth/forgot-password/', { email });
+  }
+
+  async resetPassword(uidb64: string, token: string, password: string): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<any> {
+    return await yhubApiAuthUtil.post('/auth/change-password/', {
+      password: newPassword,
+    });
   }
 }
 
