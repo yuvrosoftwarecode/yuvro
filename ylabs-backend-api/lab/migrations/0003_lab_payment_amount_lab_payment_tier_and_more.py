@@ -1,0 +1,34 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("lab", "0002_rename_labticket_labsprintticket_and_more"),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name="lab",
+            name="payment_amount",
+            field=models.DecimalField(decimal_places=2, default=0, max_digits=10),
+        ),
+        migrations.AddField(
+            model_name="lab",
+            name="payment_tier",
+            field=models.CharField(
+                choices=[
+                    ("free", "Free"),
+                    ("freemium", "Freemium"),
+                    ("premium", "Premium"),
+                ],
+                default="free",
+                max_length=20,
+            ),
+        ),
+        migrations.AddField(
+            model_name="labsprint",
+            name="is_locked",
+            field=models.BooleanField(default=False),
+        ),
+    ]

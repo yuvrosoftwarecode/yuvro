@@ -3,6 +3,7 @@ import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
 import { Plus, FlaskConical, Trash2, Pencil, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { loadLabs, deleteLab, LAB_TYPES, labTypeLabel, difficultyLabel, type AdminLab, type LabType } from "@/lib/adminLabs";
+import { LabIcon } from "@/components/LabIcon";
 
 export const Route = createFileRoute("/admin/labs/")({ component: LabsPage });
 
@@ -75,8 +76,8 @@ function LabsPage() {
               {filtered.map(l => (
                 <tr key={l.id} className="border-t border-border/40 hover:bg-accent/30 align-top">
                   <td className="px-4 py-2.5 font-medium">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{l.icon}</span>
+                    <div className="flex items-center gap-2.5">
+                      <LabIcon name={l.title} icon={l.icon} size="h-7 w-7" />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2"><span>{l.title}</span>{l.custom && <Badge tone="success">new</Badge>}</div>
                         <div className="text-[11px] text-muted-foreground truncate max-w-[280px]">{l.description}</div>

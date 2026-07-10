@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
-import { DiffBadge } from "@/components/Badges";
+import { DiffBadge, TierBadge } from "@/components/Badges";
 import { labs, me, type Lab } from "@/lib/dummy";
 import { loadLabs, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints } from "@/lib/labSprints";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 import { useAuth } from "@/lib/auth";
+import { LabIcon } from "@/components/LabIcon";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import {
   ArrowRight, Sparkles, Flame, Zap, Trophy, Check,
@@ -43,6 +44,9 @@ interface CatalogLab {
   completed: number;
   isReal: boolean;       
   color: string;
+  payment_tier: "free" | "freemium" | "premium";
+  payment_amount: number;
+  hoursLeft?: number;
 }
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "Security";
@@ -82,12 +86,7 @@ function getRecentLab(): { id: string; name: string } | null {
 }
 
 function resolveIcon(lab: AdminLab) {
-  const iconStr = lab.icon?.toLowerCase() || "";
-  const isLinux = lab.title.toLowerCase().includes("linux");
-  if (!lab.icon || iconStr === "linux" || iconStr === "linux lab") {
-    return isLinux ? "🐧" : "💻";
-  }
-  return lab.icon;
+  return lab.icon ?? "";
 }
 
 function diffLabel(d: string): "Beginner" | "Intermediate" | "Advanced" {
@@ -171,6 +170,9 @@ function Hub() {
       completed: realLabCompleted(lab.id),
       isReal: true,
       color: "prog",
+      payment_tier: lab.payment_tier ?? "free",
+      payment_amount: Number(lab.payment_amount ?? 0),
+      hoursLeft: 0,
     }));
 
     const realNames = new Set(realLabs.map(l => l.title.toLowerCase()));
@@ -186,6 +188,9 @@ function Hub() {
         completed: l.completed,
         isReal: false,
         color: l.color,
+        payment_tier: "free" as const,
+        payment_amount: 0,
+        hoursLeft: (l as any).hoursLeft ?? 0,
       }));
 
     return [...realEntries, ...dummyEntries];
@@ -205,6 +210,7 @@ function Hub() {
   const [cats, setCats] = useState<Category[]>([]);
   const [diffs, setDiffs] = useState<Array<typeof DIFFICULTIES[number]>>([]);
   const [langs, setLangs] = useState<string[]>([]);
+  const [tiers, setTiers] = useState<Array<"free" | "freemium" | "premium">>([]);
 
   const filteredAll = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -213,12 +219,13 @@ function Hub() {
       if (cats.length && !cats.includes(LAB_CATEGORY[l.id] as Category)) return false;
       if (diffs.length && !diffs.includes(l.difficulty)) return false;
       if (langs.length && !(LAB_LANGUAGES[l.id] ?? []).some(x => langs.includes(x))) return false;
+      if (tiers.length && !tiers.includes(l.payment_tier)) return false;
       return true;
     });
-  }, [allCatalogLabs, q, cats, diffs, langs]);
+  }, [allCatalogLabs, q, cats, diffs, langs, tiers]);
 
-  const clearFilters = () => { setCats([]); setDiffs([]); setLangs([]); setQ(""); };
-  const hasFilters = !!(cats.length || diffs.length || langs.length || q);
+  const clearFilters = () => { setCats([]); setDiffs([]); setLangs([]); setTiers([]); setQ(""); };
+  const hasFilters = !!(cats.length || diffs.length || langs.length || tiers.length || q);
   const toggleIn = <T,>(arr: T[], v: T) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
 
   const recentLab = getRecentLab();
@@ -367,6 +374,11 @@ function Hub() {
                     <button onClick={clearFilters} className="text-[10px] text-muted-foreground hover:text-foreground underline">Clear</button>
                   )}
                 </div>
+                <FilterGroup label="Labs">
+                  <CheckRow checked={tiers.includes("free")} onChange={() => setTiers(prev => toggleIn(prev, "free"))} label="Free" />
+                  <CheckRow checked={tiers.includes("freemium")} onChange={() => setTiers(prev => toggleIn(prev, "freemium"))} label="Freemium" />
+                  <CheckRow checked={tiers.includes("premium")} onChange={() => setTiers(prev => toggleIn(prev, "premium"))} label="Premium" />
+                </FilterGroup>
                 <FilterGroup label="Category">
                   {CATEGORIES.map(c => (
                     <CheckRow key={c} checked={cats.includes(c)} onChange={() => setCats(prev => toggleIn(prev, c))} label={c} />
@@ -444,15 +456,15 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <div className="text-2xl">{lab.icon}</div>
+          <LabIcon name={lab.name} icon={lab.icon} size="h-8 w-8" />
           <h3 className="mt-2 font-semibold truncate">{lab.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{lab.description}</p>
         </div>
         <ProgressRing value={pct} color={`var(--${lab.color})`} />
       </div>
       <div className="mt-3 flex items-center justify-between text-xs">
-        <DiffBadge value={lab.difficulty} />
-        <span className="text-muted-foreground">{lab.completed}/{lab.total} tickets</span>
+        <div className="flex items-center gap-1.5"><DiffBadge value={lab.difficulty} /><TierBadge slug={lab.id} name={lab.name} tier={lab.payment_tier} /></div>
+        <span className="text-muted-foreground">{lab.completed}/{lab.total} · {lab.hoursLeft}h left</span>
       </div>
       <div className="mt-4">
         <span className="w-full inline-flex items-center justify-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground group-hover:opacity-90 transition">
@@ -471,14 +483,14 @@ function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLa
         <Star className="h-3 w-3" /> Featured
       </span>
       <div className="mt-3 flex items-start gap-3">
-        <div className="text-3xl">{lab.icon}</div>
+        <LabIcon name={lab.name} icon={lab.icon} size="h-9 w-9" />
         <div className="min-w-0">
           <h3 className="font-semibold truncate">{lab.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{lab.description}</p>
         </div>
       </div>
       <div className="mt-4 flex items-center justify-between text-xs">
-        <DiffBadge value={lab.difficulty} />
+        <div className="flex items-center gap-1.5"><DiffBadge value={lab.difficulty} /><TierBadge slug={lab.id} name={lab.name} tier={lab.payment_tier} /></div>
         <span className="text-muted-foreground">{lab.total} tickets</span>
       </div>
       <div className="mt-4 flex gap-2">
@@ -502,7 +514,7 @@ function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab
   return (
     <div className="rounded-xl border bg-card p-4 hover:border-primary/40 transition">
       <div className="flex items-start gap-2.5 min-w-0">
-        <div className="text-xl shrink-0">{lab.icon}</div>
+        <LabIcon name={lab.name} icon={lab.icon} size="h-7 w-7" />
         <div className="min-w-0">
           <div className="font-medium text-sm truncate">{lab.name}</div>
           <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{lab.description}</div>
@@ -511,6 +523,7 @@ function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab
       <div className="mt-3 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-2">
           <DiffBadge value={lab.difficulty} />
+          <TierBadge slug={lab.id} name={lab.name} tier={lab.payment_tier} />
           <span className="text-muted-foreground">{lab.total} tickets</span>
         </div>
         <div className="flex items-center gap-1.5">

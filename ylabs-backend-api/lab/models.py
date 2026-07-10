@@ -63,6 +63,12 @@ class TicketProgressStatus(models.TextChoices):
     DONE = "done", "Done"
 
 
+class PaymentTier(models.TextChoices):
+    FREE = "free", "Free"
+    FREEMIUM = "freemium", "Freemium"
+    PREMIUM = "premium", "Premium"
+
+
 class Lab(BaseTimestampedAdminModel):
     title = models.CharField(max_length=255)
     type = models.CharField(max_length=40, choices=LabType.choices, default=LabType.BACKEND)
@@ -73,6 +79,46 @@ class Lab(BaseTimestampedAdminModel):
     git_repo_starter_url = models.URLField(blank=True)
     difficulty = models.CharField(max_length=10, choices=Difficulty.choices, default=Difficulty.EASY)
     is_active = models.BooleanField(default=True)
+    payment_tier = models.CharField(max_length=20, choices=PaymentTier.choices, default=PaymentTier.FREE)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def clean(self):
+        super().clean()
+        from django.core.exceptions import ValidationError
+        if self.payment_tier == PaymentTier.FREE:
+            self.payment_amount = 0
+        elif self.payment_tier in [PaymentTier.FREEMIUM, PaymentTier.PREMIUM] and self.payment_amount <= 0:
+            raise ValidationError({'payment_amount': f'Payment amount is required and must be greater than 0 for {self.payment_tier}.'})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        is_new = self.pk is None
+        
+        tier_changed_to_freemium = False
+        if not is_new:
+            try:
+                old_lab = Lab.objects.get(pk=self.pk)
+                if old_lab.payment_tier != self.payment_tier and self.payment_tier == PaymentTier.FREEMIUM:
+                    tier_changed_to_freemium = True
+            except Lab.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+        
+        if not is_new:
+            if self.payment_tier in [PaymentTier.FREE, PaymentTier.PREMIUM]:
+                locked = (self.payment_tier == PaymentTier.PREMIUM)
+                for sprint in self.sprints.all():
+                    if sprint.is_locked != locked:
+                        sprint.is_locked = locked
+                        sprint.save(update_fields=['is_locked'])
+            elif tier_changed_to_freemium:
+                sprints = list(self.sprints.all().order_by('order_index'))
+                for i, sprint in enumerate(sprints):
+                    locked = (i > 0)
+                    if sprint.is_locked != locked:
+                        sprint.is_locked = locked
+                        sprint.save(update_fields=['is_locked'])
 
     def __str__(self):
         return self.title
@@ -83,9 +129,33 @@ class LabSprint(BaseTimestampedAdminModel):
     description = models.TextField(blank=True)
     order_index = models.PositiveIntegerField(default=0)
     lab = models.ForeignKey(Lab, on_delete=models.CASCADE, related_name="sprints")
+    is_locked = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["order_index"]
+
+    def save(self, *args, **kwargs):
+        if self.lab_id:
+            if self.pk is None:
+                super().save(*args, **kwargs)
+                is_new = True
+            else:
+                is_new = False
+            
+            sprints = list(self.lab.sprints.all().order_by('order_index'))
+            try:
+                i = sprints.index(self)
+            except ValueError:
+                i = len(sprints)
+                
+            if self.lab.payment_tier == PaymentTier.PREMIUM:
+                self.is_locked = True
+            elif self.lab.payment_tier == PaymentTier.FREE:
+                self.is_locked = False
+            elif is_new:
+                self.is_locked = (i > 0)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.lab.title} - {self.title}"

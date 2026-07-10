@@ -5,6 +5,7 @@ import { Check, ChevronRight } from "lucide-react";
 import { getLab, updateLab, LAB_TYPES, DIFFICULTIES, type AdminLab, type LabType, type LabDifficulty } from "@/lib/adminLabs";
 import { loadSprintsWithSeed, saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
+import { LabIcon } from "@/components/LabIcon";
 
 export const Route = createFileRoute("/admin/labs/$id/edit")({ component: EditLab });
 
@@ -46,6 +47,13 @@ function EditLab() {
   const save = async () => {
     if (!lab.title.trim()) { setError("Lab title is required."); setStep(0); return; }
     if (!lab.description.trim()) { setError("Description is required."); setStep(0); return; }
+    const tier = lab.payment_tier ?? "free";
+    const amount = parseFloat(String(lab.payment_amount ?? 0)) || 0;
+    if (tier !== "free" && amount <= 0) {
+      setError("Payment amount is required and must be greater than 0 for Freemium and Premium labs.");
+      setStep(0);
+      return;
+    }
     setError(null);
     setSaved(true);
     try {
@@ -59,7 +67,11 @@ function EditLab() {
         skills: toList(skillsText),
         git_repo_starter_url: lab.gitRepoStarterUrl || (lab as any).git_repo_starter_url,
         is_active: lab.isActive || (lab as any).is_active,
+        payment_tier: lab.payment_tier ?? "free",
+        payment_amount: (lab.payment_tier ?? "free") === "free" ? 0 : parseFloat(String(lab.payment_amount ?? 0)) || 0,
       });
+      
+      await saveSprints(lab.id, sprints);
       setTimeout(() => nav({ to: "/admin/labs" }), 500);
     } catch (e: any) {
       setError(e.message || "Failed to save lab");
@@ -94,7 +106,12 @@ function EditLab() {
             <Panel title="Basic info">
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <Field label="Title *"><input value={lab.title} onChange={e => set("title", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Icon (emoji)"><input value={lab.icon} maxLength={2} onChange={e => set("icon", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
+                <Field label="Icon preview">
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md border border-border bg-muted/20">
+                    <LabIcon name={lab.title} icon={lab.icon} size="h-8 w-8" />
+                    <span className="text-xs text-muted-foreground">Auto-resolved from lab title</span>
+                  </div>
+                </Field>
                 <Field label="Type">
                   <select value={lab.type} onChange={e => set("type", e.target.value as LabType)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
                     {LAB_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -111,6 +128,29 @@ function EditLab() {
                     Active (visible to students)
                   </label>
                 </Field>
+                <Field label="Access Plan">
+                  <select
+                    value={lab.payment_tier ?? "free"}
+                    onChange={e => set("payment_tier", e.target.value as "free" | "freemium" | "premium")}
+                    className="w-full bg-transparent border border-border rounded-md px-3 py-2"
+                  >
+                    <option value="free">Free — all sprints unlocked</option>
+                    <option value="freemium">Freemium — Sprint 1 free, rest locked</option>
+                    <option value="premium">Premium — all sprints locked</option>
+                  </select>
+                </Field>
+                {(lab.payment_tier ?? "free") !== "free" && (
+                  <Field label="Payment Amount (₹) *">
+                    <input
+                      type="number"
+                      min="1"
+                      value={lab.payment_amount ?? ""}
+                      onChange={e => set("payment_amount", parseFloat(e.target.value) || 0)}
+                      placeholder={(lab.payment_tier) === "freemium" ? "499" : "999"}
+                      className="w-full bg-transparent border border-border rounded-md px-3 py-2"
+                    />
+                  </Field>
+                )}
                 <Field label="Prerequisites (comma-separated)" full><input value={prereqsText} onChange={e => setPrereqsText(e.target.value)} placeholder="Basic Java, OOP fundamentals" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Skills (comma-separated)" full><input value={skillsText} onChange={e => setSkillsText(e.target.value)} placeholder="Coroutines, Flow, Channels" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Description *" full><textarea rows={4} value={lab.description} onChange={e => set("description", e.target.value)} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
@@ -120,7 +160,7 @@ function EditLab() {
           )}
           {step === 1 && (
             <Panel title="Sprints & tasks">
-              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={lab.title} labSlug={lab.slug} />
+              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={lab.title} labSlug={lab.slug} labTier={lab.payment_tier} />
             </Panel>
           )}
 
