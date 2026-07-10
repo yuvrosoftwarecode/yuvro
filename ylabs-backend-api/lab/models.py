@@ -142,6 +142,73 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
     def __str__(self):
         return f"{self.user.email} -> {self.lab_sprint_ticket.title}"
 
+    def score_submission(self):
+        import re
+        ticket = self.lab_sprint_ticket
+        scoring_rules = ticket.scoring_rules or {}
+        expected_solution = ticket.solution or {}
+        
+        logic_score_weight = scoring_rules.get("logic_score", 100) / 100.0
+        # More weights could be used here (e.g. clean_code, visual_accuracy)
+        
+        expected_query = expected_solution.get("query.sql", "").strip()
+        user_query = self.solution.strip()
+        
+        def normalize_str(s):
+            # remove single-line comments for sql
+            s = re.sub(r'--.*', '', s)
+            # normalize spaces
+            s = re.sub(r'\s+', ' ', s).strip().lower()
+            # remove spaces around parentheses, commas, and semicolons to be more lenient
+            s = re.sub(r'\s*\(\s*', '(', s)
+            s = re.sub(r'\s*\)\s*', ')', s)
+            s = re.sub(r'\s*,\s*', ',', s)
+            s = re.sub(r'\s*;\s*', ';', s)
+            return s
+
+        norm_expected = normalize_str(expected_query)
+        norm_user = normalize_str(user_query)
+        
+        # Check if the expected logic is contained within the user's query
+        # This allows users to add things like DROP TABLE before their CREATE TABLE
+        query_matches = (norm_expected in norm_user)
+        
+        # Result pattern matching
+        expected_output = expected_solution.get("expected_output", "")
+        output_matches = True
+        
+        # Check for common execution errors
+        if "Error:" in self.solution_output or "Parse error" in self.solution_output or re.search(r"exit code [^0]", self.solution_output) or "Traceback" in self.solution_output:
+            output_matches = False
+
+        if expected_output and output_matches:
+            try:
+                if not re.search(expected_output, self.solution_output, re.IGNORECASE) and expected_output not in self.solution_output:
+                    output_matches = False
+            except re.error:
+                if expected_output not in self.solution_output:
+                    output_matches = False
+
+        # If both query_matches and output_matches are evaluated
+        # We can determine the earned percentage
+        earned_percentage = 0.0
+        if query_matches and output_matches:
+            earned_percentage = 1.0
+        elif query_matches or (expected_output and output_matches):
+            earned_percentage = 0.5
+            
+        final_score_pct = logic_score_weight * earned_percentage
+        
+        total_points = int(ticket.yuvro_points * final_score_pct)
+        self.yuvro_points = total_points
+        
+        if total_points >= ticket.yuvro_points and ticket.yuvro_points > 0:
+            self.ticket_status = TicketProgressStatus.DONE
+        elif total_points > 0:
+            self.ticket_status = TicketProgressStatus.IN_REVIEW
+            
+        return total_points
+
 
 # ---------------------------------------------------------------------------
 # GitHub Integration

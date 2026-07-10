@@ -824,6 +824,34 @@ function TicketIDE({
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
   const fileList = useMemo(() => Object.keys(files), [files]);
   const [openTabs, setOpenTabs] = useState<string[]>(isReal ? [] : [...initialFileList]);
+  const [score, setScore] = useState<number | null>(null);
+  const [maxScore, setMaxScore] = useState<number>(ticket.xp ?? 0);
+
+  const evaluateSubmission = async (srcCode: string, output: string) => {
+    if (!isReal) return;
+    if (dirty[activeFile]) return; // Only score if saved
+    try {
+      const { default: api } = await import("@/utils/RestApiAuthUtil");
+      const res: any = await api.get(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`);
+      const results = res.results || res;
+      const existing = Array.isArray(results) ? results.find((s: any) => s.lab_sprint_ticket === ticket.id) : null;
+      
+      const payload = {
+        lab_sprint_ticket: ticket.id,
+        solution: srcCode,
+        solution_output: output,
+      };
+      
+      const savedSub: any = await (existing 
+        ? api.patch(`/lab/submissions/${existing.id}/`, payload)
+        : api.post(`/lab/submissions/`, payload));
+        
+      setScore(savedSub.yuvro_points ?? 0);
+      setMaxScore(ticket.xp ?? 0);
+    } catch (err) {
+      console.error("Failed to evaluate submission", err);
+    }
+  };
 
   function openFile(path: string) {
     setOpenTabs(prev => prev.includes(path) ? prev : [...prev, path]);
@@ -1067,7 +1095,7 @@ function TicketIDE({
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [autoSave, setAutoSave] = useState<boolean>(false);
+  const [autoSave, setAutoSave] = useState<boolean>(true);
 
   // Auto-save logic
   useEffect(() => {
@@ -1076,7 +1104,7 @@ function TicketIDE({
     if (dirtyPaths.length === 0) return;
     
     // Save immediately with no delay
-    handleSave();
+    handleSave(true);
   }, [files, dirty, autoSave]);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -1089,7 +1117,7 @@ function TicketIDE({
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -1147,7 +1175,9 @@ function TicketIDE({
           const re = /cout\s*<<\s*"([^"]*)"/g;
           let m; while ((m = re.exec(src))) out.push(m[1]);
         }
-        setOutput(`${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`);
+        const outText = `${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
@@ -1158,7 +1188,9 @@ function TicketIDE({
         const out: string[] = [];
         const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
         let m; while ((m = re.exec(src))) out.push(m[1]);
-        setOutput(`$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`);
+        const outText = `$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
@@ -1172,6 +1204,7 @@ function TicketIDE({
           if (res.stderr) outText += `Error:\n${res.stderr}\n`;
           outText += `\n✓ Process finished with exit code ${res.exit_code}`;
           setOutput(outText);
+          evaluateSubmission(src, outText);
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
@@ -1182,18 +1215,24 @@ function TicketIDE({
     if (isMongo) {
       setOutput(`> load("${file}")\n…running…`);
       setTimeout(() => {
-        setOutput(`> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`);
+        const outText = `> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
     }
     if (isUi) {
-      setOutput(`▶ Served ${file} in preview iframe.\n✓ Hot reload OK.`);
+      const outText = `▶ Served ${file} in preview iframe.\n✓ Hot reload OK.`;
+      setOutput(outText);
+      evaluateSubmission(src, outText);
       setRunning(false);
       return;
     }
     if (isDjango) {
-      setOutput(`$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`);
+      const outText = `$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`;
+      setOutput(outText);
+      evaluateSubmission(src, outText);
       setRunning(false);
       return;
     }
@@ -1204,7 +1243,9 @@ function TicketIDE({
         const out: string[] = [];
         let m;
         while ((m = echoRe.exec(src))) out.push(m[1]);
-        setOutput(`$ bash ${file}\n${out.join("\n")}\n\n✓ Script finished (0.2s)`);
+        const outText = `$ bash ${file}\n${out.join("\n")}\n\n✓ Script finished (0.2s)`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 400);
       return;
@@ -1231,7 +1272,9 @@ function TicketIDE({
           else val = ctx[val] ?? val;
           out.push(label + val);
         }
-        setOutput("$ javac Main.java\n$ java Main\n" + out.join("\n") + "\n\n✓ Program ran successfully (1.2s)");
+        const outText = "$ javac Main.java\n$ java Main\n" + out.join("\n") + "\n\n✓ Program ran successfully (1.2s)";
+        setOutput(outText);
+        evaluateSubmission(src, outText);
       }
       setRunning(false);
     }, 700);
@@ -1277,7 +1320,7 @@ function TicketIDE({
     }, 600);
   }
 
-  function handleSave() {
+  function handleSave(isAutoSave: boolean = false) {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
     const now = new Date();
     setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
@@ -1288,7 +1331,9 @@ function TicketIDE({
         dirtyPaths.map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
     }
-    showToast("Saved");
+    if (!isAutoSave) {
+      showToast("Saved");
+    }
   }
 
   function handleReset() {
@@ -1572,6 +1617,11 @@ function TicketIDE({
                       <t.icon className="h-3 w-3" />{t.label}
                     </button>
                   ))}
+                  {score !== null && (
+                    <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
+                      SCORE: {score} / {maxScore}
+                    </div>
+                  )}
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
                   {bottomTab === "output" && <OutputView output={output} />}

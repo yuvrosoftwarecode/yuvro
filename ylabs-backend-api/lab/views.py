@@ -91,7 +91,14 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         return UserLabSprintTicketSubmission.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        submission = serializer.save(user=self.request.user)
+        submission.score_submission()
+        submission.save(update_fields=['yuvro_points', 'ticket_status'])
+
+    def perform_update(self, serializer):
+        submission = serializer.save()
+        submission.score_submission()
+        submission.save(update_fields=['yuvro_points', 'ticket_status'])
 
 
 class GitHubIntegrationView(APIView):

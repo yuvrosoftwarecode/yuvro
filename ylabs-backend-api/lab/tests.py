@@ -69,3 +69,60 @@ class LabModelsTest(TestCase):
         self.assertEqual(ticket.sprint, sprint)
         self.assertEqual(enrollment.lab, lab)
         self.assertEqual(submission.lab_sprint_ticket, ticket)
+
+    def test_submission_scoring(self):
+        lab = Lab.objects.create(
+            title="SQL Basics",
+            type="Backend",
+            difficulty="EASY",
+            created_by=self.admin_user,
+        )
+        sprint = LabSprint.objects.create(
+            title="Sprint 1",
+            lab=lab,
+            created_by=self.admin_user,
+        )
+        ticket = LabSprintTicket.objects.create(
+            sprint=sprint,
+            title="Select All",
+            scoring_rules={"logic_score": 100},
+            solution={
+                "query.sql": "SELECT * FROM users;",
+                "expected_output": "id,name"
+            },
+            yuvro_points=50,
+            created_by=self.admin_user,
+        )
+        
+        # Exact match (normalized)
+        submission1 = UserLabSprintTicketSubmission.objects.create(
+            user=self.student_user,
+            lab_sprint_ticket=ticket,
+            solution="select * from users;  ",
+            solution_output="id,name\n1,Alice"
+        )
+        submission1.score_submission()
+        self.assertEqual(submission1.yuvro_points, 50)
+        self.assertEqual(submission1.ticket_status, "done")
+        
+        # Only query matches
+        submission2 = UserLabSprintTicketSubmission.objects.create(
+            user=self.student_user,
+            lab_sprint_ticket=ticket,
+            solution="select * from users;",
+            solution_output="error"
+        )
+        submission2.score_submission()
+        self.assertEqual(submission2.yuvro_points, 25)
+        self.assertEqual(submission2.ticket_status, "in_review")
+        
+        # Completely wrong
+        submission3 = UserLabSprintTicketSubmission.objects.create(
+            user=self.student_user,
+            lab_sprint_ticket=ticket,
+            solution="SELECT 1;",
+            solution_output="error"
+        )
+        submission3.score_submission()
+        self.assertEqual(submission3.yuvro_points, 0)
+        # Status remains what it was (or backlog if not changed by score)
