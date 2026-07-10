@@ -6,7 +6,7 @@
   "tickets": [
     {
       "title": "Insert First Users",
-      "ticket_slug": "sqlite-31",
+      "ticket_slug": "sqlite-301",
       "description": "Add two users to the system: 'alice_dev' (alice@email.com) and 'bob_ops' (bob@email.com).",
       "tasks": [
         "Add two users to the system: 'alice_dev' (alice@email.com) and 'bob_ops' (bob@email.com)."
@@ -14,11 +14,10 @@
       "learning_objectives": [
         "Use INSERT INTO for multiple rows."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "DATABASE_STATE",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the semicolon at the end of the query."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
@@ -41,19 +40,18 @@
     },
     {
       "title": "Insert First Todos",
-      "ticket_slug": "sqlite-32",
-      "description": "Assign a task to Alice (`user_id = 1`) with the title \"Setup database\". Allow the status to fall back to its default value.",
+      "ticket_slug": "sqlite-302",
+      "description": "Assign a task to Alice (`user_id = 1`) with the title 'Setup database'. Allow the status to fall back to its default value.",
       "tasks": [
-        "Assign a task to Alice (`user_id = 1`) with the title \"Setup database\". Allow the status to fall back to its default value."
+        "Assign a task to Alice (`user_id = 1`) with the title 'Setup database'. Allow the status to fall back to its default value."
       ],
       "learning_objectives": [
         "Understand auto-increment IDs and default values during insertion."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "DATABASE_STATE",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the semicolon at the end of the query."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
@@ -73,6 +71,40 @@
         "SQL"
       ],
       "order_index": 2
+    },
+    {
+      "title": "DEFAULT Demonstration",
+      "ticket_slug": "sqlite-303",
+      "description": "Assign another task to Alice with the title 'Write documentation', but explicitly specify DEFAULT for priority and status.",
+      "tasks": [
+        "Assign another task to Alice with the title 'Write documentation', but explicitly specify DEFAULT for priority and status."
+      ],
+      "learning_objectives": [
+        "Explicitly use DEFAULT keyword in INSERT."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Omitting the columns from the insert list."
+      ],
+      "hints": [
+        "You can literally type DEFAULT in the VALUES list."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "INSERT INTO todos (user_id, title, priority, status) VALUES \n(1, 'Write documentation', DEFAULT, DEFAULT);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
     }
   ]
 }

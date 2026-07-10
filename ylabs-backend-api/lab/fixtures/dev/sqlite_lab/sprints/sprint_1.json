@@ -6,7 +6,7 @@
   "tickets": [
     {
       "title": "Create the Database",
-      "ticket_slug": "sqlite-11",
+      "ticket_slug": "sqlite-101",
       "description": "Before we can create tables, we must initialize the SQLite database file.",
       "tasks": [
         "Before we can create tables, we must initialize the SQLite database file."
@@ -14,11 +14,10 @@
       "learning_objectives": [
         "Understand how to create a database file in SQLite."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "DATABASE_STATE",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the semicolon at the end of the query."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."

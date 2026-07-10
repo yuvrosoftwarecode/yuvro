@@ -3,8 +3,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
-import { tickets, labs, saveTicketState } from "@/lib/dummy";
+import { saveTicketState } from "@/lib/dummy";
+import { useLabData } from "@/lib/useLabData";
 import { getTargetUI } from "@/lib/targetUIs";
+import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
   FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
@@ -977,7 +979,7 @@ function getKit(slug: string, tag: string, ticketId: string): Kit {
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug === "sql") return SQL_KIT_DEFAULT;
+  if (slug === "sql" || slug === "sqlite" || slug === "sqlite-lab" || (tag && tag.toLowerCase().includes("sql"))) return SQL_KIT_DEFAULT;
   if (slug === "mongo") return MONGO_KIT_DEFAULT;
   if (slug === "ui" || slug === "bootstrap" || slug === "tailwind") return UI_KIT_DEFAULT;
   return {
@@ -1558,10 +1560,13 @@ export function StudentTicketView({
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const baseTicket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
+  const { data, isLoading, error } = useLabData(slug);
+
+  const lab = data?.lab;
+  const baseTicket = data?.allTickets?.find((t) => t.id === ticketId) ?? data?.allTickets?.[0];
 
   const ticket = useMemo(() => {
+    if (!baseTicket) return null;
     if (!previewOverride) return baseTicket;
     return {
       ...baseTicket,
@@ -1574,7 +1579,10 @@ export function StudentTicketView({
     };
   }, [baseTicket, previewOverride]);
 
-  const kit = useMemo(() => getKit(slug, ticket.tag, ticket.id), [slug, ticket.tag, ticket.id]);
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading ticket...</div>;
+  if (error || !data || !ticket || !lab) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Ticket not found.</div>;
+
+  const kit = useMemo(() => getKit(slug, ticket.tag || "", ticket.id), [slug, ticket.tag, ticket.id]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -1843,11 +1851,24 @@ export function StudentTicketView({
       return;
     }
     if (isSql) {
-      setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
-      setTimeout(() => {
-        setOutput(`-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`);
-        setRunning(false);
-      }, 500);
+      setOutput(`-- Executing ${file} on PostgreSQL/SQLite\n…running…`);
+      restApiAuthUtil.post(`/lab/tickets/${ticketId}/execute/`, { code: src })
+        .then((res: any) => {
+          if (res.correct) {
+            setOutput(`-- Executed ${file}\n✓ Query ran successfully! Score: ${res.points_earned || 0}/${res.points_possible || 0}\n\nResults:\n${JSON.stringify(res.user_result, null, 2)}`);
+          } else {
+            let errorMsg = res.error ? `Error: ${res.error}` : "Query returned incorrect results.";
+            if (res.feedback) {
+               errorMsg += `\nFeedback: ${res.feedback.join('\n')}`;
+            }
+            setOutput(`-- Executed ${file}\n❌ Query failed.\n${errorMsg}\n\nYour Results:\n${JSON.stringify(res.user_result, null, 2)}`);
+          }
+          setRunning(false);
+        })
+        .catch(err => {
+          setOutput(`-- Executing ${file} on PostgreSQL/SQLite\n❌ Execution failed: ${err.message || err}`);
+          setRunning(false);
+        });
       return;
     }
     if (isMongo) {

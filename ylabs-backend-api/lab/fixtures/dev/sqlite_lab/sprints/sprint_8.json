@@ -1,47 +1,12 @@
 {
-  "title": "Sprint 8 - Subqueries, CTEs & Optimization",
+  "title": "Sprint 8 - Subqueries, String Functions & CTEs",
   "description": "Complete all SQL queries in this sprint.",
   "order_index": 8,
   "lab_title": "SQLite Lab",
   "tickets": [
     {
-      "title": "Average Priority",
-      "ticket_slug": "sqlite-81",
-      "description": "Calculate the average priority of all pending tasks.",
-      "tasks": [
-        "Calculate the average priority of all pending tasks."
-      ],
-      "learning_objectives": [
-        "Use AVG() aggregation function."
-      ],
-      "evaluation": "Runs your query and compares against the system solution.",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
-      ],
-      "hints": [
-        "Read the SQLite documentation for the specific keyword."
-      ],
-      "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
-      },
-      "solution": {
-        "query.sql": "SELECT AVG(priority) FROM todos WHERE status = 'pending';",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 1
-    },
-    {
       "title": "Overdue Tasks",
-      "ticket_slug": "sqlite-82",
+      "ticket_slug": "sqlite-801",
       "description": "Find all tasks where the due_date is in the past.",
       "tasks": [
         "Find all tasks where the due_date is in the past."
@@ -49,11 +14,10 @@
       "learning_objectives": [
         "Filtering using date strings."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Using wrong date formatting."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
@@ -72,11 +36,45 @@
       "accepted_programming_languages": [
         "SQL"
       ],
+      "order_index": 1
+    },
+    {
+      "title": "String Functions",
+      "ticket_slug": "sqlite-802",
+      "description": "Select the `username` in uppercase, the length of the `email`, the first 3 characters of the `status` (SUBSTR), and the `title` with any surrounding spaces removed (TRIM) from `users` and `todos` (joined).",
+      "tasks": [
+        "Select the `username` in uppercase, the length of the `email`, the first 3 characters of the `status` (SUBSTR), and the `title` with any surrounding spaces removed (TRIM) from `users` and `todos` (joined)."
+      ],
+      "learning_objectives": [
+        "Use UPPER, LOWER, LENGTH, SUBSTR, TRIM."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using 0-based index for SUBSTR."
+      ],
+      "hints": [
+        "SUBSTR(string, start, length). Index is 1-based."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT UPPER(u.username), LENGTH(u.email), SUBSTR(t.status, 1, 3), TRIM(t.title)\nFROM users u\nJOIN todos t ON u.id = t.user_id;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
       "order_index": 2
     },
     {
       "title": "Task Urgency Levels",
-      "ticket_slug": "sqlite-83",
+      "ticket_slug": "sqlite-803",
       "description": "Output the title of the task and a new column called 'urgency'. If priority is 1, urgency is 'High', otherwise 'Normal'.",
       "tasks": [
         "Output the title of the task and a new column called 'urgency'. If priority is 1, urgency is 'High', otherwise 'Normal'."
@@ -84,11 +82,10 @@
       "learning_objectives": [
         "Using CASE WHEN statements."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the END keyword."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."

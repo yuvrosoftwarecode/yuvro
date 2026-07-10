@@ -1,9 +1,10 @@
 import { createFileRoute, Link, Outlet, useMatch, useParams } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
-import { labs, tickets, leaderboard } from "@/lib/dummy";
+import { leaderboard } from "@/lib/dummy";
 import { Search, Filter, LayoutGrid, List, Calendar, Zap, TrendingUp, TrendingDown, Award, Lock, Sparkles, ArrowLeft, CheckCircle2, Play, Clock, Target, Flag } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useLabData } from "@/lib/useLabData";
 import type { Ticket } from "@/lib/dummy";
 
 export const Route = createFileRoute("/lab/$slug")({ component: LabDashboard });
@@ -140,10 +141,16 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
 function LabDashboard() {
   const { slug } = useParams({ from: "/lab/$slug" });
   const ticketMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId", shouldThrow: false });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
-  const sprints = useMemo(() => buildSprints(slug, tickets), [slug]);
+
+  const { data, isLoading, error } = useLabData(slug);
+  
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading lab...</div>;
+  if (error || !data) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Error loading lab data.</div>;
+
+  const { lab, sprints, allTickets: tickets } = data;
+  
   const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
   const sprintTickets = sprint ? tickets.filter((t) => sprint.ticketIds.includes(t.id)) : tickets;
   const cols: { key: "Not Started" | "In Progress" | "Completed"; }[] = [{ key: "Not Started" }, { key: "In Progress" }, { key: "Completed" }];
