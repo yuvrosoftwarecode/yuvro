@@ -1384,9 +1384,11 @@ function TicketIDE({
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
-        <Link to="/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
-          <ArrowLeft className="h-3 w-3" />Exit
-        </Link>
+        {!previewOverride && (
+          <Link to="/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
+            <ArrowLeft className="h-3 w-3" />Exit
+          </Link>
+        )}
         <button onClick={() => setLeftCollapsed((v) => !v)} title="Toggle panel"
           className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
           {leftCollapsed ? <PanelLeftOpen className="h-3 w-3" /> : <PanelLeftClose className="h-3 w-3" />}

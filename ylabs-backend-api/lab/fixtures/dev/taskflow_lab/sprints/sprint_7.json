@@ -1,0 +1,348 @@
+{
+  "title": "Sprint 7 \u2014 Production Features",
+  "description": "Goal: Prepare the application for production with logging, caching, and optimization.",
+  "order_index": 7,
+  "lab_title": "TaskFlow - Full Stack SaaS",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Central Error Handler",
+      "ticket_slug": "ticket-7-1",
+      "description": "Implement Central Error Handler.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2014 Central Error Handler"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2014 Central Error Handler",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2014 Logging",
+      "ticket_slug": "ticket-7-2",
+      "description": "Implement Logging (Morgan, Winston).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2014 Logging"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2014 Logging",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2014 Rate Limiting",
+      "ticket_slug": "ticket-7-3",
+      "description": "Implement Rate Limiting.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2014 Rate Limiting"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2014 Rate Limiting",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2014 Security Headers",
+      "ticket_slug": "ticket-7-4",
+      "description": "Implement Security Headers (Helmet).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2014 Security Headers"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2014 Security Headers",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2014 API Documentation",
+      "ticket_slug": "ticket-7-5",
+      "description": "Implement API Documentation (Swagger).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2014 API Documentation"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2014 API Documentation",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2014 Pagination",
+      "ticket_slug": "ticket-7-6",
+      "description": "Implement Pagination.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2014 Pagination"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2014 Pagination",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2014 Caching",
+      "ticket_slug": "ticket-7-7",
+      "description": "Implement Caching (Redis).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2014 Caching"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2014 Caching",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Ticket 8 \u2014 Image Optimization",
+      "ticket_slug": "ticket-7-8",
+      "description": "Implement Image Optimization.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 8 \u2014 Image Optimization"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 8 \u2014 Image Optimization",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Ticket 9 \u2014 Performance Optimization",
+      "ticket_slug": "ticket-7-9",
+      "description": "Implement Performance Optimization (Lazy Loading, Memoization).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 9 \u2014 Performance Optimization"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 9 \u2014 Performance Optimization",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Ticket 10 \u2014 Production Readiness Audit",
+      "ticket_slug": "ticket-7-10",
+      "description": "Conduct Production Readiness Audit.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 10 \u2014 Production Readiness Audit"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 10 \u2014 Production Readiness Audit",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 10
+    }
+  ]
+}
