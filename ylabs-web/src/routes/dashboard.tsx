@@ -1,9 +1,12 @@
+import React from "react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
 import { labs, me } from "@/lib/dummy";
-import { ArrowRight, Sparkles, Flame, Zap, Trophy } from "lucide-react";
+import { loadLabs, type AdminLab } from "@/lib/adminLabs";
+import { loadSprints } from "@/lib/labSprints";
+import { ArrowRight, Sparkles, Flame, Zap, Trophy, Play } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/dashboard")({ 
@@ -34,6 +37,21 @@ export const Route = createFileRoute("/dashboard")({
 
 function Hub() {
   const { user } = useAuth();
+  const [realLabs, setRealLabs] = React.useState<AdminLab[]>([]);
+  const [labTicketCounts, setLabTicketCounts] = React.useState<Record<string, number>>({});
+
+  React.useEffect(() => {
+    loadLabs().then(labs => {
+      setRealLabs(labs);
+      labs.forEach(lab => {
+        loadSprints(lab.id).then(sprints => {
+          const count = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
+          setLabTicketCounts(prev => ({ ...prev, [lab.id]: count }));
+        });
+      });
+    }).catch(console.error);
+  }, []);
+
   return (
     <div className="min-h-screen">
       <TopNav />
@@ -62,9 +80,68 @@ function Hub() {
           </div>
         </section>
 
+        {realLabs.length > 0 && (
+          <section className="mt-10">
+            <div className="mb-4 flex items-end justify-between">
+              <h2 className="text-xl font-semibold">Your Labs</h2>
+              <span className="text-sm text-muted-foreground">
+                {realLabs.reduce((a, l) => {
+                  try {
+                    const saved = localStorage.getItem(`ylabs-ticket-status-${l.id}`);
+                    if (saved) return a + Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
+                  } catch {}
+                  return a;
+                }, 0)} / {Object.values(labTicketCounts).reduce((a, b) => a + b, 0)} tickets solved
+              </span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {realLabs.map((lab) => {
+                const totalTickets = labTicketCounts[lab.id] || 0;
+                let completedCount = 0;
+                try {
+                  const saved = localStorage.getItem(`ylabs-ticket-status-${lab.id}`);
+                  if (saved) {
+                    completedCount = Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
+                  }
+                } catch {}
+                const pct = totalTickets > 0 ? Math.round((completedCount / totalTickets) * 100) : 0;
+                
+                const isLinux = lab.title.toLowerCase().includes("linux");
+                const iconStr = lab.icon?.toLowerCase() || "";
+                const icon = (lab.icon && iconStr !== "linux" && iconStr !== "linux lab") ? lab.icon : (isLinux ? "🐧" : "💻");
+
+                return (
+                  <Link key={lab.id} to="/lab/$slug" params={{ slug: lab.id }}
+                    className="group relative overflow-hidden rounded-xl border bg-card p-5 transition hover:border-primary/50 hover:ring-glow">
+                    <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--prog)` }} />
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-3xl">{icon}</div>
+                        <h3 className="mt-3 font-semibold">{lab.title}</h3>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{lab.description}</p>
+                      </div>
+                      <ProgressRing value={pct} color={`var(--prog)`} />
+                    </div>
+                    <div className="mt-4 flex items-center justify-between text-xs">
+                      <DiffBadge value={lab.difficulty === "HARD" ? "Advanced" : lab.difficulty === "MEDIUM" ? "Intermediate" : "Beginner"} />
+                      <span className="text-muted-foreground">10h left</span>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{completedCount}/{totalTickets} tickets</span>
+                      <span className="inline-flex items-center gap-1 text-sm text-primary opacity-0 transition group-hover:opacity-100">
+                        Start <ArrowRight className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="mt-10">
           <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-xl font-semibold">Your Labs</h2>
+            <h2 className="text-xl font-semibold">Example Labs</h2>
             <span className="text-sm text-muted-foreground">{labs.reduce((a, l) => a + l.completed, 0)} / {labs.reduce((a, l) => a + l.total, 0)} tickets solved</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
