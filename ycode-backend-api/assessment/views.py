@@ -14,7 +14,8 @@ from io import BytesIO
 import traceback
 import logging
 from asgiref.sync import async_to_sync
-
+from django.contrib.auth import get_user_model
+from .models import ContestRegistration
 from core.ai_client import AIClient
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
@@ -40,6 +41,12 @@ from django.utils.text import slugify
 from course.models import Question
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework_simplejwt.tokens import AccessToken
+from .models import ContestRegistration
+from core.models import Transaction
+import uuid
+from .analytics_service import ContestAnalyticsService
+from .ai_insights_service import generate_student_insights_sync
 
 def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
     if not user or not user.is_authenticated or (hasattr(user, 'role') and user.role != 'student'):
@@ -596,9 +603,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
             
-        from django.contrib.auth import get_user_model
-        from .models import ContestRegistration
-        
         User = get_user_model()
         user = User.objects.filter(email=email).first()
         if user and ContestRegistration.objects.filter(contest=contest, user=user).exists():
@@ -615,17 +619,11 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
         user = request.user
-        email = user.email
-        
-        from .models import ContestRegistration
-        
-        # Check if already registered
+        email = user.email        
         if ContestRegistration.objects.filter(contest=contest, user=user).exists():
             return Response({"error": "This email is already registered for this contest"}, status=status.HTTP_400_BAD_REQUEST)
             
         if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
-            # We don't generate a custom payment_token anymore. 
-            # The frontend will use the YHub JWT for payment authorization.
             return Response({
                 "status": "payment_required", 
                 "message": "Proceed to payment",
@@ -638,7 +636,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             defaults={'created_by': user}
         )
         
-        from rest_framework_simplejwt.tokens import AccessToken
         token = AccessToken.for_user(user)
         
         return Response({
@@ -649,10 +646,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def verify_payment(self, request, pk=None):
-        from rest_framework_simplejwt.tokens import AccessToken
-        from .models import ContestRegistration
-        from core.models import Transaction
-        import uuid
         
         if not request.user or not request.user.is_authenticated:
             return Response({"error": "Authentication required to verify payment"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -1025,15 +1018,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def student_analytics(self, request, pk=None):
-        """
-        Get detailed analytics for the authenticated student's contest performance.
-        Students can only access their own analytics.
-        Admins/Instructors can view any student's analytics by passing user_id query param.
-        
-        Query Parameters:
-            - include_ai_insights: boolean (default: true) - Whether to include AI-generated insights
-            - user_id: string (admin/instructor only) - View analytics for specific user
-        """
         contest = self.get_object()
         user = request.user
         
@@ -1058,25 +1042,20 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             )
 
         try:
-            from .analytics_service import ContestAnalyticsService
-            from .ai_insights_service import generate_student_insights_sync
             
             analytics_service = ContestAnalyticsService(contest_id=str(contest.id))
             analytics_data = analytics_service.get_student_analytics(user_id=target_user_id)
             
-            # Check if AI insights should be included
             include_ai = request.query_params.get('include_ai_insights', 'true').lower() == 'true'
             
             if include_ai:
                 try:
-                    # Generate AI insights
                     ai_insights = generate_student_insights_sync(
                         student_analytics=analytics_data,
                         contest_title=contest.title
                     )
                     analytics_data['ai_insights'] = ai_insights
                 except Exception as ai_error:
-                    # If AI insights fail, continue without them
                     logger.warning(f"Failed to generate AI insights: {str(ai_error)}")
                     analytics_data['ai_insights'] = {
                         "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
@@ -1098,14 +1077,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def college_analytics(self, request, pk=None):
-        """
-        Get detailed analytics for a college's performance in the contest.
-        Only admins/instructors can access college analytics.
-        
-        Query Parameters:
-            - college_id: string (required) - College ID to get analytics for
-            - include_ai_insights: boolean (default: false) - Whether to include AI-generated insights
-        """
         contest = self.get_object()
         user = request.user
         

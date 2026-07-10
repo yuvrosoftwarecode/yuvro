@@ -9,6 +9,8 @@ import requests
 from django.conf import settings
 
 from .base import BasePaymentGateway
+from payment.models import PaymentStatus
+
 
 
 class RazorpayGateway(BasePaymentGateway):
@@ -68,21 +70,12 @@ class RazorpayGateway(BasePaymentGateway):
     def get_order(self, order_id: str) -> Dict[str, Any]:
         return self._get(f"orders/{order_id}")
         
-    def map_status(self, gateway_status: str) -> str:
-        """
-        Map Razorpay native statuses to internal PaymentStatus.
-        Razorpay Order statuses: created, attempted, paid
-        Razorpay Payment statuses: created, authorized, captured, refunded, failed
-        """
-        from payment.models import PaymentStatus
-        
+    def map_status(self, gateway_status: str) -> str:        
         status_map = {
-            # Order statuses
             "created": PaymentStatus.CREATED,
             "attempted": PaymentStatus.PENDING,
             "paid": PaymentStatus.SUCCESS_OR_CAPTURED,
             
-            # Payment statuses
             "authorized": PaymentStatus.AUTHORIZED,
             "captured": PaymentStatus.SUCCESS_OR_CAPTURED,
             "failed": PaymentStatus.FAILED,

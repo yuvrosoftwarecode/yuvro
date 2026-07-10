@@ -17,6 +17,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
+
 
 from authentication.permissions import (
     IsAdminUser,
@@ -168,9 +170,6 @@ class UserRegistrationView(generics.CreateAPIView):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def public_send_otp(request):
-    """
-    Sends an OTP for public registration.
-    """
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
     contest_title = request.data.get('contest_title', 'Contest')
@@ -178,13 +177,10 @@ def public_send_otp(request):
     if not email or not contest_id:
         return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-    # Note: We skip checking contest registration here since it's on YCode, 
-    # but the frontend can check or we rely on registration failure later.
     
     otp = str(random.randint(100000, 999999))
     cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
     
-    from django.template.loader import render_to_string
     context = {
         "contest_title": contest_title,
         "otp": otp,
@@ -210,9 +206,6 @@ def public_send_otp(request):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def public_verify_otp(request):
-    """
-    Verifies OTP and creates user if they don't exist.
-    """
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
     otp = request.data.get('otp')
@@ -223,7 +216,6 @@ def public_verify_otp(request):
     cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
     
     if cached_otp and str(cached_otp) == str(otp):
-        # Create user if doesn't exist
         user = User.objects.filter(email=email).first()
         
         if not user:
@@ -290,7 +282,6 @@ class CustomTokenRefreshView(TokenRefreshView):
 @api_view(["GET"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    """Get current user information."""
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
@@ -324,7 +315,6 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
-        from django.template.loader import render_to_string
         context = {
             "user": user,
             "reset_link": reset_link,
