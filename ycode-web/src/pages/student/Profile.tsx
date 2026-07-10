@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/common/DashboardLayout";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import authService from "@/services/authService";
 import { FileText } from "lucide-react";
 
 
@@ -74,7 +75,7 @@ type SkillForm = {
 // --------------------------------------------
 // PROFILE STRENGTH CALCULATOR
 // --------------------------------------------
-const calculateProfileStrength = (profile: ProfileType) => {
+const calculateProfileStrength = (profile: ProfileType, user: any) => {
   let score = 0;
 
   // 1. Basic Info - 20%
@@ -108,8 +109,8 @@ const calculateProfileStrength = (profile: ProfileType) => {
   if (anySocial) score += 5;
 
   // 8. Images - 5%
-  if (profile.profile_image) score += 3;
-  if (profile.cover_image) score += 2;
+  if (user?.profile_image) score += 3;
+  if (user?.cover_image) score += 2;
 
   return score;
 };
@@ -117,13 +118,13 @@ const calculateProfileStrength = (profile: ProfileType) => {
 // --------------------------------------------
 // PROFILE IMPROVEMENT SUGGESTIONS
 // --------------------------------------------
-const generateSuggestions = (profile: ProfileType) => {
+const generateSuggestions = (profile: ProfileType, user: any) => {
   const suggestions: { text: string; boost: number }[] = [];
 
-  if (!profile.profile_image)
+  if (!user?.profile_image)
     suggestions.push({ text: "Add a profile picture", boost: 3 });
 
-  if (!profile.cover_image)
+  if (!user?.cover_image)
     suggestions.push({ text: "Add a cover image", boost: 2 });
 
   if (!profile.title)
@@ -165,7 +166,7 @@ const generateSuggestions = (profile: ProfileType) => {
 
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<ProfileType | null>(null);
@@ -225,9 +226,10 @@ const Profile = () => {
     try {
       const response = await profileService.fetchProfileDetail();
       setProfile(response);
-
-      if (response.profile_image) setProfilePic(response.profile_image);
-      if (response.cover_image) setCoverPic(response.cover_image);
+      // Profile images live on the YHub user, not the ycode profile
+      // Sync from auth context (already populated on login / after upload)
+      if (user?.profile_image) setProfilePic(user.profile_image);
+      if (user?.cover_image) setCoverPic(user.cover_image);
     } catch (err) {
       console.error("Failed to load profile:", err);
     }
@@ -240,8 +242,8 @@ const Profile = () => {
       </div>
     );
   }
-  const profileStrength = calculateProfileStrength(profile);
-  const suggestions = generateSuggestions(profile);
+  const profileStrength = calculateProfileStrength(profile, user);
+  const suggestions = generateSuggestions(profile, user);
 
 
 
@@ -265,15 +267,8 @@ const Profile = () => {
     reader.readAsDataURL(file);
 
     try {
-      const updated = await profileService.uploadProfileImage(file, field);
-      // Replace the data: URL with the real S3/MinIO URL from the server
-      if (field === "profile_image" && updated.profile_image) {
-        setProfilePic(updated.profile_image);
-      } else if (field === "cover_image" && updated.cover_image) {
-        setCoverPic(updated.cover_image);
-      }
-      // Keep the full profile in sync for downstream consumers
-      setProfile(updated);
+      const updatedUser = await authService.uploadProfileImage(file, field);
+      updateUser(updatedUser);
       toast.success(
         field === "profile_image"
           ? "Profile picture updated"
@@ -282,8 +277,28 @@ const Profile = () => {
     } catch (err) {
       console.error(`Failed to upload ${field}:`, err);
       toast.error(`Failed to upload ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`);
-      // Roll back optimistic preview by reloading from the server
-      await loadProfile();
+      // Revert preview on failure
+      if (field === "profile_image") setProfilePic(user?.profile_image || "");
+      else setCoverPic(user?.cover_image || "");
+    }
+  };
+
+  const removeImage = async (field: "profile_image" | "cover_image") => {
+    if (!confirm(`Are you sure you want to remove your ${field === "profile_image" ? "profile picture" : "cover image"}?`)) return;
+    
+    try {
+      const updatedUser = await authService.removeProfileImage(field);
+      updateUser(updatedUser);
+      if (field === "profile_image") setProfilePic("");
+      else setCoverPic("");
+      toast.success(
+        field === "profile_image"
+          ? "Profile picture removed"
+          : "Cover image removed",
+      );
+    } catch (err) {
+      console.error(`Failed to remove ${field}:`, err);
+      toast.error(`Failed to remove ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`);
     }
   };
 
@@ -430,9 +445,9 @@ const Profile = () => {
                   className="h-56 bg-gradient-to-r from-orange-400/80 via-rose-400/80 to-purple-500/80 backdrop-blur-md relative group cursor-pointer"
                   onClick={() => coverInputRef.current?.click()}
                 >
-                  {coverPic && (
+                  {(coverPic || user?.cover_image) && (
                     <img
-                      src={coverPic}
+                      src={coverPic || user?.cover_image || ''}
                       className="w-full h-full object-cover"
                       alt="Cover"
                     />
@@ -465,8 +480,8 @@ const Profile = () => {
                   onClick={() => profileInputRef.current?.click()}
                 >
                   <Avatar className="h-36 w-36 border-4 border-background shadow-xl">
-                    {profilePic ? (
-                      <AvatarImage src={profilePic} alt="Profile" />
+                    {(profilePic || user?.profile_image) ? (
+                      <AvatarImage src={profilePic || user?.profile_image || ''} alt="Profile" />
                     ) : (
                       <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
                         {profile.full_name

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { certificates, me } from "@/lib/dummy";
 import { Award, Download, Share2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 
 
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/student/certificates")({
 });
 
 function Certificates() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen">
       <TopNav />
@@ -26,7 +28,7 @@ function Certificates() {
               <div className="relative p-6" style={{ background: `linear-gradient(135deg, color-mix(in oklab, var(--${c.color}) 30%, transparent), transparent)` }}>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Practical Labs · Certificate</div>
                 <h3 className="mt-2 text-xl font-semibold">{c.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Awarded to <span className="text-foreground font-medium">{me.name}</span></p>
+                <p className="mt-2 text-sm text-muted-foreground">Awarded to <span className="text-foreground font-medium">{user ? (user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : user.username) : "Student"}</span></p>
                 <div className="mt-4 flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{c.date}</span>
                   <span className="rounded-md border px-2 py-0.5" style={{ color: `var(--${c.color})`, borderColor: `color-mix(in oklab, var(--${c.color}) 40%, transparent)` }}>Score {c.score}</span>

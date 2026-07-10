@@ -1,0 +1,111 @@
+{
+  "title": "Sprint 5 \u2014 Schema Validation, Transactions & Security",
+  "description": "Production-grade MongoDB \u2014 enforce data quality, atomic multi-document operations, and access control.",
+  "xp_pool": 400,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Schema Validation",
+      "ticket_slug": "ticket-1",
+      "description": "Create a collection with JSON schema validation.\nHandle validation errors and validationAction.\nAdd validation to existing collections.",
+      "xp_reward": 130,
+      "tasks": [
+        {
+          "title": "Task 5.1.1 \u2014 Create a Collection with JSON Schema Validation",
+          "task_slug": "task-5-1-1",
+          "description": "Enforce data integrity by defining rules for the structure and types of fields in a collection.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.1.2 \u2014 Validation Error Handling & validationAction",
+          "task_slug": "task-5-1-2",
+          "description": "Manage how MongoDB responds when documents fail validation rules.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.1.3 \u2014 Adding Validation to Existing Collections",
+          "task_slug": "task-5-1-3",
+          "description": "Apply schema validation to collections that already contain data and handle existing non-compliant documents.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Transactions",
+      "ticket_slug": "ticket-2",
+      "description": "Compare single-document atomicity vs multi-document.\nRun multi-document transactions with commit.\nRun multi-document transactions with rollback.",
+      "xp_reward": 140,
+      "tasks": [
+        {
+          "title": "Task 5.2.1 \u2014 Single-Document Atomicity vs Multi-Document",
+          "task_slug": "task-5-2-1",
+          "description": "Understand the difference between atomic operations on a single document and transactions across multiple documents.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.2.2 \u2014 Multi-Document Transactions (Commit)",
+          "task_slug": "task-5-2-2",
+          "description": "Execute multiple operations across different documents and collections as a single, all-or-nothing transaction.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.2.3 \u2014 Multi-Document Transactions (Rollback)",
+          "task_slug": "task-5-2-3",
+          "description": "Handle errors and safely abort a multi-document transaction to ensure data consistency.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Security & Access Control",
+      "ticket_slug": "ticket-3",
+      "description": "Create users and roles.\nVerify role-based access.\nCreate custom roles and privilege grants.",
+      "xp_reward": 130,
+      "tasks": [
+        {
+          "title": "Task 5.3.1 \u2014 Create Users & Roles",
+          "task_slug": "task-5-3-1",
+          "description": "Secure your database by creating user accounts and assigning them predefined roles.",
+          "points": 45,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 5.3.2 \u2014 Role-Based Access Verification",
+          "task_slug": "task-5-3-2",
+          "description": "Verify that users only have access to the data and operations permitted by their assigned roles.",
+          "points": 45,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 5.3.3 \u2014 Custom Roles & Privilege Grants",
+          "task_slug": "task-5-3-3",
+          "description": "Create granular, custom access controls by defining specific privileges for users.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 5,
+  "lab_title": "MongoDB Lab"
+}

@@ -33,6 +33,13 @@ class LabSprintViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(lab_id=lab_id)
         return queryset
     
+    def get_queryset(self):
+        queryset = LabSprint.objects.all()
+        lab = self.request.query_params.get('lab')
+        if lab is not None:
+            queryset = queryset.filter(lab=lab)
+        return queryset
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]

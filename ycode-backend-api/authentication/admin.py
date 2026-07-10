@@ -60,7 +60,6 @@ class ProfileAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {"fields": ("user",)}),
-        ("Profile Media", {"fields": ("profile_image", "cover_image")}),
         (
             "Personal Info",
             {"fields": ("full_name", "title", "location", "about", "gender")},

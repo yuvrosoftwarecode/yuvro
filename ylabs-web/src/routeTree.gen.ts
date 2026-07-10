@@ -9,6 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as ForumRouteImport } from './routes/forum'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -39,6 +43,8 @@ import { Route as AdminCollaborationRouteImport } from './routes/admin.collabora
 import { Route as AdminAiMentorRouteImport } from './routes/admin.ai-mentor'
 import { Route as StudentCollaborationIndexRouteImport } from './routes/student.collaboration.index'
 import { Route as AdminLabsIndexRouteImport } from './routes/admin.labs.index'
+import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
+import { Route as CollaborationSprintIdRouteImport } from './routes/collaboration.sprint.$id'
 import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as StudentCollaborationSquadsRouteImport } from './routes/student.collaboration.squads'
 import { Route as StudentCollaborationConnectionsRouteImport } from './routes/student.collaboration.connections'
@@ -59,6 +65,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -207,6 +218,18 @@ const AdminLabsIndexRoute = AdminLabsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminLabsRoute,
 } as any)
+const ResetPasswordUidb64TokenRoute =
+  ResetPasswordUidb64TokenRouteImport.update({
+    id: '/reset-password/$uidb64/$token',
+    path: '/reset-password/$uidb64/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CollaborationSprintIdRoute = CollaborationSprintIdRouteImport.update({
+  id: '/sprint/$id',
+  path: '/sprint/$id',
+  getParentRoute: () => CollaborationRoute,
+} as any)
+} as any)
 const StudentLabSlugRoute = StudentLabSlugRouteImport.update({
   id: '/lab/$slug',
   path: '/lab/$slug',
@@ -304,6 +327,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/forum': typeof ForumRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -330,6 +357,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
+  '/collaboration/sprint/$id': typeof CollaborationSprintIdRouteWithChildren
+  '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -351,6 +380,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/forum': typeof ForumRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -375,6 +408,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
+  '/collaboration/sprint/$id': typeof CollaborationSprintIdRouteWithChildren
+  '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -398,6 +433,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/forum': typeof ForumRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -424,6 +463,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
+  '/collaboration/sprint/$id': typeof CollaborationSprintIdRouteWithChildren
+  '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -448,6 +489,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/forgot-password'
+    | '/forum'
+    | '/leaderboard'
+    | '/profile'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -474,6 +519,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/collaboration/sprint/$id'
+    | '/reset-password/$uidb64/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -495,6 +542,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/forgot-password'
+    | '/forum'
+    | '/leaderboard'
+    | '/profile'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -519,6 +570,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/collaboration/sprint/$id'
+    | '/reset-password/$uidb64/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -541,6 +594,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/forgot-password'
+    | '/forum'
+    | '/leaderboard'
+    | '/profile'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -567,6 +624,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/collaboration/sprint/$id'
+    | '/reset-password/$uidb64/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -590,6 +649,12 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ForumRoute: typeof ForumRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  ProfileRoute: typeof ProfileRoute
+  LabSlugRoute: typeof LabSlugRouteWithChildren
+  ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   StudentRoute: typeof StudentRouteWithChildren
   GithubCallbackRoute: typeof GithubCallbackRoute
 }
@@ -601,6 +666,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -806,6 +878,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLabsIndexRouteImport
       parentRoute: typeof AdminLabsRoute
     }
+    '/reset-password/$uidb64/$token': {
+      id: '/reset-password/$uidb64/$token'
+      path: '/reset-password/$uidb64/$token'
+      fullPath: '/reset-password/$uidb64/$token'
+      preLoaderRoute: typeof ResetPasswordUidb64TokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collaboration/sprint/$id': {
+      id: '/collaboration/sprint/$id'
+      path: '/sprint/$id'
+      fullPath: '/collaboration/sprint/$id'
+      preLoaderRoute: typeof CollaborationSprintIdRouteImport
+      parentRoute: typeof CollaborationRoute
     '/student/lab/$slug': {
       id: '/student/lab/$slug'
       path: '/lab/$slug'
@@ -1102,6 +1187,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  ForumRoute: ForumRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  ProfileRoute: ProfileRoute,
+  LabSlugRoute: LabSlugRouteWithChildren,
+  ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   StudentRoute: StudentRouteWithChildren,
   GithubCallbackRoute: GithubCallbackRoute,
 }

@@ -30,6 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "profile_image",
+            "cover_image",
             "roles",
             "is_active",
             "date_joined",

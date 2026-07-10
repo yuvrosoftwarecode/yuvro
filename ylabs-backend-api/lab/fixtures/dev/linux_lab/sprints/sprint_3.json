@@ -1,69 +1,108 @@
 {
-  "title": "Sprint 3 \u2014 Linux Server Administration",
-  "description": "Manage a real Linux server.",
+  "title": "Sprint 3 \u2014 Processes, Services & Networking",
+  "description": "Learn to manage system resources, handle background services, and configure essential networking.",
+  "xp_pool": 1200,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Configure SSH for Secure Remote Access",
+      "title": "Ticket 1 \u2014 Process Management",
       "ticket_slug": "ticket-1",
-      "description": "Disable password login.\nAllow only SSH keys.\nTest from another machine.",
-      "tasks": [],
+      "description": "Monitor running applications and analyze system resource usage.\nCommunicate with processes using standard system signals.\nManage job priorities and handle background execution.",
+      "xp_reward": 300,
+      "tasks": [
+        {
+          "title": "Task 3.1.1 \u2014 Process Inspection",
+          "task_slug": "task-3-1-1",
+          "description": "Analyze the current state of the system, identify resource-intensive applications, and understand the hierarchy of running programs.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.1.2 \u2014 Signals & kill",
+          "task_slug": "task-3-1-2",
+          "description": "Practice sending various signals to applications to understand the difference between gracefully stopping and forcefully terminating them.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.1.3 \u2014 nice, nohup & jobs",
+          "task_slug": "task-3-1-3",
+          "description": "Launch applications with adjusted priorities, run them in the background, and ensure they continue executing even after disconnecting.",
+          "points": 100,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 1,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 2 \u2014 Host a Static Website",
+      "title": "Ticket 2 \u2014 systemd & Service Management",
       "ticket_slug": "ticket-2",
-      "description": "Install Nginx.\nDeploy a portfolio.\nConfigure a custom domain locally.",
-      "tasks": [],
+      "description": "Control system services and manage application lifecycles.\nCreate custom configurations to run scripts as reliable services.\nUnderstand and navigate different system boot states.",
+      "xp_reward": 350,
+      "tasks": [
+        {
+          "title": "Task 3.2.1 \u2014 systemctl Basics",
+          "task_slug": "task-3-2-1",
+          "description": "Manage background services by checking their health status, configuring them to start automatically on boot, and reviewing their logs.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.2.2 \u2014 Writing a Unit File",
+          "task_slug": "task-3-2-2",
+          "description": "Create a custom service configuration that allows a script to run automatically, restart upon failure, and record its output.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.2.3 \u2014 Boot Targets & Runlevels",
+          "task_slug": "task-3-2-3",
+          "description": "Learn to transition the system between different operational states and analyze the time taken during the boot process.",
+          "points": 110,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 2,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 3 \u2014 Host Multiple Websites",
+      "title": "Ticket 3 \u2014 Linux Networking",
       "ticket_slug": "ticket-3",
-      "description": "Configure\nsite1.local\nsite2.local\nsite3.local\nEach serves different content.",
-      "tasks": [],
+      "description": "Configure network interfaces, assign addresses, and resolve domain names.\nMonitor network traffic and identify active connections.\nSecure the system by managing firewall rules and access policies.",
+      "xp_reward": 350,
+      "tasks": [
+        {
+          "title": "Task 3.3.1 \u2014 Network Configuration",
+          "task_slug": "task-3-3-1",
+          "description": "Review active network interfaces, assign static addresses, and configure domain name resolution settings.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.3.2 \u2014 Traffic Analysis",
+          "task_slug": "task-3-3-2",
+          "description": "Identify open ports, monitor incoming and outgoing network traffic, and perform basic connectivity scans.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.3.3 \u2014 Firewall with iptables & firewalld",
+          "task_slug": "task-3-3-3",
+          "description": "Implement firewall rules to control access to specific services, block unwanted traffic, and review active security policies.",
+          "points": 110,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 3
+        }
+      ],
       "order_index": 3,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 4 \u2014 Secure the Server",
-      "ticket_slug": "ticket-4",
-      "description": "Install\nUFW\nFail2Ban\nAllow only\nSSH\nHTTP\nHTTPS",
-      "tasks": [],
-      "order_index": 4,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 5 \u2014 Schedule Automatic Maintenance",
-      "ticket_slug": "ticket-5",
-      "description": "Create Cron jobs for\nBackups\nCleanup\nLog rotation\nHealth reports",
-      "tasks": [],
-      "order_index": 5,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 6 \u2014 Mount Additional Storage",
-      "ticket_slug": "ticket-6",
-      "description": "Attach a new virtual disk.\nMount automatically.\nMove backups there.",
-      "tasks": [],
-      "order_index": 6,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 7 \u2014 Investigate a Broken Server",
-      "ticket_slug": "ticket-7",
-      "description": "Given\nFull disk\nFailed service\nHigh CPU\nMissing files\nFind root cause and fix.",
-      "tasks": [],
-      "order_index": 7,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 8 \u2014 Deliver a Production-Ready Server",
-      "ticket_slug": "ticket-8",
-      "description": "Server checklist\nSSH\nFirewall\nMonitoring\nBackups\nLogs\nDocumentation",
-      "tasks": [],
-      "order_index": 8,
       "difficulty": "MEDIUM"
     }
   ],

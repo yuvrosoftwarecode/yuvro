@@ -189,7 +189,7 @@ function SignInForm() {
         <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-3.5 w-3.5 rounded border-border" /> Remember me
         </label>
-        <a href="#" className="text-primary hover:underline">Forgot password?</a>
+        <Link to="/forgot-password" className="text-primary hover:underline">Forgot password?</Link>
       </div>
       {err && <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">{err}</div>}
       <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition">

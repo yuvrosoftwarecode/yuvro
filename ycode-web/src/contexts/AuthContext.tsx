@@ -14,6 +14,8 @@ export interface User {
     ycode?: string;
     ylabs?: string;
   };
+  profile_image?: string | null;
+  cover_image?: string | null;
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
@@ -78,6 +80,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         token: null,
       };
     case 'UPDATE_USER':
+      // Persist updated user to localStorage so images survive page refresh
+      try { localStorage.setItem('user', JSON.stringify(action.payload)); } catch (_) {}
       return {
         ...state,
         user: action.payload,
