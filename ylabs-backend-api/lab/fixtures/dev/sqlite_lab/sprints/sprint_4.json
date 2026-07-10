@@ -1,0 +1,113 @@
+{
+  "title": "Sprint 4 - Basic Retrieval & Filtering",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 4,
+  "lab_title": "SQLite Lab",
+  "tickets": [
+    {
+      "title": "Fetch All Users",
+      "ticket_slug": "sqlite-41",
+      "description": "Retrieve all columns and all rows from the `users` table.",
+      "tasks": [
+        "Retrieve all columns and all rows from the `users` table."
+      ],
+      "learning_objectives": [
+        "The SELECT * statement."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT * FROM users;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Filter Active Todos",
+      "ticket_slug": "sqlite-42",
+      "description": "Fetch only the `title` of todos that have a status of 'pending'.",
+      "tasks": [
+        "Fetch only the `title` of todos that have a status of 'pending'."
+      ],
+      "learning_objectives": [
+        "Using the WHERE clause."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE status = 'pending';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Top 5 Recent Tasks",
+      "ticket_slug": "sqlite-43",
+      "description": "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`.",
+      "tasks": [
+        "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`."
+      ],
+      "learning_objectives": [
+        "Combining ORDER BY and LIMIT."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0
+      },
+      "solution": {
+        "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

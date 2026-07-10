@@ -76,3 +76,6 @@ lovable_project_reference/*
 
 # Uploads
 uploads/
+
+#workspaces
+workspaces/

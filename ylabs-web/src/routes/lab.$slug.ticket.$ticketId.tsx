@@ -6,6 +6,7 @@ import {
   writeFile as wsWriteFile,
   deleteWorkspaceFile,
   getTerminalWsUrl,
+  runCommand,
   type FileTreeNode,
 } from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
@@ -777,9 +778,10 @@ function TicketIDE({
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
+  const effectiveSlug = (slug === "d60b3556-3fff-4a3f-bcae-0d53d3330361" || slug === "sqlite_lab") ? "sql" : slug;
+  const lab = labs.find((l) => l.slug === effectiveSlug) ?? labs[0];
 
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
+  const kit = useMemo(() => getKit(effectiveSlug, ticket.tag), [effectiveSlug, ticket.tag]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -787,6 +789,7 @@ function TicketIDE({
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
   const isBash = kit.name === "bash";
+  const isDatabaseLab = lab.type === "database" || isSql || isMongo;
 
   const isReal = !tickets.some(t => t.id === ticket.id);
 
@@ -1064,6 +1067,17 @@ function TicketIDE({
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [autoSave, setAutoSave] = useState<boolean>(false);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (!autoSave) return;
+    const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
+    if (dirtyPaths.length === 0) return;
+    
+    // Save immediately with no delay
+    handleSave();
+  }, [files, dirty, autoSave]);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1150,11 +1164,19 @@ function TicketIDE({
       return;
     }
     if (isSql) {
-      setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
-      setTimeout(() => {
-        setOutput(`-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`);
-        setRunning(false);
-      }, 500);
+      setOutput(`-- Executing ${file} on SQLite\n…running…`);
+      runCommand(userId, labId, sprintId, `sqlite3 ../sqlite.db < ${file}`)
+        .then((res) => {
+          let outText = `-- Executed ${file}\n\n`;
+          if (res.stdout) outText += `${res.stdout}\n`;
+          if (res.stderr) outText += `Error:\n${res.stderr}\n`;
+          outText += `\n✓ Process finished with exit code ${res.exit_code}`;
+          setOutput(outText);
+        })
+        .catch((err) => {
+          setOutput(`Error running script: ${err.message}`);
+        })
+        .finally(() => setRunning(false));
       return;
     }
     if (isMongo) {
@@ -1332,6 +1354,10 @@ function TicketIDE({
         <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>
         <span className="text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Est. {ticket.estMin}m · Elapsed <span className="font-mono text-foreground">{timeStr}</span></span>
         {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
+        <label className="text-muted-foreground inline-flex items-center gap-1.5 text-xs ml-2 cursor-pointer hover:text-foreground">
+          <input type="checkbox" checked={autoSave} onChange={(e) => setAutoSave(e.target.checked)} className="rounded bg-background border-border text-primary focus:ring-primary h-3 w-3" />
+          Auto-save
+        </label>
 
         <div className="ml-auto flex items-center gap-1.5">
           <button onClick={() => setSidePanel((p) => p === "preview" ? null : "preview")}
@@ -1414,7 +1440,7 @@ function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className="flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs">
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isDatabaseLab ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">

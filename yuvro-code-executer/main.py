@@ -1689,7 +1689,7 @@ workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 def _workspace_dir(user_id: str, lab_id: str, sprint_id: str) -> Path:
     """Return the per-student workspace directory."""
-    return WORKSPACES_ROOT / user_id / lab_id / sprint_id
+    return WORKSPACES_ROOT / f"user_{user_id}" / f"lab_{lab_id}" / f"sprint_{sprint_id}"
 
 
 def _safe_path(workspace: Path, relative: str) -> Path:
@@ -1754,6 +1754,13 @@ async def get_file_tree(
             fpath.parent.mkdir(parents=True, exist_ok=True)
             fpath.write_text(content)
         seeded = True
+
+    if lab_id == "sqlite_lab" or lab_id == "d60b3556-3fff-4a3f-bcae-0d53d3330361":
+        lab_dir = WORKSPACES_ROOT / f"user_{user_id}" / f"lab_{lab_id}"
+        db_path = lab_dir / "sqlite.db"
+        if not db_path.exists():
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            db_path.touch()
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1847,6 +1854,42 @@ async def evaluate_task(body: EvaluateRequest):
     except Exception as e:
         return {"passed": False, "reason": f"Error reading history: {e}"}
 
+class RunCommandRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    command: str
+
+@workspace_router.post("/run_command")
+async def run_command_endpoint(body: RunCommandRequest):
+    """
+    Execute a raw command inside the sprint's workspace.
+    """
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        proc = await asyncio.create_subprocess_shell(
+            body.command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws)
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        return {
+            "stdout": stdout.decode(errors="replace"),
+            "stderr": stderr.decode(errors="replace"),
+            "exit_code": proc.returncode
+        }
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+        except:
+            pass
+        return {"stdout": "", "stderr": "Command timed out", "exit_code": -1}
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
 async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
     """
     Fetch the student's GitHub integration from ylabs-backend-api and configure
@@ -1923,6 +1966,15 @@ async def terminal_ws(
         USE_PTY = True
     except ImportError:
         USE_PTY = False
+
+    if lab_id == "sqlite_lab" or lab_id == "d60b3556-3fff-4a3f-bcae-0d53d3330361":
+        bashrc_path = ws_dir / ".bashrc"
+        alias_cmd = "alias sqlite3='sqlite3 ../sqlite.db'\n"
+        if not bashrc_path.exists():
+            bashrc_path.write_text(alias_cmd)
+        elif "alias sqlite3=" not in bashrc_path.read_text():
+            with bashrc_path.open("a") as f:
+                f.write("\n" + alias_cmd)
 
     env = {
         **os.environ, 

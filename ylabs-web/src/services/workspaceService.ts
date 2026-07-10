@@ -104,3 +104,24 @@ export async function evaluateTask(
   return res.json();
 }
 
+/** Executes a raw command inside the workspace */
+export async function runCommand(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  command: string
+): Promise<{ stdout: string; stderr: string; exit_code: number }> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/run_command`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      command: command,
+    }),
+  });
+  if (!res.ok) throw new Error(`Run command failed: ${res.statusText}`);
+  return res.json();
+}
+
