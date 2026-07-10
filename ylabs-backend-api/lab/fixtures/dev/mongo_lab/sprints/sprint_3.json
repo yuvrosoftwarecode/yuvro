@@ -1,0 +1,119 @@
+{
+  "title": "Sprint 3 \u2014 Aggregation Framework",
+  "description": "Master the aggregation pipeline \u2014 the most powerful feature of MongoDB for data transformation.",
+  "xp_pool": 600,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Pipeline Basics",
+      "ticket_slug": "ticket-1",
+      "description": "Use match and project.\nUse group and accumulators.\nUse sort, limit and skip in pipelines.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 3.1.1 \u2014 $match & $project",
+          "task_slug": "task-3-1-1",
+          "description": "Build an aggregation pipeline to filter documents and reshape them by selecting specific fields.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.1.2 \u2014 $group & Accumulators",
+          "task_slug": "task-3-1-2",
+          "description": "Group documents by a specific key and calculate aggregate values like sums or averages using accumulators.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.1.3 \u2014 $sort, $limit, $skip in Pipelines",
+          "task_slug": "task-3-1-3",
+          "description": "Order aggregation results, limit the number of documents returned, and skip documents for pagination.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Intermediate Aggregation",
+      "ticket_slug": "ticket-2",
+      "description": "Use unwind for arrays.\nUse lookup for joins.\nUse addFields and computed fields.\nUse facet for multi-dimensional analytics.",
+      "xp_reward": 200,
+      "tasks": [
+        {
+          "title": "Task 3.2.1 \u2014 $unwind for Arrays",
+          "task_slug": "task-3-2-1",
+          "description": "Deconstruct array fields to process each array element as a separate document in the aggregation pipeline.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.2.2 \u2014 $lookup (Joins in MongoDB)",
+          "task_slug": "task-3-2-2",
+          "description": "Perform a left outer join to combine documents from two different collections.",
+          "points": 60,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.2.3 \u2014 $addFields, $set & Computed Fields",
+          "task_slug": "task-3-2-3",
+          "description": "Add new fields or modify existing ones based on calculations within the aggregation pipeline.",
+          "points": 45,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        },
+        {
+          "title": "Task 3.2.4 \u2014 $facet for Multi-Dimensional Analytics",
+          "task_slug": "task-3-2-4",
+          "description": "Run multiple independent aggregation pipelines within a single stage to generate diverse analytics.",
+          "points": 45,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 4
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Advanced Aggregation",
+      "ticket_slug": "ticket-3",
+      "description": "Use bucket and bucketAuto.\nUse graphLookup for graph traversal.\nUse window functions with setWindowFields.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 3.3.1 \u2014 $bucket & $bucketAuto",
+          "task_slug": "task-3-3-1",
+          "description": "Categorize documents into specific ranges or let MongoDB automatically determine the buckets for you.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 3.3.2 \u2014 $graphLookup (Graph Traversal)",
+          "task_slug": "task-3-3-2",
+          "description": "Perform recursive searches to traverse hierarchical or graph-like relationships between documents.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3.3.3 \u2014 Window Functions ($setWindowFields)",
+          "task_slug": "task-3-3-3",
+          "description": "Perform operations on a specified span of documents in a collection, such as calculating moving averages.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 3,
+  "lab_title": "MongoDB Lab"
+}
