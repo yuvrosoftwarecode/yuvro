@@ -202,3 +202,28 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/",
 }
+
+# ── Object Storage (S3 / MinIO) ──────────────────────────────────
+STORAGE_BACKEND = config("STORAGE_BACKEND", default="s3")
+APP_NAME = config("APP_NAME", default="yhub")
+
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="yhub")
+AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="ap-south-1")
+AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL", default="") or None
+AWS_S3_ADDRESSING_STYLE = config("AWS_S3_ADDRESSING_STYLE", default="path")
+AWS_DEFAULT_ACL = config("AWS_DEFAULT_ACL", default=None)
+AWS_QUERYSTRING_AUTH = config("AWS_QUERYSTRING_AUTH", default=False, cast=bool)
+AWS_S3_SIGNATURE_VERSION = config("AWS_S3_SIGNATURE_VERSION", default="s3v4")
+AWS_S3_PUBLIC_ENDPOINT_URL = config("AWS_S3_PUBLIC_ENDPOINT_URL", default="") or None
+
+if STORAGE_BACKEND == "s3":
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }

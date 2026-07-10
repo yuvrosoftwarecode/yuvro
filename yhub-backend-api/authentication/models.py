@@ -23,6 +23,9 @@ class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     is_otp_login = models.BooleanField(default=False)
     
+    profile_image = models.URLField(blank=True, null=True)
+    cover_image = models.URLField(blank=True, null=True)
+    
     roles = models.JSONField(default=dict, blank=True)
 
     USERNAME_FIELD = "email"

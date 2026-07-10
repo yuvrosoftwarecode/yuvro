@@ -7,16 +7,6 @@ import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 export const Route = createFileRoute("/admin/users")({ component: UsersPage });
 
 const ROLES = ["Student", "Job Seeker", "Recruiter", "Mentor", "Admin"];
-const COLLEGES = ["IIT Bombay", "BITS Pilani", "VIT", "NIT Trichy", "Anna Univ", "—"];
-
-const getPlaceholderData = (i: number) => ({
-  college: COLLEGES[i % COLLEGES.length],
-  skill: 60 + ((i * 7) % 40),
-  collab: 50 + ((i * 11) % 50),
-  reliability: 70 + ((i * 3) % 30),
-  active: ["2m", "8m", "21m", "1h", "3h", "1d", "2d"][i % 7] + " ago",
-  status: i % 9 === 0 ? "suspended" : i % 5 === 0 ? "invited" : "active",
-});
 
 function UsersPage() {
   const [q, setQ] = useState("");
@@ -28,7 +18,6 @@ function UsersPage() {
       try {
         const response = await restApiAuthUtil.get<any[]>('/auth/users/');
         const mappedUsers = response.map((u, i) => {
-          const mock = getPlaceholderData(i);
           let userRole = "Student";
           if (u.role === "admin") {
             userRole = "Admin";
@@ -41,12 +30,8 @@ function UsersPage() {
             name: (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.username || `User ${i}`,
             email: u.email,
             role: userRole,
-            college: u.college || mock.college,
-            skill: mock.skill,
-            collab: mock.collab,
-            reliability: mock.reliability,
-            active: u.last_login ? new Date(u.last_login).toLocaleDateString() : mock.active,
-            status: u.is_active ? "active" : mock.status,
+            active: u.last_login ? new Date(u.last_login).toLocaleDateString() : "-",
+            status: u.is_active ? "active" : "suspended",
           };
         });
         setUsers(mappedUsers);
@@ -92,7 +77,7 @@ function UsersPage() {
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
               <tr>
-                {["Name","Email","Role","College","Skill","Collab","Reliability","Last active","Status",""].map(h => (
+                {["Name","Email","Role","Last active","Status",""].map(h => (
                   <th key={h} className="text-left font-medium px-4 py-2">{h}</th>
                 ))}
               </tr>
@@ -108,10 +93,6 @@ function UsersPage() {
                   </td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-2.5"><Badge tone={u.role === "Admin" ? "destructive" : u.role === "Recruiter" ? "ui" : "muted"}>{u.role}</Badge></td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{u.college}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.skill}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.collab}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.reliability}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.active}</td>
                   <td className="px-4 py-2.5">
                     <Badge tone={u.status === "active" ? "success" : u.status === "invited" ? "primary" : "destructive"}>{u.status}</Badge>

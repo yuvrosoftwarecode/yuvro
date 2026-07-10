@@ -197,7 +197,6 @@ class CustomTokenRefreshView(TokenRefreshView):
 @api_view(["GET", "PUT", "PATCH"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    """Get or update current user information."""
     if request.method == "GET":
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
@@ -328,3 +327,143 @@ def change_password_view(request):
 def admin_users(request):
     admins = User.objects.filter(is_staff=True).values("id", "email", "username")
     return Response(list(admins))
+
+import os
+from drf_spectacular.utils import extend_schema
+
+@extend_schema(
+    summary="Upload a profile image",
+    description=(
+        "Uploads a profile image (or cover image) to object storage "
+        "(S3 / MinIO depending on STORAGE_BACKEND) and saves the resulting URL "
+        "back on the user. Send the file in the `image` field and the "
+        "target field name in `field` (`profile_image` | `cover_image`). Max size 10 MB."
+    ),
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "image": {"type": "string", "format": "binary"},
+                "field": {
+                    "type": "string",
+                    "enum": ["profile_image", "cover_image"],
+                },
+            },
+            "required": ["image", "field"],
+        }
+    },
+    responses={200: UserSerializer},
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def upload_profile_image(request):
+    """
+    POST /api/auth/profile/upload-image/
+
+    multipart/form-data:
+        image:    file (required, ≤10 MB)
+        field:    "profile_image" | "cover_image" (default: profile_image)
+    """
+    ALLOWED_FIELDS = ("profile_image", "cover_image")
+    ALLOWED_CONTENT_TYPES = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+    }
+    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response(
+            {"error": "No image file provided. Use the 'image' form field."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if image_file.size > MAX_BYTES:
+        return Response(
+            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    target_field = request.data.get("field", "profile_image")
+    if target_field not in ALLOWED_FIELDS:
+        return Response(
+            {"error": f"Invalid field. Must be one of: {', '.join(ALLOWED_FIELDS)}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    content_type = (image_file.content_type or "").lower()
+    ext = ALLOWED_CONTENT_TYPES.get(content_type)
+    if not ext:
+        fallback = os.path.splitext(image_file.name)[1].lstrip(".").lower()
+        ext = fallback or "jpg"
+
+    user = request.user
+
+    try:
+        from core.storage import upload_image
+        stored_name = upload_image(
+            key=f"profile/{user.id}/{target_field}.{ext}",
+            file_obj=image_file,
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+        )
+    except Exception as exc:
+        logger.exception("Failed to upload profile image")
+        return Response(
+            {"error": f"Failed to upload image: {exc}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    from core.storage import build_public_url
+    public_url = build_public_url(stored_name)
+
+    setattr(user, target_field, public_url)
+    user.save(update_fields=[target_field])
+
+    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    summary="Remove a profile or cover image",
+    description=(
+        "Removes the profile image or cover image URL from the user record. "
+        "Send the target field name in `field` (`profile_image` | `cover_image`)."
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "enum": ["profile_image", "cover_image"],
+                },
+            },
+            "required": ["field"],
+        }
+    },
+    responses={200: UserSerializer},
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def remove_profile_image(request):
+    """
+    POST /api/auth/profile/remove-image/
+
+    JSON body:
+        field:    "profile_image" | "cover_image" (required)
+    """
+    ALLOWED_FIELDS = ("profile_image", "cover_image")
+
+    target_field = request.data.get("field")
+    if target_field not in ALLOWED_FIELDS:
+        return Response(
+            {"error": f"Invalid field. Must be one of: {', '.join(ALLOWED_FIELDS)}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = request.user
+    setattr(user, target_field, None)
+    user.save(update_fields=[target_field])
+
+    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)

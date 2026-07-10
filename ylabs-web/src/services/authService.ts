@@ -75,11 +75,23 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<User> {
-    return await restApiAuthUtil.get<User>('/auth/user/');
+    // Fetch from YHub so profile_image / cover_image are always present
+    return await yhubApiAuthUtil.get<User>('/auth/user/');
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
     return await restApiAuthUtil.put<User>('/auth/user/', userData);
+  }
+
+  async uploadProfileImage(file: File, field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('field', field);
+    return await yhubApiAuthUtil.post<User>('/auth/profile/upload-image/', formData);
+  }
+
+  async removeProfileImage(field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
+    return await yhubApiAuthUtil.post<User>('/auth/profile/remove-image/', { field });
   }
 
   async logoutUser(): Promise<void> {

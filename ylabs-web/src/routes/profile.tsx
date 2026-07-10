@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { TopNav } from "@/components/TopNav";
 import { me } from "@/lib/dummy";
 import { useAuth } from "@/lib/auth";
 import authService from "@/services/authService";
-import { Github, Save, KeyRound, Check, Link as LinkIcon, Unlink, Loader2, AlertCircle } from "lucide-react";
+import { Github, Save, KeyRound, Check, Link as LinkIcon, Unlink, Loader2, AlertCircle, Camera, UploadCloud, Trash2, Edit2 } from "lucide-react";
+import { useClickOutside } from "@/hooks/use-click-outside";
 
 export const Route = createFileRoute("/profile")({ component: Profile });
 
@@ -33,6 +34,25 @@ function Profile() {
   const [githubConnected, setGithubConnected] = useState(false);
   const [githubHandle, setGithubHandle] = useState("");
 
+  /* ── Image upload states ───────────────────────────────── */
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [coverDropdownOpen, setCoverDropdownOpen] = useState(false);
+
+  const profileRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(profileRef, () => setProfileDropdownOpen(false));
+  useClickOutside(coverRef, () => setCoverDropdownOpen(false));
+
+  /* ── Hydration guard: images depend on localStorage user,
+       which doesn't exist during SSR. Defer to avoid mismatch. ── */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const coverImage  = mounted ? user?.cover_image  : undefined;
+  const profileImage = mounted ? user?.profile_image : undefined;
+
   /* ── Initialise form from auth user ────────────────────── */
   useEffect(() => {
     if (user) {
@@ -55,7 +75,7 @@ function Profile() {
 
   /* ── Display name derivation ───────────────────────────── */
   const displayName =
-    [firstName, lastName].filter(Boolean).join(" ") || username || me.name;
+    [firstName, lastName].filter(Boolean).join(" ") || username;
   const initial = (displayName || "?").trim().charAt(0).toUpperCase();
 
   /* ── Save profile (calls backend) ──────────────────────── */
@@ -139,6 +159,46 @@ function Profile() {
     try { localStorage.removeItem(GITHUB_KEY); } catch { /* ignore */ }
   };
 
+  /* ── Image upload handlers ─────────────────────────────── */
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'profile_image' | 'cover_image') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const setUploading = field === 'profile_image' ? setIsUploadingProfile : setIsUploadingCover;
+    setUploading(true);
+
+    try {
+      const updatedUser = await authService.uploadProfileImage(file, field);
+      updateUser(updatedUser);
+      if (field === 'profile_image') setProfileDropdownOpen(false);
+      else setCoverDropdownOpen(false);
+    } catch (err) {
+      console.error(`Failed to upload ${field}:`, err);
+      alert(`Failed to upload image. Please try again.`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async (field: 'profile_image' | 'cover_image') => {
+    if (!confirm(`Are you sure you want to remove your ${field.replace('_', ' ')}?`)) return;
+    
+    const setUploading = field === 'profile_image' ? setIsUploadingProfile : setIsUploadingCover;
+    setUploading(true);
+
+    try {
+      const updatedUser = await authService.removeProfileImage(field);
+      updateUser(updatedUser);
+      if (field === 'profile_image') setProfileDropdownOpen(false);
+      else setCoverDropdownOpen(false);
+    } catch (err) {
+      console.error(`Failed to remove ${field}:`, err);
+      alert(`Failed to remove image. Please try again.`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   /* ── Render ────────────────────────────────────────────── */
   return (
     <div className="min-h-screen">
@@ -146,11 +206,99 @@ function Profile() {
       <main className="mx-auto max-w-[900px] px-4 py-8 space-y-6">
 
         {/* ── Hero banner ─────────────────────────────────── */}
-        <div className="rounded-2xl border bg-gradient-to-br from-primary/15 via-card to-background p-6 flex items-center gap-5">
-          <div className="grid h-20 w-20 place-items-center rounded-full bg-primary text-primary-foreground text-2xl font-semibold">{initial}</div>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-semibold truncate">{displayName}</h1>
-            <div className="text-sm text-muted-foreground truncate">
+        <div 
+          className="relative rounded-2xl border bg-gradient-to-br from-primary/15 via-card to-background p-6 flex items-end gap-5 overflow-visible group min-h-[200px]"
+          style={coverImage ? { backgroundImage: `url(${coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        >
+          {/* Cover image overlay for text readability if cover exists */}
+          {coverImage && <div className="absolute inset-0 bg-black/40 rounded-2xl pointer-events-none" />}
+          
+          <div className="absolute top-4 right-4 z-20" onMouseLeave={() => setCoverDropdownOpen(false)}>
+            {!coverImage ? (
+              <label className="cursor-pointer bg-background/80 hover:bg-background/90 text-foreground px-3 py-1.5 rounded-md text-xs font-medium inline-flex items-center gap-1.5 backdrop-blur-sm shadow-sm transition-colors">
+                {isUploadingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}
+                {isUploadingCover ? "Uploading..." : "Upload Cover"}
+                <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, 'cover_image')} disabled={isUploadingCover} />
+              </label>
+            ) : (
+              <div className="relative" ref={coverRef}>
+                <button 
+                  onClick={() => setCoverDropdownOpen(!coverDropdownOpen)}
+                  className="bg-background/80 hover:bg-background/90 text-foreground px-3 py-1.5 rounded-md text-xs font-medium inline-flex items-center gap-1.5 backdrop-blur-sm shadow-sm transition-colors"
+                >
+                  {isUploadingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Edit2 className="w-3.5 h-3.5" />}
+                  {isUploadingCover ? "Updating..." : "Edit Cover"}
+                </button>
+                {coverDropdownOpen && (
+                  <div className="absolute right-0 top-full pt-1 z-30">
+                    <div className="w-36 bg-popover border rounded-md shadow-md overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+                      <label className="cursor-pointer px-3 py-2 text-xs hover:bg-accent hover:text-accent-foreground flex items-center gap-2">
+                        <Camera className="w-3.5 h-3.5" /> Change
+                        <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, 'cover_image')} />
+                      </label>
+                      <button onClick={() => handleRemoveImage('cover_image')} className="px-3 py-2 text-xs text-destructive hover:bg-destructive/10 text-left flex items-center gap-2">
+                        <Trash2 className="w-3.5 h-3.5" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="relative z-20">
+            <div className="relative group/avatar">
+              <div className="relative block rounded-full border-4 border-background overflow-hidden bg-primary text-primary-foreground h-20 w-20 shadow-md">
+                {profileImage ? (
+                  <img src={profileImage} alt={displayName} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="grid h-full w-full place-items-center text-2xl font-semibold">
+                    {initial}
+                  </div>
+                )}
+                {isUploadingProfile && (
+                  <div className="absolute inset-0 bg-black/50 grid place-items-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              
+              {/* Profile Image Action Button */}
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-max">
+                {!profileImage ? (
+                  <label className="cursor-pointer bg-background hover:bg-accent text-foreground px-2.5 py-1 rounded-full text-[10px] font-medium inline-flex items-center gap-1 shadow-md border transition-colors opacity-0 group-hover/avatar:opacity-100">
+                    <UploadCloud className="w-3 h-3" /> Upload Profile
+                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, 'profile_image')} disabled={isUploadingProfile} />
+                  </label>
+                ) : (
+                  <div className="relative" ref={profileRef}>
+                    <button 
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      className="bg-background hover:bg-accent text-foreground px-2.5 py-1 rounded-full text-[10px] font-medium inline-flex items-center gap-1 shadow-md border transition-colors opacity-0 group-hover/avatar:opacity-100 focus:opacity-100"
+                    >
+                      <Edit2 className="w-3 h-3" /> Edit Profile
+                    </button>
+                    {profileDropdownOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 z-30">
+                        <div className="w-32 bg-popover border rounded-md shadow-md overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+                          <label className="cursor-pointer px-3 py-2 text-xs hover:bg-accent hover:text-accent-foreground flex items-center gap-2">
+                            <Camera className="w-3.5 h-3.5" /> Change
+                            <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, 'profile_image')} />
+                          </label>
+                          <button onClick={() => handleRemoveImage('profile_image')} className="px-3 py-2 text-xs text-destructive hover:bg-destructive/10 text-left flex items-center gap-2">
+                            <Trash2 className="w-3.5 h-3.5" /> Remove
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="min-w-0 relative z-10 pb-2 ml-2">
+            <h1 className={`text-2xl font-semibold truncate ${coverImage ? 'text-white' : ''}`}>{displayName}</h1>
+            <div className={`text-sm truncate ${coverImage ? 'text-white/80' : 'text-muted-foreground'}`}>
               {email || username} · Level {me.level}
             </div>
           </div>

@@ -85,14 +85,19 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
           <span className="hidden sm:flex items-center gap-1 text-warning"><Flame className="h-4 w-4" />{me.streak}</span>
           <span className="hidden sm:flex items-center gap-1 text-primary"><Zap className="h-4 w-4" />{me.xp.toLocaleString()} XP</span>
           <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
-          <ProfileMenu onLogout={() => { logout(); nav({ to: "/" }); }} userName={user?.name ?? me.name} userEmail={user?.email} />
+          <ProfileMenu 
+            onLogout={() => { logout(); nav({ to: "/" }); }} 
+            userName={user ? (user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : user.username) : me.name} 
+            userEmail={user?.email} 
+            profileImage={user?.profile_image}
+          />
         </div>
       </div>
     </header>
   );
 }
 
-function ProfileMenu({ onLogout, userName, userEmail }: { onLogout: () => void; userName: string; userEmail?: string }) {
+function ProfileMenu({ onLogout, userName, userEmail, profileImage }: { onLogout: () => void; userName: string; userEmail?: string; profileImage?: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -101,12 +106,22 @@ function ProfileMenu({ onLogout, userName, userEmail }: { onLogout: () => void; 
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
+  
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  
   const initial = (userName || "?").trim().charAt(0).toUpperCase();
+  const displayImage = mounted ? profileImage : undefined;
+
   return (
     <div ref={ref} className="relative">
       <button type="button" onClick={() => setOpen(v => !v)}
-        className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90">
-        {initial}
+        className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 overflow-hidden">
+        {displayImage ? (
+          <img src={displayImage} alt={userName} className="h-full w-full object-cover" />
+        ) : (
+          initial
+        )}
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-1 w-56 rounded-md border border-border bg-popover shadow-lg p-1 z-50">

@@ -584,7 +584,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        for field in ("profile_image", "cover_image", "id_card_image"):
+        for field in ("id_card_image",):
             data[field] = self._public(instance, field)
         return data
 
@@ -608,8 +608,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             "department_other",
             "student_id",
             "id_card_image",
-            "profile_image",
-            "cover_image",
             "google_id",
             "created_at",
             "updated_at",
