@@ -9,9 +9,9 @@
 .PHONY: help install run stop clean logs status port-forward
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
-.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub load-courses-ycode load-courses-ycampus
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
-.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub
+.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
 .PHONY: db-reset
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
@@ -753,8 +753,8 @@ load-courses-ycampus:
 # Database Commands
 # ============================================================================
 
-makemigrations: makemigrations-ycode makemigrations-ycampus makemigrations-yhub
-	@echo "✅ makemigrations completed for YCode, YCampus, and YHub"
+makemigrations: makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
+	@echo "✅ makemigrations completed for YCode, YCampus, YHub, and YLabs"
 
 makemigrations-ycode:
 	@$(MAKE) -f Makefile.ycode db-makemigrations
@@ -764,6 +764,9 @@ makemigrations-ycampus:
 
 makemigrations-yhub:
 	@$(MAKE) -f Makefile.yhub db-makemigrations
+
+makemigrations-ylabs:
+	@$(MAKE) -f Makefile.ylabs db-makemigrations
 
 clear-migrations:
 	@echo "🔎 Showing migration files (dry-run). Use '-y' to delete."
