@@ -4,7 +4,12 @@ import { certificates, me } from "@/lib/dummy";
 import { Award, Download, Share2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/certificates")({ component: Certificates });
+
+
+export const Route = createFileRoute("/student/certificates")({ 
+  
+  component: Certificates 
+});
 
 function Certificates() {
   const { user } = useAuth();

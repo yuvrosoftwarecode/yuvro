@@ -1,9 +1,11 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight, Sparkles, Code2, Users, Brain, ShieldCheck, BarChart3, Trophy,
   GitBranch, Bug, Database, Server, Cpu, Layers, Zap, CheckCircle2, Play, Bot,
   Star, Activity, Award, Briefcase, Rocket, Quote
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/")({ 
   beforeLoad: () => {
@@ -18,7 +20,7 @@ export const Route = createFileRoute("/")({
             if (role === 'admin') {
               throw redirect({ to: '/admin' });
             } else {
-              throw redirect({ to: '/dashboard' });
+              throw redirect({ to: '/student/dashboard' });
             }
           } catch (e) {
             // ignore parsing error
@@ -31,6 +33,19 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { user, isAuthenticated } = useAuth();
+  const nav = useNavigate();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (token && isAuthenticated && user) {
+        const role = user.roles?.ylabs || user.role;
+        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+      }
+    }
+  }, [user, isAuthenticated, nav]);
+
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
       <LandingNav />

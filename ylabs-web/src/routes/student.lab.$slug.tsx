@@ -8,7 +8,12 @@ import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
 
-export const Route = createFileRoute("/lab/$slug")({ component: LabDashboard });
+
+
+export const Route = createFileRoute("/student/lab/$slug")({ 
+  
+  component: LabDashboard 
+});
 
 type SprintStatus = "Completed" | "Active" | "Upcoming";
 interface Sprint {
@@ -92,8 +97,8 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
 }
 
 function LabDashboard() {
-  const { slug } = useParams({ from: "/lab/$slug" });
-  const ticketMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId", shouldThrow: false });
+  const { slug } = useParams({ from: "/student/lab/$slug" });
+  const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   
   const [realLab, setRealLab] = useState<AdminLab | null>(null);
   const [realSprints, setRealSprints] = useState<LabSprint[]>([]);
@@ -216,7 +221,7 @@ function LabDashboard() {
       <TopNav />
       <main className="mx-auto max-w-[1500px] px-4 py-6">
         <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/dashboard" className="hover:text-foreground">Practical Labs</Link>
+          <Link to="/student/dashboard" className="hover:text-foreground">Practical Labs</Link>
           <span>/</span><span className="text-foreground">{lab.name}</span>
         </div>
 
@@ -376,7 +381,7 @@ function LabDashboard() {
                             {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
                             {items.map((t) => (
                               <div key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}>
-                                <Link to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
+                                <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
                                   className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-grab active:cursor-grabbing">
                                   <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                                     <span className="font-mono">{t.id}</span>
@@ -423,7 +428,7 @@ function LabDashboard() {
                             <td className="text-center text-muted-foreground">{t.estMin}m</td>
                             <td className="text-center">{t.score ?? "—"}</td>
                             <td className="text-right p-3">
-                              <Link to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }} className="text-primary text-xs">Open →</Link>
+                              <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }} className="text-primary text-xs">Open →</Link>
                             </td>
                           </tr>
                         ))}
@@ -459,7 +464,7 @@ function LabDashboard() {
                   </li>
                 ))}
               </ul>
-              <Link to="/leaderboard" className="mt-3 block text-xs text-primary">View full leaderboard →</Link>
+              <Link to="/student/leaderboard" className="mt-3 block text-xs text-primary">View full leaderboard →</Link>
             </div>
 
             <div className="rounded-xl border bg-card p-4">

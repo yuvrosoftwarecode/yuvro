@@ -37,7 +37,7 @@ export function CollabShell({ children }: { children: ReactNode }) {
     <CollabProvider>
       <UICtx.Provider value={{ openNotifications: () => setNotifOpen(true), openProfile: setProfileId }}>
         <div className="min-h-screen flex flex-col">
-          <TopNav rightSlot={<HeaderBell />} activeOverride={path.startsWith("/collaboration") ? "/collaboration" : undefined} />
+          <TopNav rightSlot={<HeaderBell />} activeOverride={path.startsWith("/student/collaboration") ? "/student/collaboration" : undefined} />
           <div className="flex flex-1 overflow-hidden">
             <CollabSidebar />
             <div className="flex-1 overflow-y-auto">{children}</div>

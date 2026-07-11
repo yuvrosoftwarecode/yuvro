@@ -66,6 +66,7 @@ export function AdminShell({ title, breadcrumb, right, children }: {
     return next;
   });
 
+// Role check is now handled in the parent admin layout (admin.tsx)
   useEffect(() => {
     if (user) {
       const role = user.roles?.ylabs || user.role;

@@ -3,7 +3,12 @@ import { TopNav } from "@/components/TopNav";
 import { forumThreads } from "@/lib/dummy";
 import { MessagesSquare, Plus, Search } from "lucide-react";
 
-export const Route = createFileRoute("/forum")({ component: Forum });
+
+
+export const Route = createFileRoute("/student/forum")({ 
+  
+  component: Forum 
+});
 
 function Forum() {
   return (
