@@ -51,11 +51,35 @@ const PaymentPage: React.FC = () => {
         }
     };
 
+    const getTokenEmail = () => {
+        try {
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.email || '';
+        } catch (e) {
+            return '';
+        }
+    };
+
+    const getTokenName = () => {
+        try {
+            if (!token) return '';
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const firstName = payload.first_name || '';
+            const lastName = payload.last_name || '';
+            return [firstName, lastName].join(' ').trim();
+        } catch (e) {
+            return '';
+        }
+    };
+
     const handlePayment = async () => {
         setStatus('processing');
         
         try {
             const amount = getTokenAmount();
+            
+            const authOptions = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
             
             const orderRes = await yhubApiUtil.post<{
                 id: string;
@@ -65,7 +89,7 @@ const PaymentPage: React.FC = () => {
                 amount: amount,
                 item_type: 'contest',
                 item_id: contestId
-            });
+            }, authOptions);
 
             const isLoaded = await loadRazorpayScript();
             if (!isLoaded) {
@@ -88,7 +112,7 @@ const PaymentPage: React.FC = () => {
                             gateway_order_id: response.razorpay_order_id,
                             gateway_payment_id: response.razorpay_payment_id,
                             signature: response.razorpay_signature
-                        });
+                        }, authOptions);
                         
                         if (verifyRes.status === 'SUCCESS') {
                             const backendResponse = await contestService.verifyPayment(contestId!, token!);
@@ -105,7 +129,7 @@ const PaymentPage: React.FC = () => {
                             await yhubApiUtil.post('/payment/fail/', {
                                 gateway_order_id: orderRes.gateway_order_or_intent_id,
                                 reason: 'Payment signature verification failed'
-                            });
+                            }, authOptions);
                             throw new Error(verifyRes.message || 'Payment signature verification failed');
                         }
                     } catch (error: any) {
@@ -115,8 +139,8 @@ const PaymentPage: React.FC = () => {
                     }
                 },
                 prefill: {
-                    name: 'Student',
-                    email: 'student@example.com',
+                    name: getTokenName() || 'Student',
+                    email: getTokenEmail() || 'student@example.com',
                 },
                 theme: {
                     color: '#4f46e5'
@@ -129,7 +153,7 @@ const PaymentPage: React.FC = () => {
                             await yhubApiUtil.post('/payment/fail/', {
                                 gateway_order_id: orderRes.gateway_order_or_intent_id,
                                 reason: 'User closed the payment modal'
-                            });
+                            }, authOptions);
                         } catch (e) {
                             console.error('Failed to report cancellation', e);
                         }
@@ -137,21 +161,32 @@ const PaymentPage: React.FC = () => {
                 }
             };
 
-            const paymentObject = new (window as any).Razorpay(options);
+            const rzp = new (window as any).Razorpay(options);
             
-            paymentObject.on('payment.failed', async function (response: any) {
+            rzp.on('payment.failed', async function (response: any) {
                 try {
                     await yhubApiUtil.post('/payment/fail/', {
-                        gateway_order_id: orderRes.gateway_order_or_intent_id,
+                        gateway_order_id: response.error.metadata.order_id,
                         gateway_payment_id: response.error.metadata.payment_id,
-                        reason: response.error.description || 'Payment failed in gateway'
-                    });
+                        reason: response.error.description
+                    }, authOptions);
                 } catch (e) {
-                    console.error('Failed to report payment failure', e);
+                    console.error("Failed to mark payment as failed", e);
                 }
+                toast.error(response.error.description || 'Payment failed');
+                setStatus('error');
             });
 
-            paymentObject.open();
+            // Mark as pending right before opening the modal
+            try {
+                await yhubApiUtil.post('/payment/mark_pending/', {
+                    gateway_order_id: orderRes.gateway_order_or_intent_id
+                }, authOptions);
+            } catch (e) {
+                // Ignore error, non-blocking
+            }
+
+            rzp.open();
 
         } catch (error: any) {
             console.error(error);

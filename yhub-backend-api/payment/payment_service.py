@@ -25,25 +25,21 @@ class PaymentService:
 
         gateway = self.gateway_factory.get_gateway(gateway_name)
 
-        if not payment:
-            payment = Payment.objects.create(
-                user=user,
-                amount=amount,
-                currency=currency,
-                gateway=gateway_name,
-                purpose=purpose,
-                description=description,
-                metadata=metadata,
-                status=PaymentStatus.CREATED,
-            )
-        else:
-            payment.amount = amount
-            payment.currency = currency
-            payment.purpose = purpose
-            payment.description = description
-            payment.metadata = metadata
-            payment.status = PaymentStatus.CREATED
-            payment.save()
+        payment_id = payment.id if payment else None
+
+        payment, created = Payment.objects.update_or_create(
+            id=payment_id,
+            defaults={
+                "user": user,
+                "gateway": gateway_name,
+                "amount": amount,
+                "currency": currency,
+                "purpose": purpose,
+                "description": description,
+                "metadata": metadata,
+                "status": PaymentStatus.CREATED,
+            },
+        )
 
         customer_response = gateway.create_customer({
             "email": user.email,
@@ -68,8 +64,13 @@ class PaymentService:
             payment.gateway_order_or_intent_id = payment_response.get("order_id") or payment_response.get("payment_id")
             payment.gateway_session_reference_id = payment_response.get("session_id")
             payment.gateway_response["payment_response"] = payment_response
-            payment.status = payment_response.get("status", PaymentStatus.PENDING)
             
+            raw_status = payment_response.get("status")
+            if raw_status and hasattr(gateway, 'map_status'):
+                payment.status = gateway.map_status(raw_status)
+            else:
+                payment.status = PaymentStatus.PENDING
+                
             payment.save(
                 update_fields=[
                     "gateway_order_or_intent_id",
@@ -128,3 +129,25 @@ class PaymentService:
         gateway_name = payload.get("gateway", "razorpay")
         gateway = self.gateway_factory.get_gateway(gateway_name)
         return gateway.parse_webhook(payload)
+
+    def sync_payment_status(self, payment: Payment) -> Payment:
+        gateway = self.gateway_factory.get_gateway(payment.gateway)
+        if not hasattr(gateway, 'map_status'):
+            return payment
+            
+        if payment.gateway_payment_or_charge_id:
+            gateway_response = self.get_payment(payment)
+        elif payment.gateway_order_or_intent_id and hasattr(gateway, 'get_order'):
+            gateway_response = gateway.get_order(payment.gateway_order_or_intent_id)
+        else:
+            return payment
+            
+        gateway_status = gateway_response.get("status")
+        
+        if gateway_status:
+            mapped_status = gateway.map_status(gateway_status)
+            if payment.status != mapped_status:
+                payment.status = mapped_status
+                payment.save(update_fields=["status"])
+                
+        return payment

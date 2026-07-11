@@ -24,16 +24,21 @@ class PurchasableType(models.TextChoices):
     AI_CREDIT = "ai_credit", "AI Credit"
 
 
-class PurchasableItem(models.Model):
+class BaseTimeStamp(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class PurchasableItem(BaseTimeStamp):
     item_type = models.CharField(max_length=20, choices=PurchasableType.choices)
     item_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
     current_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     metadata = models.JSONField(default=dict, blank=True)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         indexes = [
@@ -44,7 +49,7 @@ class PurchasableItem(models.Model):
         return f"{self.name} ({self.item_type})"
 
 
-class Payment(models.Model):
+class Payment(BaseTimeStamp):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.ForeignKey("authentication.User", on_delete=models.CASCADE)
@@ -58,6 +63,7 @@ class Payment(models.Model):
         max_length=20,
         choices=PaymentStatus.choices,
         default=PaymentStatus.CREATED,
+        db_index=True,
     )
 
     gateway_order_or_intent_id = models.CharField(max_length=255, blank=True, null=True)
@@ -69,7 +75,6 @@ class Payment(models.Model):
     description = models.TextField(blank=True)
     
     client_request_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    failure_reason = models.TextField(blank=True)
 
     item_snapshot = models.JSONField(default=dict, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
@@ -80,23 +85,12 @@ class Payment(models.Model):
     payment_events = models.JSONField(default=list, blank=True)
 
     completed_at = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['status']),
-            models.Index(fields=['created_at']),
-            models.Index(fields=['purchasable_item']),
-            models.Index(fields=['gateway']),
-        ]
 
     def __str__(self):
         return str(self.id)
 
 
-class Refund(models.Model):
+class Refund(BaseTimeStamp):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     payment = models.ForeignKey(
@@ -112,45 +106,35 @@ class Refund(models.Model):
         default=PaymentStatus.PENDING,
     )
     gateway_response = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.refund_id
 
 
-class UserEntitlement(models.Model):
+class UserEntitlement(BaseTimeStamp):
     user = models.ForeignKey("authentication.User", on_delete=models.CASCADE)
-    payment_transaction = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
     purchasable_item = models.ForeignKey(PurchasableItem, on_delete=models.CASCADE)
     
     granted_at = models.DateTimeField(auto_now_add=True)
     revoked_at = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    class Meta:
-        indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['payment_transaction']),
-            models.Index(fields=['purchasable_item']),
-        ]
-
     def __str__(self):
         return f"Entitlement for {self.user_id} - {self.purchasable_item_id}"
 
 
-class AiCreditLedger(models.Model):
+class AiCreditLedger(BaseTimeStamp):
     user = models.ForeignKey("authentication.User", on_delete=models.CASCADE)
-    transaction = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
     delta = models.IntegerField()
     balance_after = models.IntegerField()
     reason = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         indexes = [
             models.Index(fields=['user']),
-            models.Index(fields=['transaction']),
+            models.Index(fields=['payment']),
         ]
 
     def __str__(self):

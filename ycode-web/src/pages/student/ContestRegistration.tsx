@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import PublicLayout from '@/components/common/PublicLayout';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ interface Contest {
     endDate?: Date;
     description?: string;
     openForAllColleges?: boolean;
+    paymentType?: 'paid' | 'unpaid';
 }
 
 const inputClass = "w-full h-[56px] min-w-[120px] rounded-[8px] border border-[#757575] bg-white py-[12px] px-[16px] font-inter text-[14px] font-normal leading-[100%] tracking-[0%] text-[#111827] placeholder:text-[#757575] placeholder:font-normal focus:outline-none focus:border-[#6366F1] focus:ring-1 focus:ring-[#6366F1]/20 transition-all";
@@ -44,6 +46,7 @@ const ContestRegistration: React.FC = () => {
     const basePath = isPublic ? '/public/contests' : '/student/contests';
     const Layout: React.FC<any> = isPublic ? PublicLayout : DashboardLayout;
     const skillInputRef = useRef<HTMLInputElement>(null);
+    const { user } = useAuth();
 
     const [contest, setContest] = useState<Contest | null>(null);
     const [loading, setLoading] = useState(true);
@@ -66,9 +69,16 @@ const ContestRegistration: React.FC = () => {
     const [sendingOtp, setSendingOtp] = useState(false);
     const [verifyingOtp, setVerifyingOtp] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
+    const [yhubToken, setYhubToken] = useState<string | null>(null);
 
     // Validation state
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (!isPublic && user?.email) {
+            setEmail(user.email);
+        }
+    }, [isPublic, user]);
 
     useEffect(() => {
         const loadContest = async () => {
@@ -88,6 +98,7 @@ const ContestRegistration: React.FC = () => {
                         endDate: (found.end_datetime || found.end_date) ? new Date(found.end_datetime || found.end_date) : undefined,
                         description: found.description,
                         openForAllColleges: found.open_for_all_colleges ?? true,
+                        paymentType: found.payment_type,
                     });
                 }
             } catch (err) {
@@ -141,8 +152,8 @@ const ContestRegistration: React.FC = () => {
         }
         if (!phone.trim()) {
             newErrors.phone = 'Required';
-        } else if (!/^\+?[0-9]{7,15}$/.test(phone.replace(/[\s-]/g, ''))) {
-            newErrors.phone = 'Invalid number';
+        } else if (!/^[0-9]{10}$/.test(phone)) {
+            newErrors.phone = 'Must be exactly 10 digits';
         }
         if (!college.trim()) newErrors.college = 'Required';
         if (!semester.trim()) newErrors.semester = 'Required';
@@ -164,11 +175,19 @@ const ContestRegistration: React.FC = () => {
         }
         try {
             setSendingOtp(true);
-            await contestService.sendRegistrationOtp(contestId!, email);
+            
+            // First check if email is already registered for this contest
+            await contestService.checkRegistration(contestId!, email);
+            
+            await contestService.sendRegistrationOtp(contestId!, email, contest?.title);
             setOtpSent(true);
             toast.success('OTP sent to your email!');
-        } catch (err) {
-            toast.error('Failed to send OTP. Please try again.');
+        } catch (err: any) {
+            const errorMessage = err?.response?.data?.error || err?.response?.data?.message || err?.message || 'Failed to send OTP. Please try again.';
+            if (errorMessage.toLowerCase().includes('exist') || errorMessage.toLowerCase().includes('already')) {
+                setErrors(prev => ({ ...prev, email: errorMessage }));
+            }
+            toast.error(errorMessage);
         } finally {
             setSendingOtp(false);
         }
@@ -181,7 +200,10 @@ const ContestRegistration: React.FC = () => {
         }
         try {
             setVerifyingOtp(true);
-            await contestService.verifyRegistrationOtp(contestId!, email, otp);
+            const response = await contestService.verifyRegistrationOtp(contestId!, email, otp);
+            if (response.access_token) {
+                setYhubToken(response.access_token);
+            }
             setOtpVerified(true);
             setErrors(prev => ({ ...prev, otp: '' }));
             toast.success('Email verified successfully!');
@@ -201,13 +223,31 @@ const ContestRegistration: React.FC = () => {
             const details = { fullName, email, phone, college, semester, skills };
 
             if (isPublic) {
-                // Unauthenticated: use public registration API
-                const response = await contestService.registerPublicContest(contestId, email, otp, details);
+                // Verify OTP with YHub first to get JWT
+                let currentToken = yhubToken;
+                if (!currentToken) {
+                    try {
+                        const verifyRes = await contestService.verifyRegistrationOtp(contestId, email, otp);
+                        if (verifyRes.access_token) {
+                            currentToken = verifyRes.access_token;
+                            setYhubToken(currentToken);
+                        } else {
+                            throw new Error('Verification failed, no token received');
+                        }
+                    } catch (err: any) {
+                        toast.error('Invalid OTP or verification failed.');
+                        setSubmitting(false);
+                        return;
+                    }
+                }
+
+                // Unauthenticated: use public registration API with YHub token
+                const response = await contestService.registerPublicContest(contestId, email, otp, details, currentToken || undefined);
                 if (response.status === 'success') {
                     toast.success('Successfully registered for the contest!');
                     setIsRegistered(true);
                 } else if (response.status === 'payment_required') {
-                    navigate(`${basePath}/${contestId}/payment?token=${response.payment_token}`);
+                    navigate(`${basePath}/${contestId}/payment?token=${currentToken}`);
                 } else {
                     toast.error(response.message || 'Registration failed');
                 }
@@ -385,11 +425,17 @@ const ContestRegistration: React.FC = () => {
                                         type="email"
                                         placeholder="Email*"
                                         value={email}
+                                        readOnly={!isPublic}
                                         onChange={(e) => {
+                                            if (!isPublic) return;
                                             setEmail(e.target.value);
                                             if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
                                         }}
-                                        className={cn(inputClass, errors.email && inputErrorClass)}
+                                        className={cn(
+                                            inputClass, 
+                                            errors.email && inputErrorClass,
+                                            !isPublic && "bg-gray-100 text-gray-500 cursor-not-allowed opacity-80"
+                                        )}
                                     />
                                     {errors.email && <p className="text-[11px] text-red-500">{errors.email}</p>}
                                 </div>
@@ -401,8 +447,10 @@ const ContestRegistration: React.FC = () => {
                                         type="tel"
                                         placeholder="Phone No.*"
                                         value={phone}
+                                        maxLength={10}
                                         onChange={(e) => {
-                                            setPhone(e.target.value);
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            setPhone(val);
                                             if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
                                         }}
                                         className={cn(inputClass, errors.phone && inputErrorClass)}
@@ -563,7 +611,19 @@ const ContestRegistration: React.FC = () => {
                                                     <InputOTPSlot index={5} className="w-10 h-12 text-lg rounded-lg border-none bg-gray-100 shadow-sm focus-visible:ring-indigo-500" />
                                                 </InputOTPGroup>
                                             </InputOTP>
-                                            {errors.otp && <p className="text-[11px] text-red-500 mt-1">{errors.otp}</p>}
+                                            <div className="flex items-center justify-between w-full max-w-[280px] mt-1 px-1">
+                                                <div className="flex-1">
+                                                    {errors.otp && <p className="text-[11px] text-red-500">{errors.otp}</p>}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleSendOtp}
+                                                    disabled={sendingOtp}
+                                                    className="text-[12px] font-medium text-[#1A73E8] hover:text-[#1565D8] disabled:opacity-50 whitespace-nowrap ml-2"
+                                                >
+                                                    {sendingOtp ? 'Resending...' : 'Resend OTP'}
+                                                </button>
+                                            </div>
                                         </div>
                                         <button
                                             onClick={handleSubmit}

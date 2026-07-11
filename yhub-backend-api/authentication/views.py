@@ -17,6 +17,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
+
 
 from rest_framework.views import APIView
 from .models import GithubConnection
@@ -37,6 +39,9 @@ from drf_spectacular.utils import extend_schema
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+import random
+import string
+from django.core.cache import cache
 
 
 @api_view(["POST"])
@@ -169,6 +174,86 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_send_otp(request):
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    contest_title = request.data.get('contest_title', 'Contest')
+    
+    if not email or not contest_id:
+        return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    otp = str(random.randint(100000, 999999))
+    cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
+    
+    context = {
+        "contest_title": contest_title,
+        "otp": otp,
+        "frontend_url": settings.FRONTEND_URL
+    }
+    
+    try:
+        html_message = render_to_string("emails/otp_verification.html", context)
+    except:
+        html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
+        
+    send_mail(
+        subject=f"OTP for Registration",
+        message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_message
+    )
+    
+    return Response({"status": "success", "message": "OTP sent successfully"})
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_verify_otp(request):
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    otp = request.data.get('otp')
+    
+    if not email or not otp or not contest_id:
+        return Response({"error": "Email, contest_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
+    
+    if cached_otp and str(cached_otp) == str(otp):
+        user = User.objects.filter(email=email).first()
+        
+        if not user:
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            base_username = email.split('@')[0]
+            username = base_username
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{random.randint(100, 9999)}"
+            
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+            )
+            user.is_otp_login = True
+            user.roles = {"ycode": "student", "ylabs": "student"}
+            user.save()
+            
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        
+        return Response({
+            "status": "success", 
+            "message": "OTP verified",
+            "access_token": str(refresh.access_token)
+        })
+    
+    return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def logout_view(request):
     try:
@@ -203,16 +288,8 @@ class CustomTokenRefreshView(TokenRefreshView):
 @api_view(["GET", "PUT", "PATCH"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    if request.method == "GET":
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-    else:
-        from .serializers import UserUpdateSerializer
-        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(UserSerializer(request.user).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 
 class ForgotPasswordView(generics.GenericAPIView):
@@ -244,7 +321,6 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
-        from django.template.loader import render_to_string
         context = {
             "user": user,
             "reset_link": reset_link,
