@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { X } from "lucide-react";
 import type { LabTask } from "@/lib/labSprints";
 import { labs as dummyLabs } from "@/lib/dummy";
-import { StudentTicketView, type StudentPreviewOverride } from "@/routes/lab.$slug.ticket.$ticketId";
+import { StudentTicketView, type StudentPreviewOverride } from "@/routes/student.lab.$slug.ticket.$ticketId";
 
 function deriveSlug(labName: string): string {
   const lower = labName.toLowerCase();

@@ -5,7 +5,7 @@ import { Avatar, LevelBadge, RoleBadge } from "@/components/collab/Avatar";
 import { useCollabUI } from "@/components/collab/CollabShell";
 import { Search } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/connections")({ component: Connections });
+export const Route = createFileRoute("/student/collaboration/connections")({ component: Connections });
 
 function Connections() {
   const { users, connections, pendingIncoming, connect, acceptConnect, ignoreConnect } = useCollab();

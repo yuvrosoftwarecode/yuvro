@@ -4,7 +4,7 @@ import { Avatar, LevelBadge, RoleBadge } from "@/components/collab/Avatar";
 import { DOMAIN_COLORS, ME_ID } from "@/lib/collab/data";
 import { Rocket, Search, Users, Plus, Trophy, ArrowRight, Inbox } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/")({ component: CollabHome });
+export const Route = createFileRoute("/student/collaboration/")({ component: CollabHome });
 
 function CollabHome() {
   const { sprints, tickets, squads, connections, users, me } = useCollab();
@@ -33,10 +33,10 @@ function CollabHome() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">My Active Sprints</h2>
-          <Link to="/collaboration/browse" className="text-xs text-primary hover:underline">Browse all →</Link>
+          <Link to="/student/collaboration/browse" className="text-xs text-primary hover:underline">Browse all →</Link>
         </div>
         {myActive.length === 0 ? (
-          <EmptyState icon={Rocket} title="No active sprints yet" cta={<Link to="/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 inline-flex items-center gap-1">Browse Sprints <ArrowRight className="h-3.5 w-3.5" /></Link>} />
+          <EmptyState icon={Rocket} title="No active sprints yet" cta={<Link to="/student/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 inline-flex items-center gap-1">Browse Sprints <ArrowRight className="h-3.5 w-3.5" /></Link>} />
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
             {myActive.map(s => {
@@ -62,7 +62,7 @@ function CollabHome() {
                     <div className="flex justify-between text-[11px] text-muted-foreground mb-1"><span>Progress</span><span>{done}/{sTickets.length}</span></div>
                     <div className="h-1.5 bg-accent rounded-full overflow-hidden"><div className="h-full bg-primary" style={{ width: `${pct}%` }} /></div>
                   </div>
-                  <Link to="/collaboration/sprint/$id/workspace" params={{ id: s.id }} className="mt-3 w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90">Open Sprint</Link>
+                  <Link to="/student/collaboration/sprint/$id/workspace" params={{ id: s.id }} className="mt-3 w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90">Open Sprint</Link>
                 </div>
               );
             })}
@@ -79,24 +79,24 @@ function CollabHome() {
             <p className="text-sm text-muted-foreground">Join a team, pick a role, and ship something real.</p>
           </div>
         </div>
-        <Link to="/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 inline-flex items-center gap-1">Browse All Sprints <ArrowRight className="h-3.5 w-3.5" /></Link>
+        <Link to="/student/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 inline-flex items-center gap-1">Browse All Sprints <ArrowRight className="h-3.5 w-3.5" /></Link>
       </section>
 
       {/* My Squads */}
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">My Squads</h2>
-          <Link to="/collaboration/squads" className="text-xs text-primary hover:underline">Manage all →</Link>
+          <Link to="/student/collaboration/squads" className="text-xs text-primary hover:underline">Manage all →</Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
           {squads.map(sq => (
             <div key={sq.id} className="min-w-[240px] rounded-xl border bg-card p-4">
               <div className="flex items-center justify-between"><h3 className="font-semibold text-sm">{sq.name}</h3><span className="text-[10px] px-1.5 py-0.5 rounded bg-accent">{sq.memberIds.length}</span></div>
               <div className="mt-2 flex -space-x-1.5">{sq.memberIds.slice(0, 5).map(id => <Avatar key={id} userId={id} size={24} />)}</div>
-              <Link to="/collaboration/squads" className="mt-3 inline-block text-xs rounded-md border px-3 py-1 hover:bg-accent w-full text-center">Manage</Link>
+              <Link to="/student/collaboration/squads" className="mt-3 inline-block text-xs rounded-md border px-3 py-1 hover:bg-accent w-full text-center">Manage</Link>
             </div>
           ))}
-          <Link to="/collaboration/squads" className="min-w-[180px] rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/30 grid place-items-center text-sm text-muted-foreground p-4">
+          <Link to="/student/collaboration/squads" className="min-w-[180px] rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/30 grid place-items-center text-sm text-muted-foreground p-4">
             <div className="text-center"><Plus className="h-5 w-5 mx-auto mb-1" /> Create Squad</div>
           </Link>
         </div>
@@ -106,7 +106,7 @@ function CollabHome() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">My Connections</h2>
-          <Link to="/collaboration/connections" className="text-xs text-primary hover:underline">View all →</Link>
+          <Link to="/student/collaboration/connections" className="text-xs text-primary hover:underline">View all →</Link>
         </div>
         {connections.length === 0 ? (
           <EmptyState icon={Users} title="No connections yet" />
@@ -131,7 +131,7 @@ function CollabHome() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold flex items-center gap-2"><Trophy className="h-4 w-4 text-warning" /> Leaderboard</h2>
-          <Link to="/leaderboard" className="text-xs text-primary hover:underline">View full leaderboard →</Link>
+          <Link to="/student/leaderboard" className="text-xs text-primary hover:underline">View full leaderboard →</Link>
         </div>
         <div className="rounded-xl border bg-card divide-y">
           {leaderboard.map((u, i) => (

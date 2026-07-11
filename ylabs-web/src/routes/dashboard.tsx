@@ -26,6 +26,8 @@ export const Route = createFileRoute("/dashboard")({
           const role = user.roles?.ylabs || user.role;
           if (role === "admin") throw redirect({ to: "/admin" });
         }
+      } else {
+        throw redirect({ to: "/auth", search: { tab: "signin" } as any });
       }
     }
   },

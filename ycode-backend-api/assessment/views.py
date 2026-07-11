@@ -14,7 +14,8 @@ from io import BytesIO
 import traceback
 import logging
 from asgiref.sync import async_to_sync
-
+from django.contrib.auth import get_user_model
+from .models import ContestRegistration
 from core.ai_client import AIClient
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
@@ -40,6 +41,12 @@ from django.utils.text import slugify
 from course.models import Question
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework_simplejwt.tokens import AccessToken
+from .models import ContestRegistration
+from core.models import Transaction
+import uuid
+from .analytics_service import ContestAnalyticsService
+from .ai_insights_service import generate_student_insights_sync
 
 def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
     if not user or not user.is_authenticated or (hasattr(user, 'role') and user.role != 'student'):
@@ -467,6 +474,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             token = AccessToken.for_user(user)
             token['contest_id'] = str(contest.id)
             token['payment_pending'] = True
+            token['products'] = ['ycode']
             token['amount'] = float(contest.amount) if contest.amount else 0.0
             return Response({
                 "status": "payment_required", 
@@ -589,151 +597,64 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_send_otp(self, request, pk=None):
+    def check_registration(self, request, pk=None):
         contest = self.get_object()
         email = request.data.get('email')
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        otp = str(random.randint(100000, 999999))
-        
-        from django.core.cache import cache
-        cache.set(f"contest_registration_otp_{contest.id}_{email}", otp, timeout=300) # 5 minutes
-        
-        from django.core.mail import send_mail
-        from django.conf import settings
-        from django.template.loader import render_to_string
-        
-        context = {
-            "contest_title": contest.title,
-            "otp": otp,
-            "frontend_url": settings.FRONTEND_URL
-        }
-        html_message = render_to_string("emails/otp_verification.html", context)
-        
-        send_mail(
-            subject=f"OTP for Contest Registration: {contest.title}",
-            message=f"Your OTP for registering in the contest '{contest.title}' is: {otp}. It is valid for 5 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-            html_message=html_message
-        )
-        
-        return Response({"status": "success", "message": "OTP sent successfully"})
-
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def public_verify_otp(self, request, pk=None):
-        contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
             
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
-        
-        if cached_otp and str(cached_otp) == str(otp):
-            return Response({"status": "success", "message": "OTP verified"})
-        
-        return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        User = get_user_model()
+        user = User.objects.filter(email=email).first()
+        if user and ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response({"error": "This email is already registered for this contest"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({"status": "available"})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
         contest = self.get_object()
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        details = request.data.get('details', {})
         
-        if not email or not otp:
-            return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        # If user is authenticated via YHub JWT, use that user
+        if not request.user or not request.user.is_authenticated:
+            return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
-        from django.core.cache import cache
-        cached_otp = cache.get(f"contest_registration_otp_{contest.id}_{email}")
-        
-        if cached_otp and str(cached_otp) == str(otp):
-            from django.contrib.auth import get_user_model
-            from rest_framework_simplejwt.tokens import AccessToken
-            from .models import ContestRegistration
-            import string
+        user = request.user
+        email = user.email        
+        if ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response({"error": "This email is already registered for this contest"}, status=status.HTTP_400_BAD_REQUEST)
             
-            User = get_user_model()
-            user = User.objects.filter(email=email).first()
-            
-            if not user:
-                password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-                base_username = email.split('@')[0]
-                username = base_username
-                while User.objects.filter(username=username).exists():
-                    username = f"{base_username}{random.randint(100, 9999)}"
-                
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                )
-                user.is_otp_login = True
-                user.save(update_fields=['is_otp_login'])
-                
-            if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
-                token = AccessToken.for_user(user)
-                token['contest_id'] = str(contest.id)
-                token['payment_pending'] = True
-                token['amount'] = float(contest.amount) if contest.amount else 0.0
-                
-                cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-                return Response({
-                    "status": "payment_required", 
-                    "message": "Proceed to payment",
-                    "payment_token": str(token),
-                    "amount": contest.amount
-                })
-                
-            ContestRegistration.objects.get_or_create(
-                contest=contest, 
-                user=user,
-                defaults={'created_by': user}
-            )
-            
-            cache.delete(f"contest_registration_otp_{contest.id}_{email}")
-            
-            token = AccessToken.for_user(user)
-            
+        if contest.payment_type == Contest.PAYMENT_TYPE_PAID:
             return Response({
-                "status": "success", 
-                "message": "Successfully registered",
-                "access_token": str(token)
+                "status": "payment_required", 
+                "message": "Proceed to payment",
+                "amount": contest.amount
             })
             
-        else:
-            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        ContestRegistration.objects.get_or_create(
+            contest=contest, 
+            user=user,
+            defaults={'created_by': user}
+        )
+        
+        token = AccessToken.for_user(user)
+        
+        return Response({
+            "status": "success", 
+            "message": "Successfully registered",
+            "access_token": str(token)
+        })
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def verify_payment(self, request, pk=None):
-        from rest_framework_simplejwt.tokens import AccessToken
-        from django.contrib.auth import get_user_model
-        from .models import ContestRegistration
-        from core.models import Transaction
-        import uuid
         
-        token_str = request.data.get('payment_token')
-        if not token_str:
-            return Response({"error": "Payment token is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user or not request.user.is_authenticated:
+            return Response({"error": "Authentication required to verify payment"}, status=status.HTTP_401_UNAUTHORIZED)
             
+        user = request.user
+        contest = self.get_object()
+        amount = contest.amount if contest.amount else 0.0
+        
         try:
-            token = AccessToken(token_str)
-            user_id = token['user_id']
-            contest_id = token.get('contest_id')
-            amount = token.get('amount')
-            
-            if str(contest_id) != str(pk):
-                return Response({"error": "Invalid token for this contest"}, status=status.HTTP_400_BAD_REQUEST)
-                
-            User = get_user_model()
-            user = User.objects.get(id=user_id)
-            contest = self.get_object()
-            
             transaction = Transaction.objects.create(
                 user=user,
                 contest=contest,
@@ -1097,15 +1018,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def student_analytics(self, request, pk=None):
-        """
-        Get detailed analytics for the authenticated student's contest performance.
-        Students can only access their own analytics.
-        Admins/Instructors can view any student's analytics by passing user_id query param.
-        
-        Query Parameters:
-            - include_ai_insights: boolean (default: true) - Whether to include AI-generated insights
-            - user_id: string (admin/instructor only) - View analytics for specific user
-        """
         contest = self.get_object()
         user = request.user
         
@@ -1130,25 +1042,20 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             )
 
         try:
-            from .analytics_service import ContestAnalyticsService
-            from .ai_insights_service import generate_student_insights_sync
             
             analytics_service = ContestAnalyticsService(contest_id=str(contest.id))
             analytics_data = analytics_service.get_student_analytics(user_id=target_user_id)
             
-            # Check if AI insights should be included
             include_ai = request.query_params.get('include_ai_insights', 'true').lower() == 'true'
             
             if include_ai:
                 try:
-                    # Generate AI insights
                     ai_insights = generate_student_insights_sync(
                         student_analytics=analytics_data,
                         contest_title=contest.title
                     )
                     analytics_data['ai_insights'] = ai_insights
                 except Exception as ai_error:
-                    # If AI insights fail, continue without them
                     logger.warning(f"Failed to generate AI insights: {str(ai_error)}")
                     analytics_data['ai_insights'] = {
                         "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
@@ -1170,14 +1077,6 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def college_analytics(self, request, pk=None):
-        """
-        Get detailed analytics for a college's performance in the contest.
-        Only admins/instructors can access college analytics.
-        
-        Query Parameters:
-            - college_id: string (required) - College ID to get analytics for
-            - include_ai_insights: boolean (default: false) - Whether to include AI-generated insights
-        """
         contest = self.get_object()
         user = request.user
         

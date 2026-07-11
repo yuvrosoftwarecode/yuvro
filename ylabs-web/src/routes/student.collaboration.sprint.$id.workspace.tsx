@@ -8,7 +8,7 @@ import {
   MessagesSquare, ListChecks, Workflow, X, MessageSquarePlus,
 } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/sprint/$id/workspace")({ component: Workspace });
+export const Route = createFileRoute("/student/collaboration/sprint/$id/workspace")({ component: Workspace });
 
 function Workspace() {
   const { id } = Route.useParams();
@@ -26,7 +26,7 @@ function Workspace() {
   if (!myMember) return (
     <main className="p-10 text-center max-w-md mx-auto">
       <p className="text-sm text-muted-foreground mb-4">You are not a member of this sprint team.</p>
-      <Link to="/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm">Browse Sprints</Link>
+      <Link to="/student/collaboration/browse" className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm">Browse Sprints</Link>
     </main>
   );
 
@@ -43,7 +43,7 @@ function Workspace() {
       <header className="px-4 sm:px-6 py-3 border-b bg-card/40 sticky top-14 z-30">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
-            <Link to="/collaboration/sprint/$id" params={{ id: sprint.id }} className="grid h-7 w-7 place-items-center rounded hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+            <Link to="/student/collaboration/sprint/$id" params={{ id: sprint.id }} className="grid h-7 w-7 place-items-center rounded hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
             <div className="min-w-0">
               <h1 className="font-semibold truncate">{sprint.title}</h1>
               <span className={`text-[10px] px-1.5 py-0.5 rounded border ${DOMAIN_COLORS[sprint.domain]}`}>{sprint.domain}</span>
@@ -95,7 +95,7 @@ function Workspace() {
                       const blocker = t.dependsOnTicketId ? sTickets.find(x => x.id === t.dependsOnTicketId) : null;
                       const locked = blocker && blocker.status !== "Completed";
                       return (
-                        <Link key={t.id} to="/collaboration/sprint/$id/ticket/$ticketId" params={{ id: sprint.id, ticketId: t.id }} className={`block rounded-lg border p-3 hover:border-primary/40 ${locked ? "opacity-60" : ""}`}>
+                        <Link key={t.id} to="/student/collaboration/sprint/$id/ticket/$ticketId" params={{ id: sprint.id, ticketId: t.id }} className={`block rounded-lg border p-3 hover:border-primary/40 ${locked ? "opacity-60" : ""}`}>
                           <div className="flex items-start justify-between gap-2">
                             <span className="text-[10px] font-mono text-muted-foreground">#{t.id.split("-").pop()}</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent">{t.points} pts</span>

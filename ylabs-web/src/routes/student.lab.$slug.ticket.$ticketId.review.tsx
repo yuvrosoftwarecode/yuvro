@@ -8,10 +8,10 @@ import {
   Gauge, Target, Users, Rocket, Flag,
 } from "lucide-react";
 
-export const Route = createFileRoute("/lab/$slug/ticket/$ticketId/review")({ component: Review });
+export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({ component: Review });
 
 function Review() {
-  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId/review" });
+  const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId/review" });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const ticket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
   const next = tickets.find((t) => t.status === "Not Started");
@@ -200,7 +200,7 @@ function Review() {
               title={next?.title ?? "Advanced OOP Concepts"}
               cta="Start next challenge"
               tone="primary"
-              to="/lab/$slug/ticket/$ticketId"
+              to="/student/lab/$slug/ticket/$ticketId"
               params={{ slug: lab.slug, ticketId: next?.id ?? tickets[0].id }}
               highlight
             />
@@ -210,7 +210,7 @@ function Review() {
               title="Control Flow & Loops"
               cta="View details"
               tone="info"
-              to="/lab/$slug"
+              to="/student/lab/$slug"
               params={{ slug: lab.slug }}
             />
             <NextCard
@@ -219,22 +219,22 @@ function Review() {
               title="Complete 5 beginner tickets in 2h"
               cta="Join challenge +100 XP"
               tone="warning"
-              to="/leaderboard"
+              to="/student/leaderboard"
             />
           </div>
         </Card>
 
         {/* Action bar */}
         <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-4">
-          <Link to="/lab/$slug/ticket/$ticketId" params={{ slug, ticketId }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Code2 className="h-4 w-4" />View your solution</Link>
+          <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug, ticketId }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Code2 className="h-4 w-4" />View your solution</Link>
           <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Trophy className="h-4 w-4 text-warning" />View best solution</button>
-          <Link to="/forum" className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><MessageSquare className="h-4 w-4" />Discuss on forum</Link>
+          <Link to="/student/forum" className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><MessageSquare className="h-4 w-4" />Discuss on forum</Link>
           <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Share2 className="h-4 w-4" />Share achievement</button>
           <button onClick={() => alert("Issue reported · #4821")} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Flag className="h-4 w-4" />Report</button>
           <button onClick={() => { const f = prompt("Share your feedback on this ticket:"); if (f) alert("Thanks for the feedback!"); }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><MessageSquare className="h-4 w-4" />Feedback</button>
-          <Link to="/lab/$slug" params={{ slug: lab.slug }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto">← Lab dashboard</Link>
+          <Link to="/student/lab/$slug" params={{ slug: lab.slug }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto">← Lab dashboard</Link>
           {next && (
-            <Link to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: next.id }}
+            <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: next.id }}
               className="inline-flex items-center gap-1 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
               Next ticket <ArrowRight className="h-4 w-4" />
             </Link>
@@ -374,7 +374,7 @@ function SkillBar({ label, from, to }: { label: string; from: number; to: number
 
 function NextCard({ tag, id, title, cta, tone, to, params, highlight }: {
   tag: string; id: string; title: string; cta: string; tone: "primary" | "info" | "warning";
-  to: "/lab/$slug/ticket/$ticketId" | "/lab/$slug" | "/leaderboard";
+  to: "/student/lab/$slug/ticket/$ticketId" | "/student/lab/$slug" | "/student/leaderboard";
   params?: Record<string, string>; highlight?: boolean;
 }) {
   const color = { primary: "border-primary/40 bg-primary/5", info: "border-info/30 bg-info/5", warning: "border-warning/30 bg-warning/5" }[tone];

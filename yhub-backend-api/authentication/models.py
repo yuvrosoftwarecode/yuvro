@@ -52,3 +52,17 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+
+class GithubConnection(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="github_connection")
+    github_user_id = models.CharField(max_length=100)
+    github_username = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=2000, help_text="Encrypted GitHub Access Token")
+    scopes = models.CharField(max_length=255, blank=True)
+    connected_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.email} -> {self.github_username}"

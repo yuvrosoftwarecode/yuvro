@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCollab } from "@/lib/collab/store";
 import { myReport } from "@/lib/collab/data";
 
-export const Route = createFileRoute("/collaboration/sprint/$id/report/individual")({ component: IndividualReport });
+export const Route = createFileRoute("/student/collaboration/sprint/$id/report/individual")({ component: IndividualReport });
 
 function IndividualReport() {
   const { id } = Route.useParams();
@@ -22,8 +22,8 @@ function IndividualReport() {
   return (
     <main className="mx-auto max-w-[1100px] px-4 sm:px-6 py-6 space-y-6">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Link to="/collaboration" className="hover:text-foreground">Collaboration Hub</Link> › <span>Individual Report</span>
-        <span className="ml-auto"><Link to="/collaboration/sprint/$id/report/team" params={{ id }} className="rounded-md border px-3 py-1 hover:bg-accent">View Team Report</Link></span>
+        <Link to="/student/collaboration" className="hover:text-foreground">Collaboration Hub</Link> › <span>Individual Report</span>
+        <span className="ml-auto"><Link to="/student/collaboration/sprint/$id/report/team" params={{ id }} className="rounded-md border px-3 py-1 hover:bg-accent">View Team Report</Link></span>
       </div>
 
       <header className="rounded-2xl border bg-gradient-to-br from-primary/15 via-card to-card p-6">
@@ -89,8 +89,8 @@ function IndividualReport() {
       </section>
 
       <div className="flex gap-2">
-        <Link to="/collaboration/sprint/$id" params={{ id }} className="rounded-md border px-4 py-2 text-sm hover:bg-accent">Back to Sprint</Link>
-        <Link to="/collaboration/sprint/$id/report/team" params={{ id }} className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm">View Team Report</Link>
+        <Link to="/student/collaboration/sprint/$id" params={{ id }} className="rounded-md border px-4 py-2 text-sm hover:bg-accent">Back to Sprint</Link>
+        <Link to="/student/collaboration/sprint/$id/report/team" params={{ id }} className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm">View Team Report</Link>
       </div>
     </main>
   );

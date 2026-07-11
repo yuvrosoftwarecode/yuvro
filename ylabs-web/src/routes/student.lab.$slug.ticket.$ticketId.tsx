@@ -40,7 +40,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-export const Route = createFileRoute("/lab/$slug/ticket/$ticketId")({ component: TicketEditorRoute });
+export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({ component: TicketEditorRoute });
 
 export type StudentPreviewOverride = {
   title?: string;
@@ -55,7 +55,7 @@ export type StudentPreviewOverride = {
 };
 
 function TicketEditorRoute() {
-  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId" });
+  const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId" });
   const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -693,7 +693,7 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
-  const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+  const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
 
   const [resolvedTicket, setResolvedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -711,7 +711,7 @@ export function StudentTicketView({
 
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/lab/tickets/${ticketId}/`)
+      api.get<any>(`/student/lab/tickets/${ticketId}/`)
         .then(t => {
           if (!active) return;
           setResolvedTicket({
@@ -782,7 +782,7 @@ function TicketIDE({
   previewOverride: StudentPreviewOverride | null;
 }) {
   const navigate = useNavigate();
-  const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+  const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
 
   const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
@@ -1303,7 +1303,7 @@ function TicketIDE({
       setTests(next);
       setTestsRan(true);
       if (next.every((t) => t.pass)) {
-        navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
       } else {
         showToast("Fix failing tests before submitting");
       }

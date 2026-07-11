@@ -5,7 +5,7 @@ import { DOMAIN_COLORS, ME_ID, type RoleKey, type SprintMember } from "@/lib/col
 import { Avatar, LevelBadge, RoleBadge } from "@/components/collab/Avatar";
 import { CheckCircle2, Circle, X, AlertTriangle, Shuffle, Bot, MessageSquare, Users, Plus, Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/collaboration/sprint/$id")({ component: SprintDetail });
+export const Route = createFileRoute("/student/collaboration/sprint/$id")({ component: SprintDetail });
 
 function SprintDetail() {
   const { id } = Route.useParams();
@@ -96,7 +96,7 @@ function SprintDetail() {
         <div className="rounded-xl border bg-card p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-primary" /> Sprint Discussion</h2>
-            {myMember && <Link to="/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="text-xs text-primary hover:underline">View all →</Link>}
+            {myMember && <Link to="/student/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="text-xs text-primary hover:underline">View all →</Link>}
           </div>
           {threads.length === 0 ? <p className="text-sm text-muted-foreground">No threads yet.</p> : (
             <div className="divide-y">
@@ -135,7 +135,7 @@ function SprintDetail() {
 
           <div className="mt-4 space-y-2">
             {myMember ? (
-              <Link to="/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="block w-full rounded-md bg-primary text-primary-foreground text-center px-3 py-2 text-sm font-medium hover:opacity-90">Go to Workspace</Link>
+              <Link to="/student/collaboration/sprint/$id/workspace" params={{ id: sprint.id }} className="block w-full rounded-md bg-primary text-primary-foreground text-center px-3 py-2 text-sm font-medium hover:opacity-90">Go to Workspace</Link>
             ) : readonly ? (
               <button disabled className="w-full rounded-md border px-3 py-2 text-sm text-muted-foreground cursor-not-allowed" title="Sprint is full or in progress">View Only</button>
             ) : (
@@ -149,7 +149,7 @@ function SprintDetail() {
         <RoleConfirmModal role={joinRole} onClose={() => setJoinRole(null)} onConfirm={() => {
           joinSprint(sprint.id, joinRole);
           setJoinRole(null);
-          nav({ to: "/collaboration/sprint/$id/workspace", params: { id: sprint.id } });
+          nav({ to: "/student/collaboration/sprint/$id/workspace", params: { id: sprint.id } });
         }} />
       )}
       {createOpen && <CreateTeamModal sprintId={sprint.id} onClose={() => setCreateOpen(false)} />}
@@ -271,7 +271,7 @@ function CreateTeamModal({ sprintId, onClose }: { sprintId: string; onClose: () 
     const allInvites = [...invited, ...squadInvites.filter(s => !invited.some(i => i.userId === s.userId))];
     createTeam({ sprintId, name: name.trim(), myRole, invites: allInvites, openRoles });
     onClose();
-    nav({ to: "/collaboration/sprint/$id/workspace", params: { id: sprintId } });
+    nav({ to: "/student/collaboration/sprint/$id/workspace", params: { id: sprintId } });
   };
 
   return (

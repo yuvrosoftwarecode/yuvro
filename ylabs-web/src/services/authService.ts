@@ -80,7 +80,7 @@ class AuthService {
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
-    return await restApiAuthUtil.put<User>('/auth/user/', userData);
+    return await yhubApiAuthUtil.put<User>('/auth/user/', userData);
   }
 
   async uploadProfileImage(file: File, field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {

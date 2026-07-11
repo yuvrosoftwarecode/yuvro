@@ -3,7 +3,12 @@ import { TopNav } from "@/components/TopNav";
 import { labs, me } from "@/lib/dummy";
 import { TrendingUp, Clock, Target, Flame } from "lucide-react";
 
-export const Route = createFileRoute("/analytics")({ component: Analytics });
+
+
+export const Route = createFileRoute("/student/analytics")({ 
+  
+  component: Analytics 
+});
 
 const weekly = [12, 18, 9, 22, 30, 16, 25];
 const max = Math.max(...weekly);

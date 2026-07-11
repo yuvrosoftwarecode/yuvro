@@ -1,12 +1,16 @@
+from django.http import response
 import hmac
 import hashlib
 import json
 from typing import Any, Dict, Optional
+import logging
 
 import requests
 from django.conf import settings
 
 from .base import BasePaymentGateway
+from payment.models import PaymentStatus
+
 
 
 class RazorpayGateway(BasePaymentGateway):
@@ -21,11 +25,10 @@ class RazorpayGateway(BasePaymentGateway):
         return (self.key_id, self.key_secret)
 
     def _post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
         try:
+            response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            import logging
             logging.error(f"Razorpay API Error: {response.text}")
             raise
         return response.json()
@@ -62,7 +65,23 @@ class RazorpayGateway(BasePaymentGateway):
         }
 
     def get_payment(self, payment: Dict[str, Any]) -> Dict[str, Any]:
-        return self._get(f"orders/{payment['payment_id']}")
+        return self._get(f"payments/{payment['payment_id']}")
+        
+    def get_order(self, order_id: str) -> Dict[str, Any]:
+        return self._get(f"orders/{order_id}")
+        
+    def map_status(self, gateway_status: str) -> str:        
+        status_map = {
+            "created": PaymentStatus.CREATED,
+            "attempted": PaymentStatus.PENDING,
+            "paid": PaymentStatus.SUCCESS_OR_CAPTURED,
+            
+            "authorized": PaymentStatus.AUTHORIZED,
+            "captured": PaymentStatus.SUCCESS_OR_CAPTURED,
+            "failed": PaymentStatus.FAILED,
+            "refunded": PaymentStatus.REFUNDED,
+        }
+        return status_map.get(gateway_status.lower(), PaymentStatus.PENDING)
 
     def capture_payment(self, payment: Dict[str, Any]) -> Dict[str, Any]:
         data = {"amount": payment.get("amount")}

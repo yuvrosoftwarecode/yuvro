@@ -7,7 +7,12 @@ import authService from "@/services/authService";
 import { Github, Save, KeyRound, Check, Link as LinkIcon, Unlink, Loader2, AlertCircle, Camera, UploadCloud, Trash2, Edit2 } from "lucide-react";
 import { useClickOutside } from "@/hooks/use-click-outside";
 
-export const Route = createFileRoute("/profile")({ component: Profile });
+
+
+export const Route = createFileRoute("/student/profile")({ 
+  
+  component: Profile 
+});
 
 const GITHUB_KEY = "yuvro-github-connected";
 

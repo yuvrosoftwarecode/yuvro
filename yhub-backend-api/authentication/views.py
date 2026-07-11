@@ -17,6 +17,13 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
+
+
+from rest_framework.views import APIView
+from .models import GithubConnection
+import base64
+import os   
 
 from authentication.permissions import (
     IsAdminUser,
@@ -28,9 +35,13 @@ from .serializers import (
     UserSerializer,
     UserLoginSerializer,
 )
+from drf_spectacular.utils import extend_schema
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+import random
+import string
+from django.core.cache import cache
 
 
 @api_view(["POST"])
@@ -163,6 +174,86 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_send_otp(request):
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    contest_title = request.data.get('contest_title', 'Contest')
+    
+    if not email or not contest_id:
+        return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    otp = str(random.randint(100000, 999999))
+    cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
+    
+    context = {
+        "contest_title": contest_title,
+        "otp": otp,
+        "frontend_url": settings.FRONTEND_URL
+    }
+    
+    try:
+        html_message = render_to_string("emails/otp_verification.html", context)
+    except:
+        html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
+        
+    send_mail(
+        subject=f"OTP for Registration",
+        message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_message
+    )
+    
+    return Response({"status": "success", "message": "OTP sent successfully"})
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def public_verify_otp(request):
+    email = request.data.get('email')
+    contest_id = request.data.get('contest_id')
+    otp = request.data.get('otp')
+    
+    if not email or not otp or not contest_id:
+        return Response({"error": "Email, contest_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
+    
+    if cached_otp and str(cached_otp) == str(otp):
+        user = User.objects.filter(email=email).first()
+        
+        if not user:
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            base_username = email.split('@')[0]
+            username = base_username
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{random.randint(100, 9999)}"
+            
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+            )
+            user.is_otp_login = True
+            user.roles = {"ycode": "student", "ylabs": "student"}
+            user.save()
+            
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        
+        return Response({
+            "status": "success", 
+            "message": "OTP verified",
+            "access_token": str(refresh.access_token)
+        })
+    
+    return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def logout_view(request):
     try:
@@ -197,16 +288,8 @@ class CustomTokenRefreshView(TokenRefreshView):
 @api_view(["GET", "PUT", "PATCH"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    if request.method == "GET":
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-    else:
-        from .serializers import UserUpdateSerializer
-        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(UserSerializer(request.user).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 
 class ForgotPasswordView(generics.GenericAPIView):
@@ -238,7 +321,6 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
-        from django.template.loader import render_to_string
         context = {
             "user": user,
             "reset_link": reset_link,
@@ -328,8 +410,104 @@ def admin_users(request):
     admins = User.objects.filter(is_staff=True).values("id", "email", "username")
     return Response(list(admins))
 
-import os
-from drf_spectacular.utils import extend_schema
+class GithubConnectView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def get(self, request):
+        client_id = getattr(settings, 'GITHUB_CLIENT_ID', os.environ.get('GITHUB_CLIENT_ID'))
+        redirect_uri = getattr(settings, 'GITHUB_REDIRECT_URI', os.environ.get('GITHUB_REDIRECT_URI'))
+        
+        if not client_id:
+            return Response({"error": "GitHub client ID not configured"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        github_url = f"https://github.com/login/oauth/authorize?client_id={client_id}&scope=repo,read:user"
+        if redirect_uri:
+            github_url += f"&redirect_uri={redirect_uri}"
+        
+        return Response({"authorization_url": github_url})
+
+    def post(self, request):
+        code = request.data.get("code")
+        
+        if not code:
+            return Response({"error": "Authorization code is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        client_id = getattr(settings, 'GITHUB_CLIENT_ID', os.environ.get('GITHUB_CLIENT_ID'))
+        client_secret = getattr(settings, 'GITHUB_CLIENT_SECRET', os.environ.get('GITHUB_CLIENT_SECRET'))
+        redirect_uri = getattr(settings, 'GITHUB_REDIRECT_URI', os.environ.get('GITHUB_REDIRECT_URI'))
+        
+        token_url = "https://github.com/login/oauth/access_token"
+        headers = {"Accept": "application/json"}
+        data = {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+        }
+        if redirect_uri:
+            data["redirect_uri"] = redirect_uri
+        
+        response = http_requests.post(token_url, headers=headers, data=data)
+        if response.status_code != 200:
+            return Response({"error": "Failed to exchange token with GitHub"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        token_data = response.json()
+        access_token = token_data.get("access_token")
+        scopes = token_data.get("scope", "")
+        
+        if not access_token:
+            return Response({"error": f"No access token in GitHub response. GitHub said: {token_data}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user_url = "https://api.github.com/user"
+        user_headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+        user_response = http_requests.get(user_url, headers=user_headers)
+        
+        if user_response.status_code != 200:
+            logger.error(f"GitHub user info failed: {user_response.status_code} {user_response.text}")
+            return Response({"error": f"Failed to get user info from GitHub: {user_response.text}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        github_user_info = user_response.json()
+        github_user_id = str(github_user_info.get("id"))
+        github_username = github_user_info.get("login")
+        
+        encrypted_token = base64.b64encode(access_token.encode()).decode()
+        
+        connection, created = GithubConnection.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "github_user_id": github_user_id,
+                "github_username": github_username,
+                "access_token": encrypted_token,
+                "scopes": scopes
+            }
+        )
+        
+        return Response({"message": "GitHub connected successfully", "github_username": github_username})
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def internal_github_token_view(request, user_id):
+    internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
+    provided_secret = request.headers.get('X-Internal-Secret')
+    
+    if not provided_secret or provided_secret != internal_secret:
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        
+    try:
+        connection = GithubConnection.objects.get(user_id=user_id)
+    except GithubConnection.DoesNotExist:
+        return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    import base64
+    try:
+        decrypted_token = base64.b64decode(connection.access_token).decode()
+    except Exception:
+        return Response({"error": "Failed to decrypt token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return Response({
+        "github_username": connection.github_username,
+        "access_token": decrypted_token,
+    })
+
 
 @extend_schema(
     summary="Upload a profile image",
