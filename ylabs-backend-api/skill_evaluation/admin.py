@@ -36,8 +36,8 @@ class UserEvaluationSubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(LabQuestionBank)
 class LabQuestionBankAdmin(admin.ModelAdmin):
-    list_display = ("title", "domain", "tech_stack", "programming_language", "experience", "difficulty", "scenario", "marks", "duration_minutes")
-    list_filter = ("domain", "tech_stack", "programming_language", "experience", "difficulty", "scenario")
+    list_display = ("title", "domain", "experience", "difficulty", "scenario", "marks", "duration_minutes")
+    list_filter = ("domain", "experience", "difficulty", "scenario")
     search_fields = ("title", "description")
     ordering = ("-created_at",)
 
@@ -52,7 +52,7 @@ class LabQuestionBankTaskAdmin(admin.ModelAdmin):
 
 @admin.register(VitarkaAIInterviewQuestionBank)
 class VitarkaAIInterviewQuestionBankAdmin(admin.ModelAdmin):
-    list_display = ("title", "domain", "tech_stack", "programming_language", "experience", "difficulty", "marks", "duration_minutes")
-    list_filter = ("domain", "tech_stack", "programming_language", "experience", "difficulty")
+    list_display = ("title", "domain", "experience", "difficulty", "marks", "duration_minutes")
+    list_filter = ("domain", "experience", "difficulty")
     search_fields = ("title", "description")
     ordering = ("-created_at",)

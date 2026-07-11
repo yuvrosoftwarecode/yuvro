@@ -45,7 +45,7 @@ class Evaluation(BaseTimestampedAdminModel):
     )
     candidate_invited_emails = models.JSONField(default=list, blank=True)
     experience_level = models.CharField(
-        max_length=12, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
+        max_length=20, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
     )
     maximum_attempts = models.PositiveIntegerField(default=1)
     expiry_datetime = models.DateTimeField(null=True, blank=True)
@@ -113,7 +113,7 @@ class QuestionBank(DeveloperSkill, BaseTimestampedAdminModel):
         max_length=20, choices=QuestionDomain.choices, default=QuestionDomain.OTHER
     )
     experience = models.CharField(
-        max_length=12, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
+        max_length=20, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
     )
     duration_minutes = models.PositiveIntegerField(default=30)
     marks = models.PositiveIntegerField(default=10)
