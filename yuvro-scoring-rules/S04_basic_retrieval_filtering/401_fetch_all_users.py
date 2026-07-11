@@ -24,7 +24,7 @@ SELECT * FROM users;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT * FROM users;
+SELECT * FROM users ORDER BY id;
 """
 
 def evaluate(user_query):

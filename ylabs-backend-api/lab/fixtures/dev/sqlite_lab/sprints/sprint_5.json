@@ -23,9 +23,7 @@
         "ASC is the default, but write it explicitly for practice."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT id, title FROM todos ORDER BY priority ASC, id ASC;"
       },
       "solution": {
         "query.sql": "SELECT id, title FROM todos ORDER BY priority ASC;",
@@ -57,9 +55,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;"
       },
       "solution": {
         "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
@@ -91,9 +87,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT * FROM todos ORDER BY id;"
       },
       "solution": {
         "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
@@ -125,9 +119,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT * FROM todos ORDER BY id;"
       },
       "solution": {
         "query.sql": "DELETE FROM todos WHERE user_id = 2;",
@@ -139,6 +131,134 @@
         "SQL"
       ],
       "order_index": 4
+    },
+    {
+      "title": "Increment Priority",
+      "ticket_slug": "sqlite-505",
+      "description": "Increase the `priority` of all pending todos by 1.",
+      "tasks": [
+        "Increase the `priority` of all pending todos by 1."
+      ],
+      "learning_objectives": [
+        "Use math inside UPDATE statements."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the WHERE clause or using wrong math syntax."
+      ],
+      "hints": [
+        "Use SET priority = priority + 1."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "UPDATE todos SET priority = priority + 1 WHERE status = 'pending';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Drop Column",
+      "ticket_slug": "sqlite-506",
+      "description": "Remove the `due_date` column entirely from the `todos` table.",
+      "tasks": [
+        "Remove the `due_date` column entirely from the `todos` table."
+      ],
+      "learning_objectives": [
+        "Using ALTER TABLE to drop columns."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to specify the column name or using older SQLite syntax."
+      ],
+      "hints": [
+        "ALTER TABLE table_name DROP COLUMN column_name;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "ALTER TABLE todos DROP COLUMN due_date;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Rename Column",
+      "ticket_slug": "sqlite-507",
+      "description": "Rename the `title` column to `task_name` in the `todos` table.",
+      "tasks": [
+        "Rename the `title` column to `task_name` in the `todos` table."
+      ],
+      "learning_objectives": [
+        "Using ALTER TABLE to rename columns."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting RENAME COLUMN."
+      ],
+      "hints": [
+        "ALTER TABLE table_name RENAME COLUMN old_name TO new_name;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "ALTER TABLE todos RENAME COLUMN title TO task_name;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Replace a Row",
+      "ticket_slug": "sqlite-508",
+      "description": "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL).",
+      "tasks": [
+        "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL)."
+      ],
+      "learning_objectives": [
+        "Overwriting a row with specific column updates."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Omitting email field update or forgetting WHERE clause."
+      ],
+      "hints": [
+        "Use UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM users ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 8
     }
   ]
 }

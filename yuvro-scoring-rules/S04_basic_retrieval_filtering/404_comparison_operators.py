@@ -24,7 +24,7 @@ SELECT title FROM todos WHERE priority > 1;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE priority > 1;
+SELECT title FROM todos WHERE priority > 1 ORDER BY title;
 """
 
 def evaluate(user_query):

@@ -964,11 +964,11 @@ Add CSRF token generation and validation to a state-changing POST endpoint.
   }
 };
 
-function getKit(slug: string, tag: string, ticketId: string): Kit {
-  if (slug === "react") {
+function getKit(slug: string, tag: string, ticketId: string, labTitle: string = "", language: string = ""): Kit {
+  if (slug === "react" || labTitle.toLowerCase().includes("react")) {
     return REACT_KITS[ticketId] ?? REACT_KITS["REACT-101"];
   }
-  if (slug === "cybersecurity") {
+  if (slug === "cybersecurity" || labTitle.toLowerCase().includes("cybersecurity")) {
     return CYBERSECURITY_KITS[ticketId] ?? CYBERSECURITY_KITS["SEC-101"];
   }
   if (tag === "Django Todo") {
@@ -977,11 +977,19 @@ function getKit(slug: string, tag: string, ticketId: string): Kit {
       fileList: [...DJANGO_FILES], files: { ...DJANGO_STARTERS },
     };
   }
-  if (slug === "python" || slug === "programming" || slug === "datastructures")
+  if (slug === "python" || slug === "programming" || slug === "datastructures" || language.toLowerCase() === "python")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug === "sql" || slug === "sqlite" || slug === "sqlite-lab" || (tag && tag.toLowerCase().includes("sql"))) return SQL_KIT_DEFAULT;
-  if (slug === "mongo") return MONGO_KIT_DEFAULT;
-  if (slug === "ui" || slug === "bootstrap" || slug === "tailwind") return UI_KIT_DEFAULT;
+    
+  if (slug === "sql" || slug === "sqlite" || slug === "sqlite-lab" || 
+      (tag && tag.toLowerCase().includes("sql")) || 
+      labTitle.toLowerCase().includes("sql") || 
+      language.toLowerCase() === "sql") {
+      return SQL_KIT_DEFAULT;
+  }
+  
+  if (slug === "mongo" || labTitle.toLowerCase().includes("mongo")) return MONGO_KIT_DEFAULT;
+  if (slug === "ui" || slug === "bootstrap" || slug === "tailwind" || labTitle.toLowerCase().includes("tailwind") || labTitle.toLowerCase().includes("bootstrap")) return UI_KIT_DEFAULT;
+  
   return {
     name: "java", rootLabel: "java-101", primary: "Main.java", runtime: "Java 17",
     fileList: [...FILE_LIST],
@@ -1582,7 +1590,7 @@ export function StudentTicketView({
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading ticket...</div>;
   if (error || !data || !ticket || !lab) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Ticket not found.</div>;
 
-  const kit = useMemo(() => getKit(slug, ticket.tag || "", ticket.id), [slug, ticket.tag, ticket.id]);
+  const kit = useMemo(() => getKit(slug, ticket.tag || "", ticket.id, lab.name, ticket.language || ""), [slug, ticket.tag, ticket.id, lab.name, ticket.language]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";

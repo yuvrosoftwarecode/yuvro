@@ -23,9 +23,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE user_id = (SELECT id FROM users WHERE username = 'alice_dev') ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
@@ -57,9 +55,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "WITH user_counts AS (SELECT user_id, COUNT(*) as total_tasks FROM todos GROUP BY user_id) SELECT * FROM user_counts ORDER BY user_id;"
       },
       "solution": {
         "query.sql": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
@@ -91,9 +87,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_todos_status';"
       },
       "solution": {
         "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",
@@ -125,9 +119,7 @@
         "PRAGMA index_list('table_name');"
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "PRAGMA index_list('todos');"
       },
       "solution": {
         "query.sql": "PRAGMA index_list('todos');",
@@ -159,9 +151,7 @@
         "PRAGMA index_info('index_name');"
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "PRAGMA index_info('idx_todos_status');"
       },
       "solution": {
         "query.sql": "PRAGMA index_info('idx_todos_status');",
@@ -193,9 +183,7 @@
         "DROP INDEX index_name;"
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "PRAGMA index_list('todos');"
       },
       "solution": {
         "query.sql": "DROP INDEX idx_todos_status;",
@@ -227,9 +215,7 @@
         "ALTER TABLE table_name ADD COLUMN column_name datatype;"
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
       },
       "solution": {
         "query.sql": "ALTER TABLE todos ADD COLUMN updated_at DATE;",

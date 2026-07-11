@@ -26,7 +26,7 @@ LEFT JOIN todos t ON u.id = t.user_id;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT u.username, t.title FROM users u LEFT JOIN todos t ON u.id = t.user_id;
+SELECT u.username, t.title FROM users u LEFT JOIN todos t ON u.id = t.user_id ORDER BY u.username, t.title;
 """
 
 def evaluate(user_query):

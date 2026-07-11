@@ -29,7 +29,7 @@ FROM todos;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title, CASE WHEN priority = 1 THEN 'High' ELSE 'Normal' END AS urgency FROM todos;
+SELECT title, CASE WHEN priority = 1 THEN 'High' ELSE 'Normal' END AS urgency FROM todos ORDER BY title;
 """
 
 def evaluate(user_query):

@@ -117,7 +117,6 @@ SCHEMA
 * Execute the System Verification Query.
 * Compare the returned results.
 * Award full points only if the verification output matches the expected output exactly.
-
 ---
 
 ## Sprint 2 - Insert Documents
@@ -220,7 +219,6 @@ DATABASE_STATE
 * Execute the System Verification Query.
 * Compare the returned results.
 * Award full points only if the verification output matches the expected output exactly.
-
 ---
 
 ### Task 203 — Insert Todos
@@ -668,7 +666,6 @@ RESULT_SET
 * Execute the System Verification Query.
 * Compare the returned results.
 * Award full points only if the verification output matches the expected output exactly.
-
 ---
 
 ### Task 404 — Not Equal ($ne)

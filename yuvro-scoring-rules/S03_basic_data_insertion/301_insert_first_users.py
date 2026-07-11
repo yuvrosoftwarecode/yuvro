@@ -20,9 +20,12 @@ EVALUATION_TYPE = "DATABASE_STATE"
 DATABASE_FILE = "todo.db"
 
 HIDDEN_REFERENCE_SOLUTION = """
-INSERT INTO users (username, email) VALUES 
-('alice_dev', 'alice@email.com'),
-('bob_ops', 'bob@email.com');
+INSERT INTO users (id, username, email) VALUES 
+(1, 'alice_dev', 'alice@email.com'),
+(2, 'bob_ops', 'bob@email.com'),
+(3, 'charlie_ux', 'charlie@email.com'),
+(4, 'david_qa', 'david@email.com'),
+(5, 'eve_mgr', 'eve@email.com');
 """
 
 SYSTEM_VERIFICATION_QUERY = """

@@ -24,7 +24,7 @@ SELECT id, title FROM todos ORDER BY priority ASC;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT id, title FROM todos ORDER BY priority ASC;
+SELECT id, title FROM todos ORDER BY priority ASC, id ASC;
 """
 
 def evaluate(user_query):

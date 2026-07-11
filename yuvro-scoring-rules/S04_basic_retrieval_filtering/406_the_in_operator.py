@@ -24,7 +24,7 @@ SELECT title FROM todos WHERE status IN ('pending', 'completed');
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE status IN ('pending', 'completed');
+SELECT title FROM todos WHERE status IN ('pending', 'completed') ORDER BY title;
 """
 
 def evaluate(user_query):

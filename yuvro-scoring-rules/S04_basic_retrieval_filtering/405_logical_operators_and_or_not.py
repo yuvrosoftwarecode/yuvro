@@ -24,7 +24,7 @@ SELECT title FROM todos WHERE priority = 3 AND status = 'pending';
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE priority = 3 AND status = 'pending';
+SELECT title FROM todos WHERE priority = 3 AND status = 'pending' ORDER BY title;
 """
 
 def evaluate(user_query):

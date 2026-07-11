@@ -23,9 +23,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT * FROM users ORDER BY id;"
       },
       "solution": {
         "query.sql": "SELECT * FROM users;",
@@ -57,9 +55,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT DISTINCT status FROM todos ORDER BY status;"
       },
       "solution": {
         "query.sql": "SELECT DISTINCT status FROM todos;",
@@ -91,9 +87,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE status = 'pending' ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE status = 'pending';",
@@ -125,9 +119,7 @@
         "Use the > operator."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE priority > 1 ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE priority > 1;",
@@ -159,9 +151,7 @@
         "Use the AND operator."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE priority = 3 AND status = 'pending' ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE priority = 3 AND status = 'pending';",
@@ -193,9 +183,7 @@
         "Use IN (val1, val2)."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE status IN ('pending', 'completed') ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE status IN ('pending', 'completed');",
@@ -227,9 +215,7 @@
         "Use BETWEEN min AND max."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE priority BETWEEN 1 AND 3 ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE priority BETWEEN 1 AND 3;",
@@ -261,9 +247,7 @@
         "Use % as wildcard."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT * FROM todos WHERE title LIKE '%database%' ORDER BY id;"
       },
       "solution": {
         "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",
@@ -277,30 +261,28 @@
       "order_index": 8
     },
     {
-      "title": "IS NULL",
+      "title": "IS NOT NULL",
       "ticket_slug": "sqlite-409",
-      "description": "Fetch the `title` of todos where the due_date IS NULL.",
+      "description": "Fetch the `title` of todos where the due_date IS NOT NULL.",
       "tasks": [
-        "Fetch the `title` of todos where the due_date IS NULL."
+        "Fetch the `title` of todos where the due_date IS NOT NULL."
       ],
       "learning_objectives": [
-        "Check for NULL values."
+        "Check for non-NULL values."
       ],
       "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Using = NULL."
+        "Using != NULL."
       ],
       "hints": [
-        "Use IS NULL, not = NULL."
+        "Use IS NOT NULL, not != NULL."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT title FROM todos WHERE due_date IS NOT NULL ORDER BY title;"
       },
       "solution": {
-        "query.sql": "SELECT title FROM todos WHERE due_date IS NULL;",
+        "query.sql": "SELECT title FROM todos WHERE due_date IS NOT NULL;",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,

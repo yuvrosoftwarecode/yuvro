@@ -24,7 +24,7 @@ SELECT * FROM todos WHERE title LIKE '%database%';
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT * FROM todos WHERE title LIKE '%database%';
+SELECT * FROM todos WHERE title LIKE '%database%' ORDER BY id;
 """
 
 def evaluate(user_query):

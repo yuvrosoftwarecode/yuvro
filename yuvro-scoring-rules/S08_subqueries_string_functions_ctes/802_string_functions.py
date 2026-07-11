@@ -26,7 +26,7 @@ JOIN todos t ON u.id = t.user_id;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT UPPER(u.username), LENGTH(u.email), SUBSTR(t.status, 1, 3), TRIM(t.title) FROM users u JOIN todos t ON u.id = t.user_id;
+SELECT UPPER(u.username), LENGTH(u.email), SUBSTR(t.status, 1, 3), TRIM(t.title) FROM users u JOIN todos t ON u.id = t.user_id ORDER BY u.username, t.title;
 """
 
 def evaluate(user_query):

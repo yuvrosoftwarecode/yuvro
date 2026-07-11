@@ -20,8 +20,15 @@ EVALUATION_TYPE = "DATABASE_STATE"
 DATABASE_FILE = "todo.db"
 
 HIDDEN_REFERENCE_SOLUTION = """
-INSERT INTO todos (user_id, title, priority, status) VALUES 
-(1, 'Write documentation', DEFAULT, DEFAULT);
+INSERT INTO todos (id, user_id, title, priority, status) VALUES (10, 1, 'Write documentation', 3, 'pending');
+INSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (11, 1, 'Review pull requests', 2, '2026-07-20', 'pending');
+INSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (12, 1, 'Fix bug #104', 1, '2026-06-30', 'pending');
+INSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (13, 1, 'Refactor auth logic', 2, '2026-07-22', 'pending');
+INSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (14, 1, 'Run security audit', 5, '2026-07-28', 'pending');
+INSERT INTO todos (id, user_id, title, priority, status) VALUES (15, 2, 'Backup database', 3, 'completed');
+INSERT INTO todos (id, user_id, title, priority, status) VALUES (16, 3, 'User testing', 3, 'pending');
+INSERT INTO todos (id, user_id, title, priority, status) VALUES (17, 4, 'Run load tests', 2, 'pending');
+INSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (18, 5, 'Budget review', 5, '2026-07-27', 'pending');
 """
 
 SYSTEM_VERIFICATION_QUERY = """

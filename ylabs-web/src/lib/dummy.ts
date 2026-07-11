@@ -43,6 +43,9 @@ const baseLabs: Lab[] = [
   { slug: "postgres", name: "PostgreSQL Lab", icon: "🐘", color: "sql", difficulty: "Advanced", completed: 0, total: 14, hoursLeft: 20, description: "Postgres-specific features: CTEs, JSONB, window funcs, EXPLAIN ANALYZE.", skills: [
     { name: "Queries", pct: 0 }, { name: "JSONB", pct: 0 }, { name: "CTEs", pct: 0 }, { name: "Tuning", pct: 0 }
   ]},
+  { slug: "sqlite", name: "SQLite Lab", icon: "🪶", color: "sql", difficulty: "Beginner", completed: 0, total: 10, hoursLeft: 8, description: "Lightweight embedded database operations.", skills: [
+    { name: "Tables", pct: 0 }, { name: "Inserts", pct: 0 }, { name: "Queries", pct: 0 }, { name: "Joins", pct: 0 }
+  ]},
   { slug: "pydjango", name: "Python Django Lab", icon: "🌿", color: "python", difficulty: "Intermediate", completed: 0, total: 12, hoursLeft: 18, description: "Build full Django apps: models, views, templates, forms and admin.", skills: [
     { name: "Models", pct: 0 }, { name: "Views", pct: 0 }, { name: "Templates", pct: 0 }, { name: "Admin", pct: 0 }
   ]},

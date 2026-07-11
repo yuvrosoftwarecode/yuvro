@@ -23,9 +23,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT COUNT(*) FROM todos;"
       },
       "solution": {
         "query.sql": "SELECT COUNT(*) FROM todos;",
@@ -57,9 +55,7 @@
         "You can use multiple aggregate functions in one SELECT."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT SUM(priority), MIN(priority), MAX(priority), AVG(priority) FROM todos;"
       },
       "solution": {
         "query.sql": "SELECT SUM(priority), MIN(priority), MAX(priority), AVG(priority) FROM todos;",
@@ -91,9 +87,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status ORDER BY status;"
       },
       "solution": {
         "query.sql": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;",
@@ -125,9 +119,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5 ORDER BY user_id;"
       },
       "solution": {
         "query.sql": "SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5;",

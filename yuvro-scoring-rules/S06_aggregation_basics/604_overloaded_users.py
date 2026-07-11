@@ -24,7 +24,7 @@ SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5;
+SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5 ORDER BY user_id;
 """
 
 def evaluate(user_query):

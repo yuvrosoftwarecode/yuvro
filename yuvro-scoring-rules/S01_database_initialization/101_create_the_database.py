@@ -8,7 +8,7 @@ Task Code : 101
 Task Name : Create the Database
 Sprint    : S01_database_initialization
 Points    : 50
-Eval Type : DATABASE_STATE
+Eval Type : RESULT_SET
 """
 
 LAB = "SQLITE"
@@ -16,7 +16,7 @@ TASK_CODE = "101"
 TASK_NAME = "Create the Database"
 SPRINT_CODE = "S01_database_initialization"
 POINTS = 50
-EVALUATION_TYPE = "DATABASE_STATE"
+EVALUATION_TYPE = "RESULT_SET"
 DATABASE_FILE = "todo.db"
 
 HIDDEN_REFERENCE_SOLUTION = """

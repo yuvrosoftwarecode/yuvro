@@ -38,6 +38,7 @@ class ProgrammingLanguage(models.TextChoices):
     BASH = "BASH", "Bash"
     JAVASCRIPT = "JAVASCRIPT", "JavaScript"
     TYPESCRIPT = "TYPESCRIPT", "TypeScript"
+    MONGOSH = "MONGOSH", "Mongo Shell"
 
 
 class Difficulty(models.TextChoices):

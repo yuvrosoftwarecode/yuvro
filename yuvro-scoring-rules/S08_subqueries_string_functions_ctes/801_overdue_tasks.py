@@ -24,7 +24,7 @@ SELECT * FROM todos WHERE due_date < date('now');
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT * FROM todos WHERE due_date < date('now');
+SELECT * FROM todos WHERE due_date < date('now') ORDER BY id;
 """
 
 def evaluate(user_query):

@@ -24,7 +24,7 @@ SELECT title FROM todos WHERE priority BETWEEN 1 AND 3;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE priority BETWEEN 1 AND 3;
+SELECT title FROM todos WHERE priority BETWEEN 1 AND 3 ORDER BY title;
 """
 
 def evaluate(user_query):

@@ -68,9 +68,7 @@ for i, sprint in enumerate(SPRINTS_DATA):
             "common_mistakes": [task.get("mistakes", "")] if task.get("mistakes") else [],
             "hints": [task.get("hints", "")] if task.get("hints") else [],
             "scoring_rules": {
-                "logic_score": 100,
-                "clean_code": 0,
-                "visual_accuracy": 0
+                "system_query": task.get("system_query", "")
             },
             "solution": {
                 "query.sql": task["solution"],

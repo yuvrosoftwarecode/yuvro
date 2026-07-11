@@ -24,7 +24,7 @@ SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;
+SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status ORDER BY status;
 """
 
 def evaluate(user_query):

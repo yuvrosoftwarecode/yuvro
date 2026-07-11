@@ -23,9 +23,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='users';"
       },
       "solution": {
         "query.sql": "CREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
@@ -57,9 +55,7 @@
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
       },
       "solution": {
         "query.sql": "CREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
@@ -91,9 +87,7 @@
         "Use the CHECK constraint for custom validation."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='categories';"
       },
       "solution": {
         "query.sql": "CREATE TABLE categories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",

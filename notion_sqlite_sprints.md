@@ -358,7 +358,6 @@ SCHEMA
 * Execute the System Verification Query.
 * Compare the returned results.
 * Award full points only if the verification output matches the expected output exactly.
-
 ---
 
 ## Sprint 3 - Basic Data Insertion
@@ -404,6 +403,7 @@ DATABASE_STATE
 50 pts | Logic Grader
 
 **Evaluation Strategy**
+
 * Execute student's query.
 * Execute the System Verification Query.
 * Compare the returned results.
@@ -770,7 +770,6 @@ RESULT_SET
 * Execute the System Verification Query.
 * Compare the returned results.
 * Award full points only if the verification output matches the expected output exactly.
-
 ---
 
 ### Task 407 — The BETWEEN Operator

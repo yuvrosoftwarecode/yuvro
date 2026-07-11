@@ -4,27 +4,27 @@ import shutil
 import os
 
 """
-Task Code : 409
-Task Name : IS NULL
-Sprint    : S04_basic_retrieval_filtering
+Task Code : 506
+Task Name : Drop Column
+Sprint    : S05_sorting_limiting_updating
 Points    : 50
-Eval Type : RESULT_SET
+Eval Type : SCHEMA
 """
 
 LAB = "SQLITE"
-TASK_CODE = "409"
-TASK_NAME = "IS NULL"
-SPRINT_CODE = "S04_basic_retrieval_filtering"
+TASK_CODE = "506"
+TASK_NAME = "Drop Column"
+SPRINT_CODE = "S05_sorting_limiting_updating"
 POINTS = 50
-EVALUATION_TYPE = "RESULT_SET"
+EVALUATION_TYPE = "SCHEMA"
 DATABASE_FILE = "todo.db"
 
 HIDDEN_REFERENCE_SOLUTION = """
-SELECT title FROM todos WHERE due_date IS NULL;
+ALTER TABLE todos DROP COLUMN due_date;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE due_date IS NULL;
+SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';
 """
 
 def evaluate(user_query):

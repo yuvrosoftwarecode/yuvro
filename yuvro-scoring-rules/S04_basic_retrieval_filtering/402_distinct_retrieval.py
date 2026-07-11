@@ -24,7 +24,7 @@ SELECT DISTINCT status FROM todos;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT DISTINCT status FROM todos;
+SELECT DISTINCT status FROM todos ORDER BY status;
 """
 
 def evaluate(user_query):

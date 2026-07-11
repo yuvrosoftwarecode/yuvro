@@ -100,8 +100,11 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 
     protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+        let authHeaders = this.getAuthHeaders() as Record<string, string>;
         const isAuthEndpoint = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
-        let authHeaders = isAuthEndpoint ? {} : this.getAuthHeaders() as Record<string, string>;
+        if (isAuthEndpoint) {
+            delete authHeaders['Authorization'];
+        }
 
         if (options.body instanceof FormData) {
             delete authHeaders['Content-Type'];

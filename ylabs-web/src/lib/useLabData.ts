@@ -24,7 +24,11 @@ export function useLabData(slugOrId: string) {
       const sprints = await loadSprints(labId);
       
       // Extract all tickets from sprints
-      const allTickets = sprints.flatMap(s => s.tasks);
+      const allTickets = sprints.flatMap(s => s.tasks.map(t => ({
+        ...t,
+        status: t.status || "Not Started",
+        tag: t.tag || "Task"
+      })));
       
       return { 
         lab: {

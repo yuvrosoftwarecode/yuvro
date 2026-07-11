@@ -27,7 +27,7 @@ WHERE user_id = (
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-SELECT title FROM todos WHERE user_id = (SELECT id FROM users WHERE username = 'alice_dev');
+SELECT title FROM todos WHERE user_id = (SELECT id FROM users WHERE username = 'alice_dev') ORDER BY title;
 """
 
 def evaluate(user_query):

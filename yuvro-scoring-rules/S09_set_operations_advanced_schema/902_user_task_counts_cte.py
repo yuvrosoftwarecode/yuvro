@@ -29,7 +29,7 @@ SELECT * FROM user_counts;
 """
 
 SYSTEM_VERIFICATION_QUERY = """
-WITH user_counts AS (SELECT user_id, COUNT(*) as total_tasks FROM todos GROUP BY user_id) SELECT * FROM user_counts;
+WITH user_counts AS (SELECT user_id, COUNT(*) as total_tasks FROM todos GROUP BY user_id) SELECT * FROM user_counts ORDER BY user_id;
 """
 
 def evaluate(user_query):
