@@ -6,12 +6,17 @@ services:
       args:
         - CACHEBUST=${CACHEBUST:-1}
     ports:
-      - "8009:8009"  # Code executor (host: 8009)
-      - "9002:9002"  # Prometheus metrics
+      - "8009:8009"  
+      - "9002:9002" 
     env_file:
       - ./yuvro-code-executer/.env.local
       - path: ./yuvro-code-executer/.env.local-secrets
         required: false
+    environment:
+      - WORKSPACES_ROOT=/workspaces
+      - YLABS_BACKEND_URL=http://ylabs-backend:8000  
+    volumes:
+      - ./workspaces:/workspaces  
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
       interval: 30s
@@ -21,6 +26,7 @@ services:
     restart: on-failure
     networks:
       - executor
+      - ylabs  
 
   yuvro-minio:
     image: minio/minio:RELEASE.2024-10-13T13-34-11Z
@@ -60,8 +66,10 @@ services:
 
 volumes:
   yuvro_minio_data:
-
 networks:
   executor:
     external: true
   yuvro-storage:
+  ylabs:
+    external: true
+    name: yuvro_ylabs

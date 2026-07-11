@@ -65,6 +65,10 @@ export async function loadSprints(labId: string): Promise<LabSprint[]> {
           solution: typeof t.solution === 'string' ? t.solution : JSON.stringify(t.solution),
           allowedLanguages: t.accepted_programming_languages,
           order_index: t.order_index || 0,
+          // Preserve rich content fields from DB
+          tasks: Array.isArray(t.tasks) ? t.tasks : [],
+          learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
+          common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
         })).sort((a: any, b: any) => a.order_index - b.order_index)
       };
     }));

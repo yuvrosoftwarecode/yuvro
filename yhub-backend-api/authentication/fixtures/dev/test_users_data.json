@@ -858,15 +858,15 @@
       }
     },
     {
-      "email": "vinod@gmail.com",
-      "username": "vinod",
-      "first_name": "Vinod",
-      "last_name": "Kumar",
+      "email": "raghu@gmail.com",
+      "username": "raghu",
+      "first_name": "Raghu",
+      "last_name": "Veer",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
       "profile": {
-        "full_name": "Vinod Kumar",
+        "full_name": "Raghuveer Karanam",
         "title": "Cybersecurity Specialist",
         "location": "Delhi, India",
         "about": "Cybersecurity specialist with focus on ethical hacking, penetration testing, and security architecture. Passionate about protecting digital assets and building secure systems.",
