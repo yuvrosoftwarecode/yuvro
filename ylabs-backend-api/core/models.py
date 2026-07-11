@@ -35,12 +35,10 @@ class Difficulty(models.TextChoices):
 
 class LabType(models.TextChoices):
     DATABASE = "DATABASE", "Database Lab"
-    BACKEND_JAVA = "BACKEND_JAVA", "Backend Java"
-    BACKEND_PYTHON = "BACKEND_PYTHON", "Backend Python"
+    BACKEND = "BACKEND", "Backend"
     FRONTEND = "FRONTEND", "Frontend"
     QUALITY_ASSURANCE = "QUALITY_ASSURANCE", "QA"
     DEVOPS = "DEVOPS", "DevOps"
-
 
 class QuestionDomain(models.TextChoices):
     FINANCE = "FINANCE", "Finance"
@@ -52,12 +50,30 @@ class QuestionDomain(models.TextChoices):
     SUPPLY_CHAIN = "SUPPLY_CHAIN", "Supply Chain"
     OTHER = "OTHER", "Other"
 
-
 class ExperienceLevel(models.TextChoices):
+    INTERN = "INTERN", "Intern"
     FRESHER = "FRESHER", "Fresher"
-    JUNIOR = "JUNIOR", "Junior Software Developer"
-    SENIOR = "SENIOR", "Senior Software Developer"
-    ARCHITECT = "ARCHITECT", "Architect"
+
+    JUNIOR = "JUNIOR", "Junior Developer"
+    MID_LEVEL = "MID_LEVEL", "Mid-Level Developer"
+    SENIOR = "SENIOR", "Senior Developer"
+
+    LEAD = "LEAD", "Lead Developer"
+
+    STAFF_ENGINEER = "STAFF_ENGINEER", "Staff Engineer"
+    PRINCIPAL_ENGINEER = "PRINCIPAL_ENGINEER", "Principal Engineer"
+    ARCHITECT = "ARCHITECT", "Software Architect"
+
+    ENGINEERING_MANAGER = "MANAGER", "Engineering Manager"
+    DIRECTOR_ENGINEERING = "DIRECTOR_ENGINEERING", "Director of Engineering"
+    VP_ENGINEERING = "VP_ENGINEERING", "VP of Engineering"
+    CTO = "CTO", "Chief Technology Officer"
+
+
+class ProgrammingEditorType(models.TextChoices):
+    CODE_EDITOR = "CODE_EDITOR", "Code Editor"
+    SQL_EDITOR = "SQL_EDITOR", "SQL Editor"
+    
 
 class ProgrammingLanguage(models.TextChoices):
     C = "C", "C"

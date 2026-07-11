@@ -7,17 +7,10 @@ from core.models import (
     DeveloperSkill,
     Difficulty,
     LabType,
+    ProgrammingEditorType
 )
 
 User = settings.AUTH_USER_MODEL
-
-
-class ProgrammingEditorType(models.TextChoices):
-    CODE_EDITOR = "CODE_EDITOR", "Code Editor"
-    SQL = "SQL", "SQL"
-    TERMINAL = "TERMINAL", "Terminal"
-    MARKDOWN = "MARKDOWN", "Markdown"
-
 
 class TicketProgressStatus(models.TextChoices):
     BACKLOG = "backlog", "Backlog"
@@ -26,7 +19,7 @@ class TicketProgressStatus(models.TextChoices):
     DONE = "done", "Done"
 
 
-class Lab(DeveloperSkill, BaseTimestampedAdminModel):
+class Lab(BaseTimestampedAdminModel, DeveloperSkill):
     title = models.CharField(max_length=255)
     type = models.CharField(max_length=40, choices=LabType.choices, default=LabType.BACKEND_PYTHON)
     description = models.TextField(blank=True)
@@ -54,7 +47,7 @@ class LabSprint(BaseTimestampedAdminModel):
         return f"{self.lab.title} — {self.title}"
 
 
-class LabSprintTicket(DeveloperSkill, BaseTimestampedAdminModel):
+class LabSprintTicket(BaseTimestampedAdminModel):
     sprint = models.ForeignKey(LabSprint, on_delete=models.CASCADE, related_name="tasks")
     ticket_slug = models.CharField(max_length=32)
     title = models.CharField(max_length=200)
@@ -70,6 +63,11 @@ class LabSprintTicket(DeveloperSkill, BaseTimestampedAdminModel):
     minutes_max = models.PositiveIntegerField(default=30)
     editor_type = models.CharField(
         max_length=16, choices=ProgrammingEditorType.choices, default=ProgrammingEditorType.CODE_EDITOR
+    )
+    programming_languages = ArrayField(
+        models.CharField(max_length=16, choices=ProgrammingLanguage.choices),
+        blank=True,
+        default=list,
     )
     order_index = models.PositiveIntegerField(default=0)
 
