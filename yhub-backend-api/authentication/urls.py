@@ -25,4 +25,6 @@ urlpatterns = [
     ),
     path("change-password/", views.change_password_view, name="change_password"),
     path("admin-users/", admin_users, name="admin_users"),
+    path("profile/upload-image/", views.upload_profile_image, name="upload_profile_image"),
+    path("profile/remove-image/", views.remove_profile_image, name="remove_profile_image"),
 ]

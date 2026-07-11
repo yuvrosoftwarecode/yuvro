@@ -68,16 +68,7 @@ class Command(BaseCommand):
                 raw_sprints = [s for s in raw_sprints if s]
                 
                 for lab_config in data.get("labs", []):
-                    lab_title = lab_config.get("title")
-                    sprints_for_lab = []
-
-                    for s in raw_sprints:
-                        target = s.get("lab_title")
-                        if target and target != lab_title:
-                            continue
-                        sprints_for_lab.append(s)
-
-                    lab_config["sprints"] = sprints_for_lab
+                    lab_config["sprints"] = raw_sprints
 
             try:
                 self._load_labs(data)

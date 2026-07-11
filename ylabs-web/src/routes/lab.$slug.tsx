@@ -3,8 +3,10 @@ import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
 import { Search, Filter, LayoutGrid, List, Calendar, Zap, TrendingUp, TrendingDown, Award, Lock, Sparkles, ArrowLeft, CheckCircle2, Play, Clock, Target, Flag } from "lucide-react";
-import { useMemo, useState } from "react";
-import type { Ticket } from "@/lib/dummy";
+import { useMemo, useState, useEffect } from "react";
+import type { Ticket, Status } from "@/lib/dummy";
+import { getLab, type AdminLab } from "@/lib/adminLabs";
+import { loadSprints, type LabSprint } from "@/lib/labSprints";
 
 export const Route = createFileRoute("/lab/$slug")({ component: LabDashboard });
 
@@ -92,16 +94,122 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
 function LabDashboard() {
   const { slug } = useParams({ from: "/lab/$slug" });
   const ticketMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId", shouldThrow: false });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
+  
+  const [realLab, setRealLab] = useState<AdminLab | null>(null);
+  const [realSprints, setRealSprints] = useState<LabSprint[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+    getLab(slug).then(lab => {
+      if (!active) return;
+      if (lab) {
+        setRealLab(lab);
+        loadSprints(lab.id).then(s => {
+          if (active) {
+             setRealSprints(s);
+             setIsLoading(false);
+          }
+        });
+      } else {
+        setIsLoading(false);
+      }
+    }).catch(() => {
+      if (active) setIsLoading(false);
+    });
+    return () => { active = false; };
+  }, [slug]);
+
+  const storageKey = `ylabs-ticket-status-${slug}`;
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(statusOverrides));
+  }, [statusOverrides, storageKey]);
+
+  const lab = useMemo(() => {
+    if (realLab) {
+      const isLinux = realLab.title.toLowerCase().includes("linux");
+      const iconStr = realLab.icon?.toLowerCase() || "";
+      const icon = (realLab.icon && iconStr !== "linux" && iconStr !== "linux lab") ? realLab.icon : (isLinux ? "🐧" : "💻");
+      const completedCount = realSprints.flatMap(s => s.tasks).filter(t => statusOverrides[t.id] === "Completed").length;
+      return {
+        slug: realLab.id,
+        name: realLab.title,
+        icon,
+        color: "prog",
+        difficulty: realLab.difficulty === "HARD" ? "Advanced" : realLab.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+        completed: completedCount,
+        total: realSprints.reduce((acc, s) => acc + s.tasks.length, 0),
+        hoursLeft: 10,
+        description: realLab.description,
+        skills: (realLab.skills || []).map(s => ({ name: s, pct: 0 }))
+      } as any;
+    }
+    return labs.find((l) => l.slug === slug) ?? labs[0];
+  }, [realLab, realSprints, slug, statusOverrides]);
+
+  const activeDummySprints = useMemo(() => buildSprints(slug, tickets), [slug]);
+
+  const sprints = useMemo(() => {
+    if (realLab) {
+      return realSprints.map((s, idx) => ({
+        id: s.id,
+        name: s.name,
+        goal: s.description,
+        range: `Sprint ${idx + 1}`,
+        ticketIds: s.tasks.map(t => t.id),
+        status: (idx === 0 ? "Active" : "Upcoming") as SprintStatus
+      }));
+    }
+    return activeDummySprints;
+  }, [realLab, realSprints, activeDummySprints]);
+
+  const allTickets = useMemo(() => {
+    let baseData = tickets;
+    if (realLab) {
+      baseData = realSprints.flatMap(s => s.tasks).map(t => ({
+        id: t.id,
+        title: t.title,
+        difficulty: t.difficulty,
+        estMin: t.estMin,
+        xp: t.xp,
+        tag: t.language || "Linux",
+        status: "Not Started" as Status,
+        description: t.description
+      }));
+    }
+    return baseData.map(t => ({
+      ...t,
+      status: statusOverrides[t.id] ?? t.status
+    }));
+  }, [realLab, realSprints, statusOverrides]);
+
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
-  const sprints = useMemo(() => buildSprints(slug, tickets), [slug]);
+  
   const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
-  const sprintTickets = sprint ? tickets.filter((t) => sprint.ticketIds.includes(t.id)) : tickets;
+  const sprintTickets = sprint ? allTickets.filter((t) => sprint.ticketIds.includes(t.id)) : allTickets;
   const cols: { key: "Not Started" | "In Progress" | "Completed"; }[] = [{ key: "Not Started" }, { key: "In Progress" }, { key: "Completed" }];
-  const pct = Math.round((lab.completed / lab.total) * 100);
+  const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
 
   if (ticketMatch) return <Outlet />;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -177,11 +285,11 @@ function LabDashboard() {
                     <h2 className="text-base font-semibold">Sprints</h2>
                     <p className="text-xs text-muted-foreground">Pick a sprint to view its ticket board</p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{sprints.length} sprints · {tickets.length} tickets</span>
+                  <span className="text-xs text-muted-foreground">{sprints.length} sprints · {allTickets.length} tickets</span>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {sprints.map((s) => {
-                    const items = tickets.filter((t) => s.ticketIds.includes(t.id));
+                    const items = allTickets.filter((t) => s.ticketIds.includes(t.id));
                     const done = items.filter((t) => t.status === "Completed").length;
                     const pctS = items.length ? Math.round((done / items.length) * 100) : 0;
                     const xp = items.reduce((a, t) => a + t.xp, 0);
@@ -250,7 +358,16 @@ function LabDashboard() {
                     {cols.map((c) => {
                       const items = sprintTickets.filter((t) => t.status === c.key);
                       return (
-                        <div key={c.key} className="rounded-xl border bg-card/50 p-3">
+                        <div key={c.key} className="rounded-xl border bg-card/50 p-3"
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const tId = e.dataTransfer.getData("text/plain");
+                            if (tId) {
+                              setStatusOverrides(prev => ({ ...prev, [tId]: c.key }));
+                            }
+                          }}
+                        >
                           <div className="mb-3 flex items-center justify-between px-1">
                             <div className="text-sm font-medium">{c.key}</div>
                             <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">{items.length}</span>
@@ -258,29 +375,31 @@ function LabDashboard() {
                           <div className="space-y-2">
                             {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
                             {items.map((t) => (
-                              <Link key={t.id} to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
-                                className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition">
-                                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                                  <span className="font-mono">{t.id}</span>
-                                  <DiffBadge value={t.difficulty} />
-                                </div>
-                                <div className="mt-1.5 text-sm font-medium leading-snug">{t.title}</div>
-                                <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                                  <span>⏱ {t.estMin}m · {t.tag}</span>
-                                  <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{t.xp}</span>
-                                </div>
-                                {t.status === "In Progress" && t.progress != null && (
-                                  <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
-                                    <div className="h-full bg-info" style={{ width: `${t.progress}%` }} />
+                              <div key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}>
+                                <Link to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
+                                  className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-grab active:cursor-grabbing">
+                                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                    <span className="font-mono">{t.id}</span>
+                                    <DiffBadge value={t.difficulty} />
                                   </div>
-                                )}
-                                {t.status === "Completed" && (
-                                  <div className="mt-2 flex items-center justify-between text-[11px]">
-                                    <span className="text-success">✓ Score {t.score}</span>
-                                    <Award className="h-3.5 w-3.5 text-warning" />
+                                  <div className="mt-1.5 text-sm font-medium leading-snug">{t.title}</div>
+                                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                                    <span>⏱ {t.estMin}m · {t.tag}</span>
+                                    <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{t.xp}</span>
                                   </div>
-                                )}
-                              </Link>
+                                  {t.status === "In Progress" && t.progress != null && (
+                                    <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+                                      <div className="h-full bg-info" style={{ width: `${t.progress}%` }} />
+                                    </div>
+                                  )}
+                                  {t.status === "Completed" && (
+                                    <div className="mt-2 flex items-center justify-between text-[11px]">
+                                      <span className="text-success">✓ Score {t.score}</span>
+                                      <Award className="h-3.5 w-3.5 text-warning" />
+                                    </div>
+                                  )}
+                                </Link>
+                              </div>
                             ))}
                           </div>
                         </div>

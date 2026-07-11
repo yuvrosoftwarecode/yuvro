@@ -1,0 +1,11 @@
+{
+  "labs": [
+    {
+      "title": "HTML CSS JS Lab",
+      "type": "FRONTEND",
+      "description": "Complete Frontend Development",
+      "difficulty": "MEDIUM",
+      "icon": "Frontend"
+    }
+  ]
+}

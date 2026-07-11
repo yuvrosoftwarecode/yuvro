@@ -104,22 +104,6 @@ export const fetchProfileDetail = async (): Promise<Profile> => {
   return restApiAuthUtil.get<Profile>('/auth/profile/detail/');
 };
 
-export type ProfileImageField = 'profile_image' | 'cover_image' | 'id_card_image';
-
-/**
- * Upload a profile image (avatar, cover photo, or ID card) to S3/MinIO.
- * Returns the updated profile so callers can refresh local state in one go.
- */
-export const uploadProfileImage = async (
-  file: File,
-  field: ProfileImageField = 'profile_image',
-): Promise<Profile> => {
-  const form = new FormData();
-  form.append('image', file);
-  form.append('field', field);
-  return restApiAuthUtil.post<Profile>('/auth/profile/upload-image/', form);
-};
-
 export const updateProfileDetail = async (payload: any): Promise<Profile> => {
   return restApiAuthUtil.patch<Profile>('/auth/profile/detail/', payload);
 };
@@ -234,7 +218,6 @@ export async function updateProfile(data: EditProfileData) {
 const profileService = {
   fetchProfileDetail,
   updateProfileDetail,
-  uploadProfileImage,
   updateProfile,
   updateSocialLinks,
   addSkill,

@@ -1,69 +1,74 @@
 {
-  "title": "Sprint 4 \u2014 Linux for Backend Developers",
-  "description": "Deploy applications like a backend engineer.",
+  "title": "Sprint 4 \u2014 Shell Scripting & Automation",
+  "description": "Write robust automation scripts, schedule recurring tasks, and manage system environments effectively.",
+  "xp_pool": 1200,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Configure Git Development Environment",
+      "title": "Ticket 1 \u2014 Shell Scripting Fundamentals",
       "ticket_slug": "ticket-1",
-      "description": "Generate SSH keys.\nConnect to GitHub.\nClone repositories.",
-      "tasks": [],
+      "description": "Understand variable scoping, text quoting, and parameter manipulation.\nImplement conditional logic and loops in your scripts.\nOrganize code into reusable functions with reliable error handling.",
+      "xp_reward": 300,
+      "tasks": [
+        {
+          "title": "Task 4.1.1 \u2014 Variables & Quoting",
+          "task_slug": "task-4-1-1",
+          "description": "Develop scripts that properly manage local and global variables, handle text quoting correctly, and manipulate dynamic parameters.",
+          "points": 100,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.1.2 \u2014 Control Flow",
+          "task_slug": "task-4-1-2",
+          "description": "Create automation scripts that process lists of targets, evaluate their status, and categorize the results based on specific conditions.",
+          "points": 100,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.1.3 \u2014 Functions & Error Handling",
+          "task_slug": "task-4-1-3",
+          "description": "Refactor complex scripts into modular functions, implementing structured error handling, informative logging, and appropriate exit codes.",
+          "points": 100,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
       "order_index": 1,
       "difficulty": "MEDIUM"
     },
     {
-      "title": "Ticket 2 \u2014 Deploy a Django Application",
+      "title": "Ticket 2 \u2014 Automation with cron, at & Environment",
       "ticket_slug": "ticket-2",
-      "description": "Install\nPython\nVirtual environment\nGunicorn\nRun the app.",
-      "tasks": [],
+      "description": "Schedule tasks to run automatically at specified intervals.\nConfigure and persist environment settings across sessions.\nBuild end-to-end automation pipelines for administrative tasks.",
+      "xp_reward": 350,
+      "tasks": [
+        {
+          "title": "Task 4.2.1 \u2014 cron & crontab",
+          "task_slug": "task-4-2-1",
+          "description": "Configure the system to execute tasks on a recurring schedule, verifying their successful completion and reviewing their logs.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.2.2 \u2014 Environment Variables",
+          "task_slug": "task-4-2-2",
+          "description": "Define and preserve system environment variables, understanding the difference between various types of shell sessions.",
+          "points": 120,
+          "method": "In-Browser Linux Terminal (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.2.3 \u2014 Complete Automation Pipeline",
+          "task_slug": "task-4-2-3",
+          "description": "Develop a comprehensive automation workflow that processes historical data, cleans up obsolete files, and delivers a summary report.",
+          "points": 110,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
       "order_index": 2,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 3 \u2014 Configure Nginx Reverse Proxy",
-      "ticket_slug": "ticket-3",
-      "description": "Expose Django through Nginx.\nVerify static files work.",
-      "tasks": [],
-      "order_index": 3,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 4 \u2014 Containerize the Application",
-      "ticket_slug": "ticket-4",
-      "description": "Write\nDockerfile\n.dockerignore\nRun the application in Docker.",
-      "tasks": [],
-      "order_index": 4,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 5 \u2014 Deploy Using Docker Compose",
-      "ticket_slug": "ticket-5",
-      "description": "Run\nDjango\nPostgreSQL\nRedis\nNginx\nwith a single command.",
-      "tasks": [],
-      "order_index": 5,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 6 \u2014 Configure Environment Variables",
-      "ticket_slug": "ticket-6",
-      "description": "Move all secrets into\n.env\nEnsure the app works without hardcoded values.",
-      "tasks": [],
-      "order_index": 6,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 7 \u2014 Build a One-Click Deployment Script",
-      "ticket_slug": "ticket-7",
-      "description": "Create\ndeploy.sh\nIt should\nPull latest code\nInstall dependencies\nRun migrations\nRestart services",
-      "tasks": [],
-      "order_index": 7,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 8 \u2014 Deploy a Complete Production Stack",
-      "ticket_slug": "ticket-8",
-      "description": "Host a Django application accessible from another machine on your network.",
-      "tasks": [],
-      "order_index": 8,
       "difficulty": "MEDIUM"
     }
   ],

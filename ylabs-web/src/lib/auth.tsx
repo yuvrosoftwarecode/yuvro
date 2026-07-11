@@ -15,6 +15,8 @@ export interface User {
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
+  profile_image?: string;
+  cover_image?: string;
   profile?: {
     about?: string;
     avatar?: string;

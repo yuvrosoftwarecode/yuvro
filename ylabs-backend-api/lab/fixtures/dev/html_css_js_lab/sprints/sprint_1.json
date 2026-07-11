@@ -1,0 +1,111 @@
+{
+  "title": "Sprint 1 \u2014 HTML Foundations",
+  "description": "Learn to craft the foundational structure of web pages using accessible and semantic HTML to ensure your sites are optimized for all users.",
+  "xp_pool": 350,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Document Structure & Semantics",
+      "ticket_slug": "ticket-1",
+      "description": "Set up the core structure of your web pages. You will create a solid document foundation, organize your content logically with semantic headings, and design a contact form that everyone can easily use.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 1.1.1 \u2014 Build a Semantic Page Skeleton",
+          "task_slug": "task-1-1-1",
+          "description": "Create the main structural layout for your webpage, establishing key sections like headers, footers, and main content areas.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.1.2 \u2014 Headings Hierarchy & Content Sectioning",
+          "task_slug": "task-1-1-2",
+          "description": "Organize a typical blog post with clear and meaningful heading levels to improve readability and structure.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.1.3 \u2014 Forms & Input Elements",
+          "task_slug": "task-1-1-3",
+          "description": "Design a fully functional contact form that safely collects user information with clear inputs.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "EASY"
+    },
+    {
+      "title": "Ticket 2 \u2014 Media, Tables & Accessibility",
+      "ticket_slug": "ticket-2",
+      "description": "Enhance your pages with media and complex data. You will integrate images, build clear data tables, and make your site more accessible for users relying on screen readers.",
+      "xp_reward": 120,
+      "tasks": [
+        {
+          "title": "Task 1.2.1 \u2014 Images, Figures & Media",
+          "task_slug": "task-1-2-1",
+          "description": "Incorporate rich media such as images and video into your pages, ensuring there's fallback content for a smooth user experience.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.2.2 \u2014 Data Tables",
+          "task_slug": "task-1-2-2",
+          "description": "Present information clearly using organized tables, making data easy to scan and understand.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.2.3 \u2014 ARIA & Accessibility",
+          "task_slug": "task-1-2-3",
+          "description": "Ensure your forms are inclusive and usable by everyone by utilizing advanced accessibility attributes.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "EASY"
+    },
+    {
+      "title": "Ticket 3 \u2014 HTML Best Practices",
+      "ticket_slug": "ticket-3",
+      "description": "Optimize your web pages for search engines and learn how to seamlessly link content together. You will also practice identifying and fixing structural issues.",
+      "xp_reward": 110,
+      "tasks": [
+        {
+          "title": "Task 1.3.1 \u2014 Meta Tags & SEO Structure",
+          "task_slug": "task-1-3-1",
+          "description": "Implement metadata to improve your page's visibility in search results and social media shares.",
+          "points": 35,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.3.2 \u2014 Linking, Anchors & Embedded Content",
+          "task_slug": "task-1-3-2",
+          "description": "Create a central hub that links out to various resources, seamlessly connecting different parts of your site.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.3.3 \u2014 HTML Validation Challenge",
+          "task_slug": "task-1-3-3",
+          "description": "Develop your debugging skills by locating and resolving intentional structural errors on a sample page.",
+          "points": 35,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "EASY"
+    }
+  ],
+  "order_index": 1,
+  "lab_title": "HTML, CSS & JavaScript Lab"
+}

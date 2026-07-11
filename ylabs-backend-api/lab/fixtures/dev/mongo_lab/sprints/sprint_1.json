@@ -1,0 +1,84 @@
+{
+  "title": "Sprint 1 \u2014 MongoDB Foundations",
+  "description": "Understand what MongoDB is, set up the shell, and perform basic CRUD operations.",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Introduction to MongoDB",
+      "ticket_slug": "ticket-1",
+      "description": "Explore the Mongo shell.\nCreate your first collection and document.\nUnderstand documents vs rows.",
+      "xp_reward": 80,
+      "tasks": [
+        {
+          "title": "Task 1.1.1 \u2014 Explore the MongoDB Shell",
+          "task_slug": "task-1-1-1",
+          "description": "Explore the MongoDB shell by checking available databases, switching to a new working database, and verifying database statistics and version information.",
+          "points": 20,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.1.2 \u2014 Create Your First Collection & Document",
+          "task_slug": "task-1-1-2",
+          "description": "Create a new 'students' collection and insert your first document containing basic student information.",
+          "points": 30,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.1.3 \u2014 Understand Documents vs Rows",
+          "task_slug": "task-1-1-3",
+          "description": "Query a collection to understand the flexible schema of documents, and practice retrieving all documents, single documents, and specific fields.",
+          "points": 30,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 CRUD Operations",
+      "ticket_slug": "ticket-2",
+      "description": "Insert documents with insertOne and insertMany.\nRead documents with filters.\nUpdate documents.\nDelete documents.",
+      "xp_reward": 160,
+      "tasks": [
+        {
+          "title": "Task 1.2.1 \u2014 insertOne & insertMany",
+          "task_slug": "task-1-2-1",
+          "description": "Insert a single book and multiple books into a collection using the appropriate insertion commands.",
+          "points": 35,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 1.2.2 \u2014 Read with Filters",
+          "task_slug": "task-1-2-2",
+          "description": "Query for documents using specific filters, such as finding employees in a certain department or with a salary above a threshold.",
+          "points": 40,
+          "method": "Query Challenge Runner (Method 2)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 1.2.3 \u2014 Update Operations",
+          "task_slug": "task-1-2-3",
+          "description": "Update specific fields in a document and apply updates to multiple documents simultaneously using update operators.",
+          "points": 45,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        },
+        {
+          "title": "Task 1.2.4 \u2014 Delete Operations",
+          "task_slug": "task-1-2-4",
+          "description": "Remove single and multiple documents from a collection based on specific conditions, and learn how to drop an entire collection.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 4
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 1,
+  "lab_title": "MongoDB Lab"
+}
