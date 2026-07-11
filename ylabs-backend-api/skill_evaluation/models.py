@@ -4,11 +4,10 @@ from django.db import models
 from core.models import (
     BaseTimestampedAdminModel,
     BaseTimestampedModel,
+    DeveloperSkill,
     Difficulty,
     ExperienceLevel,
-    ProgrammingLanguage,
     QuestionDomain,
-    TechStack,
 )
 
 User = settings.AUTH_USER_MODEL
@@ -104,7 +103,7 @@ class UserEvaluationSubmission(BaseTimestampedModel):
         return f"{self.user} — {self.evaluation.title}"
 
 
-class QuestionBank(BaseTimestampedAdminModel):
+class QuestionBank(DeveloperSkill, BaseTimestampedAdminModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     difficulty = models.CharField(
@@ -112,12 +111,6 @@ class QuestionBank(BaseTimestampedAdminModel):
     )
     domain = models.CharField(
         max_length=20, choices=QuestionDomain.choices, default=QuestionDomain.OTHER
-    )
-    programming_language = models.CharField(
-        max_length=16, choices=ProgrammingLanguage.choices, default=ProgrammingLanguage.PYTHON
-    )
-    tech_stack = models.CharField(
-        max_length=20, choices=TechStack.choices, default=TechStack.PYTHON
     )
     experience = models.CharField(
         max_length=12, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
@@ -155,7 +148,6 @@ class LabQuestionBankTask(BaseTimestampedAdminModel):
     solution = models.JSONField(default=dict, blank=True)
     marks = models.PositiveIntegerField(default=5)
     duration_minutes = models.PositiveIntegerField(default=30)
-    accepted_programming_languages = models.JSONField(default=list, blank=True)
     order_index = models.PositiveIntegerField(default=0)
 
     class Meta:

@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -25,29 +26,6 @@ class BaseTimestampedAdminModel(BaseTimestampedModel):
     class Meta:
         abstract = True
         ordering = ["-created_at"]
-
-
-class ProgrammingLanguage(models.TextChoices):
-    C = "C", "C"
-    CPP = "C++", "C++"
-    PYTHON = "PYTHON", "Python"
-    JAVA = "JAVA", "Java"
-    SQL = "SQL", "SQL"
-    BASH = "BASH", "Bash"
-    JAVASCRIPT = "JAVASCRIPT", "JavaScript"
-    TYPESCRIPT = "TYPESCRIPT", "TypeScript"
-
-
-class TechStack(models.TextChoices):
-    JAVA = "JAVA", "Java"
-    SQL = "SQL", "SQL"
-    PYTHON = "PYTHON", "Python"
-    REACTJS = "REACTJS", "ReactJS"
-    NODEJS = "NODEJS", "NodeJS"
-    DEVOPS = "DEVOPS", "DevOps"
-    QUALITY_ASSURANCE = "QUALITY_ASSURANCE", "Quality Assurance"
-    JAVASCRIPT = "JAVASCRIPT", "JavaScript"
-
 
 class Difficulty(models.TextChoices):
     EASY = "EASY", "Easy"
@@ -80,3 +58,96 @@ class ExperienceLevel(models.TextChoices):
     JUNIOR = "JUNIOR", "Junior Software Developer"
     SENIOR = "SENIOR", "Senior Software Developer"
     ARCHITECT = "ARCHITECT", "Architect"
+
+class ProgrammingLanguage(models.TextChoices):
+    C = "C", "C"
+    CPP = "C++", "C++"
+    PYTHON = "PYTHON", "Python"
+    JAVA = "JAVA", "Java"
+    SQL = "SQL", "SQL"
+    BASH = "BASH", "Bash"
+    JAVASCRIPT = "JAVASCRIPT", "JavaScript"
+    TYPESCRIPT = "TYPESCRIPT", "TypeScript"
+
+
+class Database(models.TextChoices):
+    SQLITE = "SQLITE", "SQLite"
+    POSTGRESQL = "POSTGRESQL", "PostgreSQL"
+    MYSQL = "MYSQL", "MySQL"
+    MONGODB = "MONGODB", "MongoDB"
+    REDIS = "REDIS", "Redis"
+    ELASTICSEARCH = "ELASTICSEARCH", "Elasticsearch"
+
+
+class BackendFramework(models.TextChoices):
+    DJANGO = "DJANGO", "Django"
+    FASTAPI = "FASTAPI", "FastAPI"
+    FLASK = "FLASK", "Flask"
+    SPRING_BOOT = "SPRING_BOOT", "Spring Boot"
+    NODEJS = "NODEJS", "NodeJS"
+    EXPRESS = "EXPRESS", "Express"
+    NESTJS = "NESTJS", "NestJS"
+
+
+class FrontendFramework(models.TextChoices):
+    REACT = "REACT", "React"
+    NEXTJS = "NEXTJS", "NextJS"
+    VUE = "VUE", "Vue"
+    ANGULAR = "ANGULAR", "Angular"
+    SVELTE = "SVELTE", "Svelte"
+
+
+class QATool(models.TextChoices):
+    PYTEST = "PYTEST", "Pytest"
+    JUNIT = "JUNIT", "JUnit"
+    PLAYWRIGHT = "PLAYWRIGHT", "Playwright"
+    SELENIUM = "SELENIUM", "Selenium"
+    POSTMAN = "POSTMAN", "Postman"
+    JEST = "JEST", "Jest"
+    CYPRESS = "CYPRESS", "Cypress"
+
+
+class DevOpsTool(models.TextChoices):
+    GIT = "GIT", "Git"
+    DOCKER = "DOCKER", "Docker"
+    KUBERNETES = "KUBERNETES", "Kubernetes"
+    CI_CD = "CI_CD", "CI/CD"
+    LINUX = "LINUX", "Linux"
+    AWS = "AWS", "AWS"
+    GCP = "GCP", "GCP"
+    AZURE = "AZURE", "Azure"
+
+class DeveloperSkill(models.Model):
+    programming_languages = ArrayField(
+        models.CharField(max_length=16, choices=ProgrammingLanguage.choices),
+        blank=True,
+        default=list,
+    )
+    databases = ArrayField(
+        models.CharField(max_length=20, choices=Database.choices),
+        blank=True,
+        default=list,
+    )
+    backend_frameworks = ArrayField(
+        models.CharField(max_length=20, choices=BackendFramework.choices),
+        blank=True,
+        default=list,
+    )
+    frontend_frameworks = ArrayField(
+        models.CharField(max_length=20, choices=FrontendFramework.choices),
+        blank=True,
+        default=list,
+    )
+    qa_tools = ArrayField(
+        models.CharField(max_length=20, choices=QATool.choices),
+        blank=True,
+        default=list,
+    )
+    dev_tools = ArrayField(
+        models.CharField(max_length=20, choices=DevOpsTool.choices),
+        blank=True,
+        default=list,
+    )
+
+    class Meta:
+        abstract = True

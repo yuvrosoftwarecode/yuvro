@@ -4,6 +4,7 @@ from django.db import models
 from core.models import (
     BaseTimestampedAdminModel,
     BaseTimestampedModel,
+    DeveloperSkill,
     Difficulty,
     LabType,
 )
@@ -25,7 +26,7 @@ class TicketProgressStatus(models.TextChoices):
     DONE = "done", "Done"
 
 
-class Lab(BaseTimestampedAdminModel):
+class Lab(DeveloperSkill, BaseTimestampedAdminModel):
     title = models.CharField(max_length=255)
     type = models.CharField(max_length=40, choices=LabType.choices, default=LabType.BACKEND_PYTHON)
     description = models.TextField(blank=True)
@@ -33,7 +34,6 @@ class Lab(BaseTimestampedAdminModel):
     prerequisites = models.TextField(blank=True)
     skills = models.JSONField(default=list, blank=True)
     git_repo_starter_url = models.URLField(blank=True)
-    programming_languages = models.JSONField(default=list, blank=True)
     difficulty = models.CharField(max_length=10, choices=Difficulty.choices, default=Difficulty.EASY)
     is_active = models.BooleanField(default=True)
 
@@ -54,7 +54,7 @@ class LabSprint(BaseTimestampedAdminModel):
         return f"{self.lab.title} — {self.title}"
 
 
-class LabSprintTicket(BaseTimestampedAdminModel):
+class LabSprintTicket(DeveloperSkill, BaseTimestampedAdminModel):
     sprint = models.ForeignKey(LabSprint, on_delete=models.CASCADE, related_name="tasks")
     ticket_slug = models.CharField(max_length=32)
     title = models.CharField(max_length=200)
@@ -71,7 +71,6 @@ class LabSprintTicket(BaseTimestampedAdminModel):
     editor_type = models.CharField(
         max_length=16, choices=ProgrammingEditorType.choices, default=ProgrammingEditorType.CODE_EDITOR
     )
-    accepted_programming_languages = models.JSONField(default=list, blank=True)
     order_index = models.PositiveIntegerField(default=0)
 
     class Meta:
