@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from lab.models import Lab, LabSprint, LabSprintTicket
+from skill_learn.models import Lab, LabSprint, LabSprintTicket
 
 User = get_user_model()
 
