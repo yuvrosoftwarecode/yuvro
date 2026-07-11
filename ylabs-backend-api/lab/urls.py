@@ -6,7 +6,6 @@ from .views import (
     LabSprintTicketViewSet,
     UserLabEnrollmentViewSet,
     UserLabSprintTicketSubmissionViewSet,
-    GitHubIntegrationView,
 )
 
 router = DefaultRouter()
@@ -18,5 +17,4 @@ router.register(r'submissions', UserLabSprintTicketSubmissionViewSet, basename='
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('github-integration/', GitHubIntegrationView.as_view(), name='github-integration'),
 ]

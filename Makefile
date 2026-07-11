@@ -247,6 +247,7 @@ install: _validate-deploy
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up --build; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -281,6 +282,7 @@ run: _validate-deploy
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up -d --wait || { \
 			echo "❌ One or more services failed to become healthy. Showing logs:"; \
 			docker compose $(COMPOSE_FILES) ps; \
@@ -522,6 +524,7 @@ run-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YCode services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -566,6 +569,7 @@ run-ycampus: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YCampus services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -678,6 +682,7 @@ run-yhub: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YHub services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -768,6 +773,7 @@ clear-migrations:
 db-reset: _validate-deploy
 	@echo "🧹 Resetting databases (removing DB volumes and restarting DBs/Backends)..."
 	@docker network create executor 2>/dev/null || true
+	@docker network create yuvro_ylabs 2>/dev/null || true
 	@docker compose $(COMPOSE_FILES) rm -s -f -v ycode-db ycampus-db yhub-db ylabs-db || true
 	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db || true
 	@echo "⏳ Waiting for databases to become healthy..."
