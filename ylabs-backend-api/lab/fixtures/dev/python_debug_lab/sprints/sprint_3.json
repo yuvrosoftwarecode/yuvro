@@ -1,0 +1,239 @@
+{
+  "title": "Sprint 3 \u2013 Authentication, Authorization & Security",
+  "description": "Sprint Goal: Secure the application by fixing authentication, permissions, and common security vulnerabilities.",
+  "order_index": 3,
+  "lab_title": "Django API Debugging & Optimization",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2013 Repair Authentication System",
+      "ticket_slug": "ticket-3-1",
+      "description": "Users experience login failures due to authentication issues.\n\nExpected Work\nFix login functionality.\nVerify JWT authentication.\nEnsure authenticated users receive valid tokens.\nValidate protected endpoints.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2013 Repair Authentication System"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2013 Repair Authentication System",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2013 Fix Authorization Bugs",
+      "ticket_slug": "ticket-3-2",
+      "description": "Users can access APIs that should be restricted based on their roles.\n\nExpected Work\nReview permission classes.\nRestrict unauthorized access.\nVerify role-based permissions.\nTest multiple user roles.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2013 Fix Authorization Bugs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2013 Fix Authorization Bugs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2013 Prevent Unauthorized Data Modification",
+      "ticket_slug": "ticket-3-3",
+      "description": "Users can update fields that should never be editable.\n\nExpected Work\nRestrict serializer fields.\nProtect system-managed fields.\nPrevent privilege escalation.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2013 Prevent Unauthorized Data Modification"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2013 Prevent Unauthorized Data Modification",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2013 Secure File Upload APIs",
+      "ticket_slug": "ticket-3-4",
+      "description": "The application allows users to upload any type of file without validation.\n\nExpected Work\nValidate file types.\nRestrict unsupported extensions.\nValidate file size.\nHandle invalid uploads safely.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2013 Secure File Upload APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2013 Secure File Upload APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2013 Fix Password Reset Flow",
+      "ticket_slug": "ticket-3-5",
+      "description": "Password reset functionality contains multiple security flaws.\n\nExpected Work\nValidate reset tokens.\nHandle expired tokens.\nPrevent reuse of old tokens.\nEnsure secure password updates.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2013 Fix Password Reset Flow"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2013 Fix Password Reset Flow",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2013 Implement API Rate Limiting",
+      "ticket_slug": "ticket-3-6",
+      "description": "Authentication endpoints are vulnerable to brute-force attacks because request throttling is missing.\n\nExpected Work\nConfigure API throttling.\nApply rate limits.\nVerify throttling behavior.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2013 Implement API Rate Limiting"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2013 Implement API Rate Limiting",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2013 Remove Sensitive Information from APIs",
+      "ticket_slug": "ticket-3-7",
+      "description": "Several APIs expose confidential information in responses.\n\nExpected Work\nRemove sensitive fields.\nHide internal implementation details.\nEnsure only required data is returned.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2013 Remove Sensitive Information from APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2013 Remove Sensitive Information from APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 7
+    }
+  ]
+}

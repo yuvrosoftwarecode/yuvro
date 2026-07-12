@@ -1,0 +1,239 @@
+{
+  "title": "Sprint 4 \u2013 Code Quality & Testing",
+  "description": "Sprint Goal: Improve maintainability, reliability, and overall code quality while ensuring application stability.",
+  "order_index": 4,
+  "lab_title": "Django API Debugging & Optimization",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2013 Refactor Business Logic",
+      "ticket_slug": "ticket-4-1",
+      "description": "Business logic is scattered across views, making the project difficult to maintain.\n\nExpected Work\nMove business logic into service classes.\nImprove code organization.\nPreserve existing functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2013 Refactor Business Logic"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2013 Refactor Business Logic",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2013 Improve Exception Handling",
+      "ticket_slug": "ticket-4-2",
+      "description": "Unhandled exceptions produce inconsistent API responses and expose internal errors.\n\nExpected Work\nImplement centralized exception handling.\nReturn meaningful error responses.\nLog unexpected exceptions.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2013 Improve Exception Handling"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2013 Improve Exception Handling",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2013 Configure Application Logging",
+      "ticket_slug": "ticket-4-3",
+      "description": "Application errors are difficult to investigate because logging is incomplete.\n\nExpected Work\nConfigure logging.\nLog application errors.\nLog critical events.\nImprove debugging capability.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2013 Configure Application Logging"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2013 Configure Application Logging",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2013 Fix Failing Unit Tests",
+      "ticket_slug": "ticket-4-4",
+      "description": "Several automated tests fail because of bugs introduced into the application.\n\nExpected Work\nIdentify failing tests.\nFix application code.\nEnsure all tests pass successfully.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2013 Fix Failing Unit Tests"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2013 Fix Failing Unit Tests",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2013 Increase Test Coverage",
+      "ticket_slug": "ticket-4-5",
+      "description": "Large parts of the application have no automated tests.\n\nExpected Work\nWrite unit tests.\nAdd serializer tests.\nAdd API tests.\nImprove overall test coverage.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2013 Increase Test Coverage"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2013 Increase Test Coverage",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2013 Remove Dead Code",
+      "ticket_slug": "ticket-4-6",
+      "description": "The project contains unused functions, serializers, and views that increase maintenance complexity.\n\nExpected Work\nIdentify unused code.\nRemove obsolete components.\nEnsure no existing functionality breaks.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2013 Remove Dead Code"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2013 Remove Dead Code",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2013 Resolve Circular Import Issues",
+      "ticket_slug": "ticket-4-7",
+      "description": "Several modules depend on each other incorrectly, causing import errors and poor project structure.\n\nExpected Work\nIdentify circular imports.\nRefactor module dependencies.\nMaintain application behavior.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2013 Resolve Circular Import Issues"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2013 Resolve Circular Import Issues",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 7
+    }
+  ]
+}

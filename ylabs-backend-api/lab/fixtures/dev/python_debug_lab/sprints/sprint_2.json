@@ -1,0 +1,239 @@
+{
+  "title": "Sprint 2 \u2013 Database Optimization & Performance",
+  "description": "Sprint Goal: Improve application performance by eliminating inefficient database operations and optimizing ORM queries.",
+  "order_index": 2,
+  "lab_title": "Django API Debugging & Optimization",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2013 Eliminate N+1 Query Problems",
+      "ticket_slug": "ticket-2-1",
+      "description": "Several APIs generate hundreds of unnecessary database queries due to improper ORM usage.\n\nExpected Work\nIdentify N+1 query issues.\nOptimize queries using select_related.\nOptimize queries using prefetch_related.\nReduce total query count without changing functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2013 Eliminate N+1 Query Problems"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2013 Eliminate N+1 Query Problems",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2013 Optimize Slow Dashboard APIs",
+      "ticket_slug": "ticket-2-2",
+      "description": "Dashboard endpoints take several seconds to load because of inefficient database operations.\n\nExpected Work\nIdentify slow queries.\nOptimize ORM logic.\nReduce execution time.\nImprove overall API performance.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2013 Optimize Slow Dashboard APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2013 Optimize Slow Dashboard APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2013 Remove Duplicate Database Queries",
+      "ticket_slug": "ticket-2-3",
+      "description": "The same database queries are executed repeatedly within a single request.\n\nExpected Work\nIdentify duplicate queries.\nReuse existing querysets.\nRemove unnecessary database calls.\nImprove response efficiency.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2013 Remove Duplicate Database Queries"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2013 Remove Duplicate Database Queries",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2013 Replace Python Loops with Database Operations",
+      "ticket_slug": "ticket-2-4",
+      "description": "Large datasets are processed using Python loops instead of efficient database aggregations.\n\nExpected Work\nReplace loops with ORM aggregations.\nUse Count, Sum, Avg and annotations where appropriate.\nReduce processing time.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2013 Replace Python Loops with Database Operations"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2013 Replace Python Loops with Database Operations",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2013 Optimize Bulk Operations",
+      "ticket_slug": "ticket-2-5",
+      "description": "Thousands of records are inserted and updated individually, resulting in poor performance.\n\nExpected Work\nReplace repetitive save() calls.\nUse bulk_create().\nUse bulk_update().\nVerify data consistency.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2013 Optimize Bulk Operations"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2013 Optimize Bulk Operations",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2013 Fix Transaction Handling",
+      "ticket_slug": "ticket-2-6",
+      "description": "Multi-step operations leave the database in an inconsistent state when an exception occurs.\n\nExpected Work\nIdentify unsafe database operations.\nUse atomic transactions.\nRoll back failed operations correctly.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2013 Fix Transaction Handling"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2013 Fix Transaction Handling",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2013 Optimize Large Dataset APIs",
+      "ticket_slug": "ticket-2-7",
+      "description": "Some endpoints load complete tables into memory before processing results.\n\nExpected Work\nOptimize query execution.\nFetch only required records.\nImprove memory usage.\nMaintain existing functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2013 Optimize Large Dataset APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2013 Optimize Large Dataset APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 7
+    }
+  ]
+}

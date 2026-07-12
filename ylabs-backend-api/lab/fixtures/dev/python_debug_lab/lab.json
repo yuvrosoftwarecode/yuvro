@@ -1,0 +1,21 @@
+{
+  "labs": [
+    {
+      "title": "Django API Debugging & Optimization",
+      "type": "BACKEND",
+      "description": "Fix core API issues, optimize database queries, secure the application, improve code quality, and prepare it for production.",
+      "difficulty": "HARD",
+      "icon": "Bug",
+      "skills": [
+        "Python",
+        "Django",
+        "Django REST Framework",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "prerequisites": "Intermediate knowledge of Python and Django.",
+      "git_repo_starter_url": "https://github.com/yuvro/django-debug-starter",
+      "is_active": true
+    }
+  ]
+}

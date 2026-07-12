@@ -1,0 +1,239 @@
+{
+  "title": "Sprint 5 \u2013 Production Readiness & Deployment",
+  "description": "Sprint Goal: Prepare the application for deployment by fixing production configuration, Docker setup, dependencies, and deployment issues.",
+  "order_index": 5,
+  "lab_title": "Django API Debugging & Optimization",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2013 Configure Environment Variables",
+      "ticket_slug": "ticket-5-1",
+      "description": "Sensitive information is hardcoded throughout the project.\n\nExpected Work\nMove secrets to environment variables.\nConfigure settings securely.\nVerify application startup.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2013 Configure Environment Variables"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2013 Configure Environment Variables",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2013 Fix Static and Media File Configuration",
+      "ticket_slug": "ticket-5-2",
+      "description": "Uploaded files and static assets are not served correctly in production.\n\nExpected Work\nConfigure static files.\nConfigure media files.\nVerify uploads.\nEnsure assets load correctly.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2013 Fix Static and Media File Configuration"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2013 Fix Static and Media File Configuration",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2013 Repair Docker Configuration",
+      "ticket_slug": "ticket-5-3",
+      "description": "The Docker environment cannot build or run the project successfully.\n\nExpected Work\nFix Dockerfile issues.\nRepair docker-compose configuration.\nEnsure all services start correctly.\nVerify application functionality.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2013 Repair Docker Configuration"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2013 Repair Docker Configuration",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2013 Resolve Dependency Conflicts",
+      "ticket_slug": "ticket-5-4",
+      "description": "Package version conflicts prevent the application from running correctly.\n\nExpected Work\nUpdate incompatible packages.\nResolve dependency conflicts.\nVerify application compatibility.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2013 Resolve Dependency Conflicts"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2013 Resolve Dependency Conflicts",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2013 Optimize Production Settings",
+      "ticket_slug": "ticket-5-5",
+      "description": "The application contains unsafe production settings and missing deployment configurations.\n\nExpected Work\nConfigure production settings.\nSecure application configuration.\nVerify deployment readiness.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2013 Optimize Production Settings"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2013 Optimize Production Settings",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2013 Complete API Documentation",
+      "ticket_slug": "ticket-5-6",
+      "description": "The API documentation is incomplete and several endpoints are missing or inaccurate.\n\nExpected Work\nUpdate API documentation.\nDocument request and response formats.\nVerify endpoint accuracy.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2013 Complete API Documentation"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2013 Complete API Documentation",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2013 Final Production Verification",
+      "ticket_slug": "ticket-5-7",
+      "description": "Perform a complete verification of the application before release. Ensure all previously reported bugs have been resolved and the project is stable enough for production deployment.\n\nExpected Work\nVerify all APIs.\nRun the complete test suite.\nResolve any remaining defects.\nConfirm production readiness.\nDeliver a stable, fully functional Django application.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2013 Final Production Verification"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2013 Final Production Verification",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 7
+    }
+  ]
+}

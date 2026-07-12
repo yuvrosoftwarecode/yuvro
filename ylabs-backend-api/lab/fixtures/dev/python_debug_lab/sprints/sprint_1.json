@@ -1,0 +1,239 @@
+{
+  "title": "Sprint 1 \u2013 Understanding the Project & Fixing Core API Issues",
+  "description": "Sprint Goal: Become familiar with the project structure, understand how the existing APIs work, and resolve the most critical issues preventing the application from functioning correctly.",
+  "order_index": 1,
+  "lab_title": "Django API Debugging & Optimization",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2013 Fix Project Setup Issues",
+      "ticket_slug": "ticket-1-1",
+      "description": "The Django project fails to start because several configuration problems exist. Investigate the application and resolve all startup issues so the development server runs successfully.\n\nExpected Work\nFix incorrect imports.\nResolve missing or broken app configurations.\nFix invalid URL configurations.\nApply pending migrations.\nEnsure the project starts without errors.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2013 Fix Project Setup Issues"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2013 Fix Project Setup Issues",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2013 Repair Broken CRUD APIs",
+      "ticket_slug": "ticket-1-2",
+      "description": "Several API endpoints do not perform Create, Read, Update, or Delete operations correctly. Some APIs return incorrect data, while others fail completely.\n\nExpected Work\nFix Create APIs.\nFix Update operations.\nFix Delete functionality.\nEnsure correct database records are modified.\nVerify API responses after every operation.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2013 Repair Broken CRUD APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2013 Repair Broken CRUD APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2013 Correct HTTP Status Codes",
+      "ticket_slug": "ticket-1-3",
+      "description": "Many APIs always return HTTP 200 regardless of success or failure. Update every endpoint so it follows REST API standards.\n\nExpected Work\nReturn 201 after successful resource creation.\nReturn 204 after successful deletion.\nReturn 400 for invalid requests.\nReturn 401 for unauthorized access.\nReturn 403 for forbidden actions.\nReturn 404 when resources are not found.\nReturn appropriate server error responses.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2013 Correct HTTP Status Codes"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2013 Correct HTTP Status Codes",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2013 Fix Serializer Validation",
+      "ticket_slug": "ticket-1-4",
+      "description": "The application accepts invalid input data because serializer validations are incomplete or missing.\n\nExpected Work\nValidate required fields.\nPrevent duplicate records.\nReject invalid email addresses.\nPrevent negative values.\nDisplay meaningful validation errors.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2013 Fix Serializer Validation"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2013 Fix Serializer Validation",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2013 Standardize API Responses",
+      "ticket_slug": "ticket-1-5",
+      "description": "Different APIs return inconsistent response formats, making frontend integration difficult.\n\nExpected Work\nImplement a common response format.\nStandardize success responses.\nStandardize error responses.\nEnsure every endpoint follows the same structure.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2013 Standardize API Responses"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2013 Standardize API Responses",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2013 Fix Search, Filter and Ordering APIs",
+      "ticket_slug": "ticket-1-6",
+      "description": "Filtering and searching APIs produce incorrect results or ignore request parameters.\n\nExpected Work\nRepair search functionality.\nFix ordering.\nCorrect filtering logic.\nHandle invalid query parameters gracefully.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2013 Fix Search, Filter and Ordering APIs"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2013 Fix Search, Filter and Ordering APIs",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2013 Fix Pagination Issues",
+      "ticket_slug": "ticket-1-7",
+      "description": "Large datasets are returned without pagination, causing slow API responses and unnecessary data transfer.\n\nExpected Work\nImplement pagination.\nConfigure page size.\nReturn pagination metadata.\nVerify navigation between pages.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2013 Fix Pagination Issues"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2013 Fix Pagination Issues",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "python"
+      ],
+      "order_index": 7
+    }
+  ]
+}
