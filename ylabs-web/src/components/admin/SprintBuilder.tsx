@@ -8,11 +8,12 @@ import { TaskPreview } from "./TaskPreview";
 
 type Selection = { sprintId: string; taskId?: string } | null;
 
-export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug }: {
+export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug, labTier = "free" }: {
   sprints: LabSprint[];
   setSprints: (s: LabSprint[]) => void;
   labName?: string;
   labSlug?: string;
+  labTier?: "free" | "freemium" | "premium";
   onConfigureTasks?: (sprintId: string) => void; // kept for API compat
 }) {
   const [selection, setSelection] = useState<Selection>(null);
@@ -137,6 +138,7 @@ export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug }:
         ) : (
           <SprintConfig
             sprint={activeSprint}
+            labTier={labTier}
             onChange={(patch) => updateSprint(activeSprint.id, patch)}
           />
         )}
@@ -153,18 +155,37 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function SprintConfig({ sprint, onChange }: {
+function SprintConfig({ sprint, labTier = "free", onChange }: {
   sprint: LabSprint;
+  labTier?: "free" | "freemium" | "premium";
   onChange: (p: Partial<LabSprint>) => void;
 }) {
+  const isFree = labTier === "free";
+  const isPremium = labTier === "premium";
+  const disabled = isFree || isPremium;
+  const lockedValue = isFree ? false : isPremium ? true : (sprint.is_locked ?? false);
+
   return (
     <div className="p-5 space-y-4">
-      <div>
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Sprint</div>
-        <h3 className="text-lg font-semibold mt-0.5">Configure sprint</h3>
-        <p className="text-[11px] text-muted-foreground mt-1">
-          Manage tickets from the sprint tree on the left.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Sprint</div>
+          <h3 className="text-lg font-semibold mt-0.5">Configure sprint</h3>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Manage tickets from the sprint tree on the left.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <span>Locked</span>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange({ is_locked: !lockedValue })}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${lockedValue ? "bg-primary" : "bg-input"}`}
+          >
+            <span aria-hidden="true" className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-background shadow-lg ring-0 transition-transform ${lockedValue ? "translate-x-2" : "-translate-x-2"}`} />
+          </button>
+        </div>
       </div>
       <Field label="Sprint title">
         <input value={sprint.name} onChange={e => onChange({ name: e.target.value })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />

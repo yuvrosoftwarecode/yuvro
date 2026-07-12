@@ -5,6 +5,7 @@ import { Check, ChevronRight } from "lucide-react";
 import { createLab, LAB_TYPES, DIFFICULTIES, type LabType, type LabDifficulty } from "@/lib/adminLabs";
 import { saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
+import { LabIcon } from "@/components/LabIcon";
 
 export const Route = createFileRoute("/admin/labs/new")({ component: LabBuilder });
 
@@ -26,6 +27,8 @@ function LabBuilder() {
     skills: "",
     gitRepoStarterUrl: "",
     isActive: true,
+    payment_tier: "free" as "free" | "freemium" | "premium",
+    payment_amount: "0",
   });
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm(s => ({ ...s, [k]: v }));
@@ -38,11 +41,17 @@ function LabBuilder() {
   const publish = async () => {
     if (!form.title.trim()) { setError("Lab title is required."); setStep(0); return; }
     if (!form.description.trim()) { setError("Description is required."); setStep(0); return; }
+    if (form.payment_tier !== "free" && (parseFloat(form.payment_amount) || 0) <= 0) {
+      setError("Payment amount is required and must be greater than 0 for Freemium and Premium labs.");
+      setStep(0);
+      return;
+    }
     setError(null);
     setSaved(true);
     try {
       const created = await createLab({
         title: form.title.trim(),
+        slug: form.slug.trim(),
         icon: form.icon || "🧪",
         type: form.type,
         description: form.description.trim(),
@@ -51,6 +60,8 @@ function LabBuilder() {
         git_repo_starter_url: form.gitRepoStarterUrl.trim(),
         difficulty: form.difficulty,
         is_active: form.isActive,
+        payment_tier: form.payment_tier,
+        payment_amount: form.payment_tier === "free" ? 0 : parseFloat(form.payment_amount) || 0,
       });
 
       if (sprints.length) {
@@ -88,7 +99,12 @@ function LabBuilder() {
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <Field label="Title *"><input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Kotlin Coroutines Bootcamp" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Slug (URL)"><input value={form.slug} onChange={e => set("slug", e.target.value)} placeholder="auto-generated from title" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
-                <Field label="Icon (emoji)"><input value={form.icon} onChange={e => set("icon", e.target.value)} maxLength={2} className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
+                <Field label="Icon preview">
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md border border-border bg-muted/20">
+                    <LabIcon name={form.title} icon={form.icon} size="h-8 w-8" />
+                    <span className="text-xs text-muted-foreground">Auto-resolved from lab title</span>
+                  </div>
+                </Field>
                 <Field label="Type">
                   <select value={form.type} onChange={e => set("type", e.target.value as LabType)} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
                     {LAB_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -105,6 +121,25 @@ function LabBuilder() {
                     Active (visible to students)
                   </label>
                 </Field>
+                <Field label="Access Plan">
+                  <select value={form.payment_tier} onChange={e => set("payment_tier", e.target.value as "free" | "freemium" | "premium")} className="w-full bg-transparent border border-border rounded-md px-3 py-2">
+                    <option value="free">Free — all sprints unlocked</option>
+                    <option value="freemium">Freemium — Sprint 1 free, rest locked</option>
+                    <option value="premium">Premium — all sprints locked</option>
+                  </select>
+                </Field>
+                {form.payment_tier !== "free" && (
+                  <Field label={`Payment Amount (₹) *`}>
+                    <input
+                      type="number"
+                      min="1"
+                      value={form.payment_amount}
+                      onChange={e => set("payment_amount", e.target.value)}
+                      placeholder={form.payment_tier === "freemium" ? "499" : "999"}
+                      className="w-full bg-transparent border border-border rounded-md px-3 py-2"
+                    />
+                  </Field>
+                )}
                 <Field label="Prerequisites (comma-separated)" full><input value={form.prerequisites} onChange={e => set("prerequisites", e.target.value)} placeholder="Basic Java, OOP fundamentals" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Skills covered (comma-separated)" full><input value={form.skills} onChange={e => set("skills", e.target.value)} placeholder="Coroutines, Flow, Channels" className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
                 <Field label="Description *" full><textarea rows={4} value={form.description} onChange={e => set("description", e.target.value)} placeholder="What learners will build and master in this lab." className="w-full bg-transparent border border-border rounded-md px-3 py-2" /></Field>
@@ -114,7 +149,7 @@ function LabBuilder() {
           )}
           {step === 1 && (
             <Panel title="Sprints & tickets">
-              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={form.title || "New lab"} labSlug={form.slug || form.title} />
+              <SprintBuilder sprints={sprints} setSprints={setSprints} labName={form.title || "New lab"} labSlug={form.slug || form.title} labTier={form.payment_tier} />
             </Panel>
           )}
 
@@ -133,7 +168,10 @@ function LabBuilder() {
 
         <Panel title="Summary">
           <div className="space-y-2 text-xs">
-            <div className="flex items-center gap-2"><Badge tone={form.title ? "success" : "destructive"}>{form.title ? "ready" : "missing"}</Badge> {form.title || "Title required"}</div>
+            <div className="flex items-center gap-2"><Badge tone={form.title ? "success" : "destructive"}>{form.title ? "ready" : "missing"}</Badge>
+              <LabIcon name={form.title} icon={form.icon} size="h-5 w-5" />
+              {form.title || "Title required"}
+            </div>
             <div className="flex items-center gap-2"><Badge tone={form.description ? "success" : "destructive"}>{form.description ? "ready" : "missing"}</Badge> Description</div>
             <div className="flex items-center gap-2"><Badge tone={sprints.length ? "success" : "warning"}>{sprints.length} sprints</Badge> {sprints.reduce((a, s) => a + s.tasks.length, 0)} tickets</div>
             <div className="text-muted-foreground pt-2 border-t border-border/60">{LAB_TYPES.find(t => t.value === form.type)?.label} · {DIFFICULTIES.find(d => d.value === form.difficulty)?.label} · {form.isActive ? "Active" : "Inactive"}</div>

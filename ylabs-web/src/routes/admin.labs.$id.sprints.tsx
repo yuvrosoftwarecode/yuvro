@@ -61,7 +61,7 @@ function SprintsPage() {
 
   return (
     <AdminShell
-      title={`${lab.icon} ${lab.title} · Sprints`}
+      title={`${lab.title} · Sprints`}
       breadcrumb={["Engineering", "Labs", lab.title, "Sprints"]}
       right={
         <div className="flex items-center gap-2">

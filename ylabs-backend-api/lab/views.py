@@ -114,6 +114,20 @@ def student_stats_view(request):
         total_yp=Sum('lab_sprint_ticket__yuvro_points')
     )['total_yp'] or 0
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def student_stats_view(request):
+    user = request.user
+    
+    done_submissions = UserLabSprintTicketSubmission.objects.filter(
+        user=user,
+        ticket_status__in=['in_review', 'done']
+    ).select_related('lab_sprint_ticket')
+    
+    total_yp = done_submissions.aggregate(
+        total_yp=Sum('lab_sprint_ticket__yuvro_points')
+    )['total_yp'] or 0
+
     dates_completed = set()
     for sub in done_submissions:
         dates_completed.add(sub.updated_at.date())

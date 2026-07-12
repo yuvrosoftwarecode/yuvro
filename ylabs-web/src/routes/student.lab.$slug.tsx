@@ -7,6 +7,9 @@ import { useMemo, useState, useEffect } from "react";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
+import { getLabTier, isSprintLocked, unlockLab, TIER_META, isLabUnlocked, freeSprintCount } from "@/lib/labAccess";
+import { LabIcon } from "@/components/LabIcon";
+import { ShieldCheck, Star } from "lucide-react";
 
 
 
@@ -127,6 +130,8 @@ function LabDashboard() {
   }, [slug]);
 
   const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>({});
+  const [payOpen, setPayOpen] = useState(false);
+  const [unlockBump, setUnlockBump] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -216,6 +221,27 @@ function LabDashboard() {
   ];
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
 
+  const tier = (realLab?.payment_tier ?? getLabTier(slug, lab.name)) as "free" | "freemium" | "premium";
+  const meta = {
+    ...TIER_META[tier],
+    price: realLab?.payment_amount
+      ? `\u20b9${Number(realLab.payment_amount).toLocaleString("en-IN")}`
+      : TIER_META[tier].price,
+  };
+  const unlocked = useMemo(() => isLabUnlocked(slug), [slug, unlockBump]);
+  const sprintLocked = (idx: number, sprint?: { is_locked?: boolean }) => {
+    if (realLab && sprint && typeof sprint.is_locked === "boolean") {
+      return !unlocked && sprint.is_locked;
+    }
+    return isSprintLocked(slug, idx, lab.name);
+  };
+
+  const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
+    if (sprintLocked(index, sprint)) { setPayOpen(true); return; }
+    setActiveSprint(sprintId);
+  };
+  const handleUnlock = () => { unlockLab(slug); setPayOpen(false); setUnlockBump(x => x + 1); };
+
   if (ticketMatch) return <Outlet />;
 
   if (isLoading) {
@@ -240,7 +266,7 @@ function LabDashboard() {
           <aside className="space-y-4">
             <div className="rounded-xl border bg-card p-4">
               <div className="flex items-center gap-3">
-                <div className="text-3xl">{lab.icon}</div>
+                <LabIcon name={lab.name} icon={lab.icon} size="h-10 w-10" />
                 <div>
                   <div className="font-semibold">{lab.name}</div>
                   <DiffBadge value={lab.difficulty} />
@@ -298,47 +324,65 @@ function LabDashboard() {
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-semibold">Sprints</h2>
-                    <p className="text-xs text-muted-foreground">Pick a sprint to view its ticket board</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tier === "free" && "All sprints are unlocked."}
+                      {tier === "freemium" && !unlocked && `Sprint 1 is free. Unlock the full track for ${sprints.length - freeSprintCount(tier)} more sprints.`}
+                      {tier === "premium" && !unlocked && "All sprints are locked. Unlock the premium track to begin."}
+                      {tier !== "free" && unlocked && "Full track unlocked. Enjoy every sprint."}
+                    </p>
                   </div>
                   <span className="text-xs text-muted-foreground">{sprints.length} sprints · {allTickets.length} tickets</span>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  {sprints.map((s) => {
+                  {sprints.map((s, idx) => {
+                    const realSprint = realSprints[idx];
+                    const locked = sprintLocked(idx, realSprint);
                     const items = allTickets.filter((t) => s.ticketIds.includes(t.id));
                     const done = items.filter((t) => t.status === "done").length;
                     const pctS = items.length ? Math.round((done / items.length) * 100) : 0;
                     const xp = items.reduce((a, t) => a + t.xp, 0);
                     const mins = items.reduce((a, t) => a + t.estMin, 0);
-                    const tone = s.status === "Completed" ? "success" : s.status === "Active" ? "info" : "muted-foreground";
-                    const Icon = s.status === "Completed" ? CheckCircle2 : s.status === "Active" ? Play : Flag;
+                    const tone = locked ? "muted-foreground" : s.status === "Completed" ? "success" : s.status === "Active" ? "info" : "muted-foreground";
+                    const Icon = locked ? Lock : s.status === "Completed" ? CheckCircle2 : s.status === "Active" ? Play : Flag;
                     return (
-                      <button key={s.id} onClick={() => setActiveSprint(s.id)}
-                        className="text-left rounded-xl border bg-card p-4 hover:border-primary/60 hover:shadow-md transition">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                              <span className="font-mono">{s.id}</span>
-                              <span>·</span>
-                              <span>{s.range}</span>
-                            </div>
-                            <div className="mt-1 font-semibold leading-snug">{s.name}</div>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.goal}</p>
-                          </div>
-                          <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium"
-                            style={{ color: `var(--${tone})`, borderColor: `color-mix(in oklab, var(--${tone}) 40%, transparent)`, background: `color-mix(in oklab, var(--${tone}) 12%, transparent)` }}>
-                            <Icon className="h-3 w-3" />{s.status}
+                      <button key={s.id} onClick={() => openSprint(s.id, idx, realSprint)}
+                        className="text-left relative overflow-hidden rounded-xl border bg-card p-4 hover:border-primary/60 hover:shadow-md transition">
+                        {locked && (
+                          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-warning/40 bg-warning/10 px-1.5 py-0.5 text-[10px] font-medium text-warning">
+                            Locked
                           </span>
-                        </div>
-                        <div className="mt-4">
-                          <div className="flex justify-between text-[11px] text-muted-foreground"><span>{done}/{items.length} tickets</span><span>{pctS}%</span></div>
-                          <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div className="h-full bg-primary" style={{ width: `${pctS}%` }} />
+                        )}
+                        {!locked && tier === "freemium" && (
+                          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-success/40 bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
+                            Free preview
+                          </span>
+                        )}
+                        <div className={`flex flex-col h-full ${locked ? "opacity-70 grayscale" : ""}`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 pr-16">
+                              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                <span>{s.range}</span>
+                              </div>
+                              <div className="mt-1 font-semibold leading-snug">{s.name}</div>
+                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.goal}</p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                          <span className="inline-flex items-center gap-1"><Target className="h-3 w-3" />{items.length} tickets</span>
-                          <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{Math.round(mins/60)}h</span>
-                          <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{xp} XP</span>
+                          <div className="mt-4">
+                            <div className="flex justify-between text-[11px] text-muted-foreground"><span>{done}/{items.length} tickets</span><span>{pctS}%</span></div>
+                            <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full bg-primary" style={{ width: `${pctS}%` }} />
+                            </div>
+                          </div>
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1"><Target className="h-3 w-3" />{items.length} tickets</span>
+                            <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{Math.round(mins/60)}h</span>
+                            <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{xp} XP</span>
+                          </div>
+                          {locked && (
+                            <div className="mt-3 text-[11px] text-warning inline-flex items-center gap-1">
+                              <Lock className="h-3 w-3" /> Unlock the {meta.short.toLowerCase()} track to access this sprint
+                            </div>
+                          )}
                         </div>
                       </button>
                     );
@@ -393,11 +437,10 @@ function LabDashboard() {
                               <div key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}>
                                 <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
                                   className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-grab active:cursor-grabbing">
-                                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                                    <span className="font-mono">{t.id}</span>
+                                  <div className="text-sm font-medium leading-snug">{t.title}</div>
+                                  <div className="mt-1.5 flex items-center justify-between">
                                     <DiffBadge value={t.difficulty} />
                                   </div>
-                                  <div className="mt-1.5 text-sm font-medium leading-snug">{t.title}</div>
                                   <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                                     <span>⏱ {t.estMin}m · {t.tag}</span>
                                     <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{t.xp}</span>
@@ -425,13 +468,12 @@ function LabDashboard() {
                   <div className="rounded-xl border bg-card overflow-hidden">
                     <table className="w-full text-sm">
                       <thead className="bg-accent/40 text-xs text-muted-foreground">
-                        <tr><th className="text-left p-3">ID</th><th className="text-left">Title</th><th>Difficulty</th><th>Status</th><th>XP</th><th>Time</th><th>Score</th><th></th></tr>
+                        <tr><th className="text-left p-3">Title</th><th>Difficulty</th><th>Status</th><th>XP</th><th>Time</th><th>Score</th><th></th></tr>
                       </thead>
                       <tbody>
                         {sprintTickets.map((t) => (
                           <tr key={t.id} className="border-t hover:bg-accent/30">
-                            <td className="p-3 font-mono text-xs">{t.id}</td>
-                            <td>{t.title}</td>
+                            <td className="p-3">{t.title}</td>
                             <td className="text-center"><DiffBadge value={t.difficulty} /></td>
                             <td className="text-center"><StatusBadge value={t.status} /></td>
                             <td className="text-center text-primary">{t.xp}</td>
@@ -499,9 +541,72 @@ function LabDashboard() {
                 })}
               </div>
             </div>
+            
+            {tier !== "free" && (
+              <div className="mt-4 rounded-xl border bg-card p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`grid h-10 w-10 place-items-center rounded-full bg-${meta.tone}/15 text-${meta.tone}`}>
+                    {tier === "freemium" ? <Star className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                  </div>
+                  <div>
+                    <div className="text-base font-semibold">Unlock {meta.label}</div>
+                    <div className="text-xs text-muted-foreground">{lab.name}</div>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">{meta.blurb}</p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> All {sprints.length} sprints unlocked</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Every ticket, hint and solution</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Lifetime access for this lab</li>
+                </ul>
+                <div className="mt-5 flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold">{meta.price}</span>
+                  <span className="text-xs text-muted-foreground">one-time</span>
+                </div>
+                {unlocked ? (
+                  <div className="mt-5 inline-flex w-full items-center justify-center gap-1 rounded-md border border-success/40 bg-success/10 py-2 text-sm font-medium text-success">
+                    <CheckCircle2 className="h-4 w-4" /> Unlocked
+                  </div>
+                ) : (
+                  <div className="mt-5 flex gap-2">
+                    <button onClick={() => setPayOpen(true)} className="flex-1 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">Unlock now</button>
+                  </div>
+                )}
+              </div>
+            )}
           </aside>
         </div>
       </main>
+
+      {payOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setPayOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/15 text-primary">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-base font-semibold">Unlock {meta.label}</div>
+                <div className="text-xs text-muted-foreground">{lab.name}</div>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">{meta.blurb}</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> All {sprints.length} sprints unlocked</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Every ticket, hint and solution</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Lifetime access for this lab</li>
+            </ul>
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="text-2xl font-semibold">{meta.price}</span>
+              <span className="text-xs text-muted-foreground">one-time</span>
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => setPayOpen(false)} className="flex-1 rounded-md border px-3 py-2 text-sm hover:bg-accent">Not now</button>
+              <button onClick={handleUnlock} className="flex-1 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">Unlock now</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

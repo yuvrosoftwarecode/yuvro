@@ -71,6 +71,8 @@ const otherLinks = [
   },
 ];
 
+
+
 export function TopNav({
   rightSlot,
   activeOverride,
@@ -180,6 +182,7 @@ export function TopNav({
         </nav>
 
         <div className="ml-auto flex items-center gap-3 text-sm">
+
           {rightSlot}
 
           <button
