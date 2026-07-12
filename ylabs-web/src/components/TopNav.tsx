@@ -18,33 +18,7 @@ const otherLinks = [
   { to: "/certificates", label: "Certificates", icon: Award },
 ];
 
-const otherLinks = [
-  {
-    to: "/collaboration",
-    label: "Collaboration Hub",
-    icon: Users,
-  },
-  {
-    to: "/analytics",
-    label: "Analytics",
-    icon: BarChart3,
-  },
-  {
-    to: "/leaderboard",
-    label: "Leaderboard",
-    icon: Trophy,
-  },
-  {
-    to: "/forum",
-    label: "Forum",
-    icon: MessagesSquare,
-  },
-  {
-    to: "/certificates",
-    label: "Certificates",
-    icon: Award,
-  },
-];
+
 
 export function TopNav({
   rightSlot,
@@ -90,6 +64,10 @@ export function TopNav({
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm">
+          {primaryLinks.map((link) => {
+            const active = isActive(link.to);
+            const Icon = link.icon;
+            return (
               <Link
                 key={link.to}
                 to={link.to}
@@ -102,6 +80,7 @@ export function TopNav({
                 <Icon className="h-4 w-4" />
                 {link.label}
               </Link>
+            );
           })}
           <div ref={otherRef} className="relative">
             <button type="button" onClick={() => setOpenOther(v => !v)}
