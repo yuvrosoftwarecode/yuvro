@@ -1,21 +1,46 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Flame, Zap, Trophy, User, Users, LayoutDashboard, MessagesSquare, Award, BarChart3, Sun, Moon, LogOut, Rocket, ChevronDown, MoreHorizontal } from "lucide-react";
+﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import {
+  Flame,
+  Zap,
+  Trophy,
+  User,
+  Users,
+  LayoutDashboard,
+  MessagesSquare,
+  Award,
+  BarChart3,
+  Sun,
+  Moon,
+  LogOut,
+  ChevronDown,
+  MoreHorizontal,
+  Rocket,
+} from "lucide-react";
+
 import { useTheme } from "@/hooks/use-theme";
 import { me } from "@/lib/dummy";
 import { useAuth } from "@/lib/auth";
-import { useEffect, useRef, useState } from "react";
+import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
+import { useState, useEffect } from "react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const primaryLinks = [
-  { to: "/dashboard", label: "Individual Hub", icon: LayoutDashboard },
-  { to: "/hackathons", label: "Hackathons", icon: Rocket },
-];
-
-const otherLinks = [
-  { to: "/collaboration", label: "Collaboration Hub", icon: Users },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { to: "/forum", label: "Forum", icon: MessagesSquare },
-  { to: "/certificates", label: "Certificates", icon: Award },
+  {
+    to: "/dashboard",
+    label: "Individual Hub",
+    icon: LayoutDashboard,
+  },
+  {
+    to: "/hackathons",
+    label: "Hackathons",
+    icon: Rocket,
+  },
 ];
 
 const otherLinks = [
@@ -46,6 +71,8 @@ const otherLinks = [
   },
 ];
 
+
+
 export function TopNav({
   rightSlot,
   activeOverride,
@@ -62,18 +89,20 @@ export function TopNav({
   const nav = useNavigate();
 
   const activePath = activeOverride ?? path;
-  const [openOther, setOpenOther] = useState(false);
-  const otherRef = useRef<HTMLDivElement | null>(null);
+
+  const otherActive = otherLinks.some((link) =>
+    activePath.startsWith(link.to)
+  );
+
+  const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
   useEffect(() => {
-    if (!openOther) return;
-    const onDown = (e: MouseEvent) => {
-      if (!otherRef.current?.contains(e.target as Node)) setOpenOther(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [openOther]);
-  const otherActive = otherLinks.some(l => activePath.startsWith(l.to));
-  const isActive = (to: string) => to === "/dashboard" ? activePath === "/dashboard" : activePath.startsWith(to);
+    loadStudentStats().then(setStudentStats).catch(console.error);
+  }, []);
+
+  const userAny = user as any;
+  const streak = studentStats?.day_streak ?? userAny?.streak ?? me.streak;
+  const xp = studentStats?.total_yp ?? userAny?.xp ?? userAny?.yuvro_points ?? me.xp;
+
   return (
     <header className="sticky top-0 z-40 glass border-b border-border">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
@@ -103,27 +132,44 @@ export function TopNav({
                 {link.label}
               </Link>
           })}
-          <div ref={otherRef} className="relative">
-            <button type="button" onClick={() => setOpenOther(v => !v)}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors ${otherActive || openOther ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}>
-              <MoreHorizontal className="h-3.5 w-3.5" />Other
-              <ChevronDown className={`h-3 w-3 transition-transform ${openOther ? "rotate-180" : ""}`} />
-            </button>
-            {openOther && (
-              <div className="absolute left-0 top-full mt-1 w-52 rounded-md border border-border bg-popover shadow-lg p-1 z-50">
-                {otherLinks.map(l => {
-                  const active = isActive(l.to);
-                  const Icon = l.icon;
-                  return (
-                    <Link key={l.to} to={l.to} onClick={() => setOpenOther(false)}
-                      className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}>
-                      <Icon className="h-3.5 w-3.5" />{l.label}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors ${
+                  otherActive
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                }`}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                Other
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="start" className="w-60">
+              {otherLinks.map((link) => {
+                const Icon = link.icon;
+                const active =
+                  activePath === link.to || activePath.startsWith(link.to);
+
+                return (
+                  <DropdownMenuItem asChild key={link.to}>
+                    <Link
+                      to={link.to}
+                      className={`flex items-center gap-2 ${
+                        active ? "font-semibold text-foreground" : ""
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {link.label}
                     </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         <div className="ml-auto flex items-center gap-3 text-sm">
@@ -143,63 +189,42 @@ export function TopNav({
               <Moon className="h-4 w-4" />
             )}
           </button>
-          <span className="hidden sm:flex items-center gap-1 text-warning"><Flame className="h-4 w-4" />{me.streak}</span>
-          <span className="hidden sm:flex items-center gap-1 text-primary"><Zap className="h-4 w-4" />{me.xp.toLocaleString()} XP</span>
-          <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
-          <ProfileMenu 
-            onLogout={() => { logout(); nav({ to: "/" }); }} 
-            userName={user ? (user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : user.username) : me.name} 
-            userEmail={user?.email} 
-            profileImage={user?.profile_image}
-          />
+
+          <span className="hidden sm:flex items-center gap-1 text-warning">
+            <Flame className="h-4 w-4" />
+            {streak}
+          </span>
+
+          <span className="hidden sm:flex items-center gap-1 text-primary">
+            <Zap className="h-4 w-4" />
+            {xp.toLocaleString()} XP
+          </span>
+
+          <span className="rounded-full bg-accent px-2 py-0.5 text-xs">
+            Lv {me.level}
+          </span>
+
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+            {user
+              ? user.first_name?.charAt(0)?.toUpperCase() ||
+                user.username?.charAt(0)?.toUpperCase()
+              : "U"}
+          </div>
+
+          {user && (
+            <button
+              onClick={() => {
+                logout();
+                nav({ to: "/" });
+              }}
+              title="Sign out"
+              className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </header>
-  );
-}
-
-function ProfileMenu({ onLogout, userName, userEmail, profileImage }: { onLogout: () => void; userName: string; userEmail?: string; profileImage?: string }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
-  
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  
-  const initial = (userName || "?").trim().charAt(0).toUpperCase();
-  const displayImage = mounted ? profileImage : undefined;
-
-  return (
-    <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen(v => !v)}
-        className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 overflow-hidden">
-        {displayImage ? (
-          <img src={displayImage} alt={userName} className="h-full w-full object-cover" />
-        ) : (
-          initial
-        )}
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-56 rounded-md border border-border bg-popover shadow-lg p-1 z-50">
-          <div className="px-2.5 py-2 border-b border-border/60">
-            <div className="text-sm font-medium truncate">{userName}</div>
-            {userEmail && <div className="text-[11px] text-muted-foreground truncate">{userEmail}</div>}
-          </div>
-          <Link to="/profile" onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60">
-            <User className="h-3.5 w-3.5" /> Profile
-          </Link>
-          <button onClick={() => { setOpen(false); onLogout(); }}
-            className="w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60">
-            <LogOut className="h-3.5 w-3.5" /> Logout
-          </button>
-        </div>
-      )}
-    </div>
   );
 }
