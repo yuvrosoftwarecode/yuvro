@@ -1,0 +1,300 @@
+{
+  "title": "Sprint 2 \u2014 Branching & Collaboration",
+  "description": "Master branching, merging, conflict resolution, collaborative workflows, and advanced Git commands.",
+  "xp_pool": 400,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Branching Basics",
+      "ticket_slug": "ticket-1",
+      "description": "Create, switch, and delete branches.\nUse a feature branch and merge via PR.\nRebase onto main.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 2.1.1 \u2014 Create, Switch & Delete Branches",
+          "task_slug": "task-2-1-1",
+          "description": "Branching is a core part of Git workflows. Create a new branch named 'feature/test' and switch to it. Make a commit on this new branch, then switch back to the main branch. Finally, delete the feature branch you just created.",
+          "points": 30,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Create feature branch",
+                "pattern": "git\\s+(checkout\\s+-b|switch\\s+-c|branch\\s+feature)"
+              },
+              {
+                "label": "Make a commit",
+                "pattern": "git\\s+commit"
+              },
+              {
+                "label": "Delete branch",
+                "pattern": "git\\s+branch\\s+-[dD]"
+              }
+            ],
+            "pass_message": "\u2713 Created feature branch, made a commit, and deleted the branch.",
+            "fail_hint": "Run: git checkout -b feature/test -> git commit -> git branch -d feature/test"
+          }
+        },
+        {
+          "title": "Task 2.1.2 \u2014 Feature Branch \u2192 Merge",
+          "task_slug": "task-2-1-2",
+          "description": "Working collaboratively requires using Pull Requests. In the provided task repository, create a new feature branch and add a new item to the TODO list. Commit and push your branch to GitHub, open a Pull Request against the main branch, and successfully merge it.",
+          "points": 40,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Create feature branch",
+                "pattern": "git\\s+(checkout\\s+-b|switch\\s+-c)"
+              },
+              {
+                "label": "Push to remote",
+                "pattern": "git\\s+push"
+              }
+            ],
+            "pass_message": "\u2713 Feature branch created and pushed.",
+            "fail_hint": "Run: git checkout -b feature/<name> -> git push origin <branch>"
+          }
+        },
+        {
+          "title": "Task 2.1.3 \u2014 git rebase onto Main",
+          "task_slug": "task-2-1-3",
+          "description": "Your feature branch has fallen behind the main branch, and you want to maintain a linear project history. Update your feature branch by reapplying its commits on top of the latest main branch. After successfully doing so, update your remote feature branch (you may need to force your push).",
+          "points": 30,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Rebase onto main",
+                "pattern": "git\\s+rebase"
+              },
+              {
+                "label": "Force push",
+                "pattern": "git\\s+push\\s+.*(--force|-f)"
+              }
+            ],
+            "pass_message": "\u2713 Rebased onto main and force-pushed.",
+            "fail_hint": "Run: git rebase main -> git push --force origin <branch>"
+          }
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Merge Conflicts",
+      "ticket_slug": "ticket-2",
+      "description": "Create and resolve a merge conflict manually.\nResolve a conflict using a merge tool.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 2.2.1 \u2014 Create & Resolve a Merge Conflict",
+          "task_slug": "task-2-2-1",
+          "description": "Conflicts happen! You have two branches that modify the exact same line in a file. Merge one branch into the other, which will result in a conflict. Open the file, manually resolve the conflict markers so the final content is correct, and complete the merge with a new commit.",
+          "points": 50,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Merge branches",
+                "pattern": "git\\s+merge"
+              },
+              {
+                "label": "Commit after resolving",
+                "pattern": "git\\s+commit"
+              }
+            ],
+            "pass_message": "\u2713 Merged branches and resolved conflict with a commit.",
+            "fail_hint": "Run: git merge <branch> -> edit files -> git commit"
+          }
+        },
+        {
+          "title": "Task 2.2.2 \u2014 Resolve with a Merge Tool",
+          "task_slug": "task-2-2-2",
+          "description": "For more complex conflicts, a visual merge tool is incredibly helpful. In this new conflict scenario, configure Git to use a merge tool (such as vimdiff or meld). Launch the tool to resolve the conflict, and then commit the successful resolution.",
+          "points": 50,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Use mergetool",
+                "pattern": "git\\s+(mergetool|config.*merge\\.tool)"
+              },
+              {
+                "label": "Commit after resolving",
+                "pattern": "git\\s+commit"
+              }
+            ],
+            "pass_message": "\u2713 Configured a merge tool and resolved the conflict.",
+            "fail_hint": "Run: git config merge.tool vimdiff && git mergetool -> git commit"
+          }
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Git Workflows",
+      "ticket_slug": "ticket-3",
+      "description": "Practice GitHub Flow on a solo project.\nUse Conventional Commits.\nTag a release.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 2.3.1 \u2014 GitHub Flow on a Solo Project",
+          "task_slug": "task-2-3-1",
+          "description": "Practice the complete GitHub Flow end-to-end on a fresh repository. Create a feature branch, implement a small change, and push it. Open a Pull Request with a descriptive body, merge it into the main branch, and then clean up by deleting your feature branch.",
+          "points": 50,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Create branch",
+                "pattern": "git\\s+(checkout\\s+-b|switch\\s+-c)"
+              },
+              {
+                "label": "Push to remote",
+                "pattern": "git\\s+push"
+              },
+              {
+                "label": "Clean up branch",
+                "pattern": "git\\s+(branch\\s+-d|push\\s+origin\\s+--delete)"
+              }
+            ],
+            "pass_message": "\u2713 Feature branch created, pushed, PR merged, and cleaned up.",
+            "fail_hint": "Create branch -> push -> delete branch"
+          }
+        },
+        {
+          "title": "Task 2.3.2 \u2014 Conventional Commits",
+          "task_slug": "task-2-3-2",
+          "description": "Consistent commit messages make history much easier to read. Make 5 distinct commits to your repository, ensuring every single one strictly follows the Conventional Commits format (e.g., 'feat(auth): add login button'). Use a variety of commit types such as feat, fix, docs, or chore.",
+          "points": 20,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Conventional commit",
+                "pattern": "^git\\s+commit\\s+.*-m\\s+[\"']?(feat|fix|docs|style|refactor|perf|test|chore|ci|build)",
+                "count_mode": true,
+                "min_count": 5
+              }
+            ],
+            "pass_message": "\u2713 Found 5 conventional commits.",
+            "fail_hint": "Need 5 commits with feat:, fix:, docs:, chore:, etc."
+          }
+        },
+        {
+          "title": "Task 2.3.3 \u2014 Tag a Release",
+          "task_slug": "task-2-3-3",
+          "description": "Mark a significant milestone in your project by tagging a release. Create an annotated tag named 'v1.0.0' pointing to your latest commit, including a descriptive message for the tag. Once created, push this specific tag to your remote repository.",
+          "points": 30,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Create annotated tag",
+                "pattern": "git\\s+tag\\s+-a.*v1\\.0\\.0"
+              },
+              {
+                "label": "Push tags",
+                "pattern": "git\\s+push.*(--tags|v1\\.0\\.0)"
+              }
+            ],
+            "pass_message": "\u2713 Annotated tag v1.0.0 created and pushed.",
+            "fail_hint": "Run: git tag -a v1.0.0 -m \"Release\" -> git push --tags"
+          }
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Advanced Git",
+      "ticket_slug": "ticket-4",
+      "description": "Cherry-pick a specific commit.\nPractice reset, revert, and restore.\nWrite a pre-commit hook.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 2.4.1 \u2014 git cherry-pick a Specific Commit",
+          "task_slug": "task-2-4-1",
+          "description": "Sometimes you need a specific fix from another branch without merging all of its changes. Identify the commit hash of the bug fix on the other branch, and apply only that specific commit to your current branch. Make sure the other branch remains untouched.",
+          "points": 35,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Cherry-pick a commit",
+                "pattern": "git\\s+cherry-pick"
+              }
+            ],
+            "pass_message": "\u2713 Used git cherry-pick successfully.",
+            "fail_hint": "Run: git cherry-pick <commit-hash>"
+          }
+        },
+        {
+          "title": "Task 2.4.2 \u2014 Reset, Revert & Restore (All Three)",
+          "task_slug": "task-2-4-2",
+          "description": "Practice three different ways to undo changes. First, undo your very last commit while keeping its changes staged. Second, safely undo a commit that has already been pushed by creating a new inverse commit. Finally, completely discard all uncommitted changes in your current working directory, restoring the files to their last committed state.",
+          "points": 35,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Reset",
+                "pattern": "git\\s+reset"
+              },
+              {
+                "label": "Revert",
+                "pattern": "git\\s+revert"
+              },
+              {
+                "label": "Restore",
+                "pattern": "git\\s+(restore|checkout\\s+--)"
+              }
+            ],
+            "pass_message": "\u2713 Used git reset, revert, and restore correctly.",
+            "fail_hint": "You must use all three: reset, revert, and restore."
+          }
+        },
+        {
+          "title": "Task 2.4.3 \u2014 Write a Pre-Commit Hook",
+          "task_slug": "task-2-4-3",
+          "description": "Automate your quality checks! Write a pre-commit hook script that prevents anyone from committing a JavaScript file if it contains 'console.log' statements. The script should block the commit if it finds one, and allow it otherwise. Save your script in a 'hooks/' folder in the repository so it can be shared and evaluated.",
+          "points": 30,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Push to remote",
+                "pattern": "git\\s+push"
+              }
+            ],
+            "file_checks": [
+              {
+                "label": "Pre-commit hook script",
+                "file": "hooks/pre-commit",
+                "exists": true
+              }
+            ],
+            "pass_message": "\u2713 Pre-commit hook created and pushed.",
+            "fail_hint": "Create hooks/pre-commit and push."
+          }
+        }
+      ],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 2,
+  "lab_title": "Git Lab"
+}

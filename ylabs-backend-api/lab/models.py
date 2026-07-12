@@ -188,6 +188,9 @@ class LabSprintTicket(BaseTimestampedAdminModel):
 class UserLabEnrollment(BaseTimestampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lab_enrollments")
     lab = models.ForeignKey(Lab, on_delete=models.CASCADE, related_name="enrollments")
+    github_repo_name = models.CharField(max_length=255, blank=True)
+    github_repo_url = models.URLField(blank=True)
+    default_branch = models.CharField(max_length=100, blank=True)
 
     class Meta:
         unique_together = ("user", "lab")
@@ -211,3 +214,5 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.email} -> {self.lab_sprint_ticket.title}"
+
+

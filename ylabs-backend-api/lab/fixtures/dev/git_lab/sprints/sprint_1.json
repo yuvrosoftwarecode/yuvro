@@ -1,0 +1,337 @@
+{
+  "title": "Sprint 1 \u2014 Git Fundamentals",
+  "description": "Learn Git identity setup, committing, history exploration, and working with remote repositories.",
+  "xp_pool": 400,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Getting Started with Git",
+      "ticket_slug": "ticket-1",
+      "description": "Configure Git identity.\nInitialize a repo and make your first commit.\nWrite a .gitignore for a Node.js project.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1.1.1 \u2014 Configure Git Identity",
+          "task_slug": "task-1-1-1",
+          "description": "Open the in-browser terminal and configure your global Git username and email address. Setting your identity is essential so that your commits are correctly attributed to you.",
+          "points": 25,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Set user.name via git config",
+                "pattern": "git\\s+config\\s+(--global\\s+)?user\\.name"
+              },
+              {
+                "label": "Set user.email via git config",
+                "pattern": "git\\s+config\\s+(--global\\s+)?user\\.email"
+              }
+            ],
+            "pass_message": "\u2713 Git identity configured (user.name and user.email set).",
+            "fail_hint": "Run: git config --global user.name \"Your Name\" && git config --global user.email \"you@example.com\""
+          }
+        },
+        {
+          "title": "Task 1.1.2 \u2014 Initialize a Repo & First Commit",
+          "task_slug": "task-1-1-2",
+          "description": "It's time to create your first repository! Initialize a new Git repository in the provided terminal. Create a new file, stage it, and make your first commit. Ensure your commit message is descriptive and at least 5 words long\u2014avoid generic messages like 'first commit'.",
+          "points": 35,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Initialise repository with git init",
+                "pattern": "^git\\s+init"
+              },
+              {
+                "label": "Stage a file with git add",
+                "pattern": "^git\\s+add\\s+\\S+"
+              },
+              {
+                "label": "Make a commit",
+                "pattern": "^git\\s+commit"
+              }
+            ],
+            "pass_message": "\u2713 Repository initialized, file staged, and committed.",
+            "fail_hint": "Run: git init && git add <file> && git commit -m \"Descriptive commit message here\""
+          }
+        },
+        {
+          "title": "Task 1.1.3 \u2014 Write a .gitignore for a Node.js Project",
+          "task_slug": "task-1-1-3",
+          "description": "In the pre-seeded Node.js project, you'll find some files and directories that shouldn't be tracked by Git, such as dependencies, environment variables, build outputs, and logs. Create a configuration file to ignore these specific patterns (like node_modules, .env, dist, and log files). Verify that they no longer appear as untracked files, and make sure to commit your ignore file.",
+          "points": 40,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Commit the .gitignore file",
+                "pattern": "^git\\s+commit"
+              }
+            ],
+            "file_checks": [
+              {
+                "label": "node_modules entry in .gitignore",
+                "file": ".gitignore",
+                "contains": "node_modules"
+              },
+              {
+                "label": ".env entry in .gitignore",
+                "file": ".gitignore",
+                "contains": ".env"
+              }
+            ],
+            "pass_message": "\u2713 .gitignore created with node_modules & .env patterns, and committed.",
+            "fail_hint": "Create .gitignore with node_modules/ and .env lines, then: git add .gitignore && git commit -m \"Add .gitignore\""
+          }
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Staging & Committing",
+      "ticket_slug": "ticket-2",
+      "description": "Practice partial staging with git add -p.\nAmend a commit message.\nUse git stash.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1.2.1 \u2014 Partial Staging with git add -p",
+          "task_slug": "task-1-2-1",
+          "description": "You have a file with multiple changes mixed together, but you only want to commit some of them right now. Interactively stage only two out of the three sections of changes in the file, and commit them. Leave the remaining section unstaged.",
+          "points": 40,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Use interactive staging (git add -p or --patch)",
+                "pattern": "^git\\s+add\\s+(-p|--patch)"
+              },
+              {
+                "label": "Commit the staged hunks",
+                "pattern": "^git\\s+commit"
+              }
+            ],
+            "pass_message": "\u2713 Used interactive partial staging (git add -p) and committed.",
+            "fail_hint": "Run: git add -p   (press 'y' to stage, 'n' to skip each hunk), then: git commit -m \"message\""
+          }
+        },
+        {
+          "title": "Task 1.2.2 \u2014 Amend a Commit Message",
+          "task_slug": "task-1-2-2",
+          "description": "Oops! The last commit message in this repository was simply saved as a work-in-progress, which isn't very helpful. Modify the most recent commit message to be descriptive and at least 5 words long, without creating a brand new commit.",
+          "points": 30,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Amend the last commit message",
+                "pattern": "^git\\s+commit\\s+.*--amend"
+              }
+            ],
+            "pass_message": "\u2713 Commit message amended with git commit --amend.",
+            "fail_hint": "Run: git commit --amend -m \"New descriptive message at least five words long\""
+          }
+        },
+        {
+          "title": "Task 1.2.3 \u2014 Use git stash",
+          "task_slug": "task-1-2-3",
+          "description": "You have some uncommitted changes, but you need to switch contexts to work on something else quickly. Temporarily set aside your current changes, make a small separate commit, and then restore your set-aside changes so you can continue working on them.",
+          "points": 30,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Save changes with git stash",
+                "pattern": "^git\\s+stash(?!\\s+(pop|apply|drop|list|show|branch|clear))"
+              },
+              {
+                "label": "Make a separate commit",
+                "pattern": "^git\\s+commit"
+              },
+              {
+                "label": "Restore stash with git stash pop or apply",
+                "pattern": "^git\\s+stash\\s+(pop|apply)"
+              }
+            ],
+            "pass_message": "\u2713 Used git stash, made a separate commit, and restored stash.",
+            "fail_hint": "Run: git stash  ->  make commit  ->  git stash pop"
+          }
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Viewing History",
+      "ticket_slug": "ticket-3",
+      "description": "Explore git log flags.\nUse git diff.\nBug hunt with git bisect.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1.3.1 \u2014 Explore git log Flags",
+          "task_slug": "task-1-3-1",
+          "description": "Let's explore the history of this repository. It has multiple commits, authors, and branches. Use the history command with different flags to view a condensed one-line summary, visualize the branch graph for all branches, and filter the commits to show only those by a specific author.",
+          "points": 30,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "View compact log with --oneline",
+                "pattern": "^git\\s+log\\s+.*--oneline"
+              },
+              {
+                "label": "Visualise branch graph with --graph",
+                "pattern": "^git\\s+log\\s+.*--graph"
+              },
+              {
+                "label": "Filter by author with --author",
+                "pattern": "^git\\s+log\\s+.*--author"
+              }
+            ],
+            "pass_message": "\u2713 Used git log with --oneline, --graph, and --author flags.",
+            "fail_hint": "Run:\n  git log --oneline\n  git log --graph --all --oneline\n  git log --author=\"Your Name\""
+          }
+        },
+        {
+          "title": "Task 1.3.2 \u2014 Use git diff",
+          "task_slug": "task-1-3-2",
+          "description": "You have both staged and unstaged changes in your workspace. Inspect the differences to see exactly what has changed. View the diff for your unstaged modifications, and then separately view the diff for the changes you have already staged for commit.",
+          "points": 35,
+          "method": "In-Browser Terminal (Method 2)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Diff unstaged changes with git diff",
+                "pattern": "^git\\s+diff(?!\\s+(--staged|--cached))"
+              },
+              {
+                "label": "Diff staged changes with git diff --staged or --cached",
+                "pattern": "^git\\s+diff\\s+(--staged|--cached)"
+              }
+            ],
+            "pass_message": "\u2713 Used git diff for unstaged and git diff --staged for staged changes.",
+            "fail_hint": "Run: git diff   (unstaged) and then: git diff --staged   (staged)"
+          }
+        },
+        {
+          "title": "Task 1.3.3 \u2014 Bug Hunt with git bisect",
+          "task_slug": "task-1-3-3",
+          "description": "A bug was introduced somewhere in the last 15 commits. Clone the provided repository locally and use Git's binary search tool to find the exact commit that caused the issue. Once you identify the bad commit, create a file named BISECT_RESULT.txt containing only that commit's hash and push it to the repository.",
+          "points": 35,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Start bisect session",
+                "pattern": "^git\\s+bisect\\s+start"
+              },
+              {
+                "label": "Mark a bad commit",
+                "pattern": "^git\\s+bisect\\s+bad"
+              },
+              {
+                "label": "Mark a good commit",
+                "pattern": "^git\\s+bisect\\s+good\\s+\\S+"
+              }
+            ],
+            "pass_message": "\u2713 Used git bisect correctly to find the buggy commit.",
+            "fail_hint": "Run: git bisect start  ->  git bisect bad  ->  git bisect good <known-good-hash>"
+          }
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 4 \u2014 Remote Repositories",
+      "ticket_slug": "ticket-4",
+      "description": "Push a local repo to GitHub.\nClone, change, and push.\nSet up SSH key authentication.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1.4.1 \u2014 Push Local Repo to GitHub",
+          "task_slug": "task-1-4-1",
+          "description": "Now that you have a local repository with some history, it's time to share it. Create a new remote repository on GitHub using the provided naming convention, and push your local repository and its commits to this new remote destination. Ensure your default branch is set correctly.",
+          "points": 40,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 1,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Add a remote origin",
+                "pattern": "^git\\s+remote\\s+add\\s+(origin|\\S+)\\s+https?://"
+              },
+              {
+                "label": "Push to remote",
+                "pattern": "^git\\s+push"
+              }
+            ],
+            "pass_message": "\u2713 Remote added and repository pushed to GitHub.",
+            "fail_hint": "Run: git remote add origin <url> && git push -u origin main"
+          }
+        },
+        {
+          "title": "Task 1.4.2 \u2014 Clone \u2192 Change \u2192 Push",
+          "task_slug": "task-1-4-2",
+          "description": "You've been provided with a starter GitHub repository. Clone it to your local machine, create a new feature branch, and add a meaningful section to the README. Once you're done, push your feature branch to the remote repository. Remember not to push directly to the main branch!",
+          "points": 30,
+          "method": "GitHub Repo (Method 1)",
+          "order_index": 2,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Clone the repository",
+                "pattern": "^git\\s+clone\\s+\\S+"
+              },
+              {
+                "label": "Create a feature branch",
+                "pattern": "^git\\s+(checkout\\s+-b|switch\\s+-c)\\s+\\S+"
+              },
+              {
+                "label": "Push the feature branch",
+                "pattern": "^git\\s+push"
+              }
+            ],
+            "pass_message": "\u2713 Cloned repo, created feature branch, and pushed to remote.",
+            "fail_hint": "Run: git clone <url>  ->  git checkout -b feature/<name>  ->  git push origin <branch>"
+          }
+        },
+        {
+          "title": "Task 1.4.3 \u2014 SSH Key Authentication",
+          "task_slug": "task-1-4-3",
+          "description": "Secure your connection to GitHub by setting up SSH authentication. Generate a new SSH key pair and add the public key to your GitHub account settings. For bonus points, verify your setup by cloning a repository using its SSH URL instead of HTTPS.",
+          "points": 30,
+          "method": "GitHub API (Method 3)",
+          "order_index": 3,
+          "scoring_rules": {
+            "checks": [
+              {
+                "label": "Generate SSH key pair",
+                "pattern": "^ssh-keygen"
+              },
+              {
+                "label": "Verify SSH connection or add key to agent",
+                "pattern": "^(ssh\\s+-T\\s+git@|ssh-add\\s+)"
+              }
+            ],
+            "pass_message": "\u2713 SSH key generated and verified with GitHub.",
+            "fail_hint": "Run: ssh-keygen -t ed25519 -C \"you@email.com\"  then add public key to GitHub and test: ssh -T git@github.com"
+          }
+        }
+      ],
+      "order_index": 4,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 1,
+  "lab_title": "Git Lab"
+}

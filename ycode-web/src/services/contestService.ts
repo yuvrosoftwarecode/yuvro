@@ -1,5 +1,5 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
-import restApiUtil from '../utils/RestApiUtil';
+import restApiUtil, { yhubApiUtil } from '../utils/RestApiUtil';
 
 // Single source of truth — matches backend snake_case fields
 export interface Contest {
@@ -372,19 +372,28 @@ export const contestService = {
     });
   },
 
-  async sendRegistrationOtp(contestId: string, email: string): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_send_otp/`, { email });
+  async checkRegistration(contestId: string, email: string): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/check_registration/`, { email });
+  },
+
+  async sendRegistrationOtp(contestId: string, email: string, contestTitle?: string): Promise<any> {
+    return yhubApiUtil.post(`/auth/public_send_otp/`, { contest_id: contestId, email, contest_title: contestTitle });
   },
 
   async verifyRegistrationOtp(contestId: string, email: string, otp: string): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_verify_otp/`, { email, otp });
+    return yhubApiUtil.post(`/auth/public_verify_otp/`, { contest_id: contestId, email, otp });
   },
 
-  async registerPublicContest(contestId: string, email: string, otp: string, details: any): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/public_register/`, { email, otp, details });
+  async registerPublicContest(contestId: string, email: string, otp: string, details: any, accessToken?: string): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/public_register/`, { email, otp, details }, {
+      headers: accessToken ? { 'Authorization': `Bearer ${accessToken}` } : undefined
+    });
   },
 
   async verifyPayment(contestId: string, paymentToken: string): Promise<any> {
-    return restApiUtil.post(`/assessment/contests/${contestId}/verify_payment/`, { payment_token: paymentToken });
+    return restApiUtil.post(`/assessment/contests/${contestId}/verify_payment/`, 
+      { payment_token: paymentToken },
+      { headers: { 'Authorization': `Bearer ${paymentToken}` } }
+    );
   }
 };

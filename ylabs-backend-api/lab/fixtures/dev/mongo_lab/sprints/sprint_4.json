@@ -1,0 +1,119 @@
+{
+  "title": "Sprint 4 \u2014 Indexing & Performance",
+  "description": "Understand how indexes work, when to use them, and how to analyze and optimize query performance.",
+  "xp_pool": 450,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Index Fundamentals",
+      "ticket_slug": "ticket-1",
+      "description": "Create single field indexes.\nCreate compound indexes.\nCreate unique and sparse indexes.\nCreate text indexes and search.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 4.1.1 \u2014 Create Single Field Indexes",
+          "task_slug": "task-4-1-1",
+          "description": "Improve query performance by creating indexes on individual fields.",
+          "points": 40,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.1.2 \u2014 Compound Indexes",
+          "task_slug": "task-4-1-2",
+          "description": "Optimize queries that sort and filter on multiple fields by creating compound indexes.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.1.3 \u2014 Unique & Sparse Indexes",
+          "task_slug": "task-4-1-3",
+          "description": "Enforce field uniqueness and create indexes that only include documents with specific fields.",
+          "points": 30,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        },
+        {
+          "title": "Task 4.1.4 \u2014 Text Indexes & Search",
+          "task_slug": "task-4-1-4",
+          "description": "Enable powerful text search capabilities across string content within your documents.",
+          "points": 30,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 4
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 2 \u2014 Query Performance",
+      "ticket_slug": "ticket-2",
+      "description": "Read and interpret explain.\nBuild covered queries.\nUse index hints and drop indexes.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 4.2.1 \u2014 Read & Interpret explain()",
+          "task_slug": "task-4-2-1",
+          "description": "Analyze the execution plan of a query to understand how MongoDB retrieves the data and identifies performance bottlenecks.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.2.2 \u2014 Covered Queries",
+          "task_slug": "task-4-2-2",
+          "description": "Optimize queries so that they can be satisfied entirely using an index without accessing the actual documents.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.2.3 \u2014 Index Hints & Dropping Indexes",
+          "task_slug": "task-4-2-3",
+          "description": "Force MongoDB to use a specific index for a query and remove unnecessary indexes.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    },
+    {
+      "title": "Ticket 3 \u2014 Schema Design for Performance",
+      "ticket_slug": "ticket-3",
+      "description": "Compare embedding vs referencing.\nApply the bucket pattern.\nSolve a data modeling challenge.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 4.3.1 \u2014 Embedding vs Referencing",
+          "task_slug": "task-4-3-1",
+          "description": "Design data models by deciding when to embed data within a document versus when to reference data in another collection.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.3.2 \u2014 The Bucket Pattern",
+          "task_slug": "task-4-3-2",
+          "description": "Organize time-series or large sequences of data efficiently using the bucket pattern.",
+          "points": 50,
+          "method": "In-Browser Mongo Shell (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.3.3 \u2014 Data Modeling Challenge",
+          "task_slug": "task-4-3-3",
+          "description": "Apply data modeling principles to solve a complex, real-world schema design problem.",
+          "points": 50,
+          "method": "Backend Pipeline Validator (Method 3)",
+          "order_index": 3
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 4,
+  "lab_title": "MongoDB Lab"
+}

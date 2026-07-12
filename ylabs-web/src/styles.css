@@ -169,3 +169,5 @@
   .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
 }
+
+@import "@xterm/xterm/css/xterm.css";

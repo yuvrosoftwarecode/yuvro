@@ -35,6 +35,8 @@ services:
     depends_on:
       ylabs-db:
         condition: service_healthy
+    volumes:
+      - ./ylabs-backend-api:/app
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -59,6 +61,11 @@ services:
         required: false
       - path: ./ylabs-web/.env.local-secrets
         required: false
+    volumes:
+      - ./ylabs-web:/app
+      - /app/node_modules
+    ports:
+      - "3002:3000"
     stdin_open: true
     tty: true
     depends_on:

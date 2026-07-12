@@ -1,0 +1,93 @@
+{
+  "title": "Sprint 4 \u2014 JavaScript Fundamentals",
+  "description": "Learn the essential mechanics of JavaScript to add logic and interactive behavior to your web applications.",
+  "xp_pool": 450,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 JS Language Core",
+      "ticket_slug": "ticket-1",
+      "description": "Grasp the foundational concepts of programming in JavaScript, including managing data, writing reusable logic, and processing collections.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 4.1.1 \u2014 Variables, Types & Coercion",
+          "task_slug": "task-4-1-1",
+          "description": "Understand how to store data and accurately compare values to ensure your logic runs flawlessly.",
+          "points": 35,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.1.2 \u2014 Functions: Declaration, Expression & Arrow",
+          "task_slug": "task-4-1-2",
+          "description": "Explore different ways to package logic into reusable functions for cleaner code.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.1.3 \u2014 Arrays & Higher-Order Functions",
+          "task_slug": "task-4-1-3",
+          "description": "Process and transform lists of data, making it easy to display exactly what the user needs.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 3
+        },
+        {
+          "title": "Task 4.1.4 \u2014 Objects, Destructuring & Spread",
+          "task_slug": "task-4-1-4",
+          "description": "Utilize modern JavaScript techniques to extract and manipulate data from complex structures efficiently.",
+          "points": 35,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 4
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "EASY"
+    },
+    {
+      "title": "Ticket 2 \u2014 DOM Manipulation",
+      "ticket_slug": "ticket-2",
+      "description": "Bridge the gap between your logic and the user interface. You will learn to update the page dynamically and respond to user actions.",
+      "xp_reward": 160,
+      "tasks": [
+        {
+          "title": "Task 4.2.1 \u2014 Selecting & Modifying the DOM",
+          "task_slug": "task-4-2-1",
+          "description": "Gain the ability to dynamically update the content and structure of your web pages.",
+          "points": 40,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 1
+        },
+        {
+          "title": "Task 4.2.2 \u2014 Event Listeners & Event Delegation",
+          "task_slug": "task-4-2-2",
+          "description": "Create interactive lists that efficiently manage user interactions, even as new items are added.",
+          "points": 50,
+          "method": "In-Browser DOM Assertion Engine + Synthetic Events (Method 1)",
+          "order_index": 2
+        },
+        {
+          "title": "Task 4.2.3 \u2014 Form Validation with DOM",
+          "task_slug": "task-4-2-3",
+          "description": "Ensure data quality and improve user experience by validating form inputs as users type.",
+          "points": 45,
+          "method": "In-Browser DOM Assertion Engine + Synthetic Events (Method 1)",
+          "order_index": 3
+        },
+        {
+          "title": "Task 4.2.4 \u2014 Dynamic Content Rendering",
+          "task_slug": "task-4-2-4",
+          "description": "Populate your user interface automatically based on underlying data collections.",
+          "points": 25,
+          "method": "In-Browser DOM Assertion Engine (Method 1)",
+          "order_index": 4
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM"
+    }
+  ],
+  "order_index": 4,
+  "lab_title": "HTML, CSS & JavaScript Lab"
+}

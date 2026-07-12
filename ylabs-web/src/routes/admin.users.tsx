@@ -1,30 +1,48 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
 import { Users, UserPlus, Download, Filter, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/admin/users")({ component: UsersPage });
 
 const ROLES = ["Student", "Job Seeker", "Recruiter", "Mentor", "Admin"];
-const COLLEGES = ["IIT Bombay", "BITS Pilani", "VIT", "NIT Trichy", "Anna Univ", "—"];
-
-const USERS = Array.from({ length: 40 }, (_, i) => ({
-  id: `u_${1000 + i}`,
-  name: ["Priya Sharma","Marcus Kim","Sana Ahmed","Lina Park","Rohith S.","Aarav P.","Mei Chen","Diego R.","Yuki T.","Noah L."][i % 10] + (i > 9 ? ` ${i}` : ""),
-  email: `user${i + 1}@yuvrolabs.com`,
-  role: ROLES[i % ROLES.length],
-  college: COLLEGES[i % COLLEGES.length],
-  skill: 60 + ((i * 7) % 40),
-  collab: 50 + ((i * 11) % 50),
-  reliability: 70 + ((i * 3) % 30),
-  active: ["2m", "8m", "21m", "1h", "3h", "1d", "2d"][i % 7] + " ago",
-  status: i % 9 === 0 ? "suspended" : i % 5 === 0 ? "invited" : "active",
-}));
 
 function UsersPage() {
   const [q, setQ] = useState("");
   const [role, setRole] = useState("All");
-  const filtered = USERS.filter(u =>
+  const [users, setUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await restApiAuthUtil.get<any[]>('/auth/users/');
+        const mappedUsers = response.map((u, i) => {
+          let userRole = "Student";
+          if (u.role === "admin") {
+            userRole = "Admin";
+          } else if (u.role === "developer") {
+            userRole = "Mentor";
+          }
+          
+          return {
+            id: u.id,
+            name: (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.username || `User ${i}`,
+            email: u.email,
+            role: userRole,
+            active: u.last_login ? new Date(u.last_login).toLocaleDateString() : "-",
+            status: u.is_active ? "active" : "suspended",
+          };
+        });
+        setUsers(mappedUsers);
+      } catch (err) {
+        console.error("Failed to fetch users from backend", err);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  const filtered = users.filter(u =>
     (role === "All" || u.role === role) &&
     (u.name.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()))
   );
@@ -53,13 +71,13 @@ function UsersPage() {
             <option>All</option>{ROLES.map(r => <option key={r}>{r}</option>)}
           </select>
           <button className="text-xs px-2 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1"><Filter className="h-3.5 w-3.5" /> More filters</button>
-          <span className="ml-auto text-xs text-muted-foreground">{filtered.length.toLocaleString()} of {USERS.length} shown</span>
+          <span className="ml-auto text-xs text-muted-foreground">{filtered.length.toLocaleString()} of {users.length} shown</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
               <tr>
-                {["Name","Email","Role","College","Skill","Collab","Reliability","Last active","Status",""].map(h => (
+                {["Name","Email","Role","Last active","Status",""].map(h => (
                   <th key={h} className="text-left font-medium px-4 py-2">{h}</th>
                 ))}
               </tr>
@@ -75,10 +93,6 @@ function UsersPage() {
                   </td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-2.5"><Badge tone={u.role === "Admin" ? "destructive" : u.role === "Recruiter" ? "ui" : "muted"}>{u.role}</Badge></td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{u.college}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.skill}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.collab}</td>
-                  <td className="px-4 py-2.5 font-mono">{u.reliability}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.active}</td>
                   <td className="px-4 py-2.5">
                     <Badge tone={u.status === "active" ? "success" : u.status === "invited" ? "primary" : "destructive"}>{u.status}</Badge>

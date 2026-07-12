@@ -1,7 +1,12 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from authentication.permissions import IsAdminUser
-from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabSprintTicketSubmission
+from .models import (
+    Lab, LabSprint, LabSprintTicket,
+    UserLabEnrollment, UserLabSprintTicketSubmission,
+)
 from .serializers import (
     LabSerializer,
     LabSprintSerializer,
@@ -9,6 +14,10 @@ from .serializers import (
     UserLabEnrollmentSerializer,
     UserLabSprintTicketSubmissionSerializer,
 )
+from rest_framework.decorators import api_view, permission_classes
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
@@ -33,6 +42,13 @@ class LabSprintViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(lab_id=lab_id)
         return queryset
     
+    def get_queryset(self):
+        queryset = LabSprint.objects.all()
+        lab = self.request.query_params.get('lab')
+        if lab is not None:
+            queryset = queryset.filter(lab=lab)
+        return queryset
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
@@ -84,11 +100,6 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Sum
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

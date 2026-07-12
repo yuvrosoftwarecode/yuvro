@@ -1,31 +1,38 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+
+import { requireAdminAuth } from "@/utils/authGuards";
+import { ClientOnly } from "@/components/ClientOnly";
+import { useAuth } from "@/lib/auth";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/admin")({ 
-  beforeLoad: () => {
+  beforeLoad: ({ location }) => requireAdminAuth(location.href),
+  component: AdminLayout 
+});
+
+function AdminLayout() {
+  const { user } = useAuth();
+  const nav = useNavigate();
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem('access');
+      const token = localStorage.getItem("access");
       if (!token) {
-        throw redirect({ to: '/auth', search: { tab: 'signin' } });
+        nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+        return;
       }
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        let user;
-        try {
-          user = JSON.parse(userStr);
-        } catch (e) {
-          throw redirect({ to: '/auth', search: { tab: 'signin' } });
+      if (user) {
+        const role = user.roles?.ylabs || user.role;
+        if (role?.toLowerCase() !== "admin") {
+          nav({ to: "/student/dashboard" });
         }
-        
-        if (user) {
-          const role = user.roles?.ylabs || user.role;
-          if (role !== 'admin') {
-            throw redirect({ to: '/dashboard' });
-          }
-        }
-      } else {
-        throw redirect({ to: '/auth', search: { tab: 'signin' } });
       }
     }
-  },
-  component: () => <Outlet /> 
-});
+  }, [user, nav]);
+
+  return (
+    <ClientOnly>
+      <Outlet />
+    </ClientOnly>
+  );
+}

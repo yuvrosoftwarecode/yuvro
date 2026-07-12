@@ -9,9 +9,9 @@
 .PHONY: help install run stop clean logs status port-forward
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
-.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub load-courses-ycode load-courses-ycampus
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
-.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub
+.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
 .PHONY: db-reset
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
@@ -247,6 +247,7 @@ install: _validate-deploy
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up --build; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -281,6 +282,7 @@ run: _validate-deploy
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up -d --wait || { \
 			echo "❌ One or more services failed to become healthy. Showing logs:"; \
 			docker compose $(COMPOSE_FILES) ps; \
@@ -522,6 +524,7 @@ run-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YCode services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -566,6 +569,7 @@ run-ycampus: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YCampus services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -678,6 +682,7 @@ run-yhub: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YHub services failed to become healthy. Showing logs:"; \
 			docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
@@ -748,8 +753,8 @@ load-courses-ycampus:
 # Database Commands
 # ============================================================================
 
-makemigrations: makemigrations-ycode makemigrations-ycampus makemigrations-yhub
-	@echo "✅ makemigrations completed for YCode, YCampus, and YHub"
+makemigrations: makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
+	@echo "✅ makemigrations completed for YCode, YCampus, YHub, and YLabs"
 
 makemigrations-ycode:
 	@$(MAKE) -f Makefile.ycode db-makemigrations
@@ -760,6 +765,9 @@ makemigrations-ycampus:
 makemigrations-yhub:
 	@$(MAKE) -f Makefile.yhub db-makemigrations
 
+makemigrations-ylabs:
+	@$(MAKE) -f Makefile.ylabs db-makemigrations
+
 clear-migrations:
 	@echo "🔎 Showing migration files (dry-run). Use '-y' to delete."
 	@sh infra/scripts/clear_migrations.sh
@@ -768,6 +776,7 @@ clear-migrations:
 db-reset: _validate-deploy
 	@echo "🧹 Resetting databases (removing DB volumes and restarting DBs/Backends)..."
 	@docker network create executor 2>/dev/null || true
+	@docker network create yuvro_ylabs 2>/dev/null || true
 	@docker compose $(COMPOSE_FILES) rm -s -f -v ycode-db ycampus-db yhub-db ylabs-db || true
 	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db || true
 	@echo "⏳ Waiting for databases to become healthy..."

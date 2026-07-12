@@ -124,7 +124,7 @@ class GamificationViewSet(viewsets.GenericViewSet):
             avatar_url = None
             try:
                 if hasattr(profile.user, 'profile'):
-                    avatar_url = profile.user.profile.profile_image
+                    pass # avatar_url might be fetched from yhub service in the future
             except Exception:
                 pass
             data.append({

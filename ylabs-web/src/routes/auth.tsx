@@ -1,21 +1,58 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Github, Eye, EyeOff, Bot, Activity, GitBranch, Layers, CheckCircle2 } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
-const searchSchema = z.object({ tab: z.enum(["signin", "signup"]).default("signin").catch("signin") });
+const searchSchema = z.object({ 
+  tab: z.enum(["signin", "signup"]).default("signin").catch("signin"),
+  redirect: z.string().optional() 
+});
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
+  beforeLoad: () => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (token) {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            const role = user.roles?.ylabs || user.role;
+            if (role?.toLowerCase() === 'admin') throw redirect({ to: '/admin' });
+            else throw redirect({ to: '/student/dashboard' });
+          } catch (e) {
+            // let them stay on auth page if parsing fails
+          }
+        } else {
+          // let them stay on auth page if no user object
+        }
+      }
+    }
+  },
   component: AuthPage,
 });
+
+import { useEffect } from "react";
 
 function AuthPage() {
   const { tab } = Route.useSearch();
   const nav = useNavigate();
-  const setTab = (t: "signin" | "signup") => nav({ to: "/auth", search: { tab: t } });
+  const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (token && isAuthenticated && user) {
+        const role = user.roles?.ylabs || user.role;
+        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+      }
+    }
+  }, [user, isAuthenticated, nav]);
+
+  const setTab = (t: "signin" | "signup") => nav({ to: "/auth", search: (prev: any) => ({ ...prev, tab: t }) });
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background text-foreground">
       <BrandPanel />
@@ -108,6 +145,7 @@ function BrandPanel() {
 }
 
 function SignInForm() {
+  const { redirect } = Route.useSearch();
   const { login } = useAuth();
   const nav = useNavigate();
   const [email, setEmail] = useState("");
@@ -124,7 +162,12 @@ function SignInForm() {
       const res = await import("@/services/authService").then(m => m.default.login(email, password));
       login(res.user, res.access);
       const role = res.user.roles?.ylabs || res.user.role;
-      nav({ to: role === "admin" ? "/admin" : "/dashboard" });
+      if (redirect) {
+        if (redirect.startsWith('http')) window.location.href = redirect;
+        else nav({ to: redirect as any });
+      } else {
+        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+      }
     } catch (error: any) {
       setErr(error?.message || "Invalid email or password.");
     }
@@ -146,7 +189,7 @@ function SignInForm() {
         <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-3.5 w-3.5 rounded border-border" /> Remember me
         </label>
-        <a href="#" className="text-primary hover:underline">Forgot password?</a>
+        <Link to="/forgot-password" className="text-primary hover:underline">Forgot password?</Link>
       </div>
       {err && <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">{err}</div>}
       <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition">
@@ -158,6 +201,7 @@ function SignInForm() {
 }
 
 function SignUpForm() {
+  const { redirect } = Route.useSearch();
   const { login } = useAuth();
   const nav = useNavigate();
   const [name, setName] = useState("");
@@ -191,7 +235,12 @@ function SignUpForm() {
       }));
       login(res.user, res.access);
       const userRole = res.user.roles?.ylabs || res.user.role;
-      nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
+      if (redirect) {
+        if (redirect.startsWith('http')) window.location.href = redirect;
+        else nav({ to: redirect as any });
+      } else {
+        nav({ to: userRole?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+      }
     } catch (error: any) {
       setErr(error?.message || "Registration failed.");
     }
@@ -220,6 +269,7 @@ function SignUpForm() {
 }
 
 function OAuthButtons() {
+  const { redirect } = Route.useSearch();
   const { login } = useAuth();
   const nav = useNavigate();
   const [oauthError, setOauthError] = useState("");
@@ -230,7 +280,12 @@ function OAuthButtons() {
       const res = await import("@/services/authService").then(m => m.default.loginWithGoogle(tokenResponse.access_token));
       login(res.user, res.access);
       const userRole = res.user.roles?.ylabs || res.user.role;
-      nav({ to: userRole === "admin" ? "/admin" : "/dashboard" });
+      if (redirect) {
+        if (redirect.startsWith('http')) window.location.href = redirect;
+        else nav({ to: redirect as any });
+      } else {
+        nav({ to: userRole?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+      }
     } catch (error: any) {
       console.error("Google login failed", error);
       setOauthError("Google login failed. Please try again later.");

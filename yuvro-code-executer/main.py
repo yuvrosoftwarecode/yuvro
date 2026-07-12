@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter
+from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -11,8 +11,11 @@ import psutil
 import difflib
 import asyncio
 import json
+import shutil
+import signal
+from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
-
+import re as _re
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -48,9 +51,11 @@ app.add_middleware(
         # Local development
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:3002",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
         "http://127.0.0.1:5173",
         # Dev environment (AWS) - all subdomains
         "https://code-dev.yuvro.ai",
@@ -58,6 +63,7 @@ app.add_middleware(
         "https://backend-code-dev.yuvro.ai",
         "https://backend-campus-dev.yuvro.ai",
         "https://code-executer-dev.yuvro.ai",
+        "https://labs-dev.yuvro.ai",
         "http://code-dev.yuvro.ai",
         "http://campus-dev.yuvro.ai",
         "http://backend-code-dev.yuvro.ai",
@@ -1671,6 +1677,427 @@ int main() {
         }
     }
 ]
+
+# ─────────────────────────────────────────────────────────────
+# Workspace & Terminal APIs
+# ─────────────────────────────────────────────────────────────
+
+WORKSPACES_ROOT = Path(os.environ.get("WORKSPACES_ROOT", "/workspaces"))
+
+workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
+
+
+def _workspace_dir(user_id: str, lab_id: str, sprint_id: str) -> Path:
+    """Return the per-student workspace directory."""
+    return WORKSPACES_ROOT / user_id / lab_id / sprint_id
+
+
+def _safe_path(workspace: Path, relative: str) -> Path:
+    """Resolve a relative path inside the workspace, raising 400 on path traversal."""
+    # Strip leading slashes to prevent pathlib from treating it as absolute
+    relative_path = relative.lstrip("/")
+    resolved = (workspace / relative_path).resolve()
+    if not str(resolved).startswith(str(workspace.resolve())):
+        raise HTTPException(status_code=400, detail="Path traversal not allowed")
+    return resolved
+
+
+def _build_tree(base: Path, rel: Path | None = None) -> dict:
+    """Recursively build a JSON file-tree structure."""
+    current = base if rel is None else base / rel
+    name = current.name if rel else "/"
+    if current.is_file():
+        return {"name": name, "path": str(rel or Path(name)), "type": "file"}
+    children = []
+    try:
+        for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
+            if child.name == ".bash_history":
+                continue
+            child_rel = child.relative_to(base)
+            children.append(_build_tree(base, child_rel))
+    except PermissionError:
+        pass
+    return {"name": name, "path": str(rel or ""), "type": "directory", "children": children}
+
+
+# Starter files seeded for each sprint on first access
+DEFAULT_STARTERS: Dict[str, str] = {
+    "script.sh": "#!/usr/bin/env bash\n\n# Write your solution here\n",
+    "README.md": "# Lab Workspace\n\nThis is your personal workspace. Files persist across sessions.\n",
+}
+
+
+@workspace_router.get("/filetree")
+async def get_file_tree(
+    user_id: str = Query(...),
+    lab_id: str = Query(...),
+    sprint_id: str = Query(...),
+    starters: Optional[str] = Query(None, description="JSON map of filename->content to seed on first access"),
+):
+    """
+    Return the file tree for a student's workspace.
+    Creates the workspace and seeds starter files if it doesn't exist yet.
+    """
+    ws = _workspace_dir(user_id, lab_id, sprint_id)
+    seeded = False
+
+    if not ws.exists():
+        ws.mkdir(parents=True, exist_ok=True)
+        if starters is not None:
+            try:
+                seed_files = json.loads(starters)
+            except Exception:
+                seed_files = DEFAULT_STARTERS.copy()
+        else:
+            seed_files = DEFAULT_STARTERS.copy()
+            
+        for fname, content in seed_files.items():
+            fpath = ws / fname
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            fpath.write_text(content)
+        seeded = True
+
+    tree = _build_tree(ws)
+    return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
+
+
+@workspace_router.get("/file")
+async def get_file(
+    user_id: str = Query(...),
+    lab_id: str = Query(...),
+    sprint_id: str = Query(...),
+    path: str = Query(..., description="Relative file path inside workspace"),
+):
+    """Return the text content of a file in the student's workspace."""
+    ws = _workspace_dir(user_id, lab_id, sprint_id)
+    fpath = _safe_path(ws, path)
+    if not fpath.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {path}")
+    if not fpath.is_file():
+        raise HTTPException(status_code=400, detail=f"Path is not a file: {path}")
+    try:
+        content = fpath.read_text(errors="replace")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"path": path, "content": content}
+
+
+class WriteFileRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    path: str
+    content: str
+
+
+@workspace_router.post("/file")
+async def write_file(body: WriteFileRequest):
+    """Create or overwrite a file in the student's workspace."""
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws.mkdir(parents=True, exist_ok=True)
+    fpath = _safe_path(ws, body.path)
+    fpath.parent.mkdir(parents=True, exist_ok=True)
+    fpath.write_text(body.content)
+    return {"ok": True, "path": body.path}
+
+
+class DeleteFileRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    path: str
+
+
+@workspace_router.delete("/file")
+async def delete_file(body: DeleteFileRequest):
+    """Delete a file or directory from the student's workspace."""
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    fpath = _safe_path(ws, body.path)
+    if not fpath.exists():
+        raise HTTPException(status_code=404, detail=f"Path not found: {body.path}")
+    if fpath.is_dir():
+        shutil.rmtree(fpath)
+    else:
+        fpath.unlink()
+    return {"ok": True, "path": body.path}
+
+
+class EvaluateRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    required_command: str = ""
+    task_slug: Optional[str] = None
+    scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
+
+@workspace_router.post("/evaluate")
+async def evaluate_task(body: EvaluateRequest):
+    """
+    Generic regex-based evaluation engine.
+    Reads scoring_rules from the request body (originally stored in
+    LabSprintTicket.tasks[*].scoring_rules in the sprint JSON fixtures).
+
+    scoring_rules schema:
+    {
+      "checks": [
+        {
+          "label": "Human readable description",
+          "pattern": "<Python regex>",          # matched against each history line
+          "count_mode": false,                  # optional: count matching lines
+          "min_count": 1                        # optional: minimum matches required
+        }
+      ],
+      "file_checks": [
+        {
+          "label": "Human readable description",
+          "file": "relative/path",             # workspace-relative path
+          "exists": true,                       # optional: just check existence
+          "contains": "substring"              # optional: check file content
+        }
+      ],
+      "pass_message": "Success message",
+      "fail_hint": "What to run if this fails"
+    }
+    """
+
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    history_file = ws / ".bash_history"
+
+    if not history_file.exists():
+        return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
+
+    try:
+        content = history_file.read_text(errors="replace")
+        lines = [line.strip() for line in content.splitlines() if line.strip()]
+
+        rules = body.scoring_rules
+
+        # ── If no scoring_rules provided fall back to simple substring check ──
+        if not rules:
+            passed = any(body.required_command in line for line in lines)
+            return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
+
+        failed_labels: list[str] = []
+
+        # ── History-based checks ──────────────────────────────────────────────
+        for check in rules.get("checks", []):
+            pattern   = check.get("pattern", "")
+            label     = check.get("label", pattern)
+            count_mode = check.get("count_mode", False)
+            min_count = check.get("min_count", 1)
+
+            try:
+                compiled = _re.compile(pattern, _re.IGNORECASE)
+            except _re.error as e:
+                return {"passed": False, "reason": f"Invalid regex pattern '{pattern}': {e}"}
+
+            if count_mode:
+                # Count how many history lines match (e.g. for conventional commits)
+                matches = sum(1 for line in lines if compiled.search(line))
+                if matches < min_count:
+                    failed_labels.append(f"{label} (need {min_count}, found {matches})")
+            else:
+                if not any(compiled.search(line) for line in lines):
+                    failed_labels.append(label)
+
+        # ── File-based checks ────────────────────────────────────────────────
+        for fc in rules.get("file_checks", []):
+            label    = fc.get("label", "file check")
+            rel_path = fc.get("file", "")
+            check_exists   = fc.get("exists", False)
+            check_contains = fc.get("contains", None)
+
+            target = ws / rel_path
+
+            if check_exists or check_contains is not None:
+                if not target.exists():
+                    failed_labels.append(f"{label} (file not found: {rel_path})")
+                    continue
+
+            if check_contains is not None and target.exists():
+                file_content = target.read_text(errors="replace").lower()
+                if check_contains.lower() not in file_content:
+                    failed_labels.append(f"{label} ('{check_contains}' not found in {rel_path})")
+
+        # ── Build response ───────────────────────────────────────────────────
+        if not failed_labels:
+            return {
+                "passed": True,
+                "reason": rules.get("pass_message", "✓ All checks passed.")
+            }
+
+        fail_hint = rules.get("fail_hint", "")
+        reason = "✗ Failed checks:\n" + "\n".join(f"  • {l}" for l in failed_labels)
+        if fail_hint:
+            reason += f"\n\nHint: {fail_hint}"
+        return {"passed": False, "reason": reason}
+
+    except Exception as e:
+        return {"passed": False, "reason": f"Error during evaluation: {e}"}
+
+
+async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
+    """
+    Fetch the student's GitHub integration from ylabs-backend-api and configure
+    the workspace git remote so that `git push` goes to their GitHub repo.
+    Silently skips if not configured or on any error.
+    """
+    backend_url = os.environ.get("YLABS_BACKEND_URL", "http://localhost:8002")
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(
+                f"{backend_url}/api/lab/github-integration/",
+                headers={"X-Internal-User-Id": user_id},
+            )
+            if resp.status_code != 200:
+                return
+            data = resp.json()
+            if not data.get("connected"):
+                return
+            username = data.get("github_username", "")
+            repo = data.get("github_repo", "")
+            pat = data.get("pat", "")  # returned only in internal calls
+            if not (username and repo and pat):
+                return
+
+            remote_url = f"https://{pat}@github.com/{username}/{repo}.git"
+
+            # Ensure git is initialised in the workspace
+            await asyncio.create_subprocess_exec(
+                "git", "init",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+
+            # Set or update the origin remote
+            await asyncio.create_subprocess_exec(
+                "git", "remote", "set-url", "origin", remote_url,
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+    except Exception:
+        pass  # Always fail silently — terminal should still open
+
+
+# ─── WebSocket PTY Terminal ────────────────────────────────────────────────────
+
+@workspace_router.websocket("/terminal")
+async def terminal_ws(
+    websocket: WebSocket,
+    user_id: str = Query(...),
+    lab_id: str = Query(...),
+    sprint_id: str = Query(...),
+):
+    """
+    WebSocket PTY terminal.
+    Opens a real /bin/bash session inside the student's workspace directory.
+    Messages from client → sent as stdin to bash.
+    stdout/stderr from bash → sent back as text frames to client.
+    """
+    await websocket.accept()
+
+    ws_dir = _workspace_dir(user_id, lab_id, sprint_id)
+    ws_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Auto-configure git remote from GitHub integration (if any) ---
+    await _setup_github_remote(ws_dir, user_id)
+
+    # Try to use ptyprocess for full PTY (arrow keys, tab completion, etc.)
+    # Fall back to simple subprocess pipes if unavailable.
+    try:
+        import ptyprocess
+        USE_PTY = True
+    except ImportError:
+        USE_PTY = False
+
+    env = {
+        **os.environ, 
+        "TERM": "xterm-256color", 
+        "HOME": str(ws_dir),
+        "PROMPT_COMMAND": "history -a"
+    }
+
+    if USE_PTY:
+        import ptyprocess
+        proc = ptyprocess.PtyProcessUnicode.spawn(
+            ["/bin/bash", "--login"],
+            cwd=str(ws_dir),
+            env=env,
+        )
+
+        async def read_output():
+            loop = asyncio.get_event_loop()
+            while True:
+                try:
+                    data = await loop.run_in_executor(None, proc.read, 4096)
+                    if data:
+                        await websocket.send_text(data)
+                except Exception:
+                    break
+
+        read_task = asyncio.create_task(read_output())
+        try:
+            while proc.isalive():
+                try:
+                    msg = await asyncio.wait_for(websocket.receive_text(), timeout=0.1)
+                    proc.write(msg)
+                except asyncio.TimeoutError:
+                    continue
+                except WebSocketDisconnect:
+                    break
+        finally:
+            read_task.cancel()
+            try:
+                proc.terminate(force=True)
+            except Exception:
+                pass
+    else:
+        # Fallback: simple subprocess with piped stdio (no PTY)
+        proc = await asyncio.create_subprocess_exec(
+            "/bin/bash", "--login",
+            cwd=str(ws_dir),
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            env=env,
+        )
+
+        async def read_stdout():
+            while True:
+                try:
+                    chunk = await proc.stdout.read(4096)
+                    if not chunk:
+                        break
+                    await websocket.send_text(chunk.decode(errors="replace"))
+                except Exception:
+                    break
+
+        read_task = asyncio.create_task(read_stdout())
+        try:
+            while proc.returncode is None:
+                try:
+                    msg = await asyncio.wait_for(websocket.receive_text(), timeout=0.05)
+                    if proc.stdin:
+                        proc.stdin.write(msg.encode())
+                        await proc.stdin.drain()
+                except asyncio.TimeoutError:
+                    continue
+                except WebSocketDisconnect:
+                    break
+        finally:
+            read_task.cancel()
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+
+    await websocket.close()
+
+
+app.include_router(workspace_router)
 
 # --- Face Verification Integration ---
 from faceverification.face_verification import verify_candidate_face, enroll_face, analyze_face

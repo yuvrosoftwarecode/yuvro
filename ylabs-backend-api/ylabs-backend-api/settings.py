@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "authentication",
     "lab",
+    "recruiter",
+    "skill_evaluation",
 ]
 
 MIDDLEWARE = [

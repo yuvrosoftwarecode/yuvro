@@ -22,7 +22,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from 'sonner';
-import ContestLeaderboard from '../../components/student/ContestLeaderboard';
+
 import {
     Dialog,
     DialogContent,
@@ -639,16 +639,7 @@ const ContestDetail: React.FC = () => {
                                     )}
                                 </Button>
                             )}
-                            
-                            {/* Leaderboard below the Action Card if the contest has started or is past */}
-                            {(isLive || isPast) && (
-                                <div className="mt-6">
-                                    <ContestLeaderboard
-                                        contestId={contest.id}
-                                        contestTitle={contest.title}
-                                    />
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 </div>
