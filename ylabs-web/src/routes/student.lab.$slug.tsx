@@ -89,8 +89,8 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     javaGroups;
   return groups.map((g) => {
     const ts = allTickets.filter((t) => g.tags.includes(t.tag));
-    const completed = ts.filter((t) => t.status === "Completed").length;
-    const inProgress = ts.some((t) => t.status === "In Progress");
+    const completed = ts.filter((t) => t.status === "done").length;
+    const inProgress = ts.some((t) => t.status === "in_progress" || t.status === "in_review");
     const status: SprintStatus = completed === ts.length && ts.length ? "Completed" : inProgress || completed > 0 ? "Active" : "Upcoming";
     return { id: g.id, name: g.name, goal: g.goal, range: g.range, ticketIds: ts.map((t) => t.id), status };
   });
@@ -126,26 +126,31 @@ function LabDashboard() {
     return () => { active = false; };
   }, [slug]);
 
-  const storageKey = `ylabs-ticket-status-${slug}`;
-  const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>({});
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(statusOverrides));
-  }, [statusOverrides, storageKey]);
+    let active = true;
+    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+      api.get<any[]>('/lab/submissions/').then((subs) => {
+        if (!active) return;
+        const overrides: Record<string, Status> = {};
+        subs.forEach(s => {
+          if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
+            overrides[s.lab_sprint_ticket] = s.ticket_status as Status;
+          }
+        });
+        setStatusOverrides(overrides);
+      }).catch(console.error);
+    });
+    return () => { active = false; };
+  }, [slug]);
 
   const lab = useMemo(() => {
     if (realLab) {
       const isLinux = realLab.title.toLowerCase().includes("linux");
       const iconStr = realLab.icon?.toLowerCase() || "";
       const icon = (realLab.icon && iconStr !== "linux" && iconStr !== "linux lab") ? realLab.icon : (isLinux ? "🐧" : "💻");
-      const completedCount = realSprints.flatMap(s => s.tasks).filter(t => statusOverrides[t.id] === "Completed").length;
+      const completedCount = realSprints.flatMap(s => s.tasks).filter(t => statusOverrides[t.id] === "done").length;
       return {
         slug: realLab.id,
         name: realLab.title,
@@ -188,7 +193,7 @@ function LabDashboard() {
         estMin: t.estMin,
         xp: t.xp,
         tag: t.language || "Linux",
-        status: "Not Started" as Status,
+        status: "backlog" as Status,
         description: t.description
       }));
     }
@@ -203,7 +208,12 @@ function LabDashboard() {
   
   const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
   const sprintTickets = sprint ? allTickets.filter((t) => sprint.ticketIds.includes(t.id)) : allTickets;
-  const cols: { key: "Not Started" | "In Progress" | "Completed"; }[] = [{ key: "Not Started" }, { key: "In Progress" }, { key: "Completed" }];
+  const cols: { key: Status; label: string }[] = [
+    { key: "backlog", label: "Backlog" },
+    { key: "in_progress", label: "In Progress" },
+    { key: "in_review", label: "In Review" },
+    { key: "done", label: "Done" }
+  ];
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
 
   if (ticketMatch) return <Outlet />;
@@ -273,7 +283,7 @@ function LabDashboard() {
                   <label key={d} className="flex items-center gap-2"><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> {d}</label>
                 ))}
                 <div className="border-t pt-2 mt-2">
-                  {["Not Started", "In Progress", "Completed"].map((d) => (
+                  {["Backlog", "In Progress", "In Review", "Done"].map((d) => (
                     <label key={d} className="flex items-center gap-2"><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> {d}</label>
                   ))}
                 </div>
@@ -295,7 +305,7 @@ function LabDashboard() {
                 <div className="grid gap-3 md:grid-cols-2">
                   {sprints.map((s) => {
                     const items = allTickets.filter((t) => s.ticketIds.includes(t.id));
-                    const done = items.filter((t) => t.status === "Completed").length;
+                    const done = items.filter((t) => t.status === "done").length;
                     const pctS = items.length ? Math.round((done / items.length) * 100) : 0;
                     const xp = items.reduce((a, t) => a + t.xp, 0);
                     const mins = items.reduce((a, t) => a + t.estMin, 0);
@@ -359,7 +369,7 @@ function LabDashboard() {
                 </div>
 
                 {view === "kanban" ? (
-                  <div className="grid gap-3 md:grid-cols-3">
+                  <div className="grid gap-3 md:grid-cols-4">
                     {cols.map((c) => {
                       const items = sprintTickets.filter((t) => t.status === c.key);
                       return (
@@ -374,7 +384,7 @@ function LabDashboard() {
                           }}
                         >
                           <div className="mb-3 flex items-center justify-between px-1">
-                            <div className="text-sm font-medium">{c.key}</div>
+                            <div className="text-sm font-medium">{c.label}</div>
                             <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">{items.length}</span>
                           </div>
                           <div className="space-y-2">
@@ -392,12 +402,12 @@ function LabDashboard() {
                                     <span>⏱ {t.estMin}m · {t.tag}</span>
                                     <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3 w-3" />{t.xp}</span>
                                   </div>
-                                  {t.status === "In Progress" && t.progress != null && (
+                                  {t.status === "in_progress" && t.progress != null && (
                                     <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
                                       <div className="h-full bg-info" style={{ width: `${t.progress}%` }} />
                                     </div>
                                   )}
-                                  {t.status === "Completed" && (
+                                  {t.status === "done" && (
                                     <div className="mt-2 flex items-center justify-between text-[11px]">
                                       <span className="text-success">✓ Score {t.score}</span>
                                       <Award className="h-3.5 w-3.5 text-warning" />

@@ -14,6 +14,10 @@ from .serializers import (
     UserLabEnrollmentSerializer,
     UserLabSprintTicketSubmissionSerializer,
 )
+from rest_framework.decorators import api_view, permission_classes
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
@@ -87,9 +91,61 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return UserLabSprintTicketSubmission.objects.filter(user=self.request.user)
+        qs = UserLabSprintTicketSubmission.objects.filter(user=self.request.user)
+        ticket_id = self.request.query_params.get('lab_sprint_ticket')
+        if ticket_id:
+            qs = qs.filter(lab_sprint_ticket_id=ticket_id)
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def student_stats_view(request):
+    user = request.user
+    
+    done_submissions = UserLabSprintTicketSubmission.objects.filter(
+        user=user,
+        ticket_status__in=['in_review', 'done']
+    ).select_related('lab_sprint_ticket')
+    
+    total_yp = done_submissions.aggregate(
+        total_yp=Sum('lab_sprint_ticket__yuvro_points')
+    )['total_yp'] or 0
 
+    dates_completed = set()
+    for sub in done_submissions:
+        dates_completed.add(sub.updated_at.date())
+    
+    sorted_dates = sorted(list(dates_completed), reverse=True)
+    
+    streak = 0
+    today = timezone.now().date()
+    yesterday = today - timedelta(days=1)
+    
+    current_date_to_check = today
+    
+    if sorted_dates and sorted_dates[0] == today:
+        streak = 1
+        current_date_to_check = yesterday
+        for d in sorted_dates[1:]:
+            if d == current_date_to_check:
+                streak += 1
+                current_date_to_check -= timedelta(days=1)
+            else:
+                break
+    elif sorted_dates and sorted_dates[0] == yesterday:
+        streak = 1
+        current_date_to_check = yesterday - timedelta(days=1)
+        for d in sorted_dates[1:]:
+            if d == current_date_to_check:
+                streak += 1
+                current_date_to_check -= timedelta(days=1)
+            else:
+                break
+    
+    return Response({
+        'day_streak': streak,
+        'total_yp': total_yp
+    })
