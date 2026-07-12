@@ -119,14 +119,6 @@ export function TopNav({
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm">
-          {primaryLinks.map((link) => {
-            const active =
-              link.to === "/dashboard"
-                ? activePath === "/dashboard"
-                : activePath.startsWith(link.to);
-
-            const Icon = link.icon;
-            return (
               <Link
                 key={link.to}
                 to={link.to}
@@ -139,7 +131,6 @@ export function TopNav({
                 <Icon className="h-4 w-4" />
                 {link.label}
               </Link>
-            );
           })}
 
           <DropdownMenu>
@@ -187,7 +178,9 @@ export function TopNav({
 
           <button
             onClick={toggle}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            title={`Switch to ${
+              theme === "dark" ? "light" : "dark"
+            } mode`}
             className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
           >
             {theme === "dark" ? (
