@@ -47,6 +47,8 @@ export function getLabTier(slug: string, name?: string): LabTier {
   return "freemium";
 }
 
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
+
 const KEY = "yuvro-lab-unlocks-v1";
 function read(): string[] {
   if (typeof window === "undefined") return [];
@@ -56,6 +58,23 @@ function write(list: string[]) {
   if (typeof window === "undefined") return;
   try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* ignore */ }
 }
+
+export async function syncUnlocks() {
+  try {
+    const res = await restApiAuthUtil.get<{ unlocked_lab_ids: string[] }>('/lab/labs/my_unlocks/');
+    if (res && res.unlocked_lab_ids) {
+      const current = read();
+      const dummyUnlocks = current.filter(id => !id.includes('-'));
+      const merged = Array.from(new Set([...dummyUnlocks, ...res.unlocked_lab_ids]));
+      write(merged);
+      return merged;
+    }
+  } catch (e) {
+    console.error("Failed to sync unlocks", e);
+  }
+  return read();
+}
+
 export function isLabUnlocked(slug: string): boolean {
   return read().includes(slug);
 }

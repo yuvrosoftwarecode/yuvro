@@ -14,7 +14,7 @@ from .serializers import (
     UserLabEnrollmentSerializer,
     UserLabSprintTicketSubmissionSerializer,
 )
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
@@ -30,6 +30,26 @@ class LabViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def verify_payment(self, request, pk=None):
+        lab = self.get_object()
+        enrollment, created = UserLabEnrollment.objects.get_or_create(
+            user=request.user,
+            lab=lab
+        )
+        enrollment.is_unlocked = True
+        enrollment.save(update_fields=['is_unlocked'])
+        return Response({"status": "success", "message": "Lab unlocked successfully."})
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_unlocks(self, request):
+        enrollments = UserLabEnrollment.objects.filter(user=request.user, is_unlocked=True)
+        # Assuming lab slugs are used by the frontend, but models.py doesn't have a 'slug' field on Lab.
+        # It uses title or ID. The frontend seems to rely on the lab's title (lowercased) or ID.
+        # We will return a list of lab IDs (and titles for good measure) that are unlocked.
+        unlocked_lab_ids = list(enrollments.values_list('lab_id', flat=True))
+        return Response({"unlocked_lab_ids": [str(lid) for lid in unlocked_lab_ids]})
 
 class LabSprintViewSet(viewsets.ModelViewSet):
     queryset = LabSprint.objects.all()

@@ -21,8 +21,8 @@ class LabSprintTicketAdmin(admin.ModelAdmin):
 
 @admin.register(UserLabEnrollment)
 class UserLabEnrollmentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'lab', 'created_at')
-    list_filter = ('lab', 'created_at')
+    list_display = ('user', 'lab', 'is_unlocked', 'created_at')
+    list_filter = ('lab', 'is_unlocked', 'created_at')
     search_fields = ('user__email', 'lab__title')
 
 @admin.register(UserLabSprintTicketSubmission)
