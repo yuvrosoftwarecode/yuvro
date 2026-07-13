@@ -11,15 +11,15 @@ export const Route = createFileRoute("/recruiter/")({
 function RecruiterDashboard() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
   const nav = useNavigate();
-  useEffect(() => { setEvals(listEvaluations()); }, []);
+  useEffect(() => { listEvaluations().then(setEvals); }, []);
 
   const total = evals.length;
   const active = evals.filter(e => e.status === "published").length;
   const invited = evals.reduce((a, e) => a + e.candidatesInvited, 0);
   const completed = evals.reduce((a, e) => a + e.candidatesCompleted, 0);
 
-  const onCreate = () => {
-    const e = createEvaluation();
+  const onCreate = async () => {
+    const e = await createEvaluation();
     nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
   };
 
