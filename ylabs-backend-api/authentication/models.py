@@ -6,7 +6,7 @@ from django.db import models
 class User(AbstractUser):
     ROLE_CHOICES = [
         ("student", "Student"),
-        ("developer", "Developer"),
+        ("recruiter", "Recruiter"),
         ("admin", "Administrator"),
     ]
 
@@ -24,14 +24,14 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
-    def is_developer(self):
-        return self.role == "developer"
+    def is_recruiter(self):
+        return self.role == "recruiter"
 
     def is_student(self):
         return self.role == "student"
 
     def can_manage_content(self):
-        return self.role in ["admin", "developer"]
+        return self.role in ["admin", "recruiter"]
 
     def can_manage_users(self):
         return self.role == "admin"

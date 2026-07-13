@@ -1,4 +1,4 @@
-﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Flame,
   Zap,
@@ -119,6 +119,10 @@ export function TopNav({
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm">
+          {primaryLinks.map((link) => {
+            const Icon = link.icon;
+            const active = activePath.startsWith(link.to);
+            return (
               <Link
                 key={link.to}
                 to={link.to}
@@ -131,6 +135,7 @@ export function TopNav({
                 <Icon className="h-4 w-4" />
                 {link.label}
               </Link>
+            );
           })}
 
           <DropdownMenu>
