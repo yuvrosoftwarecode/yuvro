@@ -1,4 +1,4 @@
-import restApiAuthUtil, { yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
+import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface Company {
     id: string;
@@ -41,21 +41,6 @@ export const recruiterApi = {
     },
 
     createRecruiter: async (data: any): Promise<CompanyRecruiter> => {
-        if (data.password) {
-            try {
-                await yhubApiAuthUtil.post('/auth/register/?product=ylabs', {
-                    email: data.email,
-                    username: data.email.split('@')[0],
-                    password: data.password,
-                    password_confirm: data.password,
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                });
-            } catch (e: any) {
-                console.error("YHub registration failed:", e);
-                // If user already exists on YHub, we can still proceed to link them as a recruiter locally
-            }
-        }
         return await restApiAuthUtil.post<CompanyRecruiter>('/recruiter/recruiters/', data);
     },
 

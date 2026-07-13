@@ -8,6 +8,7 @@ from .serializers import (
     CompanyRecruiterCreateSerializer,
     CompanyRecruiterUpdateSerializer,
 )
+from .services import delete_user_in_yhub
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -51,6 +52,9 @@ class CompanyRecruiterViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         user = instance.user
+        email = user.email if user else None
         super().perform_destroy(instance)
         if user:
             user.delete()
+        if email:
+            delete_user_in_yhub(email)

@@ -19,10 +19,19 @@ import { recruiterApi, Company, CompanyRecruiter } from "@/lib/recruiter-api";
 
 export const Route = createFileRoute("/admin/recruiters")({ component: RecruitersPage });
 
-function AddCompanyDialog({ onAdd }: { onAdd: () => void }) {
+function AddCompanyDialog({ onAdd, companies }: { onAdd: () => void, companies: Company[] }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Company>>({});
+  
+  useEffect(() => {
+    if (!open) {
+      setFormData({});
+      setLoading(false);
+    }
+  }, [open]);
+
+  const isDuplicate = formData.name ? companies.some(c => c.name.toLowerCase() === formData.name?.toLowerCase()) : false;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +66,11 @@ function AddCompanyDialog({ onAdd }: { onAdd: () => void }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 pt-4">
+          {isDuplicate && (
+            <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+              A company with this name already exists.
+            </div>
+          )}
           <div className="space-y-2">
             <Label>Company Name <span className="text-destructive">*</span></Label>
             <Input required value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} />
@@ -95,7 +109,7 @@ function AddCompanyDialog({ onAdd }: { onAdd: () => void }) {
           </div>
           <div className="pt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading || !formData.name}>
+            <Button type="submit" disabled={loading || !formData.name || isDuplicate}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Company
             </Button>
@@ -106,11 +120,23 @@ function AddCompanyDialog({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-function AddRecruiterDialog({ onAdd, companies }: { onAdd: () => void, companies: Company[] }) {
+function AddRecruiterDialog({ onAdd, companies, recruiters }: { onAdd: () => void, companies: Company[], recruiters: CompanyRecruiter[] }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', password: '', company_id: '' });
+
+  useEffect(() => {
+    if (!open) {
+      setFormData({ first_name: '', last_name: '', email: '', password: '', company_id: '' });
+      setLoading(false);
+      setShowPassword(false);
+    }
+  }, [open]);
+
+  const isDuplicate = (formData.first_name && formData.company_id) 
+    ? recruiters.some(r => r.company?.id === formData.company_id && r.user.first_name.toLowerCase() === formData.first_name.toLowerCase() && (r.user.last_name || "").toLowerCase() === formData.last_name.toLowerCase()) 
+    : false;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,10 +169,15 @@ function AddRecruiterDialog({ onAdd, companies }: { onAdd: () => void, companies
         <DialogHeader>
           <DialogTitle>Add New Recruiter</DialogTitle>
           <DialogDescription>
-            Create a new recruiter and associate them with a company.
+            Create a recruiter account and assign them to a company.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 pt-4">
+          {isDuplicate && (
+            <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+              A recruiter with this name already exists for the selected company.
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>First Name <span className="text-destructive">*</span></Label>
@@ -185,7 +216,7 @@ function AddRecruiterDialog({ onAdd, companies }: { onAdd: () => void, companies
           </div>
           <div className="pt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading || !formData.first_name || !formData.email || !formData.company_id}>
+            <Button type="submit" disabled={loading || !formData.first_name || !formData.email || !formData.company_id || isDuplicate}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Add Recruiter
             </Button>
@@ -196,7 +227,7 @@ function AddRecruiterDialog({ onAdd, companies }: { onAdd: () => void, companies
   );
 }
 
-function EditRecruiterDialog({ onUpdate, companies, recruiter }: { onUpdate: () => void, companies: Company[], recruiter: CompanyRecruiter }) {
+function EditRecruiterDialog({ onUpdate, companies, recruiter, recruiters }: { onUpdate: () => void, companies: Company[], recruiter: CompanyRecruiter, recruiters: CompanyRecruiter[] }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -205,6 +236,22 @@ function EditRecruiterDialog({ onUpdate, companies, recruiter }: { onUpdate: () 
     email: recruiter.user.email,
     company_id: recruiter.company?.id || ''
   });
+
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        first_name: recruiter.user.first_name,
+        last_name: recruiter.user.last_name,
+        email: recruiter.user.email,
+        company_id: recruiter.company?.id || ''
+      });
+      setLoading(false);
+    }
+  }, [open, recruiter]);
+
+  const isDuplicate = (formData.first_name && formData.company_id) 
+    ? recruiters.some(r => r.id !== recruiter.id && r.company?.id === formData.company_id && r.user.first_name.toLowerCase() === formData.first_name.toLowerCase() && (r.user.last_name || "").toLowerCase() === (formData.last_name || "").toLowerCase()) 
+    : false;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,10 +279,15 @@ function EditRecruiterDialog({ onUpdate, companies, recruiter }: { onUpdate: () 
         <DialogHeader>
           <DialogTitle>Edit Recruiter</DialogTitle>
           <DialogDescription>
-            Update recruiter details and company association.
+            Update the recruiter's details.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 pt-4">
+          {isDuplicate && (
+            <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+              A recruiter with this name already exists for the selected company.
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>First Name <span className="text-destructive">*</span></Label>
@@ -265,7 +317,7 @@ function EditRecruiterDialog({ onUpdate, companies, recruiter }: { onUpdate: () 
           </div>
           <div className="pt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading || !formData.first_name || !formData.email || !formData.company_id}>
+            <Button type="submit" disabled={loading || !formData.first_name || !formData.email || !formData.company_id || isDuplicate}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
@@ -316,7 +368,7 @@ function RecruitersPage() {
     <AdminShell 
       title="Recruiters" 
       breadcrumb={["People","Recruiters"]}
-      right={<AddCompanyDialog onAdd={loadData} />}
+      right={<AddCompanyDialog onAdd={loadData} companies={companies} />}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Active recruiters" value={recruiters.length.toString()} color="primary" icon={Briefcase} />
@@ -327,7 +379,7 @@ function RecruitersPage() {
 
       <Panel 
         title="Recruiter activity"
-        action={<AddRecruiterDialog onAdd={loadData} companies={companies} />}
+        action={<AddRecruiterDialog onAdd={loadData} companies={companies} recruiters={recruiters} />}
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -353,7 +405,7 @@ function RecruitersPage() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1">
-                      <EditRecruiterDialog onUpdate={loadData} companies={companies} recruiter={r} />
+                      <EditRecruiterDialog onUpdate={loadData} companies={companies} recruiter={r} recruiters={recruiters} />
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(r.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
