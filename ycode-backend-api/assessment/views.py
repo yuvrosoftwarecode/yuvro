@@ -515,7 +515,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             logger.warning(f"Failed to send email: {str(e)}")
 
         return Response({
-            'status': 'Registered',
+            'status': 'registered',
             'is_late_entry': is_late_entry,
         }, status=status.HTTP_201_CREATED)
 
