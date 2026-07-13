@@ -12,6 +12,7 @@ export interface Ticket {
   progress?: number;
   score?: number;
   description: string;
+  editor_type?: string;
 }
 
 export interface Lab {
@@ -243,15 +244,15 @@ export const tickets: Ticket[] = [
     description: "Audit a page against WCAG AA contrast. Fix failing pairs without breaking the palette." },
 
   // ---- SQL Lab · Querying ----
-  { id: "SQL-101", title: "SELECT, WHERE & ORDER BY", difficulty: "Beginner", estMin: 25, xp: 100, tag: "Querying", status: "done", score: 97,
+  { id: "SQL-101", title: "SELECT, WHERE & ORDER BY", difficulty: "Beginner", estMin: 25, xp: 100, tag: "Querying", status: "done", score: 97, editor_type: "sql_editor",
     description: "Query the `customers` table. Filter by country and sort by signup date desc." },
-  { id: "SQL-102", title: "Aggregates & GROUP BY", difficulty: "Beginner", estMin: 35, xp: 140, tag: "Querying", status: "in_progress", progress: 50,
+  { id: "SQL-102", title: "Aggregates & GROUP BY", difficulty: "Beginner", estMin: 35, xp: 140, tag: "Querying", status: "in_progress", progress: 50, editor_type: "sql_editor",
     description: "Compute total revenue per month using SUM, COUNT and GROUP BY with HAVING." },
-  { id: "SQL-103", title: "INNER vs LEFT JOIN", difficulty: "Intermediate", estMin: 50, xp: 200, tag: "Joins", status: "in_progress", progress: 20,
+  { id: "SQL-103", title: "INNER vs LEFT JOIN", difficulty: "Intermediate", estMin: 50, xp: 200, tag: "Joins", status: "in_progress", progress: 20, editor_type: "sql_editor",
     description: "Join `orders` and `customers`. Find customers with no orders using LEFT JOIN." },
-  { id: "SQL-104", title: "Multi-table JOIN", difficulty: "Intermediate", estMin: 55, xp: 220, tag: "Joins", status: "backlog",
+  { id: "SQL-104", title: "Multi-table JOIN", difficulty: "Intermediate", estMin: 55, xp: 220, tag: "Joins", status: "backlog", editor_type: "sql_editor",
     description: "Join orders → order_items → products to produce a line-item revenue report." },
-  { id: "SQL-105", title: "Subqueries & CTEs", difficulty: "Intermediate", estMin: 60, xp: 240, tag: "Querying", status: "backlog",
+  { id: "SQL-105", title: "Subqueries & CTEs", difficulty: "Intermediate", estMin: 60, xp: 240, tag: "Querying", status: "backlog", editor_type: "sql_editor",
     description: "Rewrite a correlated subquery as a WITH cte for readability and performance." },
 
   // ---- SQL Lab · Window functions ----

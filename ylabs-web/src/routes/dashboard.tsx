@@ -458,15 +458,15 @@ function Hub() {
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {recentLab ? (
-                  <Link to="/lab/$slug" params={{ slug: recentLab.id }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
+                  <Link to="/student/lab/$slug" params={{ slug: recentLab.id }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
                     Continue {recentLab.name} <ArrowRight className="h-4 w-4" />
                   </Link>
                 ) : myLabs.length > 0 ? (
-                  <Link to="/lab/$slug" params={{ slug: myLabs[0].id }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
+                  <Link to="/student/lab/$slug" params={{ slug: myLabs[0].id }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
                     Start {myLabs[0].name} <ArrowRight className="h-4 w-4" />
                   </Link>
                 ) : (
-                  <Link to="/lab/$slug" params={{ slug: "java" }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
+                  <Link to="/student/lab/$slug" params={{ slug: "java" }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm">
                     Explore Java Lab <ArrowRight className="h-4 w-4" />
                   </Link>
                 )}
@@ -595,7 +595,7 @@ function Hub() {
               {labs.map((lab) => {
                 const pct = Math.round((lab.completed / lab.total) * 100);
                 return (
-                  <Link key={lab.slug} to="/lab/$slug" params={{ slug: lab.slug }} className="group relative overflow-hidden rounded-xl border bg-card p-5 transition hover:border-primary/50 hover:ring-glow">
+                  <Link key={lab.slug} to="/student/lab/$slug" params={{ slug: lab.slug }} className="group relative overflow-hidden rounded-xl border bg-card p-5 transition hover:border-primary/50 hover:ring-glow">
                     <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
                     <div className="flex items-start justify-between">
                       <div>
@@ -671,7 +671,7 @@ function MiniStat({ icon, label, value, accent }: { icon: React.ReactNode; label
 function EnrolledCard({ lab }: { lab: CatalogLab }) {
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
   return (
-    <Link to="/lab/$slug" params={{ slug: lab.id }} className="group relative block overflow-hidden rounded-xl border bg-card p-5 transition hover:border-primary/50 hover:ring-glow">
+    <Link to="/student/lab/$slug" params={{ slug: lab.id }} className="group relative block overflow-hidden rounded-xl border bg-card p-5 transition hover:border-primary/50 hover:ring-glow">
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
       <div className="flex items-start justify-between">
         <div className="min-w-0">
@@ -713,7 +713,7 @@ function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLa
         <span className="text-muted-foreground">{lab.total} tickets</span>
       </div>
       <div className="mt-4 flex gap-2">
-        <Link to="/lab/$slug" params={{ slug: lab.id }} className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent">
+        <Link to="/student/lab/$slug" params={{ slug: lab.id }} className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent">
           View
         </Link>
         <button onClick={onToggle} disabled={isLoading} className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}>
@@ -740,7 +740,7 @@ function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab
           <span className="text-muted-foreground">{lab.total} tickets</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Link to="/lab/$slug" params={{ slug: lab.id }} className="rounded-md border border-border px-2 py-1 hover:bg-accent">View</Link>
+          <Link to="/student/lab/$slug" params={{ slug: lab.id }} className="rounded-md border border-border px-2 py-1 hover:bg-accent">View</Link>
           <button onClick={onToggle} disabled={isLoading} className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}>
             {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : isEnrolled ? (<><Check className="h-3 w-3" /> Enrolled</>) : (<><Plus className="h-3 w-3" /> Enroll</>)}
           </button>

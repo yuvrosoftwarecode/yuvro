@@ -11,6 +11,7 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
+import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -670,8 +671,8 @@ function getKit(slug: string, tag: string): Kit {
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug === "sql") return SQL_KIT_DEFAULT;
-  if (slug === "mongo") return MONGO_KIT_DEFAULT;
+  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
+  if (slug === "mongo" || slug === "mongodb" || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo") return MONGO_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
   if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
   return {
@@ -711,7 +712,7 @@ export function StudentTicketView({
 
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/student/lab/tickets/${ticketId}/`)
+      api.get<any>(`/lab/tickets/${ticketId}/`)
         .then(t => {
           if (!active) return;
           setResolvedTicket({
@@ -792,6 +793,7 @@ function TicketIDE({
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
+  const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isSql || isMongo;
   const isBash = kit.name === "bash";
 
   const isReal = !tickets.some(t => t.id === ticket.id);
@@ -905,7 +907,7 @@ function TicketIDE({
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [bottomTab, setBottomTab] = useState<BottomTab>(isDbEditor ? "preview" : "output");
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -1362,7 +1364,7 @@ function TicketIDE({
             }).catch(console.error);
           });
         }
-        navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       } else {
         showToast("Fix failing tests before submitting");
       }
@@ -1445,7 +1447,7 @@ function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && (
-          <Link to="/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
+          <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
             <ArrowLeft className="h-3 w-3" />Exit
           </Link>
         )}
@@ -1590,7 +1592,7 @@ function TicketIDE({
                     </button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-auto px-1 pb-2">
+                <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
                     rootLabel={isReal ? (ticket.title || "Project") : kit.rootLabel}
                     paths={fileList}
@@ -1605,6 +1607,26 @@ function TicketIDE({
                     toggleFolder={toggleFolder}
                   />
                 </div>
+                {isDbEditor && (
+                  <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
+                    <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <span>DB Explorer</span>
+                    </div>
+                    <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium">
+                      <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                      {MOCK_DB_SCHEMA.name}
+                    </div>
+                    <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
+                    {MOCK_DB_SCHEMA.tables.map(t => (
+                      <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${t.name}`)) setOpenTabs([...openTabs, `schema:${t.name}`]); setActiveFile(`schema:${t.name}`); }}
+                        className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        {t.name}
+                        <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-1"><GitBranch className="h-3 w-3" /> main</div>
                 </div>
@@ -1672,7 +1694,11 @@ function TicketIDE({
 
               {/* Editor */}
               <div className="flex flex-1 min-h-0">
-                <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
+                {activeFile.startsWith("schema:") ? (
+                  <SchemaViewer tableName={activeFile.replace("schema:", "")} />
+                ) : (
+                  <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
+                )}
               </div>
 
 
@@ -2843,74 +2869,180 @@ function TreeFileNode({
   );
 }
 
+/* ---------- SQL Mock DB Schema ---------- */
+
+export type DbColumn = { name: string; type: string; nullable: "YES" | "NO"; default: string; key: "PK" | "FK" | "-" };
+export type DbTable = { name: string; columns: DbColumn[]; ddl: string };
+export type DbSchema = { name: string; type: "PostgreSQL" | "MySQL" | "SQLite" | "MongoDB"; tables: DbTable[] };
+
+export const MOCK_DB_SCHEMA: DbSchema = {
+  name: "yuvro_sql_lab",
+  type: "PostgreSQL",
+  tables: [
+    {
+      name: "customers",
+      columns: [
+        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
+        { name: "name", type: "TEXT", nullable: "NO", default: "-", key: "-" },
+        { name: "country", type: "VARCHAR(2)", nullable: "YES", default: "-", key: "-" },
+        { name: "signed_up_at", type: "DATE", nullable: "NO", default: "CURRENT_DATE", key: "-" },
+      ],
+      ddl: `CREATE TABLE customers (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  country VARCHAR(2),
+  signed_up_at DATE NOT NULL DEFAULT CURRENT_DATE
+);`
+    },
+    {
+      name: "orders",
+      columns: [
+        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
+        { name: "customer_id", type: "INTEGER", nullable: "NO", default: "-", key: "FK" },
+        { name: "amount", type: "NUMERIC(10,2)", nullable: "NO", default: "-", key: "-" },
+        { name: "created_at", type: "TIMESTAMP", nullable: "NO", default: "CURRENT_TIMESTAMP", key: "-" },
+      ],
+      ddl: `CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  customer_id INTEGER NOT NULL REFERENCES customers(id),
+  amount NUMERIC(10,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);`
+    }
+  ]
+};
+
+function SchemaViewer({ tableName }: { tableName: string }) {
+  const table = MOCK_DB_SCHEMA.tables.find(t => t.name === tableName);
+  if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
+
+  return (
+    <div className="flex flex-col h-full bg-background overflow-auto p-4 text-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Package className="h-5 w-5 text-primary" />
+        <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
+        <span className="text-foreground">{MOCK_DB_SCHEMA.name}.{table.name}</span>
+      </div>
+      
+      <div className="mb-6">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Columns</h3>
+        <div className="border rounded bg-card overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-accent/50 text-muted-foreground text-xs uppercase">
+              <tr>
+                <th className="px-3 py-2 font-medium">Column</th>
+                <th className="px-3 py-2 font-medium">Type</th>
+                <th className="px-3 py-2 font-medium">Nullable</th>
+                <th className="px-3 py-2 font-medium">Default</th>
+                <th className="px-3 py-2 font-medium">Key</th>
+              </tr>
+            </thead>
+            <tbody className="text-[13px] divide-y">
+              {table.columns.map((c, i) => (
+                <tr key={i} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-3 py-2 font-mono font-medium text-foreground">{c.name}</td>
+                  <td className="px-3 py-2 font-mono text-primary/80">{c.type}</td>
+                  <td className="px-3 py-2">{c.nullable}</td>
+                  <td className="px-3 py-2 font-mono text-muted-foreground">{c.default}</td>
+                  <td className="px-3 py-2">
+                    {c.key !== "-" && (
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.key === "PK" ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-blue-500/20 text-blue-600 dark:text-blue-400"}`}>
+                        {c.key}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">DDL</h3>
+        <div className="rounded overflow-hidden border">
+          <CodeMirror
+            value={table.ddl}
+            editable={false}
+            extensions={[sql()]}
+            theme={vscodeDark}
+            basicSetup={{ lineNumbers: false, foldGutter: false }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- SQL query results viewer ---------- */
 
 type SqlRow = Record<string, string | number>;
 function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: string; ms: number } {
-  const lower = q.toLowerCase();
-  // Tiny pretend engine: pattern-match a few shapes against seed.sql data.
-  const customers = [
-    { id: 1, name: "Ada Lovelace",   country: "UK", signed_up_at: "2024-02-11" },
-    { id: 2, name: "Linus Torvalds", country: "FI", signed_up_at: "2024-05-04" },
-    { id: 3, name: "Grace Hopper",   country: "US", signed_up_at: "2023-09-30" },
-    { id: 4, name: "Hedy Lamarr",    country: "AT", signed_up_at: "2024-07-12" },
-    { id: 5, name: "Alan Turing",    country: "UK", signed_up_at: "2024-11-01" },
-  ];
-  const orders = [
-    { id: 1, customer_id: 1, amount: 120.0, created_at: "2024-03-01" },
-    { id: 2, customer_id: 1, amount: 45.5,  created_at: "2024-04-12" },
-    { id: 3, customer_id: 2, amount: 300.0, created_at: "2024-06-20" },
-    { id: 4, customer_id: 4, amount: 80.25, created_at: "2024-08-09" },
-    { id: 5, customer_id: 5, amount: 19.99, created_at: "2024-11-15" },
-  ];
-
-  if (lower.includes("group by") && lower.includes("country")) {
-    const byC: Record<string, { customers: number; total: number }> = {};
-    for (const c of customers) {
-      if (lower.includes("2024") && c.signed_up_at < "2024-01-01") continue;
-      byC[c.country] ??= { customers: 0, total: 0 };
-      byC[c.country].customers += 1;
-      byC[c.country].total += orders.filter((o) => o.customer_id === c.id).reduce((a, o) => a + o.amount, 0);
-    }
-    const rows: SqlRow[] = Object.entries(byC)
-      .map(([country, v]) => ({ country, customers: v.customers, total_revenue: v.total.toFixed(2) }))
-      .sort((a, b) => Number(b.total_revenue) - Number(a.total_revenue));
-    return { columns: ["country", "customers", "total_revenue"], rows, note: `${rows.length} row(s)`, ms: 7 };
-  }
-  if (lower.includes("from customers")) {
-    return { columns: ["id", "name", "country", "signed_up_at"], rows: customers, note: `${customers.length} row(s)`, ms: 3 };
-  }
-  if (lower.includes("from orders")) {
-    return { columns: ["id", "customer_id", "amount", "created_at"], rows: orders, note: `${orders.length} row(s)`, ms: 2 };
-  }
-  return { columns: [], rows: [], note: "No matching mock data. Try a SELECT against customers or orders.", ms: 1 };
+  return runDynamicSqlQuery(q) as any;
 }
-
 function SqlResultsView({ query }: { query: string }) {
+  const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const res = useMemo(() => runSqlQuery(query), [query]);
   if (res.columns.length === 0) {
     return <div className="text-muted-foreground p-2">{res.note}</div>;
   }
+
+  const handleDownloadCsv = () => {
+    if (res.rows.length === 0) return;
+    const header = res.columns.join(",");
+    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvStr = [header, ...csvRows].join("\n");
+    const blob = new Blob([csvStr], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="text-[12px]">
+    <div className="text-[12px] flex flex-col h-full">
       <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span>{res.note}</span>
+        <div className="flex items-center gap-3">
+          <span>{res.note}</span>
+          <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
+            <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
+            <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+          </div>
+          <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+        </div>
         <span>executed in {res.ms}ms</span>
       </div>
-      <div className="overflow-auto rounded border">
-        <table className="w-full font-mono">
-          <thead className="bg-accent/40 text-muted-foreground">
-            <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
-          </thead>
-          <tbody>
-            {res.rows.map((r, i) => (
-              <tr key={i} className="border-t hover:bg-accent/30">
-                {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      
+      {viewMode === "TABLE" ? (
+        <div className="overflow-auto rounded border flex-1">
+          <table className="w-full font-mono">
+            <thead className="bg-accent/40 text-muted-foreground">
+              <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+            </thead>
+            <tbody>
+              {res.rows.map((r, i) => (
+                <tr key={i} className="border-t hover:bg-accent/30">
+                  {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="rounded overflow-auto border flex-1 text-[11px]">
+          <CodeMirror
+            value={JSON.stringify(res.rows, null, 2)}
+            editable={false}
+            extensions={[jsonLang()]}
+            theme={vscodeDark}
+            basicSetup={{ lineNumbers: false, foldGutter: true }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -2918,40 +3050,7 @@ function SqlResultsView({ query }: { query: string }) {
 /* ---------- Mongo query results viewer ---------- */
 
 function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number } {
-  const lower = q.toLowerCase();
-  const users = [
-    { name: "Ada",   email: "ada@example.com",   country: "UK", active: true,  createdAt: "2024-02-11" },
-    { name: "Linus", email: "linus@example.com", country: "FI", active: true,  createdAt: "2024-05-04" },
-    { name: "Grace", email: "grace@example.com", country: "US", active: false, createdAt: "2023-09-30" },
-    { name: "Alan",  email: "alan@example.com",  country: "UK", active: true,  createdAt: "2024-11-01" },
-  ];
-  const orders = [
-    { userId: 1, category: "Books", amount: 12.5, status: "paid" },
-    { userId: 2, category: "Music", amount: 9.99, status: "paid" },
-    { userId: 1, category: "Books", amount: 4.2,  status: "refunded" },
-    { userId: 4, category: "Games", amount: 29.0, status: "paid" },
-  ];
-
-  if (lower.includes("db.orders.aggregate")) {
-    const byCat: Record<string, { total: number; n: number }> = {};
-    for (const o of orders.filter((x) => x.status === "paid")) {
-      byCat[o.category] ??= { total: 0, n: 0 };
-      byCat[o.category].total += o.amount;
-      byCat[o.category].n += 1;
-    }
-    const rows = Object.entries(byCat).map(([_id, v]) => ({ _id, total: v.total, n: v.n })).sort((a, b) => b.total - a.total);
-    return { rows, note: `${rows.length} document(s)`, ms: 6 };
-  }
-  if (lower.includes("db.users.find")) {
-    let rows = users.slice();
-    if (lower.includes('country: "uk"') || lower.includes("country: 'uk'")) rows = rows.filter((u) => u.country === "UK");
-    if (lower.includes("active: true")) rows = rows.filter((u) => u.active);
-    return { rows: rows.map(({ name, email, country }) => ({ name, email, country })), note: `${rows.length} document(s)`, ms: 3 };
-  }
-  if (lower.includes("db.orders.find")) {
-    return { rows: orders, note: `${orders.length} document(s)`, ms: 2 };
-  }
-  return { rows: [], note: "No matching mock data. Try db.users.find(...) or db.orders.aggregate([...]).", ms: 1 };
+  return runDynamicMongoQuery(q);
 }
 
 function MongoResultsView({ query }: { query: string }) {
