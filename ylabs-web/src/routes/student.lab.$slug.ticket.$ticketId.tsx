@@ -12,6 +12,7 @@ import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
+import { executeRemoteMongoQuery } from "@/server/mongoProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -3051,22 +3052,102 @@ function SqlResultsView({ query }: { query: string }) {
 
 /* ---------- Mongo query results viewer ---------- */
 
-function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number } {
-  return runDynamicMongoQuery(q);
-}
-
 function MongoResultsView({ query }: { query: string }) {
-  const res = useMemo(() => runMongoQuery(query), [query]);
-  if (res.rows.length === 0) {
-    return <div className="text-muted-foreground p-2">{res.note}</div>;
-  }
+  const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [mongoUri, setMongoUri] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(mongoUri);
+
+  const saveUri = () => {
+    setMongoUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("externalMongoUri", tempUri.trim());
+    }
+    setEditingUri(false);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      setLoading(true);
+      setError(null);
+      setRes(null);
+      try {
+        if (mongoUri) {
+          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          if (active) setRes(remoteRes);
+        } else {
+          // fallback to local in-memory engine
+          const localRes = runDynamicMongoQuery(query);
+          if (active) setRes(localRes);
+        }
+      } catch (e: any) {
+        if (active) setError(e.message || "Failed to execute query");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [query, mongoUri]);
+
   return (
-    <div className="text-[12px]">
-      <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span>{res.note}</span>
-        <span>executed in {res.ms}ms</span>
+    <div className="text-[12px] flex flex-col h-full gap-2">
+      {/* DB Connection Header */}
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Database Connection</span>
+          </div>
+          <button 
+            onClick={() => { setEditingUri(true); setTempUri(mongoUri); }}
+            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+          >
+            {mongoUri ? "Connected (External Atlas)" : "Local In-Memory (Mock)"}
+          </button>
+        </div>
+        {editingUri && (
+          <div className="flex items-center gap-2 mt-1">
+            <input 
+              type="text"
+              value={tempUri}
+              onChange={e => setTempUri(e.target.value)}
+              placeholder="mongodb+srv://..."
+              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
+            />
+            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
+            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+          </div>
+        )}
       </div>
-      <pre className="overflow-auto rounded border bg-editor-bg p-2 font-mono text-foreground/90">{JSON.stringify(res.rows, null, 2)}</pre>
+
+      {/* Query Results */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
+        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+        
+        {res && (
+          <>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground">
+              <span>{res.note}</span>
+              <span>executed in {res.ms}ms</span>
+            </div>
+            {res.rows.length === 0 ? (
+              <div className="text-muted-foreground p-2">0 documents matched.</div>
+            ) : (
+              <pre className="overflow-auto flex-1 rounded border bg-editor-bg p-2 font-mono text-foreground/90">
+                {JSON.stringify(res.rows, null, 2)}
+              </pre>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
