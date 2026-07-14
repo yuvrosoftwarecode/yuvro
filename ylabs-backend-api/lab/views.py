@@ -18,6 +18,12 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
+import threading
+from .github_client import GithubClient
+from .workspace_manager import provision_user_lab_repo, get_repo_name_from_url, provision_lab_starter_repo
+import os
+from django.conf import settings
+from rest_framework.exceptions import ValidationError
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
@@ -29,7 +35,14 @@ class LabViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        lab = serializer.save(created_by=self.request.user)
+        if lab.git_repo_starter_url:
+            threading.Thread(target=provision_lab_starter_repo, args=(lab.id, lab.git_repo_starter_url)).start()
+
+    def perform_update(self, serializer):
+        lab = serializer.save()
+        if lab.git_repo_starter_url:
+            threading.Thread(target=provision_lab_starter_repo, args=(lab.id, lab.git_repo_starter_url)).start()
 
 class LabSprintViewSet(viewsets.ModelViewSet):
     queryset = LabSprint.objects.all()
@@ -42,13 +55,6 @@ class LabSprintViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(lab_id=lab_id)
         return queryset
     
-    def get_queryset(self):
-        queryset = LabSprint.objects.all()
-        lab = self.request.query_params.get('lab')
-        if lab is not None:
-            queryset = queryset.filter(lab=lab)
-        return queryset
-
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
@@ -84,7 +90,40 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         return UserLabEnrollment.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        
+        
+        lab = serializer.validated_data.get('lab')
+        requested_repo_name = self.request.data.get('github_repo_name')
+        if not requested_repo_name:
+            requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
+
+        client = GithubClient(self.request.user.id)
+        if not client._fetch_token():
+            raise ValidationError("Please connect your GitHub account before starting a lab.")
+            
+        try:
+            repo_data = client.create_repository(requested_repo_name, private=True)
+            github_repo_url = repo_data['url']
+            default_branch = repo_data['default_branch']
+        except Exception as e:
+            raise ValidationError(f"Failed to create GitHub repository: {str(e)}")
+
+        enrollment = serializer.save(
+            user=self.request.user,
+            github_repo_name=repo_data['name'],
+            github_repo_url=github_repo_url,
+            default_branch=default_branch
+        )
+        
+        if lab.git_repo_starter_url:
+            starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+            starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), starter_repo_name)
+            if os.path.exists(starter_repo_path):
+                import threading
+                threading.Thread(
+                    target=provision_user_lab_repo, 
+                    args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token)
+                ).start()
 
 class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabSprintTicketSubmissionSerializer

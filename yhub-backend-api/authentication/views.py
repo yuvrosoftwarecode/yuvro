@@ -483,6 +483,14 @@ class GithubConnectView(APIView):
         
         return Response({"message": "GitHub connected successfully", "github_username": github_username})
 
+    def delete(self, request):
+        try:
+            connection = GithubConnection.objects.get(user=request.user)
+            connection.delete()
+            return Response({"message": "GitHub disconnected successfully"}, status=status.HTTP_200_OK)
+        except GithubConnection.DoesNotExist:
+            return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def internal_github_token_view(request, user_id):

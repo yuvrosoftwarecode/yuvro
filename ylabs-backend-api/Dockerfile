@@ -13,6 +13,7 @@ RUN apt-get update \
         libpq-dev \
         gcc \
         curl \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
