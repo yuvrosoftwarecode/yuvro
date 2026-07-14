@@ -14,7 +14,6 @@ export const Route = createFileRoute("/student/profile")({
   component: Profile 
 });
 
-const GITHUB_KEY = "yuvro-github-connected";
 
 function Profile() {
   const { user, updateUser } = useAuth();
@@ -36,8 +35,11 @@ function Profile() {
   const [pwdMsg, setPwdMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   /* ── GitHub integration ────────────────────────────────── */
-  const [githubConnected, setGithubConnected] = useState(false);
-  const [githubHandle, setGithubHandle] = useState("");
+  const githubConnected = user?.github_connected ?? false;
+  const githubHandle = user?.github_username ?? "";
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [disconnectInput, setDisconnectInput] = useState("");
+  const [disconnecting, setDisconnecting] = useState(false);
 
   /* ── Image upload states ───────────────────────────────── */
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
@@ -65,16 +67,6 @@ function Profile() {
       setLastName(user.last_name ?? "");
       setUsername(user.username ?? "");
       setEmail(user.email ?? "");
-    }
-    if (typeof window !== "undefined") {
-      const raw = localStorage.getItem(GITHUB_KEY);
-      if (raw) {
-        try {
-          const g = JSON.parse(raw);
-          setGithubConnected(!!g.connected);
-          setGithubHandle(g.handle ?? "");
-        } catch { /* ignore */ }
-      }
     }
   }, [user]);
 
@@ -150,18 +142,34 @@ function Profile() {
   };
 
   /* ── GitHub connect / disconnect ───────────────────────── */
-  const connectGithub = () => {
-    const h = window.prompt("Enter your GitHub username to connect", githubHandle || "");
-    if (!h) return;
-    setGithubConnected(true);
-    setGithubHandle(h);
-    try { localStorage.setItem(GITHUB_KEY, JSON.stringify({ connected: true, handle: h })); } catch { /* ignore */ }
+  const connectGithub = async () => {
+    try {
+      const { yhubApiAuthUtil } = await import('@/utils/RestApiAuthUtil');
+      const data = await yhubApiAuthUtil.get<{ authorization_url: string }>('/auth/github/connect/');
+      if (data.authorization_url) window.location.href = data.authorization_url;
+    } catch (e) {
+      console.error("Failed to fetch github connect url", e);
+    }
   };
-  const disconnectGithub = () => {
-    if (!confirm("Disconnect your GitHub account?")) return;
-    setGithubConnected(false);
-    setGithubHandle("");
-    try { localStorage.removeItem(GITHUB_KEY); } catch { /* ignore */ }
+  const initiateDisconnect = () => {
+    setDisconnectInput("");
+    setShowDisconnectModal(true);
+  };
+  const confirmDisconnect = async () => {
+    if (disconnectInput !== githubHandle) return;
+    setDisconnecting(true);
+    try {
+      const { yhubApiAuthUtil } = await import('@/utils/RestApiAuthUtil');
+      await yhubApiAuthUtil.delete('/auth/github/connect/');
+      const updatedUser = await authService.getCurrentUser();
+      updateUser(updatedUser);
+      setShowDisconnectModal(false);
+    } catch (e) {
+      console.error("Failed to disconnect github", e);
+      alert("Failed to disconnect GitHub account.");
+    } finally {
+      setDisconnecting(false);
+    }
   };
 
   /* ── Image upload handlers ─────────────────────────────── */
@@ -399,7 +407,7 @@ function Profile() {
               </div>
             </div>
             {githubConnected ? (
-              <button onClick={disconnectGithub}
+              <button onClick={initiateDisconnect}
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent">
                 <Unlink className="h-3.5 w-3.5" /> Disconnect
               </button>
@@ -412,6 +420,42 @@ function Profile() {
           </div>
         </section>
       </main>
+
+      {/* ── Disconnect Modal ───────────────────────────────── */}
+      {showDisconnectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-2">Disconnect GitHub</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Type <strong className="text-foreground">{githubHandle}</strong> to confirm you want to disconnect this account.
+            </p>
+            <input
+              type="text"
+              value={disconnectInput}
+              onChange={(e) => setDisconnectInput(e.target.value)}
+              className="input mb-4"
+              placeholder={githubHandle}
+              autoFocus
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDisconnectModal(false)}
+                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
+                disabled={disconnecting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDisconnect}
+                disabled={disconnectInput !== githubHandle || disconnecting}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm font-medium hover:bg-destructive/90 transition-colors disabled:opacity-50"
+              >
+                {disconnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Disconnect"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .input{width:100%;background:transparent;border:1px solid hsl(var(--border));border-radius:.5rem;padding:.5rem .625rem;font-size:.8125rem;outline:none;transition:border-color .15s}

@@ -16,6 +16,7 @@ export interface User {
   date_joined?: string;
   last_login?: string;
   github_connected?: boolean;
+  github_username?: string;
   profile_image?: string;
   cover_image?: string;
   profile?: {
