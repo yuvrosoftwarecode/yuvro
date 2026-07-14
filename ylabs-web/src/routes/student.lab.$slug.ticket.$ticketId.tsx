@@ -711,7 +711,7 @@ export function StudentTicketView({
 
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/student/lab/tickets/${ticketId}/`)
+      api.get<any>(`/lab/tickets/${ticketId}/`)
         .then(t => {
           if (!active) return;
           setResolvedTicket({
@@ -951,7 +951,11 @@ function TicketIDE({
     setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
-    if (isMultiLang) setProgLang("python");
+    if (isMultiLang) {
+      const valid: ProgLang[] = ["python", "c", "cpp", "js"];
+      if (valid.includes(ticket.tag as ProgLang)) setProgLang(ticket.tag as ProgLang);
+      else setProgLang("python");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id]);
 
@@ -1104,13 +1108,25 @@ function TicketIDE({
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
-  const [tests, setTests] = useState<TestResult[]>([
-    { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
-    { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
-    { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
-    { name: "Test 4 · String Operations", pass: false, time: "—" },
-    { name: "Test 5 · Output Format", pass: false, time: "—" },
-  ]);
+  const [tests, setTests] = useState<TestResult[]>([]);
+  
+  useEffect(() => {
+    if (isReal && ticket.tasks?.length) {
+      setTests(ticket.tasks.map((t: any, i: number) => ({
+        name: `Test ${i+1} · ${t.title || 'Validation'}`,
+        pass: false,
+        time: "—"
+      })));
+    } else if (!isReal) {
+      setTests([
+        { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
+        { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
+        { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
+        { name: "Test 4 · String Operations", pass: false, time: "—" },
+        { name: "Test 5 · Output Format", pass: false, time: "—" },
+      ]);
+    }
+  }, [ticket.tasks, isReal]);
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -1445,7 +1461,7 @@ function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && (
-          <Link to="/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
+          <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
             <ArrowLeft className="h-3 w-3" />Exit
           </Link>
         )}
