@@ -2158,7 +2158,9 @@ function TerminalView({ wsUrl }: { wsUrl: string | null }) {
   // Lazy-load xterm to avoid SSR issues
   useEffect(() => {
     Promise.all([
+      // @ts-ignore
       import("@xterm/xterm"),
+      // @ts-ignore
       import("@xterm/addon-fit"),
     ]).then(([xterm, fit]) => {
       setLibs({ Terminal: xterm.Terminal, FitAddon: fit.FitAddon });
