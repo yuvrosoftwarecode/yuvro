@@ -40,14 +40,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground text-red-500">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end.
+          Something went wrong on our end. You can try refreshing or head back home.
         </p>
-
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
               router.invalidate();
@@ -84,10 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -113,26 +112,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-import { GoogleOAuthProvider } from "@react-oauth/google";
-
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {clientId ? (
-        <GoogleOAuthProvider clientId={clientId}>
-          <AuthProvider>
-            <Outlet />
-          </AuthProvider>
-        </GoogleOAuthProvider>
-      ) : (
-        <AuthProvider>
-          <Outlet />
-        </AuthProvider>
-      )}
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
