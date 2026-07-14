@@ -36,6 +36,14 @@ export const recruiterApi = {
         return await restApiAuthUtil.post<Company>('/recruiter/companies/', data);
     },
 
+    updateCompany: async (id: string, data: Partial<Company>): Promise<Company> => {
+        return await restApiAuthUtil.patch<Company>(`/recruiter/companies/${id}/`, data);
+    },
+
+    deleteCompany: async (id: string): Promise<void> => {
+        return await restApiAuthUtil.delete(`/recruiter/companies/${id}/`);
+    },
+
     fetchRecruiters: async (): Promise<CompanyRecruiter[]> => {
         return await restApiAuthUtil.get<CompanyRecruiter[]>('/recruiter/recruiters/');
     },

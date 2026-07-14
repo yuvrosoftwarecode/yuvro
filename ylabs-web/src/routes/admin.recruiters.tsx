@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell, KpiCard, Panel, Badge } from "@/components/admin/AdminShell";
-import { Briefcase, Plus, Loader2, Edit2, Trash2, Eye, EyeOff } from "lucide-react";
+import { Briefcase, Plus, Loader2, Edit2, Trash2, Eye, EyeOff, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -115,6 +115,186 @@ function AddCompanyDialog({ onAdd, companies }: { onAdd: () => void, companies: 
             </Button>
           </div>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditCompanyDialog({ onUpdate, companies, company }: { onUpdate: () => void, companies: Company[], company: Company }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Partial<Company>>({
+    name: company.name,
+    domain: company.domain || '',
+    website: company.website || '',
+    size: company.size || '',
+    location: company.location || ''
+  });
+  
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        name: company.name,
+        domain: company.domain || '',
+        website: company.website || '',
+        size: company.size || '',
+        location: company.location || ''
+      });
+      setLoading(false);
+    }
+  }, [open, company]);
+
+  const isDuplicate = formData.name 
+    ? companies.some(c => c.id !== company.id && c.name.toLowerCase() === formData.name?.toLowerCase()) 
+    : false;
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name) return toast.error("Company name is required");
+    
+    setLoading(true);
+    try {
+      await recruiterApi.updateCompany(company.id, formData);
+      toast.success("Company updated successfully");
+      setOpen(false);
+      onUpdate();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || err.message || "Failed to update company");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+          <Edit2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Company</DialogTitle>
+          <DialogDescription>
+            Update the details for the company.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4 pt-4">
+          {isDuplicate && (
+            <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+              A company with this name already exists.
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label>Company Name <span className="text-destructive">*</span></Label>
+            <Input required value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Domain</Label>
+              <Input value={formData.domain || ''} onChange={e => setFormData({ ...formData, domain: e.target.value })} placeholder="e.g. Finance" />
+            </div>
+            <div className="space-y-2">
+              <Label>Website</Label>
+              <Input type="url" value={formData.website || ''} onChange={e => setFormData({ ...formData, website: e.target.value })} placeholder="https://" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Size</Label>
+              <Select value={formData.size || ''} onValueChange={(val) => setFormData({ ...formData, size: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1-10">1-10 employees</SelectItem>
+                  <SelectItem value="11-50">11-50 employees</SelectItem>
+                  <SelectItem value="51-200">51-200 employees</SelectItem>
+                  <SelectItem value="201-500">201-500 employees</SelectItem>
+                  <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                  <SelectItem value="1000+">1000+ employees</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Location</Label>
+              <Input value={formData.location || ''} onChange={e => setFormData({ ...formData, location: e.target.value })} placeholder="e.g. New York, USA" />
+            </div>
+          </div>
+          <div className="pt-2 flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={loading || !formData.name || isDuplicate}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Changes
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ManageCompaniesDialog({ onUpdate, companies }: { onUpdate: () => void, companies: Company[] }) {
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this company? All associated recruiters may be affected.")) return;
+    try {
+      await recruiterApi.deleteCompany(id);
+      toast.success("Company deleted successfully");
+      onUpdate();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || err.message || "Failed to delete company");
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="gap-2" variant="outline">
+          <Building2 className="h-4 w-4" /> Companies
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Manage Companies</DialogTitle>
+          <DialogDescription>
+            View, edit, and manage all registered companies.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="overflow-y-auto flex-1 mt-4 border rounded-md">
+          <table className="w-full text-sm">
+            <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20 sticky top-0 backdrop-blur-md">
+              <tr>
+                <th className="text-left font-medium px-4 py-3">Company Name</th>
+                <th className="text-left font-medium px-4 py-3">Domain</th>
+                <th className="text-left font-medium px-4 py-3">Location</th>
+                <th className="text-left font-medium px-4 py-3 w-[100px]">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {companies.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-8 text-muted-foreground">No companies found</td>
+                </tr>
+              ) : (
+                companies.map(c => (
+                  <tr key={c.id} className="border-t border-border/40 hover:bg-accent/30">
+                    <td className="px-4 py-3 font-medium">{c.name}</td>
+                    <td className="px-4 py-3">{c.domain || '-'}</td>
+                    <td className="px-4 py-3">{c.location || '-'}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <EditCompanyDialog onUpdate={onUpdate} companies={companies} company={c} />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(c.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -368,7 +548,12 @@ function RecruitersPage() {
     <AdminShell 
       title="Recruiters" 
       breadcrumb={["People","Recruiters"]}
-      right={<AddCompanyDialog onAdd={loadData} companies={companies} />}
+      right={
+        <div className="flex items-center gap-2">
+          <ManageCompaniesDialog onUpdate={loadData} companies={companies} />
+          <AddCompanyDialog onAdd={loadData} companies={companies} />
+        </div>
+      }
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Active recruiters" value={recruiters.length.toString()} color="primary" icon={Briefcase} />
