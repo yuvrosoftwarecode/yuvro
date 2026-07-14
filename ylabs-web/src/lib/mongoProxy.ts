@@ -4,7 +4,7 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
   .handler(async ({ data }: { data: { uri: string; query: string } }) => {
     const { uri, query } = data;
     
-    const match = query.trim().match(/^db\.(\w+)\.(\w+)\((.*)\)$/s);
+    const match = query.trim().match(/^db\.(\w+)\.(\w+)\((.*)\)\s*;?\s*$/s);
     if (!match) {
       throw new Error(`Unsupported MongoDB query format. Use db.collection.method(...)\nQuery was: ${query}`);
     }

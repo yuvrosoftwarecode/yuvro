@@ -220,6 +220,9 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
 export function runDynamicMongoQuery(queryStr: string): { rows: unknown[]; note: string; ms: number } {
   try {
     const start = performance.now();
+    if (!queryStr.trim()) {
+      return { rows: [], note: "No query provided.", ms: 0 };
+    }
     // Parse things like db.users.find({ ... }).sort({ ... }).limit(1)
     
     // We will evaluate the code inside a Sandbox
