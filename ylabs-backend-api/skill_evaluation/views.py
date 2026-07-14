@@ -2,6 +2,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+
 
 from .models import (
     Evaluation,
@@ -22,9 +24,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
     def perform_create(self, serializer):
-        # In a real app we'd set created_by from request.user
-        # serializer.save(created_by=self.request.user)
-        # Using first user as fallback for now
         from django.contrib.auth import get_user_model
         User = get_user_model()
         user = User.objects.first()
@@ -66,7 +65,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
             
-        from django.contrib.auth import get_user_model
         User = get_user_model()
         user = User.objects.filter(email=email).first()
         if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():

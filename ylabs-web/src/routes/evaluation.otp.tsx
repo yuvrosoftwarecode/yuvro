@@ -57,16 +57,12 @@ function OtpPage() {
     setLoading(true);
     setErr(null);
     try {
-      // 1. Verify OTP
       const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp);
       if (verifyRes.access_token) {
-        // We set the token globally if needed, or pass it to register
         restApiAuthUtil.setAuthToken(verifyRes.access_token);
         
-        // 2. Register for evaluation
         await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token);
         
-        // 3. Navigate
         router.navigate({ to: "/evaluation/proctoring", search: { e: evaluationId } });
       } else {
         setErr("Verification failed: No access token received.");
