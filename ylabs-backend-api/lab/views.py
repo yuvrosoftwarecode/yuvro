@@ -98,19 +98,25 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
 
         client = GithubClient(self.request.user.id)
-        if not client._fetch_token():
-            raise ValidationError("Please connect your GitHub account before starting a lab.")
-            
-        try:
-            repo_data = client.create_repository(requested_repo_name, private=True)
-            github_repo_url = repo_data['url']
-            default_branch = repo_data['default_branch']
-        except Exception as e:
-            raise ValidationError(f"Failed to create GitHub repository: {str(e)}")
+        
+        github_repo_url = ""
+        default_branch = "main"
+        github_repo_name = f"local_{requested_repo_name}"
+        has_token = client._fetch_token()
+
+        if has_token:
+            try:
+                repo_data = client.create_repository(requested_repo_name, private=True)
+                github_repo_url = repo_data['url']
+                default_branch = repo_data['default_branch']
+                github_repo_name = repo_data['name']
+            except Exception as e:
+                # Fallback to local if repo creation fails
+                print(f"Failed to create GitHub repository, falling back to local: {str(e)}")
 
         enrollment = serializer.save(
             user=self.request.user,
-            github_repo_name=repo_data['name'],
+            github_repo_name=github_repo_name,
             github_repo_url=github_repo_url,
             default_branch=default_branch
         )

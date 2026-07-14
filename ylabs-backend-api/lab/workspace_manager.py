@@ -77,11 +77,13 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         subprocess.run(["git", "config", "user.name", "Yuvro Bot"], cwd=user_dir, check=True)
         subprocess.run(["git", "commit", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
-        auth_url = inject_token_into_url(user_github_repo_url, access_token)
-        subprocess.run(["git", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
-        
         subprocess.run(["git", "branch", "-M", "main"], cwd=user_dir, check=True)
-        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
+        
+        if user_github_repo_url and access_token:
+            auth_url = inject_token_into_url(user_github_repo_url, access_token)
+            subprocess.run(["git", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
+            subprocess.run(["git", "push", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
+        
         
         logger.info(f"Successfully provisioned user repo at {user_dir}")
         return user_dir
