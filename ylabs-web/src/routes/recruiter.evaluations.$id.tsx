@@ -629,6 +629,15 @@ function Drawer({ children, onClose, title, subtitle }: { children: React.ReactN
 
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
   const t = evaluationTotals(ev);
+  const link = typeof window !== "undefined" ? `${window.location.origin}/evaluation?e=${ev.id}` : "";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-screen p-10">
       <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white"><ChevronLeft className="h-3.5 w-3.5" /> Back to workspace</button>
@@ -636,6 +645,19 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
         <div className="text-[10px] uppercase tracking-widest text-neutral-500">Evaluation</div>
         <h1 className="mt-1 text-[32px] font-semibold tracking-tight">{ev.title}</h1>
         <div className="mt-1 text-[12px] text-neutral-400">{ev.domain || "—"} · {t.minutes} min · {t.marks} marks</div>
+
+        {ev.status === "published" && (
+          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
+            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
+            <div className="mt-1 flex items-center justify-between">
+              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
+              <button onClick={handleCopy} className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 divide-y divide-white/5 border-y border-white/5">
           {ev.sections.map((s, i) => (
