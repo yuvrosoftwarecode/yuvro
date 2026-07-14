@@ -61,23 +61,6 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
           <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
-<<<<<<< HEAD
-          {primaryLinks.map((link) => {
-            const Icon = link.icon;
-            const active = activePath.startsWith(link.to);
-            return (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors ${
-                  active
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {link.label}
-=======
           {primaryLinks.map((l) => {
             const active = isActive(l.to);
             const Icon = l.icon;
@@ -85,7 +68,6 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
               <Link key={l.to} to={l.to}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}>
                 <Icon className="h-3.5 w-3.5" />{l.label}
->>>>>>> origin/main
               </Link>
             );
           })}
