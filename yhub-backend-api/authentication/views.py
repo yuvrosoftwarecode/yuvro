@@ -178,17 +178,22 @@ class UserRegistrationView(generics.CreateAPIView):
 def public_send_otp(request):
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
-    contest_title = request.data.get('contest_title', 'Contest')
+    resource_id = request.data.get('resource_id') or contest_id
+    resource_type = request.data.get('resource_type', 'contest')
+    contest_title = request.data.get('contest_title', 'Registration')
     
-    if not email or not contest_id:
-        return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not resource_id:
+        return Response({"error": "Email and resource_id are required"}, status=status.HTTP_400_BAD_REQUEST)
         
     
     otp = str(random.randint(100000, 999999))
-    cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
+    cache.set(f"public_registration_otp_{resource_type}_{resource_id}_{email}", otp, timeout=300) # 5 minutes
+    # fallback for backwards compatibility with ycode
+    cache.set(f"public_registration_otp_{resource_id}_{email}", otp, timeout=300) # 5 minutes
     
     context = {
-        "contest_title": contest_title,
+        "resource_title": contest_title,
+        "resource_type": resource_type,
         "otp": otp,
         "frontend_url": settings.FRONTEND_URL
     }
@@ -214,12 +219,16 @@ def public_send_otp(request):
 def public_verify_otp(request):
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
+    resource_id = request.data.get('resource_id') or contest_id
+    resource_type = request.data.get('resource_type', 'contest')
     otp = request.data.get('otp')
     
-    if not email or not otp or not contest_id:
-        return Response({"error": "Email, contest_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not otp or not resource_id:
+        return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-    cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
+    cached_otp = cache.get(f"public_registration_otp_{resource_type}_{resource_id}_{email}")
+    if not cached_otp:
+        cached_otp = cache.get(f"public_registration_otp_{resource_id}_{email}")
     
     if cached_otp and str(cached_otp) == str(otp):
         user = User.objects.filter(email=email).first()
