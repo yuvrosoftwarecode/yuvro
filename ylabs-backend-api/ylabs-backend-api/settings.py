@@ -186,3 +186,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 AUTH_USER_MODEL = "authentication.User"
+
+GITHUB_SYSTEM_PAT = config("GITHUB_SYSTEM_PAT", default="")
+WORKSPACES_ROOT = Path("/workspaces")
