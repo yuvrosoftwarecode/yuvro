@@ -711,7 +711,7 @@ export function StudentTicketView({
 
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/student/lab/tickets/${ticketId}/`)
+      api.get<any>(`/lab/tickets/${ticketId}/`)
         .then(t => {
           if (!active) return;
           setResolvedTicket({
