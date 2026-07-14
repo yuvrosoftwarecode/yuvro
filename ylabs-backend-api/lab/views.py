@@ -58,9 +58,6 @@ class LabViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def my_unlocks(self, request):
         enrollments = UserLabEnrollment.objects.filter(user=request.user, is_unlocked=True)
-        # Assuming lab slugs are used by the frontend, but models.py doesn't have a 'slug' field on Lab.
-        # It uses title or ID. The frontend seems to rely on the lab's title (lowercased) or ID.
-        # We will return a list of lab IDs (and titles for good measure) that are unlocked.
         unlocked_lab_ids = list(enrollments.values_list('lab_id', flat=True))
         return Response({"unlocked_lab_ids": [str(lid) for lid in unlocked_lab_ids]})
 

@@ -1,3 +1,5 @@
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
+
 export type LabTier = "free" | "freemium" | "premium";
 
 export const TIER_META: Record<LabTier, {
@@ -46,8 +48,6 @@ export function getLabTier(slug: string, name?: string): LabTier {
   
   return "freemium";
 }
-
-import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 const KEY = "yuvro-lab-unlocks-v1";
 function read(): string[] {
