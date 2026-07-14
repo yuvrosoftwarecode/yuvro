@@ -105,77 +105,6 @@ function Hub() {
   // GitHub state
   const [ghState, setGhState] = useState<{ connected: boolean; username?: string }>({ connected: false });
   const [modalOpen, setModalOpen] = useState(false);
-  const [enrollModalLabId, setEnrollModalLabId] = useState<string | null>(null);
-  const [enrollModalRepoName, setEnrollModalRepoName] = useState("");
-
-  const toggleEnroll = useCallback(async (labId: string, repoName?: string) => {
-    const isEnrolled = enrolledIds.has(labId);
-    setEnrollLoading((prev) => ({ ...prev, [labId]: true }));
-    try {
-      if (isEnrolled) {
-        const data = await restApiAuthUtil.get<any[]>("/lab/enrollments/");
-        const enrollment = data.find((e: any) => e.lab === labId);
-        if (enrollment) {
-          await restApiAuthUtil.delete(`/lab/enrollments/${enrollment.id}/`);
-        }
-        setEnrolledIds((prev) => {
-          const s = new Set(prev);
-          s.delete(labId);
-          return s;
-        });
-      } else {
-        if (!repoName) {
-           const lab = realLabs.find((l) => l.id === labId);
-           const defaultName = lab ? `yuvro_${lab.title.replace(/\\s+/g, '_').toLowerCase()}` : `yuvro_lab_${labId.substring(0, 5)}`;
-           setEnrollModalRepoName(defaultName);
-           setEnrollModalLabId(labId);
-           setEnrollLoading((prev) => ({ ...prev, [labId]: false }));
-           return;
-        }
-        await restApiAuthUtil.post("/lab/enrollments/", { lab: labId, github_repo_name: repoName });
-        setEnrolledIds((prev) => new Set([...prev, labId]));
-        setEnrollModalLabId(null);
-      }
-    } catch (err) {
-      console.error("Enrollment toggle failed", err);
-    } finally {
-      setEnrollLoading((prev) => ({ ...prev, [labId]: false }));
-    }
-  }, [enrolledIds]);
-
-  const allCatalogLabs = useMemo((): CatalogLab[] => {
-    const realEntries: CatalogLab[] = realLabs.map((lab) => ({
-      id: lab.id,
-      name: lab.title,
-      icon: resolveIcon(lab),
-      description: lab.description,
-      difficulty: diffLabel(lab.difficulty),
-      total: labTicketCounts[lab.id] || 0,
-      completed: realLabCompleted(lab.id),
-      isReal: true,
-      color: "prog",
-    }));
-
-    const realNames = new Set(realLabs.map((l) => l.title.toLowerCase()));
-    const dummyEntries: CatalogLab[] = labs
-      .filter((l) => !realNames.has(l.name.toLowerCase()))
-      .map((l) => ({
-        id: l.slug,
-        name: l.name,
-        icon: l.icon,
-        description: l.description,
-        difficulty: l.difficulty,
-        total: l.total,
-        completed: l.completed,
-        isReal: false,
-        color: l.color,
-      }));
-
-    return [...realEntries, ...dummyEntries];
-  }, [realLabs, labTicketCounts]);
-
-  const myLabs = useMemo(() => allCatalogLabs.filter((l) => enrolledIds.has(l.id)), [allCatalogLabs, enrolledIds]);
-  const featuredLabs = useMemo(() => FEATURED_SLUGS.map((s) => allCatalogLabs.find((l) => l.id === s)).filter(Boolean) as CatalogLab[], [allCatalogLabs]);
 
   const [q, setQ] = useState("");
   const [cats, setCats] = useState<Category[]>([]);
@@ -446,35 +375,6 @@ function Hub() {
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setModalOpen(false)} className="rounded-md px-4 py-2 text-sm font-medium hover:bg-accent">Close</button>
-      {enrollModalLabId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Initialize Lab Workspace</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              We will create a GitHub repository for you with the lab's starter code. You can customize the repository name below.
-            </p>
-            <input
-              type="text"
-              value={enrollModalRepoName}
-              onChange={(e) => setEnrollModalRepoName(e.target.value)}
-              className="input mb-4 w-full p-2 border rounded-md"
-              autoFocus
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setEnrollModalLabId(null)}
-                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
-                disabled={enrollLoading[enrollModalLabId]}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => toggleEnroll(enrollModalLabId, enrollModalRepoName)}
-                disabled={!enrollModalRepoName.trim() || enrollLoading[enrollModalLabId]}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {enrollLoading[enrollModalLabId] ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start Lab"}
-              </button>
             </div>
           </div>
         </div>

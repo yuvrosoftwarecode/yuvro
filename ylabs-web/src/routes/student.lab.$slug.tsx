@@ -3,7 +3,7 @@ import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
 import { Search, Filter, LayoutGrid, List, Calendar, Zap, TrendingUp, TrendingDown, Award, Lock, Sparkles, ArrowLeft, CheckCircle2, Play, Clock, Target, Flag } from "lucide-react";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
@@ -134,26 +134,6 @@ function LabDashboard() {
   const [payOpen, setPayOpen] = useState(false);
   const [unlockBump, setUnlockBump] = useState(0);
 
-  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
-  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
-  const [enrollRepoName, setEnrollRepoName] = useState("");
-  const [enrollLoading, setEnrollLoading] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    if (realLab) {
-      import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-        api.get<any[]>('/lab/enrollments/').then(data => {
-          if (!active) return;
-          setIsEnrolled(data.some((e: any) => e.lab === realLab.id));
-        }).catch(() => {
-          if (active) setIsEnrolled(false);
-        });
-      });
-    }
-    return () => { active = false; };
-  }, [realLab]);
-
   useEffect(() => {
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -260,41 +240,9 @@ function LabDashboard() {
     return isSprintLocked(slug, idx, lab.name);
   };
 
-  const handleStartLabPrompt = () => {
-    setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, '_') || 'lab'}`);
-    setEnrollModalOpen(true);
-  };
-
   const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
-    if (realLab && isEnrolled === false) {
-      handleStartLabPrompt();
-      return;
-    }
     if (sprintLocked(index, sprint)) { setPayOpen(true); return; }
     setActiveSprint(sprintId);
-  };
-
-  const handleTicketClick = (e: React.MouseEvent) => {
-    if (realLab && isEnrolled === false) {
-      e.preventDefault();
-      handleStartLabPrompt();
-    }
-  };
-
-  const confirmEnroll = async () => {
-    if (!realLab || !enrollRepoName.trim()) return;
-    setEnrollLoading(true);
-    try {
-      const { default: api } = await import("@/utils/RestApiAuthUtil");
-      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: enrollRepoName });
-      setIsEnrolled(true);
-      setEnrollModalOpen(false);
-    } catch (e) {
-      console.error("Failed to enroll in lab", e);
-      alert("Failed to start lab. Please try again.");
-    } finally {
-      setEnrollLoading(false);
-    }
   };
   const handleUnlock = () => { unlockLab(slug); setPayOpen(false); setUnlockBump(x => x + 1); };
 
@@ -510,7 +458,7 @@ function LabDashboard() {
                             {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
                             {items.map((t) => (
                               <div key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}>
-                                <Link onClick={handleTicketClick} to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
+                                <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }}
                                   className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-grab active:cursor-grabbing">
                                   <div className="text-sm font-medium leading-snug">{t.title}</div>
                                   <div className="mt-1.5 flex items-center justify-between">
@@ -555,7 +503,7 @@ function LabDashboard() {
                             <td className="text-center text-muted-foreground">{t.estMin}m</td>
                             <td className="text-center">{t.score ?? "—"}</td>
                             <td className="text-right p-3">
-                              <Link onClick={handleTicketClick} to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }} className="text-primary text-xs">Open →</Link>
+                              <Link to="/student/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: t.id }} className="text-primary text-xs">Open →</Link>
                             </td>
                           </tr>
                         ))}
@@ -678,42 +626,6 @@ function LabDashboard() {
             <div className="mt-5 flex gap-2">
               <button onClick={() => setPayOpen(false)} className="flex-1 rounded-md border px-3 py-2 text-sm hover:bg-accent">Not now</button>
               <button onClick={handleUnlock} className="flex-1 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">Unlock now</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Start Lab Modal */}
-      {enrollModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Start Lab</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              A private GitHub repository will be created to store your code. You can customize the repository name below.
-            </p>
-            <input
-              type="text"
-              value={enrollRepoName}
-              onChange={(e) => setEnrollRepoName(e.target.value)}
-              className="w-full rounded-md border bg-input/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40 mb-4"
-              placeholder="e.g. yuvro_python_basics"
-              autoFocus
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setEnrollModalOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
-                disabled={enrollLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmEnroll}
-                disabled={!enrollRepoName.trim() || enrollLoading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {enrollLoading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-r-transparent" /> : "Start Lab"}
-              </button>
             </div>
           </div>
         </div>

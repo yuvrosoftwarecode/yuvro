@@ -1689,7 +1689,7 @@ workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 def _workspace_dir(user_id: str, lab_id: str, sprint_id: str) -> Path:
     """Return the per-student workspace directory."""
-    return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id
+    return WORKSPACES_ROOT / user_id / lab_id / sprint_id
 
 
 def _safe_path(workspace: Path, relative: str) -> Path:
@@ -1711,7 +1711,7 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     children = []
     try:
         for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
-            if child.name in [".bash_history", ".git"]:
+            if child.name == ".bash_history":
                 continue
             child_rel = child.relative_to(base)
             children.append(_build_tree(base, child_rel))
