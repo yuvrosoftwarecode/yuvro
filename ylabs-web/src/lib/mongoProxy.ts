@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
-  .validator((data: { uri: string; query: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(async ({ data }: { data: { uri: string; query: string } }) => {
     const { uri, query } = data;
     
     const match = query.trim().match(/^db\.(\w+)\.(\w+)\((.*)\)$/s);

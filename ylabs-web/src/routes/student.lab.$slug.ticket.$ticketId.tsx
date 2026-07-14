@@ -12,7 +12,7 @@ import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
-import { executeRemoteMongoQuery } from "@/server/mongoProxy";
+import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
