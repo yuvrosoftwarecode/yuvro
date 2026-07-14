@@ -69,8 +69,9 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
       await client.close();
       
       const ms = Date.now() - start;
+      const safeResult = JSON.parse(JSON.stringify(result));
       return { 
-        rows: result, 
+        rows: safeResult, 
         note: `Executed db.${collectionName}.${method}() successfully on external DB`,
         ms 
       };
