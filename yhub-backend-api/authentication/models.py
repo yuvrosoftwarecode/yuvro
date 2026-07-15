@@ -14,6 +14,7 @@ YCODE_ROLE_CHOICES = [
 YLABS_ROLE_CHOICES = [
     ("student", "Student"),
     ("admin", "Administrator"),
+    ("recruiter", "Recruiter"),
 ]
 
 
