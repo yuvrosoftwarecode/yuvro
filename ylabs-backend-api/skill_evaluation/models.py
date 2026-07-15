@@ -160,6 +160,3 @@ class LabQuestionBankTask(BaseTimestampedAdminModel):
 class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
-
-
-
