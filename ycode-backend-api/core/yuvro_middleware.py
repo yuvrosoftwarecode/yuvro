@@ -35,11 +35,20 @@ class ProductJWTAuthentication(JWTAuthentication):
         except KeyError:
             raise InvalidToken("Token contained no recognizable user identification")
 
-        try:
-            user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
-        except User.DoesNotExist:
+        email = validated_token.get("email", "")
+        user = None
+        
+        if email:
+            user = User.objects.filter(email=email).first()
+            
+        if not user:
+            try:
+                user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
+            except User.DoesNotExist:
+                pass
+
+        if not user:
             username = validated_token.get("username", str(user_id))
-            email = validated_token.get("email", "")
             
             roles = validated_token.get("roles", {})
             local_role = roles.get("ycode", "student")

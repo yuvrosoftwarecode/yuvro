@@ -14,6 +14,7 @@ export type LabDifficulty = "EASY" | "MEDIUM" | "HARD";
 export interface AdminLab {
   id: string;
   title: string;
+  slug?: string;
   icon: string;
   type: LabType;
   description: string;
@@ -22,6 +23,8 @@ export interface AdminLab {
   git_repo_starter_url: string;
   difficulty: LabDifficulty;
   is_active: boolean;
+  payment_tier: "free" | "freemium" | "premium";
+  payment_amount: number;
   created_at?: string;
   updated_at?: string;
   custom?: boolean;

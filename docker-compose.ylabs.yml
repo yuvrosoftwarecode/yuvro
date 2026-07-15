@@ -35,6 +35,9 @@ services:
     depends_on:
       ylabs-db:
         condition: service_healthy
+    volumes:
+      - ./ylabs-backend-api:/app
+      - ./workspaces:/workspaces
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -84,7 +87,8 @@ volumes:
 
 networks:
   ylabs:
-    driver: bridge
+    external: true
+    name: yuvro_ylabs
   executor:
     external: true
   yuvro-storage:

@@ -33,6 +33,7 @@ export interface LabSprint {
   id: string;
   name: string;
   description: string;
+  is_locked?: boolean;
   tasks: LabTask[];
 }
 
@@ -51,6 +52,7 @@ export async function loadSprints(labId: string): Promise<LabSprint[]> {
         name: sprint.title,
         description: sprint.description,
         order_index: sprint.order_index || 0,
+        is_locked: sprint.is_locked,
         tasks: tickets.map((t: any) => ({
           id: t.id,
           title: t.title,
@@ -80,8 +82,14 @@ export async function loadSprints(labId: string): Promise<LabSprint[]> {
 }
 
 export async function saveSprints(labId: string, sprints: LabSprint[]) {
-  console.log("saveSprints API sync pending bulk update endpoint");
+  const realSprints = sprints.filter(s => !s.id.startsWith("sp-"));
+  await Promise.all(
+    realSprints.map(s =>
+      restApiAuthUtil.patch(`/lab/sprints/${s.id}/`, { is_locked: s.is_locked ?? false })
+    )
+  );
 }
+
 
 export const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 

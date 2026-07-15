@@ -3,10 +3,10 @@ import { LayoutDashboard, Flag, Users, Link2, ChevronLeft, ChevronRight } from "
 import { useState } from "react";
 
 const navItems = [
-  { to: "/collaboration", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/collaboration/browse", label: "Sprints", icon: Flag },
-  { to: "/collaboration/squads", label: "My Squad", icon: Users },
-  { to: "/collaboration/connections", label: "Connections", icon: Link2 },
+  { to: "/student/collaboration", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/student/collaboration/browse", label: "Sprints", icon: Flag },
+  { to: "/student/collaboration/squads", label: "My Squad", icon: Users },
+  { to: "/student/collaboration/connections", label: "Connections", icon: Link2 },
 ];
 
 export function CollabSidebar() {
@@ -27,7 +27,7 @@ export function CollabSidebar() {
       </div>
       <nav className="flex-1 px-2 space-y-1">
         {navItems.map((item) => {
-          const active = path === item.to || (item.to !== "/collaboration" && path.startsWith(item.to));
+          const active = path === item.to || (item.to !== "/student/collaboration" && path.startsWith(item.to));
           const Icon = item.icon;
           return (
             <Link

@@ -20,6 +20,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    github_connected = serializers.SerializerMethodField()
+    github_username = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
@@ -28,12 +31,25 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "profile_image",
+            "cover_image",
             "roles",
             "is_active",
             "date_joined",
             "last_login",
+            "github_connected",
+            "github_username",
         ]
-        read_only_fields = ["id", "date_joined", "last_login"]
+        read_only_fields = ["id", "date_joined", "last_login", "github_connected", "github_username"]
+
+    def get_github_connected(self, obj):
+        from .models import GithubConnection
+        return GithubConnection.objects.filter(user=obj).exists()
+        
+    def get_github_username(self, obj):
+        from .models import GithubConnection
+        conn = GithubConnection.objects.filter(user=obj).first()
+        return conn.github_username if conn else None
 
 
 class UserLoginSerializer(serializers.Serializer):

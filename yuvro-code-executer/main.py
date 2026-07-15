@@ -15,7 +15,7 @@ import shutil
 import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
-
+import re as _re
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -1689,7 +1689,7 @@ workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 def _workspace_dir(user_id: str, lab_id: str, sprint_id: str) -> Path:
     """Return the per-student workspace directory."""
-    return WORKSPACES_ROOT / f"user_{user_id}" / f"lab_{lab_id}" / f"sprint_{sprint_id}"
+    return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id
 
 
 def _safe_path(workspace: Path, relative: str) -> Path:
@@ -1711,6 +1711,8 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     children = []
     try:
         for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
+            if child.name in [".bash_history", ".git"]:
+                continue
             child_rel = child.relative_to(base)
             children.append(_build_tree(base, child_rel))
     except PermissionError:
@@ -1831,7 +1833,9 @@ class EvaluateRequest(BaseModel):
     user_id: str
     lab_id: str
     sprint_id: str
-    required_command: str
+    required_command: str = ""
+    task_slug: Optional[str] = None
+    scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
 
 @workspace_router.post("/evaluate")
 async def evaluate_task(body: EvaluateRequest):

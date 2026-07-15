@@ -12,4 +12,32 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  vite: {
+    optimizeDeps: {
+      include: ['recharts'],
+    },
+    build: {
+      modulePreload: {
+        polyfill: false,
+      },
+      rollupOptions: {
+        output: {},
+      },
+      chunkSizeWarningLimit: 1000,
+    },
+    server: {
+      port: 3000,
+      strictPort: true,
+      host: "0.0.0.0",
+      hmr: {
+        protocol: "ws",
+        host: "localhost",
+        clientPort: 3002,
+        overlay: true
+      },
+      watch: {
+        usePolling: true
+      }
+    }
+  }
 });

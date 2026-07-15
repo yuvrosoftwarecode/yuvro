@@ -223,12 +223,7 @@
               "Collaborated with design team to implement pixel-perfect UI components",
               "Optimized application performance resulting in 30% faster load times"
             ],
-            "technologies": [
-              "React.js",
-              "TypeScript",
-              "CSS3",
-              "Git"
-            ]
+            "technologies": ["React.js", "TypeScript", "CSS3", "Git"]
           }
         ],
         "projects": [
@@ -250,12 +245,7 @@
             "title": "Task Management App",
             "description": "Collaborative task management application with real-time updates and team collaboration features",
             "role": "Frontend Developer",
-            "tech_stack": [
-              "React.js",
-              "Socket.io",
-              "Material-UI",
-              "Firebase"
-            ],
+            "tech_stack": ["React.js", "Socket.io", "Material-UI", "Firebase"],
             "github_link": "https://github.com/shilpa/task-manager",
             "live_link": "https://task-manager-shilpa.vercel.app"
           }
@@ -346,12 +336,7 @@
               "Collaborated with design team to implement pixel-perfect UI components",
               "Optimized application performance resulting in 30% faster load times"
             ],
-            "technologies": [
-              "React.js",
-              "TypeScript",
-              "CSS3",
-              "Git"
-            ]
+            "technologies": ["React.js", "TypeScript", "CSS3", "Git"]
           }
         ],
         "projects": [
@@ -373,12 +358,7 @@
             "title": "Task Management App",
             "description": "Collaborative task management application with real-time updates and team collaboration features",
             "role": "Frontend Developer",
-            "tech_stack": [
-              "React.js",
-              "Socket.io",
-              "Material-UI",
-              "Firebase"
-            ],
+            "tech_stack": ["React.js", "Socket.io", "Material-UI", "Firebase"],
             "github_link": "https://github.com/shilpa/task-manager",
             "live_link": "https://task-manager-shilpa.vercel.app"
           }
@@ -469,13 +449,7 @@
               "Implemented authentication and authorization systems",
               "Optimized database queries reducing response time by 40%"
             ],
-            "technologies": [
-              "Python",
-              "Django",
-              "PostgreSQL",
-              "Redis",
-              "AWS"
-            ]
+            "technologies": ["Python", "Django", "PostgreSQL", "Redis", "AWS"]
           }
         ],
         "projects": [
@@ -496,12 +470,7 @@
             "title": "Inventory Management System",
             "description": "Complete inventory management system with barcode scanning and automated reorder functionality",
             "role": "Full Stack Developer",
-            "tech_stack": [
-              "Django",
-              "React.js",
-              "PostgreSQL",
-              "Docker"
-            ],
+            "tech_stack": ["Django", "React.js", "PostgreSQL", "Docker"],
             "github_link": "https://github.com/devendra/inventory-system"
           }
         ],
@@ -618,13 +587,7 @@
             "title": "Stock Price Forecasting",
             "description": "Time series analysis and LSTM neural network for stock price prediction",
             "role": "ML Engineer",
-            "tech_stack": [
-              "Python",
-              "TensorFlow",
-              "Keras",
-              "NumPy",
-              "Plotly"
-            ],
+            "tech_stack": ["Python", "TensorFlow", "Keras", "NumPy", "Plotly"],
             "github_link": "https://github.com/rohith/stock-forecasting"
           }
         ],
@@ -739,12 +702,7 @@
             "title": "Fitness Tracker",
             "description": "Personal fitness tracking app with workout plans, progress monitoring, and social features",
             "role": "Flutter Developer",
-            "tech_stack": [
-              "Flutter",
-              "Dart",
-              "SQLite",
-              "Provider"
-            ],
+            "tech_stack": ["Flutter", "Dart", "SQLite", "Provider"],
             "github_link": "https://github.com/manikanta/fitness-tracker"
           }
         ],
@@ -861,13 +819,7 @@
             "title": "CI/CD Pipeline Automation",
             "description": "Complete CI/CD pipeline with automated testing, security scanning, and deployment",
             "role": "DevOps Engineer",
-            "tech_stack": [
-              "Jenkins",
-              "Docker",
-              "SonarQube",
-              "AWS",
-              "Ansible"
-            ],
+            "tech_stack": ["Jenkins", "Docker", "SonarQube", "AWS", "Ansible"],
             "github_link": "https://github.com/harsha/cicd-automation"
           }
         ],
@@ -970,25 +922,14 @@
             "title": "Network Security Scanner",
             "description": "Automated network vulnerability scanner with reporting and remediation suggestions",
             "role": "Security Developer",
-            "tech_stack": [
-              "Python",
-              "Nmap",
-              "SQLite",
-              "Flask",
-              "Bootstrap"
-            ],
+            "tech_stack": ["Python", "Nmap", "SQLite", "Flask", "Bootstrap"],
             "github_link": "https://github.com/vinod/network-scanner"
           },
           {
             "title": "Secure Chat Application",
             "description": "End-to-end encrypted chat application with advanced security features",
             "role": "Security Engineer",
-            "tech_stack": [
-              "Python",
-              "Cryptography",
-              "Socket.io",
-              "React.js"
-            ],
+            "tech_stack": ["Python", "Cryptography", "Socket.io", "React.js"],
             "github_link": "https://github.com/vinod/secure-chat"
           }
         ],
@@ -1110,12 +1051,7 @@
             "title": "Netflix Clone",
             "description": "A responsive Netflix-inspired web application with movie browsing UI and modern React architecture.",
             "role": "Frontend Developer",
-            "tech_stack": [
-              "React.js",
-              "JavaScript",
-              "CSS",
-              "Netlify"
-            ],
+            "tech_stack": ["React.js", "JavaScript", "CSS", "Netlify"],
             "github_link": "https://github.com/mrinalgupta/netflix-clone"
           },
           {
@@ -1135,12 +1071,7 @@
             "title": "Role-Based Access Control Dashboard",
             "description": "Admin dashboard for managing users, roles, and permissions with CRUD operations and dynamic access control.",
             "role": "Frontend Developer",
-            "tech_stack": [
-              "React",
-              "TypeScript",
-              "Tailwind CSS",
-              "REST API"
-            ],
+            "tech_stack": ["React", "TypeScript", "Tailwind CSS", "REST API"],
             "github_link": "https://github.com/mrinalgupta/rbac-dashboard"
           }
         ],

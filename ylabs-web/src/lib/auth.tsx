@@ -15,6 +15,10 @@ export interface User {
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
+  github_connected?: boolean;
+  github_username?: string;
+  profile_image?: string;
+  cover_image?: string;
   profile?: {
     about?: string;
     avatar?: string;
@@ -148,10 +152,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authService
         .getCurrentUser()
         .then((userData) => {
+          const latestToken = authService.getAuthToken() || accessToken;
           localStorage.setItem('user', JSON.stringify(userData));
           dispatch({
             type: 'LOGIN_SUCCESS',
-            payload: { user: userData, token: accessToken },
+            payload: { user: userData, token: latestToken },
           });
         })
         .catch((error) => {

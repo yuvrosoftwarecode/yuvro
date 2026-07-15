@@ -1,0 +1,348 @@
+{
+  "title": "Sprint 1 \u2014 Project Foundation & Authentication",
+  "description": "Goal: Create the project and implement secure authentication.",
+  "order_index": 1,
+  "lab_title": "TaskFlow - Full Stack SaaS",
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Initialize the Full Stack Project",
+      "ticket_slug": "ticket-1-1",
+      "description": "Task\n\nCreate a production-ready folder structure.\n\ntaskflow/\n    client/\n    server/\n\nConfigure\n\nExpress\nReact (Vite)\nESLint\nPrettier\nEnvironment Variables\nGit Repository\n\nDeliverable\n\nApplication runs successfully.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 1 \u2014 Initialize the Full Stack Project"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 1 \u2014 Initialize the Full Stack Project",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Ticket 2 \u2014 Design the Database",
+      "ticket_slug": "ticket-1-2",
+      "description": "Create tables\n\nUsers\nRoles\n\nImplement\n\nMigrations\nSeeders",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 2 \u2014 Design the Database"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 2 \u2014 Design the Database",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Ticket 3 \u2014 User Registration API",
+      "ticket_slug": "ticket-1-3",
+      "description": "Build\n\nPOST /api/auth/register\n\nRequirements\n\nPassword hashing\nEmail uniqueness\nValidation\nError handling",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 3 \u2014 User Registration API"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 3 \u2014 User Registration API",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Ticket 4 \u2014 Login API",
+      "ticket_slug": "ticket-1-4",
+      "description": "Build\n\nPOST /api/auth/login\n\nReturn\n\nJWT\nRefresh Token",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 4 \u2014 Login API"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 4 \u2014 Login API",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket 5 \u2014 Authentication Middleware",
+      "ticket_slug": "ticket-1-5",
+      "description": "Protect private routes.\n\nImplement\n\nverifyToken()",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 5 \u2014 Authentication Middleware"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 5 \u2014 Authentication Middleware",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Ticket 6 \u2014 Build Login Page",
+      "ticket_slug": "ticket-1-6",
+      "description": "React\n\nLogin Form\nValidation\nAPI Integration\nError Messages",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 6 \u2014 Build Login Page"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 6 \u2014 Build Login Page",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Ticket 7 \u2014 Build Registration Page",
+      "ticket_slug": "ticket-1-7",
+      "description": "React\n\nRegistration Form\nPassword Strength\nConfirm Password\nAPI Integration",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 7 \u2014 Build Registration Page"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 7 \u2014 Build Registration Page",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Ticket 8 \u2014 Persistent Login",
+      "ticket_slug": "ticket-1-8",
+      "description": "Implement\n\nRefresh Tokens\nAuto Login\nLogout",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 8 \u2014 Persistent Login"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 8 \u2014 Persistent Login",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Ticket 9 \u2014 User Profile API",
+      "ticket_slug": "ticket-1-9",
+      "description": "Build\n\nGET /me\nPUT /me",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 9 \u2014 User Profile API"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 9 \u2014 User Profile API",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Ticket 10 \u2014 Complete Authentication Module",
+      "ticket_slug": "ticket-1-10",
+      "description": "User can\n\nRegister\nLogin\nStay Logged In\nLogout\nEdit Profile",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Understand Ticket 10 \u2014 Complete Authentication Module"
+      ],
+      "tasks": [
+        {
+          "title": "Complete Ticket 10 \u2014 Complete Authentication Module",
+          "points": 100
+        }
+      ],
+      "common_mistakes": [
+        "Not reading the requirements properly"
+      ],
+      "hints": [
+        "Check the official documentation"
+      ],
+      "scoring_rules": {
+        "default": 100
+      },
+      "solution": {
+        "code": "// Add solution here"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 60,
+      "accepted_programming_languages": [
+        "javascript",
+        "typescript"
+      ],
+      "order_index": 10
+    }
+  ]
+}

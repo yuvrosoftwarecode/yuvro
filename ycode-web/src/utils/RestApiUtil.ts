@@ -152,4 +152,5 @@ class RestApiUtil {
 
 export { RestApiUtil };
 export const restApiUtil = new RestApiUtil(API_BASE_URL);
+export const yhubApiUtil = new RestApiUtil(import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL);
 export default restApiUtil;
