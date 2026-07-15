@@ -1,0 +1,2092 @@
+{
+  "lab_questions": [
+    {
+      "title": "Lab 1: C - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about C.",
+      "difficulty": "EASY",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 2: C - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about C.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 3: C - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about C.",
+      "difficulty": "EASY",
+      "domain": "HEALTHCARE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 4: C - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about C.",
+      "difficulty": "MEDIUM",
+      "domain": "PAYMENT",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 5: C - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about C.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 6: C - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about C.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 7: C - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about C.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 8: C - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about C.",
+      "difficulty": "HARD",
+      "domain": "EDTECH",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 9: C - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about C.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 10: C++ - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about C++.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 11: C++ - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about C++.",
+      "difficulty": "EASY",
+      "domain": "EDTECH",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 12: C++ - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about C++.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 13: C++ - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 14: C++ - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "RETAIL",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 15: C++ - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 16: C++ - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about C++.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 17: C++ - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about C++.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 18: C++ - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about C++.",
+      "difficulty": "HARD",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 19: PYTHON - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 20: PYTHON - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 21: PYTHON - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 22: PYTHON - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 23: PYTHON - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 24: PYTHON - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 25: PYTHON - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 26: PYTHON - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "HEALTHCARE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 27: PYTHON - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 28: JAVA - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about JAVA.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 29: JAVA - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVA.",
+      "difficulty": "EASY",
+      "domain": "EDTECH",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 30: JAVA - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about JAVA.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 31: JAVA - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "EDTECH",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 32: JAVA - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 33: JAVA - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 34: JAVA - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about JAVA.",
+      "difficulty": "HARD",
+      "domain": "EDTECH",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 35: JAVA - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVA.",
+      "difficulty": "HARD",
+      "domain": "HEALTHCARE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 36: JAVA - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about JAVA.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 37: SQL - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about SQL.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 38: SQL - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about SQL.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 39: SQL - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about SQL.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 40: SQL - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 41: SQL - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "EDTECH",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 42: SQL - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "RETAIL",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 43: SQL - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about SQL.",
+      "difficulty": "HARD",
+      "domain": "EDTECH",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 44: SQL - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about SQL.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 45: SQL - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about SQL.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 46: BASH - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about BASH.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 47: BASH - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about BASH.",
+      "difficulty": "EASY",
+      "domain": "PAYMENT",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 48: BASH - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about BASH.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 49: BASH - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 50: BASH - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "PAYMENT",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 51: BASH - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "PAYMENT",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 52: BASH - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about BASH.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 53: BASH - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about BASH.",
+      "difficulty": "HARD",
+      "domain": "EDTECH",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 54: BASH - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about BASH.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 55: JAVASCRIPT - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 56: JAVASCRIPT - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 57: JAVASCRIPT - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 58: JAVASCRIPT - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "FINANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 59: JAVASCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 60: JAVASCRIPT - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 61: JAVASCRIPT - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 62: JAVASCRIPT - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 63: JAVASCRIPT - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 64: TYPESCRIPT - EASY - DEBUGGING",
+      "description": "This is a easy DEBUGGING lab about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 65: TYPESCRIPT - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "EDTECH",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 66: TYPESCRIPT - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 20,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 67: TYPESCRIPT - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 68: TYPESCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 69: TYPESCRIPT - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 70: TYPESCRIPT - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "INSURANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 71: TYPESCRIPT - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "HEALTHCARE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    },
+    {
+      "title": "Lab 72: TYPESCRIPT - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 50,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1",
+          "description": "Do the thing",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        }
+      ]
+    }
+  ]
+}
