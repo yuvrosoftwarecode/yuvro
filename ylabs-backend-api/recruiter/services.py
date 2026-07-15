@@ -9,6 +9,7 @@ def get_yhub_url():
     return getattr(settings, 'YHUB_INTERNAL_URL', os.environ.get('YHUB_INTERNAL_URL', 'http://yhub-backend:8000'))
 
 def register_user_in_yhub(email, username, password, first_name, last_name, roles=None):
+
     if roles is None:
         roles = {"ylabs": "recruiter"}
 
@@ -30,6 +31,7 @@ def register_user_in_yhub(email, username, password, first_name, last_name, role
             return True
             
         # Try to extract a meaningful error message
+
         try:
             error_data = response.json()
             error_msg = str(error_data)
@@ -48,6 +50,7 @@ def register_user_in_yhub(email, username, password, first_name, last_name, role
         raise Exception("Unable to reach YHub for user registration.")
 
 def delete_user_in_yhub(email):
+
     url = f"{get_yhub_url()}/api/auth/internal/delete-user/"
     try:
         response = requests.delete(url, json={"email": email}, timeout=5)

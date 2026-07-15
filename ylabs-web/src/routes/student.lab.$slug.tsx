@@ -130,6 +130,7 @@ function LabDashboard() {
   }, [slug]);
 
   const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>({});
+  const [submissionIds, setSubmissionIds] = useState<Record<string, string>>({});
   const [payOpen, setPayOpen] = useState(false);
   const [unlockBump, setUnlockBump] = useState(0);
 
@@ -159,12 +160,15 @@ function LabDashboard() {
       api.get<any[]>('/lab/submissions/').then((subs) => {
         if (!active) return;
         const overrides: Record<string, Status> = {};
+        const subIds: Record<string, string> = {};
         subs.forEach(s => {
+          subIds[s.lab_sprint_ticket] = s.id;
           if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
             overrides[s.lab_sprint_ticket] = s.ticket_status as Status;
           }
         });
         setStatusOverrides(overrides);
+        setSubmissionIds(subIds);
       }).catch(console.error);
     });
     return () => { active = false; };
@@ -471,11 +475,30 @@ function LabDashboard() {
                       return (
                         <div key={c.key} className="rounded-xl border bg-card/50 p-3"
                           onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => {
+                          onDrop={async (e) => {
                             e.preventDefault();
                             const tId = e.dataTransfer.getData("text/plain");
                             if (tId) {
+                              const oldStatus = statusOverrides[tId] || sprintTickets.find(t=>t.id===tId)?.status || "backlog";
+                              if (oldStatus === c.key) return;
+
                               setStatusOverrides(prev => ({ ...prev, [tId]: c.key }));
+
+                              if (realLab) {
+                                try {
+                                  const { default: api } = await import("@/utils/RestApiAuthUtil");
+                                  const subId = submissionIds[tId];
+                                  if (subId) {
+                                    await api.patch(`/lab/submissions/${subId}/`, { ticket_status: c.key });
+                                  } else {
+                                    const res = await api.post<any>("/lab/submissions/", { lab_sprint_ticket: tId, ticket_status: c.key });
+                                    setSubmissionIds(prev => ({ ...prev, [tId]: res.id }));
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to update status", err);
+                                  setStatusOverrides(prev => ({ ...prev, [tId]: oldStatus as Status }));
+                                }
+                              }
                             }
                           }}
                         >
