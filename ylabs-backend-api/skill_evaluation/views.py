@@ -3,13 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import (
     Evaluation,
-    LabQuestionBank,
-    AssessmentQuestionBank
+    LabQuestionBank
 )
 from .serializers import (
     EvaluationSerializer,
-    LabQuestionBankSerializer,
-    AssessmentQuestionBankSerializer
+    LabQuestionBankSerializer
 )
 from rest_framework.permissions import AllowAny
 
@@ -36,8 +34,3 @@ class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     authentication_classes = []
 
-class AssessmentQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AssessmentQuestionBank.objects.all()
-    serializer_class = AssessmentQuestionBankSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []

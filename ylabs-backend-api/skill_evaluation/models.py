@@ -162,19 +162,4 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
         return self.title
 
 
-class AssessmentQuestionFormat(models.TextChoices):
-    MCQ = "MCQ", "MCQ"
-    MULTIPLE_SELECT = "MULTIPLE_SELECT", "Multiple Select"
-    DESCRIPTION = "DESCRIPTION", "Description"
-    CODING = "CODING", "Coding"
 
-
-class AssessmentQuestionBank(QuestionBank):
-    format = models.CharField(
-        max_length=20,
-        choices=AssessmentQuestionFormat.choices,
-        default=AssessmentQuestionFormat.MCQ,
-    )
-
-    def __str__(self):
-        return self.title

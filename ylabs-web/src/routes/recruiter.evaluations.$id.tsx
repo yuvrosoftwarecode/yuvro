@@ -9,8 +9,8 @@ import {
 import {
   getEvaluation, saveEvaluation, evaluationTotals,
   DOMAINS, PROGRAMMING_LANGUAGES, DATABASES, SCENARIOS, DIFFICULTIES, EXPERIENCE_LEVELS, FORMATS,
-  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem,
-  fetchLabs, fetchQuestions, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
+  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem,
+  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
 } from "@/lib/recruiter";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
@@ -533,17 +533,32 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   const [diff, setDiff] = useState("All");
   const [exp, setExp] = useState("All");
   const [format, setFormat] = useState("All");
+  
+  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [course, setCourse] = useState("All");
+  const [topic, setTopic] = useState("All");
 
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
-  useEffect(() => { fetchQuestions().then(setQuestions); }, []);
+  
+  useEffect(() => { 
+    fetchQuestions().then(setQuestions);
+    fetchCourses().then(setCourses);
+  }, []);
+
+  useEffect(() => {
+    fetchTopics(course !== "All" ? course : undefined).then(setTopics);
+  }, [course]);
 
   const filtered = useMemo(() => questions.filter(it => {
     const qmatch = !q || (it.text || it.title || "").toLowerCase().includes(q.toLowerCase());
     const lmatch = lang === "All" || (it.programming_languages || []).map(x => x.toUpperCase()).includes(lang.toUpperCase());
     const dmatch = diff === "All" || (it.difficulty || "").toUpperCase() === diff.toUpperCase();
     const fmatch = format === "All" || (it.format || "").toUpperCase() === format.toUpperCase().replace(" ", "_");
-    return qmatch && lmatch && dmatch && fmatch;
-  }), [q, lang, diff, format, questions]);
+    const cmatch = course === "All" || it.course === course;
+    const tmatch = topic === "All" || it.topic === topic;
+    return qmatch && lmatch && dmatch && fmatch && cmatch && tmatch;
+  }), [q, lang, diff, format, course, topic, questions]);
 
   return (
     <Drawer title="Assessment Question Bank" subtitle="Curated by topic and experience level." onClose={onClose}>
@@ -551,6 +566,16 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search questions…" className="w-full rounded-md border border-white/10 bg-black/30 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-violet-400/60" />
+        </div>
+        <div className="flex gap-2">
+          <select value={course} onChange={e => { setCourse(e.target.value); setTopic("All"); }} className="w-1/2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-neutral-300 outline-none">
+            <option value="All">All Courses</option>
+            {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <select value={topic} onChange={e => setTopic(e.target.value)} className="w-1/2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-neutral-300 outline-none">
+            <option value="All">All Topics</option>
+            {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
         </div>
         <FilterRow label="Programming Languages" value={lang} setValue={setLang} options={["All", ...PROGRAMMING_LANGUAGES]} />
         <FilterRow label="Difficulty" value={diff} setValue={setDiff} options={["All", ...DIFFICULTIES]} />
