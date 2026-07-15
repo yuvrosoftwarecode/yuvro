@@ -541,12 +541,18 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
 
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   
+  const [loading, setLoading] = useState(true);
+  
   useEffect(() => { 
-    fetchQuestions().then(setQuestions);
-    fetchCourses().then(setCourses);
+    setLoading(true);
+    Promise.all([
+      fetchQuestions().then(setQuestions),
+      fetchCourses().then(setCourses)
+    ]).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
+    setTopics([]);
     fetchTopics(course !== "All" ? course : undefined).then(setTopics);
   }, [course]);
 
@@ -554,7 +560,7 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
     const qmatch = !q || (it.text || it.title || "").toLowerCase().includes(q.toLowerCase());
     const lmatch = lang === "All" || (it.programming_languages || []).map(x => x.toUpperCase()).includes(lang.toUpperCase());
     const dmatch = diff === "All" || (it.difficulty || "").toUpperCase() === diff.toUpperCase();
-    const fmatch = format === "All" || (it.format || "").toUpperCase() === format.toUpperCase().replace(" ", "_");
+    const fmatch = format === "All" || (it.format || it.type || "").toUpperCase() === format.toUpperCase().replace(" ", "_");
     const cmatch = course === "All" || it.course === course;
     const tmatch = topic === "All" || it.topic === topic;
     return qmatch && lmatch && dmatch && fmatch && cmatch && tmatch;
@@ -567,31 +573,40 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search questions…" className="w-full rounded-md border border-white/10 bg-black/30 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-violet-400/60" />
         </div>
-        <div className="flex gap-2">
-          <select value={course} onChange={e => { setCourse(e.target.value); setTopic("All"); }} className="w-1/2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-neutral-300 outline-none">
-            <option value="All">All Courses</option>
-            {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <select value={topic} onChange={e => setTopic(e.target.value)} className="w-1/2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-neutral-300 outline-none">
-            <option value="All">All Topics</option>
-            {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
-        </div>
         <FilterRow label="Programming Languages" value={lang} setValue={setLang} options={["All", ...PROGRAMMING_LANGUAGES]} />
         <FilterRow label="Difficulty" value={diff} setValue={setDiff} options={["All", ...DIFFICULTIES]} />
         <FilterRow label="Format" value={format} setValue={setFormat} options={["All", ...FORMATS]} />
+        <FilterRowObj 
+          label="Courses" 
+          value={course} 
+          setValue={(v) => { setCourse(v); setTopic("All"); }} 
+          options={[{value: "All", label: "All Courses"}, ...courses.map(c => ({value: c.id, label: c.name}))]} 
+        />
+        {course !== "All" && (
+          <FilterRowObj 
+            label="Topics" 
+            value={topic} 
+            setValue={setTopic} 
+            options={[{value: "All", label: "All Topics"}, ...topics.map(t => ({value: t.id, label: t.name}))]} 
+          />
+        )}
       </div>
       <div className="mt-3 space-y-2">
-        {filtered.map(it => {
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
+          </div>
+        )}
+        {!loading && filtered.map(it => {
           const added = existing.includes(it.id);
           return (
             <div key={it.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
               <div className="text-[13px] text-white">{it.text || it.title}</div>
               <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
-                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience}</Chip><Chip>{it.format}</Chip>
+                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
+                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
                 <div className="flex items-center gap-1">
                   <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
                     {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
@@ -614,6 +629,19 @@ function FilterRow({ label, value, setValue, options }: { label: string; value: 
       <div className="mt-1 flex flex-wrap gap-1">
         {options.map(o => (
           <button key={o} onClick={() => setValue(o)} className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{o}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FilterRowObj({ label, value, setValue, options }: { label: string; value: string; setValue: (v: string) => void; options: {value: string, label: string}[] }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-widest text-neutral-500">{label}</div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {options.map(o => (
+          <button key={o.value} onClick={() => setValue(o.value)} className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o.value ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{o.label}</button>
         ))}
       </div>
     </div>

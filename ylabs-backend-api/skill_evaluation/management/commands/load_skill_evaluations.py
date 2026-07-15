@@ -4,7 +4,6 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from skill_evaluation.models import (
-    AssessmentQuestionBank,
     LabQuestionBank,
     LabQuestionBankTask,
 )
@@ -40,15 +39,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Existing skill evaluation data cleared."))
 
         fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures" / deploy_env
-        
-        self.stdout.write(f"\nProcessing: {fixtures_dir}/assessment_questions.json")
-        aq_file = fixtures_dir / "assessment_questions.json"
-        if aq_file.exists():
-            data = self._load_json(aq_file)
-            if data:
-                self._load_assessment_questions(data)
-        else:
-            self.stdout.write(self.style.WARNING(f"File not found: {aq_file}"))
 
         self.stdout.write(f"\nProcessing: {fixtures_dir}/lab_questions.json")
         lq_file = fixtures_dir / "lab_questions.json"
