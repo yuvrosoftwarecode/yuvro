@@ -46,7 +46,16 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 
         return instance
 
+from .models import LabQuestionBankTask
+
+class LabQuestionBankTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabQuestionBankTask
+        fields = ['id', 'title', 'description', 'difficulty', 'scoring_rules']
+
 class LabQuestionBankSerializer(serializers.ModelSerializer):
+    tasks = LabQuestionBankTaskSerializer(many=True, read_only=True)
+    
     class Meta:
         model = LabQuestionBank
         fields = '__all__'
