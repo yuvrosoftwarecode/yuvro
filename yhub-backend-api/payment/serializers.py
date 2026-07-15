@@ -7,10 +7,12 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
     gateway = serializers.ChoiceField(choices=["razorpay", "stripe"], required=False, default="razorpay")
     item_type = serializers.CharField(required=False, write_only=True)
     item_id = serializers.CharField(required=False, write_only=True)
+    item_name = serializers.CharField(required=False, write_only=True)
+    product = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = Payment
-        fields = ["amount", "currency", "purpose", "description", "gateway", "metadata", "item_type", "item_id"]
+        fields = ["amount", "currency", "purpose", "description", "gateway", "metadata", "item_type", "item_id", "item_name", "product"]
         extra_kwargs = {
             "metadata": {"required": False},
             "purpose": {"required": False},
@@ -28,6 +30,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "currency",
             "purpose",
             "description",
+            "product",
             "gateway_order_or_intent_id",
             "gateway_payment_or_charge_id",
             "gateway_customer_reference_id",

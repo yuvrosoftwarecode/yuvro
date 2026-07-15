@@ -1,5 +1,6 @@
 // Recruiter data + backend API
 import { ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
+
 export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
 export type Domain = typeof DOMAINS[number];
 

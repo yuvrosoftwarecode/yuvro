@@ -18,6 +18,9 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
+import random
+import string
+from django.core.cache import cache
 
 
 from rest_framework.views import APIView
@@ -39,9 +42,6 @@ from drf_spectacular.utils import extend_schema
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-import random
-import string
-from django.core.cache import cache
 
 
 @api_view(["POST"])
@@ -182,17 +182,21 @@ class UserRegistrationView(generics.CreateAPIView):
 def public_send_otp(request):
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
-    contest_title = request.data.get('contest_title', 'Contest')
+    resource_id = request.data.get('resource_id') or contest_id
+    resource_type = request.data.get('resource_type', 'contest')
+    contest_title = request.data.get('contest_title', 'Registration')
     
-    if not email or not contest_id:
-        return Response({"error": "Email and contest_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not resource_id:
+        return Response({"error": "Email and resource_id are required"}, status=status.HTTP_400_BAD_REQUEST)
         
     
     otp = str(random.randint(100000, 999999))
-    cache.set(f"public_registration_otp_{contest_id}_{email}", otp, timeout=300) # 5 minutes
+    cache.set(f"public_registration_otp_{resource_type}_{resource_id}_{email}", otp, timeout=300)
+    cache.set(f"public_registration_otp_{resource_id}_{email}", otp, timeout=300)
     
     context = {
-        "contest_title": contest_title,
+        "resource_title": contest_title,
+        "resource_type": resource_type,
         "otp": otp,
         "frontend_url": settings.FRONTEND_URL
     }
@@ -228,12 +232,16 @@ def internal_delete_user(request):
 def public_verify_otp(request):
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')
+    resource_id = request.data.get('resource_id') or contest_id
+    resource_type = request.data.get('resource_type', 'contest')
     otp = request.data.get('otp')
     
-    if not email or not otp or not contest_id:
-        return Response({"error": "Email, contest_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not otp or not resource_id:
+        return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-    cached_otp = cache.get(f"public_registration_otp_{contest_id}_{email}")
+    cached_otp = cache.get(f"public_registration_otp_{resource_type}_{resource_id}_{email}")
+    if not cached_otp:
+        cached_otp = cache.get(f"public_registration_otp_{resource_id}_{email}")
     
     if cached_otp and str(cached_otp) == str(otp):
         user = User.objects.filter(email=email).first()
@@ -392,7 +400,6 @@ class ResetPasswordView(generics.GenericAPIView):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def change_password_view(request):
-    """Allow logged-in users to change their password."""
     password = request.data.get("password")
     if not password:
         return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -557,13 +564,6 @@ def internal_github_token_view(request, user_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def upload_profile_image(request):
-    """
-    POST /api/auth/profile/upload-image/
-
-    multipart/form-data:
-        image:    file (required, ≤10 MB)
-        field:    "profile_image" | "cover_image" (default: profile_image)
-    """
     ALLOWED_FIELDS = ("profile_image", "cover_image")
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
@@ -571,7 +571,7 @@ def upload_profile_image(request):
         "image/webp": "webp",
         "image/gif": "gif",
     }
-    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+    MAX_BYTES = 10 * 1024 * 1024
 
     image_file = request.FILES.get("image")
     if not image_file:
@@ -647,12 +647,6 @@ def upload_profile_image(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def remove_profile_image(request):
-    """
-    POST /api/auth/profile/remove-image/
-
-    JSON body:
-        field:    "profile_image" | "cover_image" (required)
-    """
     ALLOWED_FIELDS = ("profile_image", "cover_image")
 
     target_field = request.data.get("field")
