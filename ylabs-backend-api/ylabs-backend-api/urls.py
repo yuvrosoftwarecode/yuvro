@@ -22,6 +22,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("api/auth/", include("authentication.urls")),
     path("api/lab/", include("lab.urls")),
+    path("api/recruiter/", include("recruiter.urls")),
 ]
 
 if settings.DEBUG:
