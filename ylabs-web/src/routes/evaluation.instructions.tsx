@@ -11,9 +11,12 @@ function InstructionsPage() {
   const nav = useNavigate();
   const [agree, setAgree] = useState(false);
 
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const evaluationId = searchParams.get('e') || '';
+
   const start = async () => {
     try { await document.documentElement.requestFullscreen?.(); } catch {}
-    nav({ to: "/evaluation/workspace" });
+    nav({ to: "/evaluation/workspace", search: { e: evaluationId } });
   };
 
   return (

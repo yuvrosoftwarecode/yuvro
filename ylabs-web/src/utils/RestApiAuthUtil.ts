@@ -31,6 +31,7 @@ class RestApiAuthUtil extends RestApiUtil {
 
     setAuthToken(token: string) {
         this.token = token;
+        localStorage.setItem('access', token);
     }
 
     getAuthToken(): string | null {
