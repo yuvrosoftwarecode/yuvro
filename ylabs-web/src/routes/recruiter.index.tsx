@@ -1,11 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowUpRight, Plus, Users, CheckCircle2, Activity, ClipboardList, Sparkles } from "lucide-react";
-import { listEvaluations, createEvaluation, Evaluation, evaluationTotals } from "@/lib/recruiter";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/recruiter/")({
-  head: () => ({ meta: [{ title: "Recruiter Dashboard — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
-  component: RecruiterDashboard,
+  beforeLoad: () => {
+    throw redirect({ to: "/recruiter/dashboard" });
+  },
 });
 
 function RecruiterDashboard() {

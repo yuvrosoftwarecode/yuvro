@@ -157,8 +157,12 @@ class UserRegistrationView(generics.CreateAPIView):
 
         product = request.query_params.get("product") or request.data.get("product")
         if product:
-            user.roles = {product: "student"}
-            user.save(update_fields=["roles"])
+            if not user.roles:
+                user.roles = {product: "student"}
+                user.save(update_fields=["roles"])
+            elif product not in user.roles:
+                user.roles[product] = "student"
+                user.save(update_fields=["roles"])
             refresh["products"] = [product]
         else:
             refresh["products"] = ["ycode", "ylabs", "ycampus"]
@@ -208,6 +212,16 @@ def public_send_otp(request):
     )
     
     return Response({"status": "success", "message": "OTP sent successfully"})
+
+@api_view(["DELETE"])
+@permission_classes([permissions.AllowAny])
+def internal_delete_user(request):
+    email = request.data.get('email')
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    User.objects.filter(email=email).delete()
+    return Response({"status": "success", "message": "User deleted successfully"})
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
@@ -482,6 +496,14 @@ class GithubConnectView(APIView):
         )
         
         return Response({"message": "GitHub connected successfully", "github_username": github_username})
+
+    def delete(self, request):
+        try:
+            connection = GithubConnection.objects.get(user=request.user)
+            connection.delete()
+            return Response({"message": "GitHub disconnected successfully"}, status=status.HTTP_200_OK)
+        except GithubConnection.DoesNotExist:
+            return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
