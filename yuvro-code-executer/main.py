@@ -16,6 +16,10 @@ import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
 import re as _re
+import base64
+import io
+import tempfile
+from playwright.sync_api import sync_playwright
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -1737,25 +1741,108 @@ async def get_file_tree(
     """
     Return the file tree for a student's workspace.
     Creates the workspace and seeds starter files if it doesn't exist yet.
+
+    Seeding priority (for real labs that pass starters={}):
+      1. Copy from the starter repo clone at labs/<lab_id>/<repo_name>/ (canonical new layout)
+      2. Fall back to inline starters JSON if provided
+      3. Leave empty if nothing available (Git Lab — students work in terminal)
     """
     ws = _workspace_dir(user_id, lab_id, sprint_id)
     seeded = False
 
+    def _copy_from_starter(ws: Path, lab_id: str) -> bool:
+        """Copy files from the starter repo clone into the user workspace.
+
+        If the repo has a 'starter/' subdirectory, only files from that subfolder
+        are copied — this keeps internal folders like 'tickets/' and 'yuvro_scoring_rules'
+        out of the student's workspace.
+
+        If there is no 'starter/' subfolder, the entire repo root is copied (minus
+        .git, tickets/, and yuvro_scoring_rules).
+
+        Returns True if any files were copied.
+        """
+        lab_dir = WORKSPACES_ROOT / "labs" / lab_id
+        if not lab_dir.exists():
+            return False
+
+        # Find the starter repo directory (any child that is NOT 'users')
+        starter_dirs = [d for d in lab_dir.iterdir() if d.is_dir() and d.name != "users"]
+        if not starter_dirs:
+            return False
+
+        repo = starter_dirs[0]  # the cloned repo root
+
+        # Prefer copying from a 'starter/' subdirectory if it exists
+        starter_subdir = repo / "starter"
+        source = starter_subdir if starter_subdir.is_dir() else repo
+
+        # Directories to skip when copying from repo root (not needed if source=starter/)
+        SKIP_DIRS = {".git", "yuvro_scoring_rules", "__pycache__", "tickets"}
+
+        copied = False
+        for item in source.rglob("*"):
+            rel = item.relative_to(source)
+            parts = rel.parts
+
+            # Skip hidden/internal directories
+            if any(p in SKIP_DIRS for p in parts):
+                continue
+
+            dest = ws / rel
+            if item.is_dir():
+                dest.mkdir(parents=True, exist_ok=True)
+            elif item.is_file():
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(str(item), str(dest))
+                copied = True
+        return copied
+
     if not ws.exists():
         ws.mkdir(parents=True, exist_ok=True)
+
+        # Parse any inline starters provided by the frontend
+        seed_files: dict = {}
         if starters is not None:
             try:
                 seed_files = json.loads(starters)
             except Exception:
-                seed_files = DEFAULT_STARTERS.copy()
+                seed_files = {}
+
+        if seed_files:
+            # Inline starters provided (demo / preview mode)
+            for fname, content in seed_files.items():
+                fpath = ws / fname
+                fpath.parent.mkdir(parents=True, exist_ok=True)
+                fpath.write_text(content)
+            seeded = True
         else:
-            seed_files = DEFAULT_STARTERS.copy()
-            
-        for fname, content in seed_files.items():
-            fpath = ws / fname
-            fpath.parent.mkdir(parents=True, exist_ok=True)
-            fpath.write_text(content)
-        seeded = True
+            # No inline starters — try to copy from the lab's starter repo clone
+            seeded = _copy_from_starter(ws, lab_id)
+            # If no starter exists (Git Lab), leave workspace empty;
+            # students work entirely through the terminal
+    else:
+        # Workspace already exists — check if it is empty (only .bash_history)
+        user_files = [
+            f for f in ws.iterdir()
+            if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
+        ]
+        if not user_files:
+            # Empty workspace — try inline starters first, then starter repo
+            seed_files = {}
+            if starters is not None:
+                try:
+                    seed_files = json.loads(starters)
+                except Exception:
+                    seed_files = {}
+            if seed_files:
+                for fname, content in seed_files.items():
+                    fpath = ws / fname
+                    fpath.parent.mkdir(parents=True, exist_ok=True)
+                    fpath.write_text(content)
+                seeded = True
+            else:
+                seeded = _copy_from_starter(ws, lab_id)
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1831,12 +1918,12 @@ class EvaluateRequest(BaseModel):
     scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
 
 @workspace_router.post("/evaluate")
-async def evaluate_task(body: EvaluateRequest):
+def evaluate_task(body: EvaluateRequest):
     """
     Generic regex-based evaluation engine.
     Reads scoring_rules from the request body (originally stored in
     LabSprintTicket.tasks[*].scoring_rules in the sprint JSON fixtures).
-
+    
     scoring_rules schema:
     {
       "checks": [
@@ -1934,6 +2021,168 @@ async def evaluate_task(body: EvaluateRequest):
 
     except Exception as e:
         return {"passed": False, "reason": f"Error during evaluation: {e}"}
+
+
+# ─────────────────────────────────────────────────────────────
+# UI Validate — Playwright screenshots + ui-diff comparison
+# ─────────────────────────────────────────────────────────────
+
+class UiValidateRequest(BaseModel):
+    ticket_slug: str           # e.g. "ticket-01"
+    user_html: str             # student's index.html content
+    user_css: str = ""         # student's styles.css content
+    lab_name: str = "frontend-portfolio"  # legacy fallback sub-folder under /workspaces/labs/
+    lab_id: str = ""           # preferred: lab UUID → resolves labs/<lab_id>/<starter_repo>/tickets/<ticket_slug>/
+
+
+def _render_html_screenshot(html_content: str, css_content: str, width: int = 1280, height: int = 800) -> bytes:
+    """Render HTML+CSS to a PNG screenshot bytes using Playwright (synchronous)."""
+    # Inject CSS into <head> so it renders identically to a real browser load
+    css_tag = f"<style>{css_content}</style>"
+    if "<head>" in html_content:
+        rendered_html = html_content.replace("</head>", f"{css_tag}</head>", 1)
+    elif "<HEAD>" in html_content:
+        rendered_html = html_content.replace("</HEAD>", f"{css_tag}</HEAD>", 1)
+    else:
+        rendered_html = f"{css_tag}{html_content}"
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": width, "height": height})
+        page.set_content(rendered_html, wait_until="domcontentloaded")
+        page.wait_for_timeout(600)  # let fonts / CSS transitions settle
+        screenshot = page.screenshot(full_page=True)
+        browser.close()
+
+    return screenshot
+
+
+def _structural_score(base_html: str, user_html: str) -> dict:
+    """Check that the user's HTML contains the same tags and CSS classes as the base."""
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        return {"score": 100.0, "checks": [{"name": "bs4 not installed", "passed": True, "reason": "skipped"}]}
+
+    skip_tags = {"html", "head", "meta", "title", "body", "link", "style", "script"}
+    base_soup = BeautifulSoup(base_html, "html.parser")
+    user_soup = BeautifulSoup(user_html, "html.parser")
+
+    checks = []
+    passed = total = 0
+
+    # Tag checks
+    base_tags = {t.name for t in base_soup.find_all(True) if t.name not in skip_tags}
+    user_tags  = {t.name for t in user_soup.find_all(True)}
+    for tag in base_tags:
+        total += 1
+        ok = tag in user_tags
+        if ok:
+            passed += 1
+        checks.append({"name": f"<{tag}> element", "passed": ok, "reason": "Found" if ok else "Missing"})
+
+    # Class checks
+    base_cls = {c for t in base_soup.find_all(True) for c in (t.get("class") or [])}
+    user_cls  = {c for t in user_soup.find_all(True) for c in (t.get("class") or [])}
+    for cls in base_cls:
+        total += 1
+        ok = cls in user_cls
+        if ok:
+            passed += 1
+        checks.append({"name": f"class '{cls}'", "passed": ok, "reason": "Found" if ok else "Missing"})
+
+    score = (passed / total * 100) if total > 0 else 100.0
+    return {"score": score, "checks": checks}
+
+
+@workspace_router.post("/ui-validate")
+def ui_validate(body: UiValidateRequest):
+    """
+    Full UI validation pipeline:
+      1. Read base HTML/CSS from /workspaces/labs/<lab_name>/tickets/<ticket_slug>/
+      2. Render both base and user HTML to PNG with Playwright
+      3. Compare screenshots with ui-diff
+      4. Run structural (tag + class) checks
+      5. Return scores, checks, and base64-encoded images
+    """
+    # ── 1. Load base files ───────────────────────────────────────────────────
+    # Resolve base HTML using the new canonical layout first, fall back to legacy.
+    base_html_path: Optional[Path] = None
+
+    # New canonical: labs/<lab_uuid>/<starter_repo_name>/tickets/<ticket_slug>/index.html
+    if body.lab_id:
+        lab_dir = WORKSPACES_ROOT / "labs" / body.lab_id
+        if lab_dir.exists():
+            for child in lab_dir.iterdir():
+                if child.is_dir() and child.name != "users":
+                    candidate = child / "tickets" / body.ticket_slug / "index.html"
+                    if candidate.exists():
+                        base_html_path = candidate
+                        break
+
+    # Legacy fallback: labs/<lab_name>/tickets/<ticket_slug>/index.html
+    if base_html_path is None:
+        legacy = WORKSPACES_ROOT / "labs" / body.lab_name / "tickets" / body.ticket_slug / "index.html"
+        if legacy.exists():
+            base_html_path = legacy
+
+    if base_html_path is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Base HTML not found for ticket '{body.ticket_slug}'. "
+                f"Checked labs/{body.lab_id or ''}/<starter>/ and labs/{body.lab_name}/tickets/. "
+                "Ensure the starter repo is cloned and contains a tickets/<ticket_slug>/index.html file."
+            )
+        )
+
+    base_dir = base_html_path.parent
+    base_css_path = base_dir / "styles.css"
+    base_html = base_html_path.read_text(errors="replace")
+    base_css  = base_css_path.read_text(errors="replace") if base_css_path.exists() else ""
+
+    # ── 2. Render screenshots (sync Playwright) ─────────────
+    try:
+        base_img_bytes = _render_html_screenshot(base_html, base_css)
+        user_img_bytes = _render_html_screenshot(body.user_html, body.user_css)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Playwright screenshot failed: {e}")
+
+    # ── 3. ui-diff comparison ─────────────────────────────────────────────────
+    ui_score = 0.0
+    diff_b64 = ""
+    try:
+        import sys
+        ui_diff_path = str(Path(__file__).parent / "ui-diff")
+        if ui_diff_path not in sys.path:
+            sys.path.insert(0, ui_diff_path)
+        from ui_diff import compare
+        from PIL import Image
+
+        base_pil = Image.open(io.BytesIO(base_img_bytes)).convert("RGB")
+        user_pil = Image.open(io.BytesIO(user_img_bytes)).convert("RGB")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            diff_path = Path(tmpdir) / "diff.png"
+            result = compare(expected=base_pil, actual=user_pil, diff_image_path=str(diff_path))
+            ui_score = result.confidence_score
+            if diff_path.exists():
+                diff_b64 = base64.b64encode(diff_path.read_bytes()).decode()
+    except Exception as e:
+        print(f"[ui-validate] ui-diff error (using 0.0): {e}")
+
+    # ── 4. Structural checks ──────────────────────────────────────────────────
+    structural = _structural_score(base_html, body.user_html)
+
+    # ── 5. Return ─────────────────────────────────────────────────────────────
+    return {
+        "ui_score":          ui_score,
+        "structural_score":  structural["score"],
+        "checks":            structural["checks"],
+        "base_img_b64":      base64.b64encode(base_img_bytes).decode(),
+        "user_img_b64":      base64.b64encode(user_img_bytes).decode(),
+        "diff_img_b64":      diff_b64,
+    }
 
 
 async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:

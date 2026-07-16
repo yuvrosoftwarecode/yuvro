@@ -24,6 +24,53 @@ from .workspace_manager import provision_user_lab_repo, get_repo_name_from_url, 
 import os
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+from .frontend_validator import validate_frontend_ticket
+
+class FrontendValidateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        ticket_slug = request.data.get("ticket_slug")
+        user_html   = request.data.get("user_html", "")
+        user_css    = request.data.get("user_css", "")
+        # lab_id is the Lab UUID — used to resolve the starter repo path.
+        # Falls back to the legacy "frontend-portfolio" folder if not provided.
+        lab_id      = request.data.get("lab_id", "")
+
+        if not ticket_slug:
+            return Response({"error": "ticket_slug is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Proxy to the code-executor which has Playwright + ui-diff installed
+        executor_url = os.environ.get("CODE_EXECUTOR_URL", "http://yuvro-yuvro-code-executor-1:8009")
+        try:
+            import requests as http_requests
+            resp = http_requests.post(
+                f"{executor_url}/workspace/ui-validate",
+                json={
+                    "ticket_slug": ticket_slug,
+                    "user_html":   user_html,
+                    "user_css":    user_css,
+                    "lab_name":    "frontend-portfolio",  # legacy fallback
+                    "lab_id":      lab_id,                # new canonical lookup
+                },
+                timeout=60,  # Playwright screenshots can take ~10-20 s
+            )
+            if resp.status_code == 404:
+                return Response(
+                    {"error": f"Base files not found for ticket '{ticket_slug}'. "
+                              "Ensure the starter repo has been cloned and contains tickets/<ticket_slug>/index.html."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            if not resp.ok:
+                return Response(
+                    {"error": f"Executor error: {resp.text[:500]}"},
+                    status=status.HTTP_502_BAD_GATEWAY,
+                )
+            return Response(resp.json())
+        except Exception as e:
+            return Response({"error": f"Could not reach executor: {e}"}, status=status.HTTP_502_BAD_GATEWAY)
+
+
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()

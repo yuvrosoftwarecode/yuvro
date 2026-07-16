@@ -26,7 +26,9 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const url = new URL(`${this.baseURL}${endpoint}`);
+        const base = this.baseURL.replace(/\/+$/, "");
+        const path = endpoint.replace(/^\/+/, "");
+        const url = new URL(`${base}/${path}`);
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);
@@ -58,7 +60,7 @@ class RestApiUtil {
         try {
             const response = await fetch(url, config);
             const duration = performance.now() - startTime;
-            
+
 
             if (!response.ok) {
                 let errorData: any = {};
@@ -109,10 +111,10 @@ class RestApiUtil {
         } catch (error) {
             const duration = performance.now() - startTime;
             if (error instanceof ApiError) {
-                
+
                 throw error;
             }
-            
+
             throw new ApiError('Network error occurred', 0);
         }
     }
