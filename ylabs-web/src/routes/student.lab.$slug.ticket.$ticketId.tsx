@@ -742,14 +742,12 @@ export function StudentTicketView({
           if (!active) return;
           setResolvedTicket({
             id: t.id,
-            ticket_slug: t.ticket_slug,
             title: t.title,
             description: t.description ?? "",
             difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
-            ticket_slug: t.ticket_slug,
             status: "Not Started",
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
@@ -813,7 +811,7 @@ function TicketIDE({
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
 
-  const kit = useMemo(() => getKit((ticket.ticket_slug || slug || "").toLowerCase(), ticket.tag), [slug, ticket.ticket_slug, ticket.tag]);
+  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -2469,8 +2467,8 @@ function ProblemPanel({
                           )}
                           {evalResult[task.task_slug || `task-${idx}`] && (
                             <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${evalResult[task.task_slug || `task-${idx}`].passed
-                                ? "border-success/20 bg-success/10 text-success"
-                                : "border-destructive/20 bg-destructive/10 text-destructive"
+                              ? "border-success/20 bg-success/10 text-success"
+                              : "border-destructive/20 bg-destructive/10 text-destructive"
                               }`}>
                               {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
                               {evalResult[task.task_slug || `task-${idx}`].reason}
