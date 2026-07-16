@@ -23,10 +23,12 @@ export async function fetchFileTree(
   userId: string,
   labId: string,
   sprintId: string,
-  starters?: Record<string, string>
+  starters?: Record<string, string>,
+  labType?: string
 ): Promise<FileTreeResponse> {
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
   if (starters) params.set("starters", JSON.stringify(starters));
+  if (labType) params.set("lab_type", labType);
   const res = await fetch(`${EXECUTOR_BASE}/workspace/filetree?${params}`);
   if (!res.ok) throw new Error(`File tree fetch failed: ${res.statusText}`);
   return res.json();
@@ -78,9 +80,10 @@ export async function deleteWorkspaceFile(
 }
 
 /** Returns the WebSocket URL for the terminal. */
-export function getTerminalWsUrl(userId: string, labId: string, sprintId: string): string {
+export function getTerminalWsUrl(userId: string, labId: string, sprintId: string, labType?: string): string {
   const wsBase = EXECUTOR_BASE.replace(/^http/, "ws");
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
+  if (labType) params.set("lab_type", labType);
   return `${wsBase}/workspace/terminal?${params}`;
 }
 

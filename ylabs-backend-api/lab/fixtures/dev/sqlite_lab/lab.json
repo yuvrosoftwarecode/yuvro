@@ -2,7 +2,7 @@
   "labs": [
     {
       "title": "SQLite Lab",
-      "type": "DATABASE",
+      "type": "BACKEND",
       "description": "Master SQL and SQLite fundamentals through interactive queries.",
       "difficulty": "EASY",
       "icon": "database",

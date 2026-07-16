@@ -19,5 +19,4 @@ router.register(r'submissions', UserLabSprintTicketSubmissionViewSet, basename='
 urlpatterns = [
     path('stats/', student_stats_view, name='student-stats'),
     path('', include(router.urls)),
-    path('github-integration/', GitHubIntegrationView.as_view(), name='github-integration'),
 ]

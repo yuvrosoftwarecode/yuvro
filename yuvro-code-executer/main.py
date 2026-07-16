@@ -1732,6 +1732,7 @@ async def get_file_tree(
     user_id: str = Query(...),
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
+    lab_type: Optional[str] = Query(None, description="Type of the lab (e.g. sqlite)"),
     starters: Optional[str] = Query(None, description="JSON map of filename->content to seed on first access"),
 ):
     """
@@ -1756,13 +1757,6 @@ async def get_file_tree(
             fpath.parent.mkdir(parents=True, exist_ok=True)
             fpath.write_text(content)
         seeded = True
-
-    if lab_id == "sqlite_lab" or lab_id == "d60b3556-3fff-4a3f-bcae-0d53d3330361":
-        lab_dir = WORKSPACES_ROOT / f"user_{user_id}" / f"lab_{lab_id}"
-        db_path = lab_dir / "sqlite.db"
-        if not db_path.exists():
-            db_path.parent.mkdir(parents=True, exist_ok=True)
-            db_path.touch()
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1948,6 +1942,7 @@ async def terminal_ws(
     user_id: str = Query(...),
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
+    lab_type: Optional[str] = Query(None),
 ):
     """
     WebSocket PTY terminal.
@@ -1971,14 +1966,35 @@ async def terminal_ws(
     except ImportError:
         USE_PTY = False
 
-    if lab_id == "sqlite_lab" or lab_id == "d60b3556-3fff-4a3f-bcae-0d53d3330361":
+    if lab_type == "sqlite":
         bashrc_path = ws_dir / ".bashrc"
-        alias_cmd = "alias sqlite3='sqlite3 ../sqlite.db'\n"
+        wrapper_cmd = '''
+sqlite3() {
+    if [ $# -eq 0 ]; then
+        command sqlite3
+    else
+        last_arg="${@: -1}"
+        if [[ ! "$last_arg" == -* ]]; then
+            touch -- "$last_arg" 2>/dev/null || true
+        fi
+        command sqlite3 "$@"
+    fi
+}
+'''
+        bash_profile_path = ws_dir / ".bash_profile"
+        if not bash_profile_path.exists():
+            bash_profile_path.write_text("if [ -f ~/.bashrc ]; then . ~/.bashrc; fi\n")
+
         if not bashrc_path.exists():
-            bashrc_path.write_text(alias_cmd)
-        elif "alias sqlite3=" not in bashrc_path.read_text():
-            with bashrc_path.open("a") as f:
-                f.write("\n" + alias_cmd)
+            bashrc_path.write_text(wrapper_cmd)
+        else:
+            current_bashrc = bashrc_path.read_text()
+            if "alias sqlite3=" in current_bashrc:
+                new_bashrc = "\n".join(line for line in current_bashrc.splitlines() if not line.startswith("alias sqlite3="))
+                bashrc_path.write_text(new_bashrc)
+            if "sqlite3()" not in bashrc_path.read_text():
+                with bashrc_path.open("a") as f:
+                    f.write("\n" + wrapper_cmd)
 
     env = {
         **os.environ, 

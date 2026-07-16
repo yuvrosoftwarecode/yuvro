@@ -6,6 +6,7 @@ import {
   writeFile as wsWriteFile,
   deleteWorkspaceFile,
   getTerminalWsUrl,
+  runCommand,
   type FileTreeNode,
 } from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
@@ -670,8 +671,8 @@ function getKit(slug: string, tag: string): Kit {
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug === "sql") return SQL_KIT_DEFAULT;
-  if (slug === "mongo") return MONGO_KIT_DEFAULT;
+  if (slug === "sql" || tag === "SQL") return SQL_KIT_DEFAULT;
+  if (slug === "mongo" || tag === "Mongo") return MONGO_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
   if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
   return {
@@ -784,8 +785,7 @@ function TicketIDE({
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-
-  const kit = useMemo(() => getKit(effectiveSlug, ticket.tag), [effectiveSlug, ticket.tag]);
+  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -844,12 +844,25 @@ function TicketIDE({
     });
   }
 
+  const [labTitle, setLabTitle] = useState("");
+
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
     if (!isReal) return;
     setWsLoaded(false);
     try {
-      const res = await fetchFileTree(userId, labId, sprintId, starters);
+      let currentTitle = "";
+      try {
+        const { default: api } = await import("@/utils/RestApiAuthUtil");
+        const realLab = await api.get<any>(`/lab/labs/${slug}/`);
+        currentTitle = realLab.title || realLab.name || "";
+      } catch (e) {
+        currentTitle = labs.find(l => l.slug === slug)?.name || "";
+      }
+      setLabTitle(currentTitle);
+      const isSqliteLab = currentTitle === "SQLite Lab";
+
+      const res = await fetchFileTree(userId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other");
       const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
         if (node.name === ".bash_history") return acc;
         if (node.type === "file") { acc[node.path] = ""; }
@@ -964,7 +977,7 @@ function TicketIDE({
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch {}
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title || realLab.name })); } catch {}
         })
         .catch(() => {
           const labName = labs.find(l => l.slug === slug)?.name ?? slug;
@@ -1161,6 +1174,29 @@ function TicketIDE({
     setTimeout(() => setToast(null), 2200);
   }
 
+  const evaluateSubmission = async (src: string, output: string) => {
+    if (!isReal || !ticket.tasks || ticket.tasks.length === 0) return;
+    let passedCount = 0;
+    const promises = ticket.tasks.map(async (task: any, idx: number) => {
+      const taskSlug = task.task_slug || `task-${idx}`;
+      const scoringRules: Record<string, any> = task.scoring_rules ?? {};
+      const reqCmd = "git";
+      setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+      try {
+        const { evaluateTask } = await import("@/services/workspaceService");
+        const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules);
+        setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+        if (result.passed) passedCount++;
+      } catch (err: any) {
+        setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+      } finally {
+        setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+      }
+    });
+    await Promise.all(promises);
+    setTicketScore({ passed: passedCount, total: ticket.tasks.length });
+  };
+
   function handleRun() {
     setRunning(true);
     setBottomTab("output");
@@ -1215,8 +1251,17 @@ function TicketIDE({
       return;
     }
     if (isSql) {
-      setOutput(`-- Executing ${file} on SQLite\n…running…`);
-      runCommand(userId, labId, sprintId, `sqlite3 ../sqlite.db < ${file}`)
+      const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
+      const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
+
+      if (!dbFile) {
+        setOutput(`Error: No SQLite database (.db) file found in the workspace.\nPlease create one first (e.g., in the terminal run 'sqlite3 mydatabase.db').`);
+        setRunning(false);
+        return;
+      }
+
+      setOutput(`-- Executing ${file} on ${dbFile}\n…running…`);
+      runCommand(userId, labId, sprintId, `sqlite3 "${dbFile}" < "${file}"`)
         .then((res) => {
           let outText = `-- Executed ${file}\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
@@ -1477,7 +1522,7 @@ function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && (
-          <Link to="/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
+          <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
             <ArrowLeft className="h-3 w-3" />Exit
           </Link>
         )}
@@ -1590,7 +1635,7 @@ function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isDatabaseLab ? "font-mono text-[13px]" : ""}`}>
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isSql || isMongo ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -1722,9 +1767,9 @@ function TicketIDE({
                       <t.icon className="h-3 w-3" />{t.label}
                     </button>
                   ))}
-                  {score !== null && (
+                  {ticketScore !== null && (
                     <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
-                      SCORE: {score} / {maxScore}
+                      SCORE: {ticketScore.passed} / {ticketScore.total}
                     </div>
                   )}
                 </div>
@@ -1741,7 +1786,8 @@ function TicketIDE({
                   )}
                   {bottomTab === "terminal" && (
                     <TerminalView
-                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId) : null}
+                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other") : null}
+                      onCommandRun={() => loadWorkspaceFiles(true)}
                     />
                   )}
                 </div>
@@ -2157,7 +2203,7 @@ function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
   );
 }
 
-function TerminalView({ wsUrl }: { wsUrl: string | null }) {
+function TerminalView({ wsUrl, onCommandRun }: { wsUrl: string | null; onCommandRun?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<any>(null);
   const fitRef = useRef<any>(null);
@@ -2277,6 +2323,9 @@ function TerminalView({ wsUrl }: { wsUrl: string | null }) {
     const dataListener = termRef.current?.onData((data: string) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(data);
+      }
+      if (data === '\r' && onCommandRun) {
+        setTimeout(onCommandRun, 500);
       }
     });
 
