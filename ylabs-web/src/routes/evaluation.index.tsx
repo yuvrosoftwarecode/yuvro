@@ -23,8 +23,8 @@ function EvaluationInvite() {
   const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const searchParams = new URLSearchParams(window.location.search);
-  const evaluationId = searchParams.get('e') || '';
+  const searchParams = useSearch({ strict: false });
+  const evaluationId = (searchParams as any).e || '';
 
   const onFiles = (list: FileList | null) => {
     const f = list?.[0];
