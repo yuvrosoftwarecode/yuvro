@@ -1930,6 +1930,20 @@ async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            
+            # Configure git author
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.name", username,
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.email", f"{username}@users.noreply.github.com",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
     except Exception:
         pass  # Always fail silently — terminal should still open
 

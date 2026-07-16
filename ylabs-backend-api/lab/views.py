@@ -136,7 +136,7 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
                 import threading
                 threading.Thread(
                     target=provision_user_lab_repo, 
-                    args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token)
+                    args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token, client.github_username)
                 ).start()
 
 class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):

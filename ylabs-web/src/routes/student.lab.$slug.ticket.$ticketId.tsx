@@ -40,6 +40,14 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({ component: TicketEditorRoute });
 
@@ -724,6 +732,9 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
+            sprint_id: t.sprint ?? null,
+            sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
+            ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
                 const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
@@ -1446,6 +1457,35 @@ function TicketIDE({
     }, 600);
   }
 
+  const [isCommitDialogOpen, setIsCommitDialogOpen] = useState(false);
+  const [commitMessage, setCommitMessage] = useState("");
+  const [isCommitting, setIsCommitting] = useState(false);
+  const sprintNo = ticket.sprintOrder ?? 1;
+  const ticketNo = ticket.ticketOrder ?? 1;
+
+  async function handleCommitSubmit() {
+    if (!commitMessage.trim()) return;
+    setIsCommitting(true);
+    try {
+      const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage}`;
+      const cmd = `git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" && git push`;
+      
+      const { runCommand } = await import("@/services/workspaceService");
+      const res = await runCommand(userId, labId, sprintId, cmd);
+      if (res.exit_code === 0) {
+        showToast("Changes committed and pushed successfully");
+        setIsCommitDialogOpen(false);
+        setCommitMessage("");
+      } else {
+        showToast(`Commit failed: ${res.stderr || res.stdout}`);
+      }
+    } catch (err: any) {
+      showToast(`Error: ${err.message}`);
+    } finally {
+      setIsCommitting(false);
+    }
+  }
+
 
   function handleSave() {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
@@ -1554,6 +1594,10 @@ function TicketIDE({
           </button>
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
+          </button>
+          <button onClick={() => setIsCommitDialogOpen(true)}
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
+            <GitBranch className="h-3 w-3" />Commit
           </button>
           <button onClick={handleSubmit}
             disabled={submitting}
@@ -1860,6 +1904,52 @@ function TicketIDE({
           {toast}
         </div>
       )}
+
+      {/* Commit Dialog */}
+      <Dialog open={isCommitDialogOpen} onOpenChange={setIsCommitDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Commit Changes</DialogTitle>
+            <DialogDescription>
+              Enter a commit message. Your changes will be committed and pushed to the linked repository.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex w-full items-center rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
+              <span className="text-muted-foreground mr-1 whitespace-nowrap">feat(S{sprintNo}-T{ticketNo}) : </span>
+              <input
+                type="text"
+                placeholder="Added new feature..."
+                value={commitMessage}
+                onChange={(e) => setCommitMessage(e.target.value)}
+                className="flex-1 bg-transparent file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCommitSubmit();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setIsCommitDialogOpen(false)}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCommitSubmit}
+              disabled={!commitMessage.trim() || isCommitting}
+              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {isCommitting ? "Committing..." : "Commit"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
