@@ -9,8 +9,8 @@ import {
 import {
   getEvaluation, saveEvaluation, evaluationTotals,
   DOMAINS, PROGRAMMING_LANGUAGES, DATABASES, SCENARIOS, DIFFICULTIES, EXPERIENCE_LEVELS, FORMATS,
-  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem,
-  fetchLabs, fetchQuestions, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
+  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem,
+  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
 } from "@/lib/recruiter";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
@@ -533,17 +533,38 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   const [diff, setDiff] = useState("All");
   const [exp, setExp] = useState("All");
   const [format, setFormat] = useState("All");
+  
+  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [course, setCourse] = useState("All");
+  const [topic, setTopic] = useState("All");
 
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
-  useEffect(() => { fetchQuestions().then(setQuestions); }, []);
+  
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => { 
+    setLoading(true);
+    Promise.all([
+      fetchQuestions().then(setQuestions),
+      fetchCourses().then(setCourses)
+    ]).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setTopics([]);
+    fetchTopics(course !== "All" ? course : undefined).then(setTopics);
+  }, [course]);
 
   const filtered = useMemo(() => questions.filter(it => {
     const qmatch = !q || (it.text || it.title || "").toLowerCase().includes(q.toLowerCase());
     const lmatch = lang === "All" || (it.programming_languages || []).map(x => x.toUpperCase()).includes(lang.toUpperCase());
     const dmatch = diff === "All" || (it.difficulty || "").toUpperCase() === diff.toUpperCase();
-    const fmatch = format === "All" || (it.format || "").toUpperCase() === format.toUpperCase().replace(" ", "_");
-    return qmatch && lmatch && dmatch && fmatch;
-  }), [q, lang, diff, format, questions]);
+    const fmatch = format === "All" || (it.format || it.type || "").toUpperCase() === format.toUpperCase().replace(" ", "_");
+    const cmatch = course === "All" || it.course === course;
+    const tmatch = topic === "All" || it.topic === topic;
+    return qmatch && lmatch && dmatch && fmatch && cmatch && tmatch;
+  }), [q, lang, diff, format, course, topic, questions]);
 
   return (
     <Drawer title="Assessment Question Bank" subtitle="Curated by topic and experience level." onClose={onClose}>
@@ -555,18 +576,37 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
         <FilterRow label="Programming Languages" value={lang} setValue={setLang} options={["All", ...PROGRAMMING_LANGUAGES]} />
         <FilterRow label="Difficulty" value={diff} setValue={setDiff} options={["All", ...DIFFICULTIES]} />
         <FilterRow label="Format" value={format} setValue={setFormat} options={["All", ...FORMATS]} />
+        <FilterRowObj 
+          label="Courses" 
+          value={course} 
+          setValue={(v) => { setCourse(v); setTopic("All"); }} 
+          options={[{value: "All", label: "All Courses"}, ...courses.map(c => ({value: c.id, label: c.name}))]} 
+        />
+        {course !== "All" && (
+          <FilterRowObj 
+            label="Topics" 
+            value={topic} 
+            setValue={setTopic} 
+            options={[{value: "All", label: "All Topics"}, ...topics.map(t => ({value: t.id, label: t.name}))]} 
+          />
+        )}
       </div>
       <div className="mt-3 space-y-2">
-        {filtered.map(it => {
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
+          </div>
+        )}
+        {!loading && filtered.map(it => {
           const added = existing.includes(it.id);
           return (
             <div key={it.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
               <div className="text-[13px] text-white">{it.text || it.title}</div>
               <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
-                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience}</Chip><Chip>{it.format}</Chip>
+                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
+                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
                 <div className="flex items-center gap-1">
                   <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
                     {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
@@ -589,6 +629,19 @@ function FilterRow({ label, value, setValue, options }: { label: string; value: 
       <div className="mt-1 flex flex-wrap gap-1">
         {options.map(o => (
           <button key={o} onClick={() => setValue(o)} className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{o}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FilterRowObj({ label, value, setValue, options }: { label: string; value: string; setValue: (v: string) => void; options: {value: string, label: string}[] }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-widest text-neutral-500">{label}</div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {options.map(o => (
+          <button key={o.value} onClick={() => setValue(o.value)} className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o.value ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{o.label}</button>
         ))}
       </div>
     </div>
@@ -629,6 +682,15 @@ function Drawer({ children, onClose, title, subtitle }: { children: React.ReactN
 
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
   const t = evaluationTotals(ev);
+  const link = typeof window !== "undefined" ? `${window.location.origin}/evaluation?e=${ev.id}` : "";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-screen p-10">
       <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white"><ChevronLeft className="h-3.5 w-3.5" /> Back to workspace</button>
@@ -636,6 +698,19 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
         <div className="text-[10px] uppercase tracking-widest text-neutral-500">Evaluation</div>
         <h1 className="mt-1 text-[32px] font-semibold tracking-tight">{ev.title}</h1>
         <div className="mt-1 text-[12px] text-neutral-400">{ev.domain || "—"} · {t.minutes} min · {t.marks} marks</div>
+
+        {ev.status === "published" && (
+          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
+            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
+            <div className="mt-1 flex items-center justify-between">
+              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
+              <button onClick={handleCopy} className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 divide-y divide-white/5 border-y border-white/5">
           {ev.sections.map((s, i) => (

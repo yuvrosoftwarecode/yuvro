@@ -1,4 +1,5 @@
 // Recruiter data + backend API
+import { ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
 export type Domain = typeof DOMAINS[number];
@@ -47,6 +48,19 @@ export interface QuestionItem {
   marks: number;
   duration_minutes: number;
   seconds?: number; // legacy
+  course?: string;
+  topic?: string;
+}
+
+export interface CourseItem {
+  id: string;
+  name: string;
+}
+
+export interface TopicItem {
+  id: string;
+  name: string;
+  course: string;
 }
 
 export type SectionType = "labs" | "assessment" | "discussion";
@@ -266,12 +280,44 @@ export async function fetchLabs(): Promise<LabItem[]> {
   }
 }
 
+export async function fetchCourses(): Promise<CourseItem[]> {
+  try {
+    return await ycodeApiAuthUtil.get<CourseItem[]>('/course/courses/');
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
+  try {
+    const url = courseId ? `/course/topics/?course=${courseId}` : `/course/topics/`;
+    return await ycodeApiAuthUtil.get<TopicItem[]>(url);
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchQuestions(): Promise<QuestionItem[]> {
   try {
-    const res = await fetch(`${API_BASE}/assessment-questions/`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
+    const data = await ycodeApiAuthUtil.get<any[]>('/course/questions/');
+    // Handle paginated response if backend returns { results: [...] }
+    const results = Array.isArray(data) ? data : (data as any).results || [];
+    return results.map((q: any) => ({
+      id: q.id,
+      text: q.content || "",
+      title: q.title || "",
+      programming_languages: [],
+      databases: [],
+      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      experience: "Fresher" as ExperienceLevel,
+      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      marks: q.marks || 1,
+      duration_minutes: q.duration || 1,
+      course: q.course,
+      topic: q.topic
+    }));
+  } catch (err) {
+    console.error("fetchQuestions error", err);
     return [];
   }
 }

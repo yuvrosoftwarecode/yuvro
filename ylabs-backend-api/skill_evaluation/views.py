@@ -1,22 +1,15 @@
-from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.contrib.auth import get_user_model
-
+from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticated
 
 from .models import (
     Evaluation,
-    LabQuestionBank,
-    AssessmentQuestionBank,
-    UserEvaluationSubmission,
-    DiscussionMode
+    LabQuestionBank
 )
 from .serializers import (
     EvaluationSerializer,
-    LabQuestionBankSerializer,
-    AssessmentQuestionBankSerializer
+    LabQuestionBankSerializer
 )
+from rest_framework.permissions import AllowAny
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.prefetch_related('sections').all()
@@ -77,8 +70,3 @@ class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     authentication_classes = []
 
-class AssessmentQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AssessmentQuestionBank.objects.all()
-    serializer_class = AssessmentQuestionBankSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []

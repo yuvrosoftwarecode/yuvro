@@ -74,8 +74,15 @@ class RestApiAuthUtil extends RestApiUtil {
 
         try {
             console.log('Attempting to refresh token...');
-            const response = await super.post<{ access: string; refresh?: string }>('/auth/token/refresh/', { refresh: refreshToken });
-
+            const authBaseUrl = (import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || "http://localhost:8002/api").replace(/\/$/, "");
+            const res = await fetch(`${authBaseUrl}/auth/token/refresh/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh: refreshToken }),
+            });
+            if (!res.ok) throw new Error(`Refresh failed with status ${res.status}`);
+            const response = await res.json();
+            
             localStorage.setItem('access', response.access);
             if (response.refresh) {
                 localStorage.setItem('refresh', response.refresh);
@@ -161,4 +168,5 @@ class RestApiAuthUtil extends RestApiUtil {
 
 export const restApiAuthUtil = new RestApiAuthUtil(API_BASE_URL);
 export const yhubApiAuthUtil = new RestApiAuthUtil(import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL);
+export const ycodeApiAuthUtil = new RestApiAuthUtil(import.meta.env.VITE_YCODE_BACKEND_API_BASE_URL || "http://localhost:8000/api");
 export default restApiAuthUtil;

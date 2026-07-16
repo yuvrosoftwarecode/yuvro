@@ -3,11 +3,9 @@ from .models import (
     Evaluation,
     EvaluationSection,
     LabQuestionBank,
-    AssessmentQuestionBank,
     QuestionDomain,
     ExperienceLevel,
-    Difficulty,
-    AssessmentQuestionFormat
+    Difficulty
 )
 
 class EvaluationSectionSerializer(serializers.ModelSerializer):
@@ -51,7 +49,3 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
         model = LabQuestionBank
         fields = '__all__'
 
-class AssessmentQuestionBankSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssessmentQuestionBank
-        fields = '__all__'
