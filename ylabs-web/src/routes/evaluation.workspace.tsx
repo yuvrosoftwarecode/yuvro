@@ -1,89 +1,28 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { evaluationService } from "../services/evaluationService";
 
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
   component: Workspace,
 });
 
-// ────────────────────────────────────────────────────────────────────────────
-// Data
-// ────────────────────────────────────────────────────────────────────────────
 
-type LabId = "payments" | "sql";
+type LabId = string;
 type SectionId = "labs" | "knowledge" | "coding" | "discussion";
 type SubjectId = "java" | "sql" | "javascript" | "systemdesign";
 
-const LABS: { id: LabId; title: string; sub: string; minutes: number; problem: string; tasks: string[]; file: string; code: string; terminal: string[] }[] = [
-  {
-    id: "payments",
-    title: "Payment Service Debugging",
-    sub: "Node.js · REST · Postgres",
-    minutes: 15,
-    problem:
-      "A webhook retry worker is silently dropping failed events. Investigate the queue handler, identify the regression introduced in commit a17f4c9, and restore idempotent retries with exponential backoff.",
-    tasks: [
-      "Reproduce the dropped-event scenario from the failing test.",
-      "Locate the regression in the queue handler and describe the root cause.",
-      "Restore idempotent retries with exponential backoff.",
-      "Add a regression test to prevent recurrence.",
-    ],
-    file: "services/payments/queue-handler.ts",
-    code:
-`export async function handleWebhook(event: WebhookEvent) {
-  const record = await db.events.findByIdempotencyKey(event.id);
-  if (record?.status === "processed") return;
-
-  try {
-    await processEvent(event);
-    await db.events.markProcessed(event.id);
-  } catch (err) {
-    // TODO(you): retries were removed here — restore backoff
-    logger.error({ err, event }, "webhook failed");
-    // drops the event silently 👀
-  }
-}`,
-    terminal: [
-      "$ pnpm test payments/queue-handler",
-      "  ✕ retries a transient failure with backoff",
-      "  ✓ marks processed on success",
-      "  ✕ does not re-process an already processed event",
-    ],
-  },
-  {
-    id: "sql",
-    title: "SQL Performance Optimisation",
-    sub: "Postgres · 14M rows · read-heavy",
-    minutes: 15,
-    problem:
-      "Analytics rollups are timing out at p95. Analyse the query plan, propose an index strategy, and rewrite the query so the p95 stays under 400ms on the seeded dataset.",
-    tasks: [
-      "Read the EXPLAIN ANALYZE output for the current query.",
-      "Propose an index (or composite index) that removes the sequential scan.",
-      "Rewrite the query to avoid the correlated subquery.",
-      "Verify the new plan and document the trade-offs.",
-    ],
-    file: "queries/monthly_rollup.sql",
-    code:
-`SELECT
-  u.id,
-  u.name,
-  (SELECT COUNT(*) FROM events e
-    WHERE e.user_id = u.id
-      AND e.created_at >= date_trunc('month', now())) AS event_count
-FROM users u
-WHERE u.status = 'active'
-ORDER BY event_count DESC
-LIMIT 100;`,
-    terminal: [
-      "$ EXPLAIN ANALYZE ... ",
-      "  Seq Scan on users  (cost=0.00..42198.00 rows=1400000)",
-      "  SubPlan 1: Seq Scan on events (cost=0.00..91882 rows=14M)",
-      "  Planning Time: 0.8 ms",
-      "  Execution Time: 2841 ms",
-    ],
-  },
-];
+interface RealLab {
+  id: string;
+  title: string;
+  sub: string;
+  minutes: number;
+  problem: string;
+  tasks: { title: string; description: string }[];
+  file: string;
+  code: string;
+  terminal: string[];
+}
 
 const KNOWLEDGE: { id: SubjectId; title: string; questions: { q: string; options: string[]; correct: number }[] }[] = [
   {
@@ -143,12 +82,57 @@ const DISCUSSION_QUESTIONS = [
 const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
-// ────────────────────────────────────────────────────────────────────────────
-// Workspace
-// ────────────────────────────────────────────────────────────────────────────
 
 function Workspace() {
   const nav = useNavigate();
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const evaluationId = searchParams.get('e') || '';
+
+  const [labsData, setLabsData] = useState<RealLab[]>([]);
+  const [debugData, setDebugData] = useState<any>(null);  
+  useEffect(() => {
+    if (!evaluationId) return;
+    evaluationService.getWorkspaceData(evaluationId)
+      .then(res => {
+        setDebugData(res);
+        const mappedLabs: RealLab[] = [];
+        let durationMinutes = 0;
+
+        (res.sections || []).forEach((sec: any) => {
+          if (sec.type === "LAB") {
+            (sec.questions || []).forEach((q: any) => {
+              mappedLabs.push({
+                id: q.id || Math.random().toString(),
+                title: q.title || "Untitled Lab",
+                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
+                minutes: q.duration_minutes || 30,
+                problem: q.description || q.scenario || "Complete the lab objectives.",
+                tasks: Array.isArray(q.tasks) 
+                  ? q.tasks.map((t: any) => ({
+                      title: t.title || "Task",
+                      description: t.description || ""
+                    }))
+                  : typeof q.tasks === 'number'
+                  ? Array.from({ length: q.tasks }).map((_, i) => ({
+                      title: `Task ${i + 1}`,
+                      description: "Fulfill the specified objective."
+                    }))
+                  : [
+                      { title: "Main Task", description: "Complete the scenario requirements." }
+                    ],
+                file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
+                code: "// Code editor initialized.",
+                terminal: []
+              });
+              durationMinutes += (q.duration_minutes || 30);
+            });
+          }
+        });
+        
+        setLabsData(mappedLabs);
+      })
+      .catch(err => setDebugData({ error: err.message || err.toString() }));
+  }, [evaluationId]);
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<SectionId>("labs");
   const [openLab, setOpenLab] = useState<LabId | null>(null);
@@ -238,7 +222,7 @@ function Workspace() {
   };
 
   // Section statuses
-  const labsStatus = useMemo(() => submittedLabs.size === LABS.length ? "complete" : submittedLabs.size > 0 ? "in-progress" : section === "labs" ? "current" : "not-started", [submittedLabs, section]);
+  const labsStatus = useMemo(() => submittedLabs.size === labsData.length ? "complete" : submittedLabs.size > 0 ? "in-progress" : section === "labs" ? "current" : "not-started", [submittedLabs, section, labsData.length]);
   const knowStatus = useMemo(() => submittedSubjects.size === KNOWLEDGE.length ? "complete" : submittedSubjects.size > 0 ? "in-progress" : section === "knowledge" ? "current" : "not-started", [submittedSubjects, section]);
   const codingStatus = codingSubmitted ? "complete" : section === "coding" ? "current" : "not-started";
   const discussionStatus = discussionIndex >= DISCUSSION_QUESTIONS.length ? "complete" : locked ? "current" : "locked";
@@ -328,6 +312,7 @@ function Workspace() {
 
       <div className="flex min-h-0 flex-1">
         <Sidebar
+          labs={labsData}
           section={section}
           openLab={openLab}
           subject={subject}
@@ -347,7 +332,7 @@ function Workspace() {
           {section === "labs" && (
             openLab ? (
               <LabDetail
-                lab={LABS.find(l => l.id === openLab)!}
+                lab={labsData.find(l => l.id === openLab)!}
                 tasks={taskState[openLab] ?? new Set()}
                 submitted={submittedLabs.has(openLab)}
                 onToggleTask={(i) => toggleTask(openLab, i)}
@@ -356,6 +341,7 @@ function Workspace() {
               />
             ) : (
               <LabsList
+                labs={labsData}
                 submitted={submittedLabs}
                 onOpen={(id) => setOpenLab(id)}
                 onFinishSection={() => goSection("knowledge")}
@@ -549,11 +535,13 @@ function sectionLabel(s: SectionId) {
 type Status = "not-started" | "current" | "in-progress" | "complete" | "locked";
 
 function Sidebar({
+  labs,
   section, openLab, subject,
   onSelectSection, onSelectLab, onSelectSubject,
   labsStatus, knowStatus, codingStatus, discussionStatus,
   submittedLabs, submittedSubjects, locked,
 }: {
+  labs: RealLab[];
   section: SectionId; openLab: LabId | null; subject: SubjectId | null;
   onSelectSection: (s: SectionId) => void; onSelectLab: (id: LabId) => void; onSelectSubject: (id: SubjectId) => void;
   labsStatus: Status; knowStatus: Status; codingStatus: Status; discussionStatus: Status;
@@ -573,7 +561,7 @@ function Sidebar({
           disabled={locked}
         >
           <div className="mt-2 flex flex-col gap-0.5 pl-8">
-            {LABS.map(l => (
+            {labs.map(l => (
               <button
                 key={l.id}
                 disabled={locked && !submittedLabs.has(l.id)}
@@ -664,13 +652,13 @@ function StatusChip({ status }: { status: Status }) {
 // Section: Labs
 // ────────────────────────────────────────────────────────────────────────────
 
-function LabsList({ submitted, onOpen, onFinishSection }: { submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void }) {
-  const allDone = submitted.size === LABS.length;
+function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void }) {
+  const allDone = submitted.size === labs.length;
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
       <SectionHeader eyebrow="Section 01" title="Engineering Labs" body="Two labs. Pick one to start. You can submit each independently." />
       <div className="mt-10 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200 bg-white">
-        {LABS.map((l, i) => {
+        {labs.map((l, i) => {
           const done = submitted.has(l.id);
           return (
             <div key={l.id} className="flex items-center justify-between gap-6 px-6 py-5">
@@ -693,7 +681,7 @@ function LabsList({ submitted, onOpen, onFinishSection }: { submitted: Set<LabId
         })}
       </div>
       <div className="mt-8 flex items-center justify-between">
-        <span className="text-[12px] text-neutral-500">{submitted.size} of {LABS.length} submitted</span>
+        <span className="text-[12px] text-neutral-500">{submitted.size} of {labs.length} submitted</span>
         <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
           Continue to Knowledge Assessment →
         </button>
@@ -702,7 +690,7 @@ function LabsList({ submitted, onOpen, onFinishSection }: { submitted: Set<LabId
   );
 }
 
-function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { lab: typeof LABS[number]; tasks: Set<number>; submitted: boolean; onToggleTask: (i: number) => void; onBack: () => void; onSubmit: () => void }) {
+function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { lab: RealLab; tasks: Set<number>; submitted: boolean; onToggleTask: (i: number) => void; onBack: () => void; onSubmit: () => void }) {
   const [tab, setTab] = useState<"code" | "terminal" | "db" | "preview" | "docs">("code");
   return (
     <div className="flex h-full flex-col">
@@ -725,7 +713,10 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
               <li key={i}>
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-md px-2 py-1.5 hover:bg-neutral-100">
                   <input type="checkbox" checked={tasks.has(i)} onChange={() => onToggleTask(i)} disabled={submitted} className="mt-0.5 h-4 w-4 rounded border-neutral-300" />
-                  <span className={`text-[13px] ${tasks.has(i) ? "text-neutral-400 line-through" : "text-neutral-800"}`}>{t}</span>
+                  <span className={`text-[13px] flex-1 ${tasks.has(i) ? "text-neutral-400" : "text-neutral-800"}`}>
+                    <div className={tasks.has(i) ? "line-through" : "font-medium"}>{t.title}</div>
+                    {t.description && <div className="mt-0.5 text-[12px] text-neutral-500 line-clamp-2">{t.description}</div>}
+                  </span>
                 </label>
               </li>
             ))}

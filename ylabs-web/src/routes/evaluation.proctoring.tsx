@@ -21,6 +21,9 @@ function ProctoringPage() {
 
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const evaluationId = searchParams.get('e') || '';
+
   const [level, setLevel] = useState(0);
 
   const [micCheck, setMicCheck] = useState<CheckState>({ status: 'idle' });
@@ -293,7 +296,7 @@ function ProctoringPage() {
             ))}
           </div>
 
-          <PrimaryButton disabled={currentStep !== 7} type="button" className="mt-8 w-full" onClick={() => nav({ to: "/evaluation/instructions" })}>
+          <PrimaryButton disabled={currentStep !== 7} type="button" className="mt-8 w-full" onClick={() => nav({ to: "/evaluation/instructions", search: { e: evaluationId } })}>
             {currentStep === 7 ? "Continue to instructions" : "Complete all steps"}
           </PrimaryButton>
         </div>

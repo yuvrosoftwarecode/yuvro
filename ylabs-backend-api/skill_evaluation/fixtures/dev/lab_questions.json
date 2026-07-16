@@ -2,273 +2,417 @@
   "lab_questions": [
     {
       "title": "Lab 1: C - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about C.",
+      "description": "This is a easy DEBUGGING lab about C for the INSURANCE domain.",
       "difficulty": "EASY",
-      "domain": "SUPPLY_CHAIN",
+      "domain": "INSURANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "MYSQL"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the C codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C exception",
+          "description": "Patch the identified regression in the C service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 2: C - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about C.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about C for the HEALTHCARE domain.",
       "difficulty": "EASY",
-      "domain": "FINANCE",
+      "domain": "HEALTHCARE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "MYSQL"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new healthcare data models",
+          "description": "Implement the required database schemas and C structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C integrating with the existing healthcare service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 3: C - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about C.",
+      "description": "This is a easy API_OPTIMIZATION lab about C for the SUPPLY_CHAIN domain.",
       "difficulty": "EASY",
-      "domain": "HEALTHCARE",
+      "domain": "SUPPLY_CHAIN",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "POSTGRESQL"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the supply_chain API endpoint",
+          "description": "Identify the bottlenecks in the C API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 4: C - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about C.",
+      "description": "This is a medium DEBUGGING lab about C for the EDTECH domain.",
       "difficulty": "MEDIUM",
-      "domain": "PAYMENT",
+      "domain": "EDTECH",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "MYSQL"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the edtech module",
+          "description": "A recent deployment caused the edtech service to crash under heavy load. Read the provided logs and identify the C codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C exception",
+          "description": "Patch the identified regression in the C service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 5: C - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about C.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about C for the EDTECH domain.",
       "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
+      "domain": "EDTECH",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "SQLITE"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new edtech data models",
+          "description": "Implement the required database schemas and C structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C integrating with the existing edtech service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 6: C - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about C.",
+      "description": "This is a medium API_OPTIMIZATION lab about C for the INSURANCE domain.",
       "difficulty": "MEDIUM",
-      "domain": "HEALTHCARE",
+      "domain": "INSURANCE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "REDIS"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the insurance API endpoint",
+          "description": "Identify the bottlenecks in the C API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 7: C - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about C.",
+      "description": "This is a hard DEBUGGING lab about C for the RETAIL domain.",
       "difficulty": "HARD",
-      "domain": "OTHER",
+      "domain": "RETAIL",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the retail module",
+          "description": "A recent deployment caused the retail service to crash under heavy load. Read the provided logs and identify the C codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C exception",
+          "description": "Patch the identified regression in the C service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 8: C - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about C.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about C for the OTHER domain.",
       "difficulty": "HARD",
-      "domain": "EDTECH",
+      "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "MONGODB"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new other data models",
+          "description": "Implement the required database schemas and C structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C integrating with the existing other service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 9: C - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about C.",
+      "description": "This is a hard API_OPTIMIZATION lab about C for the EDTECH domain.",
       "difficulty": "HARD",
-      "domain": "PAYMENT",
+      "domain": "EDTECH",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C"
       ],
       "databases": [
-        "POSTGRESQL"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the edtech API endpoint",
+          "description": "Identify the bottlenecks in the C API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 10: C++ - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about C++.",
+      "description": "This is a easy DEBUGGING lab about C++ for the RETAIL domain.",
       "difficulty": "EASY",
-      "domain": "FINANCE",
+      "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -281,197 +425,309 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the retail module",
+          "description": "A recent deployment caused the retail service to crash under heavy load. Read the provided logs and identify the C++ codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C++ exception",
+          "description": "Patch the identified regression in the C++ service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 11: C++ - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about C++.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about C++ for the HEALTHCARE domain.",
       "difficulty": "EASY",
-      "domain": "EDTECH",
+      "domain": "HEALTHCARE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "REDIS"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new healthcare data models",
+          "description": "Implement the required database schemas and C++ structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C++ integrating with the existing healthcare service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 12: C++ - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about C++.",
+      "description": "This is a easy API_OPTIMIZATION lab about C++ for the INSURANCE domain.",
       "difficulty": "EASY",
-      "domain": "OTHER",
+      "domain": "INSURANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "MYSQL"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the insurance API endpoint",
+          "description": "Identify the bottlenecks in the C++ API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 13: C++ - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about C++.",
+      "description": "This is a medium DEBUGGING lab about C++ for the INSURANCE domain.",
       "difficulty": "MEDIUM",
-      "domain": "SUPPLY_CHAIN",
+      "domain": "INSURANCE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "MYSQL"
+        "MONGODB"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the C++ codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C++ exception",
+          "description": "Patch the identified regression in the C++ service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 14: C++ - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about C++.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about C++ for the SUPPLY_CHAIN domain.",
       "difficulty": "MEDIUM",
-      "domain": "RETAIL",
+      "domain": "SUPPLY_CHAIN",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "POSTGRESQL"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new supply_chain data models",
+          "description": "Implement the required database schemas and C++ structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C++ integrating with the existing supply_chain service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 15: C++ - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about C++.",
+      "description": "This is a medium API_OPTIMIZATION lab about C++ for the HEALTHCARE domain.",
       "difficulty": "MEDIUM",
-      "domain": "SUPPLY_CHAIN",
+      "domain": "HEALTHCARE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "SQLITE"
+        "MONGODB"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the healthcare API endpoint",
+          "description": "Identify the bottlenecks in the C++ API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 16: C++ - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about C++.",
+      "description": "This is a hard DEBUGGING lab about C++ for the INSURANCE domain.",
       "difficulty": "HARD",
-      "domain": "FINANCE",
+      "domain": "INSURANCE",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "MONGODB"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the C++ codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the C++ exception",
+          "description": "Patch the identified regression in the C++ service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 17: C++ - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about C++.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about C++ for the OTHER domain.",
       "difficulty": "HARD",
-      "domain": "PAYMENT",
+      "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -484,52 +740,84 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new other data models",
+          "description": "Implement the required database schemas and C++ structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in C++ integrating with the existing other service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 18: C++ - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about C++.",
+      "description": "This is a hard API_OPTIMIZATION lab about C++ for the OTHER domain.",
       "difficulty": "HARD",
-      "domain": "SUPPLY_CHAIN",
+      "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "C++"
       ],
       "databases": [
-        "MYSQL"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the other API endpoint",
+          "description": "Identify the bottlenecks in the C++ API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 19: PYTHON - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about PYTHON.",
+      "description": "This is a easy DEBUGGING lab about PYTHON for the PAYMENT domain.",
       "difficulty": "EASY",
-      "domain": "OTHER",
+      "domain": "PAYMENT",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -542,81 +830,129 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the payment module",
+          "description": "A recent deployment caused the payment service to crash under heavy load. Read the provided logs and identify the PYTHON codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the PYTHON exception",
+          "description": "Patch the identified regression in the PYTHON service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 20: PYTHON - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about PYTHON.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about PYTHON for the FINANCE domain.",
       "difficulty": "EASY",
       "domain": "FINANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "MONGODB"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new finance data models",
+          "description": "Implement the required database schemas and PYTHON structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in PYTHON integrating with the existing finance service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 21: PYTHON - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about PYTHON.",
+      "description": "This is a easy API_OPTIMIZATION lab about PYTHON for the RETAIL domain.",
       "difficulty": "EASY",
-      "domain": "SUPPLY_CHAIN",
+      "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "SQLITE"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the retail API endpoint",
+          "description": "Identify the bottlenecks in the PYTHON API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 22: PYTHON - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about PYTHON.",
+      "description": "This is a medium DEBUGGING lab about PYTHON for the OTHER domain.",
       "difficulty": "MEDIUM",
       "domain": "OTHER",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -629,690 +965,1074 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the other module",
+          "description": "A recent deployment caused the other service to crash under heavy load. Read the provided logs and identify the PYTHON codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the PYTHON exception",
+          "description": "Patch the identified regression in the PYTHON service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 23: PYTHON - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about PYTHON.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about PYTHON for the HEALTHCARE domain.",
       "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
+      "domain": "HEALTHCARE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "MYSQL"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new healthcare data models",
+          "description": "Implement the required database schemas and PYTHON structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in PYTHON integrating with the existing healthcare service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 24: PYTHON - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about PYTHON.",
+      "description": "This is a medium API_OPTIMIZATION lab about PYTHON for the SUPPLY_CHAIN domain.",
       "difficulty": "MEDIUM",
-      "domain": "HEALTHCARE",
+      "domain": "SUPPLY_CHAIN",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the supply_chain API endpoint",
+          "description": "Identify the bottlenecks in the PYTHON API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 25: PYTHON - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about PYTHON.",
+      "description": "This is a hard DEBUGGING lab about PYTHON for the INSURANCE domain.",
       "difficulty": "HARD",
-      "domain": "FINANCE",
+      "domain": "INSURANCE",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "MONGODB"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the PYTHON codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the PYTHON exception",
+          "description": "Patch the identified regression in the PYTHON service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 26: PYTHON - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about PYTHON.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about PYTHON for the OTHER domain.",
       "difficulty": "HARD",
-      "domain": "HEALTHCARE",
+      "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "POSTGRESQL"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new other data models",
+          "description": "Implement the required database schemas and PYTHON structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in PYTHON integrating with the existing other service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 27: PYTHON - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about PYTHON.",
+      "description": "This is a hard API_OPTIMIZATION lab about PYTHON for the SUPPLY_CHAIN domain.",
       "difficulty": "HARD",
-      "domain": "PAYMENT",
+      "domain": "SUPPLY_CHAIN",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "PYTHON"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the supply_chain API endpoint",
+          "description": "Identify the bottlenecks in the PYTHON API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 28: JAVA - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about JAVA.",
+      "description": "This is a easy DEBUGGING lab about JAVA for the FINANCE domain.",
       "difficulty": "EASY",
       "domain": "FINANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the finance module",
+          "description": "A recent deployment caused the finance service to crash under heavy load. Read the provided logs and identify the JAVA codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the JAVA exception",
+          "description": "Patch the identified regression in the JAVA service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 29: JAVA - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVA.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVA for the RETAIL domain.",
       "difficulty": "EASY",
-      "domain": "EDTECH",
+      "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new retail data models",
+          "description": "Implement the required database schemas and JAVA structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVA integrating with the existing retail service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 30: JAVA - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about JAVA.",
+      "description": "This is a easy API_OPTIMIZATION lab about JAVA for the RETAIL domain.",
       "difficulty": "EASY",
-      "domain": "FINANCE",
+      "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "SQLITE"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the retail API endpoint",
+          "description": "Identify the bottlenecks in the JAVA API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 31: JAVA - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about JAVA.",
+      "description": "This is a medium DEBUGGING lab about JAVA for the FINANCE domain.",
       "difficulty": "MEDIUM",
-      "domain": "EDTECH",
+      "domain": "FINANCE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the finance module",
+          "description": "A recent deployment caused the finance service to crash under heavy load. Read the provided logs and identify the JAVA codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the JAVA exception",
+          "description": "Patch the identified regression in the JAVA service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 32: JAVA - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVA.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVA for the SUPPLY_CHAIN domain.",
       "difficulty": "MEDIUM",
-      "domain": "OTHER",
+      "domain": "SUPPLY_CHAIN",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "MONGODB"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new supply_chain data models",
+          "description": "Implement the required database schemas and JAVA structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVA integrating with the existing supply_chain service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 33: JAVA - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about JAVA.",
+      "description": "This is a medium API_OPTIMIZATION lab about JAVA for the HEALTHCARE domain.",
       "difficulty": "MEDIUM",
       "domain": "HEALTHCARE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "REDIS"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the healthcare API endpoint",
+          "description": "Identify the bottlenecks in the JAVA API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 34: JAVA - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about JAVA.",
+      "description": "This is a hard DEBUGGING lab about JAVA for the HEALTHCARE domain.",
       "difficulty": "HARD",
-      "domain": "EDTECH",
+      "domain": "HEALTHCARE",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "SQLITE"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the healthcare module",
+          "description": "A recent deployment caused the healthcare service to crash under heavy load. Read the provided logs and identify the JAVA codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the JAVA exception",
+          "description": "Patch the identified regression in the JAVA service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 35: JAVA - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVA.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVA for the RETAIL domain.",
       "difficulty": "HARD",
-      "domain": "HEALTHCARE",
+      "domain": "RETAIL",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new retail data models",
+          "description": "Implement the required database schemas and JAVA structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVA integrating with the existing retail service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 36: JAVA - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about JAVA.",
+      "description": "This is a hard API_OPTIMIZATION lab about JAVA for the INSURANCE domain.",
       "difficulty": "HARD",
-      "domain": "OTHER",
+      "domain": "INSURANCE",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVA"
       ],
       "databases": [
-        "POSTGRESQL"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the insurance API endpoint",
+          "description": "Identify the bottlenecks in the JAVA API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 37: SQL - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about SQL.",
+      "description": "This is a easy DEBUGGING lab about SQL for the PAYMENT domain.",
       "difficulty": "EASY",
-      "domain": "OTHER",
+      "domain": "PAYMENT",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "MONGODB"
+        "REDIS"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the payment module",
+          "description": "A recent deployment caused the payment service to crash under heavy load. Read the provided logs and identify the SQL codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the SQL exception",
+          "description": "Patch the identified regression in the SQL service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 38: SQL - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about SQL.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about SQL for the RETAIL domain.",
       "difficulty": "EASY",
       "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "MYSQL"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new retail data models",
+          "description": "Implement the required database schemas and SQL structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in SQL integrating with the existing retail service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 39: SQL - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about SQL.",
+      "description": "This is a easy API_OPTIMIZATION lab about SQL for the PAYMENT domain.",
       "difficulty": "EASY",
-      "domain": "FINANCE",
+      "domain": "PAYMENT",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "SQLITE"
+        "MONGODB"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the payment API endpoint",
+          "description": "Identify the bottlenecks in the SQL API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 40: SQL - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about SQL.",
+      "description": "This is a medium DEBUGGING lab about SQL for the INSURANCE domain.",
       "difficulty": "MEDIUM",
-      "domain": "OTHER",
+      "domain": "INSURANCE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the SQL codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the SQL exception",
+          "description": "Patch the identified regression in the SQL service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 41: SQL - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about SQL.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about SQL for the PAYMENT domain.",
       "difficulty": "MEDIUM",
-      "domain": "EDTECH",
+      "domain": "PAYMENT",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "POSTGRESQL"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new payment data models",
+          "description": "Implement the required database schemas and SQL structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in SQL integrating with the existing payment service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 42: SQL - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about SQL.",
+      "description": "This is a medium API_OPTIMIZATION lab about SQL for the HEALTHCARE domain.",
       "difficulty": "MEDIUM",
-      "domain": "RETAIL",
+      "domain": "HEALTHCARE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "MYSQL"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the healthcare API endpoint",
+          "description": "Identify the bottlenecks in the SQL API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 43: SQL - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about SQL.",
+      "description": "This is a hard DEBUGGING lab about SQL for the EDTECH domain.",
       "difficulty": "HARD",
       "domain": "EDTECH",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "POSTGRESQL"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the edtech module",
+          "description": "A recent deployment caused the edtech service to crash under heavy load. Read the provided logs and identify the SQL codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the SQL exception",
+          "description": "Patch the identified regression in the SQL service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 44: SQL - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about SQL.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about SQL for the PAYMENT domain.",
       "difficulty": "HARD",
-      "domain": "OTHER",
+      "domain": "PAYMENT",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "SQLITE"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new payment data models",
+          "description": "Implement the required database schemas and SQL structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in SQL integrating with the existing payment service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 45: SQL - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about SQL.",
+      "description": "This is a hard API_OPTIMIZATION lab about SQL for the SUPPLY_CHAIN domain.",
       "difficulty": "HARD",
-      "domain": "PAYMENT",
+      "domain": "SUPPLY_CHAIN",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "SQL"
       ],
       "databases": [
-        "ELASTICSEARCH"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the supply_chain API endpoint",
+          "description": "Identify the bottlenecks in the SQL API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 46: BASH - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about BASH.",
+      "description": "This is a easy DEBUGGING lab about BASH for the INSURANCE domain.",
       "difficulty": "EASY",
-      "domain": "RETAIL",
+      "domain": "INSURANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1325,23 +2045,39 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the insurance module",
+          "description": "A recent deployment caused the insurance service to crash under heavy load. Read the provided logs and identify the BASH codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the BASH exception",
+          "description": "Patch the identified regression in the BASH service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 47: BASH - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about BASH.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about BASH for the FINANCE domain.",
       "difficulty": "EASY",
-      "domain": "PAYMENT",
+      "domain": "FINANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1354,110 +2090,174 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new finance data models",
+          "description": "Implement the required database schemas and BASH structs/classes to support the new feature.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in BASH integrating with the existing finance service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 48: BASH - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about BASH.",
+      "description": "This is a easy API_OPTIMIZATION lab about BASH for the FINANCE domain.",
       "difficulty": "EASY",
-      "domain": "RETAIL",
+      "domain": "FINANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "MONGODB"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the finance API endpoint",
+          "description": "Identify the bottlenecks in the BASH API endpoint that are causing high latency.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 49: BASH - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about BASH.",
+      "description": "This is a medium DEBUGGING lab about BASH for the PAYMENT domain.",
       "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
+      "domain": "PAYMENT",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "MYSQL"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the payment module",
+          "description": "A recent deployment caused the payment service to crash under heavy load. Read the provided logs and identify the BASH codebase regression.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the BASH exception",
+          "description": "Patch the identified regression in the BASH service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 50: BASH - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about BASH.",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about BASH for the RETAIL domain.",
       "difficulty": "MEDIUM",
-      "domain": "PAYMENT",
+      "domain": "RETAIL",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "MYSQL"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new retail data models",
+          "description": "Implement the required database schemas and BASH structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in BASH integrating with the existing retail service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 51: BASH - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about BASH.",
+      "description": "This is a medium API_OPTIMIZATION lab about BASH for the INSURANCE domain.",
       "difficulty": "MEDIUM",
-      "domain": "PAYMENT",
+      "domain": "INSURANCE",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1470,139 +2270,354 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the insurance API endpoint",
+          "description": "Identify the bottlenecks in the BASH API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 52: BASH - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about BASH.",
+      "description": "This is a hard DEBUGGING lab about BASH for the PAYMENT domain.",
       "difficulty": "HARD",
       "domain": "PAYMENT",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "REDIS"
+        "MYSQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the payment module",
+          "description": "A recent deployment caused the payment service to crash under heavy load. Read the provided logs and identify the BASH codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the BASH exception",
+          "description": "Patch the identified regression in the BASH service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 53: BASH - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about BASH.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about BASH for the INSURANCE domain.",
       "difficulty": "HARD",
-      "domain": "EDTECH",
+      "domain": "INSURANCE",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "SQLITE"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new insurance data models",
+          "description": "Implement the required database schemas and BASH structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in BASH integrating with the existing insurance service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 54: BASH - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about BASH.",
+      "description": "This is a hard API_OPTIMIZATION lab about BASH for the OTHER domain.",
       "difficulty": "HARD",
-      "domain": "FINANCE",
+      "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "BASH"
       ],
       "databases": [
-        "REDIS"
+        "MONGODB"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the other API endpoint",
+          "description": "Identify the bottlenecks in the BASH API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 55: JAVASCRIPT - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about JAVASCRIPT.",
+      "description": "This is a easy DEBUGGING lab about JAVASCRIPT for the RETAIL domain.",
       "difficulty": "EASY",
-      "domain": "OTHER",
+      "domain": "RETAIL",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVASCRIPT"
       ],
       "databases": [
-        "MONGODB"
+        "POSTGRESQL"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the retail module",
+          "description": "A recent deployment caused the retail service to crash under heavy load. Read the provided logs and identify the JAVASCRIPT codebase regression.",
           "difficulty": "EASY",
           "marks": 10,
           "duration_minutes": 10,
           "order_index": 0
+        },
+        {
+          "title": "Fix the JAVASCRIPT exception",
+          "description": "Patch the identified regression in the JAVASCRIPT service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 56: JAVASCRIPT - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about JAVASCRIPT for the FINANCE domain.",
       "difficulty": "EASY",
-      "domain": "RETAIL",
+      "domain": "FINANCE",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Design the new finance data models",
+          "description": "Implement the required database schemas and JAVASCRIPT structs/classes to support the new feature.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVASCRIPT integrating with the existing finance service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 57: JAVASCRIPT - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about JAVASCRIPT for the EDTECH domain.",
+      "difficulty": "EASY",
+      "domain": "EDTECH",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 30,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Profile the edtech API endpoint",
+          "description": "Identify the bottlenecks in the JAVASCRIPT API endpoint that are causing high latency.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 58: JAVASCRIPT - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about JAVASCRIPT for the HEALTHCARE domain.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 60,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Identify the root cause of the crash in the healthcare module",
+          "description": "A recent deployment caused the healthcare service to crash under heavy load. Read the provided logs and identify the JAVASCRIPT codebase regression.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 0
+        },
+        {
+          "title": "Fix the JAVASCRIPT exception",
+          "description": "Patch the identified regression in the JAVASCRIPT service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 59: JAVASCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVASCRIPT for the EDTECH domain.",
+      "difficulty": "MEDIUM",
+      "domain": "EDTECH",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1615,139 +2630,84 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "EASY",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 57: JAVASCRIPT - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about JAVASCRIPT.",
-      "difficulty": "EASY",
-      "domain": "OTHER",
-      "experience": "FRESHER",
-      "duration_minutes": 30,
-      "marks": 20,
-      "scenario": "API_OPTIMIZATION",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "JAVASCRIPT"
-      ],
-      "databases": [
-        "REDIS"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "EASY",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 58: JAVASCRIPT - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about JAVASCRIPT.",
-      "difficulty": "MEDIUM",
-      "domain": "FINANCE",
-      "experience": "JUNIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "DEBUGGING",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "JAVASCRIPT"
-      ],
-      "databases": [
-        "ELASTICSEARCH"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new edtech data models",
+          "description": "Implement the required database schemas and JAVASCRIPT structs/classes to support the new feature.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 59: JAVASCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
-      "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
-      "experience": "JUNIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "FEATURE_DEVELOPMENT",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "JAVASCRIPT"
-      ],
-      "databases": [
-        "ELASTICSEARCH"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
+        },
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVASCRIPT integrating with the existing edtech service.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 60: JAVASCRIPT - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about JAVASCRIPT.",
+      "description": "This is a medium API_OPTIMIZATION lab about JAVASCRIPT for the OTHER domain.",
       "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
+      "domain": "OTHER",
       "experience": "JUNIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVASCRIPT"
       ],
       "databases": [
-        "REDIS"
+        "SQLITE"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the other API endpoint",
+          "description": "Identify the bottlenecks in the JAVASCRIPT API endpoint that are causing high latency.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 61: JAVASCRIPT - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about JAVASCRIPT.",
+      "description": "This is a hard DEBUGGING lab about JAVASCRIPT for the PAYMENT domain.",
       "difficulty": "HARD",
       "domain": "PAYMENT",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1760,52 +2720,84 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Identify the root cause of the crash in the payment module",
+          "description": "A recent deployment caused the payment service to crash under heavy load. Read the provided logs and identify the JAVASCRIPT codebase regression.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the JAVASCRIPT exception",
+          "description": "Patch the identified regression in the JAVASCRIPT service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 62: JAVASCRIPT - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVASCRIPT.",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about JAVASCRIPT for the SUPPLY_CHAIN domain.",
       "difficulty": "HARD",
-      "domain": "OTHER",
+      "domain": "SUPPLY_CHAIN",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
         "JAVASCRIPT"
       ],
       "databases": [
-        "SQLITE"
+        "ELASTICSEARCH"
       ],
       "backend_frameworks": [],
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Design the new supply_chain data models",
+          "description": "Implement the required database schemas and JAVASCRIPT structs/classes to support the new feature.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in JAVASCRIPT integrating with the existing supply_chain service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 63: JAVASCRIPT - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about JAVASCRIPT.",
+      "description": "This is a hard API_OPTIMIZATION lab about JAVASCRIPT for the OTHER domain.",
       "difficulty": "HARD",
       "domain": "OTHER",
       "experience": "SENIOR",
       "duration_minutes": 60,
-      "marks": 50,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1818,23 +2810,174 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the other API endpoint",
+          "description": "Identify the bottlenecks in the JAVASCRIPT API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
       "title": "Lab 64: TYPESCRIPT - EASY - DEBUGGING",
-      "description": "This is a easy DEBUGGING lab about TYPESCRIPT.",
+      "description": "This is a easy DEBUGGING lab about TYPESCRIPT for the OTHER domain.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 30,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Identify the root cause of the crash in the other module",
+          "description": "A recent deployment caused the other service to crash under heavy load. Read the provided logs and identify the TYPESCRIPT codebase regression.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        },
+        {
+          "title": "Fix the TYPESCRIPT exception",
+          "description": "Patch the identified regression in the TYPESCRIPT service to ensure robust exception handling.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 65: TYPESCRIPT - EASY - FEATURE_DEVELOPMENT",
+      "description": "This is a easy FEATURE_DEVELOPMENT lab about TYPESCRIPT for the SUPPLY_CHAIN domain.",
       "difficulty": "EASY",
       "domain": "SUPPLY_CHAIN",
       "experience": "FRESHER",
       "duration_minutes": 30,
-      "marks": 20,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Design the new supply_chain data models",
+          "description": "Implement the required database schemas and TYPESCRIPT structs/classes to support the new feature.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in TYPESCRIPT integrating with the existing supply_chain service.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 66: TYPESCRIPT - EASY - API_OPTIMIZATION",
+      "description": "This is a easy API_OPTIMIZATION lab about TYPESCRIPT for the RETAIL domain.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 30,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Profile the retail API endpoint",
+          "description": "Identify the bottlenecks in the TYPESCRIPT API endpoint that are causing high latency.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 67: TYPESCRIPT - MEDIUM - DEBUGGING",
+      "description": "This is a medium DEBUGGING lab about TYPESCRIPT for the FINANCE domain.",
+      "difficulty": "MEDIUM",
+      "domain": "FINANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 60,
       "scenario": "DEBUGGING",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1847,23 +2990,174 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "EASY",
-          "marks": 10,
-          "duration_minutes": 10,
+          "title": "Identify the root cause of the crash in the finance module",
+          "description": "A recent deployment caused the finance service to crash under heavy load. Read the provided logs and identify the TYPESCRIPT codebase regression.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Fix the TYPESCRIPT exception",
+          "description": "Patch the identified regression in the TYPESCRIPT service to ensure robust exception handling.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
-      "title": "Lab 65: TYPESCRIPT - EASY - FEATURE_DEVELOPMENT",
-      "description": "This is a easy FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
-      "difficulty": "EASY",
+      "title": "Lab 68: TYPESCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
+      "description": "This is a medium FEATURE_DEVELOPMENT lab about TYPESCRIPT for the RETAIL domain.",
+      "difficulty": "MEDIUM",
+      "domain": "RETAIL",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 60,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Design the new retail data models",
+          "description": "Implement the required database schemas and TYPESCRIPT structs/classes to support the new feature.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in TYPESCRIPT integrating with the existing retail service.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 69: TYPESCRIPT - MEDIUM - API_OPTIMIZATION",
+      "description": "This is a medium API_OPTIMIZATION lab about TYPESCRIPT for the INSURANCE domain.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "JUNIOR",
+      "duration_minutes": 60,
+      "marks": 60,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "ELASTICSEARCH"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Profile the insurance API endpoint",
+          "description": "Identify the bottlenecks in the TYPESCRIPT API endpoint that are causing high latency.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 0
+        },
+        {
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 70: TYPESCRIPT - HARD - DEBUGGING",
+      "description": "This is a hard DEBUGGING lab about TYPESCRIPT for the EDTECH domain.",
+      "difficulty": "HARD",
       "domain": "EDTECH",
-      "experience": "FRESHER",
-      "duration_minutes": 30,
-      "marks": 20,
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 60,
+      "scenario": "DEBUGGING",
+      "git_repo_starter_url": "https://github.com/example/starter",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Identify the root cause of the crash in the edtech module",
+          "description": "A recent deployment caused the edtech service to crash under heavy load. Read the provided logs and identify the TYPESCRIPT codebase regression.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 0
+        },
+        {
+          "title": "Fix the TYPESCRIPT exception",
+          "description": "Patch the identified regression in the TYPESCRIPT service to ensure robust exception handling.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Add regression tests",
+          "description": "Write a unit test to verify that the bug is fully resolved and will not recur.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Lab 71: TYPESCRIPT - HARD - FEATURE_DEVELOPMENT",
+      "description": "This is a hard FEATURE_DEVELOPMENT lab about TYPESCRIPT for the INSURANCE domain.",
+      "difficulty": "HARD",
+      "domain": "INSURANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 60,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1876,23 +3170,39 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "EASY",
-          "marks": 10,
-          "duration_minutes": 10,
+          "title": "Design the new insurance data models",
+          "description": "Implement the required database schemas and TYPESCRIPT structs/classes to support the new feature.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
+        },
+        {
+          "title": "Implement the core logic",
+          "description": "Write the business logic in TYPESCRIPT integrating with the existing insurance service.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
+        {
+          "title": "Write integration tests",
+          "description": "Ensure the new feature integrates correctly with the rest of the application.",
+          "difficulty": "HARD",
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     },
     {
-      "title": "Lab 66: TYPESCRIPT - EASY - API_OPTIMIZATION",
-      "description": "This is a easy API_OPTIMIZATION lab about TYPESCRIPT.",
-      "difficulty": "EASY",
-      "domain": "SUPPLY_CHAIN",
-      "experience": "FRESHER",
-      "duration_minutes": 30,
-      "marks": 20,
+      "title": "Lab 72: TYPESCRIPT - HARD - API_OPTIMIZATION",
+      "description": "This is a hard API_OPTIMIZATION lab about TYPESCRIPT for the FINANCE domain.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 60,
       "scenario": "API_OPTIMIZATION",
       "git_repo_starter_url": "https://github.com/example/starter",
       "programming_languages": [
@@ -1905,186 +3215,28 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "EASY",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 67: TYPESCRIPT - MEDIUM - DEBUGGING",
-      "description": "This is a medium DEBUGGING lab about TYPESCRIPT.",
-      "difficulty": "MEDIUM",
-      "domain": "INSURANCE",
-      "experience": "JUNIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "DEBUGGING",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "MONGODB"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 68: TYPESCRIPT - MEDIUM - FEATURE_DEVELOPMENT",
-      "description": "This is a medium FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
-      "difficulty": "MEDIUM",
-      "domain": "OTHER",
-      "experience": "JUNIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "FEATURE_DEVELOPMENT",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "SQLITE"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 69: TYPESCRIPT - MEDIUM - API_OPTIMIZATION",
-      "description": "This is a medium API_OPTIMIZATION lab about TYPESCRIPT.",
-      "difficulty": "MEDIUM",
-      "domain": "HEALTHCARE",
-      "experience": "JUNIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "API_OPTIMIZATION",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "MONGODB"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
-          "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 70: TYPESCRIPT - HARD - DEBUGGING",
-      "description": "This is a hard DEBUGGING lab about TYPESCRIPT.",
-      "difficulty": "HARD",
-      "domain": "INSURANCE",
-      "experience": "SENIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "DEBUGGING",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "POSTGRESQL"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
-        {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Profile the finance API endpoint",
+          "description": "Identify the bottlenecks in the TYPESCRIPT API endpoint that are causing high latency.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
+          "marks": 20,
+          "duration_minutes": 20,
           "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 71: TYPESCRIPT - HARD - FEATURE_DEVELOPMENT",
-      "description": "This is a hard FEATURE_DEVELOPMENT lab about TYPESCRIPT.",
-      "difficulty": "HARD",
-      "domain": "HEALTHCARE",
-      "experience": "SENIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "FEATURE_DEVELOPMENT",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "SQLITE"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
+        },
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Optimize the database queries",
+          "description": "Refactor the queries to reduce the N+1 problem and add appropriate indexing.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
-        }
-      ]
-    },
-    {
-      "title": "Lab 72: TYPESCRIPT - HARD - API_OPTIMIZATION",
-      "description": "This is a hard API_OPTIMIZATION lab about TYPESCRIPT.",
-      "difficulty": "HARD",
-      "domain": "OTHER",
-      "experience": "SENIOR",
-      "duration_minutes": 60,
-      "marks": 50,
-      "scenario": "API_OPTIMIZATION",
-      "git_repo_starter_url": "https://github.com/example/starter",
-      "programming_languages": [
-        "TYPESCRIPT"
-      ],
-      "databases": [
-        "POSTGRESQL"
-      ],
-      "backend_frameworks": [],
-      "frontend_frameworks": [],
-      "tasks": [
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 1
+        },
         {
-          "title": "Task 1",
-          "description": "Do the thing",
+          "title": "Implement caching",
+          "description": "Use an in-memory store to cache frequently accessed responses and reduce response time under 100ms.",
           "difficulty": "HARD",
-          "marks": 10,
-          "duration_minutes": 10,
-          "order_index": 0
+          "marks": 20,
+          "duration_minutes": 20,
+          "order_index": 2
         }
       ]
     }

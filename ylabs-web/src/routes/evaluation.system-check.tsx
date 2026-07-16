@@ -19,6 +19,8 @@ const CHECKS = [
 
 function SystemCheckPage() {
   const nav = useNavigate();
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const evaluationId = searchParams.get('e') || '';
   const [done, setDone] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -64,7 +66,7 @@ function SystemCheckPage() {
           })}
         </div>
         <div className="mt-10">
-          <PrimaryButton disabled={!allDone} type="button" onClick={() => nav({ to: "/evaluation/proctoring" })}>
+          <PrimaryButton disabled={!allDone} type="button" className="mt-8 w-full" onClick={() => nav({ to: "/evaluation/proctoring", search: { e: evaluationId } })}>
             {allDone ? "Continue to proctoring" : "Running checks…"}
           </PrimaryButton>
         </div>
