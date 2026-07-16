@@ -15,6 +15,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   Rocket,
+  X,
 } from "lucide-react";
 
 import { useTheme } from "@/hooks/use-theme";
