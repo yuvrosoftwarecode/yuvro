@@ -97,6 +97,20 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
 
+        if lab.type == "BACKEND":
+            # Bypass GitHub entirely for Backend (Database) labs
+            enrollment = serializer.save(
+                user=self.request.user,
+                github_repo_name=requested_repo_name,
+                github_repo_url="",
+                default_branch="main"
+            )
+            # Create an empty workspace folder so the IDE can mount it
+            import os
+            user_workspace = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), "users", str(self.request.user.id))
+            os.makedirs(user_workspace, exist_ok=True)
+            return
+
         client = GithubClient(self.request.user.id)
         if not client._fetch_token():
             raise ValidationError("Please connect your GitHub account before starting a lab.")

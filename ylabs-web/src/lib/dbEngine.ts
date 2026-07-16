@@ -239,10 +239,9 @@ export function runDynamicMongoQuery(queryStr: string): { rows: unknown[]; note:
     });
 
     // Create a safe evaluation environment
-    // eslint-disable-next-line no-new-func
     const evalFunc = new Function('db', `
       try {
-        const result = ${queryStr};
+        const result = eval(${JSON.stringify(queryStr)});
         if (result && typeof result.toArray === 'function') {
            return result.toArray();
         }

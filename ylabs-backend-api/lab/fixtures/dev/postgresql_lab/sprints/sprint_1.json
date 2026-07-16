@@ -1,0 +1,40 @@
+{
+  "title": "Sprint 1 - Database Initialization",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 1,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "Create the Database",
+      "ticket_slug": "postgresql-101",
+      "description": "Before we can create tables, we must initialize the PostgreSQL database file.",
+      "tasks": [
+        "Before we can create tables, we must initialize the PostgreSQL database file."
+      ],
+      "learning_objectives": [
+        "Understand how to create a database file in PostgreSQL."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query."
+      ],
+      "hints": [
+        "Read the PostgreSQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT name FROM postgresql_master WHERE type='table';"
+      },
+      "solution": {
+        "query.sql": "-- PostgreSQL creates the database automatically when you connect to a file.\n-- Command line equivalent: postgresql3 learning_lab.db '.databases'",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    }
+  ]
+}

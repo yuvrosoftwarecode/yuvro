@@ -12,6 +12,9 @@ import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
+import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
+import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
+import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -378,7 +381,7 @@ Open http://127.0.0.1:8000/ to use the app.
 
 /* ---------- Per-lab starter kits ---------- */
 
-type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash";
+type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -540,6 +543,26 @@ Results appear in the bottom **Results** panel.
   },
 };
 
+const MYSQL_KIT_DEFAULT: Kit = {
+  name: "mysql", rootLabel: "mysql-lab", primary: "query.sql", runtime: "MySQL 8.x",
+  fileList: ["query.sql", "schema.sql", "README.md"],
+  files: {
+    "query.sql": `-- MySQL - write your query here and press Run\n\nSELECT * FROM customers;`,
+    "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
+    "README.md": `# MySQL Lab\n\nWrite SQL queries against the external database.\n`
+  }
+};
+
+const POSTGRES_KIT_DEFAULT: Kit = {
+  name: "postgresql", rootLabel: "postgres-lab", primary: "query.sql", runtime: "PostgreSQL 16",
+  fileList: ["query.sql", "schema.sql", "README.md"],
+  files: {
+    "query.sql": `-- PostgreSQL - write your query here and press Run\n\nSELECT * FROM customers;`,
+    "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
+    "README.md": `# PostgreSQL Lab\n\nWrite SQL queries against the external database.\n`
+  }
+};
+
 const MONGO_KIT_DEFAULT: Kit = {
   name: "mongo", rootLabel: "mongo-lab", primary: "query.js", runtime: "MongoDB 7 · mongosh",
   fileList: ["query.js", "seed.js", "README.md"],
@@ -671,8 +694,10 @@ function getKit(slug: string, tag: string): Kit {
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
+  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo") return MONGO_KIT_DEFAULT;
   if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
-  if (slug === "mongo" || slug === "mongodb" || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo") return MONGO_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
   if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
   return {
@@ -717,12 +742,14 @@ export function StudentTicketView({
           if (!active) return;
           setResolvedTicket({
             id: t.id,
+            ticket_slug: t.ticket_slug,
             title: t.title,
             description: t.description ?? "",
             difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
+            ticket_slug: t.ticket_slug,
             status: "Not Started",
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
@@ -760,14 +787,14 @@ export function StudentTicketView({
 
   const ticket = previewOverride
     ? {
-        ...resolvedTicket,
-        title: previewOverride.title ?? resolvedTicket.title,
-        description: previewOverride.description ?? resolvedTicket.description,
-        difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
-        xp: previewOverride.xp ?? resolvedTicket.xp,
-        estMin: previewOverride.estMin ?? resolvedTicket.estMin,
-        tag: previewOverride.tag ?? resolvedTicket.tag,
-      }
+      ...resolvedTicket,
+      title: previewOverride.title ?? resolvedTicket.title,
+      description: previewOverride.description ?? resolvedTicket.description,
+      difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
+      xp: previewOverride.xp ?? resolvedTicket.xp,
+      estMin: previewOverride.estMin ?? resolvedTicket.estMin,
+      tag: previewOverride.tag ?? resolvedTicket.tag,
+    }
     : resolvedTicket;
 
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
@@ -786,14 +813,17 @@ function TicketIDE({
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
 
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
+  const kit = useMemo(() => getKit((ticket.ticket_slug || slug || "").toLowerCase(), ticket.tag), [slug, ticket.ticket_slug, ticket.tag]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
+  const isMysql = kit.name === "mysql";
+  const isPostgres = kit.name === "postgresql";
+  const isAnySql = isSql || isMysql || isPostgres;
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
-  const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isSql || isMongo;
+  const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isAnySql || isMongo;
   const isBash = kit.name === "bash";
 
   const isReal = !tickets.some(t => t.id === ticket.id);
@@ -886,7 +916,7 @@ function TicketIDE({
 
   useEffect(() => {
     loadWorkspaceFiles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id, isReal, userId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
@@ -901,7 +931,7 @@ function TicketIDE({
         loadedFiles.current.add(activeFile);
       })
       .catch(() => { loadedFiles.current.add(activeFile); });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile, isReal, wsLoaded]);
 
 
@@ -966,11 +996,11 @@ function TicketIDE({
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch {}
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch { }
         })
         .catch(() => {
           const labName = labs.find(l => l.slug === slug)?.name ?? slug;
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch {}
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch { }
         });
     });
 
@@ -1158,17 +1188,24 @@ function TicketIDE({
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
+    if (isAnySql || isMongo) {
+      setExecutedQuery(src);
+      setBottomTab("preview");
+      setRunning(false);
+      return;
+    }
+
     if (isMultiLang) {
       const lang: ProgLang =
-        file.endsWith(".c")   ? "c"   :
-        file.endsWith(".cpp") || file.endsWith(".cc") ? "cpp" :
-        file.endsWith(".js")  || file.endsWith(".ts") ? "js"  :
-        "python";
+        file.endsWith(".c") ? "c" :
+          file.endsWith(".cpp") || file.endsWith(".cc") ? "cpp" :
+            file.endsWith(".js") || file.endsWith(".ts") ? "js" :
+              "python";
       const cmd =
         lang === "python" ? `$ python ${file}` :
-        lang === "c"      ? `$ gcc ${file} -o a.out && ./a.out` :
-        lang === "cpp"    ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out` :
-                            `$ node ${file}`;
+          lang === "c" ? `$ gcc ${file} -o a.out && ./a.out` :
+            lang === "cpp" ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out` :
+              `$ node ${file}`;
       setOutput(`${cmd}\n…running…\n`);
       setTimeout(() => {
         const out: string[] = [];
@@ -1201,7 +1238,7 @@ function TicketIDE({
       }, 500);
       return;
     }
-    if (isSql) {
+    if (isAnySql) {
       setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
       setTimeout(() => {
         setOutput(`-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`);
@@ -1286,6 +1323,7 @@ function TicketIDE({
   }
 
   const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
+  const [executedQuery, setExecutedQuery] = useState("");
   const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
   const [ticketScore, setTicketScore] = useState<{ passed: number; total: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -1315,7 +1353,7 @@ function TicketIDE({
         const scoringRules: Record<string, any> = task.scoring_rules ?? {};
         // required_command is only a fallback for tasks without scoring_rules
         const reqCmd = "git";
-        
+
         setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
         try {
           const { evaluateTask } = await import("@/services/workspaceService");
@@ -1539,10 +1577,10 @@ function TicketIDE({
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
               {tab === "problem" && (
-                <ProblemPanel 
-                  ticket={ticket} 
-                  slug={slug} 
-                  isReal={!tickets.some(t => t.id === ticket.id)} 
+                <ProblemPanel
+                  ticket={ticket}
+                  slug={slug}
+                  isReal={!tickets.some(t => t.id === ticket.id)}
                   evaluating={evaluating}
                   evalResult={evalResult}
                   ticketScore={ticketScore}
@@ -1588,7 +1626,7 @@ function TicketIDE({
                       onClick={() => loadWorkspaceFiles(true)}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
                     </button>
                   </div>
                 </div>
@@ -1625,6 +1663,20 @@ function TicketIDE({
                         <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
                       </button>
                     ))}
+                    {(isMysql || isPostgres) && (
+                      <div className="px-4 py-3 mt-4 border-t border-border">
+                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">Need a free database?</div>
+                        <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
+                          {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Postgres)</li>}
+                          {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Postgres)</li>}
+                          {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Postgres)</li>}
+                          {isMysql && <li><a href="https://planetscale.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">PlanetScale</a> (MySQL)</li>}
+                          {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven</a> (MySQL)</li>}
+                          {isMysql && <li><a href="https://tidbcloud.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Cloud</a> (MySQL)</li>}
+                          <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Both)</li>
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
@@ -1708,7 +1760,7 @@ function TicketIDE({
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
                     { k: "errors", label: "Errors", icon: AlertTriangle },
-                    { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
+                    { k: "preview", label: isAnySql || isMongo ? "Results" : "Preview", icon: Globe },
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button key={t.k} onClick={() => setBottomTab(t.k as BottomTab)}
@@ -1722,11 +1774,13 @@ function TicketIDE({
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
                   {bottomTab === "preview" && (
                     isDjango ? <DjangoTodoPreview /> :
-                    isSql    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-                    isMongo  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
-                    isUi     ? <UiPreview files={files} /> :
-                    isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                               <PreviewView />
+                      isSql ? <SqlResultsView query={executedQuery} /> :
+                        isMysql ? <ExternalSqlResultsView query={executedQuery} dbType="mysql" /> :
+                          isPostgres ? <ExternalSqlResultsView query={executedQuery} dbType="postgresql" /> :
+                            isMongo ? <MongoResultsView query={executedQuery} /> :
+                              isUi ? <UiPreview files={files} /> :
+                                isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
+                                  <PreviewView />
                   )}
                   {bottomTab === "terminal" && (
                     <TerminalView
@@ -1748,9 +1802,11 @@ function TicketIDE({
             {sidePanel && (
               <aside
                 className="flex flex-col bg-editor-panel min-w-0"
-                style={{ flex: sideWidth != null
-                  ? `0 0 ${sideWidth}px`
-                  : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}` }}
+                style={{
+                  flex: sideWidth != null
+                    ? `0 0 ${sideWidth}px`
+                    : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`
+                }}
               >
                 <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
@@ -2009,19 +2065,21 @@ function SidePreview({ device, kit, files, activeFile }: { device: "Mobile" | "T
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
   const body =
     kit.name === "django" ? <DjangoTodoApp /> :
-    kit.name === "ui"     ? <UiPreview files={files} fullHeight /> :
-    kit.name === "sql"    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-    kit.name === "mongo"  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
-    kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-    (
-      <div className="p-4 space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
-        <h2 className="text-xl font-semibold">Hello Java</h2>
-        <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
-        <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
-        <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
-      </div>
-    );
+      kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
+        kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
+          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
+            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
+              kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
+                kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
+                  (
+                    <div className="p-4 space-y-2">
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
+                      <h2 className="text-xl font-semibold">Hello Java</h2>
+                      <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
+                      <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
+                      <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
+                    </div>
+                  );
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex-1 grid place-items-center overflow-auto rounded border bg-accent/30 p-2">
@@ -2352,17 +2410,17 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ 
-  ticket, 
-  isReal, 
-  slug, 
-  evaluating, 
-  evalResult, 
-  ticketScore, 
-  onEvaluate 
-}: { 
-  ticket: any; 
-  isReal?: boolean; 
+function ProblemPanel({
+  ticket,
+  isReal,
+  slug,
+  evaluating,
+  evalResult,
+  ticketScore,
+  onEvaluate
+}: {
+  ticket: any;
+  isReal?: boolean;
   slug: string;
   evaluating: Record<string, boolean>;
   evalResult: Record<string, { passed: boolean; reason: string }>;
@@ -2410,11 +2468,10 @@ function ProblemPanel({
                             </div>
                           )}
                           {evalResult[task.task_slug || `task-${idx}`] && (
-                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                              evalResult[task.task_slug || `task-${idx}`].passed 
-                                ? "border-success/20 bg-success/10 text-success" 
+                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${evalResult[task.task_slug || `task-${idx}`].passed
+                                ? "border-success/20 bg-success/10 text-success"
                                 : "border-destructive/20 bg-destructive/10 text-destructive"
-                            }`}>
+                              }`}>
                               {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
                               {evalResult[task.task_slug || `task-${idx}`].reason}
                             </div>
@@ -2481,60 +2538,60 @@ function ProblemPanel({
             </ul>
           </Section>
 
-      <Section title="✅ Tasks">
-        <div className="space-y-2 text-muted-foreground">
-          <div>
-            <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>int, double, boolean, char, long, float, byte, short</li>
-              <li>Initialize with appropriate values</li>
-              <li>Print them to console</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 2 · Perform type casting</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Implicit: int → double</li>
-              <li>Explicit: double → int</li>
-              <li>Show before and after values</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 3 · Work with Strings</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Create a String variable</li>
-              <li>Use length(), charAt(), substring()</li>
-              <li>Print the results</li>
-            </ul>
-          </div>
-        </div>
-      </Section>
+          <Section title="✅ Tasks">
+            <div className="space-y-2 text-muted-foreground">
+              <div>
+                <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>int, double, boolean, char, long, float, byte, short</li>
+                  <li>Initialize with appropriate values</li>
+                  <li>Print them to console</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-foreground">Task 2 · Perform type casting</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>Implicit: int → double</li>
+                  <li>Explicit: double → int</li>
+                  <li>Show before and after values</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-foreground">Task 3 · Work with Strings</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>Create a String variable</li>
+                  <li>Use length(), charAt(), substring()</li>
+                  <li>Print the results</li>
+                </ul>
+              </div>
+            </div>
+          </Section>
 
-      <Section title="📥 Expected output">
-        <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground">{`Integer: 42
+          <Section title="📥 Expected output">
+            <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground">{`Integer: 42
 Double: 3.14
 Boolean: true
 String: Hello Java
 Length: 10
 Character at index 0: H`}</pre>
-      </Section>
+          </Section>
 
-      <Section title="🔗 Related concepts">
-        <ul className="space-y-1 text-info">
-          <li>→ JAVA-102 · Control Flow & Loops</li>
-          <li>→ JAVA-105 · Strings Deep Dive</li>
-          <li>→ Docs: Primitive vs reference types</li>
-        </ul>
-      </Section>
+          <Section title="🔗 Related concepts">
+            <ul className="space-y-1 text-info">
+              <li>→ JAVA-102 · Control Flow & Loops</li>
+              <li>→ JAVA-105 · Strings Deep Dive</li>
+              <li>→ Docs: Primitive vs reference types</li>
+            </ul>
+          </Section>
 
-        <Section title="⚠️ Common mistakes">
-          <ul className="space-y-1 text-muted-foreground">
-            <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
-            <li>• Forgetting <code>(int)</code> when narrowing</li>
-            <li>• <code>charAt</code> out-of-bounds on empty strings</li>
-          </ul>
-        </Section>
-      </>
+          <Section title="⚠️ Common mistakes">
+            <ul className="space-y-1 text-muted-foreground">
+              <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
+              <li>• Forgetting <code>(int)</code> when narrowing</li>
+              <li>• <code>charAt</code> out-of-bounds on empty strings</li>
+            </ul>
+          </Section>
+        </>
       )}
     </>
   );
@@ -2843,9 +2900,8 @@ function TreeFileNode({
         <button
           onClick={() => onOpenFile(node.path)}
           style={pad}
-          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${
-            active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-          }`}
+          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
+            }`}
         >
           <span className="w-3" />
           <FileCode2 className="h-3 w-3 shrink-0" />
@@ -2925,7 +2981,7 @@ function SchemaViewer({ tableName }: { tableName: string }) {
         <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
         <span className="text-foreground">{MOCK_DB_SCHEMA.name}.{table.name}</span>
       </div>
-      
+
       <div className="mb-6">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Columns</h3>
         <div className="border rounded bg-card overflow-hidden">
@@ -2982,6 +3038,144 @@ type SqlRow = Record<string, string | number>;
 function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: string; ms: number } {
   return runDynamicSqlQuery(q) as any;
 }
+/* ---------- External SQL query results viewer ---------- */
+
+function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mysql" | "postgresql" }) {
+  const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
+  const [res, setRes] = useState<{ columns: string[]; rows: any[]; note: string; ms: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [uri, setUri] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem(`${dbType}Uri`) || "";
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(uri);
+
+  const saveUri = () => {
+    setUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`${dbType}Uri`, tempUri.trim());
+    }
+    setEditingUri(false);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      if (!uri) return;
+      setLoading(true);
+      setError(null);
+      setRes(null);
+      try {
+        const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
+        const result = await proxyCall({ data: { uri, query } });
+        if (active) setRes(result);
+      } catch (e: any) {
+        if (active) setError(e.message || "Failed to execute query");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [query, uri, dbType]);
+
+  const handleDownloadCsv = () => {
+    if (!res || res.rows.length === 0) return;
+    const header = res.columns.join(",");
+    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvStr = [header, ...csvRows].join("\n");
+    const blob = new Blob([csvStr], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="text-[12px] flex flex-col h-full gap-2">
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Database Connection</span>
+          </div>
+          <button
+            onClick={() => { setEditingUri(true); setTempUri(uri); }}
+            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+          >
+            {uri ? `Connected (${dbType})` : "Click to configure URI"}
+          </button>
+        </div>
+        {editingUri && (
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              value={tempUri}
+              onChange={e => setTempUri(e.target.value)}
+              placeholder={dbType === "mysql" ? "mysql://user:pass@host:3306/db" : "postgresql://user:pass@host:5432/db"}
+              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
+            />
+            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
+            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
+        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+
+        {res && (
+          <>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span>{res.note}</span>
+                <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
+                  <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
+                  <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+                </div>
+                <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+              </div>
+              <span>executed in {res.ms}ms</span>
+            </div>
+
+            {res.rows.length === 0 ? (
+              <div className="text-muted-foreground p-2">0 rows returned.</div>
+            ) : viewMode === "TABLE" ? (
+              <div className="overflow-auto rounded border flex-1">
+                <table className="w-full font-mono">
+                  <thead className="bg-accent/40 text-muted-foreground">
+                    <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {res.rows.map((r, i) => (
+                      <tr key={i} className="border-t hover:bg-accent/30">
+                        {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="rounded overflow-auto border flex-1 text-[11px]">
+                <pre className="p-2 text-foreground/90 font-mono">
+                  {JSON.stringify(res.rows, null, 2)}
+                </pre>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SqlResultsView({ query }: { query: string }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const res = useMemo(() => runSqlQuery(query), [query]);
@@ -3018,7 +3212,7 @@ function SqlResultsView({ query }: { query: string }) {
         </div>
         <span>executed in {res.ms}ms</span>
       </div>
-      
+
       {viewMode === "TABLE" ? (
         <div className="overflow-auto rounded border flex-1">
           <table className="w-full font-mono">
@@ -3056,17 +3250,101 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
 }
 
 function MongoResultsView({ query }: { query: string }) {
-  const res = useMemo(() => runMongoQuery(query), [query]);
-  if (res.rows.length === 0) {
-    return <div className="text-muted-foreground p-2">{res.note}</div>;
-  }
+  const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [mongoUri, setMongoUri] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(mongoUri);
+
+  const saveUri = () => {
+    setMongoUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("externalMongoUri", tempUri.trim());
+    }
+    setEditingUri(false);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      setLoading(true);
+      setError(null);
+      setRes(null);
+      try {
+        if (mongoUri) {
+          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          if (active) setRes(remoteRes);
+        } else {
+          // fallback to local in-memory engine
+          const localRes = runDynamicMongoQuery(query);
+          if (active) setRes(localRes);
+        }
+      } catch (e: any) {
+        if (active) setError(e.message || "Failed to execute query");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [query, mongoUri]);
+
   return (
-    <div className="text-[12px]">
-      <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span>{res.note}</span>
-        <span>executed in {res.ms}ms</span>
+    <div className="text-[12px] flex flex-col h-full gap-2">
+      {/* DB Connection Header */}
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Database Connection</span>
+          </div>
+          <button
+            onClick={() => { setEditingUri(true); setTempUri(mongoUri); }}
+            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+          >
+            {mongoUri ? "Connected (External Atlas)" : "Local In-Memory (Mock)"}
+          </button>
+        </div>
+        {editingUri && (
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              value={tempUri}
+              onChange={e => setTempUri(e.target.value)}
+              placeholder="mongodb+srv://..."
+              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
+            />
+            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
+            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+          </div>
+        )}
       </div>
-      <pre className="overflow-auto rounded border bg-editor-bg p-2 font-mono text-foreground/90">{JSON.stringify(res.rows, null, 2)}</pre>
+
+      {/* Query Results */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
+        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+
+        {res && (
+          <>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground">
+              <span>{res.note}</span>
+              <span>executed in {res.ms}ms</span>
+            </div>
+            {res.rows.length === 0 ? (
+              <div className="text-muted-foreground p-2">0 documents matched.</div>
+            ) : (
+              <pre className="overflow-auto flex-1 rounded border bg-editor-bg p-2 font-mono text-foreground/90">
+                {JSON.stringify(res.rows, null, 2)}
+              </pre>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -3116,7 +3394,7 @@ function PythonOutputView({ code }: { code: string }) {
   }, [code]);
   return (
     <pre className="font-mono text-foreground/90 whitespace-pre-wrap">
-{"$ python " + (Object.keys({}).length ? "" : "main.py") + "\n" + lines.join("\n")}
+      {"$ python " + (Object.keys({}).length ? "" : "main.py") + "\n" + lines.join("\n")}
     </pre>
   );
 }

@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 7 - Advanced Aggregation & Math",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 7,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "User's Todo List",
+      "ticket_slug": "postgresql-701",
+      "description": "The front-end needs to display the task title alongside the username. Join the tables to fetch `username` and `title`. Use aliases `u` for users and `t` for todos.",
+      "tasks": [
+        "The front-end needs to display the task title alongside the username. Join the tables to fetch `username` and `title`. Use aliases `u` for users and `t` for todos."
+      ],
+      "learning_objectives": [
+        "Master the INNER JOIN and Aliases."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the ON clause."
+      ],
+      "hints": [
+        "Use `users u` to alias the table to `u`."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT u.username, t.title FROM users u INNER JOIN todos t ON u.id = t.user_id ORDER BY u.username, t.title;"
+      },
+      "solution": {
+        "query.sql": "SELECT u.username, t.title \nFROM users u \nINNER JOIN todos t ON u.id = t.user_id;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "All Users and Their Tasks",
+      "ticket_slug": "postgresql-702",
+      "description": "Get a list of ALL users, along with their tasks. If a user hasn't created any tasks, they should still appear in the list with a NULL task title. Use table aliases.",
+      "tasks": [
+        "Get a list of ALL users, along with their tasks. If a user hasn't created any tasks, they should still appear in the list with a NULL task title. Use table aliases."
+      ],
+      "learning_objectives": [
+        "Understand LEFT JOIN."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using INNER JOIN instead of LEFT JOIN."
+      ],
+      "hints": [
+        "Read the PostgreSQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT u.username, t.title FROM users u LEFT JOIN todos t ON u.id = t.user_id ORDER BY u.username, t.title;"
+      },
+      "solution": {
+        "query.sql": "SELECT u.username, t.title \nFROM users u \nLEFT JOIN todos t ON u.id = t.user_id;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    }
+  ]
+}
