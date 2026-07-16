@@ -216,62 +216,37 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
         return f"{self.user.email} -> {self.lab_sprint_ticket.title}"
 
     def score_submission(self):
-        import re
+        import requests
         ticket = self.lab_sprint_ticket
         scoring_rules = ticket.scoring_rules or {}
         expected_solution = ticket.solution or {}
         
-        logic_score_weight = scoring_rules.get("logic_score", 100) / 100.0
-        # More weights could be used here (e.g. clean_code, visual_accuracy)
-        
         expected_query = expected_solution.get("query.sql", "").strip()
         user_query = self.solution.strip()
-        
-        def normalize_str(s):
-            # remove single-line comments for sql
-            s = re.sub(r'--.*', '', s)
-            # normalize spaces
-            s = re.sub(r'\s+', ' ', s).strip().lower()
-            # remove spaces around parentheses, commas, and semicolons to be more lenient
-            s = re.sub(r'\s*\(\s*', '(', s)
-            s = re.sub(r'\s*\)\s*', ')', s)
-            s = re.sub(r'\s*,\s*', ',', s)
-            s = re.sub(r'\s*;\s*', ';', s)
-            return s
-
-        norm_expected = normalize_str(expected_query)
-        norm_user = normalize_str(user_query)
-        
-        # Check if the expected logic is contained within the user's query
-        # This allows users to add things like DROP TABLE before their CREATE TABLE
-        query_matches = (norm_expected in norm_user)
-        
-        # Result pattern matching
         expected_output = expected_solution.get("expected_output", "")
-        output_matches = True
         
-        # Check for common execution errors
-        if "Error:" in self.solution_output or "Parse error" in self.solution_output or re.search(r"exit code [^0]", self.solution_output) or "Traceback" in self.solution_output:
-            output_matches = False
-
-        if expected_output and output_matches:
-            try:
-                if not re.search(expected_output, self.solution_output, re.IGNORECASE) and expected_output not in self.solution_output:
-                    output_matches = False
-            except re.error:
-                if expected_output not in self.solution_output:
-                    output_matches = False
-
-        # If both query_matches and output_matches are evaluated
-        # We can determine the earned percentage
-        earned_percentage = 0.0
-        if query_matches and output_matches:
-            earned_percentage = 1.0
-        elif query_matches or (expected_output and output_matches):
-            earned_percentage = 0.5
+        payload = {
+            "user_query": user_query,
+            "expected_query": expected_query,
+            "user_output": self.solution_output,
+            "expected_output": expected_output,
+            "scoring_rules": scoring_rules
+        }
+        
+        try:
+            # Code executer is available at yuvro-code-executer:8009 in docker
+            # or localhost:8009 depending on the environment. We'll use the docker compose service name.
+            import os
+            executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
+            response = requests.post(f"{executer_host}/workspace/evaluate_sql", json=payload, timeout=5)
+            if response.status_code == 200:
+                eval_data = response.json()
+                final_score_pct = eval_data.get("final_score_pct", 0.0)
+            else:
+                final_score_pct = 0.0
+        except requests.RequestException:
+            final_score_pct = 0.0
             
-        final_score_pct = logic_score_weight * earned_percentage
-        
         total_points = int(ticket.yuvro_points * final_score_pct)
         self.yuvro_points = total_points
         

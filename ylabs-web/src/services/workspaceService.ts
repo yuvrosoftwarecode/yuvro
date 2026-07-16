@@ -132,3 +132,26 @@ export async function runCommand(
   return res.json();
 }
 
+/** Executes an SQLite query inside the workspace */
+export async function runSqliteQuery(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  query: string,
+  dbFile: string = "lab.db"
+): Promise<{ stdout: string; stderr: string; exit_code: number; evaluation?: any }> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/sqlite_run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      query: query,
+      db_file: dbFile
+    }),
+  });
+  if (!res.ok) throw new Error(`Run SQLite query failed: ${res.statusText}`);
+  return res.json();
+}
+

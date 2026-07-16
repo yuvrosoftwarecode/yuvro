@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import subprocess
+from sqlite_helpers import SqliteRunRequest, evaluate_sql_submission
 import tempfile
 import os
 import time
@@ -1887,6 +1888,85 @@ async def run_command_endpoint(body: RunCommandRequest):
         return {"stdout": "", "stderr": "Command timed out", "exit_code": -1}
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
+@workspace_router.post("/sqlite_run")
+async def sqlite_run_endpoint(body: SqliteRunRequest):
+    """
+    Execute a raw SQLite query inside the sprint's workspace and evaluate if scoring rules provided.
+    """
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws.mkdir(parents=True, exist_ok=True)
+    
+    import tempfile
+    try:
+        # Write query to temp file to prevent escaping issues
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
+            f.write(body.query)
+            temp_path = f.name
+            
+        proc = await asyncio.create_subprocess_shell(
+            f'sqlite3 "{body.db_file}" < "{temp_path}"',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws)
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        os.unlink(temp_path)
+        
+        out_str = stdout.decode(errors="replace")
+        err_str = stderr.decode(errors="replace")
+        exit_code = proc.returncode
+        
+        result = {
+            "stdout": out_str,
+            "stderr": err_str,
+            "exit_code": exit_code
+        }
+        
+        if body.scoring_rules is not None or body.expected_query or body.expected_output:
+            eval_res = evaluate_sql_submission(
+                user_query=body.query,
+                expected_query=body.expected_query or "",
+                user_output=err_str if exit_code != 0 else out_str,
+                expected_output=body.expected_output or "",
+                scoring_rules=body.scoring_rules or {}
+            )
+            result["evaluation"] = eval_res
+            
+        return result
+        
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+        except:
+            pass
+        return {"stdout": "", "stderr": "Query timed out", "exit_code": -1}
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
+class SqliteEvaluateRequest(BaseModel):
+    user_query: str
+    expected_query: str
+    user_output: str
+    expected_output: str
+    scoring_rules: dict
+
+@workspace_router.post("/evaluate_sql")
+async def evaluate_sql_endpoint(body: SqliteEvaluateRequest):
+    """
+    Evaluate a raw SQLite query against expected outputs without executing it.
+    """
+    try:
+        eval_res = evaluate_sql_submission(
+            user_query=body.user_query,
+            expected_query=body.expected_query,
+            user_output=body.user_output,
+            expected_output=body.expected_output,
+            scoring_rules=body.scoring_rules
+        )
+        return eval_res
+    except Exception as e:
+        return {"error": str(e)}
 
 async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
     """

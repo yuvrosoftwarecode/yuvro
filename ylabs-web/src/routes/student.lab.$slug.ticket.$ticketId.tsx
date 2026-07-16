@@ -7,6 +7,7 @@ import {
   deleteWorkspaceFile,
   getTerminalWsUrl,
   runCommand,
+  runSqliteQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
@@ -1271,10 +1272,10 @@ function TicketIDE({
         return;
       }
 
-      setOutput(`-- Executing ${file} on ${dbFile}\n…running…`);
-      runCommand(userId, labId, sprintId, `sqlite3 "${dbFile}" < "${file}"`)
+      setOutput(`-- Executing query on ${dbFile}\n…running…`);
+      runSqliteQuery(userId, labId, sprintId, src, dbFile)
         .then((res) => {
-          let outText = `-- Executed ${file}\n\n`;
+          let outText = `-- Executed Query\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
           if (res.stderr) outText += `Error:\n${res.stderr}\n`;
           outText += `\n✓ Process finished with exit code ${res.exit_code}`;

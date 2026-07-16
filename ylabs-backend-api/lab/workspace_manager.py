@@ -56,7 +56,10 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         user_dir = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab_uuid), "users", str(user_uuid))
         
         logger.info(f"Copying {starter_repo_path} to {user_dir}")
-        shutil.copytree(starter_repo_path, user_dir, ignore=shutil.ignore_patterns('.git'), dirs_exist_ok=True)
+        if starter_repo_path and os.path.exists(starter_repo_path):
+            shutil.copytree(starter_repo_path, user_dir, ignore=shutil.ignore_patterns('.git'), dirs_exist_ok=True)
+        else:
+            os.makedirs(user_dir, exist_ok=True)
         
         scoring_rules_path = os.path.join(user_dir, "yuvro_scoring_rules")
         if os.path.exists(scoring_rules_path):
@@ -74,7 +77,7 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         
         subprocess.run(["git", "config", "user.email", git_email], cwd=user_dir, check=True)
         subprocess.run(["git", "config", "user.name", git_name], cwd=user_dir, check=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
         auth_url = inject_token_into_url(user_github_repo_url, access_token)
         subprocess.run(["git", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
