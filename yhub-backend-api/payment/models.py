@@ -22,6 +22,7 @@ class PurchasableType(models.TextChoices):
     CONTEST = "contest", "Contest"
     MOCK_INTERVIEW = "mock_interview", "Mock Interview"
     AI_CREDIT = "ai_credit", "AI Credit"
+    LAB = "lab", "Lab"
 
 
 class BaseTimeStamp(models.Model):
@@ -36,6 +37,7 @@ class PurchasableItem(BaseTimeStamp):
     item_type = models.CharField(max_length=20, choices=PurchasableType.choices)
     item_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
+    product = models.CharField(max_length=50, blank=True, help_text="Product name e.g. ycode, ylabs")
     current_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     metadata = models.JSONField(default=dict, blank=True)
@@ -73,6 +75,7 @@ class Payment(BaseTimeStamp):
 
     purpose = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    product = models.CharField(max_length=50, blank=True, help_text="Product name e.g. ycode, ylabs")
     
     client_request_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
 

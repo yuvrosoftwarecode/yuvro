@@ -1,3 +1,5 @@
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
+
 export type LabTier = "free" | "freemium" | "premium";
 
 export const TIER_META: Record<LabTier, {
@@ -56,6 +58,23 @@ function write(list: string[]) {
   if (typeof window === "undefined") return;
   try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* ignore */ }
 }
+
+export async function syncUnlocks() {
+  try {
+    const res = await restApiAuthUtil.get<{ unlocked_lab_ids: string[] }>('/lab/labs/my_unlocks/');
+    if (res && res.unlocked_lab_ids) {
+      const current = read();
+      const dummyUnlocks = current.filter(id => !id.includes('-'));
+      const merged = Array.from(new Set([...dummyUnlocks, ...res.unlocked_lab_ids]));
+      write(merged);
+      return merged;
+    }
+  } catch (e) {
+    console.error("Failed to sync unlocks", e);
+  }
+  return read();
+}
+
 export function isLabUnlocked(slug: string): boolean {
   return read().includes(slug);
 }

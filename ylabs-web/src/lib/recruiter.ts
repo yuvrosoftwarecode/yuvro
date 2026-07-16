@@ -1,26 +1,8 @@
-// Recruiter data + backend API
-
-export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
-export type Domain = typeof DOMAINS[number];
-
-export const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"] as const;
-export type ProgrammingLanguage = typeof PROGRAMMING_LANGUAGES[number];
-
-export const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"] as const;
-export type Database = typeof DATABASES[number];
-
-export const SCENARIOS = ["Debugging", "Feature Development", "API Optimization", "Security", "Architecture", "Performance", "Testing", "Production Incident"] as const;
-export type Scenario = typeof SCENARIOS[number];
-
-export const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
-export type Difficulty = typeof DIFFICULTIES[number];
-
-export const EXPERIENCE_LEVELS = ["Intern", "Fresher", "Junior Developer", "Mid-Level Developer", "Senior Developer", "Lead Developer", "Staff Engineer", "Principal Engineer", "Software Architect", "Engineering Manager", "Director of Engineering", "VP of Engineering", "Chief Technology Officer"] as const;
-export type ExperienceLevel = typeof EXPERIENCE_LEVELS[number];
-
-export const FORMATS = ["MCQ", "Multiple Select", "Description", "Coding"] as const;
-export type Format = typeof FORMATS[number];
-
+// Recruiter data + persistence (localStorage, demo).
+export type Domain = "Finance" | "Insurance" | "EdTech" | "Supply Chain" | "Healthcare" | "Retail";
+export type Tech = "Java" | "SQL" | "Python" | "React" | "Node" | "DevOps" | "Testing" | "Security" | "JavaScript";
+export type Scenario = "Debugging" | "Feature Development" | "API" | "Optimization" | "Security" | "Architecture" | "Performance" | "Testing" | "Production Incident";
+export type Level = "L1" | "L2" | "L3";
 
 export interface LabItem {
   id: string;
@@ -45,8 +27,7 @@ export interface QuestionItem {
   experience: ExperienceLevel;
   format: Format;
   marks: number;
-  duration_minutes: number;
-  seconds?: number; // legacy
+  seconds: number;
 }
 
 export type SectionType = "labs" | "assessment" | "discussion";
@@ -236,46 +217,32 @@ export function clearDraftLocally(id: string) {
     localStorage.removeItem(`draft_eval_${id}`);
   } catch {}
 }
-
-export async function deleteEvaluation(id: string) {
-  try {
-    await fetch(`${API_BASE}/evaluations/${id}/`, { method: "DELETE" });
-  } catch {}
+export function getEvaluation(id: string): Evaluation | undefined {
+  return listEvaluations().find(e => e.id === id);
+}
+export function saveEvaluation(e: Evaluation) {
+  const list = listEvaluations();
+  const i = list.findIndex(x => x.id === e.id);
+  if (i >= 0) list[i] = e; else list.push(e);
+  writeAll(list);
+}
+export function createEvaluation(): Evaluation {
+  const e: Evaluation = {
+    id: uid(), title: "Untitled Evaluation", domain: "", status: "draft",
+    createdAt: Date.now(), candidatesInvited: 0, candidatesCompleted: 0, sections: [],
+  };
+  const list = listEvaluations(); list.unshift(e); writeAll(list); return e;
+}
+export function deleteEvaluation(id: string) {
+  writeAll(listEvaluations().filter(e => e.id !== id));
+}
+export function duplicateEvaluation(id: string): Evaluation | undefined {
+  const src = getEvaluation(id); if (!src) return;
+  const copy: Evaluation = { ...JSON.parse(JSON.stringify(src)), id: uid(), title: src.title + " (Copy)", status: "draft", createdAt: Date.now(), publishedAt: undefined, candidatesInvited: 0, candidatesCompleted: 0 };
+  const list = listEvaluations(); list.unshift(copy); writeAll(list); return copy;
 }
 
-export async function duplicateEvaluation(id: string): Promise<Evaluation | undefined> {
-  const src = await getEvaluation(id); if (!src) return;
-  const payload = mapFrontendToBackend(src);
-  payload.title = payload.title + " (Copy)";
-  const res = await fetch(`${API_BASE}/evaluations/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
-  return mapBackendToFrontend(data);
-}
-
-export async function fetchLabs(): Promise<LabItem[]> {
-  try {
-    const res = await fetch(`${API_BASE}/lab-questions/`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchQuestions(): Promise<QuestionItem[]> {
-  try {
-    const res = await fetch(`${API_BASE}/assessment-questions/`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
+// ------- Derived -------
 export function evaluationTotals(e: Evaluation) {
   let minutes = 0, marks = 0, labs = 0, questions = 0, discussion = 0;
   for (const s of e.sections) {

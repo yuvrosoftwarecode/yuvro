@@ -88,7 +88,8 @@ const PaymentPage: React.FC = () => {
                 payment_gateway: 'RAZORPAY',
                 amount: amount,
                 item_type: 'contest',
-                item_id: contestId
+                item_id: contestId,
+                product: 'ycode'
             }, authOptions);
 
             const isLoaded = await loadRazorpayScript();
