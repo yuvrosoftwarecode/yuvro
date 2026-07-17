@@ -26,9 +26,9 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const base = this.baseURL.replace(/\/+$/, "");
-        const path = endpoint.replace(/^\/+/, "");
-        const url = new URL(`${base}/${path}`);
+        const cleanBaseUrl = this.baseURL.endsWith('/') ? this.baseURL.slice(0, -1) : this.baseURL;
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        const url = new URL(`${cleanBaseUrl}${cleanEndpoint}`);
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);
@@ -154,4 +154,5 @@ class RestApiUtil {
 
 export { RestApiUtil };
 export const restApiUtil = new RestApiUtil(API_BASE_URL);
+export const yhubApiUtil = new RestApiUtil(import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL);
 export default restApiUtil;

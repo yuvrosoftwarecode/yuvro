@@ -19,7 +19,7 @@ class ProductJWTAuthentication(JWTAuthentication):
         validated_token = self.get_validated_token(raw_token)
 
         products = validated_token.get("products", [])
-        if "ycode" not in products:
+        if "ycode" not in products and "ylabs" not in products:
             raise AuthenticationFailed("Token is not valid for this product.")
 
         user = self.get_user(validated_token)

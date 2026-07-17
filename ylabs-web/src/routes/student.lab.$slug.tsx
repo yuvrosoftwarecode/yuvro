@@ -7,11 +7,25 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
-import { getLabTier, isSprintLocked, unlockLab, TIER_META, isLabUnlocked, freeSprintCount } from "@/lib/labAccess";
+import { getLabTier, isSprintLocked, unlockLab, TIER_META, isLabUnlocked, freeSprintCount, syncUnlocks } from "@/lib/labAccess";
 import { LabIcon } from "@/components/LabIcon";
-import { ShieldCheck, Star } from "lucide-react";
+import { ShieldCheck, Star, Loader2 } from "lucide-react";
+import { restApiAuthUtil, yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { toast } from "sonner";
 
-
+const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+        if ((window as any).Razorpay) {
+            resolve(true);
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
 
 export const Route = createFileRoute("/student/lab/$slug")({ 
   
@@ -130,8 +144,10 @@ function LabDashboard() {
   }, [slug]);
 
   const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>({});
+  const [submissionIds, setSubmissionIds] = useState<Record<string, string>>({});
   const [payOpen, setPayOpen] = useState(false);
   const [unlockBump, setUnlockBump] = useState(0);
+  const [isPaying, setIsPaying] = useState(false);
 
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
@@ -155,16 +171,22 @@ function LabDashboard() {
 
   useEffect(() => {
     let active = true;
+    syncUnlocks().then(() => {
+        if (active) setUnlockBump(x => x + 1);
+    });
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any[]>('/lab/submissions/').then((subs) => {
         if (!active) return;
         const overrides: Record<string, Status> = {};
+        const subIds: Record<string, string> = {};
         subs.forEach(s => {
+          subIds[s.lab_sprint_ticket] = s.id;
           if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
             overrides[s.lab_sprint_ticket] = s.ticket_status as Status;
           }
         });
         setStatusOverrides(overrides);
+        setSubmissionIds(subIds);
       }).catch(console.error);
     });
     return () => { active = false; };
@@ -269,6 +291,118 @@ function LabDashboard() {
     if (sprintLocked(index, sprint)) { setPayOpen(true); return; }
     setActiveSprint(sprintId);
   };
+  const handleUnlock = async () => { 
+    setIsPaying(true);
+    try {
+      const amount = realLab?.payment_amount || 499;
+      
+      const orderRes = await yhubApiAuthUtil.post<{
+          id: string;
+          gateway_order_or_intent_id: string;
+      }>('/payment/', {
+          payment_gateway: 'RAZORPAY',
+          amount: amount,
+          item_type: 'lab',
+          item_id: realLab?.id || slug,
+          item_name: realLab?.title || slug,
+          product: 'ylabs'
+      });
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+          toast.error('Razorpay SDK failed to load. Are you online?');
+          setIsPaying(false);
+          return;
+      }
+
+      const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: amount,
+          currency: 'INR',
+          name: 'Yuvro Labs',
+          description: 'Lab Unlock Payment',
+          order_id: orderRes.gateway_order_or_intent_id, 
+          handler: async function (response: any) {
+              try {
+                  const verifyRes = await yhubApiAuthUtil.post<{ status: string; message: string }>('/payment/verify/', {
+                      gateway_order_id: response.razorpay_order_id,
+                      gateway_payment_id: response.razorpay_payment_id,
+                      signature: response.razorpay_signature
+                  });
+                  
+                  if (verifyRes.status === 'SUCCESS') {
+                      try {
+                          await restApiAuthUtil.post(`/lab/labs/${realLab?.id || slug}/verify_payment/`);
+                      } catch (err: any) {
+                          console.warn("Backend verify_payment failed, likely a dummy lab:", err);
+                      }
+                      unlockLab(slug); 
+                      setPayOpen(false); 
+                      setUnlockBump(x => x + 1);
+                      toast.success('Lab unlocked successfully!');
+                  } else {
+                      await yhubApiAuthUtil.post('/payment/fail/', {
+                          gateway_order_id: orderRes.gateway_order_or_intent_id,
+                          reason: 'Payment signature verification failed'
+                      });
+                      throw new Error(verifyRes.message || 'Payment signature verification failed');
+                  }
+              } catch (error: any) {
+                  console.error(error);
+                  toast.error(error.message || 'Payment verification failed');
+              } finally {
+                  setIsPaying(false);
+              }
+          },
+          prefill: {
+              name: 'Student',
+              email: 'student@example.com',
+          },
+          theme: {
+              color: '#4f46e5'
+          },
+          modal: {
+              ondismiss: async function() {
+                  setIsPaying(false);
+                  toast.info('Payment cancelled');
+                  try {
+                      await yhubApiAuthUtil.post('/payment/fail/', {
+                          gateway_order_id: orderRes.gateway_order_or_intent_id,
+                          reason: 'User closed the payment modal'
+                      });
+                  } catch (e) {}
+              }
+          }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      
+      rzp.on('payment.failed', async function (response: any) {
+          try {
+              await yhubApiAuthUtil.post('/payment/fail/', {
+                  gateway_order_id: response.error.metadata.order_id,
+                  gateway_payment_id: response.error.metadata.payment_id,
+                  reason: response.error.description
+              });
+          } catch (e) {}
+          toast.error(response.error.description || 'Payment failed');
+          setIsPaying(false);
+      });
+
+      try {
+          await yhubApiAuthUtil.post('/payment/mark_pending/', {
+              gateway_order_id: orderRes.gateway_order_or_intent_id
+          });
+      } catch (e) {}
+
+      rzp.open();
+
+    } catch (error: any) {
+        console.error(error);
+        setIsPaying(false);
+        toast.error('Failed to initiate payment.');
+    }
+  };
 
   const handleTicketClick = (e: React.MouseEvent) => {
     if (realLab && isEnrolled === false) {
@@ -292,7 +426,6 @@ function LabDashboard() {
       setEnrollLoading(false);
     }
   };
-  const handleUnlock = () => { unlockLab(slug); setPayOpen(false); setUnlockBump(x => x + 1); };
 
   if (ticketMatch) return <Outlet />;
 
@@ -471,11 +604,30 @@ function LabDashboard() {
                       return (
                         <div key={c.key} className="rounded-xl border bg-card/50 p-3"
                           onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => {
+                          onDrop={async (e) => {
                             e.preventDefault();
                             const tId = e.dataTransfer.getData("text/plain");
                             if (tId) {
+                              const oldStatus = statusOverrides[tId] || sprintTickets.find(t=>t.id===tId)?.status || "backlog";
+                              if (oldStatus === c.key) return;
+
                               setStatusOverrides(prev => ({ ...prev, [tId]: c.key }));
+
+                              if (realLab) {
+                                try {
+                                  const { default: api } = await import("@/utils/RestApiAuthUtil");
+                                  const subId = submissionIds[tId];
+                                  if (subId) {
+                                    await api.patch(`/lab/submissions/${subId}/`, { ticket_status: c.key });
+                                  } else {
+                                    const res = await api.post<any>("/lab/submissions/", { lab_sprint_ticket: tId, ticket_status: c.key });
+                                    setSubmissionIds(prev => ({ ...prev, [tId]: res.id }));
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to update status", err);
+                                  setStatusOverrides(prev => ({ ...prev, [tId]: oldStatus as Status }));
+                                }
+                              }
                             }
                           }}
                         >
@@ -654,7 +806,9 @@ function LabDashboard() {
             </div>
             <div className="mt-5 flex gap-2">
               <button onClick={() => setPayOpen(false)} className="flex-1 rounded-md border px-3 py-2 text-sm hover:bg-accent">Not now</button>
-              <button onClick={handleUnlock} className="flex-1 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">Unlock now</button>
+              <button onClick={handleUnlock} disabled={isPaying} className="flex-1 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70 flex items-center justify-center gap-2">
+                {isPaying ? <><Loader2 className="h-4 w-4 animate-spin"/> Processing...</> : "Unlock now"}
+              </button>
             </div>
           </div>
         </div>

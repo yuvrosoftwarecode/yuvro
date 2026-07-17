@@ -150,7 +150,8 @@
         "gender": "prefer_not_to_say"
       },
       "roles": {
-        "ycode": "recruiter"
+        "ycode": "recruiter",
+        "ylabs": "recruiter"
       }
     },
     {
@@ -169,7 +170,8 @@
         "gender": "female"
       },
       "roles": {
-        "ycode": "recruiter"
+        "ycode": "recruiter",
+        "ylabs": "recruiter"
       }
     },
     {

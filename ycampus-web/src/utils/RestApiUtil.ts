@@ -26,31 +26,14 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
-            try {
-                const url = new URL(endpoint);
-                if (params) {
-                    Object.entries(params).forEach(([key, value]) => {
-                        const stringValue = String(value);
-                        if (value !== undefined && value !== null && stringValue !== 'undefined' && stringValue !== 'null') {
-                            url.searchParams.append(key, stringValue);
-                        }
-                    });
-                }
-                return url.toString();
-            } catch (e) {
-                return endpoint;
-            }
-        }
-        // Handle URL construction safely whether baseURL is relative or absolute
-        let urlString = `${this.baseURL}${endpoint}`;
+        const cleanBaseUrl = this.baseURL.endsWith('/') ? this.baseURL.slice(0, -1) : this.baseURL;
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        let urlString = `${cleanBaseUrl}${cleanEndpoint}`;
         
         try {
-            // Try to add origin if it's a relative URL to use the URL API safely
             const url = new URL(urlString, window.location.origin);
             if (params) {
                 Object.entries(params).forEach(([key, value]) => {
-                    // Safety check: Filter out both literal and stringified versions of undefined/null
                     const stringValue = String(value);
                     if (value !== undefined && value !== null && stringValue !== 'undefined' && stringValue !== 'null') {
                         url.searchParams.append(key, stringValue);
@@ -59,7 +42,6 @@ class RestApiUtil {
             }
             return url.toString();
         } catch (e) {
-            // Fallback string manipulation if URL parsing fails
             if (params) {
                 const searchParams = new URLSearchParams();
                 Object.entries(params).forEach(([key, value]) => {

@@ -3,6 +3,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import (
     User,
     Profile,
+    College,
+    Department,
 )
 
 
@@ -68,3 +70,16 @@ class ProfileAdmin(admin.ModelAdmin):
         ("OAuth Info", {"fields": ("google_id",)}),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),
     )
+
+@admin.register(College)
+class CollegeAdmin(admin.ModelAdmin):
+    list_display = ("name", "verification_status", "created_at", "updated_at")
+    list_filter = ("verification_status", "created_at")
+    search_fields = ("name",)
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ("name", "verification_status", "created_at", "updated_at")
+    list_filter = ("verification_status", "created_at")
+    search_fields = ("name",)
+
