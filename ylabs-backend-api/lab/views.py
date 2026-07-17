@@ -76,13 +76,6 @@ class LabSprintViewSet(viewsets.ModelViewSet):
         return queryset
     
     def get_queryset(self):
-        queryset = super().get_queryset()
-        lab_id = self.request.query_params.get('lab')
-        if lab_id:
-            queryset = queryset.filter(lab_id=lab_id)
-        return queryset
-    
-    def get_queryset(self):
         queryset = LabSprint.objects.all()
         lab = self.request.query_params.get('lab')
         if lab is not None:

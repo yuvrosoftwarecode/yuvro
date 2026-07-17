@@ -9,8 +9,6 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
     name = "sqlite"
 
     async def execute(self, body: Any, workspace_dir: str) -> Dict[str, Any]:
-
-        import tempfile
         
         try:
             with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
