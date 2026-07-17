@@ -1,25 +1,8 @@
-"""
-layers/color_layer.py — Layer D: Color matching (PRIMARY, weight 0.30).
-
-Pipeline:
-  1. Per matched element region: k-means dominant color extraction (k=1–3).
-  2. Compare expected vs actual dominant color using Delta-E CIE2000 in Lab space.
-     (Raw RGB Euclidean distance is NOT used — it doesn't match human perception.)
-  3. Global palette: whole-image color histogram comparison to catch theme-level
-     mismatches even when element matching is imperfect.
-  4. Final score blends per-element Delta-E score with global histogram similarity.
-
-Note: Delta-E CIE2000 is implemented manually using pure NumPy to avoid the
-      colormath / numpy.asscalar incompatibility with NumPy >= 1.25.
-"""
 from __future__ import annotations
-
 import math
 from dataclasses import dataclass, field
-
 import cv2
 import numpy as np
-
 from .position_layer import MatchedPair, BBox
 
 
@@ -34,7 +17,7 @@ class ColorIssue:
 
 @dataclass
 class ColorResult:
-    score: float                                  # 0.0 – 1.0
+    score: float                                
     per_element_scores: list[float] = field(default_factory=list)
     color_issues: list[ColorIssue] = field(default_factory=list)
     global_histogram_score: float = 0.0
@@ -55,17 +38,6 @@ class ColorLayer:
         act_arr: np.ndarray,
         matched_pairs: list[MatchedPair],
     ) -> ColorResult:
-        """Compute color match score.
-
-        Args:
-            exp_arr: HxWx3 uint8 RGB — full expected image.
-            act_arr: HxWx3 uint8 RGB — full actual image.
-            matched_pairs: from PositionLayer, used to sample per-element colors.
-
-        Returns:
-            ColorResult with .score, .per_element_scores, .color_issues.
-        """
-        # ── Per-element color comparison ──────────────────────────────────────
         per_element_scores: list[float] = []
         color_issues: list[ColorIssue] = []
 
@@ -94,10 +66,7 @@ class ColorLayer:
             float(np.mean(per_element_scores)) if per_element_scores else 0.0
         )
 
-        # ── Global histogram similarity ────────────────────────────────────────
         hist_score = self._histogram_similarity(exp_arr, act_arr)
-
-        # ── Blend ─────────────────────────────────────────────────────────────
         hw = self._hist_weight
         pw = 1.0 - hw
         final_score = pw * per_element_avg + hw * hist_score
@@ -109,10 +78,7 @@ class ColorLayer:
             global_histogram_score=hist_score,
         )
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     def _dominant_color(self, arr: np.ndarray, bbox: BBox) -> tuple[int, int, int]:
-        """Extract dominant color from a bounding-box region via k-means."""
         x, y, w, h = bbox.x, bbox.y, bbox.w, bbox.h
         # Clamp to image bounds
         ih, iw = arr.shape[:2]
@@ -147,10 +113,6 @@ class ColorLayer:
     def _delta_e(
         self, rgb1: tuple[int, int, int], rgb2: tuple[int, int, int]
     ) -> float:
-        """Delta-E CIE2000 between two sRGB colors — pure NumPy implementation.
-
-        Avoids colormath which calls numpy.asscalar (removed in NumPy 1.25).
-        """
         lab1 = _rgb_to_lab(rgb1)
         lab2 = _rgb_to_lab(rgb2)
         return _delta_e_cie2000(lab1, lab2)
@@ -158,12 +120,6 @@ class ColorLayer:
     def _histogram_similarity(
         self, exp_arr: np.ndarray, act_arr: np.ndarray
     ) -> float:
-        """Global BGR histogram correlation (Bhattacharyya distance → score).
-
-        Uses L2 normalization instead of NORM_MINMAX to avoid NaN when
-        all histogram bins are zero (e.g. uniform-color image).
-        Falls back to correlation metric if Bhattacharyya produces NaN.
-        """
         bins = self._hist_bins
         exp_bgr = cv2.cvtColor(exp_arr, cv2.COLOR_RGB2BGR)
         act_bgr = cv2.cvtColor(act_arr, cv2.COLOR_RGB2BGR)
@@ -172,8 +128,6 @@ class ColorLayer:
         for ch in range(3):
             h_exp = cv2.calcHist([exp_bgr], [ch], None, [bins], [0, 256])
             h_act = cv2.calcHist([act_bgr], [ch], None, [bins], [0, 256])
-
-            # L2 normalise — safe even when all bins are zero
             norm_exp = np.linalg.norm(h_exp)
             norm_act = np.linalg.norm(h_act)
             if norm_exp > 0:
@@ -181,26 +135,17 @@ class ColorLayer:
             if norm_act > 0:
                 h_act = h_act / norm_act
 
-            # Correlation: 1 = identical, -1 = opposite
             h_exp_f = h_exp.astype(np.float32)
             h_act_f = h_act.astype(np.float32)
             corr = cv2.compareHist(h_exp_f, h_act_f, cv2.HISTCMP_CORREL)
-            # Map from [-1, 1] → [0, 1]
             sim = (float(corr) + 1.0) / 2.0
-
-            # Guard against NaN / Inf from degenerate inputs
             if not np.isfinite(sim):
                 sim = 0.0
             scores.append(max(0.0, min(1.0, sim)))
 
         return float(np.mean(scores))
 
-
-# ── Pure-NumPy Lab conversion & CIE2000 Delta-E ───────────────────────────────
-# Avoids colormath which uses numpy.asscalar (removed in NumPy 1.25).
-
 def _rgb_to_lab(rgb: tuple) -> tuple:
-    """Convert sRGB (0-255 int) → CIE L*a*b* using D65 illuminant."""
     def _linearize(c: float) -> float:
         c = c / 255.0
         return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
@@ -222,7 +167,6 @@ def _rgb_to_lab(rgb: tuple) -> tuple:
 
 
 def _delta_e_cie2000(lab1: tuple, lab2: tuple) -> float:
-    """CIE2000 Delta-E between two L*a*b* colors — pure Python/math."""
     import math
     L1, a1, b1 = lab1
     L2, a2, b2 = lab2
