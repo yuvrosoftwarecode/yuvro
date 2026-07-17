@@ -1,23 +1,13 @@
-"""
-dom_capture.py — Optional Playwright ground-truth bounding-box capture.
-
-When the actual UI is a live web page, this provides far more accurate
-element bounding boxes than CV-based detection.
-Falls back gracefully to CV detection when Playwright is unavailable or
-when comparing static images (no live page URL).
-"""
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Optional
-
 from .layers.position_layer import BBox
 
 
 @dataclass
 class DOMCaptureResult:
     boxes: list[BBox]
-    source: str  # "playwright" | "fallback"
+    source: str  
 
 
 def capture_dom_boxes(
@@ -25,20 +15,6 @@ def capture_dom_boxes(
     selector: str = "*",
     timeout_ms: int = 10_000,
 ) -> DOMCaptureResult:
-    """Capture element bounding boxes from a live page via Playwright.
-
-    Args:
-        url: URL of the live web page to inspect.
-        selector: CSS selector to query (default all elements).
-        timeout_ms: Navigation timeout in milliseconds.
-
-    Returns:
-        DOMCaptureResult with list of BBoxes and source="playwright".
-
-    Raises:
-        ImportError: if playwright is not installed.
-        RuntimeError: if page navigation fails.
-    """
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
