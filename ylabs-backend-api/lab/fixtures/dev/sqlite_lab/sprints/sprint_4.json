@@ -28,11 +28,12 @@
         "clean_code": 0,
         "visual_accuracy": 0,
         "system_query": "SELECT * FROM users;",
-        "expected_result": ""
+        "expected_result": "alice_dev"
       },
       "solution": {
         "query.sql": "SELECT * FROM users;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": "alice_dev"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT title FROM todos WHERE status = 'pending';",
+        "system_query": "SELECT COUNT(*) FROM todos WHERE status = 'pending';",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT title FROM todos WHERE status = 'pending';",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -101,12 +103,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
+        "system_query": "SELECT id FROM todos ORDER BY id DESC LIMIT 5;",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,

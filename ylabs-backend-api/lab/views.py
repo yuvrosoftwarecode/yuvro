@@ -24,6 +24,7 @@ from .workspace_manager import provision_user_lab_repo, get_repo_name_from_url, 
 import os
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+from .services import evaluate_and_score_submission
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
@@ -169,7 +170,14 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        submission = serializer.save(user=self.request.user)
+        evaluate_and_score_submission(submission)
+        submission.save()
+
+    def perform_update(self, serializer):
+        submission = serializer.save()
+        evaluate_and_score_submission(submission)
+        submission.save()
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

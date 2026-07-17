@@ -745,6 +745,8 @@ export function StudentTicketView({
             }) : [],
             learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
             common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
+            scoring_rules: t.scoring_rules || {},
+            solution: t.solution || {},
           });
           setLoading(false);
         })
@@ -1289,6 +1291,7 @@ function TicketIDE({
       let sysQ: any = undefined;
       let expR: any = undefined;
       let expQ: any = ticket.solution?.["query.sql"];
+      let expOut: any = ticket.solution?.["expected_output"];
       
       if (task && typeof task === "object" && task.scoring_rules) {
         sRules = task.scoring_rules;
@@ -1301,7 +1304,7 @@ function TicketIDE({
       }
 
       setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
-      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, undefined, sRules, sysQ, expR)
+      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOut, sRules, sysQ, expR)
         .then((res) => {
           let outText = `-- Executed Query\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
@@ -1309,10 +1312,18 @@ function TicketIDE({
           outText += `\n✓ Process finished with exit code ${res.exit_code}`;
           
           if (res.evaluation) {
-            const passed = res.evaluation.final_score_pct === 1.0;
+            const finalPct = res.evaluation.final_score_pct || 0;
+            const points = finalPct * 10;
+            const passed = finalPct === 1.0;
             outText += `\n\nEvaluation: ${passed ? "✓ Passed" : "✗ Failed"}`;
-            if (!passed && sysQ) outText += `\nCheck failed. Ensure you followed the instructions exactly.`;
-            setTicketScore({ passed: passed ? 1 : 0, total: 1 });
+            outText += `\nScore Breakdown:`;
+            outText += `\n- Query Match: ${res.evaluation.query_matches ? "2.5" : "0"} / 2.5`;
+            outText += `\n- Output Match: ${res.evaluation.output_matches ? "2.5" : "0"} / 2.5`;
+            if (sysQ) outText += `\n- System Validation: ${res.evaluation.system_matches ? "5.0" : "0"} / 5.0`;
+            outText += `\nTotal Points: ${points} / 10`;
+            
+            if (!passed && sysQ) outText += `\n\nCheck failed. Ensure you followed the instructions exactly.`;
+            setTicketScore({ passed: points, total: 10 });
             setTestsRan(true);
             setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
             
@@ -2646,7 +2657,7 @@ function ProblemPanel({
               <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
                 {ticketScore && (
                   <div className="mb-3 text-sm font-medium">
-                    Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> tasks completed
+                    Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> {ticketScore.total === 10 && ticket.tasks?.length !== 10 ? "points" : "tasks completed"}
                   </div>
                 )}
               </div>

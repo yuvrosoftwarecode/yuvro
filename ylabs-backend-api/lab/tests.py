@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabSprintTicketSubmission
+from .services import evaluate_and_score_submission
 
 User = get_user_model()
 
@@ -101,7 +102,7 @@ class LabModelsTest(TestCase):
             solution="select * from users;  ",
             solution_output="id,name\n1,Alice"
         )
-        submission1.score_submission()
+        evaluate_and_score_submission(submission1)
         self.assertEqual(submission1.yuvro_points, 50)
         self.assertEqual(submission1.ticket_status, "done")
         
@@ -112,7 +113,7 @@ class LabModelsTest(TestCase):
             solution="select * from users;",
             solution_output="error"
         )
-        submission2.score_submission()
+        evaluate_and_score_submission(submission2)
         self.assertEqual(submission2.yuvro_points, 25)
         self.assertEqual(submission2.ticket_status, "in_review")
         
@@ -123,6 +124,6 @@ class LabModelsTest(TestCase):
             solution="SELECT 1;",
             solution_output="error"
         )
-        submission3.score_submission()
+        evaluate_and_score_submission(submission3)
         self.assertEqual(submission3.yuvro_points, 0)
         # Status remains what it was (or backlog if not changed by score)

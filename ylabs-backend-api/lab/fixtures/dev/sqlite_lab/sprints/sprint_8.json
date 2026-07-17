@@ -27,12 +27,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT AVG(priority) FROM todos WHERE status = 'pending';",
+        "system_query": "SELECT COUNT(*) FROM todos WHERE status = 'pending';",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT AVG(priority) FROM todos WHERE status = 'pending';",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM todos WHERE due_date < date('now');",
+        "system_query": "SELECT COUNT(*) FROM todos WHERE due_date < date('now');",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT * FROM todos WHERE due_date < date('now');",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -101,12 +103,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT title, \n  CASE \n    WHEN priority = 1 THEN 'High' \n    ELSE 'Normal' \n  END AS urgency \nFROM todos;",
+        "system_query": "SELECT COUNT(*) FROM todos WHERE CASE WHEN priority = 1 THEN 'High' ELSE 'Normal' END = 'Normal';",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT title, \n  CASE \n    WHEN priority = 1 THEN 'High' \n    ELSE 'Normal' \n  END AS urgency \nFROM todos;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": "Normal"
       },
       "yuvro_points": 50,
       "minutes_max": 15,

@@ -19,3 +19,10 @@ class BaseDatabaseEvaluator(ABC):
         Returns the evaluation dictionary.
         """
         pass
+
+    @abstractmethod
+    async def get_system_query_result(self, body: Any, workspace_dir: str) -> str:
+        """
+        Executes the system query and returns the actual result string.
+        """
+        pass

@@ -27,12 +27,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM todos;",
-        "expected_result": ""
+        "system_query": "SELECT status FROM todos WHERE id = 1;",
+        "expected_result": "completed"
       },
       "solution": {
         "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM todos;",
-        "expected_result": ""
+        "system_query": "SELECT COUNT(*) FROM todos WHERE user_id = 2;",
+        "expected_result": "0"
       },
       "solution": {
         "query.sql": "DELETE FROM todos WHERE user_id = 2;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -101,12 +103,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM todos WHERE title LIKE '%database%';",
+        "system_query": "SELECT COUNT(*) FROM todos WHERE title LIKE '%database%';",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,

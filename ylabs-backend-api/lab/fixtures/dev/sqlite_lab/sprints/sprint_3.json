@@ -27,12 +27,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM users;",
-        "expected_result": ""
+        "system_query": "SELECT username FROM users WHERE username='alice_dev';",
+        "expected_result": "alice_dev"
       },
       "solution": {
         "query.sql": "INSERT INTO users (username, email) VALUES \n('alice_dev', 'alice@email.com'),\n('bob_ops', 'bob@email.com');",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT * FROM todos;",
-        "expected_result": ""
+        "system_query": "SELECT title FROM todos WHERE title='Setup database';",
+        "expected_result": "Setup database"
       },
       "solution": {
         "query.sql": "INSERT INTO todos (user_id, title) VALUES \n(1, 'Setup database');",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,

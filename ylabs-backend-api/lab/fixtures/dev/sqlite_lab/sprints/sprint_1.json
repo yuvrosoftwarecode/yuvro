@@ -7,9 +7,10 @@
     {
       "title": "Create the Database",
       "ticket_slug": "sqlite-11",
-      "description": "Before we can create tables, we must initialize the SQLite database file named `yuvro.db` via the terminal.",
+      "description": "Before we can create tables, we must initialize the SQLite database file named `yuvro.db` via the terminal. Once created, run the appropriate SQL query in the editor to verify it exists.",
       "tasks": [
-        "Before we can create tables, we must initialize the SQLite database file named `yuvro.db` via the terminal."
+        "Create the SQLite database file named `yuvro.db` using the terminal.",
+        "Run `PRAGMA database_list;` in the SQL editor and click Run to verify the database was created."
       ],
       "learning_objectives": [
         "Understand how to create a database file in SQLite."
@@ -31,7 +32,8 @@
         "expected_result": "yuvro.db"
       },
       "solution": {
-        "query.sql": "-- SQLite creates the database automatically when you connect to a file.\n-- Command line equivalent: sqlite3 yuvro.db '.databases'",
+        "query.sql": "PRAGMA database_list;",
+        "expected_output": "yuvro.db",
         "database_identifier": "yuvro.db"
       },
       "yuvro_points": 50,

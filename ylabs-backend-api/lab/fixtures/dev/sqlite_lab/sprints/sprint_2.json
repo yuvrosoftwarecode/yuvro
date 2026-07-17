@@ -28,11 +28,12 @@
         "clean_code": 0,
         "visual_accuracy": 0,
         "system_query": "PRAGMA table_info(users);",
-        "expected_result": ""
+        "expected_result": "username"
       },
       "solution": {
         "query.sql": "CREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -65,11 +66,12 @@
         "clean_code": 0,
         "visual_accuracy": 0,
         "system_query": "PRAGMA table_info(todos);",
-        "expected_result": ""
+        "expected_result": "user_id"
       },
       "solution": {
         "query.sql": "CREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,

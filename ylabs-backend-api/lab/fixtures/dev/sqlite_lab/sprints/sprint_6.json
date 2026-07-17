@@ -32,7 +32,8 @@
       },
       "solution": {
         "query.sql": "SELECT COUNT(*) FROM todos;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;",
-        "expected_result": ""
+        "system_query": "SELECT status, COUNT(*) FROM todos GROUP BY status;",
+        "expected_result": "completed"
       },
       "solution": {
         "query.sql": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": "completed"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -101,12 +103,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT user_id, COUNT(*) AS total_tasks \nFROM todos \nGROUP BY user_id \nHAVING COUNT(*) > 5;",
+        "system_query": "SELECT COUNT(*) FROM todos GROUP BY user_id HAVING COUNT(*) > 5;",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT user_id, COUNT(*) AS total_tasks \nFROM todos \nGROUP BY user_id \nHAVING COUNT(*) > 5;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,

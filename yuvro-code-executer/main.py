@@ -1919,7 +1919,8 @@ async def database_run_endpoint(body: DatabaseRunRequest):
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
-class SqliteEvaluateRequest(BaseModel):
+class DatabaseEvaluateRequest(BaseModel):
+    database_engine: str = "sqlite"
     user_id: Optional[str] = None
     lab_id: Optional[str] = None
     sprint_id: Optional[str] = None
@@ -1932,56 +1933,27 @@ class SqliteEvaluateRequest(BaseModel):
     system_query: Optional[str] = None
     expected_result: Optional[str] = None
 
-@workspace_router.post("/evaluate_sql")
-async def evaluate_sql_endpoint(body: SqliteEvaluateRequest):
+@workspace_router.post("/database_evaluate")
+async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
     """
-    Evaluate a raw SQLite query against expected outputs.
+    Evaluate a database query against expected outputs using the factory pattern.
     """
     try:
+        from database_evaluator.factory import DatabaseEvaluatorFactory
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        
         actual_result = body.user_output
         if body.system_query and body.user_id and body.lab_id and body.sprint_id:
             ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
             if ws.exists():
-                db_file = body.db_file
-                if not db_file:
-                    db_files = list(ws.glob("*.db"))
-                    if db_files:
-                        db_file = db_files[0].name
-                    else:
-                        db_file = "lab.db"
-                        
-                import tempfile
-                import asyncio
-                import os
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
-                    f.write(body.system_query)
-                    temp_path = f.name
-                
-                proc = await asyncio.create_subprocess_shell(
-                    f'sqlite3 "{db_file}" < "{temp_path}"',
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    cwd=str(ws)
-                )
-                stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
-                
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                    
-                if proc.returncode == 0:
-                    actual_result = stdout.decode().strip()
-                else:
-                    actual_result = stderr.decode().strip()
+                actual_result = await evaluator.get_system_query_result(body, str(ws))
 
-        eval_res = evaluate_sql_submission(
-            user_query=body.user_query,
-            expected_query=body.expected_query,
-            user_output=body.user_output,
-            expected_output=body.expected_output,
-            scoring_rules=body.scoring_rules,
-            system_query=body.system_query,
-            expected_result=body.expected_result,
-            actual_result=actual_result
+        eval_res = evaluator.evaluate(
+            body=body,
+            execution_result={
+                "out_str": body.user_output,
+                "actual_result": actual_result
+            }
         )
         return eval_res
     except Exception as e:

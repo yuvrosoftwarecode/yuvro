@@ -43,22 +43,7 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
                 actual_result = err_str if exit_code != 0 else out_str
                 
                 if getattr(body, 'system_query', None):
-                    try:
-                        with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
-                            f.write(body.system_query)
-                            temp_path2 = f.name
-                        
-                        sys_proc = await asyncio.create_subprocess_shell(
-                            f'sqlite3 "{body.db_file}" < "{temp_path2}"',
-                            stdout=asyncio.subprocess.PIPE,
-                            stderr=asyncio.subprocess.PIPE,
-                            cwd=str(workspace_dir)
-                        )
-                        s_out, s_err = await asyncio.wait_for(sys_proc.communicate(), timeout=10.0)
-                        os.unlink(temp_path2)
-                        actual_result = s_out.decode(errors="replace").strip() if sys_proc.returncode == 0 else s_err.decode(errors="replace").strip()
-                    except Exception as e:
-                        actual_result = str(e)
+                    actual_result = await self.get_system_query_result(body, workspace_dir)
                         
                 eval_res = self.evaluate(
                     body=body,
@@ -96,6 +81,7 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
             s = re.sub(r'\s*\)\s*', ')', s)
             s = re.sub(r'\s*,\s*', ',', s)
             s = re.sub(r'\s*;\s*', ';', s)
+            s = s.rstrip(';')
             return s
 
         norm_expected = normalize_str(expected_query)
@@ -115,31 +101,97 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
         if "Error:" in user_output or "Parse error" in user_output or re.search(r"exit code [^0]", user_output) or "Traceback" in user_output:
             output_matches = False
 
-        # If there is a system_query and expected_result, evaluate using that
-        if system_query and expected_result:
-            if not actual_result or expected_result.strip() not in actual_result.strip():
-                output_matches = False
-        elif expected_output and output_matches:
-            try:
-                if not re.search(expected_output, user_output, re.IGNORECASE) and expected_output not in user_output:
-                    output_matches = False
-            except re.error:
-                if expected_output not in user_output:
-                    output_matches = False
-
-        earned_percentage = 0.0
-        if query_matches and output_matches:
-            earned_percentage = 1.0
-        elif query_matches or output_matches:
-            earned_percentage = 0.5
-            
-        final_score_pct = logic_score_weight * earned_percentage
+        # Extract the primary SQL keyword to ensure they are at least doing the right operation type
+        primary_keyword_match = True
+        if norm_expected:
+            keywords = ["select", "insert", "update", "delete", "create", "drop", "pragma", "with", "alter"]
+            for kw in keywords:
+                if norm_expected.startswith(kw):
+                    if kw not in norm_user:
+                        primary_keyword_match = False
+                    break
         
+        score_pct = 0.0
+        
+        # 1. Query match (25%)
+        if query_matches:
+            score_pct += 0.25
+            
+        # 2. System query match (50%)
+        system_is_valid = False
+        if system_query and expected_result:
+            if actual_result and expected_result.strip() in actual_result.strip():
+                system_is_valid = True
+                score_pct += 0.50
+        elif not system_query:
+            pass
+            
+        # 3. User output match (25%)
+        output_is_valid = output_matches
+        if expected_output is not None and output_is_valid:
+            if expected_output == "":
+                if user_output.strip() != "" or (not query_matches and not system_is_valid):
+                    output_is_valid = False
+            else:
+                try:
+                    if not re.search(expected_output, user_output, re.IGNORECASE) and expected_output not in user_output:
+                        output_is_valid = False
+                except re.error:
+                    if expected_output not in user_output:
+                        output_is_valid = False
+                        
+        if output_is_valid:
+            score_pct += 0.25
+            
+        if not system_query and output_is_valid:
+            score_pct += 0.50
+            system_is_valid = True
+                
+        if query_matches and system_is_valid and not output_is_valid:
+            output_is_valid = True
+            score_pct = 1.0
+            
+        # Zero out the score if they didn't even use the right SQL command!
+        if not primary_keyword_match:
+            score_pct = 0.0
+            output_is_valid = False
+            system_is_valid = False
+                
         return {
             "query_matches": query_matches,
-            "output_matches": output_matches,
-            "earned_percentage": earned_percentage,
-            "final_score_pct": final_score_pct,
+            "output_matches": output_is_valid,
+            "system_matches": system_is_valid,
+            "earned_percentage": score_pct,
+            "final_score_pct": score_pct,
             "actual_result": actual_result,
             "expected_result": expected_result
         }
+
+    async def get_system_query_result(self, body: Any, workspace_dir: str) -> str:
+        import os, tempfile, asyncio
+        db_file = getattr(body, 'db_file', 'lab.db')
+        system_query = getattr(body, 'system_query', '')
+        
+        if not system_query:
+            return ""
+            
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
+                f.write(system_query)
+                temp_path = f.name
+            
+            proc = await asyncio.create_subprocess_shell(
+                f'sqlite3 "{db_file}" < "{temp_path}"',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=str(workspace_dir)
+            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+            os.unlink(temp_path)
+            
+            if proc.returncode == 0:
+                return stdout.decode(errors="replace").strip()
+            else:
+                return stderr.decode(errors="replace").strip()
+        except Exception as e:
+            return str(e)

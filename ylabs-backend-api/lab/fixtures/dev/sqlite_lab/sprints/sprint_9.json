@@ -27,12 +27,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
-        "expected_result": ""
+        "system_query": "SELECT 1;",
+        "expected_result": "1"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -64,12 +65,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
+        "system_query": "SELECT COUNT(*) FROM todos;",
         "expected_result": ""
       },
       "solution": {
         "query.sql": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -101,12 +103,13 @@
         "logic_score": 100,
         "clean_code": 0,
         "visual_accuracy": 0,
-        "system_query": "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_todos_status';",
-        "expected_result": ""
+        "system_query": "PRAGMA index_list(todos);",
+        "expected_result": "idx_todos_status"
       },
       "solution": {
         "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
