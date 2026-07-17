@@ -25,6 +25,7 @@ import os
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from .frontend_validator import validate_frontend_ticket
+import requests as http_requests
 
 class FrontendValidateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,7 +41,6 @@ class FrontendValidateView(APIView):
 
         executor_url = os.environ.get("CODE_EXECUTOR_URL", "http://yuvro-yuvro-code-executor-1:8009")
         try:
-            import requests as http_requests
             resp = http_requests.post(
                 f"{executor_url}/workspace/ui-validate",
                 json={
