@@ -1,11 +1,4 @@
-"""
-layers/semantic_layer.py — Semantic similarity layer (Phase 2, optional).
-
-Uses CLIP image embeddings (open_clip_torch) for semantic-level comparison.
-Not included in default score fusion — placeholder for future enhancement.
-"""
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Optional
 
@@ -18,8 +11,6 @@ class SemanticResult:
 
 
 class SemanticLayer:
-    """Phase 2 CLIP-based semantic similarity. Not included in default scoring."""
-
     def __init__(self, cfg: dict):
         self._enabled = cfg.get("semantic", {}).get("enabled", False)
 
