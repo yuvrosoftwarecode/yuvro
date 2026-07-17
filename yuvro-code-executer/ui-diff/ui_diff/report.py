@@ -1,41 +1,25 @@
-"""
-report.py — Stage 4: Report generation.
-
-Produces:
-  - JSON report matching the spec schema.
-  - Annotated visual diff overlay image:
-      green  = matched elements (good match)
-      yellow = matched elements with minor position/color drift
-      red    = missing elements / major mismatches
-    With centroid arrows for shifted elements.
-"""
 from __future__ import annotations
-
 import json
 import pathlib
 from dataclasses import dataclass, field
 from typing import Optional, Union
-
 import cv2
 import numpy as np
 import matplotlib
-matplotlib.use("Agg")  # non-interactive backend
+matplotlib.use("Agg") 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from PIL import Image
-
 from .layers.ssim_layer import SSIMResult
 from .layers.phash_layer import PHashResult
 from .layers.position_layer import PositionResult, MatchedPair, BBox
 from .layers.color_layer import ColorResult
 from .fusion import FusionResult
+import matplotlib.patches as patches
 
-
-# ── Public result dataclass ───────────────────────────────────────────────────
 
 @dataclass
 class CompareResult:
-    """Public result returned by ui_diff.compare()."""
     confidence_score: float
     layers: dict
     issues: list[dict] = field(default_factory=list)
@@ -60,9 +44,6 @@ class CompareResult:
             f"has_critical_failures={self.has_critical_failures})"
         )
 
-
-# ── Main entry ────────────────────────────────────────────────────────────────
-
 def generate_report(
     cfg: dict,
     fused: FusionResult,
@@ -75,7 +56,6 @@ def generate_report(
     diff_image_path: Optional[Union[str, pathlib.Path]] = None,
     output_path: Optional[Union[str, pathlib.Path]] = None,
 ) -> CompareResult:
-    """Build CompareResult, save JSON report, and generate annotated diff image."""
 
     layers = {
         "ssim": round(ssim_result.score, 4),
@@ -125,9 +105,6 @@ def generate_report(
         report_path=report_path_str,
     )
 
-
-# ── Diff image rendering ──────────────────────────────────────────────────────
-
 def _render_diff_image(
     exp_arr: np.ndarray,
     act_arr: np.ndarray,
@@ -135,7 +112,6 @@ def _render_diff_image(
     ssim_diff: Optional[np.ndarray],
     output_path: Union[str, pathlib.Path],
 ) -> None:
-    """Render a side-by-side annotated diff image and save it."""
     h, w = exp_arr.shape[:2]
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), facecolor="#1a1a2e")
@@ -146,22 +122,18 @@ def _render_diff_image(
         fontweight="bold",
         y=1.01,
     )
-
-    # ── Left: Expected annotated ──────────────────────────────────────────────
     ax_exp = axes[0]
     ax_exp.imshow(exp_arr)
     ax_exp.set_title("Expected", color="white", fontsize=11)
     ax_exp.axis("off")
     _draw_boxes_on_ax(ax_exp, position_result, side="expected")
 
-    # ── Middle: Actual annotated ──────────────────────────────────────────────
     ax_act = axes[1]
     ax_act.imshow(act_arr)
     ax_act.set_title("Actual", color="white", fontsize=11)
     ax_act.axis("off")
     _draw_boxes_on_ax(ax_act, position_result, side="actual")
 
-    # ── Right: SSIM heatmap or pixel diff ────────────────────────────────────
     ax_diff = axes[2]
     if ssim_diff is not None:
         # Normalize heatmap and apply colormap
@@ -174,7 +146,6 @@ def _render_diff_image(
         ax_diff.set_title("Pixel Diff", color="white", fontsize=11)
     ax_diff.axis("off")
 
-    # ── Legend ────────────────────────────────────────────────────────────────
     legend_patches = [
         mpatches.Patch(color="#00e676", label="Match"),
         mpatches.Patch(color="#ffea00", label="Drift"),
@@ -202,10 +173,6 @@ def _render_diff_image(
 
 
 def _draw_boxes_on_ax(ax, position_result: PositionResult, side: str) -> None:
-    """Draw bounding boxes on a matplotlib Axes."""
-    import matplotlib.patches as patches
-
-    # Matched pairs
     for pair in position_result.matched_pairs:
         bbox = pair.expected_bbox if side == "expected" else pair.actual_bbox
         color = {
@@ -219,7 +186,6 @@ def _draw_boxes_on_ax(ax, position_result: PositionResult, side: str) -> None:
         )
         ax.add_patch(rect)
 
-        # Draw shift arrow on actual side
         if side == "actual" and pair.severity in ("drift", "mismatch"):
             eb = pair.expected_bbox
             ab = pair.actual_bbox
@@ -230,7 +196,6 @@ def _draw_boxes_on_ax(ax, position_result: PositionResult, side: str) -> None:
                 arrowprops=dict(arrowstyle="->", color="#ffea00", lw=1.2),
             )
 
-    # Missing elements (only on expected side)
     if side == "expected":
         for bbox in position_result.missing_elements:
             rect = patches.Rectangle(
@@ -240,7 +205,6 @@ def _draw_boxes_on_ax(ax, position_result: PositionResult, side: str) -> None:
             )
             ax.add_patch(rect)
 
-    # Extra elements (only on actual side)
     if side == "actual":
         for bbox in position_result.extra_elements:
             rect = patches.Rectangle(
