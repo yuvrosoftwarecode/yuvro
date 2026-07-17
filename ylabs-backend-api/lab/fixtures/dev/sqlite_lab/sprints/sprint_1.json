@@ -1,0 +1,47 @@
+{
+  "title": "Sprint 1 - Database Initialization",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 1,
+  "lab_title": "SQLite Lab",
+  "tickets": [
+    {
+      "title": "Create the Database",
+      "ticket_slug": "sqlite-11",
+      "description": "Before we can create tables, we must initialize the SQLite database file named `yuvro.db` via the terminal. Once created, run the appropriate SQL query in the editor to verify it exists.",
+      "tasks": [
+        "Create the SQLite database file named `yuvro.db` using the terminal.",
+        "Run `PRAGMA database_list;` in the SQL editor and click Run to verify the database was created."
+      ],
+      "learning_objectives": [
+        "Understand how to create a database file in SQLite."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "PRAGMA database_list;",
+        "expected_result": "yuvro.db"
+      },
+      "solution": {
+        "query.sql": "PRAGMA database_list;",
+        "expected_output": "yuvro.db",
+        "database_identifier": "yuvro.db"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    }
+  ]
+}
