@@ -1,20 +1,9 @@
-"""
-cli.py — Typer-based CLI for ui-diff.
-
-Usage:
-    ui-diff compare expected.png actual.png \\
-        --config config.yaml \\
-        --ignore-regions ignore.json \\
-        --output report.json \\
-        --diff-image diff.png
-"""
 from __future__ import annotations
-
 import json
 import pathlib
 import sys
 from typing import Optional
-
+from ui_diff import compare
 import typer
 
 app = typer.Typer(
@@ -50,17 +39,12 @@ def compare_cmd(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed layer scores."),
 ) -> None:
-    """Compare two UI images and output a confidence score (0–100)."""
-
-    # ── Validate inputs ───────────────────────────────────────────────────────
     if not expected.exists():
         typer.echo(f"[ERROR] Expected image not found: {expected}", err=True)
         raise typer.Exit(code=2)
     if not actual.exists():
         typer.echo(f"[ERROR] Actual image not found: {actual}", err=True)
         raise typer.Exit(code=2)
-
-    # ── Load ignore regions ───────────────────────────────────────────────────
     regions = None
     if ignore_regions is not None:
         if not ignore_regions.exists():
@@ -68,9 +52,6 @@ def compare_cmd(
             raise typer.Exit(code=2)
         with open(ignore_regions) as f:
             regions = json.load(f)
-
-    # ── Run comparison ────────────────────────────────────────────────────────
-    from ui_diff import compare
 
     typer.echo(f"Comparing: {expected.name}  ←→  {actual.name}")
     result = compare(
@@ -81,8 +62,6 @@ def compare_cmd(
         diff_image_path=diff_image,
         output_path=output,
     )
-
-    # ── Print results ─────────────────────────────────────────────────────────
     score = result.confidence_score
     bar_filled = int(score / 2)
     bar = "█" * bar_filled + "░" * (50 - bar_filled)
@@ -116,8 +95,6 @@ def compare_cmd(
 
     if result.has_critical_failures:
         typer.secho("  [CRITICAL] One or more critical elements are missing!", fg=typer.colors.RED, bold=True)
-
-    # Exit code 1 if below threshold, 0 if passing
     if score < threshold:
         raise typer.Exit(code=1)
 
