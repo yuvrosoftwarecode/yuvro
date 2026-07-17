@@ -17,6 +17,8 @@ import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
 import re as _re
+from database_evaluator.factory import DatabaseEvaluatorFactory
+
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -1843,26 +1845,111 @@ class EvaluateRequest(BaseModel):
     sprint_id: str
     required_command: str = ""
     task_slug: Optional[str] = None
-    scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
+    scoring_rules: dict = {} 
 
 @workspace_router.post("/evaluate")
 async def evaluate_task(body: EvaluateRequest):
     """
-    Check if a specific command string exists in the workspace's .bash_history
+    Generic regex-based evaluation engine.
+    Reads scoring_rules from the request body (originally stored in 
+    LabSprintTicket.tasks[x].scoring_rules in the sprint JSON fixtures).
+    
+    scoring_rules schema:
+    {
+        "checks": [
+            {
+                "label": "Human readable description",
+                "pattern": "<Python regex>",      # matched against each history line
+                "count_mode": False,              # optional: count matching lines
+                "min_count": 1                    # optional: minimum matches required
+            }
+        ],
+        "file_checks": [
+            {
+                "label": "Human readable description",
+                "file": "relative/path",          # workspace-relative path
+                "exists": True,                   # optional: just check existence
+                "contains": "substring"           # optional: check file content
+            }
+        ],
+        "pass_message": "Success message",
+        "fail_hint": "What to run if this fails"
+    }
     """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     history_file = ws / ".bash_history"
     
     if not history_file.exists():
-        return {"passed": False, "reason": "No bash history found"}
+        return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
         
     try:
         content = history_file.read_text(errors="replace")
-        lines = [line.strip() for line in content.splitlines()]
+        lines = [line.strip() for line in content.splitlines() if line.strip()]
         
-        # Simple substring match on each line
-        passed = any(body.required_command in line for line in lines)
-        return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
+        rules = body.scoring_rules
+        
+        # -- If no scoring_rules provided fall back to simple substring check --
+        if not rules:
+            passed = any(body.required_command in line for line in lines)
+            return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
+            
+        failed_labels: list[str] = []
+        
+        # -- History-based checks ---------------------------------------
+        for check in rules.get("checks", []):
+            pattern = check.get("pattern", "")
+            label   = check.get("label", pattern)
+            count_mode = check.get("count_mode", False)
+            min_count = check.get("min_count", 1)
+            
+            try:
+                compiled = _re.compile(pattern, _re.IGNORECASE)
+            except _re.error as e:
+                return {"passed": False, "reason": f"Invalid regex pattern '{pattern}': {e}"}
+                
+            if count_mode:
+                # Count how many history lines match (e.g. for conventional commits)
+                matches = sum(1 for line in lines if compiled.search(line))
+                if matches < min_count:
+                    failed_labels.append(f"{label} (need {min_count}, found {matches})")
+            else:
+                if not any(compiled.search(line) for line in lines):
+                    failed_labels.append(label)
+                    
+        # -- File-based checks ------------------------------------------
+        for fc in rules.get("file_checks", []):
+            label        = fc.get("label", "file check")
+            rel_path     = fc.get("file", "")
+            check_exists = fc.get("exists", False)
+            check_contains = fc.get("contains", None)
+            
+            target = ws / rel_path
+            
+            if check_exists or check_contains is not None:
+                if not target.exists():
+                    failed_labels.append(f"{label} (file not found: {rel_path})")
+                    continue
+                
+                if check_contains is not None:
+                    try:
+                        file_content = target.read_text(errors="replace")
+                        if check_contains not in file_content:
+                            failed_labels.append(f"{label} (content not matched)")
+                    except Exception as e:
+                        failed_labels.append(f"{label} (read error: {e})")
+                        
+        if failed_labels:
+            hint = rules.get("fail_hint", "Missing requirements.")
+            return {
+                "passed": False,
+                "reason": f"{hint}\nFailed checks:\n- " + "\n- ".join(failed_labels)
+            }
+            
+        return {
+            "passed": True,
+            "reason": rules.get("pass_message", "All checks passed!")
+        }
+            
     except Exception as e:
         return {"passed": False, "reason": f"Error reading history: {e}"}
 
@@ -1874,9 +1961,6 @@ class RunCommandRequest(BaseModel):
 
 @workspace_router.post("/run_command")
 async def run_command_endpoint(body: RunCommandRequest):
-    """
-    Execute a raw command inside the sprint's workspace.
-    """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     ws.mkdir(parents=True, exist_ok=True)
     
@@ -1904,9 +1988,6 @@ async def run_command_endpoint(body: RunCommandRequest):
 
 @workspace_router.post("/database_run")
 async def database_run_endpoint(body: DatabaseRunRequest):
-    """
-    Execute a raw database query inside the sprint's workspace and evaluate if scoring rules provided.
-    """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     ws.mkdir(parents=True, exist_ok=True)
     
@@ -1935,11 +2016,7 @@ class DatabaseEvaluateRequest(BaseModel):
 
 @workspace_router.post("/database_evaluate")
 async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
-    """
-    Evaluate a database query against expected outputs using the factory pattern.
-    """
     try:
-        from database_evaluator.factory import DatabaseEvaluatorFactory
         evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
         
         actual_result = body.user_output

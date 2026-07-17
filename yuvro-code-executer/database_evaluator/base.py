@@ -6,23 +6,12 @@ class BaseDatabaseEvaluator(ABC):
 
     @abstractmethod
     async def execute(self, body: Any, workspace_dir: str) -> Dict[str, Any]:
-        """
-        Executes the database query within the given workspace directory.
-        Returns a dictionary containing stdout, stderr, exit_code, and optionally the evaluation.
-        """
         pass
 
     @abstractmethod
     def evaluate(self, body: Any, execution_result: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Evaluates the executed query based on scoring rules and expected results.
-        Returns the evaluation dictionary.
-        """
         pass
 
     @abstractmethod
     async def get_system_query_result(self, body: Any, workspace_dir: str) -> str:
-        """
-        Executes the system query and returns the actual result string.
-        """
         pass

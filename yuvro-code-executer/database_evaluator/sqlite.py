@@ -9,13 +9,10 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
     name = "sqlite"
 
     async def execute(self, body: Any, workspace_dir: str) -> Dict[str, Any]:
-        """
-        Execute a raw SQLite query inside the sprint's workspace.
-        """
+
         import tempfile
         
         try:
-            # Write query to temp file to prevent escaping issues
             with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
                 f.write(body.query)
                 temp_path = f.name
@@ -97,11 +94,9 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
         system_query = getattr(body, 'system_query', None)
         expected_result = getattr(body, 'expected_result', None)
         
-        # Check for obvious errors
         if "Error:" in user_output or "Parse error" in user_output or re.search(r"exit code [^0]", user_output) or "Traceback" in user_output:
             output_matches = False
 
-        # Extract the primary SQL keyword to ensure they are at least doing the right operation type
         primary_keyword_match = True
         if norm_expected:
             keywords = ["select", "insert", "update", "delete", "create", "drop", "pragma", "with", "alter"]
@@ -113,11 +108,9 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
         
         score_pct = 0.0
         
-        # 1. Query match (25%)
         if query_matches:
             score_pct += 0.25
             
-        # 2. System query match (50%)
         system_is_valid = False
         if system_query and expected_result:
             if actual_result and expected_result.strip() in actual_result.strip():
@@ -126,7 +119,6 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
         elif not system_query:
             pass
             
-        # 3. User output match (25%)
         output_is_valid = output_matches
         if expected_output is not None and output_is_valid:
             if expected_output == "":
@@ -151,7 +143,6 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
             output_is_valid = True
             score_pct = 1.0
             
-        # Zero out the score if they didn't even use the right SQL command!
         if not primary_keyword_match:
             score_pct = 0.0
             output_is_valid = False

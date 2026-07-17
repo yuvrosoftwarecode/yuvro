@@ -25,6 +25,8 @@ import os
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from .services import evaluate_and_score_submission
+import threading
+
 
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
@@ -152,7 +154,6 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
             starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
             starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), starter_repo_name)
             
-        import threading
         threading.Thread(
             target=provision_user_lab_repo, 
             args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token, client.github_username)
