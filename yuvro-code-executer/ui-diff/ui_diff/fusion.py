@@ -1,24 +1,16 @@
-"""
-fusion.py — Stage 3: Score fusion and hard-fail rules.
-
-Combines layer scores using config-driven weights.
-Applies hard-fail rules: critical elements missing → cap score at threshold.
-"""
 from __future__ import annotations
-
 from dataclasses import dataclass, field
-
 from .layers.ssim_layer import SSIMResult
 from .layers.phash_layer import PHashResult
 from .layers.position_layer import PositionResult
 from .layers.color_layer import ColorResult
-
+import math
 
 @dataclass
 class FusionResult:
-    confidence_score: float           # 0–100 (final weighted score)
-    raw_score: float                  # 0–1 (pre-100 scaling)
-    capped: bool = False              # True if hard-fail cap was applied
+    confidence_score: float          
+    raw_score: float                 
+    capped: bool = False            
     cap_reason: str = ""
     issues: list[dict] = field(default_factory=list)
 
@@ -30,15 +22,6 @@ def fuse_scores(
     position_result: PositionResult,
     color_result: ColorResult,
 ) -> FusionResult:
-    """Fuse layer scores into a final confidence score.
-
-    confidence = (
-        w_ssim  * ssim_score  +   # Layer A
-        w_phash * phash_score +   # Layer B
-        w_pos   * pos_score   +   # Layer C  (primary)
-        w_color * color_score     # Layer D  (primary)
-    ) * 100
-    """
     weights = cfg.get("weights", {})
     w_ssim = float(weights.get("ssim", 0.15))
     w_phash = float(weights.get("phash", 0.05))
@@ -46,8 +29,6 @@ def fuse_scores(
     w_color = float(weights.get("color", 0.30))
 
     def _safe(v: float, fallback: float = 0.0) -> float:
-        """Guard against NaN/Inf — return fallback instead of silently returning 1.0."""
-        import math
         return v if math.isfinite(v) else fallback
 
     raw = (
@@ -58,16 +39,12 @@ def fuse_scores(
     )
     raw = float(max(0.0, min(1.0, raw)))
 
-    # ── Structural Gating ─────────────────────────────────────────────────────
-    # If the structural layout is fundamentally broken (Position F1 < 0.6),
-    # we penalize the overall score to prevent SSIM/Color from inflating it.
     pos_score = _safe(position_result.score)
     if pos_score < 0.6:
         # Scale down linearly: at 0.6 it's 1.0x, at 0.0 it's 0.0x
         multiplier = pos_score / 0.6
         raw *= multiplier
 
-    # ── Collect issues ────────────────────────────────────────────────────────
     issues: list[dict] = []
 
     for i, bbox in enumerate(position_result.missing_elements):
@@ -121,16 +98,12 @@ def fuse_scores(
             ),
         })
 
-    # ── Hard-fail: critical elements ──────────────────────────────────────────
     critical_elements: list[str] = cfg.get("critical_elements", []) or []
     score_cap = float(cfg.get("critical_element_score_cap", 60.0))
     capped = False
     cap_reason = ""
 
     if critical_elements:
-        # For now, critical element enforcement is tag-based (future: DOM integration).
-        # When using CV detection, we flag if the number of missing elements exceeds
-        # the count of critical elements defined.
         n_missing = len(position_result.missing_elements)
         if n_missing >= len(critical_elements):
             raw = min(raw, score_cap / 100.0)
