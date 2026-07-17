@@ -12,18 +12,19 @@ function EvaluationsList() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const nav = useNavigate();
-  const refresh = () => setEvals(listEvaluations());
-  useEffect(refresh, []);
+  const refresh = () => listEvaluations().then(setEvals);
+  useEffect(() => { refresh(); }, []);
 
-  const onCreate = () => {
-    const e = createEvaluation();
+  const onCreate = async () => {
+    const e = await createEvaluation();
     nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
   };
-  const onDuplicate = (id: string) => { duplicateEvaluation(id); refresh(); setMenuFor(null); };
-  const onDelete = (id: string) => { if (confirm("Delete this evaluation?")) { deleteEvaluation(id); refresh(); } setMenuFor(null); };
-  const onArchive = (id: string) => {
-    const e = listEvaluations().find(x => x.id === id); if (!e) return;
-    e.status = "draft"; saveEvaluation(e); refresh(); setMenuFor(null);
+  const onDuplicate = async (id: string) => { await duplicateEvaluation(id); refresh(); setMenuFor(null); };
+  const onDelete = async (id: string) => { if (confirm("Delete this evaluation?")) { await deleteEvaluation(id); refresh(); } setMenuFor(null); };
+  const onArchive = async (id: string) => {
+    const evals = await listEvaluations();
+    const e = evals.find(x => x.id === id); if (!e) return;
+    e.status = "draft"; await saveEvaluation(e); refresh(); setMenuFor(null);
   };
 
   return (

@@ -976,7 +976,11 @@ function TicketIDE({
     setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
-    if (isMultiLang) setProgLang("python");
+    if (isMultiLang) {
+      const valid: ProgLang[] = ["python", "c", "cpp", "js"];
+      if (valid.includes(ticket.tag as ProgLang)) setProgLang(ticket.tag as ProgLang);
+      else setProgLang("python");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id]);
 
@@ -1129,13 +1133,25 @@ function TicketIDE({
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
-  const [tests, setTests] = useState<TestResult[]>([
-    { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
-    { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
-    { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
-    { name: "Test 4 · String Operations", pass: false, time: "—" },
-    { name: "Test 5 · Output Format", pass: false, time: "—" },
-  ]);
+  const [tests, setTests] = useState<TestResult[]>([]);
+  
+  useEffect(() => {
+    if (isReal && ticket.tasks?.length) {
+      setTests(ticket.tasks.map((t: any, i: number) => ({
+        name: `Test ${i+1} · ${t.title || 'Validation'}`,
+        pass: false,
+        time: "—"
+      })));
+    } else if (!isReal) {
+      setTests([
+        { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
+        { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
+        { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
+        { name: "Test 4 · String Operations", pass: false, time: "—" },
+        { name: "Test 5 · Output Format", pass: false, time: "—" },
+      ]);
+    }
+  }, [ticket.tasks, isReal]);
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);

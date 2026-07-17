@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
+import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
@@ -26,7 +28,14 @@ import { Route as StudentCollaborationRouteImport } from './routes/student.colla
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
+import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
+import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
+import { Route as EvaluationSystemCheckRouteImport } from './routes/evaluation.system-check'
+import { Route as EvaluationProctoringRouteImport } from './routes/evaluation.proctoring'
+import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
+import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
+import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTicketsRouteImport } from './routes/admin.tickets'
 import { Route as AdminSprintsRouteImport } from './routes/admin.sprints'
@@ -80,6 +89,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvaluationRoute = EvaluationRouteImport.update({
+  id: '/evaluation',
+  path: '/evaluation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -104,6 +118,11 @@ const RecruiterIndexRoute = RecruiterIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => RecruiterRoute,
+} as any)
+const EvaluationIndexRoute = EvaluationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EvaluationRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -150,10 +169,45 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => RecruiterRoute,
 } as any)
+const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => RecruiterRoute,
+} as any)
 const GithubCallbackRoute = GithubCallbackRouteImport.update({
   id: '/github/callback',
   path: '/github/callback',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationWorkspaceRoute = EvaluationWorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => EvaluationRoute,
+} as any)
+const EvaluationSystemCheckRoute = EvaluationSystemCheckRouteImport.update({
+  id: '/system-check',
+  path: '/system-check',
+  getParentRoute: () => EvaluationRoute,
+} as any)
+const EvaluationProctoringRoute = EvaluationProctoringRouteImport.update({
+  id: '/proctoring',
+  path: '/proctoring',
+  getParentRoute: () => EvaluationRoute,
+} as any)
+const EvaluationOtpRoute = EvaluationOtpRouteImport.update({
+  id: '/otp',
+  path: '/otp',
+  getParentRoute: () => EvaluationRoute,
+} as any)
+const EvaluationInstructionsRoute = EvaluationInstructionsRouteImport.update({
+  id: '/instructions',
+  path: '/instructions',
+  getParentRoute: () => EvaluationRoute,
+} as any)
+const EvaluationCompleteRoute = EvaluationCompleteRouteImport.update({
+  id: '/complete',
+  path: '/complete',
+  getParentRoute: () => EvaluationRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -362,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/student': typeof StudentRouteWithChildren
@@ -379,7 +434,14 @@ export interface FileRoutesByFullPath {
   '/admin/sprints': typeof AdminSprintsRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/evaluation/complete': typeof EvaluationCompleteRoute
+  '/evaluation/instructions': typeof EvaluationInstructionsRoute
+  '/evaluation/otp': typeof EvaluationOtpRoute
+  '/evaluation/proctoring': typeof EvaluationProctoringRoute
+  '/evaluation/system-check': typeof EvaluationSystemCheckRoute
+  '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -389,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
   '/admin/': typeof AdminIndexRoute
+  '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
@@ -433,7 +496,14 @@ export interface FileRoutesByTo {
   '/admin/sprints': typeof AdminSprintsRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/evaluation/complete': typeof EvaluationCompleteRoute
+  '/evaluation/instructions': typeof EvaluationInstructionsRoute
+  '/evaluation/otp': typeof EvaluationOtpRoute
+  '/evaluation/proctoring': typeof EvaluationProctoringRoute
+  '/evaluation/system-check': typeof EvaluationSystemCheckRoute
+  '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -442,6 +512,7 @@ export interface FileRoutesByTo {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
   '/admin': typeof AdminIndexRoute
+  '/evaluation': typeof EvaluationIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
@@ -473,6 +544,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/student': typeof StudentRouteWithChildren
@@ -490,7 +562,14 @@ export interface FileRoutesById {
   '/admin/sprints': typeof AdminSprintsRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/evaluation/complete': typeof EvaluationCompleteRoute
+  '/evaluation/instructions': typeof EvaluationInstructionsRoute
+  '/evaluation/otp': typeof EvaluationOtpRoute
+  '/evaluation/proctoring': typeof EvaluationProctoringRoute
+  '/evaluation/system-check': typeof EvaluationSystemCheckRoute
+  '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -500,6 +579,7 @@ export interface FileRoutesById {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
   '/admin/': typeof AdminIndexRoute
+  '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
@@ -532,6 +612,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/evaluation'
     | '/forgot-password'
     | '/recruiter'
     | '/student'
@@ -549,7 +630,14 @@ export interface FileRouteTypes {
     | '/admin/sprints'
     | '/admin/tickets'
     | '/admin/users'
+    | '/evaluation/complete'
+    | '/evaluation/instructions'
+    | '/evaluation/otp'
+    | '/evaluation/proctoring'
+    | '/evaluation/system-check'
+    | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -559,6 +647,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/admin/'
+    | '/evaluation/'
     | '/recruiter/'
     | '/admin/labs/new'
     | '/admin/users/$id'
@@ -603,7 +692,14 @@ export interface FileRouteTypes {
     | '/admin/sprints'
     | '/admin/tickets'
     | '/admin/users'
+    | '/evaluation/complete'
+    | '/evaluation/instructions'
+    | '/evaluation/otp'
+    | '/evaluation/proctoring'
+    | '/evaluation/system-check'
+    | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -612,6 +708,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/admin'
+    | '/evaluation'
     | '/recruiter'
     | '/admin/labs/new'
     | '/admin/users/$id'
@@ -642,6 +739,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/evaluation'
     | '/forgot-password'
     | '/recruiter'
     | '/student'
@@ -659,7 +757,14 @@ export interface FileRouteTypes {
     | '/admin/sprints'
     | '/admin/tickets'
     | '/admin/users'
+    | '/evaluation/complete'
+    | '/evaluation/instructions'
+    | '/evaluation/otp'
+    | '/evaluation/proctoring'
+    | '/evaluation/system-check'
+    | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -669,6 +774,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/admin/'
+    | '/evaluation/'
     | '/recruiter/'
     | '/admin/labs/new'
     | '/admin/users/$id'
@@ -700,6 +806,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
   StudentRoute: typeof StudentRouteWithChildren
@@ -728,6 +835,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluation': {
+      id: '/evaluation'
+      path: '/evaluation'
+      fullPath: '/evaluation'
+      preLoaderRoute: typeof EvaluationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -764,6 +878,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/'
       preLoaderRoute: typeof RecruiterIndexRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/evaluation/': {
+      id: '/evaluation/'
+      path: '/'
+      fullPath: '/evaluation/'
+      preLoaderRoute: typeof EvaluationIndexRouteImport
+      parentRoute: typeof EvaluationRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -828,12 +949,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterSettingsRouteImport
       parentRoute: typeof RecruiterRoute
     }
+    '/recruiter/dashboard': {
+      id: '/recruiter/dashboard'
+      path: '/dashboard'
+      fullPath: '/recruiter/dashboard'
+      preLoaderRoute: typeof RecruiterDashboardRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
     '/github/callback': {
       id: '/github/callback'
       path: '/github/callback'
       fullPath: '/github/callback'
       preLoaderRoute: typeof GithubCallbackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/evaluation/workspace': {
+      id: '/evaluation/workspace'
+      path: '/workspace'
+      fullPath: '/evaluation/workspace'
+      preLoaderRoute: typeof EvaluationWorkspaceRouteImport
+      parentRoute: typeof EvaluationRoute
+    }
+    '/evaluation/system-check': {
+      id: '/evaluation/system-check'
+      path: '/system-check'
+      fullPath: '/evaluation/system-check'
+      preLoaderRoute: typeof EvaluationSystemCheckRouteImport
+      parentRoute: typeof EvaluationRoute
+    }
+    '/evaluation/proctoring': {
+      id: '/evaluation/proctoring'
+      path: '/proctoring'
+      fullPath: '/evaluation/proctoring'
+      preLoaderRoute: typeof EvaluationProctoringRouteImport
+      parentRoute: typeof EvaluationRoute
+    }
+    '/evaluation/otp': {
+      id: '/evaluation/otp'
+      path: '/otp'
+      fullPath: '/evaluation/otp'
+      preLoaderRoute: typeof EvaluationOtpRouteImport
+      parentRoute: typeof EvaluationRoute
+    }
+    '/evaluation/instructions': {
+      id: '/evaluation/instructions'
+      path: '/instructions'
+      fullPath: '/evaluation/instructions'
+      preLoaderRoute: typeof EvaluationInstructionsRouteImport
+      parentRoute: typeof EvaluationRoute
+    }
+    '/evaluation/complete': {
+      id: '/evaluation/complete'
+      path: '/complete'
+      fullPath: '/evaluation/complete'
+      preLoaderRoute: typeof EvaluationCompleteRouteImport
+      parentRoute: typeof EvaluationRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -1176,6 +1346,30 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface EvaluationRouteChildren {
+  EvaluationCompleteRoute: typeof EvaluationCompleteRoute
+  EvaluationInstructionsRoute: typeof EvaluationInstructionsRoute
+  EvaluationOtpRoute: typeof EvaluationOtpRoute
+  EvaluationProctoringRoute: typeof EvaluationProctoringRoute
+  EvaluationSystemCheckRoute: typeof EvaluationSystemCheckRoute
+  EvaluationWorkspaceRoute: typeof EvaluationWorkspaceRoute
+  EvaluationIndexRoute: typeof EvaluationIndexRoute
+}
+
+const EvaluationRouteChildren: EvaluationRouteChildren = {
+  EvaluationCompleteRoute: EvaluationCompleteRoute,
+  EvaluationInstructionsRoute: EvaluationInstructionsRoute,
+  EvaluationOtpRoute: EvaluationOtpRoute,
+  EvaluationProctoringRoute: EvaluationProctoringRoute,
+  EvaluationSystemCheckRoute: EvaluationSystemCheckRoute,
+  EvaluationWorkspaceRoute: EvaluationWorkspaceRoute,
+  EvaluationIndexRoute: EvaluationIndexRoute,
+}
+
+const EvaluationRouteWithChildren = EvaluationRoute._addFileChildren(
+  EvaluationRouteChildren,
+)
+
 interface RecruiterEvaluationsIdRouteChildren {
   RecruiterEvaluationsIdWorkspaceRoute: typeof RecruiterEvaluationsIdWorkspaceRoute
   RecruiterEvaluationsIdCandidatesCandidateIdRoute: typeof RecruiterEvaluationsIdCandidatesCandidateIdRoute
@@ -1194,6 +1388,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
   )
 
 interface RecruiterRouteChildren {
+  RecruiterDashboardRoute: typeof RecruiterDashboardRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
   RecruiterEvaluationsIdRoute: typeof RecruiterEvaluationsIdRouteWithChildren
@@ -1201,6 +1396,7 @@ interface RecruiterRouteChildren {
 }
 
 const RecruiterRouteChildren: RecruiterRouteChildren = {
+  RecruiterDashboardRoute: RecruiterDashboardRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
   RecruiterEvaluationsIdRoute: RecruiterEvaluationsIdRouteWithChildren,
@@ -1313,6 +1509,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
   StudentRoute: StudentRouteWithChildren,

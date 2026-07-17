@@ -31,9 +31,10 @@ function Workspace() {
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
-    const e = getEvaluation(id);
-    if (!e) nav({ to: "/recruiter/evaluations" });
-    else setEv(e);
+    getEvaluation(id).then(e => {
+      if (!e) nav({ to: "/recruiter/evaluations" });
+      else setEv(e);
+    });
   }, [id, nav]);
 
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2200); return () => clearTimeout(t); }, [toast]);
@@ -60,9 +61,9 @@ function Workspace() {
     URL.revokeObjectURL(url); notify(`Downloaded ${kind.toUpperCase()}`);
   };
   const emailAll = () => notify("Email queued to invited candidates");
-  const onDuplicate = () => { const c = duplicateEvaluation(ev.id); if (c) { notify("Evaluation duplicated"); nav({ to: "/recruiter/evaluations/$id/workspace", params: { id: c.id } }); } };
-  const onArchive = () => { const c = { ...ev, status: "draft" as const }; saveEvaluation(c); setEv(c); notify("Evaluation archived"); };
-  const onDelete = () => { if (confirm("Delete this evaluation? This cannot be undone.")) { deleteEvaluation(ev.id); nav({ to: "/recruiter/evaluations" }); } };
+  const onArchive = async () => { const c = { ...ev, status: "draft" as const }; await saveEvaluation(c); setEv(c); setMoreOpen(false); notify("Evaluation archived"); };
+  const onDuplicate = async () => { const copy = await duplicateEvaluation(ev.id); setMoreOpen(false); if (copy) { notify("Evaluation duplicated"); nav({ to: "/recruiter/evaluations/$id/workspace", params: { id: copy.id } }); } };
+  const onDelete = async () => { if (confirm("Delete this evaluation?")) { await deleteEvaluation(ev.id); nav({ to: "/recruiter/evaluations" }); } };
 
   return (
     <div className="min-h-screen">

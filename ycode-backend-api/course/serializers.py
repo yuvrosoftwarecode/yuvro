@@ -242,6 +242,28 @@ class QuestionSolutionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+
+class QuestionBasicSerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField(read_only=True)
+    
+    class Meta:
+        model = Question
+        fields = [
+            "id",
+            "type",
+            "title",
+            "level",
+            "course",
+            "topic",
+            "difficulty",
+            "marks",
+            "duration",
+            "categories",
+            "created_at",
+            "created_by",
+        ]
+        read_only_fields = ["id", "created_at", "created_by"]
+
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer for Question model - supports MCQ, Coding, and Descriptive questions
