@@ -33,14 +33,11 @@ class FrontendValidateView(APIView):
         ticket_slug = request.data.get("ticket_slug")
         user_html   = request.data.get("user_html", "")
         user_css    = request.data.get("user_css", "")
-        # lab_id is the Lab UUID — used to resolve the starter repo path.
-        # Falls back to the legacy "frontend-portfolio" folder if not provided.
         lab_id      = request.data.get("lab_id", "")
 
         if not ticket_slug:
             return Response({"error": "ticket_slug is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Proxy to the code-executor which has Playwright + ui-diff installed
         executor_url = os.environ.get("CODE_EXECUTOR_URL", "http://yuvro-yuvro-code-executor-1:8009")
         try:
             import requests as http_requests
@@ -50,10 +47,10 @@ class FrontendValidateView(APIView):
                     "ticket_slug": ticket_slug,
                     "user_html":   user_html,
                     "user_css":    user_css,
-                    "lab_name":    "frontend-portfolio",  # legacy fallback
-                    "lab_id":      lab_id,                # new canonical lookup
+                    "lab_name":    "frontend-portfolio", 
+                    "lab_id":      lab_id,           
                 },
-                timeout=60,  # Playwright screenshots can take ~10-20 s
+                timeout=60, 
             )
             if resp.status_code == 404:
                 return Response(
