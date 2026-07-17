@@ -3,22 +3,20 @@ import os
 import tempfile
 import sys
 from django.conf import settings
+import io
 
-# Lazy import: bs4 — only required at validation call time, not module load
 try:
     from bs4 import BeautifulSoup
     _bs4_available = True
 except ImportError:
     _bs4_available = False
 
-# Lazy import: Pillow
 try:
     from PIL import Image
     _pil_available = True
 except ImportError:
     _pil_available = False
 
-# Add ui-diff to sys.path so we can import it
 ui_diff_path = os.path.join(settings.BASE_DIR, '..', 'yuvro-code-executer', 'ui-diff')
 if ui_diff_path not in sys.path:
     sys.path.insert(0, ui_diff_path)
@@ -30,13 +28,11 @@ except ImportError:
 
 
 def render_html_screenshot(html_content: str, css_content: str, width: int = 1280, height: int = 800) -> bytes:
-    """Renders HTML and CSS into a screenshot using Playwright."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
         raise RuntimeError("Playwright is not installed. Please install it to use the frontend validator.")
 
-    # Inject CSS into HTML
     html_with_css = html_content
     css_tag = f"<style>{css_content}</style>"
     if "<head>" in html_with_css:
@@ -48,7 +44,6 @@ def render_html_screenshot(html_content: str, css_content: str, width: int = 128
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": width, "height": height})
         page.set_content(html_with_css)
-        # Wait a bit for fonts/layout to settle
         page.wait_for_timeout(500)
         screenshot_bytes = page.screenshot(full_page=True)
         browser.close()
@@ -56,11 +51,10 @@ def render_html_screenshot(html_content: str, css_content: str, width: int = 128
     return screenshot_bytes
 
 def ui_diff_score(base_img_bytes: bytes, user_img_bytes: bytes) -> tuple[float, str]:
-    """Compares two screenshots using the ui-diff module."""
     if compare is None:
         return 0.0, ""
 
-    import io
+
     try:
         base_pil = Image.open(io.BytesIO(base_img_bytes)).convert("RGB")
         user_pil = Image.open(io.BytesIO(user_img_bytes)).convert("RGB")
@@ -84,7 +78,6 @@ def ui_diff_score(base_img_bytes: bytes, user_img_bytes: bytes) -> tuple[float, 
         return 0.0, ""
 
 def structural_validate(base_html: str, user_html: str) -> dict:
-    """Validates structural elements in the HTML."""
     if not _bs4_available:
         return {"score": 0, "checks": [{"name": "BeautifulSoup4 not installed", "passed": False, "reason": "Install bs4 in the backend container"}]}
     try:
@@ -97,7 +90,6 @@ def structural_validate(base_html: str, user_html: str) -> dict:
     passed_checks = 0
     total_checks = 0
 
-    # 1. Check for expected elements based on tags
     expected_tags = set([tag.name for tag in base_soup.find_all(True) if tag.name not in ['html', 'head', 'meta', 'title', 'body', 'link', 'style', 'script']])
     user_tags = set([tag.name for tag in user_soup.find_all(True)])
     
@@ -110,7 +102,6 @@ def structural_validate(base_html: str, user_html: str) -> dict:
             else:
                 checks.append({"name": f"Contains <{tag}> element", "passed": False, "reason": "Missing"})
 
-    # 2. Check for expected classes
     expected_classes = set()
     for tag in base_soup.find_all(True):
         classes = tag.get('class')
@@ -140,7 +131,6 @@ def structural_validate(base_html: str, user_html: str) -> dict:
     }
 
 def validate_frontend_ticket(ticket_id: str, user_html: str, user_css: str, base_html: str, base_css: str) -> dict:
-    """Orchestrates the full validation pipeline."""
     try:
         # 1. Render screenshots
         base_img = render_html_screenshot(base_html, base_css)
