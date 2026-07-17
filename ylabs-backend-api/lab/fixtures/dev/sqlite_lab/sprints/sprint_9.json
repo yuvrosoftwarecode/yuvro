@@ -26,7 +26,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
@@ -61,7 +63,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
@@ -96,7 +100,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_todos_status';",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",

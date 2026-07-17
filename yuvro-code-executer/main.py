@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import subprocess
-from sqlite_helpers import SqliteRunRequest, evaluate_sql_submission
+from database_evaluator import DatabaseEvaluatorFactory
 import tempfile
 import os
 import time
@@ -136,6 +136,19 @@ class ReferenceSubmission(BaseModel):
     submission_id: str
     user_id: str
     answer_data: Dict[str, Any]
+
+class DatabaseRunRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    query: str
+    database_engine: str = "sqlite"
+    db_file: str = "lab.db"
+    expected_query: Optional[str] = None
+    expected_output: Optional[str] = None
+    scoring_rules: Optional[Dict[str, Any]] = None
+    system_query: Optional[str] = None
+    expected_result: Optional[str] = None
 
 class PlagiarismCheckRequest(BaseModel):
     target_code: str
@@ -1889,80 +1902,86 @@ async def run_command_endpoint(body: RunCommandRequest):
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
-@workspace_router.post("/sqlite_run")
-async def sqlite_run_endpoint(body: SqliteRunRequest):
+@workspace_router.post("/database_run")
+async def database_run_endpoint(body: DatabaseRunRequest):
     """
-    Execute a raw SQLite query inside the sprint's workspace and evaluate if scoring rules provided.
+    Execute a raw database query inside the sprint's workspace and evaluate if scoring rules provided.
     """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     ws.mkdir(parents=True, exist_ok=True)
     
-    import tempfile
     try:
-        # Write query to temp file to prevent escaping issues
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
-            f.write(body.query)
-            temp_path = f.name
-            
-        proc = await asyncio.create_subprocess_shell(
-            f'sqlite3 "{body.db_file}" < "{temp_path}"',
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=str(ws)
-        )
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
-        os.unlink(temp_path)
-        
-        out_str = stdout.decode(errors="replace")
-        err_str = stderr.decode(errors="replace")
-        exit_code = proc.returncode
-        
-        result = {
-            "stdout": out_str,
-            "stderr": err_str,
-            "exit_code": exit_code
-        }
-        
-        if body.scoring_rules is not None or body.expected_query or body.expected_output:
-            eval_res = evaluate_sql_submission(
-                user_query=body.query,
-                expected_query=body.expected_query or "",
-                user_output=err_str if exit_code != 0 else out_str,
-                expected_output=body.expected_output or "",
-                scoring_rules=body.scoring_rules or {}
-            )
-            result["evaluation"] = eval_res
-            
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        result = await evaluator.execute(body, ws)
         return result
-        
-    except asyncio.TimeoutError:
-        try:
-            proc.kill()
-        except:
-            pass
-        return {"stdout": "", "stderr": "Query timed out", "exit_code": -1}
+    except ValueError as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
 class SqliteEvaluateRequest(BaseModel):
+    user_id: Optional[str] = None
+    lab_id: Optional[str] = None
+    sprint_id: Optional[str] = None
+    db_file: Optional[str] = None
     user_query: str
     expected_query: str
     user_output: str
     expected_output: str
     scoring_rules: dict
+    system_query: Optional[str] = None
+    expected_result: Optional[str] = None
 
 @workspace_router.post("/evaluate_sql")
 async def evaluate_sql_endpoint(body: SqliteEvaluateRequest):
     """
-    Evaluate a raw SQLite query against expected outputs without executing it.
+    Evaluate a raw SQLite query against expected outputs.
     """
     try:
+        actual_result = body.user_output
+        if body.system_query and body.user_id and body.lab_id and body.sprint_id:
+            ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+            if ws.exists():
+                db_file = body.db_file
+                if not db_file:
+                    db_files = list(ws.glob("*.db"))
+                    if db_files:
+                        db_file = db_files[0].name
+                    else:
+                        db_file = "lab.db"
+                        
+                import tempfile
+                import asyncio
+                import os
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
+                    f.write(body.system_query)
+                    temp_path = f.name
+                
+                proc = await asyncio.create_subprocess_shell(
+                    f'sqlite3 "{db_file}" < "{temp_path}"',
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=str(ws)
+                )
+                stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+                
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+                    
+                if proc.returncode == 0:
+                    actual_result = stdout.decode().strip()
+                else:
+                    actual_result = stderr.decode().strip()
+
         eval_res = evaluate_sql_submission(
             user_query=body.user_query,
             expected_query=body.expected_query,
             user_output=body.user_output,
             expected_output=body.expected_output,
-            scoring_rules=body.scoring_rules
+            scoring_rules=body.scoring_rules,
+            system_query=body.system_query,
+            expected_result=body.expected_result,
+            actual_result=actual_result
         )
         return eval_res
     except Exception as e:

@@ -7,7 +7,7 @@ import {
   deleteWorkspaceFile,
   getTerminalWsUrl,
   runCommand,
-  runSqliteQuery,
+  runDatabaseQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
@@ -1265,22 +1265,49 @@ function TicketIDE({
     if (isSql) {
       const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
       const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
+      const targetDbFile = dbFile || "__none__";
 
-      if (!dbFile) {
-        setOutput(`Error: No SQLite database (.db) file found in the workspace.\nPlease create one first (e.g., in the terminal run 'sqlite3 mydatabase.db').`);
-        setRunning(false);
-        return;
+      const tTasks = ticket.tasks || [];
+      const task = tTasks.length > 0 ? tTasks[0] : null;
+      let sRules: any = undefined;
+      let sysQ: any = undefined;
+      let expR: any = undefined;
+      let expQ: any = ticket.solution?.["query.sql"];
+      
+      if (task && typeof task === "object" && task.scoring_rules) {
+        sRules = task.scoring_rules;
+        sysQ = sRules?.system_query;
+        expR = sRules?.expected_result;
+      } else {
+        sRules = ticket.scoring_rules || {};
+        sysQ = sRules?.system_query;
+        expR = sRules?.expected_result;
       }
 
-      setOutput(`-- Executing query on ${dbFile}\n…running…`);
-      runSqliteQuery(userId, labId, sprintId, src, dbFile)
+      setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
+      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, undefined, sRules, sysQ, expR)
         .then((res) => {
           let outText = `-- Executed Query\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
           if (res.stderr) outText += `Error:\n${res.stderr}\n`;
           outText += `\n✓ Process finished with exit code ${res.exit_code}`;
+          
+          if (res.evaluation) {
+            const passed = res.evaluation.final_score_pct === 1.0;
+            outText += `\n\nEvaluation: ${passed ? "✓ Passed" : "✗ Failed"}`;
+            if (!passed && sysQ) outText += `\nCheck failed. Ensure you followed the instructions exactly.`;
+            setTicketScore({ passed: passed ? 1 : 0, total: 1 });
+            setTestsRan(true);
+            setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
+            
+            const taskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : "task-0";
+            setEvalResult(prev => ({ 
+              ...prev, 
+              [taskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
+            }));
+          }
+          
           setOutput(outText);
-          evaluateSubmission(src, outText);
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
@@ -1391,6 +1418,32 @@ function TicketIDE({
   };
 
   async function handleSubmit() {
+    if (isSql) {
+      if (!ticketScore || ticketScore.passed !== ticketScore.total) {
+        showToast("Fix failing tests before submitting (Click Run first)");
+        return;
+      }
+      setSubmitting(true);
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: "in_review",
+            solution: files[Object.keys(files)[0]] ?? "",
+          }).catch(console.error).finally(() => setSubmitting(false));
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: "in_review",
+            solution: files[Object.keys(files)[0]] ?? "",
+          }).catch(console.error).finally(() => setSubmitting(false));
+        });
+      }
+      navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+      return;
+    }
+
     if (isReal && ticket.tasks && ticket.tasks.length > 0) {
       setTab("problem");
       setLeftCollapsed(false);

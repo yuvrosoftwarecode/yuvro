@@ -26,7 +26,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT AVG(priority) FROM todos WHERE status = 'pending';",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT AVG(priority) FROM todos WHERE status = 'pending';",
@@ -61,7 +63,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM todos WHERE due_date < date('now');",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT * FROM todos WHERE due_date < date('now');",
@@ -96,7 +100,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT title, \n  CASE \n    WHEN priority = 1 THEN 'High' \n    ELSE 'Normal' \n  END AS urgency \nFROM todos;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT title, \n  CASE \n    WHEN priority = 1 THEN 'High' \n    ELSE 'Normal' \n  END AS urgency \nFROM todos;",

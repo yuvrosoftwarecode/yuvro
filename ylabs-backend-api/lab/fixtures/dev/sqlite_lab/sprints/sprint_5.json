@@ -26,7 +26,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM todos;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
@@ -61,7 +63,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM todos;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "DELETE FROM todos WHERE user_id = 2;",
@@ -96,7 +100,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM todos WHERE title LIKE '%database%';",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",

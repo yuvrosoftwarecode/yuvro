@@ -225,12 +225,20 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
         user_query = self.solution.strip()
         expected_output = expected_solution.get("expected_output", "")
         
+        system_query = scoring_rules.get("system_query", "").strip()
+        expected_result = scoring_rules.get("expected_result", "").strip()
+        
         payload = {
+            "user_id": str(self.user.id),
+            "lab_id": str(ticket.sprint.lab.id),
+            "sprint_id": str(ticket.sprint.id),
             "user_query": user_query,
             "expected_query": expected_query,
             "user_output": self.solution_output,
             "expected_output": expected_output,
-            "scoring_rules": scoring_rules
+            "scoring_rules": scoring_rules,
+            "system_query": system_query,
+            "expected_result": expected_result
         }
         
         try:

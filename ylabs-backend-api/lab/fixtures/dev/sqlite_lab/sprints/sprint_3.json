@@ -26,7 +26,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM users;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "INSERT INTO users (username, email) VALUES \n('alice_dev', 'alice@email.com'),\n('bob_ops', 'bob@email.com');",
@@ -61,7 +63,9 @@
       "scoring_rules": {
         "logic_score": 100,
         "clean_code": 0,
-        "visual_accuracy": 0
+        "visual_accuracy": 0,
+        "system_query": "SELECT * FROM todos;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "INSERT INTO todos (user_id, title) VALUES \n(1, 'Setup database');",
