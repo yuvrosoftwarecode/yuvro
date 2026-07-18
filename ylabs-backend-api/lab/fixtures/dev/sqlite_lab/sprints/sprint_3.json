@@ -1,0 +1,84 @@
+{
+  "title": "Sprint 3 - Basic Data Insertion",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 3,
+  "lab_title": "SQLite Lab",
+  "tickets": [
+    {
+      "title": "Insert First Users",
+      "ticket_slug": "sqlite-31",
+      "description": "Add two users to the system: 'alice_dev' (alice@email.com) and 'bob_ops' (bob@email.com).",
+      "tasks": [
+        "Add two users to the system: 'alice_dev' (alice@email.com) and 'bob_ops' (bob@email.com)."
+      ],
+      "learning_objectives": [
+        "Use INSERT INTO for multiple rows."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT username FROM users WHERE username='alice_dev';",
+        "expected_result": "alice_dev"
+      },
+      "solution": {
+        "query.sql": "INSERT INTO users (username, email) VALUES \n('alice_dev', 'alice@email.com'),\n('bob_ops', 'bob@email.com');",
+        "database_identifier": "todo_management",
+        "expected_output": ""
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Insert First Todos",
+      "ticket_slug": "sqlite-32",
+      "description": "Assign a task to Alice (`user_id = 1`) with the title \"Setup database\". Allow the status to fall back to its default value.",
+      "tasks": [
+        "Assign a task to Alice (`user_id = 1`) with the title \"Setup database\". Allow the status to fall back to its default value."
+      ],
+      "learning_objectives": [
+        "Understand auto-increment IDs and default values during insertion."
+      ],
+      "evaluation": "Runs your query and compares against the system solution.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the SQLite documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT title FROM todos WHERE title='Setup database';",
+        "expected_result": "Setup database"
+      },
+      "solution": {
+        "query.sql": "INSERT INTO todos (user_id, title) VALUES \n(1, 'Setup database');",
+        "database_identifier": "todo_management",
+        "expected_output": ""
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    }
+  ]
+}

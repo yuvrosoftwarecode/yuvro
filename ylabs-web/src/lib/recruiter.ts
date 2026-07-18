@@ -289,7 +289,8 @@ export async function fetchLabs(): Promise<LabItem[]> {
 
 export async function fetchCourses(): Promise<CourseItem[]> {
   try {
-    return await ycodeApiAuthUtil.get<CourseItem[]>('/course/courses/');
+    const data = await ycodeApiAuthUtil.get<any>('/course/courses/');
+    return Array.isArray(data) ? data : (data.results || []);
   } catch {
     return [];
   }
@@ -298,7 +299,8 @@ export async function fetchCourses(): Promise<CourseItem[]> {
 export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
   try {
     const url = courseId ? `/course/topics/?course=${courseId}` : `/course/topics/`;
-    return await ycodeApiAuthUtil.get<TopicItem[]>(url);
+    const data = await ycodeApiAuthUtil.get<any>(url);
+    return Array.isArray(data) ? data : (data.results || []);
   } catch {
     return [];
   }
@@ -310,6 +312,7 @@ export async function fetchQuestions(): Promise<QuestionItem[]> {
     // Handle paginated response if backend returns { results: [...] }
     const results = Array.isArray(data) ? data : (data as any).results || [];
     return results.map((q: any) => ({
+      ...q,
       id: q.id,
       text: q.content || "",
       title: q.title || "",
@@ -326,6 +329,31 @@ export async function fetchQuestions(): Promise<QuestionItem[]> {
   } catch (err) {
     console.error("fetchQuestions error", err);
     return [];
+  }
+}
+
+export async function fetchQuestionDetails(id: string): Promise<QuestionItem | null> {
+  try {
+    const q = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);
+    if (!q) return null;
+    return {
+      ...q,
+      id: q.id,
+      text: q.content || "",
+      title: q.title || "",
+      programming_languages: [],
+      databases: [],
+      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      experience: "Fresher" as ExperienceLevel,
+      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      marks: q.marks || 1,
+      duration_minutes: q.duration || 1,
+      course: q.course,
+      topic: q.topic
+    };
+  } catch (err) {
+    console.error("fetchQuestionDetails error", err);
+    return null;
   }
 }
 

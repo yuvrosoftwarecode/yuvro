@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link, Outlet, useLocation } from "@tansta
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import {
-  ChevronLeft, Plus, X, Search, Trash2, Copy, ArrowUp, ArrowDown, ChevronDown, ChevronRight,
+  ChevronLeft, Plus, X, Search, Trash2, Copy, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight,
   Beaker, BookOpen, MessageSquare, Sparkles, Clock, Award, Star, Check, Link as LinkIcon,
   Upload, Mail, Rocket, Eye, Pencil, GripVertical, Shuffle,
 } from "lucide-react";
@@ -285,6 +285,50 @@ function LabsSectionBody({ section, onChange, onAddLab }: { section: LabsSection
   );
 }
 
+function QuestionPreview({ q }: { q: any }) {
+  return (
+    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
+      {q.text && <div className="whitespace-pre-wrap">{q.text}</div>}
+      
+      {q.mcq_options && q.mcq_options.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-semibold text-neutral-400">Options:</div>
+          {q.mcq_options.map((opt: any, i: number) => (
+            <div key={i} className="flex items-start gap-3 rounded bg-black/20 px-3 py-2">
+              <div className="mt-0.5">{opt.is_correct ? <Check className="h-4 w-4 text-emerald-400" /> : <div className="h-4 w-4 rounded-full border border-white/10" />}</div>
+              <div className="flex-1">{opt.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {q.test_cases_basic && q.test_cases_basic.length > 0 && (
+        <div className="space-y-3">
+          <div className="font-semibold text-neutral-400">Examples:</div>
+          {q.test_cases_basic.map((ex: any, i: number) => (
+            <div key={i} className="rounded bg-black/20 p-3 font-mono text-[11px]">
+              <div><span className="text-neutral-500">Input:</span> {ex.input}</div>
+              <div className="mt-2"><span className="text-neutral-500">Output:</span> {ex.output}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssessmentQuestionItem({ q, onRemove }: { q: any, onRemove: () => void }) {
+  return (
+    <li className="flex flex-col rounded-md border border-white/5 bg-black/20 px-3 py-2.5">
+      <div className="flex items-center gap-3">
+        <span className="line-clamp-1 flex-1 text-[12px] text-neutral-300">{q.text || q.title || "Untitled Question"}</span>
+        <span className="text-[10px] text-neutral-500">{q.difficulty} &middot; {q.marks}m &middot; {q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)} min</span>
+        <ToolBtn title="Remove" onClick={onRemove}><X className="h-3 w-3" /></ToolBtn>
+      </div>
+    </li>
+  );
+}
+
 function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section: AssessmentSection; onChange: (s: Section) => void; onAddQuestions: () => void }) {
   const totalQ = section.questions.length;
   const totalM = section.questions.reduce((a, q) => a + q.marks, 0);
@@ -302,11 +346,11 @@ function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section:
       {section.questions.length > 0 && (
         <ul className="mt-2 space-y-1">
           {section.questions.map(q => (
-            <li key={q.id} className="flex items-center gap-3 rounded-md border border-white/5 bg-black/20 px-3 py-2.5 text-[12px]">
-              <span className="line-clamp-1 flex-1 text-neutral-300">{q.text || q.title || "Untitled Question"}</span>
-              <span className="text-[10px] text-neutral-500">{q.difficulty} · {q.marks}m · {q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)} min</span>
-              <ToolBtn title="Remove" onClick={() => onChange({ ...section, questions: section.questions.filter(qq => qq.id !== q.id) })}><X className="h-3 w-3" /></ToolBtn>
-            </li>
+            <AssessmentQuestionItem 
+              key={q.id} 
+              q={q} 
+              onRemove={() => onChange({ ...section, questions: section.questions.filter(qq => qq.id !== q.id) })} 
+            />
           ))}
         </ul>
       )}
@@ -526,6 +570,28 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   );
 }
 
+function QuestionDrawerItem({ it, added, onAdd, onPreview }: { it: any, added: boolean, onAdd: (q: any) => void, onPreview: (q: any) => void }) {
+  return (
+    <div className="flex flex-col rounded-lg border border-white/5 bg-white/[0.02] p-3">
+      <div className="text-[13px] text-white flex-1">{it.text || it.title}</div>
+      <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
+        {it.programming_languages?.map((x: string)=><Chip key={x}>{x}</Chip>)}{it.databases?.map((x: string)=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
+      </div>
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-[11px] text-neutral-500">{it.marks} marks &middot; {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => onPreview(it)} className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5">
+            <Eye className="h-3 w-3" /> Preview
+          </button>
+          <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
+            {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: () => void; onAdd: (q: QuestionItem) => void }) {
   const [q, setQ] = useState("");
   const [lang, setLang] = useState("All");
@@ -536,6 +602,7 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [allTopics, setAllTopics] = useState<TopicItem[]>([]);
   const [course, setCourse] = useState("All");
   const [topic, setTopic] = useState("All");
 
@@ -543,11 +610,42 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   
   const [loading, setLoading] = useState(true);
   
+  const [previewQ, setPreviewQ] = useState<any>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  
+  const handlePreview = async (q: any) => {
+    setLoadingPreview(true);
+    const { fetchQuestionDetails } = await import('@/lib/recruiter');
+    const details = await fetchQuestionDetails(q.id);
+    setPreviewQ(details || q);
+    setLoadingPreview(false);
+  };
+
+  const handleAdd = async (q: any) => {
+    let finalQ = q;
+    // If we haven't fetched the details for this question yet, fetch them before adding
+    if (!q.content && !q.mcq_options) {
+      const { fetchQuestionDetails } = await import('@/lib/recruiter');
+      const details = await fetchQuestionDetails(q.id);
+      finalQ = details || q;
+    }
+
+    const c = courses.find((c: any) => c.id === finalQ.course);
+    const t = allTopics.find((t: any) => t.id === finalQ.topic);
+
+    onAdd({
+      ...finalQ,
+      course_title: c ? c.name : "Other Subjects",
+      topic_title: t ? t.name : "Other Topics",
+    });
+  };
+
   useEffect(() => { 
     setLoading(true);
     Promise.all([
       fetchQuestions().then(setQuestions),
-      fetchCourses().then(setCourses)
+      fetchCourses().then(setCourses),
+      fetchTopics().then(setAllTopics)
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -567,7 +665,29 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   }), [q, lang, diff, format, course, topic, questions]);
 
   return (
-    <Drawer title="Assessment Question Bank" subtitle="Curated by topic and experience level." onClose={onClose}>
+    <Drawer 
+      title="Assessment Question Bank" 
+      subtitle="Curated by topic and experience level." 
+      onClose={onClose}
+      leftPanel={
+        previewQ && (
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between border-b border-white/5 p-6">
+              <div className="text-[16px] font-semibold text-white">{previewQ.title || previewQ.text || "Preview"}</div>
+              <button onClick={() => setPreviewQ(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <QuestionPreview q={previewQ} />
+            </div>
+            <div className="border-t border-white/5 p-5 flex justify-end">
+              <button disabled={existing.includes(previewQ.id)} onClick={() => { handleAdd(previewQ); setPreviewQ(null); }} className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50">
+                {existing.includes(previewQ.id) ? "Added" : "Add Question"}
+              </button>
+            </div>
+          </div>
+        )
+      }
+    >
       <div className="grid gap-2 border-b border-white/5 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
@@ -597,25 +717,9 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
           </div>
         )}
-        {!loading && filtered.map(it => {
-          const added = existing.includes(it.id);
-          return (
-            <div key={it.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
-              <div className="text-[13px] text-white">{it.text || it.title}</div>
-              <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
-                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
-                <div className="flex items-center gap-1">
-                  <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
-                    {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {!loading && filtered.map(it => (
+          <QuestionDrawerItem key={it.id} it={it} added={existing.includes(it.id)} onAdd={handleAdd} onPreview={handlePreview} />
+        ))}
         {filtered.length === 0 && <div className="py-8 text-center text-[12px] text-neutral-500">No questions match your filters.</div>}
       </div>
     </Drawer>
@@ -661,9 +765,16 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
   );
 }
 
-function Drawer({ children, onClose, title, subtitle }: { children: React.ReactNode; onClose: () => void; title: string; subtitle?: string }) {
+function Drawer({ children, onClose, title, subtitle, leftPanel }: { children: React.ReactNode; onClose: () => void; title: string; subtitle?: string; leftPanel?: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/50 backdrop-blur" onClick={onClose}>
+      {leftPanel && (
+        <div onClick={(e) => e.stopPropagation()} className="flex flex-1 justify-end p-8 pb-10 max-h-screen">
+          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-2xl flex flex-col">
+            {leftPanel}
+          </div>
+        </div>
+      )}
       <div onClick={(e) => e.stopPropagation()} className="flex h-full w-[480px] flex-col border-l border-white/10 bg-neutral-950">
         <div className="flex items-start justify-between border-b border-white/5 p-5">
           <div>

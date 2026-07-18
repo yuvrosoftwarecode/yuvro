@@ -245,6 +245,8 @@ class QuestionSolutionSerializer(serializers.ModelSerializer):
 
 class QuestionBasicSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField(read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True, default=None)
+    topic_name = serializers.CharField(source='topic.name', read_only=True, default=None)
     
     class Meta:
         model = Question
@@ -254,7 +256,9 @@ class QuestionBasicSerializer(serializers.ModelSerializer):
             "title",
             "level",
             "course",
+            "course_name",
             "topic",
+            "topic_name",
             "difficulty",
             "marks",
             "duration",
@@ -271,6 +275,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     created_by = serializers.StringRelatedField(read_only=True)
     solutions = QuestionSolutionSerializer(many=True, read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True, default=None)
+    topic_name = serializers.CharField(source='topic.name', read_only=True, default=None)
 
     class Meta:
         model = Question
@@ -281,7 +287,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             "content",
             "level",
             "course",
+            "course_name",
             "topic",
+            "topic_name",
             "subtopic",
             "difficulty",
             "marks",

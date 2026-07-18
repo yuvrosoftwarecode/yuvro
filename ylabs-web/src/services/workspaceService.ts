@@ -23,10 +23,12 @@ export async function fetchFileTree(
   userId: string,
   labId: string,
   sprintId: string,
-  starters?: Record<string, string>
+  starters?: Record<string, string>,
+  labType?: string
 ): Promise<FileTreeResponse> {
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
   if (starters) params.set("starters", JSON.stringify(starters));
+  if (labType) params.set("lab_type", labType);
   const res = await fetch(`${EXECUTOR_BASE}/workspace/filetree?${params}`);
   if (!res.ok) throw new Error(`File tree fetch failed: ${res.statusText}`);
   return res.json();
@@ -78,9 +80,10 @@ export async function deleteWorkspaceFile(
 }
 
 /** Returns the WebSocket URL for the terminal. */
-export function getTerminalWsUrl(userId: string, labId: string, sprintId: string): string {
+export function getTerminalWsUrl(userId: string, labId: string, sprintId: string, labType?: string): string {
   const wsBase = EXECUTOR_BASE.replace(/^http/, "ws");
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
+  if (labType) params.set("lab_type", labType);
   return `${wsBase}/workspace/terminal?${params}`;
 }
 
@@ -105,6 +108,62 @@ export async function evaluateTask(
     }),
   });
   if (!res.ok) throw new Error(`Evaluation failed: ${res.statusText}`);
+  return res.json();
+}
+
+/** Executes a raw command inside the workspace */
+export async function runCommand(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  command: string
+): Promise<{ stdout: string; stderr: string; exit_code: number }> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/run_command`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      command: command,
+    }),
+  });
+  if (!res.ok) throw new Error(`Run command failed: ${res.statusText}`);
+  return res.json();
+}
+
+/** Executes a database query inside the workspace */
+export async function runDatabaseQuery(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  query: string,
+  dbFile: string = "lab.db",
+  databaseEngine: string = "sqlite",
+  expectedQuery?: string,
+  expectedOutput?: string,
+  scoringRules?: any,
+  systemQuery?: string,
+  expectedResult?: string
+): Promise<{ stdout: string; stderr: string; exit_code: number; evaluation?: any }> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/database_run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      query: query,
+      database_engine: databaseEngine,
+      db_file: dbFile,
+      expected_query: expectedQuery,
+      expected_output: expectedOutput,
+      scoring_rules: scoringRules,
+      system_query: systemQuery,
+      expected_result: expectedResult
+    }),
+  });
+  if (!res.ok) throw new Error(`Run Database query failed: ${res.statusText}`);
   return res.json();
 }
 
