@@ -16,9 +16,12 @@ export const Route = createFileRoute("/")({
         if (userStr) {
           try {
             const user = JSON.parse(userStr);
-            const role = user.roles?.ylabs || user.role;
-            if (role === 'admin') {
+            const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+            const r = role?.toLowerCase();
+            if (r === 'admin') {
               throw redirect({ to: '/admin' });
+            } else if (r === 'recruiter') {
+              throw redirect({ to: '/recruiter/dashboard' });
             } else {
               throw redirect({ to: '/student/dashboard' });
             }
@@ -40,8 +43,9 @@ function Landing() {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("access");
       if (token && isAuthenticated && user) {
-        const role = user.roles?.ylabs || user.role;
-        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+        const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+        const r = role?.toLowerCase();
+        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
       }
     }
   }, [user, isAuthenticated, nav]);

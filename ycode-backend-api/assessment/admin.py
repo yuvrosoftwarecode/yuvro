@@ -6,6 +6,7 @@ from .models import (
         JobTest,
     SkillTestSubmission,
     ContestSubmission,
+    ContestRegistration,
         JobTestSubmission,
     SkillTestQuestionActivity,
     ContestQuestionActivity,
@@ -15,6 +16,17 @@ from .models import (
     CertificationQuestionActivity,
     Certificate
 )
+
+@admin.register(ContestRegistration)
+class ContestRegistrationAdmin(admin.ModelAdmin):
+    list_display = ["user", "contest", "registered_at", "is_late_entry"]
+    list_filter = ["contest", "is_late_entry", "registered_at"]
+    search_fields = ["user__username", "user__email", "contest__title"]
+    readonly_fields = ["id", "created_at", "updated_at", "registered_at"]
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("user", "contest")
+
 
 
 @admin.register(SkillTest)
@@ -81,13 +93,14 @@ class ContestAdmin(admin.ModelAdmin):
         "organizer",
         "type",
         "status",
+        "payment_type",
         "start_datetime",
         "end_datetime",
         "difficulty",
     ]
-    list_filter = ["type", "status", "difficulty", "start_datetime"]
+    list_filter = ["type", "status", "payment_type", "difficulty", "start_datetime"]
     search_fields = ["title", "organizer", "description"]
-    readonly_fields = ["id", "created_at", "updated_at", "total_attempts"]
+    readonly_fields = ["id", "created_at", "updated_at", "total_attempts", "public_registrations"]
     date_hierarchy = "start_datetime"
     fieldsets = (
         (
@@ -100,6 +113,7 @@ class ContestAdmin(admin.ModelAdmin):
                 "fields": (
                     "type",
                     "status",
+                    "payment_type",
                     "difficulty",
                     "duration",
                     "total_marks",
@@ -107,7 +121,7 @@ class ContestAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("Schedule & Prize", {"fields": ("start_datetime", "end_datetime", "prize")}),
+        ("Schedule & Prize", {"fields": ("start_datetime", "end_datetime", "registration_start_datetime", "registration_end_datetime", "prize")}),
         (
             "Questions & Publishing",
             {
@@ -128,6 +142,7 @@ class ContestAdmin(admin.ModelAdmin):
                     "created_at",
                     "updated_at",
                     "total_attempts",
+                    "public_registrations",
                 ),
                 "classes": ("collapse",),
             },

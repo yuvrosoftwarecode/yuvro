@@ -41,6 +41,7 @@ from .serializers import (
 )
 from core.ai_client import AIClient
 from django.contrib.auth import get_user_model
+from .serializers import QuestionBasicSerializer
 
 User = get_user_model()
 
@@ -193,6 +194,12 @@ class TopicViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedUser]
 
     def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
+
+    def get_serializer_class(self):
         return TopicSerializer if self.action == "retrieve" else TopicBasicSerializer
 
     def get_queryset(self):
@@ -289,6 +296,12 @@ class SubtopicViewSet(viewsets.ModelViewSet):
     serializer_class = SubtopicSerializer
     permission_classes = [IsAuthenticatedUser]
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
+
     def get_queryset(self):
         qs = Subtopic.objects.select_related("topic__course")
         topic_id = self.request.query_params.get("topic")
@@ -348,6 +361,12 @@ class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
     permission_classes = [IsAuthenticatedUser]
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
+
     def get_queryset(self):
         qs = Video.objects.select_related("sub_topic__topic__course")
         sub = self.request.query_params.get("sub_topic")
@@ -405,6 +424,12 @@ class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.select_related("sub_topic", "user")
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticatedUser]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
 
     def get_queryset(self):
         from django.db.models import Q
@@ -470,6 +495,12 @@ class QuestionSolutionViewSet(viewsets.ModelViewSet):
     queryset = QuestionSolution.objects.select_related("question")
     serializer_class = QuestionSolutionSerializer
     permission_classes = [IsAuthenticatedUser]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
 
     def get_queryset(self):
         qs = QuestionSolution.objects.select_related("question")
@@ -542,6 +573,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
     )
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticatedUser]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
 
     def get_queryset(self):
         from django.db import models
@@ -685,6 +722,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
     queryset = UserCourseProgress.objects.all()
     permission_classes = [IsAuthenticatedUser]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return QuestionBasicSerializer
+        return QuestionSerializer
+
 
     @action(detail=False, methods=["post"])
     def mark_complete(self, request):

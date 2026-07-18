@@ -21,6 +21,8 @@ RUN apt-get update \
         procps \
         libgl1 \
         libglib2.0-0 \
+        sqlite3 \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies

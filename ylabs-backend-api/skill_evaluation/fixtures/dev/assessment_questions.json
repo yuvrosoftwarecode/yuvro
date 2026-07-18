@@ -1,0 +1,1348 @@
+{
+  "assessment_questions": [
+    {
+      "title": "Test C - EASY - MCQ",
+      "description": "This is a easy MCQ question about C.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about C.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about C.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - EASY - CODING",
+      "description": "This is a easy CODING question about C.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about C.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about C.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about C.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - MEDIUM - CODING",
+      "description": "This is a medium CODING question about C.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - HARD - MCQ",
+      "description": "This is a hard MCQ question about C.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about C.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about C.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C - HARD - CODING",
+      "description": "This is a hard CODING question about C.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "C"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - EASY - MCQ",
+      "description": "This is a easy MCQ question about C++.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about C++.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about C++.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - EASY - CODING",
+      "description": "This is a easy CODING question about C++.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - MEDIUM - CODING",
+      "description": "This is a medium CODING question about C++.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - HARD - MCQ",
+      "description": "This is a hard MCQ question about C++.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about C++.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about C++.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test C++ - HARD - CODING",
+      "description": "This is a hard CODING question about C++.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "C++"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - EASY - MCQ",
+      "description": "This is a easy MCQ question about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - EASY - CODING",
+      "description": "This is a easy CODING question about PYTHON.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - MEDIUM - CODING",
+      "description": "This is a medium CODING question about PYTHON.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - HARD - MCQ",
+      "description": "This is a hard MCQ question about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test PYTHON - HARD - CODING",
+      "description": "This is a hard CODING question about PYTHON.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - EASY - MCQ",
+      "description": "This is a easy MCQ question about JAVA.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about JAVA.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about JAVA.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - EASY - CODING",
+      "description": "This is a easy CODING question about JAVA.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - MEDIUM - CODING",
+      "description": "This is a medium CODING question about JAVA.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - HARD - MCQ",
+      "description": "This is a hard MCQ question about JAVA.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about JAVA.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about JAVA.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVA - HARD - CODING",
+      "description": "This is a hard CODING question about JAVA.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVA"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - EASY - MCQ",
+      "description": "This is a easy MCQ question about SQL.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about SQL.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about SQL.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - EASY - CODING",
+      "description": "This is a easy CODING question about SQL.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - MEDIUM - CODING",
+      "description": "This is a medium CODING question about SQL.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - HARD - MCQ",
+      "description": "This is a hard MCQ question about SQL.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about SQL.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about SQL.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test SQL - HARD - CODING",
+      "description": "This is a hard CODING question about SQL.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - EASY - MCQ",
+      "description": "This is a easy MCQ question about BASH.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about BASH.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about BASH.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - EASY - CODING",
+      "description": "This is a easy CODING question about BASH.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - MEDIUM - CODING",
+      "description": "This is a medium CODING question about BASH.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - HARD - MCQ",
+      "description": "This is a hard MCQ question about BASH.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about BASH.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about BASH.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test BASH - HARD - CODING",
+      "description": "This is a hard CODING question about BASH.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "BASH"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - EASY - MCQ",
+      "description": "This is a easy MCQ question about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - EASY - CODING",
+      "description": "This is a easy CODING question about JAVASCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - MEDIUM - CODING",
+      "description": "This is a medium CODING question about JAVASCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - HARD - MCQ",
+      "description": "This is a hard MCQ question about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test JAVASCRIPT - HARD - CODING",
+      "description": "This is a hard CODING question about JAVASCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - EASY - MCQ",
+      "description": "This is a easy MCQ question about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MCQ",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - EASY - MULTIPLE_SELECT",
+      "description": "This is a easy MULTIPLE_SELECT question about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - EASY - DESCRIPTION",
+      "description": "This is a easy DESCRIPTION question about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - EASY - CODING",
+      "description": "This is a easy CODING question about TYPESCRIPT.",
+      "difficulty": "EASY",
+      "domain": "OTHER",
+      "experience": "FRESHER",
+      "duration_minutes": 5,
+      "marks": 5,
+      "format": "CODING",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - MEDIUM - MCQ",
+      "description": "This is a medium MCQ question about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MCQ",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - MEDIUM - MULTIPLE_SELECT",
+      "description": "This is a medium MULTIPLE_SELECT question about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - MEDIUM - DESCRIPTION",
+      "description": "This is a medium DESCRIPTION question about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - MEDIUM - CODING",
+      "description": "This is a medium CODING question about TYPESCRIPT.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 10,
+      "marks": 10,
+      "format": "CODING",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - HARD - MCQ",
+      "description": "This is a hard MCQ question about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MCQ",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - HARD - MULTIPLE_SELECT",
+      "description": "This is a hard MULTIPLE_SELECT question about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "MULTIPLE_SELECT",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - HARD - DESCRIPTION",
+      "description": "This is a hard DESCRIPTION question about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "DESCRIPTION",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    },
+    {
+      "title": "Test TYPESCRIPT - HARD - CODING",
+      "description": "This is a hard CODING question about TYPESCRIPT.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 10,
+      "marks": 20,
+      "format": "CODING",
+      "programming_languages": [
+        "TYPESCRIPT"
+      ],
+      "databases": []
+    }
+  ]
+}

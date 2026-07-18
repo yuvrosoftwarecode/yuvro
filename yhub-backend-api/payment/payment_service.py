@@ -18,6 +18,7 @@ class PaymentService:
         description: str = "",
         metadata: Dict[str, Any] | None = None,
         gateway_name: str = "razorpay",
+        product: str = "",
         payment: Payment | None = None,
     ) -> Payment:
         if metadata is None:
@@ -36,6 +37,7 @@ class PaymentService:
                 "currency": currency,
                 "purpose": purpose,
                 "description": description,
+                "product": product,
                 "metadata": metadata,
                 "status": PaymentStatus.CREATED,
             },

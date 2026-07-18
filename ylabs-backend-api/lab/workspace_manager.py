@@ -50,17 +50,16 @@ def provision_lab_starter_repo(lab_uuid, repo_url):
         logger.error(f"Error provisioning lab starter repo: {e}")
         raise
 
-def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_repo_url, access_token):
+def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_repo_url, access_token, github_username=None):
     try:
         # workspaces/labs/<lab_uuid>/users/<user_uuid>/
         user_dir = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab_uuid), "users", str(user_uuid))
         
-        if os.path.exists(user_dir):
-            logger.info(f"User workspace already exists at {user_dir}")
-            return user_dir
-            
         logger.info(f"Copying {starter_repo_path} to {user_dir}")
-        shutil.copytree(starter_repo_path, user_dir, ignore=shutil.ignore_patterns('.git'))
+        if starter_repo_path and os.path.exists(starter_repo_path):
+            shutil.copytree(starter_repo_path, user_dir, ignore=shutil.ignore_patterns('.git'), dirs_exist_ok=True)
+        else:
+            os.makedirs(user_dir, exist_ok=True)
         
         scoring_rules_path = os.path.join(user_dir, "yuvro_scoring_rules")
         if os.path.exists(scoring_rules_path):
@@ -73,15 +72,18 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         
         subprocess.run(["git", "add", "."], cwd=user_dir, check=True, capture_output=True)
         
-        subprocess.run(["git", "config", "user.email", "bot@yuvro.ai"], cwd=user_dir, check=True)
-        subprocess.run(["git", "config", "user.name", "Yuvro Bot"], cwd=user_dir, check=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
+        git_email = f"{github_username}@users.noreply.github.com" if github_username else "bot@yuvro.ai"
+        git_name = github_username if github_username else "Yuvro Bot"
+        
+        subprocess.run(["git", "config", "user.email", git_email], cwd=user_dir, check=True)
+        subprocess.run(["git", "config", "user.name", git_name], cwd=user_dir, check=True)
+        subprocess.run(["git", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
         auth_url = inject_token_into_url(user_github_repo_url, access_token)
         subprocess.run(["git", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
         
         subprocess.run(["git", "branch", "-M", "main"], cwd=user_dir, check=True)
-        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "push", "-f", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
         
         logger.info(f"Successfully provisioned user repo at {user_dir}")
         return user_dir

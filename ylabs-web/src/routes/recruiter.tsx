@@ -14,7 +14,7 @@ function RecruiterLayout() {
   const { theme, toggle } = useTheme();
   const pathname = useRouterState({ select: s => s.location.pathname });
   const items = [
-    { to: "/recruiter", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
     { to: "/recruiter/settings", label: "Settings", icon: Settings },
   ];
@@ -29,7 +29,7 @@ function RecruiterLayout() {
       </div>
       <div className="flex min-h-screen">
         <aside className="fixed inset-y-0 left-0 z-20 flex w-[240px] flex-col border-r border-white/5 bg-black/40 backdrop-blur-xl">
-          <Link to="/recruiter" className="flex items-center gap-2.5 px-6 py-5">
+          <Link to="/recruiter/dashboard" className="flex items-center gap-2.5 px-6 py-5">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 text-black font-mono text-sm font-bold">Y</div>
             <div className="leading-tight">
               <div className="text-[13px] font-semibold">Yuvro Labs</div>

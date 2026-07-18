@@ -1,5 +1,5 @@
 import type { User } from '../lib/auth';
-import { restApiAuthUtil, yhubApiAuthUtil } from '../utils/RestApiAuthUtil';
+import { restApiAuthUtil, yhubApiAuthUtil, ycodeApiAuthUtil } from '../utils/RestApiAuthUtil';
 import { restApiUtil } from '../utils/RestApiUtil';
 
 export interface LoginResponse {
@@ -19,6 +19,7 @@ class AuthService {
   setAuthToken(token: string): void {
     restApiAuthUtil.setAuthToken(token);
     yhubApiAuthUtil.setAuthToken(token);
+    ycodeApiAuthUtil.setAuthToken(token);
   }
 
   isAuthenticated(): boolean {
@@ -38,6 +39,7 @@ class AuthService {
     if (token) {
       restApiAuthUtil.setAuthToken(token);
       yhubApiAuthUtil.setAuthToken(token);
+      ycodeApiAuthUtil.setAuthToken(token);
     }
   }
 
@@ -48,6 +50,7 @@ class AuthService {
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
+    ycodeApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
@@ -59,6 +62,7 @@ class AuthService {
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
+    ycodeApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
@@ -70,6 +74,7 @@ class AuthService {
     localStorage.setItem('refresh', response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
+    ycodeApiAuthUtil.setAuthToken(response.access);
 
     return response;
   }
@@ -103,6 +108,7 @@ class AuthService {
     }
     restApiAuthUtil.clearAuthToken();
     yhubApiAuthUtil.clearAuthToken();
+    ycodeApiAuthUtil.clearAuthToken();
     window.location.href = '/auth?tab=signin';
   }
 

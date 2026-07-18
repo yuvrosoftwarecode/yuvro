@@ -41,8 +41,10 @@ class Command(BaseCommand):
             self.stdout.write("🧪 Loading lab data...")
             if options["clear"]:
                 call_command("load_labs", "--clear", deploy_env=options["deploy_env"], verbosity=1)
+                call_command("load_skill_evaluations", "--clear", deploy_env=options["deploy_env"], verbosity=1)
             else:
                 call_command("load_labs", deploy_env=options["deploy_env"], verbosity=1)
+                call_command("load_skill_evaluations", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
             self.stdout.write(
@@ -52,6 +54,7 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(self.style.SUCCESS("✓ Lab data loaded"))
+            self.stdout.write(self.style.SUCCESS("✓ Skill evaluation data loaded"))
             self.stdout.write("")
             self.stdout.write("🚀 You can now start testing the application!")
 

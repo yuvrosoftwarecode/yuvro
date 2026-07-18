@@ -24,16 +24,24 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         
         item_type = serializer.validated_data.get("item_type")
         item_id = serializer.validated_data.get("item_id")
+        item_name = serializer.validated_data.get("item_name", "")
+        product = serializer.validated_data.get("product", "")
         purchasable_item = None
         purpose = serializer.validated_data.get("purpose", "")
         
         if item_type and item_id:
-            purchasable_item, _ = PurchasableItem.objects.get_or_create(
+            name_val = item_name or f"{item_type} {item_id}"
+            purchasable_item, created = PurchasableItem.objects.get_or_create(
                 item_type=item_type, 
                 item_id=item_id,
-                defaults={"name": f"{item_type} {item_id}"}
+                defaults={"name": name_val, "product": product}
             )
-            purpose = f"Payment for {item_type} {item_id}"
+            if not created and item_name and purchasable_item.name != item_name:
+                purchasable_item.name = item_name
+                purchasable_item.save(update_fields=['name'])
+                
+            if not purpose:
+                purpose = name_val
 
         existing_payment = None
         if purchasable_item:
@@ -51,6 +59,7 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             description=serializer.validated_data.get("description", ""),
             metadata=serializer.validated_data.get("metadata") or {},
             gateway_name=serializer.validated_data.get("gateway", "razorpay"),
+            product=product,
             payment=existing_payment
         )
         
@@ -171,8 +180,6 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
                 payment.status = PaymentStatus.FAILED
                 attempt_status = PaymentStatus.FAILED.value
                 
-            payment.failure_reason = reason
-            
             attempts = list(payment.payment_attempts)
             attempts.append({
                 "attempt_number": len(attempts) + 1,
@@ -184,7 +191,7 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             })
             payment.payment_attempts = attempts
             
-            payment.save(update_fields=["status", "failure_reason", "payment_attempts"])
+            payment.save(update_fields=["status", "payment_attempts"])
 
         return Response({"status": "FAILED", "message": "Payment marked as failed"})
 
