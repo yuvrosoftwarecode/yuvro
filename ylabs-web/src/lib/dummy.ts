@@ -25,6 +25,7 @@ export interface Lab {
   hoursLeft: number;
   description: string;
   skills: { name: string; pct: number }[];
+  type?: string;
 }
 
 export const labs: Lab[] = [
@@ -37,10 +38,10 @@ export const labs: Lab[] = [
   { slug: "ui", name: "UI Lab", icon: "🎨", color: "ui", difficulty: "Intermediate", completed: 5, total: 20, hoursLeft: 18, description: "Build pixel-perfect interfaces with HTML, CSS, React.", skills: [
     { name: "HTML/CSS", pct: 80 }, { name: "Flex/Grid", pct: 70 }, { name: "React", pct: 50 }, { name: "Accessibility", pct: 35 }
   ]},
-  { slug: "sql", name: "MySQL Lab", icon: "🗄️", color: "sql", difficulty: "Advanced", completed: 3, total: 18, hoursLeft: 22, description: "MySQL queries, joins, window functions and tuning.", skills: [
+  { slug: "sql", name: "MySQL Lab", icon: "🗄️", color: "sql", type: "database", difficulty: "Advanced", completed: 3, total: 18, hoursLeft: 22, description: "MySQL queries, joins, window functions and tuning.", skills: [
     { name: "SELECT", pct: 95 }, { name: "JOINs", pct: 60 }, { name: "Windows", pct: 30 }, { name: "Tuning", pct: 15 }
   ]},
-  { slug: "postgres", name: "PostgreSQL Lab", icon: "🐘", color: "sql", difficulty: "Advanced", completed: 0, total: 14, hoursLeft: 20, description: "Postgres-specific features: CTEs, JSONB, window funcs, EXPLAIN ANALYZE.", skills: [
+  { slug: "postgres", name: "PostgreSQL Lab", icon: "🐘", color: "sql", type: "database", difficulty: "Advanced", completed: 0, total: 14, hoursLeft: 20, description: "Postgres-specific features: CTEs, JSONB, window funcs, EXPLAIN ANALYZE.", skills: [
     { name: "Queries", pct: 0 }, { name: "JSONB", pct: 0 }, { name: "CTEs", pct: 0 }, { name: "Tuning", pct: 0 }
   ]},
   { slug: "pydjango", name: "Python Django Lab", icon: "🌿", color: "python", difficulty: "Intermediate", completed: 0, total: 12, hoursLeft: 18, description: "Build full Django apps: models, views, templates, forms and admin.", skills: [
@@ -55,7 +56,7 @@ export const labs: Lab[] = [
   { slug: "git", name: "Git Lab", icon: "🔀", color: "prog", difficulty: "Beginner", completed: 0, total: 14, hoursLeft: 12, description: "Master git: SSH, clone, push/pull, branches, rebase, merge and pull requests.", skills: [
     { name: "Branching", pct: 0 }, { name: "Rebase/Merge", pct: 0 }, { name: "Remotes/PRs", pct: 0 }, { name: "Conflicts", pct: 0 }
   ]},
-  { slug: "mongo", name: "MongoDB Lab", icon: "🍃", color: "mongo", difficulty: "Intermediate", completed: 0, total: 12, hoursLeft: 16, description: "Document modeling, CRUD, aggregation and indexes.", skills: [
+  { slug: "mongo", name: "MongoDB Lab", icon: "🍃", color: "mongo", type: "database", difficulty: "Intermediate", completed: 0, total: 12, hoursLeft: 16, description: "Document modeling, CRUD, aggregation and indexes.", skills: [
     { name: "CRUD", pct: 40 }, { name: "Query Operators", pct: 25 }, { name: "Aggregation", pct: 15 }, { name: "Indexes", pct: 10 }
   ]},
   { slug: "programming", name: "Programming Lab", icon: "💻", color: "prog", difficulty: "Beginner", completed: 0, total: 30, hoursLeft: 20, description: "Programming fundamentals across syntax, logic, functions and OOP.", skills: [
