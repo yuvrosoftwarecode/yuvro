@@ -12,6 +12,8 @@ class LabSprintSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class LabSprintTicketSerializer(serializers.ModelSerializer):
+    sprint_order = serializers.IntegerField(source='sprint.order_index', read_only=True)
+
     class Meta:
         model = LabSprintTicket
         fields = '__all__'

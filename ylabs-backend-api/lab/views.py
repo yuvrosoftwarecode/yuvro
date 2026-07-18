@@ -116,6 +116,13 @@ class LabSprintViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(lab_id=lab_id)
         return queryset
     
+    def get_queryset(self):
+        queryset = LabSprint.objects.all()
+        lab = self.request.query_params.get('lab')
+        if lab is not None:
+            queryset = queryset.filter(lab=lab)
+        return queryset
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
@@ -176,15 +183,15 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
             default_branch=default_branch
         )
         
+        starter_repo_path = None
         if lab.git_repo_starter_url:
             starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
             starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), starter_repo_name)
-            if os.path.exists(starter_repo_path):
-                import threading
-                threading.Thread(
-                    target=provision_user_lab_repo, 
-                    args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token)
-                ).start()
+            
+        threading.Thread(
+            target=provision_user_lab_repo, 
+            args=(lab.id, self.request.user.id, starter_repo_path, github_repo_url, client.access_token, client.github_username)
+        ).start()
 
 class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabSprintTicketSubmissionSerializer
@@ -198,7 +205,14 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        submission = serializer.save(user=self.request.user)
+        evaluate_and_score_submission(submission)
+        submission.save()
+
+    def perform_update(self, serializer):
+        submission = serializer.save()
+        evaluate_and_score_submission(submission)
+        submission.save()
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import subprocess
+from database_evaluator import DatabaseEvaluatorFactory
 import tempfile
 import os
 import time
@@ -139,6 +140,19 @@ class ReferenceSubmission(BaseModel):
     submission_id: str
     user_id: str
     answer_data: Dict[str, Any]
+
+class DatabaseRunRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    query: str
+    database_engine: str = "sqlite"
+    db_file: str = "lab.db"
+    expected_query: Optional[str] = None
+    expected_output: Optional[str] = None
+    scoring_rules: Optional[Dict[str, Any]] = None
+    system_query: Optional[str] = None
+    expected_result: Optional[str] = None
 
 class PlagiarismCheckRequest(BaseModel):
     target_code: str
@@ -1736,6 +1750,7 @@ async def get_file_tree(
     user_id: str = Query(...),
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
+    lab_type: Optional[str] = Query(None, description="Type of the lab (e.g. sqlite)"),
     starters: Optional[str] = Query(None, description="JSON map of filename->content to seed on first access"),
 ):
     """
@@ -1915,69 +1930,68 @@ class EvaluateRequest(BaseModel):
     sprint_id: str
     required_command: str = ""
     task_slug: Optional[str] = None
-    scoring_rules: dict = {}  # populated from the task's scoring_rules JSON field
+    scoring_rules: dict = {} 
 
 @workspace_router.post("/evaluate")
 def evaluate_task(body: EvaluateRequest):
     """
     Generic regex-based evaluation engine.
-    Reads scoring_rules from the request body (originally stored in
-    LabSprintTicket.tasks[*].scoring_rules in the sprint JSON fixtures).
+    Reads scoring_rules from the request body (originally stored in 
+    LabSprintTicket.tasks[x].scoring_rules in the sprint JSON fixtures).
     
     scoring_rules schema:
     {
-      "checks": [
-        {
-          "label": "Human readable description",
-          "pattern": "<Python regex>",          # matched against each history line
-          "count_mode": false,                  # optional: count matching lines
-          "min_count": 1                        # optional: minimum matches required
-        }
-      ],
-      "file_checks": [
-        {
-          "label": "Human readable description",
-          "file": "relative/path",             # workspace-relative path
-          "exists": true,                       # optional: just check existence
-          "contains": "substring"              # optional: check file content
-        }
-      ],
-      "pass_message": "Success message",
-      "fail_hint": "What to run if this fails"
+        "checks": [
+            {
+                "label": "Human readable description",
+                "pattern": "<Python regex>",      # matched against each history line
+                "count_mode": False,              # optional: count matching lines
+                "min_count": 1                    # optional: minimum matches required
+            }
+        ],
+        "file_checks": [
+            {
+                "label": "Human readable description",
+                "file": "relative/path",          # workspace-relative path
+                "exists": True,                   # optional: just check existence
+                "contains": "substring"           # optional: check file content
+            }
+        ],
+        "pass_message": "Success message",
+        "fail_hint": "What to run if this fails"
     }
     """
-
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     history_file = ws / ".bash_history"
-
+    
     if not history_file.exists():
         return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
-
+        
     try:
         content = history_file.read_text(errors="replace")
         lines = [line.strip() for line in content.splitlines() if line.strip()]
-
+        
         rules = body.scoring_rules
-
-        # ── If no scoring_rules provided fall back to simple substring check ──
+        
+        # -- If no scoring_rules provided fall back to simple substring check --
         if not rules:
             passed = any(body.required_command in line for line in lines)
             return {"passed": passed, "reason": "Command found" if passed else "Command not found in history"}
-
+            
         failed_labels: list[str] = []
-
-        # ── History-based checks ──────────────────────────────────────────────
+        
+        # -- History-based checks ---------------------------------------
         for check in rules.get("checks", []):
-            pattern   = check.get("pattern", "")
-            label     = check.get("label", pattern)
+            pattern = check.get("pattern", "")
+            label   = check.get("label", pattern)
             count_mode = check.get("count_mode", False)
             min_count = check.get("min_count", 1)
-
+            
             try:
                 compiled = _re.compile(pattern, _re.IGNORECASE)
             except _re.error as e:
                 return {"passed": False, "reason": f"Invalid regex pattern '{pattern}': {e}"}
-
+                
             if count_mode:
                 # Count how many history lines match (e.g. for conventional commits)
                 matches = sum(1 for line in lines if compiled.search(line))
@@ -1986,42 +2000,126 @@ def evaluate_task(body: EvaluateRequest):
             else:
                 if not any(compiled.search(line) for line in lines):
                     failed_labels.append(label)
-
-        # ── File-based checks ────────────────────────────────────────────────
+                    
+        # -- File-based checks ------------------------------------------
         for fc in rules.get("file_checks", []):
-            label    = fc.get("label", "file check")
-            rel_path = fc.get("file", "")
-            check_exists   = fc.get("exists", False)
+            label        = fc.get("label", "file check")
+            rel_path     = fc.get("file", "")
+            check_exists = fc.get("exists", False)
             check_contains = fc.get("contains", None)
-
+            
             target = ws / rel_path
-
+            
             if check_exists or check_contains is not None:
                 if not target.exists():
                     failed_labels.append(f"{label} (file not found: {rel_path})")
                     continue
-
-            if check_contains is not None and target.exists():
-                file_content = target.read_text(errors="replace").lower()
-                if check_contains.lower() not in file_content:
-                    failed_labels.append(f"{label} ('{check_contains}' not found in {rel_path})")
-
-        # ── Build response ───────────────────────────────────────────────────
-        if not failed_labels:
+                
+                if check_contains is not None:
+                    try:
+                        file_content = target.read_text(errors="replace")
+                        if check_contains not in file_content:
+                            failed_labels.append(f"{label} (content not matched)")
+                    except Exception as e:
+                        failed_labels.append(f"{label} (read error: {e})")
+                        
+        if failed_labels:
+            hint = rules.get("fail_hint", "Missing requirements.")
             return {
-                "passed": True,
-                "reason": rules.get("pass_message", "✓ All checks passed.")
+                "passed": False,
+                "reason": f"{hint}\nFailed checks:\n- " + "\n- ".join(failed_labels)
             }
-
-        fail_hint = rules.get("fail_hint", "")
-        reason = "✗ Failed checks:\n" + "\n".join(f"  • {l}" for l in failed_labels)
-        if fail_hint:
-            reason += f"\n\nHint: {fail_hint}"
-        return {"passed": False, "reason": reason}
-
+            
+        return {
+            "passed": True,
+            "reason": rules.get("pass_message", "All checks passed!")
+        }
+            
     except Exception as e:
-        return {"passed": False, "reason": f"Error during evaluation: {e}"}
+        return {"passed": False, "reason": f"Error reading history: {e}"}
 
+class RunCommandRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    command: str
+
+@workspace_router.post("/run_command")
+async def run_command_endpoint(body: RunCommandRequest):
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        proc = await asyncio.create_subprocess_shell(
+            body.command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws)
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        return {
+            "stdout": stdout.decode(errors="replace"),
+            "stderr": stderr.decode(errors="replace"),
+            "exit_code": proc.returncode
+        }
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+        except:
+            pass
+        return {"stdout": "", "stderr": "Command timed out", "exit_code": -1}
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
+@workspace_router.post("/database_run")
+async def database_run_endpoint(body: DatabaseRunRequest):
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        result = await evaluator.execute(body, ws)
+        return result
+    except ValueError as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
+class DatabaseEvaluateRequest(BaseModel):
+    database_engine: str = "sqlite"
+    user_id: Optional[str] = None
+    lab_id: Optional[str] = None
+    sprint_id: Optional[str] = None
+    db_file: Optional[str] = None
+    user_query: str
+    expected_query: str
+    user_output: str
+    expected_output: str
+    scoring_rules: dict
+    system_query: Optional[str] = None
+    expected_result: Optional[str] = None
+
+@workspace_router.post("/database_evaluate")
+async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
+    try:
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        
+        actual_result = body.user_output
+        if body.system_query and body.user_id and body.lab_id and body.sprint_id:
+            ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+            if ws.exists():
+                actual_result = await evaluator.get_system_query_result(body, str(ws))
+
+        eval_res = evaluator.evaluate(
+            body=body,
+            execution_result={
+                "out_str": body.user_output,
+                "actual_result": actual_result
+            }
+        )
+        return eval_res
+    except Exception as e:
+        return {"error": str(e)}
 
 # ─────────────────────────────────────────────────────────────
 # UI Validate — Playwright screenshots + ui-diff comparison
@@ -2227,6 +2325,20 @@ async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            
+            # Configure git author
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.name", username,
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.email", f"{username}@users.noreply.github.com",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
     except Exception:
         pass  # Always fail silently — terminal should still open
 
@@ -2239,6 +2351,7 @@ async def terminal_ws(
     user_id: str = Query(...),
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
+    lab_type: Optional[str] = Query(None),
 ):
     """
     WebSocket PTY terminal.
@@ -2261,6 +2374,36 @@ async def terminal_ws(
         USE_PTY = True
     except ImportError:
         USE_PTY = False
+
+    if lab_type == "sqlite":
+        bashrc_path = ws_dir / ".bashrc"
+        wrapper_cmd = '''
+sqlite3() {
+    if [ $# -eq 0 ]; then
+        command sqlite3
+    else
+        last_arg="${@: -1}"
+        if [[ ! "$last_arg" == -* ]]; then
+            touch -- "$last_arg" 2>/dev/null || true
+        fi
+        command sqlite3 "$@"
+    fi
+}
+'''
+        bash_profile_path = ws_dir / ".bash_profile"
+        if not bash_profile_path.exists():
+            bash_profile_path.write_text("if [ -f ~/.bashrc ]; then . ~/.bashrc; fi\n")
+
+        if not bashrc_path.exists():
+            bashrc_path.write_text(wrapper_cmd)
+        else:
+            current_bashrc = bashrc_path.read_text()
+            if "alias sqlite3=" in current_bashrc:
+                new_bashrc = "\n".join(line for line in current_bashrc.splitlines() if not line.startswith("alias sqlite3="))
+                bashrc_path.write_text(new_bashrc)
+            if "sqlite3()" not in bashrc_path.read_text():
+                with bashrc_path.open("a") as f:
+                    f.write("\n" + wrapper_cmd)
 
     env = {
         **os.environ, 
