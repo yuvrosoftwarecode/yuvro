@@ -2,6 +2,9 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.mail import send_mail
+import logging
 
 from .models import (
     Evaluation,
@@ -22,7 +25,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
     def perform_create(self, serializer):
-        from django.contrib.auth import get_user_model
         User = get_user_model()
         user = User.objects.first()
         if not user:
@@ -42,10 +44,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 self.send_invitation_emails(instance, new_emails)
 
     def send_invitation_emails(self, evaluation, emails):
-        from django.conf import settings
-        from django.core.mail import send_mail
-        import logging
-        
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3002')
         eval_link = f"{frontend_url}/evaluation?e={evaluation.id}"
         
