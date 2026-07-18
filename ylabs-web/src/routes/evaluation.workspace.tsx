@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "../services/evaluationService";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
 
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -320,7 +321,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
+    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
       <TopBar
         remaining={remaining}
         online={online}
@@ -544,8 +545,24 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         </button>
         <button className="text-neutral-500 hover:text-neutral-900">Help</button>
         <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">Exit</button>
+        <ThemeToggle />
       </div>
     </header>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle theme"
+      title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900 ml-1"
+    >
+      {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+    </button>
   );
 }
 
