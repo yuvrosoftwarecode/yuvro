@@ -52,23 +52,31 @@ const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 
-function Workspace() {
+export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = searchParams.get('e') || '';
+  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [debugData, setDebugData] = useState<any>(null);  
   
   useEffect(() => {
+    if (previewData) {
+      processWorkspaceData(previewData);
+      return;
+    }
     if (!evaluationId) return;
     evaluationService.getWorkspaceData(evaluationId)
-      .then(res => {
-        setDebugData(res);
-        const mappedSections: AppSection[] = [];
-        let durationMinutes = 0;
+      .then(res => processWorkspaceData(res))
+      .catch(err => setDebugData({ error: err.message || err.toString() }));
+  }, [evaluationId, previewData]);
 
-        (res.sections || []).forEach((sec: any) => {
+  const processWorkspaceData = (res: any) => {
+    setDebugData(res);
+    const mappedSections: AppSection[] = [];
+    let durationMinutes = 0;
+
+    (res.sections || []).forEach((sec: any) => {
           if (sec.type === "LAB") {
             const mappedLabs: RealLab[] = [];
             (sec.questions || []).forEach((q: any) => {
@@ -131,14 +139,12 @@ function Workspace() {
             mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion" });
           }
         });
-        
-        setAppSections(mappedSections);
-        if (mappedSections.length > 0) {
-          setSection(mappedSections[0].id);
-        }
-      })
-      .catch(err => setDebugData({ error: err.message || err.toString() }));
-  }, [evaluationId]);
+      
+      setAppSections(mappedSections);
+      if (mappedSections.length > 0) {
+        setSection(mappedSections[0].id);
+      }
+  };
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
