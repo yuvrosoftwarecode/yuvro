@@ -43,9 +43,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     def send_invitation_emails(self, evaluation, emails):
         from django.conf import settings
+        from django.core.mail import send_mail
         import logging
-        import requests
-        import os
         
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3002')
         eval_link = f"{frontend_url}/evaluation?e={evaluation.id}"
@@ -53,10 +52,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         subject = f"Yuvro Evaluation Test – {evaluation.title}"
         
         logger = logging.getLogger(__name__)
-        
-        yhub_url = getattr(settings, 'YHUB_BACKEND_URL', os.environ.get('YHUB_BACKEND_URL', 'http://yhub-backend:8000'))
-        internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
-        endpoint = f"{yhub_url.rstrip('/')}/api/auth/internal/send-email/"
         
         for email in emails:
             message = f"Hello,\n\nYou have been invited to complete a Yuvro Evaluation.\n\nEvaluation: {evaluation.title}\n\nPlease complete the assessment before it expires.\nYour unique evaluation link: {eval_link}\n\nBest,\nYuvro Team"
@@ -76,26 +71,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             """
             
             try:
-                response = requests.post(
-                    endpoint,
-                    json={
-                        "subject": subject,
-                        "message": message,
-                        "html_message": html_message,
-                        "recipient_list": [email]
-                    },
-                    headers={
-                        "X-Internal-Secret": internal_secret,
-                        "Content-Type": "application/json"
-                    },
-                    timeout=30
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                    html_message=html_message
                 )
-                if response.status_code == 200:
-                    logger.info(f"Successfully sent invite email to {email} via YHub")
-                else:
-                    logger.error(f"Failed to send invite email to {email} via YHub. Status: {response.status_code}, Response: {response.text}")
+                logger.info(f"Successfully sent invite email to {email}")
             except Exception as e:
-                logger.error(f"Failed to send invite email to {email} via YHub: {e}")
+                logger.error(f"Failed to send invite email to {email}: {e}")
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):

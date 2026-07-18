@@ -28,7 +28,6 @@ urlpatterns = [
     path("github/connect/", views.GithubConnectView.as_view(), name="github_connect"),
     path("internal/github-token/<uuid:user_id>/", views.internal_github_token_view, name="internal_github_token"),
     path("internal/delete-user/", views.internal_delete_user, name="internal_delete_user"),
-    path("internal/send-email/", views.internal_send_email, name="internal_send_email"),
     path("profile/upload-image/", views.upload_profile_image, name="upload_profile_image"),
     path("profile/remove-image/", views.remove_profile_image, name="remove_profile_image"),
 ]

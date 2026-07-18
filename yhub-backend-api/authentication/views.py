@@ -512,36 +512,7 @@ class GithubConnectView(APIView):
         except GithubConnection.DoesNotExist:
             return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(["POST"])
-@permission_classes([permissions.AllowAny])
-def internal_send_email(request):
-    internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
-    provided_secret = request.headers.get('X-Internal-Secret')
-    
-    if not provided_secret or provided_secret != internal_secret:
-        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-        
-    subject = request.data.get('subject')
-    message = request.data.get('message')
-    html_message = request.data.get('html_message')
-    recipient_list = request.data.get('recipient_list', [])
-    
-    if not subject or not recipient_list:
-        return Response({"error": "subject and recipient_list are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-    try:
-        send_mail(
-            subject=subject,
-            message=message or "",
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@yuvro.com'),
-            recipient_list=recipient_list,
-            fail_silently=False,
-            html_message=html_message
-        )
-        return Response({"status": "success", "message": "Email sent successfully"}, status=status.HTTP_200_OK)
-    except Exception as e:
-        logger.error(f"Failed to send email via internal API: {e}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
