@@ -1,5 +1,7 @@
 import alasql from "alasql";
 import mingo from "mingo";
+import alasql from "alasql";
+import mingo from "mingo";
 
 // Define Types
 export type SqlRow = Record<string, string | number>;
@@ -8,43 +10,19 @@ let sqlInitialized = false;
 
 function initSqlDb() {
   if (sqlInitialized) return;
-  // Initialize Alasql Database
-  alasql("CREATE DATABASE yuvro_sql_lab");
-  alasql("USE yuvro_sql_lab");
-
-  // Create Tables
-  alasql(`CREATE TABLE customers (
-    id INT PRIMARY KEY,
-    name STRING,
-    country STRING,
-    signed_up_at DATE
-  )`);
-
-  alasql(`CREATE TABLE orders (
-    id INT PRIMARY KEY,
-    customer_id INT,
-    amount DECIMAL,
-    created_at TIMESTAMP
-  )`);
-
-  // Insert mock data
-  const customers = [
-    { id: 1, name: "Ada Lovelace", country: "UK", signed_up_at: "2024-02-11" },
-    { id: 2, name: "Linus Torvalds", country: "FI", signed_up_at: "2024-05-04" },
-    { id: 3, name: "Grace Hopper", country: "US", signed_up_at: "2023-09-30" },
-    { id: 4, name: "Hedy Lamarr", country: "AT", signed_up_at: "2024-07-12" },
-    { id: 5, name: "Alan Turing", country: "UK", signed_up_at: "2024-11-01" },
-  ];
-  customers.forEach(c => alasql("INSERT INTO customers VALUES (?, ?, ?, ?)", [c.id, c.name, c.country, c.signed_up_at]));
-
-  const orders = [
-    { id: 1, customer_id: 1, amount: 120.0, created_at: "2024-03-01" },
-    { id: 2, customer_id: 1, amount: 45.5, created_at: "2024-04-12" },
-    { id: 3, customer_id: 2, amount: 300.0, created_at: "2024-06-20" },
-    { id: 4, customer_id: 4, amount: 80.25, created_at: "2024-08-09" },
-    { id: 5, customer_id: 5, amount: 19.99, created_at: "2024-11-15" },
-  ];
-  orders.forEach(o => alasql("INSERT INTO orders VALUES (?, ?, ?, ?)", [o.id, o.customer_id, o.amount, o.created_at]));
+  
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("alasql_dbs");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        alasql.databases = parsed.databases;
+        if (parsed.useid) alasql.use(parsed.useid);
+      } catch (e) {
+        console.error("Failed to parse alasql databases", e);
+      }
+    }
+  }
 
   sqlInitialized = true;
 }
@@ -56,6 +34,17 @@ export function runDynamicSqlQuery(query: string): { columns: string[]; rows: Sq
     // Execute query using alasql
     const results = alasql(query);
     const ms = Math.round(performance.now() - start);
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("alasql_dbs", JSON.stringify({
+          databases: alasql.databases,
+          useid: alasql.useid
+        }));
+      } catch (e) {
+        console.warn("localStorage quota exceeded or error", e);
+      }
+    }
 
     // alasql returns an array of objects for SELECTs, or a number for INSERT/UPDATE/DELETE.
     // Sometimes it returns an array of arrays if multiple statements were separated by `;`.
@@ -87,25 +76,7 @@ export function runDynamicSqlQuery(query: string): { columns: string[]; rows: Sq
 // MONGODB ENGINE
 // --------------------------------------------------------------------------
 
-let mongoUsers = [
-  { _id: 1, name: "Ada", email: "ada@example.com", country: "UK", active: true, createdAt: "2024-02-11" },
-  { _id: 2, name: "Linus", email: "linus@example.com", country: "FI", active: true, createdAt: "2024-05-04" },
-  { _id: 3, name: "Grace", email: "grace@example.com", country: "US", active: false, createdAt: "2023-09-30" },
-  { _id: 4, name: "Alan", email: "alan@example.com", country: "UK", active: true, createdAt: "2024-11-01" },
-];
-
-let mongoOrders = [
-  { _id: 1, userId: 1, category: "Books", amount: 12.5, status: "paid" },
-  { _id: 2, userId: 2, category: "Music", amount: 9.99, status: "paid" },
-  { _id: 3, userId: 1, category: "Books", amount: 4.2, status: "refunded" },
-  { _id: 4, userId: 4, category: "Games", amount: 29.0, status: "paid" },
-];
-
-let dbCollections: Record<string, any[]> = {
-  users: mongoUsers,
-  orders: mongoOrders,
-};
-
+let dbCollections: Record<string, any[]> = {};
 function executeMongoCommand(collectionName: string, method: string, args: any[]): any {
   let collection = dbCollections[collectionName];
   if (!collection) {
@@ -262,4 +233,53 @@ export function runDynamicMongoQuery(queryStr: string): { rows: unknown[]; note:
   } catch (error: any) {
     return { rows: [], note: `Error: ${error.message || error}`, ms: 0 };
   }
+}
+
+export function getAlasqlSchema() {
+  try {
+    initSqlDb();
+    const schemas: any[] = [];
+    for (const dbName of Object.keys(alasql.databases)) {
+      if (dbName === "alasql") continue; // skip the internal engine db
+      
+      const db = alasql.databases[dbName];
+      const schema: any = { name: dbName, type: "SQLite", tables: [] };
+      for (const tableName of Object.keys(db.tables)) {
+         const table = db.tables[tableName];
+         schema.tables.push({
+           name: tableName,
+           columns: table.columns ? table.columns.map((c: any) => ({
+             name: c.columnid,
+             type: c.dbtypeid || "VARCHAR",
+             nullable: "YES",
+             default: "-",
+             key: "-"
+           })) : [],
+           ddl: `-- Table created in ${dbName}\nCREATE TABLE ${tableName} (...);`
+         });
+      }
+      schemas.push(schema);
+    }
+    return schemas;
+  } catch (e) {
+    return [];
+  }
+}
+
+export function getMongoSchema() {
+  const schema: any = { name: "yuvro_mongo_lab", type: "MongoDB", tables: [] };
+  for (const [colName, docs] of Object.entries(dbCollections)) {
+    let columns: any[] = [];
+    if (docs.length > 0) {
+      columns = Object.keys(docs[0]).map(k => ({ name: k, type: typeof docs[0][k], nullable: "YES", default: "-", key: "-" }));
+    } else {
+      columns = [{ name: "_id", type: "string", nullable: "NO", default: "-", key: "PK" }];
+    }
+    schema.tables.push({
+      name: colName,
+      columns,
+      ddl: `// Collection created dynamically\ndb.createCollection("${colName}")`
+    });
+  }
+  return [schema];
 }

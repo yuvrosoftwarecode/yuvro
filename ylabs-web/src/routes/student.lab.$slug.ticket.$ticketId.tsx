@@ -11,7 +11,7 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
-import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
+import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
 import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
@@ -1175,6 +1175,21 @@ function TicketIDE({
     return "ok";
   }, [files]);
 
+  const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
+  const [runId, setRunId] = useState(0);
+
+  const refreshSchema = useCallback(() => {
+    if (isSql) {
+      setDbSchemas(getAlasqlSchema());
+    } else if (isMongo) {
+      setDbSchemas(getMongoSchema());
+    }
+  }, [isSql, isMongo]);
+
+  useEffect(() => {
+    refreshSchema();
+  }, [refreshSchema]);
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2200);
@@ -1188,8 +1203,14 @@ function TicketIDE({
 
     if (isAnySql || isMongo) {
       setExecutedQuery(src);
+      setRunId(prev => prev + 1);
       setBottomTab("preview");
       setRunning(false);
+      // Wait for child components (SqlResultsView/MongoResultsView) to finish execution 
+      // before refreshing schema, or they can trigger the refresh via a prop.
+      if (!isExternalDb) {
+        // We let the child trigger refreshSchema
+      }
       return;
     }
 
@@ -1648,18 +1669,29 @@ function TicketIDE({
                     <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                       <span>DB Explorer</span>
                     </div>
-                    <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium">
-                      <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                      {MOCK_DB_SCHEMA.name}
-                    </div>
-                    <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
-                    {MOCK_DB_SCHEMA.tables.map(t => (
-                      <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${t.name}`)) setOpenTabs([...openTabs, `schema:${t.name}`]); setActiveFile(`schema:${t.name}`); }}
-                        className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
-                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                        {t.name}
-                        <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
-                      </button>
+                    {dbSchemas.length === 0 && <div className="px-3 py-2 text-xs text-muted-foreground italic">No databases found</div>}
+                    {dbSchemas.map(schema => (
+                      <React.Fragment key={schema.name}>
+                        <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
+                          <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                          {schema.name}
+                        </div>
+                        {schema.tables.length > 0 ? (
+                          <>
+                            <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
+                            {schema.tables.map(t => (
+                              <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${schema.name}.${t.name}`)) setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]); setActiveFile(`schema:${schema.name}.${t.name}`); }}
+                                className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                {t.name}
+                                <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
+                              </button>
+                            ))}
+                          </>
+                        ) : (
+                          <div className="px-5 py-1 text-[11px] text-muted-foreground italic">0 tables</div>
+                        )}
+                      </React.Fragment>
                     ))}
                     {(isMysql || isPostgres) && (
                       <div className="px-4 py-3 mt-4 border-t border-border">
@@ -1745,7 +1777,7 @@ function TicketIDE({
               {/* Editor */}
               <div className="flex flex-1 min-h-0">
                 {activeFile.startsWith("schema:") ? (
-                  <SchemaViewer tableName={activeFile.replace("schema:", "")} />
+                  <SchemaViewer tablePath={activeFile.replace("schema:", "")} dbSchemas={dbSchemas} />
                 ) : (
                   <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
                 )}
@@ -1772,11 +1804,13 @@ function TicketIDE({
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
                   {bottomTab === "preview" && (
                     isDjango ? <DjangoTodoPreview /> :
-                      isSql ? <SqlResultsView query={executedQuery} /> :
-                        isMysql ? <ExternalSqlResultsView query={executedQuery} dbType="mysql" /> :
-                          isPostgres ? <ExternalSqlResultsView query={executedQuery} dbType="postgresql" /> :
-                            isMongo ? <MongoResultsView query={executedQuery} /> :
-                              isUi ? <UiPreview files={files} /> :
+                      isSql ? (
+                        <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
+                      ) : isMongo ? (
+                        <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
+                      ) : isExternalDb ? (
+                        <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
+                      ) : isUi ? <UiPreview files={files} /> :
                                 isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                                   <PreviewView />
                   )}
@@ -2933,43 +2967,14 @@ export type DbSchema = { name: string; type: "PostgreSQL" | "MySQL" | "SQLite" |
 
 export const MOCK_DB_SCHEMA: DbSchema = {
   name: "yuvro_sql_lab",
-  type: "PostgreSQL",
-  tables: [
-    {
-      name: "customers",
-      columns: [
-        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
-        { name: "name", type: "TEXT", nullable: "NO", default: "-", key: "-" },
-        { name: "country", type: "VARCHAR(2)", nullable: "YES", default: "-", key: "-" },
-        { name: "signed_up_at", type: "DATE", nullable: "NO", default: "CURRENT_DATE", key: "-" },
-      ],
-      ddl: `CREATE TABLE customers (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  country VARCHAR(2),
-  signed_up_at DATE NOT NULL DEFAULT CURRENT_DATE
-);`
-    },
-    {
-      name: "orders",
-      columns: [
-        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
-        { name: "customer_id", type: "INTEGER", nullable: "NO", default: "-", key: "FK" },
-        { name: "amount", type: "NUMERIC(10,2)", nullable: "NO", default: "-", key: "-" },
-        { name: "created_at", type: "TIMESTAMP", nullable: "NO", default: "CURRENT_TIMESTAMP", key: "-" },
-      ],
-      ddl: `CREATE TABLE orders (
-  id SERIAL PRIMARY KEY,
-  customer_id INTEGER NOT NULL REFERENCES customers(id),
-  amount NUMERIC(10,2) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);`
-    }
-  ]
+  type: "SQLite",
+  tables: []
 };
 
-function SchemaViewer({ tableName }: { tableName: string }) {
-  const table = MOCK_DB_SCHEMA.tables.find(t => t.name === tableName);
+function SchemaViewer({ tablePath, dbSchemas }: { tablePath: string; dbSchemas: DbSchema[] }) {
+  const [dbName, tableName] = tablePath.split(".");
+  const schema = dbSchemas.find(s => s.name === dbName);
+  const table = schema?.tables.find(t => t.name === tableName);
   if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
 
   return (
@@ -2977,7 +2982,7 @@ function SchemaViewer({ tableName }: { tableName: string }) {
       <div className="flex items-center gap-2 mb-4">
         <Package className="h-5 w-5 text-primary" />
         <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
-        <span className="text-foreground">{MOCK_DB_SCHEMA.name}.{table.name}</span>
+        <span className="text-foreground">{dbName}.{table.name}</span>
       </div>
 
       <div className="mb-6">
@@ -3174,9 +3179,24 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
   );
 }
 
-function SqlResultsView({ query }: { query: string }) {
+function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
-  const res = useMemo(() => runSqlQuery(query), [query]);
+  const [res, setRes] = useState<{ columns: string[]; rows: SqlRow[]; note: string; ms: number } | null>(null);
+
+  useEffect(() => {
+    if (!query) return;
+    try {
+      const result = runSqlQuery(query);
+      setRes(result);
+    } catch (e: any) {
+      setRes({ columns: [], rows: [], note: `Error: ${e.message}`, ms: 0 });
+    }
+    // Refresh schema after query has executed and mutated db state
+    onQueryExecuted();
+  }, [query, runId, onQueryExecuted]);
+
+  if (!res) return null;
+
   if (res.columns.length === 0) {
     return <div className="text-muted-foreground p-2">{res.note}</div>;
   }
@@ -3247,10 +3267,21 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
   return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query }: { query: string }) {
+function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
   const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query) return;
+    try {
+      const result = runMongoQuery(query);
+      setRes(result);
+    } catch (e: any) {
+      setError(e.message || "Failed to execute");
+    }
+    onQueryExecuted();
+  }, [query, runId, onQueryExecuted]);
   const [mongoUri, setMongoUri] = useState<string>(() => {
     if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
     return "";
