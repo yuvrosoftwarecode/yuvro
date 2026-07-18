@@ -44,7 +44,9 @@ export const executeRemotePostgresQuery = createServerFn({ method: "POST" })
       };
 
     } catch (err: any) {
-      throw new Error(`PostgreSQL Error: ${err.message}`);
+      console.error("POSTGRES PROXY CAUGHT ERROR:", err, "MESSAGE:", err?.message);
+      let errorMsg = err?.message || String(err);
+      return { error: `PostgreSQL Error: ${errorMsg}` };
     } finally {
       await client.end();
     }

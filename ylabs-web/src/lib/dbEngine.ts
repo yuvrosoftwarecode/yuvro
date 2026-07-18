@@ -12,40 +12,6 @@ function initSqlDb() {
   alasql("CREATE DATABASE yuvro_sql_lab");
   alasql("USE yuvro_sql_lab");
 
-  // Create Tables
-  alasql(`CREATE TABLE customers (
-    id INT PRIMARY KEY,
-    name STRING,
-    country STRING,
-    signed_up_at DATE
-  )`);
-
-  alasql(`CREATE TABLE orders (
-    id INT PRIMARY KEY,
-    customer_id INT,
-    amount DECIMAL,
-    created_at TIMESTAMP
-  )`);
-
-  // Insert mock data
-  const customers = [
-    { id: 1, name: "Ada Lovelace", country: "UK", signed_up_at: "2024-02-11" },
-    { id: 2, name: "Linus Torvalds", country: "FI", signed_up_at: "2024-05-04" },
-    { id: 3, name: "Grace Hopper", country: "US", signed_up_at: "2023-09-30" },
-    { id: 4, name: "Hedy Lamarr", country: "AT", signed_up_at: "2024-07-12" },
-    { id: 5, name: "Alan Turing", country: "UK", signed_up_at: "2024-11-01" },
-  ];
-  customers.forEach(c => alasql("INSERT INTO customers VALUES (?, ?, ?, ?)", [c.id, c.name, c.country, c.signed_up_at]));
-
-  const orders = [
-    { id: 1, customer_id: 1, amount: 120.0, created_at: "2024-03-01" },
-    { id: 2, customer_id: 1, amount: 45.5, created_at: "2024-04-12" },
-    { id: 3, customer_id: 2, amount: 300.0, created_at: "2024-06-20" },
-    { id: 4, customer_id: 4, amount: 80.25, created_at: "2024-08-09" },
-    { id: 5, customer_id: 5, amount: 19.99, created_at: "2024-11-15" },
-  ];
-  orders.forEach(o => alasql("INSERT INTO orders VALUES (?, ?, ?, ?)", [o.id, o.customer_id, o.amount, o.created_at]));
-
   sqlInitialized = true;
 }
 
@@ -80,6 +46,34 @@ export function runDynamicSqlQuery(query: string): { columns: string[]; rows: Sq
     return { columns, rows, note: `${rows.length} row(s) returned`, ms };
   } catch (error: any) {
     return { columns: [], rows: [], note: `Error: ${error.message || error}`, ms: 0 };
+  }
+}
+
+export function getAlasqlSchema(): any {
+  try {
+    initSqlDb();
+    const tables = alasql("SHOW TABLES") as { tableid: string }[];
+    const schema = {
+      name: "yuvro_sql_lab",
+      type: "PostgreSQL",
+      tables: tables.map(t => {
+        const columns = alasql(`SHOW COLUMNS FROM ${t.tableid}`) as { columnid: string, dbtypeid: string }[];
+        return {
+          name: t.tableid,
+          columns: columns.map(c => ({
+            name: c.columnid,
+            type: c.dbtypeid || "UNKNOWN",
+            nullable: "YES",
+            default: "-",
+            key: "-"
+          })),
+          ddl: alasql(`SHOW CREATE TABLE ${t.tableid}`) as string
+        };
+      })
+    };
+    return schema;
+  } catch (error) {
+    return { name: "yuvro_sql_lab", type: "PostgreSQL", tables: [] };
   }
 }
 

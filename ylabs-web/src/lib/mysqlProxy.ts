@@ -8,15 +8,27 @@ export const executeRemoteMysqlQuery = createServerFn({ method: "POST" })
       return { columns: [], rows: [], note: "No query provided.", ms: 0 };
     }
     
-    const mysql = await import("mysql2/promise");
+    const mysql = await import("mysql2");
     
-    let connection;
+    let connection: any;
     try {
       const start = Date.now();
-      // Enable multipleStatements to allow script execution
-      connection = await mysql.createConnection({ uri, multipleStatements: true });
+      const connectionOptions: any = { uri, multipleStatements: true };
+      if ((uri.includes('tidbcloud.com') || uri.includes('aivencloud.com')) && !uri.includes('ssl=')) {
+        connectionOptions.ssl = { rejectUnauthorized: true };
+      }
       
-      const [rows, fields] = await connection.query(query);
+      const { rows, fields } = await new Promise<any>((resolve, reject) => {
+        try {
+          connection = mysql.createConnection(connectionOptions);
+          connection.query(query, (err: any, results: any, flds: any) => {
+            if (err) return reject(err);
+            resolve({ rows: results, fields: flds });
+          });
+        } catch (e) {
+          reject(e);
+        }
+      });
       const ms = Date.now() - start;
       
       let dataRows: any = Array.isArray(rows) ? rows : [rows];
@@ -51,10 +63,12 @@ export const executeRemoteMysqlQuery = createServerFn({ method: "POST" })
       };
 
     } catch (err: any) {
-      throw new Error(`MySQL Error: ${err.message}`);
+      console.error("MYSQL PROXY CAUGHT ERROR:", err, "MESSAGE:", err?.message);
+      let errorMsg = err?.message || String(err);
+      return { error: `MySQL Error: ${errorMsg}` };
     } finally {
-      if (connection) {
-        await connection.end();
+      if (connection && typeof connection.end === 'function') {
+        connection.end();
       }
     }
   });

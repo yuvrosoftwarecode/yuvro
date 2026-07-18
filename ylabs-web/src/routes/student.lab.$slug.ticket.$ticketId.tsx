@@ -11,7 +11,7 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
-import { runDynamicSqlQuery, runDynamicMongoQuery } from "@/lib/dbEngine";
+import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema } from "@/lib/dbEngine";
 import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
 import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
@@ -749,7 +749,6 @@ export function StudentTicketView({
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
-            ticket_slug: t.ticket_slug,
             status: "Not Started",
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
@@ -841,6 +840,7 @@ function TicketIDE({
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js" };
   const [progLang, setProgLang] = useState<ProgLang>("python");
   const initialFileList: readonly string[] = kit.fileList;
+
   const starters: Record<string, string> = useMemo(() => {
     if (isReal) return {};
     const s = { ...kit.files };
@@ -852,6 +852,28 @@ function TicketIDE({
     }
     return s;
   }, [kit, isReal, previewOverride, ticket.title, ticket.description]);
+
+  const [remoteDbUri, setRemoteDbUri] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      if (kit.name === "mysql") return localStorage.getItem("mysqlUri") || "";
+      if (kit.name === "postgresql") return localStorage.getItem("postgresqlUri") || "";
+      if (kit.name === "mongo") return localStorage.getItem("mongoUri") || "";
+    }
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(remoteDbUri);
+
+  const saveUri = () => {
+    setRemoteDbUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      if (kit.name === "mysql") localStorage.setItem("mysqlUri", tempUri.trim());
+      if (kit.name === "postgresql") localStorage.setItem("postgresqlUri", tempUri.trim());
+      if (kit.name === "mongo") localStorage.setItem("mongoUri", tempUri.trim());
+    }
+    setEditingUri(false);
+  };
+
   const primaryFile = kit.primary;
 
   const [files, setFiles] = useState<Record<string, string>>(starters);
@@ -1148,6 +1170,49 @@ function TicketIDE({
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
+  const [dbSchema, setDbSchema] = useState<any>(MOCK_DB_SCHEMA);
+
+  const refreshSchema = () => {
+    if (isSql) {
+      setDbSchema(getAlasqlSchema());
+    } else if (isPostgres && remoteDbUri) {
+      const q = `SELECT table_name, column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema = 'public'`;
+      executeRemotePostgresQuery({ data: { uri: remoteDbUri, query: q } }).then(res => {
+        if (res.rows) {
+          const tablesMap: any = {};
+          res.rows.forEach(r => {
+            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: `-- DDL not extracted from information_schema\nCREATE TABLE ${r.table_name} (...);` };
+            tablesMap[r.table_name].columns.push({
+              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: "-"
+            });
+          });
+          setDbSchema({ name: "PostgreSQL Database", type: "PostgreSQL", tables: Object.values(tablesMap) });
+        }
+      });
+    } else if (isMysql && remoteDbUri) {
+      const q = `SELECT TABLE_NAME as table_name, COLUMN_NAME as column_name, DATA_TYPE as data_type, IS_NULLABLE as is_nullable, COLUMN_DEFAULT as column_default FROM information_schema.columns WHERE table_schema = DATABASE()`;
+      executeRemoteMysqlQuery({ data: { uri: remoteDbUri, query: q } }).then(res => {
+        if (res.rows) {
+          const tablesMap: any = {};
+          res.rows.forEach(r => {
+            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: `-- DDL not extracted from information_schema\nCREATE TABLE ${r.table_name} (...);` };
+            tablesMap[r.table_name].columns.push({
+              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: "-"
+            });
+          });
+          setDbSchema({ name: "MySQL Database", type: "MySQL", tables: Object.values(tablesMap) });
+        }
+      });
+    } else {
+      setDbSchema(MOCK_DB_SCHEMA);
+    }
+  };
+
+  useEffect(() => {
+    refreshSchema();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSql, isPostgres, isMysql, remoteDbUri, ticket.id]);
+
   useEffect(() => {
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(id);
@@ -1191,6 +1256,9 @@ function TicketIDE({
     if (isAnySql || isMongo) {
       setExecutedQuery(src);
       setBottomTab("preview");
+      if (isSql || isPostgres || isMysql) {
+        setTimeout(() => refreshSchema(), 1000);
+      }
       setRunning(false);
       return;
     }
@@ -1652,10 +1720,10 @@ function TicketIDE({
                     </div>
                     <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium">
                       <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                      {MOCK_DB_SCHEMA.name}
+                      {dbSchema?.name || MOCK_DB_SCHEMA.name}
                     </div>
                     <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
-                    {MOCK_DB_SCHEMA.tables.map(t => (
+                    {(dbSchema?.tables || MOCK_DB_SCHEMA.tables).map((t: any) => (
                       <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${t.name}`)) setOpenTabs([...openTabs, `schema:${t.name}`]); setActiveFile(`schema:${t.name}`); }}
                         className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
                         <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
@@ -1663,16 +1731,42 @@ function TicketIDE({
                         <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
                       </button>
                     ))}
-                    {(isMysql || isPostgres) && (
+                    {(isMysql || isPostgres || isMongo) && (
                       <div className="px-4 py-3 mt-4 border-t border-border">
-                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">Need a free database?</div>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1.5">
+                            <Globe className="h-3 w-3 text-primary" />
+                            <span className="text-[10px] font-semibold uppercase text-foreground">Database Connection</span>
+                          </div>
+                          <button
+                            onClick={() => { setEditingUri(true); setTempUri(remoteDbUri); }}
+                            className="text-[10px] text-muted-foreground hover:text-foreground underline decoration-dashed"
+                          >
+                            {remoteDbUri ? `Connected` : "Click to configure URI"}
+                          </button>
+                        </div>
+                        {editingUri && (
+                          <div className="flex flex-col gap-2 mb-3">
+                            <input
+                              type="text"
+                              value={tempUri}
+                              onChange={e => setTempUri(e.target.value)}
+                              placeholder={isMysql ? "mysql://user:pass@host:3306/db" : isPostgres ? "postgresql://user:pass@host:5432/db" : "mongodb+srv://..."}
+                              className="w-full rounded border bg-background px-2 py-1 outline-none text-foreground text-xs"
+                            />
+                            <div className="flex gap-2">
+                              <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded text-[10px] font-medium flex-1">Save</button>
+                              <button onClick={() => setEditingUri(false)} className="bg-accent text-foreground hover:bg-accent/80 px-2 py-1 rounded text-[10px] font-medium flex-1">Cancel</button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2 mt-2 pt-2 border-t border-border">Need a free database?</div>
                         <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
                           {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Postgres)</li>}
                           {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Postgres)</li>}
                           {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Postgres)</li>}
-                          {isMysql && <li><a href="https://planetscale.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">PlanetScale</a> (MySQL)</li>}
+                          {isMysql && <li><a href="https://tidbcloud.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Serverless</a> (MySQL)</li>}
                           {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven</a> (MySQL)</li>}
-                          {isMysql && <li><a href="https://tidbcloud.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Cloud</a> (MySQL)</li>}
                           <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Both)</li>
                         </ul>
                       </div>
@@ -1747,7 +1841,7 @@ function TicketIDE({
               {/* Editor */}
               <div className="flex flex-1 min-h-0">
                 {activeFile.startsWith("schema:") ? (
-                  <SchemaViewer tableName={activeFile.replace("schema:", "")} />
+                  <SchemaViewer tableName={activeFile.replace("schema:", "")} dbSchema={dbSchema} />
                 ) : (
                   <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
                 )}
@@ -1775,9 +1869,9 @@ function TicketIDE({
                   {bottomTab === "preview" && (
                     isDjango ? <DjangoTodoPreview /> :
                       isSql ? <SqlResultsView query={executedQuery} /> :
-                        isMysql ? <ExternalSqlResultsView query={executedQuery} dbType="mysql" /> :
-                          isPostgres ? <ExternalSqlResultsView query={executedQuery} dbType="postgresql" /> :
-                            isMongo ? <MongoResultsView query={executedQuery} /> :
+                        isMysql ? <ExternalSqlResultsView query={executedQuery} dbType="mysql" uri={remoteDbUri} /> :
+                          isPostgres ? <ExternalSqlResultsView query={executedQuery} dbType="postgresql" uri={remoteDbUri} /> :
+                            isMongo ? <MongoResultsView query={executedQuery} uri={remoteDbUri} /> :
                               isUi ? <UiPreview files={files} /> :
                                 isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                                   <PreviewView />
@@ -2067,9 +2161,9 @@ function SidePreview({ device, kit, files, activeFile }: { device: "Mobile" | "T
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
         kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
-            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
-              kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
+          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" uri={remoteDbUri} /> :
+            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" uri={remoteDbUri} /> :
+              kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} uri={remoteDbUri} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
                     <div className="p-4 space-y-2">
@@ -2936,42 +3030,12 @@ export type DbSchema = { name: string; type: "PostgreSQL" | "MySQL" | "SQLite" |
 export const MOCK_DB_SCHEMA: DbSchema = {
   name: "yuvro_sql_lab",
   type: "PostgreSQL",
-  tables: [
-    {
-      name: "customers",
-      columns: [
-        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
-        { name: "name", type: "TEXT", nullable: "NO", default: "-", key: "-" },
-        { name: "country", type: "VARCHAR(2)", nullable: "YES", default: "-", key: "-" },
-        { name: "signed_up_at", type: "DATE", nullable: "NO", default: "CURRENT_DATE", key: "-" },
-      ],
-      ddl: `CREATE TABLE customers (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  country VARCHAR(2),
-  signed_up_at DATE NOT NULL DEFAULT CURRENT_DATE
-);`
-    },
-    {
-      name: "orders",
-      columns: [
-        { name: "id", type: "SERIAL", nullable: "NO", default: "-", key: "PK" },
-        { name: "customer_id", type: "INTEGER", nullable: "NO", default: "-", key: "FK" },
-        { name: "amount", type: "NUMERIC(10,2)", nullable: "NO", default: "-", key: "-" },
-        { name: "created_at", type: "TIMESTAMP", nullable: "NO", default: "CURRENT_TIMESTAMP", key: "-" },
-      ],
-      ddl: `CREATE TABLE orders (
-  id SERIAL PRIMARY KEY,
-  customer_id INTEGER NOT NULL REFERENCES customers(id),
-  amount NUMERIC(10,2) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);`
-    }
-  ]
+  tables: []
 };
 
-function SchemaViewer({ tableName }: { tableName: string }) {
-  const table = MOCK_DB_SCHEMA.tables.find(t => t.name === tableName);
+function SchemaViewer({ tableName, dbSchema }: { tableName: string, dbSchema?: DbSchema }) {
+  const schema = dbSchema || MOCK_DB_SCHEMA;
+  const table = schema.tables.find((t: any) => t.name === tableName);
   if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
 
   return (
@@ -2979,7 +3043,7 @@ function SchemaViewer({ tableName }: { tableName: string }) {
       <div className="flex items-center gap-2 mb-4">
         <Package className="h-5 w-5 text-primary" />
         <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
-        <span className="text-foreground">{MOCK_DB_SCHEMA.name}.{table.name}</span>
+        <span className="text-foreground">{schema.name}.{table.name}</span>
       </div>
 
       <div className="mb-6">
@@ -3040,25 +3104,11 @@ function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: stri
 }
 /* ---------- External SQL query results viewer ---------- */
 
-function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mysql" | "postgresql" }) {
+function ExternalSqlResultsView({ query, dbType, uri }: { query: string; dbType: "mysql" | "postgresql"; uri: string }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const [res, setRes] = useState<{ columns: string[]; rows: any[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [uri, setUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(`${dbType}Uri`) || "";
-    return "";
-  });
-  const [editingUri, setEditingUri] = useState(false);
-  const [tempUri, setTempUri] = useState(uri);
-
-  const saveUri = () => {
-    setUri(tempUri.trim());
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`${dbType}Uri`, tempUri.trim());
-    }
-    setEditingUri(false);
-  };
 
   useEffect(() => {
     let active = true;
@@ -3070,6 +3120,9 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
       try {
         const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
         const result = await proxyCall({ data: { uri, query } });
+        if (result.error) {
+          throw new Error(result.error);
+        }
         if (active) setRes(result);
       } catch (e: any) {
         if (active) setError(e.message || "Failed to execute query");
@@ -3099,34 +3152,6 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
 
   return (
     <div className="text-[12px] flex flex-col h-full gap-2">
-      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-foreground">Database Connection</span>
-          </div>
-          <button
-            onClick={() => { setEditingUri(true); setTempUri(uri); }}
-            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
-          >
-            {uri ? `Connected (${dbType})` : "Click to configure URI"}
-          </button>
-        </div>
-        {editingUri && (
-          <div className="flex items-center gap-2 mt-1">
-            <input
-              type="text"
-              value={tempUri}
-              onChange={e => setTempUri(e.target.value)}
-              placeholder={dbType === "mysql" ? "mysql://user:pass@host:3306/db" : "postgresql://user:pass@host:5432/db"}
-              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
-            />
-            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
-            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
-          </div>
-        )}
-      </div>
-
       <div className="flex-1 flex flex-col overflow-hidden">
         {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
         {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
@@ -3249,24 +3274,10 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
   return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query }: { query: string }) {
+function MongoResultsView({ query, uri }: { query: string; uri: string }) {
   const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [mongoUri, setMongoUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
-    return "";
-  });
-  const [editingUri, setEditingUri] = useState(false);
-  const [tempUri, setTempUri] = useState(mongoUri);
-
-  const saveUri = () => {
-    setMongoUri(tempUri.trim());
-    if (typeof window !== "undefined") {
-      localStorage.setItem("externalMongoUri", tempUri.trim());
-    }
-    setEditingUri(false);
-  };
 
   useEffect(() => {
     let active = true;
@@ -3275,8 +3286,11 @@ function MongoResultsView({ query }: { query: string }) {
       setError(null);
       setRes(null);
       try {
-        if (mongoUri) {
-          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+        if (uri) {
+          const remoteRes = await executeRemoteMongoQuery({ data: { uri, query } });
+          if (remoteRes.error) {
+            throw new Error(remoteRes.error);
+          }
           if (active) setRes(remoteRes);
         } else {
           // fallback to local in-memory engine
@@ -3291,40 +3305,10 @@ function MongoResultsView({ query }: { query: string }) {
     };
     run();
     return () => { active = false; };
-  }, [query, mongoUri]);
+  }, [query, uri]);
 
   return (
     <div className="text-[12px] flex flex-col h-full gap-2">
-      {/* DB Connection Header */}
-      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-foreground">Database Connection</span>
-          </div>
-          <button
-            onClick={() => { setEditingUri(true); setTempUri(mongoUri); }}
-            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
-          >
-            {mongoUri ? "Connected (External Atlas)" : "Local In-Memory (Mock)"}
-          </button>
-        </div>
-        {editingUri && (
-          <div className="flex items-center gap-2 mt-1">
-            <input
-              type="text"
-              value={tempUri}
-              onChange={e => setTempUri(e.target.value)}
-              placeholder="mongodb+srv://..."
-              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
-            />
-            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
-            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
-          </div>
-        )}
-      </div>
-
-      {/* Query Results */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
         {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}

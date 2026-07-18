@@ -91,6 +91,8 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
 
     } catch (e: any) {
       if (client) await client.close();
-      throw new Error(`MongoDB Error: ${e.message}`);
+      console.error("MONGO PROXY CAUGHT ERROR:", e, "MESSAGE:", e?.message);
+      let errorMsg = e?.message || String(e);
+      return { error: `MongoDB Error: ${errorMsg}` };
     }
   });
