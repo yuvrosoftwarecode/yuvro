@@ -1764,55 +1764,6 @@ async def get_file_tree(
     """
     ws = _workspace_dir(user_id, lab_id, sprint_id)
     seeded = False
-
-    def _copy_from_starter(ws: Path, lab_id: str) -> bool:
-        """Copy files from the starter repo clone into the user workspace.
-
-        If the repo has a 'starter/' subdirectory, only files from that subfolder
-        are copied — this keeps internal folders like 'tickets/' and 'yuvro_scoring_rules'
-        out of the student's workspace.
-
-        If there is no 'starter/' subfolder, the entire repo root is copied (minus
-        .git, tickets/, and yuvro_scoring_rules).
-
-        Returns True if any files were copied.
-        """
-        lab_dir = WORKSPACES_ROOT / "labs" / lab_id
-        if not lab_dir.exists():
-            return False
-
-        # Find the starter repo directory (any child that is NOT 'users')
-        starter_dirs = [d for d in lab_dir.iterdir() if d.is_dir() and d.name != "users"]
-        if not starter_dirs:
-            return False
-
-        repo = starter_dirs[0]  # the cloned repo root
-
-        # Prefer copying from a 'starter/' subdirectory if it exists
-        starter_subdir = repo / "starter"
-        source = starter_subdir if starter_subdir.is_dir() else repo
-
-        # Directories to skip when copying from repo root (not needed if source=starter/)
-        SKIP_DIRS = {".git", "yuvro_scoring_rules", "__pycache__", "tickets"}
-
-        copied = False
-        for item in source.rglob("*"):
-            rel = item.relative_to(source)
-            parts = rel.parts
-
-            # Skip hidden/internal directories
-            if any(p in SKIP_DIRS for p in parts):
-                continue
-
-            dest = ws / rel
-            if item.is_dir():
-                dest.mkdir(parents=True, exist_ok=True)
-            elif item.is_file():
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(str(item), str(dest))
-                copied = True
-        return copied
-
     if not ws.exists():
         ws.mkdir(parents=True, exist_ok=True)
 
