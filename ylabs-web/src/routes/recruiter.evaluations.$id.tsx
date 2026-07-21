@@ -9,8 +9,8 @@ import {
 import {
   getEvaluation, saveEvaluation, evaluationTotals,
   DOMAINS, PROGRAMMING_LANGUAGES, DATABASES, SCENARIOS, DIFFICULTIES, EXPERIENCE_LEVELS, FORMATS,
-  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem,
-  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
+  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem, PredefinedQuestion,
+  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally, syncMockInterviews,
 } from "@/lib/recruiter";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
@@ -62,7 +62,11 @@ function EvaluationWorkspace() {
   const handleSave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
-    const saved = await saveEvaluation(ev);
+    
+    // Sync with yhub backend first
+    const syncedEv = await syncMockInterviews(ev);
+    
+    const saved = await saveEvaluation(syncedEv);
     if (saved) {
       clearDraftLocally(ev.id);
       if (ev.id === "draft") {
@@ -83,7 +87,11 @@ function EvaluationWorkspace() {
   if (view === "publish-done") return <PublishedScreen ev={ev} onBack={() => setView("edit")} />;
   if (view === "publish") return <PublishScreen ev={ev} onBack={() => setView("edit")} onPublish={async (invite) => { 
     setIsSaving(true);
-    const c = { ...ev, status: "published" as const, publishedAt: Date.now(), invite, candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0), sections: JSON.parse(JSON.stringify(ev.sections)) };
+    
+    // Sync with yhub backend first
+    const syncedEv = await syncMockInterviews(ev);
+    
+    const c = { ...syncedEv, status: "published" as const, publishedAt: Date.now(), invite, candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0), sections: JSON.parse(JSON.stringify(syncedEv.sections)) };
     const saved = await saveEvaluation(c);
     if (saved) {
       clearDraftLocally(c.id);
@@ -165,7 +173,7 @@ function EvaluationWorkspace() {
             update(x => {
               if (kind === "labs") x.sections.push({ id: newUid(), kind: "labs", title: "Engineering Labs", labs: [] });
               else if (kind === "assessment") x.sections.push({ id: newUid(), kind: "assessment", title: "Knowledge Assessment", questions: [] });
-              else x.sections.push({ id: newUid(), kind: "discussion", title: "Engineering Discussion", duration: 15, mode: "Automatic", questions: [] });
+              else x.sections.push({ id: newUid(), kind: "discussion", title: "Engineering Discussion", duration: 15, mode: "Custom", questions: [] });
             });
             setAddSectionOpen(false);
           }}
@@ -360,7 +368,6 @@ function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section:
 }
 
 function DiscussionSectionBody({ section, onChange }: { section: DiscussionSection; onChange: (s: Section) => void }) {
-  const [custom, setCustom] = useState("");
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
@@ -375,35 +382,65 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Question Mode</div>
           <div className="mt-1 flex items-center gap-2">
-            {(["Automatic", "Custom", "Hybrid"] as const).map(m => (
-              <button key={m} onClick={() => onChange({ ...section, mode: m })} className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === m ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{m}</button>
-            ))}
+            <button className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[12px] text-amber-300">Custom</button>
           </div>
         </div>
       </div>
-      {section.mode === "Automatic" && (
-        <div className="rounded-lg border border-white/5 bg-black/20 p-3 text-[12px] text-neutral-400">
-          <div className="flex items-center gap-2 text-neutral-300"><Sparkles className="h-3.5 w-3.5 text-amber-400" /> Vitarka AI will generate questions from labs, assessment answers and candidate decisions.</div>
+      
+      <div className="rounded-lg border border-white/5 bg-black/20 p-3">
+        <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
+        <div className="mt-4">
+          <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
         </div>
-      )}
-      {(section.mode === "Custom" || section.mode === "Hybrid") && (
-        <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-          <div className="text-[12px] text-neutral-300">Custom questions</div>
-          <ul className="mt-2 space-y-1">
-            {section.questions.map((q, i) => (
-              <li key={i} className="flex items-center gap-2 rounded-md bg-white/[0.02] px-2 py-1.5 text-[12px] text-neutral-300">
-                <span className="text-[10px] text-neutral-500">Q{i + 1}</span>
-                <span className="flex-1">{q}</span>
-                <ToolBtn title="Remove" onClick={() => onChange({ ...section, questions: section.questions.filter((_, j) => j !== i) })}><X className="h-3 w-3" /></ToolBtn>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-2 flex items-center gap-2">
-            <input value={custom} onChange={e => setCustom(e.target.value)} placeholder="How would you improve scalability?" className="flex-1 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-[12px] outline-none" />
-            <button onClick={() => { if (custom.trim()) { onChange({ ...section, questions: [...section.questions, custom.trim()] }); setCustom(""); } }} className="rounded-md bg-white/10 px-3 py-1.5 text-[12px] text-white hover:bg-white/15">Add</button>
+      </div>
+    </div>
+  );
+}
+
+function QuestionTreeBuilder({ questions, onChange, level = 0 }: { questions: PredefinedQuestion[], onChange: (qs: PredefinedQuestion[]) => void, level?: number }) {
+  const [newText, setNewText] = useState("");
+  
+  const addNode = () => {
+    if (newText.trim()) {
+      onChange([...questions, { text: newText.trim(), follow_ups: [] }]);
+      setNewText("");
+    }
+  };
+
+  const updateNode = (index: number, updated: PredefinedQuestion) => {
+    const copy = [...questions];
+    copy[index] = updated;
+    onChange(copy);
+  };
+
+  const removeNode = (index: number) => {
+    const copy = [...questions];
+    copy.splice(index, 1);
+    onChange(copy);
+  };
+
+  return (
+    <div className="space-y-2">
+      {questions.map((q, i) => (
+        <div key={i} className={`rounded-md border border-white/5 bg-white/[0.02] p-3 text-[12px] text-neutral-300`}>
+          <div className="flex items-start gap-2">
+            <span className="mt-1 text-[10px] text-neutral-500">{level === 0 ? "Q" : "↳"}{i + 1}</span>
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <input value={q.text} onChange={e => updateNode(i, { ...q, text: e.target.value })} className="flex-1 bg-transparent outline-none border-b border-white/10 focus:border-amber-400/50" />
+                <ToolBtn title="Remove" onClick={() => removeNode(i)}><X className="h-3 w-3" /></ToolBtn>
+              </div>
+              <div className="pl-4 border-l border-white/5">
+                <QuestionTreeBuilder questions={q.follow_ups} onChange={(f) => updateNode(i, { ...q, follow_ups: f })} level={level + 1} />
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      ))}
+      <div className="flex items-center gap-2 mt-2">
+        <input value={newText} onChange={e => setNewText(e.target.value)} placeholder={level === 0 ? "Add a main question..." : "Add a follow-up question..."} className="flex-1 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-[12px] outline-none focus:border-amber-400/50" />
+        <button onClick={addNode} className="rounded-md bg-white/10 px-3 py-1.5 text-[12px] text-white hover:bg-white/15">Add</button>
+      </div>
     </div>
   );
 }
