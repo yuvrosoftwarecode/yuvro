@@ -157,74 +157,148 @@ function Hub() {
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
+        
       try {
         const saved = localStorage.getItem("mock_enrollments");
         if (saved) {
           JSON.parse(saved).forEach((id: string) => enrSet.add(id));
         }
-        // Always merge mock enrollments so UI interactions persist across refresh
-        try {
-          const saved = localStorage.getItem("mock_enrollments");
-          if (saved) {
-            JSON.parse(saved).forEach((id: string) => enrSet.add(id));
-          }
-        } catch {}
+      } catch (e) {}
         setEnrolledIds(enrSet);
 
         let statsMap: Record<string, any> = {};
         try {
-           const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
-           if (saved) {
-             resolved_tickets = Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
-           }
-        } catch {}
-        
-        if (statsMap[sid]) {
-           total_tickets = statsMap[sid].total_tickets || total_tickets;
-           resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
-        }
-        
-        let color = "ui";
-        if (dbLab.title?.toLowerCase().includes("java") || dbLab.name?.toLowerCase().includes("java")) color = "java";
-        if (dbLab.title?.toLowerCase().includes("python") || dbLab.name?.toLowerCase().includes("python")) color = "python";
-        if (dbLab.title?.toLowerCase().includes("sql") || dbLab.title?.toLowerCase().includes("postgres") || dbLab.name?.toLowerCase().includes("sql") || dbLab.name?.toLowerCase().includes("postgres")) color = "sql";
-        if (dbLab.title?.toLowerCase().includes("mongo") || dbLab.name?.toLowerCase().includes("mongo")) color = "mongo";
-        
-        let iconStr = dbLab.icon?.toLowerCase() || "";
-        let icon = (dbLab.icon && iconStr !== "linux" && iconStr !== "linux lab") ? dbLab.icon : "💻";
-        if (dbLab.title?.toLowerCase().includes("linux") || dbLab.name?.toLowerCase().includes("linux")) icon = "🐧";
-        if (dbLab.title?.toLowerCase().includes("java") || dbLab.name?.toLowerCase().includes("java")) icon = "☕";
-        if (dbLab.title?.toLowerCase().includes("python") || dbLab.name?.toLowerCase().includes("python")) icon = "🐍";
-        if (dbLab.title?.toLowerCase().includes("sql") || dbLab.title?.toLowerCase().includes("postgres") || dbLab.name?.toLowerCase().includes("sql") || dbLab.name?.toLowerCase().includes("postgres")) icon = "🐘";
-        if (dbLab.title?.toLowerCase().includes("mongo") || dbLab.name?.toLowerCase().includes("mongo")) icon = "🍃";
-        if (dbLab.title?.toLowerCase().includes("cloud") || dbLab.name?.toLowerCase().includes("cloud")) icon = "☁️";
+          const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
+          statsMap = statsRes.data || {};
+        } catch (e) {}
 
-        let mappedDifficulty: "Beginner" | "Intermediate" | "Advanced" = "Intermediate";
-        if (dbLab.difficulty === "EASY") mappedDifficulty = "Beginner";
-        else if (dbLab.difficulty === "MEDIUM") mappedDifficulty = "Intermediate";
-        else if (dbLab.difficulty === "HARD") mappedDifficulty = "Advanced";
+        const { loadSprints } = await import("@/lib/labSprints");
 
-        return {
-          id: sid,
-          name: dbLab.title || dbLab.name,
-          description: dbLab.description || "Learn and master concepts hands-on.",
-          difficulty: mappedDifficulty,
-          icon,
-          color,
-          total: total_tickets,
-          completed: resolved_tickets,
-          payment_tier: dbLab.payment_tier || "free",
-          hoursLeft: 24, // Static for UI mock
-        };
-      }));
+        const mapped: CatalogLab[] = await Promise.all(
+          data.map(async (dbLab) => {
+            const sid = String(dbLab.id);
 
-      // Integrate dummy labs from the codebase to ensure both real and dummy are present
-      const mappedDummy: CatalogLab[] = [];
+            let total_tickets = 10;
+            let resolved_tickets = 0;
 
-      // Combine both arrays
-      setAllCatalogLabs([...mapped, ...mappedDummy]);
-      setLabsLoading(false);
-    }).catch(console.error);
+            try {
+              const sprints = await loadSprints(sid);
+              total_tickets = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
+            } catch {}
+
+            try {
+              const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
+              if (saved) {
+                resolved_tickets = Object.values(JSON.parse(saved)).filter(
+                  (v) => v === "Completed",
+                ).length;
+              }
+            } catch {}
+
+            if (statsMap[sid]) {
+              total_tickets = statsMap[sid].total_tickets || total_tickets;
+              resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
+            }
+
+            let color = "ui";
+            if (
+              dbLab.title?.toLowerCase().includes("java") ||
+              dbLab.name?.toLowerCase().includes("java")
+            )
+              color = "java";
+            if (
+              dbLab.title?.toLowerCase().includes("python") ||
+              dbLab.name?.toLowerCase().includes("python")
+            )
+              color = "python";
+            if (
+              dbLab.title?.toLowerCase().includes("sql") ||
+              dbLab.title?.toLowerCase().includes("postgres") ||
+              dbLab.name?.toLowerCase().includes("sql") ||
+              dbLab.name?.toLowerCase().includes("postgres")
+            )
+              color = "sql";
+            if (
+              dbLab.title?.toLowerCase().includes("mongo") ||
+              dbLab.name?.toLowerCase().includes("mongo")
+            )
+              color = "mongo";
+
+            let iconStr = dbLab.icon?.toLowerCase() || "";
+            let icon =
+              dbLab.icon && iconStr !== "linux" && iconStr !== "linux lab" ? dbLab.icon : "≡ƒÆ╗";
+            if (
+              dbLab.title?.toLowerCase().includes("linux") ||
+              dbLab.name?.toLowerCase().includes("linux")
+            )
+              icon = "≡ƒÉº";
+            if (
+              dbLab.title?.toLowerCase().includes("java") ||
+              dbLab.name?.toLowerCase().includes("java")
+            )
+              icon = "Γÿò";
+            if (
+              dbLab.title?.toLowerCase().includes("python") ||
+              dbLab.name?.toLowerCase().includes("python")
+            )
+              icon = "≡ƒÉì";
+            if (
+              dbLab.title?.toLowerCase().includes("sql") ||
+              dbLab.title?.toLowerCase().includes("postgres") ||
+              dbLab.name?.toLowerCase().includes("sql") ||
+              dbLab.name?.toLowerCase().includes("postgres")
+            )
+              icon = "≡ƒÉÿ";
+            if (
+              dbLab.title?.toLowerCase().includes("mongo") ||
+              dbLab.name?.toLowerCase().includes("mongo")
+            )
+              icon = "≡ƒìâ";
+            if (
+              dbLab.title?.toLowerCase().includes("cloud") ||
+              dbLab.name?.toLowerCase().includes("cloud")
+            )
+              icon = "Γÿü∩╕Å";
+
+            let mappedDifficulty: "Beginner" | "Intermediate" | "Advanced" = "Intermediate";
+            if (dbLab.difficulty === "EASY") mappedDifficulty = "Beginner";
+            else if (dbLab.difficulty === "MEDIUM") mappedDifficulty = "Intermediate";
+            else if (dbLab.difficulty === "HARD") mappedDifficulty = "Advanced";
+
+            return {
+              id: sid,
+              name: dbLab.title || dbLab.name,
+              description: dbLab.description || "Learn and master concepts hands-on.",
+              difficulty: mappedDifficulty,
+              icon,
+              color,
+              total: total_tickets,
+              completed: resolved_tickets,
+              payment_tier: dbLab.payment_tier || "free",
+              hoursLeft: 24, // Static for UI mock
+            };
+          }),
+        );
+
+        // Integrate dummy labs from the codebase to ensure both real and dummy are present
+        const mappedDummy: CatalogLab[] = dummyLabs.map((dl) => ({
+          id: dl.slug,
+          name: dl.name,
+          description: dl.description,
+          difficulty: dl.difficulty,
+          icon: dl.icon,
+          color: dl.color,
+          total: dl.total,
+          completed: dl.completed,
+          payment_tier: "free",
+          hoursLeft: dl.hoursLeft,
+        }));
+
+        // Combine both arrays
+        setAllCatalogLabs([...mapped, ...mappedDummy]);
+        setLabsLoading(false);
+      })
+      .catch(console.error);
   }, []);
 
   const enrolledLabs = useMemo(

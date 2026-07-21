@@ -22,6 +22,9 @@ import {
 import codeExecutorService from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
+import codeExecutorService from "@/services/codeExecutorService";
+import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
+import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
@@ -38,6 +41,7 @@ import {
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
+  FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical,
   FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical,
 } from "lucide-react";
 
@@ -706,6 +710,7 @@ const LINUX_KIT_DEFAULT: Kit = {
 };
 
 function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
+function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   if (tag === "Django Todo") {
     return {
       name: "django",
@@ -716,6 +721,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
+  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
   if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
   if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
@@ -878,6 +884,8 @@ export function TicketIDE({
     shouldThrow: false,
   });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
+  const isAlgo = slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined));
+  const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isAlgo = slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined));
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isDjango = kit.name === "django";
@@ -1104,6 +1112,7 @@ export function TicketIDE({
     setOutput("");
     if (isMultiLang) {
       const valid: ProgLang[] = ["python", "c", "cpp", "js", "java"];
+      const valid: ProgLang[] = ["python", "c", "cpp", "js", "java"];
       if (valid.includes(ticket.tag as ProgLang)) setProgLang(ticket.tag as ProgLang);
       else setProgLang("python");
     }
@@ -1200,6 +1209,8 @@ export function TicketIDE({
         return `// ${banner}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++" << endl;\n    return 0;\n}\n`;
       case "js":
         return `// ${banner}\nfunction solve() {\n  // TODO: implement\n}\n\nconsole.log("Hello from JavaScript");\nsolve();\n`;
+      case "java":
+        return `// ${banner}\nimport java.util.*;\n\nclass main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java");\n    }\n}\n`;
       case "java":
         return `// ${banner}\nimport java.util.*;\n\nclass main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java");\n    }\n}\n`;
     }
@@ -1307,6 +1318,22 @@ export function TicketIDE({
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [tests, setTests] = useState<TestResult[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [supportedLanguages, setSupportedLanguages] = useState<Record<string, any>>({});
+  const [customTestCases, setCustomTestCases] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<any>(null);
+  const [executionMetrics, setExecutionMetrics] = useState<any>(null);
+  const [executionOutput, setExecutionOutput] = useState<string>("");
+
+  useEffect(() => {
+    codeExecutorService.getSupportedLanguagesAndTemplates()
+      .then(res => {
+        if (res && res.details) {
+          setSupportedLanguages(res.details);
+        }
+      })
+      .catch(err => console.warn("Failed to fetch executor languages", err));
+  }, []);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [supportedLanguages, setSupportedLanguages] = useState<Record<string, any>>({});
   const [customTestCases, setCustomTestCases] = useState<any[]>([]);
@@ -1480,14 +1507,59 @@ export function TicketIDE({
           }
         } else if (res.status === 'timeout') {
           showToast('Time Limit Exceeded');
+    if (isMultiLang || isPython) {
+      let extLang = 'python';
+      if (file.endsWith(".c")) extLang = "c";
+      else if (file.endsWith(".cpp") || file.endsWith(".cc")) extLang = "cpp";
+      else if (file.endsWith(".js") || file.endsWith(".ts")) extLang = "javascript";
+      else if (file.endsWith(".java")) extLang = "java";
+
+      const execLang = selectedLanguage || extLang;
+
+      try {
+        const res = await codeExecutorService.executeCode({
+          code: src,
+          language: execLang,
+          test_cases: ticket.tasks || [],
+          test_cases_custom: customTestCases || []
+        });
+
+        setExecutionOutput(res.output);
+        setExecutionMetrics({
+          execution_time: res.execution_time,
+          memory_usage: res.memory_usage,
+          status: res.status
+        });
+        setTestResults(res.test_results);
+
+        if (res.status === 'completed') {
+          showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+          if (res.test_cases_passed > 0 && res.test_cases_passed === res.total_test_cases) {
+             setTicketScore({ passed: res.test_cases_passed, total: res.total_test_cases });
+             setTestsRan(true);
+             setTests([{ name: "All Tests", pass: true, time: `${res.execution_time}s` }]);
+             const taskSlug = ticket.tasks?.[0]?.task_slug || "task-0";
+             setEvalResult(prev => ({ 
+               ...prev, 
+               [taskSlug]: { passed: true, reason: "" } 
+             }));
+          }
+        } else if (res.status === 'timeout') {
+          showToast('Time Limit Exceeded');
         } else {
+          showToast(`Execution failed: ${res.reason || res.error_message || "Check output"}`);
           showToast(`Execution failed: ${res.reason || res.error_message || "Check output"}`);
         }
       } catch (err: any) {
         setExecutionOutput(err.message || 'Error executing code');
         showToast('Code execution failed');
       } finally {
+      } catch (err: any) {
+        setExecutionOutput(err.message || 'Error executing code');
+        showToast('Code execution failed');
+      } finally {
         setRunning(false);
+      }
       }
       return;
     }
@@ -2207,6 +2279,21 @@ export function TicketIDE({
               ))}
             </select>
           )}
+          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="h-7 rounded-md border bg-background px-2 text-xs text-foreground focus:ring-1"
+              title="Execution Language"
+            >
+              <option value="">Auto-detect</option>
+              {Object.keys(supportedLanguages).map((lang) => (
+                <option key={lang} value={lang}>
+                  {supportedLanguages[lang].name || lang.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          )}
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
@@ -2613,6 +2700,7 @@ export function TicketIDE({
                         <option value="cpp">C++</option>
                         <option value="js">JavaScript</option>
                         <option value="java">Java</option>
+                        <option value="java">Java</option>
                       </select>
                     </label>
                   )}
@@ -2679,6 +2767,7 @@ export function TicketIDE({
                     { k: "output", label: "Console", icon: TerminalIcon },
                     { k: "errors", label: "Errors", icon: AlertTriangle },
                     { k: "testcases", label: "Test Cases", icon: FlaskConical },
+                    { k: "testcases", label: "Test Cases", icon: FlaskConical },
                     { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
@@ -2699,7 +2788,9 @@ export function TicketIDE({
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
                   {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
+                  {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
+                  {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "preview" && (
                     isDjango ? <WebPreview port={previewPort} /> :
