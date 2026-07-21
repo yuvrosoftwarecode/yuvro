@@ -51,8 +51,9 @@ function EvaluationInvite() {
         setLoading(false);
         return;
       }
-      await evaluationService.sendRegistrationOtp(evaluationId, email);
-      localStorage.setItem("yuvro-eval-candidate", JSON.stringify({ email, phone: `+91 ${phone}`, resume: file?.name }));
+      const title = checkRes.title || 'Evaluation';
+      await evaluationService.sendRegistrationOtp(evaluationId, email, title);
+      localStorage.setItem("yuvro-eval-candidate", JSON.stringify({ email, phone: `+91 ${phone}`, resume: file?.name, title }));
       router.navigate({ to: "/evaluation/otp", search: { e: evaluationId } });
     } catch (error: any) {
       setErr(error?.message || "Failed to send OTP.");

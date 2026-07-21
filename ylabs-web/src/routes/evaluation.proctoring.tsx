@@ -71,7 +71,8 @@ function ProctoringPage() {
   const requestMic = async () => {
     setMicCheck({ status: 'checking' });
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
       setMicCheck({ status: 'passed' });
     } catch {
       setMicCheck({ status: 'failed', message: 'Permission denied' });
@@ -183,6 +184,18 @@ function ProctoringPage() {
     };
     document.addEventListener('fullscreenchange', handleFsChange);
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const streamsRef = useRef({ camera: cameraStream, screen: screenStream });
+  useEffect(() => {
+    streamsRef.current = { camera: cameraStream, screen: screenStream };
+  }, [cameraStream, screenStream]);
+
+  useEffect(() => {
+    return () => {
+      streamsRef.current.camera?.getTracks().forEach(t => t.stop());
+      streamsRef.current.screen?.getTracks().forEach(t => t.stop());
+    };
   }, []);
 
   const requestFullscreen = async () => {

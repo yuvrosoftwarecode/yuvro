@@ -132,7 +132,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             user = request.user
             mock_interview = self.get_object()
 
-            active_session = MockInterviewSubmission.objects.filter(
+            force = request.data.get('force', False)
+            active_session = not force and MockInterviewSubmission.objects.filter(
                 user=user,
                 status__in=[MockInterviewSubmission.STATUS_STARTED, MockInterviewSubmission.STATUS_IN_PROGRESS]
             ).exists()

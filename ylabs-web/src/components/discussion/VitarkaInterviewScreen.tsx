@@ -55,6 +55,9 @@ export function VitarkaInterviewScreen({
       videoRef.current.srcObject = mediaStream;
       videoRef.current.play().catch(console.error);
     }
+    return () => {
+      mediaStream?.getTracks().forEach((t) => t.stop());
+    };
   }, [mediaStream]);
 
   const speakText = (text: string) => {
@@ -97,6 +100,7 @@ export function VitarkaInterviewScreen({
     try {
       const res = await yhubApiAuthUtil.post<any>(`/mock-interviews/${mockInterviewId}/start_interview/`, {
         sequential: true,
+        force: true
       });
       setSessionInfo({
         interview_session_id: res.interview_session_id,
@@ -112,6 +116,15 @@ export function VitarkaInterviewScreen({
     }
   };
 
+  const isUnmountedRef = useRef(false);
+
+  useEffect(() => {
+    isUnmountedRef.current = false;
+    return () => {
+      isUnmountedRef.current = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (hasPermissions && ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -121,7 +134,7 @@ export function VitarkaInterviewScreen({
       recognition.lang = "en-US";
 
       recognition.onresult = (event: any) => {
-        if (interviewStateRef.current !== "listening") return;
+        if (interviewStateRef.current !== "listening" || isUnmountedRef.current) return;
 
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
@@ -143,7 +156,7 @@ export function VitarkaInterviewScreen({
       };
 
       recognition.onend = () => {
-        if (!isFinishedRef.current && interviewStateRef.current === "listening") {
+        if (!isFinishedRef.current && interviewStateRef.current === "listening" && !isUnmountedRef.current) {
           try { recognition.start(); } catch (e) {}
         }
       };
@@ -151,7 +164,7 @@ export function VitarkaInterviewScreen({
       recognitionRef.current = recognition;
     }
     return () => {
-      recognitionRef.current?.stop();
+      try { recognitionRef.current?.abort(); } catch (e) {}
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       window.speechSynthesis.cancel();
       mediaStream?.getTracks().forEach((t) => t.stop());
@@ -198,9 +211,20 @@ export function VitarkaInterviewScreen({
     }
   };
 
-  const handleEnd = () => {
+  const handleEnd = async () => {
+    isFinishedRef.current = true;
     window.speechSynthesis.cancel();
+    try { recognitionRef.current?.abort(); } catch (e) {}
     mediaStream?.getTracks().forEach((t) => t.stop());
+
+    if (sessionInfoRef.current?.interview_session_id) {
+      try {
+        await yhubApiAuthUtil.post(`/interviews/${sessionInfoRef.current.interview_session_id}/end_interview/`, {});
+      } catch (err) {
+        console.error("Failed to mark interview as completed", err);
+      }
+    }
+
     onEnd();
   };
 
