@@ -1,0 +1,20 @@
+{
+  "labs": [
+    {
+      "title": "MongoDB Lab",
+      "type": "DATABASE",
+      "description": "Master MongoDB fundamentals through interactive queries. Learn collections, CRUD operations, aggregation pipelines, and indexing.",
+      "difficulty": "EASY",
+      "icon": "database",
+      "prerequisites": "None",
+      "skills": [
+        "NoSQL",
+        "MongoDB",
+        "Databases",
+        "Data Engineering"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

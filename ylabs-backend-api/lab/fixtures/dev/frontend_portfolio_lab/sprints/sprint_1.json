@@ -1,0 +1,152 @@
+{
+  "title": "Sprint 1 \u2014 HTML/CSS Portfolio",
+  "description": "Build a stunning developer portfolio from scratch using HTML and CSS. You will learn semantic markup, layout design, and modern CSS techniques.",
+  "xp_pool": 500,
+  "tickets": [
+    {
+      "title": "Ticket 1 \u2014 Page Structure & Navigation",
+      "ticket_slug": "ticket-01",
+      "description": "Set up the core structure of your portfolio. You will create the semantic foundation, a sticky header with a logo, navigation links, and a footer.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 \u2014 Semantic Page Skeleton",
+          "task_slug": "task-1",
+          "description": "Create the main structural layout for your webpage, establishing key sections like header, main content areas, and footer.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 \u2014 Sticky Navigation Bar",
+          "task_slug": "task-2",
+          "description": "Build a sticky header with a logo and navigation links using flexbox and CSS positioning.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 1,
+      "difficulty": "EASY",
+      "accepted_programming_languages": [
+        "html"
+      ]
+    },
+    {
+      "title": "Ticket 2 \u2014 Hero Section",
+      "ticket_slug": "ticket-02",
+      "description": "Design a captivating full-screen hero section. You'll add a vibrant gradient background, an introductory badge, and call-to-action buttons.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 \u2014 Hero Layout",
+          "task_slug": "task-1",
+          "description": "Structure the hero section using flexbox to center content vertically and horizontally.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 \u2014 Typography & Buttons",
+          "task_slug": "task-2",
+          "description": "Style the hero typography and create eye-catching primary and secondary call-to-action buttons.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "EASY",
+      "accepted_programming_languages": [
+        "html"
+      ]
+    },
+    {
+      "title": "Ticket 3 \u2014 About & Projects Grid",
+      "ticket_slug": "ticket-03",
+      "description": "Build out your \"About\" section with statistics cards, and construct a responsive 3-column grid for your portfolio projects.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 \u2014 About Section & Stats",
+          "task_slug": "task-1",
+          "description": "Use CSS Grid to lay out your about text and statistics cards.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 \u2014 Projects Grid",
+          "task_slug": "task-2",
+          "description": "Create a 3-column responsive grid to showcase your project cards.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": [
+        "html"
+      ]
+    },
+    {
+      "title": "Ticket 4 \u2014 Skills + Contact Form",
+      "ticket_slug": "ticket-04",
+      "description": "Implement a tag-cloud layout for your skills and design a clean, accessible HTML contact form.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 \u2014 Skills Tag Cloud",
+          "task_slug": "task-1",
+          "description": "Use flex-wrap and pill-shaped tags to display your technical skills.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 \u2014 Contact Form",
+          "task_slug": "task-2",
+          "description": "Build a semantic contact form with labels, inputs, textareas, and proper focus states.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 4,
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": [
+        "html"
+      ]
+    },
+    {
+      "title": "Ticket 5 \u2014 Polish & Animations",
+      "ticket_slug": "ticket-05",
+      "description": "Take your portfolio to the next level with CSS animations, smooth transitions, glassmorphism, and a refined footer.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 \u2014 CSS Animations",
+          "task_slug": "task-1",
+          "description": "Add @keyframes animations to your hero section and hover transitions to all interactive elements.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 \u2014 Final Polish",
+          "task_slug": "task-2",
+          "description": "Implement a multi-column footer and apply glassmorphism effects to your sticky header.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 5,
+      "difficulty": "HARD",
+      "accepted_programming_languages": [
+        "html"
+      ]
+    }
+  ]
+}

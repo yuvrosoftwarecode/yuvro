@@ -512,6 +512,8 @@ class GithubConnectView(APIView):
         except GithubConnection.DoesNotExist:
             return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
+
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def internal_github_token_view(request, user_id):

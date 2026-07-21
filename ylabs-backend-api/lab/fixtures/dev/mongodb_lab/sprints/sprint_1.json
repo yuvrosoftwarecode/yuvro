@@ -1,0 +1,40 @@
+{
+  "title": "Sprint 1 - Database Initialization",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 1,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Create the Database",
+      "ticket_slug": "mongodb-101",
+      "description": "Before we can create collections, we must switch to or initialize the MongoDB database. Switch to the database named `learning_lab`.\n\n### SQL Equivalent\n```sql\n-- SQLite creates the database automatically when you connect to a file.\n-- Command line equivalent: sqlite3 learning_lab.db '.databases'\n```",
+      "tasks": [
+        "Before we can create collections, we must switch to or initialize the MongoDB database. Switch to the database named `learning_lab`."
+      ],
+      "learning_objectives": [
+        "Understand how MongoDB switches to/initializes a database."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the `use` keyword."
+      ],
+      "hints": [
+        "Use the `use` command followed by the database name."
+      ],
+      "scoring_rules": {
+        "system_query": "db.getName()"
+      },
+      "solution": {
+        "query.js": "use learning_lab",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    }
+  ]
+}

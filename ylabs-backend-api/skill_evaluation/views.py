@@ -2,6 +2,9 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.mail import send_mail
+import logging
 
 from .models import (
     Evaluation,
@@ -22,12 +25,61 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
     def perform_create(self, serializer):
-        from django.contrib.auth import get_user_model
         User = get_user_model()
         user = User.objects.first()
         if not user:
             user = User.objects.create(username="default_recruiter", email="default@example.com")
-        serializer.save(created_by=user)
+        instance = serializer.save(created_by=user)
+        if instance.is_published and instance.candidate_invited_emails:
+            self.send_invitation_emails(instance, instance.candidate_invited_emails)
+
+    def perform_update(self, serializer):
+        old_instance = self.get_object()
+        old_emails = set(old_instance.candidate_invited_emails or [])
+        instance = serializer.save()
+        
+        if instance.is_published and instance.candidate_invited_emails:
+            new_emails = set(instance.candidate_invited_emails) - old_emails
+            if new_emails:
+                self.send_invitation_emails(instance, new_emails)
+
+    def send_invitation_emails(self, evaluation, emails):
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3002')
+        eval_link = f"{frontend_url}/evaluation?e={evaluation.id}"
+        
+        subject = f"Yuvro Evaluation Test – {evaluation.title}"
+        
+        logger = logging.getLogger(__name__)
+        
+        for email in emails:
+            message = f"Hello,\n\nYou have been invited to complete a Yuvro Evaluation.\n\nEvaluation: {evaluation.title}\n\nPlease complete the assessment before it expires.\nYour unique evaluation link: {eval_link}\n\nBest,\nYuvro Team"
+            html_message = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                <h2 style="color: #059669;">Yuvro Evaluation Invitation</h2>
+                <p>Hello,</p>
+                <p>You have been invited to complete a Yuvro Evaluation: <strong>{evaluation.title}</strong>.</p>
+                <p>Please click the button below to start your assessment:</p>
+                <p style="text-align: center; margin: 30px 0;">
+                    <a href="{eval_link}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Start Evaluation</a>
+                </p>
+                <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+                <p><a href="{eval_link}">{eval_link}</a></p>
+                <p>Best regards,<br>Yuvro Team</p>
+            </div>
+            """
+            
+            try:
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                    html_message=html_message
+                )
+                logger.info(f"Successfully sent invite email to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send invite email to {email}: {e}")
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
@@ -37,6 +89,10 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
         user = request.user
+        
+        if evaluation.candidate_invited_emails and user.email not in evaluation.candidate_invited_emails:
+            return Response({"error": "This email was not invited for this assessment."}, status=status.HTTP_403_FORBIDDEN)
+            
         if UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
             return Response({"error": "This email is already registered for this evaluation"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -62,6 +118,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         email = request.data.get('email')
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if evaluation.candidate_invited_emails and email not in evaluation.candidate_invited_emails:
+            return Response({"error": "This email was not invited for this assessment."}, status=status.HTTP_403_FORBIDDEN)
             
         User = get_user_model()
         user = User.objects.filter(email=email).first()

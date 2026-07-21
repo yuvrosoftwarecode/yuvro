@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "../services/evaluationService";
-import { ChevronDown, ChevronRight } from "lucide-react";
 import { yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
 import { VitarkaInterviewScreen } from "../components/discussion/VitarkaInterviewScreen";
+import { ChevronDown, ChevronRight, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
 
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -54,10 +55,10 @@ const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 
-function Workspace() {
+export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = searchParams.get('e') || '';
+  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -65,22 +66,31 @@ function Workspace() {
   const [debugData, setDebugData] = useState<any>(null);  
   
   useEffect(() => {
+    if (previewData) {
+      processWorkspaceData(previewData);
+      return;
+    }
     if (!evaluationId) return;
     evaluationService.getWorkspaceData(evaluationId)
-      .then(res => {
-        setDebugData(res);
-        const mappedSections: AppSection[] = [];
-        let durationMinutes = 0;
-        let dQs: string[] = [];
-        let mappedLabs: RealLab[] = [];
-        const extractQuestions = (nodes: any[]) => {
-          for (const n of nodes) {
-            if (n.text) dQs.push(n.text);
-            if (n.follow_ups && n.follow_ups.length > 0) extractQuestions(n.follow_ups);
-          }
-        };
+      .then(res => processWorkspaceData(res))
+      .catch(err => setDebugData({ error: err.message || err.toString() }));
+  }, [evaluationId, previewData]);
 
-        (res.sections || []).forEach((sec: any) => {
+  const processWorkspaceData = (res: any) => {
+    setDebugData(res);
+    const mappedSections: AppSection[] = [];
+    let durationMinutes = 0;
+    
+    let dQs: string[] = [];
+    let mappedLabs: RealLab[] = [];
+    const extractQuestions = (nodes: any[]) => {
+      for (const n of nodes) {
+        if (n.text) dQs.push(n.text);
+        if (n.follow_ups && n.follow_ups.length > 0) extractQuestions(n.follow_ups);
+      }
+    };
+
+    (res.sections || []).forEach((sec: any) => {
           if (sec.type === "LAB") {
             (sec.questions || []).forEach((q: any) => {
               mappedLabs.push({
@@ -165,18 +175,15 @@ function Workspace() {
             }
           }
         });
-        
-        setAppSections(mappedSections);
-        if (mappedSections.length > 0) {
-          setSection(mappedSections[0].id);
-        }
-        
-        if (dQs.length > 0) setDiscussionQuestions(dQs);
-        
-        setLabsData(mappedLabs);
-      })
-      .catch(err => setDebugData({ error: err.message || err.toString() }));
-  }, [evaluationId]);
+      setAppSections(mappedSections);
+      if (mappedSections.length > 0) {
+        setSection(mappedSections[0].id);
+      }
+      
+      if (dQs.length > 0) setDiscussionQuestions(dQs);
+      
+      setLabsData(mappedLabs);
+  };
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
@@ -199,7 +206,6 @@ function Workspace() {
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
 
-  // Timer
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining(r => {
@@ -210,7 +216,6 @@ function Workspace() {
     return () => clearInterval(t);
   }, []);
 
-  // Trigger discussion lock at 15 min
   useEffect(() => {
     if (remaining <= DISCUSSION_LOCK_SECONDS && !discussionTriggered.current && remaining > 0) {
       discussionTriggered.current = true;
@@ -218,14 +223,13 @@ function Workspace() {
       if (discussionSection) {
         setSection(discussionSection.id);
       } else {
-        setSection("discussion-dummy"); // fallback if not in backend but triggered by time
+        setSection("discussion-dummy"); 
       }
       setOpenLab(null);
       setActiveQuestionId(null);
       setModal({ kind: "discussion-starting" });
     }
     if (remaining === 0) submitEvaluation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining]);
 
   // Tab-switch warning
@@ -266,7 +270,6 @@ function Workspace() {
     return "not-started";
   };
   const getLabStatus = (secId: string, labs: RealLab[]): Status => {
-    // Basic logic: if all labs in section are submitted, it's complete.
     const submittedCount = labs.filter(l => submittedLabs.has(l.id)).length;
     if (submittedCount === labs.length && labs.length > 0) return "complete";
     if (submittedCount > 0) return "in-progress";
@@ -287,7 +290,6 @@ function Workspace() {
     setQIndex(0);
   };
 
-  // Handlers
   const toggleTask = (labId: LabId, i: number) => {
     setTaskState(prev => {
       const s = new Set(prev[labId] ?? []);
@@ -303,7 +305,6 @@ function Workspace() {
   };
   const confirmSubmitSection = async (secId: string) => {
     try {
-      // In real scenario, we map answers and send. For now, dummy logic just records submission locally.
       await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, answers);
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
@@ -353,7 +354,7 @@ function Workspace() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
+    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
       <TopBar
         remaining={remaining}
         online={online}
@@ -567,8 +568,24 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         </button>
         <button className="text-neutral-500 hover:text-neutral-900">Help</button>
         <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">Exit</button>
+        <ThemeToggle />
       </div>
     </header>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle theme"
+      title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900 ml-1"
+    >
+      {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+    </button>
   );
 }
 
