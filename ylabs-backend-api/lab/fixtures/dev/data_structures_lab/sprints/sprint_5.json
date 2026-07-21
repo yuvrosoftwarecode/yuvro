@@ -1,0 +1,777 @@
+{
+  "title": "Sprint 5 — Linked Lists",
+  "description": "Master Linked Lists through hand-picked algorithmic challenges.",
+  "xp_pool": 1000,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Traverse and Display a Singly Linked List",
+      "ticket_slug": "ticket-traverse-and-display-a-si",
+      "description": "You are given the head node of a singly linked list. Your task is to traverse the list from the first node to the last node and display the value stored in each node in order.\n\nThe traversal should continue until the end of the list is reached.\n\nThe values must be printed in the same order as they appear in the list.\n\n**Input Format:**\nA sequence of space-separated integers representing the elements stored in the linked list.\n\n**Output Format:**\nPrint the values of the linked list nodes separated by spaces in the same order.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n1 2 3 4\n```\nOutput:\n```\n1 2 3 4\n```\nExplanation: Each node is visited sequentially and its value is printed.\n*Example 2:*\nInput:\n```\n5 10 15\n```\nOutput:\n```\n5 10 15\n```\nExplanation: Traversal begins at the head and continues until the last node.\n*Example 3:*\nInput:\n```\n8\n```\nOutput:\n```\n8\n```\nExplanation: A list containing a single node simply prints that node's value.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 2 3",
+          "expected_output": "1 2 3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "10",
+          "expected_output": "10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "5 6",
+          "expected_output": "5 6",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 2 3 4 5",
+          "expected_output": "1 2 3 4 5",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "7 7 7 7",
+          "expected_output": "7 7 7 7",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "9 8 7",
+          "expected_output": "9 8 7",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "2 4 6 8 10",
+          "expected_output": "2 4 6 8 10",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "100 200 300",
+          "expected_output": "100 200 300",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3 5 7 9 11 13",
+          "expected_output": "3 5 7 9 11 13",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "0 0 0",
+          "expected_output": "0 0 0",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-traverse-and-display-a-singly-linked-list-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "42",
+          "expected_output": "42",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Check Whether Two Linked Lists Are Identical",
+      "ticket_slug": "ticket-check-whether-two-linked",
+      "description": "You are given the heads of two singly linked lists. Determine whether both lists contain the same sequence of values and have the same length.\n\nTwo linked lists are considered identical if:\n1. They contain the same number of nodes.\n2. The value at each corresponding node is the same.\n\nReturn 1 if the two lists are identical, otherwise return 0.\n\n**Input Format:**\nTwo sequences of space-separated integers representing the nodes of two linked lists.\n\n**Output Format:**\nReturn 1 if both linked lists are identical, otherwise return 0.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n1 2 3 | 1 2 3\n```\nOutput:\n```\n1\n```\nExplanation: Both lists contain the same values in the same order.\n*Example 2:*\nInput:\n```\n4 5 6 | 4 5 7\n```\nOutput:\n```\n0\n```\nExplanation: Values differ at the last node.\n*Example 3:*\nInput:\n```\n9 9 | 9 9\n```\nOutput:\n```\n1\n```\nExplanation: Each corresponding node contains the same value.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 2 3 | 1 2 3",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4 5 | 4 6",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "10 | 10",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 2 3 4 | 1 2 3 4",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5 6 7 | 5 6 8",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "9 8 7 | 9 8 7",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "2 4 6 8 | 2 4 6",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "1 1 1 | 1 1 1",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3 5 7 | 3 5 7 9",
+          "expected_output": "0",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "100 200 | 100 200",
+          "expected_output": "1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-check-whether-two-linked-lists-are-identical-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "7 8 9 | 7 8 10",
+          "expected_output": "0",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Find the Center Node of a Singly Linked List",
+      "ticket_slug": "ticket-find-the-center-node-of-a",
+      "description": "Given the head of a singly linked list, determine the node that lies in the middle of the list.\n\nIf the list contains an even number of nodes, return the second of the two middle nodes.\n\nYour task is to traverse the linked list efficiently and identify the middle element.\n\n**Input Format:**\nA sequence of integers representing nodes of a singly linked list.\n\n**Output Format:**\nReturn the value of the middle node in the linked list.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n1 2 3 4 5\n```\nOutput:\n```\n3\n```\nExplanation: There are five nodes, so the third node is the middle.\n*Example 2:*\nInput:\n```\n1 2 3 4 5 6\n```\nOutput:\n```\n4\n```\nExplanation: With an even number of nodes, the second middle node (4) is returned.\n*Example 3:*\nInput:\n```\n10 20 30\n```\nOutput:\n```\n20\n```\nExplanation: The list has three nodes and the second node is the middle.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 2 3 4 5",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "10 20 30 40",
+          "expected_output": "30",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "7",
+          "expected_output": "7",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "2 4 6 8 10 12",
+          "expected_output": "8",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5 9 13 17 21 25 29",
+          "expected_output": "17",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1 2",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "3 6 9 12 15 18 21 24",
+          "expected_output": "15",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "11 22 33 44 55 66 77 88 99",
+          "expected_output": "55",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4 8 12 16 20",
+          "expected_output": "12",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "100 200 300 400 500 600",
+          "expected_output": "400",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-the-center-node-of-a-singly-linked-list-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "9 8 7 6 5 4 3",
+          "expected_output": "6",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Convert Binary Digits Stored in a Linked List to Decimal",
+      "ticket_slug": "ticket-convert-binary-digits-sto",
+      "description": "A singly linked list is used to represent a binary number. Each node stores either 0 or 1, and the most significant bit appears at the head of the list.\n\nYour task is to traverse the linked list and determine the decimal (base-10) value represented by this binary sequence.\n\nThe binary number should be interpreted in the same order as the nodes appear in the list.\n\n**Input Format:**\nA sequence of binary digits (0 or 1) representing nodes of a singly linked list where the first value is the head.\n\n**Output Format:**\nReturn an integer representing the decimal value of the binary number stored in the linked list.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n1 0 1\n```\nOutput:\n```\n5\n```\nExplanation: Binary 101 equals decimal 5.\n*Example 2:*\nInput:\n```\n1 1 0\n```\nOutput:\n```\n6\n```\nExplanation: Binary 110 equals decimal 6.\n*Example 3:*\nInput:\n```\n1 0 0 1\n```\nOutput:\n```\n9\n```\nExplanation: Binary 1001 equals decimal 9.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 0 1",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "1 1",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "0",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 0 0 1",
+          "expected_output": "9",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1 1 1 1",
+          "expected_output": "15",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1 0 1 0 1",
+          "expected_output": "21",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "1 0 0 0 0",
+          "expected_output": "16",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "1 1 0 1 0",
+          "expected_output": "26",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "1 0 1 1 1",
+          "expected_output": "23",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "1 1 1 0 0 1",
+          "expected_output": "57",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-convert-binary-digits-stored-in-a-linked-list-to-decimal-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "1 0 0 1 1 0",
+          "expected_output": "38",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Return a Random Value from a Singly Linked List",
+      "ticket_slug": "ticket-return-a-random-value-fro",
+      "description": "You are given the head node of a singly linked list containing an unknown number of nodes. Design a structure that supports selecting a random node's value from the list.\n\nEvery node must have an equal probability of being chosen.\n\nImplement a method that returns the value of a randomly selected node each time it is called.\n\n**Input Format:**\nA sequence of integers representing nodes of a singly linked list.\n\n**Output Format:**\nReturn the value of a randomly selected node from the linked list.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n1 2 3\n```\nOutput:\n```\n1 or 2 or 3\n```\nExplanation: Each node has an equal probability of being selected.\n*Example 2:*\nInput:\n```\n10 20 30 40\n```\nOutput:\n```\n10 or 20 or 30 or 40\n```\nExplanation: Any value from the list can be returned randomly.\n*Example 3:*\nInput:\n```\n7\n```\nOutput:\n```\n7\n```\nExplanation: Since there is only one node, it will always be selected.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 2 3",
+          "expected_output": "1|2|3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5 10",
+          "expected_output": "5|10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "7",
+          "expected_output": "7",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 2 3 4 5",
+          "expected_output": "1|2|3|4|5",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "10 20 30 40",
+          "expected_output": "10|20|30|40",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "9 8 7 6 5",
+          "expected_output": "9|8|7|6|5",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "11 22 33 44 55 66",
+          "expected_output": "11|22|33|44|55|66",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "100 200 300",
+          "expected_output": "100|200|300",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4 8 12 16 20",
+          "expected_output": "4|8|12|16|20",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "3 6 9",
+          "expected_output": "3|6|9",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-return-a-random-value-from-a-singly-linked-list-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "15 25 35 45",
+          "expected_output": "15|25|35|45",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Count Connected Components in a Linked List",
+      "ticket_slug": "ticket-count-connected-component",
+      "description": "You are given the head of a singly linked list and an array containing some distinct integer values. A connected component is defined as a sequence of nodes in the linked list where each node's value appears in the given array and they appear consecutively in the list.\n\nYour task is to determine how many such connected components exist in the linked list.\n\n**Input Format:**\nFirst line contains integers representing nodes of a singly linked list. Second line contains distinct integers representing a subset of node values.\n\n**Output Format:**\nReturn the number of connected components formed by nodes whose values appear in the given array.\n\n**Examples:**\n*Example 1:*\nInput:\n```\nlist: 0 1 2 3, nums: 0 1 3\n```\nOutput:\n```\n2\n```\nExplanation: Nodes with values 0 and 1 form one connected component, and node 3 forms another.\n*Example 2:*\nInput:\n```\nlist: 1 2 3 4 5, nums: 1 2 3\n```\nOutput:\n```\n1\n```\nExplanation: Nodes 1, 2, and 3 appear consecutively and form a single component.\n*Example 3:*\nInput:\n```\nlist: 1 2 3 4 5, nums: 2 4\n```\nOutput:\n```\n2\n```\nExplanation: Nodes 2 and 4 are separate and not consecutive, so they form two components.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-count-connected-components-in-a-linked-list-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "list: 0 1 2 3, nums: 0 1 3",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-count-connected-components-in-a-linked-list-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "list: 1 2 3 4, nums: 1 3",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-count-connected-components-in-a-linked-list-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "list: 5 6 7, nums: 6",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "list: 0 1 2 3 4, nums: 0 3 1 4",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "list: 1 2 3 4 5, nums: 1 2 3",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "list: 1 2 3 4 5, nums: 2 4",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "list: 7 8 9 10, nums: 7 8 9 10",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "list: 10 20 30 40, nums: 20 30",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "list: 3 6 9 12 15, nums: 6 12",
+          "expected_output": "2",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "list: 1 3 5 7 9, nums: 3 5 9",
+          "expected_output": "2",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-count-connected-components-in-a-linked-list-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "list: 2 4 6 8, nums: 4 6",
+          "expected_output": "1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Minimum and Maximum Distance Between Critical Nodes",
+      "ticket_slug": "ticket-minimum-and-maximum-dista",
+      "description": "You are given the head of a singly linked list. A node is considered a critical node if its value is either strictly greater than both its neighboring nodes (local maximum) or strictly smaller than both its neighboring nodes (local minimum).\n\nYour task is to locate all such critical nodes and determine two values:\n\n1. The minimum number of nodes between any two critical nodes.\n2. The maximum number of nodes between the first and the last critical nodes.\n\nIf fewer than two critical nodes exist, return -1 for both values.\n\n**Input Format:**\nA sequence of integers representing nodes of a singly linked list.\n\n**Output Format:**\nReturn two integers: the minimum and maximum distances between critical nodes.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n5 3 1 2 5 1 2\n```\nOutput:\n```\n1 3\n```\nExplanation: Critical nodes appear where values are local minimums or maximums. The smallest gap between them is 1 and the largest is 3.\n*Example 2:*\nInput:\n```\n1 2 3 4\n```\nOutput:\n```\n-1 -1\n```\nExplanation: There are no nodes that satisfy the critical point condition.\n*Example 3:*\nInput:\n```\n5 1 5 1 5\n```\nOutput:\n```\n1 3\n```\nExplanation: Nodes with value 1 are local minimums, producing multiple critical nodes.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5 3 1 2 5 1 2",
+          "expected_output": "1 3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "1 2 3 4",
+          "expected_output": "-1 -1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "2 1 3",
+          "expected_output": "-1 -1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 3 2 2 3 2 2 2 7",
+          "expected_output": "3 3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5 1 5 1 5",
+          "expected_output": "1 3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1 5 2 6 3 7 4",
+          "expected_output": "1 5",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "10 20 10 20 10",
+          "expected_output": "1 3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "3 2 1 2 3",
+          "expected_output": "2 2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "8 6 7 5 6 4 7",
+          "expected_output": "1 4",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "9 1 9 1 9 1 9",
+          "expected_output": "1 5",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-minimum-and-maximum-distance-between-critical-nodes-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "2 4 1 3 2 5 1",
+          "expected_output": "1 4",
+          "order_index": 11
+        }
+      ]
+    }
+  ]
+}
