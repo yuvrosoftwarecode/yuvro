@@ -60,7 +60,7 @@ class RestApiUtil {
         try {
             const response = await fetch(url, config);
             const duration = performance.now() - startTime;
-            
+
 
             if (!response.ok) {
                 let errorData: any = {};
@@ -111,10 +111,10 @@ class RestApiUtil {
         } catch (error) {
             const duration = performance.now() - startTime;
             if (error instanceof ApiError) {
-                
+
                 throw error;
             }
-            
+
             throw new ApiError('Network error occurred', 0);
         }
     }
