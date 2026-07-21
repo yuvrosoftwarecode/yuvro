@@ -16,7 +16,7 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
     
     let client;
     try {
-      client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
+      client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000, tlsAllowInvalidCertificates: true });
       await client.connect();
       const database = client.db(); // connects to default DB in URI
 
@@ -26,12 +26,18 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
       const start = Date.now();
 
       for (const cmd of commands) {
-        const match = cmd.match(/^db\.(\w+)\.(\w+)\((.*)\)\s*;?\s*$/s);
+        const match = cmd.match(/^db\.(\w+)(?:\.(\w+))?\((.*)\)\s*;?\s*$/s);
         if (!match) {
-          throw new Error(`Unsupported MongoDB query format. Use db.collection.method(...)\nQuery was: ${cmd}`);
+          throw new Error(`Unsupported MongoDB query format. Use db.collection.method(...) or db.method(...)\nQuery was: ${cmd}`);
         }
 
-        const [, collectionName, method, argsStr] = match;
+        const part1 = match[1];
+        const part2 = match[2];
+        const argsStr = match[3];
+
+        const collectionName = part2 ? part1 : "";
+        const method = part2 ? part2 : part1;
+        
         finalCollection = collectionName;
         finalMethod = method;
         
@@ -45,36 +51,57 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
           }
         }
 
-        const col = database.collection(collectionName);
         let result: any[] = [];
 
-        if (method === "find") {
-          result = await col.find(args[0] || {}).toArray();
-        } else if (method === "insertOne") {
-          const res = await col.insertOne(args[0]);
-          result = [res];
-        } else if (method === "insertMany") {
-          const res = await col.insertMany(args[0]);
-          result = [res];
-        } else if (method === "updateOne") {
-          const res = await col.updateOne(args[0], args[1]);
-          result = [res];
-        } else if (method === "updateMany") {
-          const res = await col.updateMany(args[0], args[1]);
-          result = [res];
-        } else if (method === "deleteOne") {
-          const res = await col.deleteOne(args[0]);
-          result = [res];
-        } else if (method === "deleteMany") {
-          const res = await col.deleteMany(args[0]);
-          result = [res];
-        } else if (method === "replaceOne") {
-          const res = await col.replaceOne(args[0], args[1]);
-          result = [res];
-        } else if (method === "aggregate") {
-          result = await col.aggregate(args[0]).toArray();
+        if (collectionName) {
+          const col = database.collection(collectionName);
+          if (method === "find") {
+            result = await col.find(args[0] || {}).toArray();
+          } else if (method === "findOne") {
+            const res = await col.findOne(args[0] || {});
+            result = [res];
+          } else if (method === "insertOne") {
+            const res = await col.insertOne(args[0]);
+            result = [res];
+          } else if (method === "insertMany") {
+            const res = await col.insertMany(args[0]);
+            result = [res];
+          } else if (method === "updateOne") {
+            const res = await col.updateOne(args[0], args[1]);
+            result = [res];
+          } else if (method === "updateMany") {
+            const res = await col.updateMany(args[0], args[1]);
+            result = [res];
+          } else if (method === "deleteOne") {
+            const res = await col.deleteOne(args[0]);
+            result = [res];
+          } else if (method === "deleteMany") {
+            const res = await col.deleteMany(args[0]);
+            result = [res];
+          } else if (method === "replaceOne") {
+            const res = await col.replaceOne(args[0], args[1]);
+            result = [res];
+          } else if (method === "aggregate") {
+            result = await col.aggregate(args[0]).toArray();
+          } else if (method === "drop") {
+            const res = await col.drop();
+            result = [{ dropped: res }];
+          } else {
+            throw new Error(`Method db.${collectionName}.${method}() is not currently supported by this proxy.`);
+          }
         } else {
-          throw new Error(`Method db.${collectionName}.${method}() is not currently supported by this proxy.`);
+          if (method === "createCollection") {
+            await database.createCollection(args[0], args[1]);
+            result = [{ ok: 1, collection: args[0] }];
+          } else if (method === "dropDatabase") {
+            const res = await database.dropDatabase();
+            result = [{ dropped: res }];
+          } else if (method === "getCollectionNames") {
+            const cols = await database.listCollections().toArray();
+            result = cols.map(c => c.name);
+          } else {
+            throw new Error(`Method db.${method}() is not currently supported by this proxy.`);
+          }
         }
         finalResult = result;
       }
@@ -85,7 +112,7 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
       const safeResult = JSON.parse(JSON.stringify(finalResult));
       return { 
         rows: safeResult, 
-        note: `Executed db.${finalCollection}.${finalMethod}() successfully on external DB`,
+        note: `Executed db.${finalCollection ? finalCollection + '.' : ''}${finalMethod}() successfully on external DB`,
         ms 
       };
 

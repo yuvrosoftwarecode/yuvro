@@ -54,11 +54,11 @@ services:
       yuvro-minio-init:
         condition: service_completed_successfully
 
-  # ── Code Executor ──────────────────────────────────────────────────────────
-  yuvro-code-executor:
-    env_file:
-      - ./yuvro-code-executer/.env.local
-      - path: ./yuvro-code-executer/.env.local-secrets
-        required: false
-    volumes:
-      - ./yuvro-code-executer:/app
+#  # ── Code Executor ──────────────────────────────────────────────────────────
+#  yuvro-code-executor:
+#    env_file:
+#      - ./yuvro-code-executer/.env.local
+#      - path: ./yuvro-code-executer/.env.local-secrets
+#        required: false
+#    volumes:
+#      - ./yuvro-code-executer:/app

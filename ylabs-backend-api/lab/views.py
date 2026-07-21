@@ -97,8 +97,8 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
 
-        if lab.type == "BACKEND":
-            # Bypass GitHub entirely for Backend (Database) labs
+        if lab.type in ["BACKEND", "DATABASE"]:
+            # Bypass GitHub entirely for Backend and Database labs
             enrollment = serializer.save(
                 user=self.request.user,
                 github_repo_name=requested_repo_name,

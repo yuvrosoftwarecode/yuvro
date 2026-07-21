@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   fetchFileTree,
   fetchFile,
@@ -22,7 +23,7 @@ import {
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
-  FilePlus, FolderPlus, Pencil, Trash2, X,
+  FilePlus, FolderPlus, Pencil, Trash2, X, Network, Maximize, Minimize, Plus, Minus,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -900,7 +901,17 @@ function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
-    if (!isReal) return;
+    if (!isReal) {
+      if (preserveActive) {
+        if (confirm("Reset workspace to initial starter files? All local changes will be lost.")) {
+          setFiles(starters);
+          setDirty({});
+          setOpenTabs([...initialFileList]);
+          setActiveFile(initialFileList[0]);
+        }
+      }
+      return;
+    }
     setWsLoaded(false);
     try {
       const res = await fetchFileTree(userId, labId, sprintId, starters);
@@ -1171,6 +1182,7 @@ function TicketIDE({
   const [toast, setToast] = useState<string | null>(null);
 
   const [dbSchema, setDbSchema] = useState<any>(MOCK_DB_SCHEMA);
+  const [showErDiagram, setShowErDiagram] = useState(false);
 
   const refreshSchema = () => {
     if (isSql) {
@@ -1181,10 +1193,25 @@ function TicketIDE({
         if (res.rows) {
           const tablesMap: any = {};
           res.rows.forEach(r => {
-            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: `-- DDL not extracted from information_schema\nCREATE TABLE ${r.table_name} (...);` };
+            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: '' };
+            let inferredKey = "-";
+            if (r.column_name.toLowerCase() === 'id') inferredKey = 'PK';
+            else if (r.column_name.toLowerCase().endsWith('_id')) inferredKey = 'FK';
             tablesMap[r.table_name].columns.push({
-              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: "-"
+              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: inferredKey
             });
+          });
+          Object.values(tablesMap).forEach((t: any) => {
+            let ddl = `CREATE TABLE ${t.name} (\n`;
+            const colDefs = t.columns.map((c: any) => {
+              let def = `    ${c.name} ${c.type}`;
+              if (c.nullable === 'NO') def += ` NOT NULL`;
+              if (c.default && c.default !== '-') def += ` DEFAULT ${c.default}`;
+              if (c.key === 'PK') def += ` PRIMARY KEY`;
+              return def;
+            });
+            ddl += colDefs.join(",\n") + "\n);";
+            t.ddl = ddl;
           });
           setDbSchema({ name: "PostgreSQL Database", type: "PostgreSQL", tables: Object.values(tablesMap) });
         }
@@ -1195,12 +1222,63 @@ function TicketIDE({
         if (res.rows) {
           const tablesMap: any = {};
           res.rows.forEach(r => {
-            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: `-- DDL not extracted from information_schema\nCREATE TABLE ${r.table_name} (...);` };
+            if (!tablesMap[r.table_name]) tablesMap[r.table_name] = { name: r.table_name, columns: [], ddl: '' };
+            let inferredKey = "-";
+            if (r.column_name.toLowerCase() === 'id') inferredKey = 'PK';
+            else if (r.column_name.toLowerCase().endsWith('_id')) inferredKey = 'FK';
             tablesMap[r.table_name].columns.push({
-              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: "-"
+              name: r.column_name, type: r.data_type, nullable: r.is_nullable, default: r.column_default || "-", key: inferredKey
             });
           });
+          Object.values(tablesMap).forEach((t: any) => {
+            let ddl = `CREATE TABLE ${t.name} (\n`;
+            const colDefs = t.columns.map((c: any) => {
+              let def = `    ${c.name} ${c.type}`;
+              if (c.nullable === 'NO') def += ` NOT NULL`;
+              if (c.default && c.default !== '-') def += ` DEFAULT ${c.default}`;
+              if (c.key === 'PK') def += ` PRIMARY KEY`;
+              return def;
+            });
+            ddl += colDefs.join(",\n") + "\n);";
+            t.ddl = ddl;
+          });
           setDbSchema({ name: "MySQL Database", type: "MySQL", tables: Object.values(tablesMap) });
+        }
+      });
+    } else if (isMongo && remoteDbUri) {
+      executeRemoteMongoQuery({ data: { uri: remoteDbUri, query: "db.getCollectionNames()" } }).then(async (res) => {
+        if (res.rows && Array.isArray(res.rows)) {
+          const collections = res.rows as string[];
+          const tablesMap: any = {};
+          
+          for (const colName of collections) {
+            tablesMap[colName] = { name: colName, columns: [], ddl: '' };
+            try {
+              const docRes = await executeRemoteMongoQuery({ data: { uri: remoteDbUri, query: `db.${colName}.findOne()` } });
+              let ddl = `interface ${colName} {\n`;
+              if (docRes.rows && docRes.rows.length > 0 && docRes.rows[0]) {
+                const doc = docRes.rows[0];
+                Object.keys(doc).forEach(key => {
+                  let type = typeof doc[key];
+                  if (doc[key] === null) type = 'any';
+                  else if (Array.isArray(doc[key])) type = 'any[]';
+                  
+                  tablesMap[colName].columns.push({
+                     name: key, type: type, nullable: 'YES', default: '-', key: key === '_id' ? 'PK' : '-'
+                  });
+                  ddl += `  ${key}: ${type};\n`;
+                });
+              } else {
+                ddl += `  // No documents found to infer schema\n`;
+              }
+              ddl += `}`;
+              tablesMap[colName].ddl = ddl;
+            } catch (e) {
+              console.error("Failed to fetch sample for schema", e);
+              tablesMap[colName].ddl = `// Failed to infer schema`;
+            }
+          }
+          setDbSchema({ name: "MongoDB Database", type: "MongoDB", tables: Object.values(tablesMap) });
         }
       });
     } else {
@@ -1256,7 +1334,7 @@ function TicketIDE({
     if (isAnySql || isMongo) {
       setExecutedQuery(src);
       setBottomTab("preview");
-      if (isSql || isPostgres || isMysql) {
+      if (isSql || isPostgres || isMysql || isMongo) {
         setTimeout(() => refreshSchema(), 1000);
       }
       setRunning(false);
@@ -1717,6 +1795,14 @@ function TicketIDE({
                   <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
                     <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                       <span>DB Explorer</span>
+                      <button 
+                        onClick={() => setShowErDiagram(true)} 
+                        title="db er schema"
+                        className="hover:bg-accent p-1 rounded text-muted-foreground hover:text-foreground"
+                      >
+                        <Network className="h-3.5 w-3.5" />
+                      </button>
+                      {showErDiagram && <ERDiagramModal schema={dbSchema} onClose={() => setShowErDiagram(false)} />}
                     </div>
                     <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium">
                       <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
@@ -1762,12 +1848,27 @@ function TicketIDE({
                         )}
                         <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2 mt-2 pt-2 border-t border-border">Need a free database?</div>
                         <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
-                          {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Postgres)</li>}
-                          {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Postgres)</li>}
-                          {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Postgres)</li>}
+                          {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Best option with auth/storage)</li>}
+                          {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Serverless & generous free tier)</li>}
+                          {isPostgres && <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Limited free credits)</li>}
+                          {isPostgres && <li><a href="https://aiven.io/postgresql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven for PostgreSQL</a> (Free trial)</li>}
+                          {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render PostgreSQL</a> (Limited free plan)</li>}
+                          {isPostgres && <li><a href="https://tembo.io/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Tembo Cloud</a> (Free tier available)</li>}
+                          {isPostgres && <li><a href="https://www.crunchydata.com/products/crunchy-bridge" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Crunchy Bridge</a> (Trial only)</li>}
+                          
+                          {isMysql && <li><a href="https://planetscale.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">PlanetScale</a> (Best choice)</li>}
                           {isMysql && <li><a href="https://tidbcloud.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Serverless</a> (MySQL)</li>}
-                          {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven</a> (MySQL)</li>}
-                          <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Both)</li>
+                          {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven for MySQL</a> (Trial only)</li>}
+                          {isMysql && <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Limited credits)</li>}
+                          {isMysql && <li><a href="https://alwaysdata.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">AlwaysData</a></li>}
+                          {isMysql && <li><a href="https://www.freesqldatabase.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">FreeSQLDatabase</a></li>}
+                          {isMysql && <li><a href="https://www.db4free.net/" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">db4free.net</a> (Testing only)</li>}
+
+                          {isMongo && <li><a href="https://www.mongodb.com/atlas" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">MongoDB Atlas</a> ⭐ Best choice</li>}
+                          {isMongo && <li><a href="https://www.mongodb.com/pricing" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">MongoDB Atlas Flex</a> (Good for learning)</li>}
+                          {isMongo && <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Good for testing)</li>}
+                          {isMongo && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Self-host)</li>}
+                          {isMongo && <li><a href="https://fly.io" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Fly.io</a> (Self-host)</li>}
                         </ul>
                       </div>
                     )}
@@ -3033,13 +3134,143 @@ export const MOCK_DB_SCHEMA: DbSchema = {
   tables: []
 };
 
+function generateMermaidER(schema: DbSchema): string {
+  let er = "erDiagram\n";
+  const tables = schema.tables || [];
+  
+  tables.forEach(t => {
+    const tableName = t.name.toUpperCase();
+    er += `    ${tableName} {\n`;
+    t.columns.forEach(c => {
+      let typeStr = c.type.toUpperCase();
+      if (typeStr.includes('CHAR') || typeStr.includes('TEXT')) typeStr = 'STRING';
+      else if (typeStr.includes('INT')) typeStr = 'INT';
+      else if (typeStr.includes('NUMERIC') || typeStr.includes('DECIMAL') || typeStr.includes('DOUBLE') || typeStr.includes('REAL')) typeStr = 'DECIMAL';
+      else if (typeStr.includes('TIME') || typeStr.includes('DATE')) typeStr = 'TIMESTAMP';
+      else if (typeStr.includes('BOOL')) typeStr = 'BOOLEAN';
+      else if (typeStr.includes('UUID')) typeStr = 'UUID';
+      else typeStr = typeStr.split('(')[0].replace(/[^A-Z0-9_]/g, '');
+
+      const keyStr = c.key === 'PK' ? 'PK' : c.key === 'FK' ? 'FK' : '';
+      const colName = c.name.toUpperCase();
+      er += `        ${typeStr} ${colName} ${keyStr}\n`;
+    });
+    er += `    }\n`;
+  });
+
+  const addedRelations = new Set<string>();
+
+  tables.forEach(t => {
+    t.columns.forEach(c => {
+      const colName = c.name.toLowerCase();
+      if (c.key === 'PK') return;
+
+      if (colName.endsWith('_id') || (colName === 'id' && c.key === 'FK')) {
+        let targetBase = colName.replace('_id', '');
+        let possibleTargets = [targetBase + 's', targetBase, targetBase + 'es'];
+        let matchedTable = tables.find(tbl => possibleTargets.includes(tbl.name.toLowerCase()));
+        
+        if (matchedTable && matchedTable.name.toLowerCase() !== t.name.toLowerCase()) {
+          const relationKey = `${t.name}-${matchedTable.name}`;
+          if (!addedRelations.has(relationKey)) {
+             er += `    ${t.name.toUpperCase()} }|--|| ${matchedTable.name.toUpperCase()} : "${colName}"\n`;
+             addedRelations.add(relationKey);
+          }
+        }
+      }
+    });
+  });
+
+  return er;
+}
+
+function ERDiagramModal({ schema, onClose }: { schema: DbSchema, onClose: () => void }) {
+  const [svg, setSvg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [scale, setScale] = useState(1);
+  
+  useEffect(() => {
+    import("mermaid").then((m) => {
+      const mermaid = m.default;
+      mermaid.initialize({ 
+        startOnLoad: false, 
+        theme: 'dark',
+        themeVariables: {
+          fontSize: '16px'
+        },
+        er: {
+          useMaxWidth: false
+        }
+      });
+      const erString = generateMermaidER(schema);
+      const uniqueId = 'er-diagram-' + Math.random().toString(36).substr(2, 9);
+      
+      try {
+        mermaid.render(uniqueId, erString).then(({ svg }) => {
+          setSvg(svg);
+        }).catch(e => {
+          setError(e.message);
+        });
+      } catch (e: any) {
+        setError(e.message);
+      }
+    });
+  }, [schema]);
+
+  return (
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm ${isFullscreen ? '' : 'p-4'}`} onClick={onClose}>
+      <div 
+        className={`bg-background flex flex-col transition-all duration-200 ${
+          isFullscreen 
+            ? 'w-full h-full rounded-none' 
+            : 'border rounded-lg shadow-xl w-full max-w-5xl max-h-[85vh]'
+        }`} 
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="font-semibold flex items-center gap-2"><Network className="h-5 w-5" /> ER Diagram: {schema.name}</h2>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsFullscreen(!isFullscreen)} className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent transition-colors">
+              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            </button>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent transition-colors"><X className="h-5 w-5" /></button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden flex justify-center items-center bg-accent/10 relative">
+          {error ? (
+            <div className="text-red-500 max-w-2xl text-sm break-all font-mono p-6">Failed to render ER diagram: {error}</div>
+          ) : svg ? (
+            <div className="flex-1 overflow-auto bg-accent/10 relative w-full h-full p-4 custom-scrollbar">
+              <div className="absolute bottom-6 right-6 z-10 flex items-center gap-1 bg-background/80 backdrop-blur border p-1 rounded-lg shadow-sm sticky left-[calc(100%-140px)] top-[calc(100%-50px)] float-right mt-[-50px]">
+                <button onClick={() => setScale(s => Math.max(s - 0.2, 0.2))} className="p-2 hover:bg-accent rounded" title="Zoom Out"><Minus className="h-4 w-4" /></button>
+                <button onClick={() => setScale(s => Math.min(s + 0.2, 3))} className="p-2 hover:bg-accent rounded" title="Zoom In"><Plus className="h-4 w-4" /></button>
+                <div className="w-px h-4 bg-border mx-1"></div>
+                <button onClick={() => setScale(1)} className="p-2 hover:bg-accent rounded text-xs font-medium px-3" title="Reset Zoom">Reset</button>
+              </div>
+              <div 
+                style={{ zoom: scale, transformOrigin: "center" }}
+                className="flex items-center justify-center min-w-max min-h-max"
+              >
+                <div dangerouslySetInnerHTML={{ __html: svg }} className="mermaid-container" />
+              </div>
+            </div>
+          ) : (
+            <div className="animate-pulse flex items-center gap-2 text-muted-foreground">Generating ER Diagram...</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SchemaViewer({ tableName, dbSchema }: { tableName: string, dbSchema?: DbSchema }) {
   const schema = dbSchema || MOCK_DB_SCHEMA;
   const table = schema.tables.find((t: any) => t.name === tableName);
   if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-auto p-4 text-sm">
+    <div className="flex flex-col flex-1 w-full h-full bg-background overflow-auto p-4 text-sm">
       <div className="flex items-center gap-2 mb-4">
         <Package className="h-5 w-5 text-primary" />
         <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
