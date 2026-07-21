@@ -61,7 +61,7 @@ export function VitarkaInterviewScreen({
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Pick an English voice
+
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = voices.find((v) => v.lang.startsWith("en") && v.name.includes("Female"));
     if (!selectedVoice) selectedVoice = voices.find((v) => v.lang.startsWith("en"));

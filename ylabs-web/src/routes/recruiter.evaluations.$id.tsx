@@ -63,7 +63,6 @@ function EvaluationWorkspace() {
     setIsSaving(true);
     setSaveSuccess(false);
     
-    // Sync with yhub backend first
     const syncedEv = await syncMockInterviews(ev);
     
     const saved = await saveEvaluation(syncedEv);
@@ -88,7 +87,6 @@ function EvaluationWorkspace() {
   if (view === "publish") return <PublishScreen ev={ev} onBack={() => setView("edit")} onPublish={async (invite) => { 
     setIsSaving(true);
     
-    // Sync with yhub backend first
     const syncedEv = await syncMockInterviews(ev);
     
     const c = { ...syncedEv, status: "published" as const, publishedAt: Date.now(), invite, candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0), sections: JSON.parse(JSON.stringify(syncedEv.sections)) };
