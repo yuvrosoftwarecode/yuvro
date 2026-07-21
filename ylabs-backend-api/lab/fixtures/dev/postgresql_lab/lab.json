@@ -1,0 +1,20 @@
+{
+  "labs": [
+    {
+      "title": "PostgreSQL Lab",
+      "type": "BACKEND",
+      "description": "Master SQL and PostgreSQL fundamentals through interactive queries.",
+      "difficulty": "EASY",
+      "icon": "database",
+      "prerequisites": "None",
+      "skills": [
+        "SQL",
+        "PostgreSQL",
+        "Databases",
+        "Data Engineering"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}
