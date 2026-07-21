@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "../services/evaluationService";
-import { ChevronDown, ChevronRight, Sun, Moon } from "lucide-react";
+import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { TicketIDE } from "./student.lab.$slug.ticket.$ticketId";
 
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -31,6 +32,7 @@ interface RealLab {
   id: string;
   title: string;
   sub: string;
+  tag: string;
   minutes: number;
   problem: string;
   tasks: { title: string; description: string }[];
@@ -85,6 +87,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
                 sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
+                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 tasks: Array.isArray(q.tasks) 
@@ -163,6 +166,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionIndex, setDiscussionIndex] = useState(0);
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
@@ -347,23 +351,40 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           submittedLabs={submittedLabs}
           submittedSections={submittedSections}
           locked={locked}
+          collapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         />
 
         <main className="min-w-0 flex-1 overflow-y-auto">
           {appSections.map(sec => {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
-              return openLab ? (
-                <LabDetail
-                  key={sec.id}
-                  lab={sec.labs.find(l => l.id === openLab)!}
-                  tasks={taskState[openLab] ?? new Set()}
-                  submitted={submittedLabs.has(openLab)}
-                  onToggleTask={(i) => toggleTask(openLab, i)}
-                  onBack={() => setOpenLab(null)}
-                  onSubmit={() => setModal({ kind: "submit-lab", id: openLab })}
-                />
-              ) : (
+              return openLab ? (() => {
+                const lab = sec.labs.find(l => l.id === openLab)!;
+                const mappedTicket = {
+                  id: lab.id,
+                  title: lab.title,
+                  description: lab.problem,
+                  tag: lab.tag,
+                  tasks: lab.tasks.map(t => ({ title: t.title, description: t.description })),
+                  difficulty: "Intermediate",
+                  xp: 100,
+                  estMin: lab.minutes,
+                  sprintOrder: 1,
+                  ticketOrder: 1,
+                  learning_objectives: [],
+                  common_mistakes: [],
+                };
+                return (
+                  <TicketIDE
+                    key={sec.id}
+                    slug={lab.id}
+                    ticket={mappedTicket}
+                    previewOverride={null}
+                    isEvaluationMode={true}
+                  />
+                );
+              })() : (
                 <LabsList
                   key={sec.id}
                   labs={sec.labs}
@@ -595,12 +616,14 @@ function Sidebar({
   onSelectSection, onSelectLab, onSelectQuestion,
   getSectionStatus, getLabStatus, discussionStatus,
   submittedLabs, submittedSections, locked,
+  collapsed, onToggleCollapse,
 }: {
   appSections: AppSection[];
   section: string | null; openLab: string | null; activeQuestionId: string | null;
   onSelectSection: (s: string) => void; onSelectLab: (id: string) => void; onSelectQuestion: (secId: string, id: string) => void;
   getSectionStatus: (id: string) => Status; getLabStatus: (secId: string, labs: RealLab[]) => Status; discussionStatus: Status;
   submittedLabs: Set<string>; submittedSections: Set<string>; locked: boolean;
+  collapsed: boolean; onToggleCollapse: () => void;
 }) {
   const labSections = appSections.filter(s => s.type === "LAB");
   const knowledgeSections = appSections.filter(s => s.type === "KNOWLEDGE_ASSESSMENT");
@@ -692,11 +715,26 @@ function Sidebar({
   let counter = 1;
   const getNum = () => String(counter++).padStart(2, "0");
 
+  if (collapsed) {
+    return (
+      <aside className="hidden w-12 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col items-center py-4">
+        <button onClick={onToggleCollapse} className="text-neutral-500 hover:text-neutral-900 transition" title="Expand Sidebar">
+          <PanelLeftOpen className="w-5 h-5" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white/60 md:block">
-      <div className="border-b border-neutral-200 px-5 py-4">
-        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
-        <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col h-full overflow-y-auto">
+      <div className="border-b border-neutral-200 px-5 py-4 flex items-center justify-between">
+        <div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
+          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+        </div>
+        <button onClick={onToggleCollapse} className="text-neutral-400 hover:text-neutral-800 transition" title="Collapse Sidebar">
+          <PanelLeftClose className="w-4 h-4" />
+        </button>
       </div>
 
       <nav className="flex flex-col gap-1 px-2 py-3 text-[13px]">
@@ -1082,8 +1120,23 @@ function KnowledgeRunner({
   if (!q) return null;
 
   if (q.format === "Coding") {
+    const mappedTicket = {
+      id: q.id,
+      title: q.q,
+      description: q.description || q.q,
+      tag: q.programming_languages?.[0]?.toLowerCase() || "javascript",
+      tasks: [],
+      difficulty: "Intermediate",
+      xp: 10,
+      estMin: 15,
+      sprintOrder: index + 1,
+      ticketOrder: 1,
+      learning_objectives: [],
+      common_mistakes: [],
+    };
+
     return (
-      <div className="flex h-full flex-col bg-[#fafaf7]">
+      <div className="flex h-full flex-col bg-[#fafaf7] overflow-hidden">
         <div className="flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-3 text-[12px] shrink-0">
           <div className="text-neutral-500">Assessment · <span className="text-neutral-900">{subject.title}</span></div>
           <div className="flex items-center gap-3">
@@ -1098,75 +1151,8 @@ function KnowledgeRunner({
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[360px_1fr]">
-          <div className="min-h-0 overflow-y-auto border-r border-neutral-200 bg-white/60 p-6 flex flex-col">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Problem</div>
-            <div className="mt-3 text-[15px] font-serif tracking-tight text-neutral-900 leading-relaxed whitespace-pre-wrap">{q.q}</div>
-            {q.description && <div className="mt-4 text-[13px] leading-relaxed text-neutral-700 whitespace-pre-wrap">{q.description}</div>}
-
-            {q.examples && q.examples.length > 0 && (
-              <div className="mt-6 space-y-4">
-                <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Examples</div>
-                {q.examples.map((ex: any, i: number) => (
-                  <div key={i} className="bg-white border border-neutral-200 rounded-md p-3">
-                    <div className="text-[12px] font-semibold text-neutral-900 mb-1">Example {i + 1}</div>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <div className="text-[10px] uppercase text-neutral-500 mb-1">Input</div>
-                        <pre className="text-[12px] font-mono bg-neutral-50 p-2 rounded">{ex.input}</pre>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase text-neutral-500 mb-1">Output</div>
-                        <pre className="text-[12px] font-mono bg-neutral-50 p-2 rounded">{ex.output}</pre>
-                      </div>
-                    </div>
-                    {ex.explanation && (
-                      <div className="mt-3 pt-3 border-t border-neutral-100 text-[12px] text-neutral-600">
-                        <span className="font-semibold">Explanation:</span> {ex.explanation}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <div className="mt-8 pt-6 border-t border-neutral-200 shrink-0">
-              <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question navigator</div>
-              <div className="flex flex-wrap gap-2">
-                {subject.questions.map((_: any, i: number) => {
-                  const answered = answers[subject.questions[i].id] !== undefined && answers[subject.questions[i].id] !== null && answers[subject.questions[i].id] !== "";
-                  const isCurrent = i === index;
-                  const isMarked = marked.has(subject.questions[i].id);
-                  return (
-                    <button key={i} onClick={() => setIndex(i)} className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white" : answered ? "border-emerald-500/40 bg-emerald-50 text-emerald-700" : isMarked ? "border-amber-400 bg-amber-50 text-amber-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
-                      {i + 1}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            <div className="mt-4 flex items-center justify-between text-[12px] shrink-0">
-              <button onClick={() => onMark(q.id)} disabled={disabled} className="text-neutral-500 hover:text-neutral-900 disabled:opacity-50">
-                {marked.has(q.id) ? "Unmark" : "Mark for review"}
-              </button>
-              <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="text-neutral-500 hover:text-neutral-900 disabled:opacity-50">Clear answer</button>
-            </div>
-          </div>
-          <div className="flex min-h-0 flex-col">
-            <DummyEditor
-              file="main.js"
-              code={codingCode[q.id] ?? q.starter_code ?? ""}
-              terminal={["$ node main.js", "Ready to run..."]}
-              onCodeChange={(val) => {
-                setCodingCode(q.id, val);
-                setAnswer(q.id, val);
-              }}
-              disabled={submitted}
-              runCode={() => runCode(q.id)}
-              codingResults={codingResults[q.id]}
-            />
-          </div>
+        <div className="min-h-0 flex-1">
+          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true} />
         </div>
       </div>
     );
