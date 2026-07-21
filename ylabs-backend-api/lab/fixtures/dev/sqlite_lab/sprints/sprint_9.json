@@ -1,12 +1,12 @@
 {
-  "title": "Sprint 9 - Set Operations & Constraints",
+  "title": "Sprint 9 - Set Operations & Advanced Schema",
   "description": "Complete all SQL queries in this sprint.",
   "order_index": 9,
   "lab_title": "SQLite Lab",
   "tickets": [
     {
       "title": "Find Alice's Tasks via Subquery",
-      "ticket_slug": "sqlite-91",
+      "ticket_slug": "sqlite-901",
       "description": "Find all task titles for the user 'alice_dev' without using a JOIN, but instead using a subquery.",
       "tasks": [
         "Find all task titles for the user 'alice_dev' without using a JOIN, but instead using a subquery."
@@ -14,26 +14,20 @@
       "learning_objectives": [
         "Writing Subqueries in the WHERE clause."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Using = when subquery returns multiple rows (use IN instead in that case)."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "SELECT 1;",
-        "expected_result": "1"
+        "system_query": "SELECT title FROM todos WHERE user_id = (SELECT id FROM users WHERE username = 'alice_dev') ORDER BY title;"
       },
       "solution": {
         "query.sql": "SELECT title FROM todos \nWHERE user_id = (\n    SELECT id FROM users WHERE username = 'alice_dev'\n);",
-        "database_identifier": "todo_management",
-        "expected_output": ""
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -44,7 +38,7 @@
     },
     {
       "title": "User Task Counts (CTE)",
-      "ticket_slug": "sqlite-92",
+      "ticket_slug": "sqlite-902",
       "description": "Use a Common Table Expression (CTE) named `user_counts` to calculate the total tasks per user_id, then select all records from the CTE.",
       "tasks": [
         "Use a Common Table Expression (CTE) named `user_counts` to calculate the total tasks per user_id, then select all records from the CTE."
@@ -52,26 +46,20 @@
       "learning_objectives": [
         "Structuring queries with WITH (CTEs)."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting to SELECT from the CTE after defining it."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "SELECT COUNT(*) FROM todos;",
-        "expected_result": ""
+        "system_query": "WITH user_counts AS (SELECT user_id, COUNT(*) as total_tasks FROM todos GROUP BY user_id) SELECT * FROM user_counts ORDER BY user_id;"
       },
       "solution": {
         "query.sql": "WITH user_counts AS (\n    SELECT user_id, COUNT(*) as total_tasks \n    FROM todos \n    GROUP BY user_id\n)\nSELECT * FROM user_counts;",
-        "database_identifier": "todo_management",
-        "expected_output": ""
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -81,8 +69,8 @@
       "order_index": 2
     },
     {
-      "title": "Optimize Status Queries",
-      "ticket_slug": "sqlite-93",
+      "title": "Create Index",
+      "ticket_slug": "sqlite-903",
       "description": "Create an index called `idx_todos_status` on the `status` column of the `todos` table to speed up filtering.",
       "tasks": [
         "Create an index called `idx_todos_status` on the `status` column of the `todos` table to speed up filtering."
@@ -90,26 +78,20 @@
       "learning_objectives": [
         "Using CREATE INDEX to optimize performance."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "INDEX",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Using string quotes for table or column names."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "PRAGMA index_list(todos);",
-        "expected_result": "idx_todos_status"
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_todos_status';"
       },
       "solution": {
         "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",
-        "database_identifier": "todo_management",
-        "expected_output": ""
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -117,6 +99,134 @@
         "SQL"
       ],
       "order_index": 3
+    },
+    {
+      "title": "View Existing Indexes",
+      "ticket_slug": "sqlite-904",
+      "description": "Use the appropriate PRAGMA to list all indexes on the `todos` table.",
+      "tasks": [
+        "Use the appropriate PRAGMA to list all indexes on the `todos` table."
+      ],
+      "learning_objectives": [
+        "Check which indexes exist on a table."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting quotes around the table name."
+      ],
+      "hints": [
+        "PRAGMA index_list('table_name');"
+      ],
+      "scoring_rules": {
+        "system_query": "PRAGMA index_list('todos');"
+      },
+      "solution": {
+        "query.sql": "PRAGMA index_list('todos');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Inspect Indexed Columns",
+      "ticket_slug": "sqlite-905",
+      "description": "Use the appropriate PRAGMA to inspect the `idx_todos_status` index.",
+      "tasks": [
+        "Use the appropriate PRAGMA to inspect the `idx_todos_status` index."
+      ],
+      "learning_objectives": [
+        "Check which columns are covered by an index."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Checking the table name instead of the index name."
+      ],
+      "hints": [
+        "PRAGMA index_info('index_name');"
+      ],
+      "scoring_rules": {
+        "system_query": "PRAGMA index_info('idx_todos_status');"
+      },
+      "solution": {
+        "query.sql": "PRAGMA index_info('idx_todos_status');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Drop Index",
+      "ticket_slug": "sqlite-906",
+      "description": "Drop the `idx_todos_status` index.",
+      "tasks": [
+        "Drop the `idx_todos_status` index."
+      ],
+      "learning_objectives": [
+        "Remove an existing index."
+      ],
+      "evaluation": "INDEX",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Trying to drop the index from a specific table (e.g. DROP INDEX ON table)."
+      ],
+      "hints": [
+        "DROP INDEX index_name;"
+      ],
+      "scoring_rules": {
+        "system_query": "PRAGMA index_list('todos');"
+      },
+      "solution": {
+        "query.sql": "DROP INDEX idx_todos_status;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Altering Table Schema",
+      "ticket_slug": "sqlite-907",
+      "description": "The product team wants to track when a task was last updated. Add a new column `updated_at` of type DATE to the `todos` table.",
+      "tasks": [
+        "The product team wants to track when a task was last updated. Add a new column `updated_at` of type DATE to the `todos` table."
+      ],
+      "learning_objectives": [
+        "Using ALTER TABLE to modify existing tables."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting ADD COLUMN."
+      ],
+      "hints": [
+        "ALTER TABLE table_name ADD COLUMN column_name datatype;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "ALTER TABLE todos ADD COLUMN updated_at DATE;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 7
     }
   ]
 }

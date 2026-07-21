@@ -1,0 +1,104 @@
+{
+  "title": "Sprint 2 - Table Creation & Schema",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 2,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Create the Users Collection",
+      "ticket_slug": "mongodb-201",
+      "description": "We need a place to store our users. Create a collection named `users`.\n\n### SQL Equivalent\n```sql\nCREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);\n```",
+      "tasks": [
+        "We need a place to store our users. Create a collection named `users`."
+      ],
+      "learning_objectives": [
+        "Learn how to explicitly create a collection using `createCollection`."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL CREATE TABLE syntax or using wrong casing for the collection name."
+      ],
+      "hints": [
+        "Use db.createCollection(\"users\")."
+      ],
+      "scoring_rules": {
+        "system_query": "db.getCollectionNames().sort()"
+      },
+      "solution": {
+        "query.js": "db.createCollection(\"users\")",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Create the Todos Collection",
+      "ticket_slug": "mongodb-202",
+      "description": "Create the `todos` collection that will link to the `users` collection.\n\n### SQL Equivalent\n```sql\nCREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);\n```",
+      "tasks": [
+        "Create the `todos` collection that will link to the `users` collection."
+      ],
+      "learning_objectives": [
+        "Learn how to explicitly create a collection named `todos`."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL CREATE TABLE syntax or wrong collection name."
+      ],
+      "hints": [
+        "Use db.createCollection(\"todos\")."
+      ],
+      "scoring_rules": {
+        "system_query": "db.getCollectionNames().sort()"
+      },
+      "solution": {
+        "query.js": "db.createCollection(\"todos\")",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "UNIQUE, CHECK, NOT NULL Constraints",
+      "ticket_slug": "mongodb-203",
+      "description": "Create a `categories` collection. (In MongoDB, validations are dynamic or defined as jsonSchema. For this task, explicitly create the collection).\n\n### SQL Equivalent\n```sql\nCREATE TABLE categories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);\n```",
+      "tasks": [
+        "Create a `categories` collection. (In MongoDB, validations are dynamic or defined as jsonSchema. For this task, explicitly create the collection)."
+      ],
+      "learning_objectives": [
+        "Understand explicit collection creation for categories."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL CREATE TABLE syntax."
+      ],
+      "hints": [
+        "Use db.createCollection(\"categories\")."
+      ],
+      "scoring_rules": {
+        "system_query": "db.getCollectionNames().sort()"
+      },
+      "solution": {
+        "query.js": "db.createCollection(\"categories\")",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    }
+  ]
+}

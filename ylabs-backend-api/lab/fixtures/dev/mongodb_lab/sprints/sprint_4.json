@@ -1,0 +1,296 @@
+{
+  "title": "Sprint 4 - Basic Retrieval & Filtering",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 4,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Fetch All Users",
+      "ticket_slug": "mongodb-401",
+      "description": "Retrieve all columns and all rows from the `users` collection.\n\n### SQL Equivalent\n```sql\nSELECT * FROM users;\n```",
+      "tasks": [
+        "Retrieve all columns and all rows from the `users` collection."
+      ],
+      "learning_objectives": [
+        "The find() statement to fetch all documents."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL SELECT syntax."
+      ],
+      "hints": [
+        "Use db.users.find({})."
+      ],
+      "scoring_rules": {
+        "system_query": "db.users.find({}).sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.users.find({})",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "DISTINCT Retrieval",
+      "ticket_slug": "mongodb-402",
+      "description": "Fetch a list of all unique statuses currently present in the `todos` collection. Note that while SQL DISTINCT returns a result set of rows, MongoDB's `distinct()` method returns a raw JavaScript array of unique values.\n\n### SQL Equivalent\n```sql\nSELECT DISTINCT status FROM todos;\n```",
+      "tasks": [
+        "Fetch a list of all unique statuses currently present in the `todos` collection. Note that while SQL DISTINCT returns a result set of rows, MongoDB's `distinct()` method returns a raw JavaScript array of unique values."
+      ],
+      "learning_objectives": [
+        "Use distinct() to remove duplicates."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using find() instead of distinct()."
+      ],
+      "hints": [
+        "Use db.todos.distinct(\"status\")."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.distinct(\"status\").sort()"
+      },
+      "solution": {
+        "query.js": "db.todos.distinct(\"status\")",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Filter Active Todos (Equality)",
+      "ticket_slug": "mongodb-403",
+      "description": "Fetch only the `title` of todos that have a status of 'pending'. Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE status = 'pending';\n```",
+      "tasks": [
+        "Fetch only the `title` of todos that have a status of 'pending'. Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Filter using equality in find()."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to hide _id."
+      ],
+      "hints": [
+        "Use projection `{ title: 1, _id: 0 }` in the second argument of find()."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ status: \"pending\" }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ status: \"pending\" }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Comparison Operators",
+      "ticket_slug": "mongodb-404",
+      "description": "Fetch the `title` of todos that have a priority greater than 1. Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE priority > 1;\n```",
+      "tasks": [
+        "Fetch the `title` of todos that have a priority greater than 1. Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Filter data using comparison operators like `$gt`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL > operator syntax directly."
+      ],
+      "hints": [
+        "Use the $gt operator."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ priority: { $gt: 1 } }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ priority: { $gt: 1 } }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Logical Operators (AND / OR / NOT)",
+      "ticket_slug": "mongodb-405",
+      "description": "Fetch the `title` of todos that have a priority of 3 AND status is 'pending'. Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE priority = 3 AND status = 'pending';\n```",
+      "tasks": [
+        "Fetch the `title` of todos that have a priority of 3 AND status is 'pending'. Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Combine conditions using logical operators."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using explicit $and unnecessarily or using incorrect syntax."
+      ],
+      "hints": [
+        "In MongoDB, fields in the query object are implicitly ANDed together."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ priority: 3, status: \"pending\" }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ priority: 3, status: \"pending\" }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "The IN Operator",
+      "ticket_slug": "mongodb-406",
+      "description": "Fetch the `title` of todos where the status is IN ('pending', 'completed'). Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE status IN ('pending', 'completed');\n```",
+      "tasks": [
+        "Fetch the `title` of todos where the status is IN ('pending', 'completed'). Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Filter against a list of values using `$in`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using multiple OR conditions instead of $in."
+      ],
+      "hints": [
+        "Use { status: { $in: [\"pending\", \"completed\"] } }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ status: { $in: [\"pending\", \"completed\"] } }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ status: { $in: [\"pending\", \"completed\"] } }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "The BETWEEN Operator",
+      "ticket_slug": "mongodb-407",
+      "description": "Fetch the `title` of todos where priority is BETWEEN 1 AND 3. Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE priority BETWEEN 1 AND 3;\n```",
+      "tasks": [
+        "Fetch the `title` of todos where priority is BETWEEN 1 AND 3. Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Filter within a range using `$gte` and `$lte`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using only one boundary or wrong operator keys."
+      ],
+      "hints": [
+        "Use { priority: { $gte: 1, $lte: 3 } }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ priority: { $gte: 1, $lte: 3 } }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ priority: { $gte: 1, $lte: 3 } }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "The LIKE Operator",
+      "ticket_slug": "mongodb-408",
+      "description": "Find all todos where the title contains the word 'database'. For now, perform a standard pattern match using the string `\"database\"`.\n\n### SQL Equivalent\n```sql\nSELECT * FROM todos WHERE title LIKE '%database%';\n```",
+      "tasks": [
+        "Find all todos where the title contains the word 'database'. For now, perform a standard pattern match using the string `\"database\"`."
+      ],
+      "learning_objectives": [
+        "Match patterns using regular expressions (`$regex`)."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL wildcard % characters in MongoDB."
+      ],
+      "hints": [
+        "Use { title: { $regex: \"database\" } } for standard matching."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ title: { $regex: \"database\" } }).sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ title: { $regex: \"database\" } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Exists Operator ($exists)",
+      "ticket_slug": "mongodb-409",
+      "description": "Fetch the `title` of todos that contain a `due_date` field. Hide the `_id` field.\n\n### SQL Equivalent\n```sql\nSELECT title FROM todos WHERE due_date IS NOT NULL;\n```",
+      "tasks": [
+        "Fetch the `title` of todos that contain a `due_date` field. Hide the `_id` field."
+      ],
+      "learning_objectives": [
+        "Verify field existence using $exists."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using { due_date: null } which checks for null or missing values instead of checking existence."
+      ],
+      "hints": [
+        "Query with { due_date: { $exists: true } }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ due_date: { $exists: true } }, { title: 1, _id: 0 }).sort({ title: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ due_date: { $exists: true } }, { title: 1, _id: 0 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 9
+    }
+  ]
+}

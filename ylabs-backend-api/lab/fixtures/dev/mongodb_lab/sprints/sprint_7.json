@@ -1,0 +1,72 @@
+{
+  "title": "Sprint 7 - Advanced Aggregation & Math",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 7,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "User's Todo List",
+      "ticket_slug": "mongodb-701",
+      "description": "The front-end needs to display the task title alongside the username. Join the collections to fetch `username` and `title`. Hide `_id`.\n\n### SQL Equivalent\n```sql\nSELECT u.username, t.title \nFROM users u \nINNER JOIN todos t ON u.id = t.user_id;\n```",
+      "tasks": [
+        "The front-end needs to display the task title alongside the username. Join the collections to fetch `username` and `title`. Hide `_id`."
+      ],
+      "learning_objectives": [
+        "Perform an inner join using `$lookup`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to unwind the lookup result array."
+      ],
+      "hints": [
+        "Use $lookup on users, $unwind the resulting array, and $project to format."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $lookup: { from: \"users\", localField: \"user_id\", foreignField: \"_id\", as: \"u\" } },\n  { $unwind: \"$u\" },\n  { $project: { _id: 0, username: \"$u.username\", title: 1 } },\n  { $sort: { username: 1, title: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $lookup: { from: \"users\", localField: \"user_id\", foreignField: \"_id\", as: \"u\" } },\n  { $unwind: \"$u\" },\n  { $project: { _id: 0, username: \"$u.username\", title: 1 } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "All Users and Their Tasks",
+      "ticket_slug": "mongodb-702",
+      "description": "Get a list of ALL users, along with their tasks. If a user hasn't created any tasks, they should still appear in the list with a null/empty task title.\n\n### SQL Equivalent\n```sql\nSELECT u.username, t.title \nFROM users u \nLEFT JOIN todos t ON u.id = t.user_id;\n```",
+      "tasks": [
+        "Get a list of ALL users, along with their tasks. If a user hasn't created any tasks, they should still appear in the list with a null/empty task title."
+      ],
+      "learning_objectives": [
+        "Perform a left join using `$lookup` and `$unwind`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using simple unwind which drops users without tasks."
+      ],
+      "hints": [
+        "Use $unwind with option { path: \"$t\", preserveNullAndEmptyArrays: true }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.users.aggregate([\n  { $lookup: { from: \"todos\", localField: \"_id\", foreignField: \"user_id\", as: \"t\" } },\n  { $unwind: { path: \"$t\", preserveNullAndEmptyArrays: true } },\n  { $project: { _id: 0, username: 1, title: \"$t.title\" } },\n  { $sort: { username: 1, title: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.users.aggregate([\n  { $lookup: { from: \"todos\", localField: \"_id\", foreignField: \"user_id\", as: \"t\" } },\n  { $unwind: { path: \"$t\", preserveNullAndEmptyArrays: true } },\n  { $project: { _id: 0, username: 1, title: \"$t.title\" } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    }
+  ]
+}

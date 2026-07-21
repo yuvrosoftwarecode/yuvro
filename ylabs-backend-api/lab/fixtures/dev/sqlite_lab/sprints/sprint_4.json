@@ -6,7 +6,7 @@
   "tickets": [
     {
       "title": "Fetch All Users",
-      "ticket_slug": "sqlite-41",
+      "ticket_slug": "sqlite-401",
       "description": "Retrieve all columns and all rows from the `users` table.",
       "tasks": [
         "Retrieve all columns and all rows from the `users` table."
@@ -14,26 +14,20 @@
       "learning_objectives": [
         "The SELECT * statement."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the semicolon at the end of the query."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "SELECT * FROM users;",
-        "expected_result": "alice_dev"
+        "system_query": "SELECT * FROM users ORDER BY id;"
       },
       "solution": {
         "query.sql": "SELECT * FROM users;",
-        "database_identifier": "todo_management",
-        "expected_output": "alice_dev"
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -43,35 +37,29 @@
       "order_index": 1
     },
     {
-      "title": "Filter Active Todos",
-      "ticket_slug": "sqlite-42",
-      "description": "Fetch only the `title` of todos that have a status of 'pending'.",
+      "title": "DISTINCT Retrieval",
+      "ticket_slug": "sqlite-402",
+      "description": "Fetch a list of all unique statuses currently present in the `todos` table.",
       "tasks": [
-        "Fetch only the `title` of todos that have a status of 'pending'."
+        "Fetch a list of all unique statuses currently present in the `todos` table."
       ],
       "learning_objectives": [
-        "Using the WHERE clause."
+        "Use DISTINCT to remove duplicates."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
-        "Using double quotes instead of single quotes for strings."
+        "Forgetting the DISTINCT keyword."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "SELECT COUNT(*) FROM todos WHERE status = 'pending';",
-        "expected_result": ""
+        "system_query": "SELECT DISTINCT status FROM todos ORDER BY status;"
       },
       "solution": {
-        "query.sql": "SELECT title FROM todos WHERE status = 'pending';",
-        "database_identifier": "todo_management",
-        "expected_output": ""
+        "query.sql": "SELECT DISTINCT status FROM todos;",
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -81,35 +69,29 @@
       "order_index": 2
     },
     {
-      "title": "Top 5 Recent Tasks",
-      "ticket_slug": "sqlite-43",
-      "description": "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`.",
+      "title": "Filter Active Todos (Equality)",
+      "ticket_slug": "sqlite-403",
+      "description": "Fetch only the `title` of todos that have a status of 'pending'.",
       "tasks": [
-        "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`."
+        "Fetch only the `title` of todos that have a status of 'pending'."
       ],
       "learning_objectives": [
-        "Combining ORDER BY and LIMIT."
+        "Using the WHERE clause for equality."
       ],
-      "evaluation": "Runs your query and compares against the system solution.",
+      "evaluation": "RESULT_SET",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the semicolon at the end of the query.",
         "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "system_query": "SELECT id FROM todos ORDER BY id DESC LIMIT 5;",
-        "expected_result": ""
+        "system_query": "SELECT title FROM todos WHERE status = 'pending' ORDER BY title;"
       },
       "solution": {
-        "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
-        "database_identifier": "todo_management",
-        "expected_output": ""
+        "query.sql": "SELECT title FROM todos WHERE status = 'pending';",
+        "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -117,6 +99,198 @@
         "SQL"
       ],
       "order_index": 3
+    },
+    {
+      "title": "Comparison Operators",
+      "ticket_slug": "sqlite-404",
+      "description": "Fetch the `title` of todos that have a priority greater than 1.",
+      "tasks": [
+        "Fetch the `title` of todos that have a priority greater than 1."
+      ],
+      "learning_objectives": [
+        "Filter data using comparison operators like >."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using >= instead of >."
+      ],
+      "hints": [
+        "Use the > operator."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT title FROM todos WHERE priority > 1 ORDER BY title;"
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE priority > 1;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Logical Operators (AND / OR / NOT)",
+      "ticket_slug": "sqlite-405",
+      "description": "Fetch the `title` of todos that have a priority of 3 AND status is 'pending'.",
+      "tasks": [
+        "Fetch the `title` of todos that have a priority of 3 AND status is 'pending'."
+      ],
+      "learning_objectives": [
+        "Combine conditions using logical operators."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using OR instead of AND."
+      ],
+      "hints": [
+        "Use the AND operator."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT title FROM todos WHERE priority = 3 AND status = 'pending' ORDER BY title;"
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE priority = 3 AND status = 'pending';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "The IN Operator",
+      "ticket_slug": "sqlite-406",
+      "description": "Fetch the `title` of todos where the status is IN ('pending', 'completed').",
+      "tasks": [
+        "Fetch the `title` of todos where the status is IN ('pending', 'completed')."
+      ],
+      "learning_objectives": [
+        "Filter against a list of values."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using multiple ORs instead of IN."
+      ],
+      "hints": [
+        "Use IN (val1, val2)."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT title FROM todos WHERE status IN ('pending', 'completed') ORDER BY title;"
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE status IN ('pending', 'completed');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "The BETWEEN Operator",
+      "ticket_slug": "sqlite-407",
+      "description": "Fetch the `title` of todos where priority is BETWEEN 1 AND 3.",
+      "tasks": [
+        "Fetch the `title` of todos where priority is BETWEEN 1 AND 3."
+      ],
+      "learning_objectives": [
+        "Filter within a range."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using > and < instead of BETWEEN."
+      ],
+      "hints": [
+        "Use BETWEEN min AND max."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT title FROM todos WHERE priority BETWEEN 1 AND 3 ORDER BY title;"
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE priority BETWEEN 1 AND 3;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "The LIKE Operator",
+      "ticket_slug": "sqlite-408",
+      "description": "Find all todos where the title contains the word 'database'.",
+      "tasks": [
+        "Find all todos where the title contains the word 'database'."
+      ],
+      "learning_objectives": [
+        "Using LIKE with wildcards (%)."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting % wildcards."
+      ],
+      "hints": [
+        "Use % as wildcard."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos WHERE title LIKE '%database%' ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "IS NOT NULL",
+      "ticket_slug": "sqlite-409",
+      "description": "Fetch the `title` of todos where the due_date IS NOT NULL.",
+      "tasks": [
+        "Fetch the `title` of todos where the due_date IS NOT NULL."
+      ],
+      "learning_objectives": [
+        "Check for non-NULL values."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using != NULL."
+      ],
+      "hints": [
+        "Use IS NOT NULL, not != NULL."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT title FROM todos WHERE due_date IS NOT NULL ORDER BY title;"
+      },
+      "solution": {
+        "query.sql": "SELECT title FROM todos WHERE due_date IS NOT NULL;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 9
     }
   ]
 }

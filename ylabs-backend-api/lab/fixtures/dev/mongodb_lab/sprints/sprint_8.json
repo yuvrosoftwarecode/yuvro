@@ -1,0 +1,104 @@
+{
+  "title": "Sprint 8 - Subqueries, String Functions & CTEs",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 8,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Overdue Tasks",
+      "ticket_slug": "mongodb-801",
+      "description": "Find all tasks where the due_date is in the past.\n\n### SQL Equivalent\n```sql\nSELECT * FROM todos WHERE due_date < date('now');\n```",
+      "tasks": [
+        "Find all tasks where the due_date is in the past."
+      ],
+      "learning_objectives": [
+        "Filter documents using date comparisons."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Comparing against a string date instead of a Date object."
+      ],
+      "hints": [
+        "Match using { due_date: { $lt: new Date() } }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({ due_date: { $lt: new Date() } }).sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({ due_date: { $lt: new Date() } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "String Functions",
+      "ticket_slug": "mongodb-802",
+      "description": "Select the `username` in uppercase, the length of the `email`, the first 3 characters of the `status`, and the `title` with any surrounding spaces removed.\n\n### SQL Equivalent\n```sql\nSELECT UPPER(u.username), LENGTH(u.email), SUBSTR(t.status, 1, 3), TRIM(t.title)\nFROM users u\nJOIN todos t ON u.id = t.user_id;\n```",
+      "tasks": [
+        "Select the `username` in uppercase, the length of the `email`, the first 3 characters of the `status`, and the `title` with any surrounding spaces removed."
+      ],
+      "learning_objectives": [
+        "Use string aggregation operators."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting $substrCP is 0-indexed while SQLite SUBSTR is 1-indexed."
+      ],
+      "hints": [
+        "Use $toUpper, $strLenCP, $substrCP (0-indexed), and $trim."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $lookup: { from: \"users\", localField: \"user_id\", foreignField: \"_id\", as: \"u\" } },\n  { $unwind: \"$u\" },\n  { $project: {\n    _id: 0,\n    username_upper: { $toUpper: \"$u.username\" },\n    email_length: { $strLenCP: \"$u.email\" },\n    status_sub: { $substrCP: [\"$status\", 0, 3] },\n    title_trimmed: { $trim: { input: \"$title\" } }\n  } },\n  { $sort: { username_upper: 1, title_trimmed: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $lookup: { from: \"users\", localField: \"user_id\", foreignField: \"_id\", as: \"u\" } },\n  { $unwind: \"$u\" },\n  { $project: {\n    _id: 0,\n    username_upper: { $toUpper: \"$u.username\" },\n    email_length: { $strLenCP: \"$u.email\" },\n    status_sub: { $substrCP: [\"$status\", 0, 3] },\n    title_trimmed: { $trim: { input: \"$title\" } }\n  } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Task Urgency Levels",
+      "ticket_slug": "mongodb-803",
+      "description": "Output the title of the task and a new column called 'urgency'. If priority is 1, urgency is 'High', otherwise 'Normal'. Hide `_id`.\n\n### SQL Equivalent\n```sql\nSELECT title, \n  CASE \n    WHEN priority = 1 THEN 'High' \n    ELSE 'Normal' \n  END AS urgency \nFROM todos;\n```",
+      "tasks": [
+        "Output the title of the task and a new column called 'urgency'. If priority is 1, urgency is 'High', otherwise 'Normal'. Hide `_id`."
+      ],
+      "learning_objectives": [
+        "Use conditional logic with `$cond`."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Incorrect placement of $cond arguments."
+      ],
+      "hints": [
+        "Use { $cond: { if: { $eq: [\"$priority\", 1] }, then: \"High\", else: \"Normal\" } }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $project: {\n    _id: 0,\n    title: 1,\n    urgency: { $cond: { if: { $eq: [\"$priority\", 1] }, then: \"High\", else: \"Normal\" } }\n  } },\n  { $sort: { title: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $project: {\n    _id: 0,\n    title: 1,\n    urgency: { $cond: { if: { $eq: [\"$priority\", 1] }, then: \"High\", else: \"Normal\" } }\n  } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    }
+  ]
+}
