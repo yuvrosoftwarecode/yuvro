@@ -33,7 +33,7 @@ export interface LabItem {
   difficulty: Difficulty;
   marks: number;
   duration_minutes: number;
-  tasks?: number; // legacy optional for frontend UI compat
+  tasks?: any[]; // legacy optional for frontend UI compat, now using array from backend
 }
 
 export interface QuestionItem {

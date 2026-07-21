@@ -12,6 +12,8 @@ import {
   newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem,
   fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
 } from "@/lib/recruiter";
+import { Workspace } from "./evaluation.workspace";
+import { createPortal } from "react-dom";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
 
@@ -285,6 +287,78 @@ function LabsSectionBody({ section, onChange, onAddLab }: { section: LabsSection
   );
 }
 
+function LabPreview({ l }: { l: any }) {
+  return (
+    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
+      {l.description ? (
+        <div className="whitespace-pre-wrap">{l.description}</div>
+      ) : l.text ? (
+        <div className="whitespace-pre-wrap">{l.text}</div>
+      ) : (
+        <div className="italic text-neutral-500">No detailed description available.</div>
+      )}
+      
+      <div className="grid grid-cols-2 gap-4 text-[12px]">
+        <div>
+          <div className="text-neutral-500">Domain</div>
+          <div className="text-white">{l.domain || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Scenario</div>
+          <div className="text-white">{l.scenario || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Difficulty</div>
+          <div className="text-white">{l.difficulty || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Duration</div>
+          <div className="text-white">{l.duration_minutes || 0} min</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Marks</div>
+          <div className="text-white">{l.marks || 0}</div>
+        </div>
+      </div>
+      
+      {l.programming_languages && l.programming_languages.length > 0 && (
+        <div>
+          <div className="text-neutral-500 mb-1 text-[12px]">Programming Languages</div>
+          <div className="flex flex-wrap gap-1">
+            {l.programming_languages.map((x: string) => <Chip key={x}>{x}</Chip>)}
+          </div>
+        </div>
+      )}
+      
+      {l.databases && l.databases.length > 0 && (
+        <div>
+          <div className="text-neutral-500 mb-1 text-[12px]">Databases</div>
+          <div className="flex flex-wrap gap-1">
+            {l.databases.map((x: string) => <Chip key={x}>{x}</Chip>)}
+          </div>
+        </div>
+      )}
+      
+      {l.tasks && l.tasks.length > 0 && (
+        <div className="border-t border-white/5 pt-4">
+          <div className="text-neutral-400 font-semibold mb-3">Tasks in this Lab</div>
+          <div className="space-y-2">
+            {l.tasks.map((t: any, i: number) => (
+              <div key={t.id || i} className="rounded bg-black/20 p-3 text-[12px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-white">{i + 1}. {t.title}</span>
+                  {t.difficulty && <span className="text-[10px] text-neutral-400">{t.difficulty}</span>}
+                </div>
+                {t.description && <div className="text-neutral-400 line-clamp-2 mt-1 whitespace-pre-wrap">{t.description}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function QuestionPreview({ q }: { q: any }) {
   return (
     <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
@@ -517,6 +591,8 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   const [diff, setDiff] = useState<string>("All");
 
   const [labs, setLabs] = useState<LabItem[]>([]);
+  const [previewLab, setPreviewLab] = useState<any>(null);
+
   useEffect(() => { fetchLabs().then(setLabs); }, []);
 
   const filtered = useMemo(() => labs.filter(l => {
@@ -530,7 +606,29 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   }), [q, domain, lang, db, scenario, diff, labs]);
 
   return (
-    <Drawer title="Engineering Lab Library" subtitle="Real labs, not textbook questions." onClose={onClose}>
+    <Drawer 
+      title="Engineering Lab Library" 
+      subtitle="Real labs, not textbook questions." 
+      onClose={onClose}
+      leftPanel={
+        previewLab && (
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between border-b border-white/5 p-6">
+              <div className="text-[16px] font-semibold text-white">{previewLab.title || previewLab.text || "Preview"}</div>
+              <button onClick={() => setPreviewLab(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <LabPreview l={previewLab} />
+            </div>
+            <div className="border-t border-white/5 p-5 flex justify-end">
+              <button disabled={existing.includes(previewLab.id)} onClick={() => { onAdd(previewLab); setPreviewLab(null); }} className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50">
+                {existing.includes(previewLab.id) ? "Added" : "Add Lab"}
+              </button>
+            </div>
+          </div>
+        )
+      }
+    >
       <div className="grid gap-2 border-b border-white/5 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
@@ -555,7 +653,10 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
                   </div>
                   <div className="mt-1.5 text-[11px] text-neutral-500"><Clock className="mr-1 inline h-3 w-3" />{l.duration_minutes} min · <Award className="mr-1 inline h-3 w-3" />{l.marks} marks</div>
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setPreviewLab(l)} className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5">
+                    <Eye className="h-3 w-3" /> Preview
+                  </button>
                   <button disabled={added} onClick={() => onAdd(l)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
                     {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
                   </button>
@@ -792,63 +893,53 @@ function Drawer({ children, onClose, title, subtitle, leftPanel }: { children: R
 // ---------------- Preview / Publish screens ----------------
 
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
-  const t = evaluationTotals(ev);
-  const link = typeof window !== "undefined" ? `${window.location.origin}/evaluation?e=${ev.id}` : "";
-  const [copied, setCopied] = useState(false);
+  const previewData = useMemo(() => {
+    return {
+      sections: ev.sections.map(s => {
+        if (s.kind === "labs") {
+          return {
+            type: "LAB",
+            id: s.id,
+            title: s.title,
+            questions: (s as any).labs // Workspace expects questions array for labs
+          };
+        } else if (s.kind === "assessment") {
+          return {
+            type: "KNOWLEDGE_ASSESSMENT",
+            id: s.id,
+            title: s.title,
+            questions: (s as any).questions
+          };
+        } else if (s.kind === "discussion") {
+          return {
+            type: "VITARKA_AI_INTERVIEW",
+            id: s.id,
+            title: s.title
+          };
+        }
+        return null;
+      }).filter(Boolean)
+    };
+  }, [ev]);
 
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="min-h-screen p-10">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white"><ChevronLeft className="h-3.5 w-3.5" /> Back to workspace</button>
-      <div className="mx-auto mt-8 max-w-3xl">
-        <div className="text-[10px] uppercase tracking-widest text-neutral-500">Evaluation</div>
-        <h1 className="mt-1 text-[32px] font-semibold tracking-tight">{ev.title}</h1>
-        <div className="mt-1 text-[12px] text-neutral-400">{ev.domain || "—"} · {t.minutes} min · {t.marks} marks</div>
-
-        {ev.status === "published" && (
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
-            <div className="mt-1 flex items-center justify-between">
-              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
-              <button onClick={handleCopy} className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Copied!" : "Copy Link"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 divide-y divide-white/5 border-y border-white/5">
-          {ev.sections.map((s, i) => (
-            <div key={s.id} className="py-5">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Section {i + 1}</div>
-              <div className="mt-1 text-[16px] text-white">{s.title}</div>
-              <div className="mt-1 text-[12px] text-neutral-400">
-                {s.kind === "labs" && `${s.labs?.length || 0} labs · ${s.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0)} min`}
-                {s.kind === "assessment" && `${s.questions?.length || 0} questions`}
-                {s.kind === "discussion" && `${s.duration} min · ${s.mode} mode`}
-              </div>
-            </div>
-          ))}
+  const content = (
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      <div className="flex h-12 items-center justify-between border-b border-white/10 bg-neutral-950 px-4 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-400">STUDENT PREVIEW</div>
+          <div className="text-[13px] font-medium text-neutral-300">{ev.title}</div>
         </div>
-
-        <div className="mt-6 grid grid-cols-3 gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-          <Stat label="Total sections" value={t.sections} />
-          <Stat label="Total duration" value={`${t.minutes} min`} />
-          <Stat label="Total marks" value={t.marks} />
-        </div>
-
-        <div className="mt-8 flex items-center gap-2">
-          <button onClick={onBack} className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5"><Pencil className="mr-1 inline h-3.5 w-3.5" /> Continue editing</button>
-        </div>
+        <button onClick={onBack} className="inline-flex items-center gap-1.5 rounded bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-white/20">
+          <X className="h-3.5 w-3.5" /> Close Preview
+        </button>
+      </div>
+      <div className="relative flex-1 overflow-hidden">
+        <Workspace previewData={previewData} />
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
 function parseCSVLine(text: string) {
