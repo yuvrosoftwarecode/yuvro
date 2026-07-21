@@ -1,0 +1,136 @@
+{
+  "title": "Sprint 6 - Aggregation Basics",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 6,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Count Total Tasks",
+      "ticket_slug": "mongodb-601",
+      "description": "Find out exactly how many total tasks exist in the system.\n\n### SQL Equivalent\n```sql\nSELECT COUNT(*) FROM todos;\n```",
+      "tasks": [
+        "Find out exactly how many total tasks exist in the system."
+      ],
+      "learning_objectives": [
+        "Count documents using countDocuments."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using deprecated count() function."
+      ],
+      "hints": [
+        "Use db.todos.countDocuments({})."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.countDocuments({})"
+      },
+      "solution": {
+        "query.js": "db.todos.countDocuments({})",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "SUM, MIN, MAX, AVG",
+      "ticket_slug": "mongodb-602",
+      "description": "Find the total sum, minimum, maximum, and average of the `priority` field for all tasks.\n\n### SQL Equivalent\n```sql\nSELECT SUM(priority), MIN(priority), MAX(priority), AVG(priority) FROM todos;\n```",
+      "tasks": [
+        "Find the total sum, minimum, maximum, and average of the `priority` field for all tasks."
+      ],
+      "learning_objectives": [
+        "Use the aggregation framework for basic statistics."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the $ sign on the field path \"$priority\"."
+      ],
+      "hints": [
+        "To aggregate all documents, group by _id: null."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $group: { _id: null, sumPriority: { $sum: \"$priority\" }, minPriority: { $min: \"$priority\" }, maxPriority: { $max: \"$priority\" }, avgPriority: { $avg: \"$priority\" } } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $group: { _id: null, sumPriority: { $sum: \"$priority\" }, minPriority: { $min: \"$priority\" }, maxPriority: { $max: \"$priority\" }, avgPriority: { $avg: \"$priority\" } } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Task Count by Status",
+      "ticket_slug": "mongodb-603",
+      "description": "Create a report showing each `status` and the total number of tasks in that status.\n\n### SQL Equivalent\n```sql\nSELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;\n```",
+      "tasks": [
+        "Create a report showing each `status` and the total number of tasks in that status."
+      ],
+      "learning_objectives": [
+        "Group documents by a field using the aggregation framework."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Grouping by _id: \"status\" instead of _id: \"$status\"."
+      ],
+      "hints": [
+        "Use the $group stage and count documents using { $sum: 1 }."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $group: { _id: \"$status\", task_count: { $sum: 1 } } },\n  { $sort: { _id: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $group: { _id: \"$status\", task_count: { $sum: 1 } } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Overloaded Users",
+      "ticket_slug": "mongodb-604",
+      "description": "Show the `user_id` and count of tasks only for users who have strictly more than 5 tasks.\n\n### SQL Equivalent\n```sql\nSELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5;\n```",
+      "tasks": [
+        "Show the `user_id` and count of tasks only for users who have strictly more than 5 tasks."
+      ],
+      "learning_objectives": [
+        "Filter grouped data with `$match` (having equivalent)."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Placing the filter before the $group stage."
+      ],
+      "hints": [
+        "The second stage should be a $match on total_tasks."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.aggregate([\n  { $group: { _id: \"$user_id\", total_tasks: { $sum: 1 } } },\n  { $match: { total_tasks: { $gt: 5 } } },\n  { $sort: { _id: 1 } }\n])"
+      },
+      "solution": {
+        "query.js": "db.todos.aggregate([\n  { $group: { _id: \"$user_id\", total_tasks: { $sum: 1 } } },\n  { $match: { total_tasks: { $gt: 5 } } }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 4
+    }
+  ]
+}

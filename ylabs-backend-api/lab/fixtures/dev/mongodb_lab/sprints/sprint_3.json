@@ -1,0 +1,104 @@
+{
+  "title": "Sprint 3 - Basic Data Insertion",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 3,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Insert First Users",
+      "ticket_slug": "mongodb-301",
+      "description": "Add five users to the system: 'alice_dev' (alice@email.com), 'bob_ops' (bob@email.com), 'charlie_ux' (charlie@email.com), 'david_qa' (david@email.com), and 'eve_mgr' (eve@email.com). For MongoDB, assign them custom `_id` values: 1 through 5 respectively to match the autoincrement IDs.\n\n### SQL Equivalent\n```sql\nINSERT INTO users (id, username, email) VALUES \n(1, 'alice_dev', 'alice@email.com'),\n(2, 'bob_ops', 'bob@email.com'),\n(3, 'charlie_ux', 'charlie@email.com'),\n(4, 'david_qa', 'david@email.com'),\n(5, 'eve_mgr', 'eve@email.com');\n```",
+      "tasks": [
+        "Add five users to the system: 'alice_dev' (alice@email.com), 'bob_ops' (bob@email.com), 'charlie_ux' (charlie@email.com), 'david_qa' (david@email.com), and 'eve_mgr' (eve@email.com). For MongoDB, assign them custom `_id` values: 1 through 5 respectively to match the autoincrement IDs."
+      ],
+      "learning_objectives": [
+        "Use insertMany for inserting multiple documents."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using SQL INSERT INTO syntax or omitting the array brackets in insertMany."
+      ],
+      "hints": [
+        "Use db.users.insertMany() and pass an array of documents."
+      ],
+      "scoring_rules": {
+        "system_query": "db.users.find({}, { _id: 1, username: 1, email: 1 }).sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.users.insertMany([\n  { _id: 1, username: \"alice_dev\", email: \"alice@email.com\" },\n  { _id: 2, username: \"bob_ops\", email: \"bob@email.com\" },\n  { _id: 3, username: \"charlie_ux\", email: \"charlie@email.com\" },\n  { _id: 4, username: \"david_qa\", email: \"david@email.com\" },\n  { _id: 5, username: \"eve_mgr\", email: \"eve@email.com\" }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Insert First Todos",
+      "ticket_slug": "mongodb-302",
+      "description": "Assign a first batch of tasks (with `_id` values 1 through 9) to different users:\n1. For Alice (`user_id = 1`): 'Setup database' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Design schema' (priority 1, status 'completed', due date in the past '2026-06-15').\n3. For Alice (`user_id = 1`): 'Configure CI/CD' (priority 3, status 'cancelled', no due date).\n4. For Bob (`user_id = 2`): 'Deploy production' (priority 1, status 'completed', due date in the past '2026-06-20').\n5. For Bob (`user_id = 2`): 'Monitor disk usage' (priority 2, status 'pending', due date in the past '2026-06-25').\n6. For Charlie (`user_id = 3`): 'Create wireframes' (priority 2, status 'completed', due date in the past '2026-06-10').\n7. For David (`user_id = 4`): 'Write test cases' (priority 3, status 'pending', due date in the future '2026-07-25').\n8. For Eve (`user_id = 5`): 'Project kickoff' (priority 1, status 'completed', due date in the past '2026-06-01').\n9. For Eve (`user_id = 5`): 'Weekly sync' (priority 3, status 'pending', due date in the future '2026-07-30').\n\nNote: To demonstrate MongoDB's flexible schema, omit the `due_date` field entirely in documents where it is not set (instead of using null).\n\n### SQL Equivalent\n```sql\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (1, 1, 'Setup database', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (2, 1, 'Design schema', 1, '2026-06-15', 'completed');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (3, 1, 'Configure CI/CD', 3, 'cancelled');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (4, 2, 'Deploy production', 1, '2026-06-20', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (5, 2, 'Monitor disk usage', 2, '2026-06-25', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (6, 3, 'Create wireframes', 2, '2026-06-10', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (7, 4, 'Write test cases', 3, '2026-07-25', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (8, 5, 'Project kickoff', 1, '2026-06-01', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (9, 5, 'Weekly sync', 3, '2026-07-30', 'pending');\n```",
+      "tasks": [
+        "Assign a first batch of tasks (with `_id` values 1 through 9) to different users:\n1. For Alice (`user_id = 1`): 'Setup database' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Design schema' (priority 1, status 'completed', due date in the past '2026-06-15').\n3. For Alice (`user_id = 1`): 'Configure CI/CD' (priority 3, status 'cancelled', no due date).\n4. For Bob (`user_id = 2`): 'Deploy production' (priority 1, status 'completed', due date in the past '2026-06-20').\n5. For Bob (`user_id = 2`): 'Monitor disk usage' (priority 2, status 'pending', due date in the past '2026-06-25').\n6. For Charlie (`user_id = 3`): 'Create wireframes' (priority 2, status 'completed', due date in the past '2026-06-10').\n7. For David (`user_id = 4`): 'Write test cases' (priority 3, status 'pending', due date in the future '2026-07-25').\n8. For Eve (`user_id = 5`): 'Project kickoff' (priority 1, status 'completed', due date in the past '2026-06-01').\n9. For Eve (`user_id = 5`): 'Weekly sync' (priority 3, status 'pending', due date in the future '2026-07-30').\n\nNote: To demonstrate MongoDB's flexible schema, omit the `due_date` field entirely in documents where it is not set (instead of using null)."
+      ],
+      "learning_objectives": [
+        "Understand default values during insertOne."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Omitting fields, spelling names incorrectly, or writing due_date: null instead of omitting it."
+      ],
+      "hints": [
+        "Use db.todos.insertMany() and omit due_date where it is null/empty."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.insertMany([\n  { _id: 1, user_id: 1, title: \"Setup database\", priority: 3, status: \"pending\" },\n  { _id: 2, user_id: 1, title: \"Design schema\", priority: 1, due_date: new Date(\"2026-06-15\"), status: \"completed\" },\n  { _id: 3, user_id: 1, title: \"Configure CI/CD\", priority: 3, status: \"cancelled\" },\n  { _id: 4, user_id: 2, title: \"Deploy production\", priority: 1, due_date: new Date(\"2026-06-20\"), status: \"completed\" },\n  { _id: 5, user_id: 2, title: \"Monitor disk usage\", priority: 2, due_date: new Date(\"2026-06-25\"), status: \"pending\" },\n  { _id: 6, user_id: 3, title: \"Create wireframes\", priority: 2, due_date: new Date(\"2026-06-10\"), status: \"completed\" },\n  { _id: 7, user_id: 4, title: \"Write test cases\", priority: 3, due_date: new Date(\"2026-07-25\"), status: \"pending\" },\n  { _id: 8, user_id: 5, title: \"Project kickoff\", priority: 1, due_date: new Date(\"2026-06-01\"), status: \"completed\" },\n  { _id: 9, user_id: 5, title: \"Weekly sync\", priority: 3, due_date: new Date(\"2026-07-30\"), status: \"pending\" }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "DEFAULT Demonstration",
+      "ticket_slug": "mongodb-303",
+      "description": "Assign a second batch of tasks (with `_id` values 10 through 18) to represent different scenarios:\n1. For Alice (`user_id = 1`): 'Write documentation' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Review pull requests' (priority 2, status 'pending', due date in the future '2026-07-20').\n3. For Alice (`user_id = 1`): 'Fix bug #104' (priority 1, status 'pending', due date in the past '2026-06-30').\n4. For Alice (`user_id = 1`): 'Refactor auth logic' (priority 2, status 'pending', due date in the future '2026-07-22').\n5. For Alice (`user_id = 1`): 'Run security audit' (priority 5, status 'pending', due date in the future '2026-07-28').\n6. For Bob (`user_id = 2`): 'Backup database' (priority 3, status 'completed', no due date).\n7. For Charlie (`user_id = 3`): 'User testing' (priority 3, status 'pending', no due date).\n8. For David (`user_id = 4`): 'Run load tests' (priority 2, status 'pending', no due date).\n9. For Eve (`user_id = 5`): 'Budget review' (priority 5, status 'pending', due date in the future '2026-07-27').\n\nNote: Omit the `due_date` field from documents that have no due date.\n\n### SQL Equivalent\n```sql\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (10, 1, 'Write documentation', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (11, 1, 'Review pull requests', 2, '2026-07-20', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (12, 1, 'Fix bug #104', 1, '2026-06-30', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (13, 1, 'Refactor auth logic', 2, '2026-07-22', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (14, 1, 'Run security audit', 5, '2026-07-28', 'pending');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (15, 2, 'Backup database', 3, 'completed');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (16, 3, 'User testing', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (17, 4, 'Run load tests', 2, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (18, 5, 'Budget review', 5, '2026-07-27', 'pending');\n```",
+      "tasks": [
+        "Assign a second batch of tasks (with `_id` values 10 through 18) to represent different scenarios:\n1. For Alice (`user_id = 1`): 'Write documentation' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Review pull requests' (priority 2, status 'pending', due date in the future '2026-07-20').\n3. For Alice (`user_id = 1`): 'Fix bug #104' (priority 1, status 'pending', due date in the past '2026-06-30').\n4. For Alice (`user_id = 1`): 'Refactor auth logic' (priority 2, status 'pending', due date in the future '2026-07-22').\n5. For Alice (`user_id = 1`): 'Run security audit' (priority 5, status 'pending', due date in the future '2026-07-28').\n6. For Bob (`user_id = 2`): 'Backup database' (priority 3, status 'completed', no due date).\n7. For Charlie (`user_id = 3`): 'User testing' (priority 3, status 'pending', no due date).\n8. For David (`user_id = 4`): 'Run load tests' (priority 2, status 'pending', no due date).\n9. For Eve (`user_id = 5`): 'Budget review' (priority 5, status 'pending', due date in the future '2026-07-27').\n\nNote: Omit the `due_date` field from documents that have no due date."
+      ],
+      "learning_objectives": [
+        "Explicitly define default values during insertion."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to specify fields or including due_date as null."
+      ],
+      "hints": [
+        "Insert documents with _id 10 through 18, omitting the due_date field when null."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.insertMany([\n  { _id: 10, user_id: 1, title: \"Write documentation\", priority: 3, status: \"pending\" },\n  { _id: 11, user_id: 1, title: \"Review pull requests\", priority: 2, due_date: new Date(\"2026-07-20\"), status: \"pending\" },\n  { _id: 12, user_id: 1, title: \"Fix bug #104\", priority: 1, due_date: new Date(\"2026-06-30\"), status: \"pending\" },\n  { _id: 13, user_id: 1, title: \"Refactor auth logic\", priority: 2, due_date: new Date(\"2026-07-22\"), status: \"pending\" },\n  { _id: 14, user_id: 1, title: \"Run security audit\", priority: 5, due_date: new Date(\"2026-07-28\"), status: \"pending\" },\n  { _id: 15, user_id: 2, title: \"Backup database\", priority: 3, status: \"completed\" },\n  { _id: 16, user_id: 3, title: \"User testing\", priority: 3, status: \"pending\" },\n  { _id: 17, user_id: 4, title: \"Run load tests\", priority: 2, status: \"pending\" },\n  { _id: 18, user_id: 5, title: \"Budget review\", priority: 5, due_date: new Date(\"2026-07-27\"), status: \"pending\" }\n])",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    }
+  ]
+}

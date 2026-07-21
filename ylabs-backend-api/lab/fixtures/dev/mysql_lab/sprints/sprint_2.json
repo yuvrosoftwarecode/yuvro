@@ -1,0 +1,104 @@
+{
+  "title": "Sprint 2 - Table Creation & Schema",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 2,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Create the Users Table",
+      "ticket_slug": "mysql-201",
+      "description": "We need a place to store our users. Create a table named `users` with `id` (auto-incrementing primary key), `username` (text, not null), and `email` (text, not null).",
+      "tasks": [
+        "We need a place to store our users. Create a table named `users` with `id` (auto-incrementing primary key), `username` (text, not null), and `email` (text, not null)."
+      ],
+      "learning_objectives": [
+        "Master the CREATE TABLE statement and basic data types."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.\nUsing double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the MySQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='users';"
+      },
+      "solution": {
+        "query.sql": "CREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Create the Todos Table",
+      "ticket_slug": "mysql-202",
+      "description": "Create the `todos` table that links to the `users` table. It must have `id`, `user_id` (foreign key), `title`, `priority` (integer default 3), `due_date` (date), and `status` (defaulting to 'pending').",
+      "tasks": [
+        "Create the `todos` table that links to the `users` table. It must have `id`, `user_id` (foreign key), `title`, `priority` (integer default 3), `due_date` (date), and `status` (defaulting to 'pending')."
+      ],
+      "learning_objectives": [
+        "Understand FOREIGN KEY constraints and DEFAULT values."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon at the end of the query.\nUsing double quotes instead of single quotes for strings."
+      ],
+      "hints": [
+        "Read the MySQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "CREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "UNIQUE, CHECK, NOT NULL Constraints",
+      "ticket_slug": "mysql-203",
+      "description": "Create a `categories` table with `id` (integer primary key), `name` (text, NOT NULL, UNIQUE), and `color_code` (text, CHECK that it starts with '#').",
+      "tasks": [
+        "Create a `categories` table with `id` (integer primary key), `name` (text, NOT NULL, UNIQUE), and `color_code` (text, CHECK that it starts with '#')."
+      ],
+      "learning_objectives": [
+        "Apply advanced constraints to ensure data integrity."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the LIKE operator in the CHECK constraint."
+      ],
+      "hints": [
+        "Use the CHECK constraint for custom validation."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='categories';"
+      },
+      "solution": {
+        "query.sql": "CREATE TABLE categories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

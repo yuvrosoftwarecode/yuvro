@@ -1,0 +1,264 @@
+{
+  "title": "Sprint 5 - Sorting, Limiting & Updating",
+  "description": "Complete all MongoDB queries in this sprint.",
+  "order_index": 5,
+  "lab_title": "MongoDB Lab",
+  "tickets": [
+    {
+      "title": "Sort Tasks Ascending",
+      "ticket_slug": "mongodb-501",
+      "description": "Get the `_id` and `title` of all tasks, ordered by priority in ascending order.\n\n### SQL Equivalent\n```sql\nSELECT id, title FROM todos ORDER BY priority ASC;\n```",
+      "tasks": [
+        "Get the `_id` and `title` of all tasks, ordered by priority in ascending order."
+      ],
+      "learning_objectives": [
+        "Sort results in ascending order."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using ASC keyword instead of 1."
+      ],
+      "hints": [
+        "Chain .sort({ priority: 1 }) onto your find() query."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({}, { _id: 1, title: 1 }).sort({ priority: 1, _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.find({}, { _id: 1, title: 1 }).sort({ priority: 1 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Top 5 Recent Tasks (DESC)",
+      "ticket_slug": "mongodb-502",
+      "description": "Get the 5 most recently created todos (assuming highest `_id` is most recent). Fetch their `_id` and `title`.\n\n### SQL Equivalent\n```sql\nSELECT id, title FROM todos ORDER BY id DESC LIMIT 5;\n```",
+      "tasks": [
+        "Get the 5 most recently created todos (assuming highest `_id` is most recent). Fetch their `_id` and `title`."
+      ],
+      "learning_objectives": [
+        "Combine sort and limit."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting descending sort (-1) or wrong limit."
+      ],
+      "hints": [
+        "Chain .sort({ _id: -1 }).limit(5) onto find()."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find({}, { title: 1 }).sort({ _id: -1 }).limit(5)"
+      },
+      "solution": {
+        "query.js": "db.todos.find({}, { title: 1 }).sort({ _id: -1 }).limit(5)",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Complete a Task",
+      "ticket_slug": "mongodb-503",
+      "description": "Task with `_id = 1` has been finished. Change its status to 'completed'.\n\n### SQL Equivalent\n```sql\nUPDATE todos SET status = 'completed' WHERE id = 1;\n```",
+      "tasks": [
+        "Task with `_id = 1` has been finished. Change its status to 'completed'."
+      ],
+      "learning_objectives": [
+        "Update a single document using updateOne."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the $set operator or omitting the filter."
+      ],
+      "hints": [
+        "Use the $set operator in updateOne."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.updateOne({ _id: 1 }, { $set: { status: \"completed\" } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Delete Old Data",
+      "ticket_slug": "mongodb-504",
+      "description": "Delete any todos that belong to `user_id = 2`.\n\n### SQL Equivalent\n```sql\nDELETE FROM todos WHERE user_id = 2;\n```",
+      "tasks": [
+        "Delete any todos that belong to `user_id = 2`."
+      ],
+      "learning_objectives": [
+        "Delete multiple documents using deleteMany."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using deleteOne instead of deleteMany."
+      ],
+      "hints": [
+        "Use db.todos.deleteMany({ user_id: 2 })."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.deleteMany({ user_id: 2 })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Increment Priority",
+      "ticket_slug": "mongodb-505",
+      "description": "Increase the `priority` of all pending todos by 1.\n\n### SQL Equivalent\n```sql\nUPDATE todos SET priority = priority + 1 WHERE status = 'pending';\n```",
+      "tasks": [
+        "Increase the `priority` of all pending todos by 1."
+      ],
+      "learning_objectives": [
+        "Increment a numeric field using $inc."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using $set instead of $inc, or forgetting update filter."
+      ],
+      "hints": [
+        "Use updateMany with { status: \"pending\" } and $inc operator."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.updateMany({ status: \"pending\" }, { $inc: { priority: 1 } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Unset a Field ($unset)",
+      "ticket_slug": "mongodb-506",
+      "description": "Remove the `due_date` field entirely from all documents in the `todos` collection.\n\n### SQL Equivalent\n```sql\nALTER TABLE todos DROP COLUMN due_date;\n```",
+      "tasks": [
+        "Remove the `due_date` field entirely from all documents in the `todos` collection."
+      ],
+      "learning_objectives": [
+        "Remove a field from documents using $unset."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using $set to set it to null instead of completely removing it via $unset."
+      ],
+      "hints": [
+        "Use db.todos.updateMany({}, { $unset: { due_date: \"\" } })."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.updateMany({}, { $unset: { due_date: \"\" } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Rename a Field ($rename)",
+      "ticket_slug": "mongodb-507",
+      "description": "Rename the `title` field to `task_name` in all documents of the `todos` collection.\n\n### SQL Equivalent\n```sql\nALTER TABLE todos RENAME COLUMN title TO task_name;\n```",
+      "tasks": [
+        "Rename the `title` field to `task_name` in all documents of the `todos` collection."
+      ],
+      "learning_objectives": [
+        "Rename a field using $rename."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to quote field names inside the $rename block."
+      ],
+      "hints": [
+        "Use db.todos.updateMany({}, { $rename: { \"title\": \"task_name\" } })."
+      ],
+      "scoring_rules": {
+        "system_query": "db.todos.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.todos.updateMany({}, { $rename: { \"title\": \"task_name\" } })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Replace a Document Entirely (replaceOne)",
+      "ticket_slug": "mongodb-508",
+      "description": "Replace user with `_id = 2` (Bob) with a new profile having the username 'Robert' and no other user-defined fields (such as email). Note: In MongoDB, `replaceOne()` completely replaces all user-defined fields of the target document, but the `_id` field is automatically preserved and remains unchanged.\n\n### SQL Equivalent\n```sql\nUPDATE users SET username = 'Robert', email = NULL WHERE id = 2;\n```",
+      "tasks": [
+        "Replace user with `_id = 2` (Bob) with a new profile having the username 'Robert' and no other user-defined fields (such as email). Note: In MongoDB, `replaceOne()` completely replaces all user-defined fields of the target document, but the `_id` field is automatically preserved and remains unchanged."
+      ],
+      "learning_objectives": [
+        "Learn replaceOne and understand the preservation of _id."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Trying to include _id in the replacement object (causes write error) or using updateOne with $set."
+      ],
+      "hints": [
+        "Use db.users.replaceOne({ _id: 2 }, { username: \"Robert\" })."
+      ],
+      "scoring_rules": {
+        "system_query": "db.users.find().sort({ _id: 1 })"
+      },
+      "solution": {
+        "query.js": "db.users.replaceOne({ _id: 2 }, { username: \"Robert\" })",
+        "database_identifier": "learning_lab"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "MONGOSH"
+      ],
+      "order_index": 8
+    }
+  ]
+}
