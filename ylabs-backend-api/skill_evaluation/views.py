@@ -125,8 +125,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         User = get_user_model()
         user = User.objects.filter(email=email).first()
         if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
-            return Response({"registered": True})
-        return Response({"registered": False})
+            return Response({"registered": True, "title": evaluation.title})
+        return Response({"registered": False, "title": evaluation.title})
 
 class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LabQuestionBank.objects.all()

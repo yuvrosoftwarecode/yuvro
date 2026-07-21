@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "../services/evaluationService";
+import { yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { VitarkaInterviewScreen } from "../components/discussion/VitarkaInterviewScreen";
 import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "./student.lab.$slug.ticket.$ticketId";
@@ -26,7 +28,7 @@ interface KnowledgeQuestion {
 type AppSection = 
   | { type: "LAB", id: string, title: string, labs: RealLab[] }
   | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[] }
-  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string };
+  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string };
 
 interface RealLab {
   id: string;
@@ -61,6 +63,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const evaluationId = previewData ? '' : (searchParams.get('e') || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
+  const [labsData, setLabsData] = useState<RealLab[]>([]);
+  const [discussionQuestions, setDiscussionQuestions] = useState<string[]>(DISCUSSION_QUESTIONS);
   const [debugData, setDebugData] = useState<any>(null);  
   
   useEffect(() => {
@@ -78,10 +82,18 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     setDebugData(res);
     const mappedSections: AppSection[] = [];
     let durationMinutes = 0;
+    
+    let dQs: string[] = [];
+    let mappedLabs: RealLab[] = [];
+    const extractQuestions = (nodes: any[]) => {
+      for (const n of nodes) {
+        if (n.text) dQs.push(n.text);
+        if (n.follow_ups && n.follow_ups.length > 0) extractQuestions(n.follow_ups);
+      }
+    };
 
     (res.sections || []).forEach((sec: any) => {
           if (sec.type === "LAB") {
-            const mappedLabs: RealLab[] = [];
             (sec.questions || []).forEach((q: any) => {
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
@@ -140,14 +152,40 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               })
             });
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
-            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion" });
+            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description });
+            if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
+              extractQuestions(sec.questions);
+            } else {
+              let meta: any = {};
+              try { meta = JSON.parse(sec.description || "{}"); } catch {}
+              if (meta.mockInterviewId) {
+                yhubApiAuthUtil.get<any>(`/mock-interviews/${meta.mockInterviewId}/`)
+                  .then(yhubRes => {
+                    if (yhubRes.predefined_tree && Array.isArray(yhubRes.predefined_tree)) {
+                      let asyncDQs: string[] = [];
+                      const extractAsync = (nodes: any[]) => {
+                        for (const n of nodes) {
+                          if (n.text) asyncDQs.push(n.text);
+                          if (n.follow_ups && n.follow_ups.length > 0) extractAsync(n.follow_ups);
+                        }
+                      };
+                      extractAsync(yhubRes.predefined_tree);
+                      if (asyncDQs.length > 0) setDiscussionQuestions(asyncDQs);
+                    }
+                  })
+                  .catch(err => console.error("Failed to fetch mock interview from yhub", err));
+              }
+            }
           }
         });
-      
       setAppSections(mappedSections);
       if (mappedSections.length > 0) {
         setSection(mappedSections[0].id);
       }
+      
+      if (dQs.length > 0) setDiscussionQuestions(dQs);
+      
+      setLabsData(mappedLabs);
   };
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
@@ -172,7 +210,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
 
-  // Timer
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining(r => {
@@ -183,7 +220,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return () => clearInterval(t);
   }, []);
 
-  // Trigger discussion lock at 15 min
   useEffect(() => {
     if (remaining <= DISCUSSION_LOCK_SECONDS && !discussionTriggered.current && remaining > 0) {
       discussionTriggered.current = true;
@@ -191,14 +227,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       if (discussionSection) {
         setSection(discussionSection.id);
       } else {
-        setSection("discussion-dummy"); // fallback if not in backend but triggered by time
+        setSection("discussion-dummy"); 
       }
       setOpenLab(null);
       setActiveQuestionId(null);
       setModal({ kind: "discussion-starting" });
     }
     if (remaining === 0) submitEvaluation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining]);
 
   // Tab-switch warning
@@ -239,14 +274,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return "not-started";
   };
   const getLabStatus = (secId: string, labs: RealLab[]): Status => {
-    // Basic logic: if all labs in section are submitted, it's complete.
     const submittedCount = labs.filter(l => submittedLabs.has(l.id)).length;
     if (submittedCount === labs.length && labs.length > 0) return "complete";
     if (submittedCount > 0) return "in-progress";
     if (section === secId) return "current";
     return "not-started";
   };
-  const discussionStatus = discussionIndex >= DISCUSSION_QUESTIONS.length ? "complete" : locked ? "current" : "locked";
+  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW" || section === "discussion-dummy";
+  const discussionStatus = isDiscussionSection ? "current" : "not-started";
 
   const [qIndex, setQIndex] = useState(0);
 
@@ -259,7 +294,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     setQIndex(0);
   };
 
-  // Handlers
   const toggleTask = (labId: LabId, i: number) => {
     setTaskState(prev => {
       const s = new Set(prev[labId] ?? []);
@@ -275,7 +309,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
   const confirmSubmitSection = async (secId: string) => {
     try {
-      // In real scenario, we map answers and send. For now, dummy logic just records submission locally.
       await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, answers);
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
@@ -433,32 +466,22 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 />
               );
             } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+              let meta: any = {};
+              try { meta = JSON.parse(sec.description || "{}"); } catch {}
               return (
-                <Discussion
+                <VitarkaInterviewScreen
                   key={sec.id}
-                  index={discussionIndex}
-                  responses={discussionResponses}
-                  draft={discussionDraft}
-                  setDraft={setDiscussionDraft}
-                  onSubmit={submitDiscussionAnswer}
+                  mockInterviewId={meta.mockInterviewId}
                   onEnd={() => setModal({ kind: "end-discussion" })}
-                  done={discussionIndex >= DISCUSSION_QUESTIONS.length}
-                  onFinish={submitEvaluation}
                 />
               );
             }
             return null;
           })}
           {section === "discussion-dummy" && (
-            <Discussion
-              index={discussionIndex}
-              responses={discussionResponses}
-              draft={discussionDraft}
-              setDraft={setDiscussionDraft}
-              onSubmit={submitDiscussionAnswer}
+            <VitarkaInterviewScreen
+              mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
               onEnd={() => setModal({ kind: "end-discussion" })}
-              done={discussionIndex >= DISCUSSION_QUESTIONS.length}
-              onFinish={submitEvaluation}
             />
           )}
         </main>
@@ -1248,86 +1271,9 @@ function KnowledgeRunner({
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Section: Engineering Discussion
-// ────────────────────────────────────────────────────────────────────────────
 
-function Discussion({ index, responses, draft, setDraft, onSubmit, onEnd, done, onFinish }: {
-  index: number; responses: string[]; draft: string; setDraft: (v: string) => void;
-  onSubmit: () => void; onEnd: () => void; done: boolean; onFinish: () => void;
-}) {
-  const question = DISCUSSION_QUESTIONS[Math.min(index, DISCUSSION_QUESTIONS.length - 1)];
-  return (
-    <div className="mx-auto max-w-5xl px-8 py-12">
-      <SectionHeader eyebrow="Section 04" title="Engineering Discussion" body="A short reflection on what you built. Answer in your own words — this is a conversation, not a test." />
 
-      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        <div>
-          {!done ? (
-            <>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-8">
-                <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question {index + 1} of {DISCUSSION_QUESTIONS.length}</div>
-                <div className="mt-3 font-serif text-[22px] leading-snug tracking-tight text-neutral-900">{question}</div>
-                <textarea
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  rows={5}
-                  placeholder="Speak or type your answer…"
-                  className="mt-6 w-full resize-none rounded-lg border border-neutral-200 bg-white p-4 text-[14px] leading-relaxed text-neutral-900 outline-none focus:border-neutral-900"
-                />
-                <div className="mt-4 flex items-center justify-between">
-                  <button onClick={onEnd} className="text-[12px] text-neutral-500 hover:text-neutral-900">End discussion early</button>
-                  <button onClick={onSubmit} disabled={!draft.trim()} className="rounded-md bg-neutral-900 px-4 py-2 text-[13px] text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-                    {index === DISCUSSION_QUESTIONS.length - 1 ? "Submit final answer" : "Next question"}
-                  </button>
-                </div>
-              </div>
 
-              {responses.length > 0 && (
-                <div className="mt-8">
-                  <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Transcript</div>
-                  <div className="mt-3 space-y-4">
-                    {responses.map((r, i) => (
-                      <div key={i} className="rounded-lg border border-neutral-200 bg-white/60 p-4">
-                        <div className="text-[11px] text-neutral-500">Q{i + 1} · {DISCUSSION_QUESTIONS[i]}</div>
-                        <div className="mt-2 text-[13px] leading-relaxed text-neutral-800">{r}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center">
-              <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l3.5 3.5L16 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </div>
-              <div className="mt-4 font-serif text-[24px] tracking-tight text-neutral-900">Discussion complete</div>
-              <div className="mt-2 text-[13px] text-neutral-500">Nice work. Submit to generate your report.</div>
-              <button onClick={onFinish} className="mt-6 rounded-lg bg-neutral-900 px-5 py-2.5 text-[13px] text-white hover:bg-neutral-800">Submit evaluation</button>
-            </div>
-          )}
-        </div>
-
-        <aside className="space-y-4">
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-950 aspect-video grid place-items-center text-[11px] text-neutral-400">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" /> Camera active
-            </div>
-          </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-4 text-[12px] text-neutral-600">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">How this works</div>
-            <p className="mt-2 leading-relaxed">Questions are generated from the work you did in Sections 1–3. Speak the way you'd speak to a colleague — clarity beats jargon.</p>
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Shared
-// ────────────────────────────────────────────────────────────────────────────
 
 function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
   return (
