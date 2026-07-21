@@ -605,73 +605,40 @@ Mongo shell-style queries. Edit \`query.js\` and press **Run** to see results.
 };
 
 const UI_KIT_DEFAULT: Kit = {
-  name: "ui", rootLabel: "ui-lab", primary: "index.html", runtime: "Static · HTML/CSS/JS",
-  fileList: ["index.html", "styles.css", "app.js", "README.md"],
+  name: "ui", rootLabel: "ui-lab", primary: "index.html", runtime: "Static · HTML/CSS",
+  fileList: ["index.html", "styles.css", "README.md"],
   files: {
     "index.html": `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UI Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Portfolio</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <a class="logo" href="#">◆ Acme</a>
-    <nav>
-      <a href="#">Product</a>
-      <a href="#">Pricing</a>
-      <a href="#">Docs</a>
-    </nav>
-    <button id="cta" class="cta">Get started</button>
-  </header>
-
-  <main>
-    <section class="hero">
-      <h1>Build pixel-perfect UI</h1>
-      <p>Compose components with Flexbox, Grid and modern CSS.</p>
-      <p>Clicks: <output id="count">0</output></p>
-    </section>
-  </main>
-
-  <script src="app.js"></script>
+  <!-- TODO: Build your portfolio here! -->
+  <h1>Hello World</h1>
 </body>
 </html>
 `,
-    "styles.css": `:root { --brand: #4f46e5; --ink: #111827; --muted: #6b7280; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; color: var(--ink); }
-
-.site-header {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.25rem; border-bottom: 1px solid #e5e7eb;
-}
-.site-header nav { display: flex; gap: 1rem; margin-left: 1rem; }
-.site-header nav a { color: var(--muted); text-decoration: none; }
-.site-header nav a:hover { color: var(--ink); }
-.logo { font-weight: 700; color: var(--brand); text-decoration: none; }
-.cta {
-  margin-left: auto; background: var(--brand); color: #fff;
-  border: 0; padding: .55rem 1rem; border-radius: .5rem; cursor: pointer;
+    "styles.css": `/* Starter styles — minimal reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.hero { max-width: 720px; margin: 4rem auto; padding: 0 1.25rem; text-align: center; }
-.hero h1 { font-size: 2.25rem; margin-bottom: .5rem; }
-.hero p  { color: var(--muted); margin: .25rem 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  color: #111827;
+}
 `,
-    "app.js": `const cta = document.getElementById("cta");
-const count = document.getElementById("count");
-let n = 0;
-cta.addEventListener("click", () => {
-  n += 1;
-  count.textContent = String(n);
-});
-`,
-    "README.md": `# UI Lab
+    "README.md": `# Frontend Portfolio Lab
 
-Edit \`index.html\`, \`styles.css\` and \`app.js\`. The **Preview** panel renders
-your code live (it re-runs whenever you save).
+Write your HTML in \`index.html\` and CSS in \`styles.css\`.
+Click **Run** to compare your code against the expected target design!
 `,
   },
 };
@@ -685,7 +652,16 @@ const LINUX_KIT_DEFAULT: Kit = {
   },
 };
 
-function getKit(slug: string, tag: string): Kit {
+const GIT_KIT_DEFAULT: Kit = {
+  name: "git", rootLabel: "git-lab", primary: "README.md", runtime: "Git 2.x · Bash",
+  fileList: ["README.md"],
+  files: {
+    "README.md": `# Git Lab\n\nUse the terminal below to practice Git commands.\n`,
+  },
+};
+
+function getKit(slug: string, tag: string, labTitle?: string): Kit {
+  if (labTitle && labTitle.toLowerCase().includes("git")) return GIT_KIT_DEFAULT;
   if (tag === "Django Todo") {
     return {
       name: "django", rootLabel: "todo-app", primary: "todos/views.py", runtime: "Python 3.12 · Django 5",
@@ -708,7 +684,7 @@ function getKit(slug: string, tag: string): Kit {
 }
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
-type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal";
+type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff";
 
 export function StudentTicketView({
   slug,
@@ -742,6 +718,7 @@ export function StudentTicketView({
           if (!active) return;
           setResolvedTicket({
             id: t.id,
+            ticket_slug: t.ticket_slug,
             title: t.title,
             description: t.description ?? "",
             difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
@@ -811,7 +788,8 @@ function TicketIDE({
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
 
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
+  const [labTitle, setLabTitle] = useState("");
+  const kit = useMemo(() => getKit(slug, ticket.tag, labTitle), [slug, ticket.tag, labTitle]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -823,6 +801,7 @@ function TicketIDE({
   const isPython = kit.name === "python";
   const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isAnySql || isMongo;
   const isBash = kit.name === "bash";
+  const isGit = kit.name === "git";
 
   const isReal = !tickets.some(t => t.id === ticket.id);
 
@@ -935,7 +914,8 @@ function TicketIDE({
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [bottomTab, setBottomTab] = useState<BottomTab>(isDbEditor ? "preview" : "output");
+  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -975,8 +955,11 @@ function TicketIDE({
   useEffect(() => { setSideWidth(null); }, [sidePanel]);
 
   // Reset file state when switching tickets (esp. between Java and Django sets)
+  // For real tickets, workspace files are loaded by loadWorkspaceFiles — don't overwrite them.
   useEffect(() => {
-    setFiles(starters);
+    if (!isReal) {
+      setFiles(starters);
+    }
     setDirty({});
     setActiveFile(initialFileList[0]);
     setTestsRan(false);
@@ -986,6 +969,7 @@ function TicketIDE({
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  
   useEffect(() => {
     if (previewOverride) return;
     const isDummy = !isReal;
@@ -994,11 +978,13 @@ function TicketIDE({
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch { }
+          setLabTitle(realLab.title);
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch {}
         })
         .catch(() => {
           const labName = labs.find(l => l.slug === slug)?.name ?? slug;
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch { }
+          setLabTitle(labName);
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch {}
         });
     });
 
@@ -1020,6 +1006,17 @@ function TicketIDE({
               await api.patch<any>(`/lab/submissions/${sub.id}/`, {
                 ticket_status: "in_progress",
               });
+            }
+            if (sub.solution) {
+              try {
+                const parsed = JSON.parse(sub.solution);
+                if (typeof parsed === "object" && parsed !== null) {
+                  setFiles(prev => ({ ...prev, ...parsed }));
+                }
+              } catch (e) {
+                // Legacy fallback: single string
+                setFiles(prev => ({ ...prev, [kit.primary]: sub.solution }));
+              }
             }
           }
         })
@@ -1195,7 +1192,12 @@ function TicketIDE({
     setTimeout(() => setToast(null), 2200);
   }
 
-  function handleRun() {
+  async function handleRun() {
+    if (isReal) {
+      Promise.all(
+        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+      ).catch(console.error);
+    }
     setRunning(true);
     setBottomTab("output");
     const src = files[activeFile] ?? "";
@@ -1274,7 +1276,115 @@ function TicketIDE({
       return;
     }
     if (isUi) {
-      setOutput(`▶ Served ${file} in preview iframe.\n✓ Hot reload OK.`);
+      setRunning(true);
+      setBottomTab("output");
+      setOutput("Running UI validation...");
+      
+      import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+        api.post("/lab/frontend-validate/", {
+          ticket_slug: ticket.ticket_slug ?? ticket.id,
+          user_html: files["index.html"] ?? "",
+          user_css: files["styles.css"] ?? "",
+          lab_id: labId,   // lab UUID — lets executor resolve starter repo path
+        }).then((res: any) => {
+          setRunning(false);
+          
+          // Create a clean object to show in the console without flooding it with base64 images
+          const resultJson = {
+            ui_score: res.ui_score ?? 0,
+            structural_score: res.structural_score ?? 0,
+            checks: res.checks ?? []
+          };
+          
+          setOutput(JSON.stringify(resultJson, null, 2));
+          
+          if (isReal && submissionId) {
+             const uiScore = res.ui_score ?? 0;
+             const structScore = res.structural_score ?? 0;
+             const isPass = uiScore >= 75 && structScore >= 75;
+             api.patch(`/lab/submissions/${submissionId}/`, {
+               ticket_status: isPass ? "in_review" : "in_progress",
+               solution: JSON.stringify(files),
+             }).catch(console.error);
+          }
+        }).catch((err: any) => {
+          console.error(err);
+          setOutput(`Error running validation: ${err.message}`);
+          setBottomTab("output");
+          setRunning(false);
+        });
+      });
+      return;
+    }
+    if (isGit) {
+      // Git Lab: evaluate every task from ticket.tasks using scoring_rules
+      setRunning(true);
+      setBottomTab("output");
+      setOutput("⏳ Evaluating Git tasks against your terminal history...");
+
+      const tasks: any[] = ticket.tasks ?? [];
+      if (tasks.length === 0) {
+        setOutput(JSON.stringify({ error: "No tasks found for this ticket." }, null, 2));
+        setRunning(false);
+        return;
+      }
+
+      const { evaluateTask } = await import("@/services/workspaceService");
+      const results: Record<string, any> = {};
+      let passedCount = 0;
+
+      for (let idx = 0; idx < tasks.length; idx++) {
+        const task = tasks[idx];
+        const taskSlug = task.task_slug || `task-${idx}`;
+        const scoringRules: Record<string, any> = task.scoring_rules ?? {};
+        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+        try {
+          const result = await evaluateTask(userId, labId, sprintId, "git", taskSlug, scoringRules);
+          results[taskSlug] = {
+            title: task.title ?? taskSlug,
+            passed: result.passed,
+            reason: result.reason,
+          };
+          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+          if (result.passed) passedCount++;
+        } catch (err: any) {
+          results[taskSlug] = { title: task.title ?? taskSlug, passed: false, reason: err.message };
+          setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+        } finally {
+          setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+        }
+      }
+
+      setTicketScore({ passed: passedCount, total: tasks.length });
+      setOutput(
+        JSON.stringify(
+          {
+            ticket: ticket.title ?? ticket.id,
+            score: { passed: passedCount, total: tasks.length },
+            tasks: results,
+          },
+          null,
+          2
+        )
+      );
+
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      }
+
       setRunning(false);
       return;
     }
@@ -1361,6 +1471,35 @@ function TicketIDE({
   };
 
   async function handleSubmit() {
+    if (isReal) {
+      Promise.all(
+        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+      ).catch(console.error);
+    }
+    if (isUi && uiDiffResult) {
+      const isPass = uiDiffResult.ui_score >= 75 && uiDiffResult.structural_score >= 75;
+      if (isPass) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          if (isReal && submissionId) {
+            api.patch(`/lab/submissions/${submissionId}/`, {
+              ticket_status: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          } else if (isReal && !submissionId) {
+            api.post("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          }
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        });
+      } else {
+        showToast("Fix failing UI validation before submitting");
+      }
+      return;
+    }
+
     if (isReal && ticket.tasks && ticket.tasks.length > 0) {
       setTab("problem");
       setLeftCollapsed(false);
@@ -1404,23 +1543,24 @@ function TicketIDE({
       ];
       setTests(next);
       setTestsRan(true);
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      }
+
       if (next.every((t) => t.pass)) {
-        if (isReal && submissionId) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            api.patch(`/lab/submissions/${submissionId}/`, {
-              ticket_status: "in_review",
-              solution: files[Object.keys(files)[0]] ?? "",
-            }).catch(console.error);
-          });
-        } else if (isReal && !submissionId) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            api.post("/lab/submissions/", {
-              lab_sprint_ticket: ticket.id,
-              ticket_status: "in_review",
-              solution: files[Object.keys(files)[0]] ?? "",
-            }).catch(console.error);
-          });
-        }
         navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       } else {
         showToast("Fix failing tests before submitting");
@@ -1434,11 +1574,29 @@ function TicketIDE({
     const now = new Date();
     setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
     if (isReal) {
-      // Persist all dirty files to the workspace
-      const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
+      // Persist ALL files (not just dirty) to the workspace so disk is always in sync
       Promise.all(
-        dirtyPaths.map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
+      
+      // Also save to database so the IDE loads it perfectly on refresh
+      if (submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: "in_progress",
+            solution: JSON.stringify(files),
+          }).then((res: any) => {
+             setSubmissionId(res.data.id);
+          }).catch(console.error);
+        });
+      }
     }
     showToast("Saved");
   }
@@ -1526,7 +1684,14 @@ function TicketIDE({
         </button>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <button onClick={() => setSidePanel((p) => p === "preview" ? null : "preview")}
+          <button onClick={() => {
+            if (sidePanel !== "preview") {
+              setSidePanel("preview");
+              setLeftCollapsed(true);
+            } else {
+              setSidePanel(null);
+            }
+          }}
             className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}>
             <Globe className="h-3 w-3" />Preview
           </button>
@@ -1789,9 +1954,9 @@ function TicketIDE({
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    { k: "errors", label: "Errors", icon: AlertTriangle },
-                    { k: "preview", label: isAnySql || isMongo ? "Results" : "Preview", icon: Globe },
-                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
+                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "errors", label: "Errors", icon: AlertTriangle }] : []),
+                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe }] : []),
+                    { k: "terminal", label: "Terminal", icon: TerminalIcon }
                   ].map((t) => (
                     <button key={t.k} onClick={() => setBottomTab(t.k as BottomTab)}
                       className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide ${bottomTab === t.k ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
@@ -3425,5 +3590,77 @@ function PythonOutputView({ code }: { code: string }) {
     <pre className="font-mono text-foreground/90 whitespace-pre-wrap">
       {"$ python " + (Object.keys({}).length ? "" : "main.py") + "\n" + lines.join("\n")}
     </pre>
+  );
+}
+
+/* ---------- UI Diff View ---------- */
+
+function UiDiffView({ result }: { result: any }) {
+  if (!result) return <div className="text-muted-foreground p-3">Click Run to validate UI against the design target.</div>;
+  if (result.error) return <div className="text-destructive p-3">Validation failed: {result.error}</div>;
+
+  return (
+    <div className="flex h-full gap-4 overflow-auto">
+      <div className="flex-1 space-y-4 pr-2">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">UI Match</div>
+            <div className={`text-2xl font-bold ${result.ui_score >= 75 ? 'text-success' : 'text-warning'}`}>
+              {result.ui_score.toFixed(1)}%
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Structure</div>
+            <div className={`text-2xl font-bold ${result.structural_score >= 75 ? 'text-success' : 'text-warning'}`}>
+              {result.structural_score.toFixed(1)}%
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm">Structural Checks</h3>
+          <div className="space-y-1">
+            {result.checks?.map((check: any, idx: number) => (
+              <div key={idx} className="flex items-center gap-2 text-xs font-mono">
+                {check.passed ? <CheckCircle2 className="h-3 w-3 text-success" /> : <XCircle className="h-3 w-3 text-destructive" />}
+                <span className={check.passed ? "text-foreground" : "text-destructive"}>{check.name}</span>
+                <span className="text-muted-foreground ml-auto">{check.reason}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex-[2] flex gap-4 min-h-0 bg-background/50 p-2 rounded border">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Target Design</div>
+          <div className="flex-1 overflow-auto border border-border/50 bg-white">
+            {result.base_img_b64 ? (
+              <img src={`data:image/png;base64,${result.base_img_b64}`} alt="Target Design" className="max-w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Your UI</div>
+          <div className="flex-1 overflow-auto border border-border/50 bg-white">
+            {result.user_img_b64 ? (
+              <img src={`data:image/png;base64,${result.user_img_b64}`} alt="Your UI" className="max-w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+            )}
+          </div>
+        </div>
+        {result.diff_img_b64 && (
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Diff Overlay</div>
+            <div className="flex-1 overflow-auto border border-border/50 bg-white">
+              <img src={`data:image/png;base64,${result.diff_img_b64}`} alt="Diff Overlay" className="max-w-full" />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
