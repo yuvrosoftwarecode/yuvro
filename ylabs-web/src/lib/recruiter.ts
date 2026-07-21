@@ -122,6 +122,12 @@ function mapBackendToFrontend(be: any): Evaluation {
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
+    invite: be.candidate_invited_emails?.length ? {
+      type: "email",
+      emails: be.candidate_invited_emails,
+      expiry: "7",
+      attempts: "1"
+    } : undefined,
     sections: (be.sections || []).map((s: any) => {
       if (s.type === "LAB") {
         return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
@@ -141,6 +147,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
     title: fe.title,
     domain: fe.domain || "OTHER",
     is_published: fe.status === "published",
+    candidate_invited_emails: (fe.invite?.type === "email" && fe.invite?.emails) ? fe.invite.emails : [],
     sections: fe.sections.map((s: any, idx: number) => {
       let type = "KNOWLEDGE_ASSESSMENT";
       let qs = [];

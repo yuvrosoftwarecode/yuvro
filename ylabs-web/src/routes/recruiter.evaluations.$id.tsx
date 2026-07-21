@@ -851,17 +851,101 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
   );
 }
 
+function parseCSVLine(text: string) {
+  const ret = [];
+  let state = 0; // 0 = unquoted, 1 = quoted
+  let val = "";
+  for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (state === 0) {
+          if (c === '"') { state = 1; }
+          else if (c === ',') { ret.push(val); val = ""; }
+          else { val += c; }
+      } else {
+          if (c === '"') {
+              if (i + 1 < text.length && text[i + 1] === '"') { val += '"'; i++; } // escaped quote
+              else { state = 0; }
+          }
+          else { val += c; }
+      }
+  }
+  ret.push(val);
+  return ret;
+}
+
 function PublishScreen({ ev, onBack, onPublish }: { ev: Evaluation; onBack: () => void; onPublish: (invite: NonNullable<Evaluation["invite"]>) => void }) {
   const [type, setType] = useState<"email" | "link" | "csv">("email");
   const [emails, setEmails] = useState("");
+  const [csvError, setCsvError] = useState("");
+  const [csvSuccess, setCsvSuccess] = useState("");
   const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">("14");
   const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">("1");
   const link = useMemo(() => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`, [ev.id]);
   const [copied, setCopied] = useState(false);
 
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCsvError("");
+    setCsvSuccess("");
+    const f = e.target.files?.[0];
+    if (!f) return;
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      
+      if (lines.length === 0) {
+        setCsvError("CSV file is empty.");
+        return;
+      }
+      
+      const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+      const emailIdx = headers.findIndex(h => h === "email");
+      
+      if (emailIdx === -1) {
+        setCsvError("Invalid CSV format. Missing 'email' column header.");
+        return;
+      }
+      
+      const parsedEmails = new Set<string>();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      let invalidCount = 0;
+      
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        const emailStr = cols[emailIdx]?.trim();
+        if (emailStr) {
+           if (emailRegex.test(emailStr)) {
+               parsedEmails.add(emailStr);
+           } else {
+               invalidCount++;
+           }
+        }
+      }
+      
+      if (parsedEmails.size === 0) {
+         setCsvError(`No valid emails found in CSV. ${invalidCount} invalid entries.`);
+         return;
+      }
+      
+      setEmails(Array.from(parsedEmails).join("\n"));
+      setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
+    };
+    reader.readAsText(f);
+  };
+
   const submit = () => {
+    if (type === "csv" && !emails) {
+       alert("Please upload a valid CSV first.");
+       return;
+    }
     const list = emails.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
-    onPublish({ type, emails: list, expiry, attempts, link });
+    if ((type === "email" || type === "csv") && list.length === 0) {
+       alert("Please provide at least one valid email.");
+       return;
+    }
+    const publishType = type === "csv" ? "email" : type;
+    onPublish({ type: publishType, emails: list, expiry, attempts, link });
   };
 
   return (
@@ -914,8 +998,13 @@ function PublishScreen({ ev, onBack, onPublish }: { ev: Evaluation; onBack: () =
               <div className="text-[11px] uppercase tracking-widest text-neutral-500">Upload CSV</div>
               <label className="mt-2 flex cursor-pointer items-center justify-between rounded-lg border border-dashed border-white/10 p-4 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white">
                 <span className="flex items-center gap-2"><Upload className="h-4 w-4" /> Drop CSV or browse (email,name,role)</span>
-                <input type="file" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) setEmails(`imported: ${f.name}`); }} />
+                <input type="file" accept=".csv" className="sr-only" onChange={handleCsvUpload} />
               </label>
+              <div className="mt-2 flex justify-between items-center text-[11px]">
+                  <a href={`data:text/csv;charset=utf-8,email\ncandidate1@example.com\ncandidate2@example.com\ncandidate3@example.com`} download="sample_template.csv" className="text-emerald-400 hover:underline">Download Sample CSV</a>
+              </div>
+              {csvError && <div className="mt-2 text-[12px] text-red-400">{csvError}</div>}
+              {csvSuccess && <div className="mt-2 text-[12px] text-emerald-400">{csvSuccess}</div>}
             </div>
           )}
         </div>
@@ -965,15 +1054,21 @@ function PublishedScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void })
         <h1 className="mt-6 text-[26px] font-semibold tracking-tight">Evaluation published</h1>
         <p className="mt-1 text-[13px] text-neutral-400">{ev.title} is now live.</p>
         
-        <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
-          <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
-          <div className="mt-1 flex items-center justify-between">
-            <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
-            <button onClick={handleCopy} className="ml-2 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
+        {ev.invite?.type === "email" ? (
+          <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+            <div className="text-[14px] text-emerald-400">Emails have been successfully sent to all invited candidates.</div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
+            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
+            <div className="mt-1 flex items-center justify-between">
+              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
+              <button onClick={handleCopy} className="ml-2 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="mt-8 flex items-center justify-center gap-2">
           <button onClick={onBack} className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5">Back to workspace</button>
           <Link to="/recruiter/evaluations" className="rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2 text-[12px] font-medium text-black">View all evaluations</Link>
