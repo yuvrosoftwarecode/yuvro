@@ -1,0 +1,264 @@
+{
+  "title": "Sprint 5 - Sorting, Limiting & Updating",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 5,
+  "lab_title": "MySQL Lab",
+  "tickets": [
+    {
+      "title": "Sort Tasks Ascending",
+      "ticket_slug": "mysql-501",
+      "description": "Get the `id` and `title` of all tasks, ordered by priority in ascending order.",
+      "tasks": [
+        "Get the `id` and `title` of all tasks, ordered by priority in ascending order."
+      ],
+      "learning_objectives": [
+        "Use ORDER BY ... ASC."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting ORDER BY."
+      ],
+      "hints": [
+        "ASC is the default, but write it explicitly for practice."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT id, title FROM todos ORDER BY priority ASC, id ASC;"
+      },
+      "solution": {
+        "query.sql": "SELECT id, title FROM todos ORDER BY priority ASC;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Top 5 Recent Tasks (DESC)",
+      "ticket_slug": "mysql-502",
+      "description": "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`.",
+      "tasks": [
+        "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`."
+      ],
+      "learning_objectives": [
+        "Combining ORDER BY ... DESC and LIMIT."
+      ],
+      "evaluation": "RESULT_SET",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the DESC keyword."
+      ],
+      "hints": [
+        "Read the MySQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;"
+      },
+      "solution": {
+        "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Complete a Task",
+      "ticket_slug": "mysql-503",
+      "description": "Task with `id = 1` has been finished. Change its status to 'completed'.",
+      "tasks": [
+        "Task with `id = 1` has been finished. Change its status to 'completed'."
+      ],
+      "learning_objectives": [
+        "Using UPDATE with a specific WHERE condition."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the WHERE clause (updates all rows)."
+      ],
+      "hints": [
+        "Read the MySQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Delete Old Data",
+      "ticket_slug": "mysql-504",
+      "description": "Delete any todos that belong to `user_id = 2`.",
+      "tasks": [
+        "Delete any todos that belong to `user_id = 2`."
+      ],
+      "learning_objectives": [
+        "Using DELETE."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the WHERE clause (deletes all rows)."
+      ],
+      "hints": [
+        "Read the MySQL documentation for the specific keyword."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "DELETE FROM todos WHERE user_id = 2;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Increment Priority",
+      "ticket_slug": "mysql-505",
+      "description": "Increase the `priority` of all pending todos by 1.",
+      "tasks": [
+        "Increase the `priority` of all pending todos by 1."
+      ],
+      "learning_objectives": [
+        "Use math inside UPDATE statements."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the WHERE clause or using wrong math syntax."
+      ],
+      "hints": [
+        "Use SET priority = priority + 1."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "UPDATE todos SET priority = priority + 1 WHERE status = 'pending';",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Drop Column",
+      "ticket_slug": "mysql-506",
+      "description": "Remove the `due_date` column entirely from the `todos` table.",
+      "tasks": [
+        "Remove the `due_date` column entirely from the `todos` table."
+      ],
+      "learning_objectives": [
+        "Using ALTER TABLE to drop columns."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting to specify the column name or using older MySQL syntax."
+      ],
+      "hints": [
+        "ALTER TABLE table_name DROP COLUMN column_name;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "ALTER TABLE todos DROP COLUMN due_date;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Rename Column",
+      "ticket_slug": "mysql-507",
+      "description": "Rename the `title` column to `task_name` in the `todos` table.",
+      "tasks": [
+        "Rename the `title` column to `task_name` in the `todos` table."
+      ],
+      "learning_objectives": [
+        "Using ALTER TABLE to rename columns."
+      ],
+      "evaluation": "SCHEMA",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting RENAME COLUMN."
+      ],
+      "hints": [
+        "ALTER TABLE table_name RENAME COLUMN old_name TO new_name;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='todos';"
+      },
+      "solution": {
+        "query.sql": "ALTER TABLE todos RENAME COLUMN title TO task_name;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Replace a Row",
+      "ticket_slug": "mysql-508",
+      "description": "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL).",
+      "tasks": [
+        "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL)."
+      ],
+      "learning_objectives": [
+        "Overwriting a row with specific column updates."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Omitting email field update or forgetting WHERE clause."
+      ],
+      "hints": [
+        "Use UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;"
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM users ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 8
+    }
+  ]
+}

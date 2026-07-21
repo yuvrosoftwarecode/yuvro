@@ -367,24 +367,32 @@
 .dark .eval-theme.bg-\[\#fafaf7\],
 .dark .eval-theme .bg-\[\#fafaf7\] { background-color: var(--eval-bg) !important; }
 .dark .eval-theme .bg-white,
-.dark .eval-theme .bg-neutral-50,
-.dark .eval-theme .bg-neutral-50\/60 { background-color: var(--eval-surface) !important; }
+.dark .eval-theme .bg-white\/80,
+.dark .eval-theme .bg-white\/60 { background-color: var(--eval-surface) !important; }
 .dark .eval-theme .hover\:bg-neutral-50\/60:hover,
+.dark .eval-theme .hover\:bg-neutral-100:hover,
 .dark .eval-theme .hover\:bg-neutral-50:hover { background-color: var(--eval-surface-2) !important; }
+.dark .eval-theme .bg-neutral-50,
+.dark .eval-theme .bg-neutral-50\/60,
 .dark .eval-theme .bg-neutral-100 { background-color: var(--eval-surface-2) !important; }
 
 /* Borders */
+.dark .eval-theme .border-neutral-100,
 .dark .eval-theme .border-neutral-200,
 .dark .eval-theme .border-neutral-200\/80,
-.dark .eval-theme .border-neutral-300 { border-color: var(--eval-border) !important; }
+.dark .eval-theme .border-neutral-300,
+.dark .eval-theme .divide-neutral-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--eval-border) !important; }
+.dark .eval-theme .hover\:border-neutral-400:hover,
 .dark .eval-theme .hover\:border-neutral-500:hover,
 .dark .eval-theme .hover\:border-neutral-900:hover,
 .dark .eval-theme .focus\:border-neutral-900:focus { border-color: var(--eval-border-strong) !important; }
+.dark .eval-theme .border-neutral-900 { border-color: var(--eval-text) !important; }
 .dark .eval-theme .bg-neutral-200\/80 { background-color: var(--eval-border) !important; }
 
 /* Text */
 .dark .eval-theme.text-neutral-900,
-.dark .eval-theme .text-neutral-900 { color: var(--eval-text) !important; }
+.dark .eval-theme .text-neutral-900,
+.dark .eval-theme .text-neutral-800 { color: var(--eval-text) !important; }
 .dark .eval-theme .text-neutral-700,
 .dark .eval-theme .text-neutral-600 { color: var(--eval-text-muted) !important; }
 .dark .eval-theme .text-neutral-500,
