@@ -34,8 +34,12 @@ function EvaluationInvite() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !evaluationId) {
-      setErr("Email and valid evaluation link are required.");
+    if (!email || !phone || !evaluationId) {
+      setErr("Email, phone number, and valid evaluation link are required.");
+      return;
+    }
+    if (phone.length !== 10) {
+      setErr("Please enter a valid 10-digit mobile number.");
       return;
     }
     setLoading(true);
@@ -48,7 +52,7 @@ function EvaluationInvite() {
         return;
       }
       await evaluationService.sendRegistrationOtp(evaluationId, email);
-      localStorage.setItem("yuvro-eval-candidate", JSON.stringify({ email, phone, resume: file?.name }));
+      localStorage.setItem("yuvro-eval-candidate", JSON.stringify({ email, phone: `+91 ${phone}`, resume: file?.name }));
       router.navigate({ to: "/evaluation/otp", search: { e: evaluationId } });
     } catch (error: any) {
       setErr(error?.message || "Failed to send OTP.");
@@ -90,10 +94,23 @@ function EvaluationInvite() {
 
             <div className="mt-8 space-y-6">
               <Field label="Email address" hint="We'll send a one-time verification code.">
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="eval-input" />
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="eval-input" />
               </Field>
-              <Field label="Phone number" hint="For account recovery only.">
-                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (555) 000-0000" className="eval-input" />
+              <Field label="Phone number" hint="Required for account recovery.">
+                <div className="relative flex items-center">
+                  <span className="pointer-events-none absolute left-4 text-[14px] text-neutral-500">+91</span>
+                  <input 
+                    type="tel" 
+                    required 
+                    pattern="[0-9]{10}"
+                    title="Please enter a valid 10-digit mobile number"
+                    maxLength={10}
+                    value={phone} 
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} 
+                    placeholder="Phone number" 
+                    className="eval-input !pl-[44px]" 
+                  />
+                </div>
               </Field>
               <Field label="Resume" hint="Optional for demo">
                 <label
@@ -126,7 +143,7 @@ function EvaluationInvite() {
             </div>
 
             <PrimaryButton disabled={loading} className="mt-10 w-full">
-              {loading ? "Sending..." : "Send verification code"}
+              {loading ? "Sending..." : "Send verification code to email"}
             </PrimaryButton>
 
             <p className="mt-6 text-[11px] leading-relaxed text-neutral-500">

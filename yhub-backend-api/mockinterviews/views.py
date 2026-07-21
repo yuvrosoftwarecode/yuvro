@@ -398,7 +398,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     except PredefinedInterviewQuestion.DoesNotExist:
                         return self.get_next_question(request, pk)
                 else:
-                    farewell = "Thank you! That concludes our predefined questions for today. I'll now finalize your performance report."
+                    farewell = "Thank you! That concludes our discussion for today. I'll now finalize your performance report."
                     ChatMessage.objects.create(
                         chat_session=chat_session,
                         message_type="assistant",

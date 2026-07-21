@@ -72,14 +72,18 @@ export function VitarkaInterviewScreen({
     };
 
     utterance.onend = () => {
-      if (!isFinishedRef.current) {
+      if (isFinishedRef.current) {
+        setTimeout(() => handleEnd(), 1000);
+      } else {
         setInterviewState("listening");
         try { recognitionRef.current?.start(); } catch (e) {}
       }
     };
 
     utterance.onerror = () => {
-      if (!isFinishedRef.current) {
+      if (isFinishedRef.current) {
+        setTimeout(() => handleEnd(), 1000);
+      } else {
         setInterviewState("listening");
         try { recognitionRef.current?.start(); } catch (e) {}
       }
@@ -184,9 +188,6 @@ export function VitarkaInterviewScreen({
 
       if (res.is_finished) {
         isFinishedRef.current = true;
-        setTimeout(() => {
-          handleEnd();
-        }, 5000);
       }
     } catch (err) {
       console.error("Failed to get next question", err);
