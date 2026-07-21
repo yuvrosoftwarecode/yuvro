@@ -5,7 +5,7 @@ from .models import Payment, PurchasableItem, Refund, UserEntitlement, AiCreditL
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "gateway", "gateway_order_or_intent_id", "status", "amount", "created_at", "updated_at", "completed_at")
+    list_display = ("id", "user", "product", "purpose", "gateway", "gateway_order_or_intent_id", "status", "amount", "created_at", "updated_at", "completed_at")
     ordering = ("-updated_at",)
     search_fields = (
         "id",
@@ -14,7 +14,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "gateway_customer_reference_id",
         "user__email",
     )
-    list_filter = ("gateway", "status", "currency")
+    list_filter = ("product", "purpose", "gateway", "status", "currency")
     readonly_fields = ("payment_attempts", "latest_successfull_payment", "gateway_response", "webhook_events", "payment_events")
 
     @admin.action(description="Sync selected payments with gateway")

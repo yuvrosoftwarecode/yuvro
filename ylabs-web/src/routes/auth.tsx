@@ -20,8 +20,10 @@ export const Route = createFileRoute("/auth")({
         if (userStr) {
           try {
             const user = JSON.parse(userStr);
-            const role = user.roles?.ylabs || user.role;
-            if (role?.toLowerCase() === 'admin') throw redirect({ to: '/admin' });
+            const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+            const r = role?.toLowerCase();
+            if (r === 'admin') throw redirect({ to: '/admin' });
+            else if (r === 'recruiter') throw redirect({ to: '/recruiter/dashboard' });
             else throw redirect({ to: '/student/dashboard' });
           } catch (e) {
             // let them stay on auth page if parsing fails
@@ -46,8 +48,9 @@ function AuthPage() {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("access");
       if (token && isAuthenticated && user) {
-        const role = user.roles?.ylabs || user.role;
-        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+        const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+        const r = role?.toLowerCase();
+        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
       }
     }
   }, [user, isAuthenticated, nav]);
@@ -161,12 +164,13 @@ function SignInForm() {
       // @ts-ignore (we know authService exists, we will import it)
       const res = await import("@/services/authService").then(m => m.default.login(email, password));
       login(res.user, res.access);
-      const role = res.user.roles?.ylabs || res.user.role;
+      const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       if (redirect) {
         if (redirect.startsWith('http')) window.location.href = redirect;
         else nav({ to: redirect as any });
       } else {
-        nav({ to: role?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+        const r = role?.toLowerCase();
+        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
       }
     } catch (error: any) {
       setErr(error?.message || "Invalid email or password.");
@@ -234,12 +238,13 @@ function SignUpForm() {
         password_confirm: confirm,
       }));
       login(res.user, res.access);
-      const userRole = res.user.roles?.ylabs || res.user.role;
+      const userRole = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       if (redirect) {
         if (redirect.startsWith('http')) window.location.href = redirect;
         else nav({ to: redirect as any });
       } else {
-        nav({ to: userRole?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+        const r = userRole?.toLowerCase();
+        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
       }
     } catch (error: any) {
       setErr(error?.message || "Registration failed.");
@@ -279,12 +284,13 @@ function OAuthButtons() {
       // @ts-ignore
       const res = await import("@/services/authService").then(m => m.default.loginWithGoogle(tokenResponse.access_token));
       login(res.user, res.access);
-      const userRole = res.user.roles?.ylabs || res.user.role;
+      const userRole = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       if (redirect) {
         if (redirect.startsWith('http')) window.location.href = redirect;
         else nav({ to: redirect as any });
       } else {
-        nav({ to: userRole?.toLowerCase() === "admin" ? "/admin" : "/student/dashboard" });
+        const r = userRole?.toLowerCase();
+        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
       }
     } catch (error: any) {
       console.error("Google login failed", error);

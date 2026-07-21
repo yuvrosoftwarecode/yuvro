@@ -93,15 +93,6 @@ class Lab(BaseTimestampedAdminModel):
     def save(self, *args, **kwargs):
         self.clean()
         is_new = self.pk is None
-        
-        tier_changed_to_freemium = False
-        if not is_new:
-            try:
-                old_lab = Lab.objects.get(pk=self.pk)
-                if old_lab.payment_tier != self.payment_tier and self.payment_tier == PaymentTier.FREEMIUM:
-                    tier_changed_to_freemium = True
-            except Lab.DoesNotExist:
-                pass
 
         super().save(*args, **kwargs)
         
@@ -112,7 +103,7 @@ class Lab(BaseTimestampedAdminModel):
                     if sprint.is_locked != locked:
                         sprint.is_locked = locked
                         sprint.save(update_fields=['is_locked'])
-            elif tier_changed_to_freemium:
+            elif self.payment_tier == PaymentTier.FREEMIUM:
                 sprints = list(self.sprints.all().order_by('order_index'))
                 for i, sprint in enumerate(sprints):
                     locked = (i > 0)
@@ -191,6 +182,7 @@ class UserLabEnrollment(BaseTimestampedModel):
     github_repo_name = models.CharField(max_length=255, blank=True)
     github_repo_url = models.URLField(blank=True)
     default_branch = models.CharField(max_length=100, blank=True)
+    is_unlocked = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("user", "lab")

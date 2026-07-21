@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
+import React from "react";
 import { getCandidates } from "@/lib/recruiterCandidates";
 import { getEvaluation } from "@/lib/recruiter";
 
@@ -10,7 +11,8 @@ export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$can
 
 function CandidateDetailsStub() {
   const { id, candidateId } = Route.useParams();
-  const ev = getEvaluation(id);
+  const [ev, setEv] = React.useState<any>(null);
+  React.useEffect(() => { getEvaluation(id).then(setEv); }, [id]);
   const c = getCandidates(id).find(x => x.id === candidateId);
 
   return (

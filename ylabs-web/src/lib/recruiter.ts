@@ -1,31 +1,66 @@
-// Recruiter data + persistence (localStorage, demo).
-export type Domain = "Finance" | "Insurance" | "EdTech" | "Supply Chain" | "Healthcare" | "Retail";
-export type Tech = "Java" | "SQL" | "Python" | "React" | "Node" | "DevOps" | "Testing" | "Security" | "JavaScript";
-export type Scenario = "Debugging" | "Feature Development" | "API" | "Optimization" | "Security" | "Architecture" | "Performance" | "Testing" | "Production Incident";
-export type Level = "L1" | "L2" | "L3";
+// Recruiter data + backend API
+import { ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
+
+export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
+export type Domain = typeof DOMAINS[number];
+
+export const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"] as const;
+export type ProgrammingLanguage = typeof PROGRAMMING_LANGUAGES[number];
+
+export const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"] as const;
+export type Database = typeof DATABASES[number];
+
+export const SCENARIOS = ["Debugging", "Feature Development", "API Optimization", "Security", "Architecture", "Performance", "Testing", "Production Incident"] as const;
+export type Scenario = typeof SCENARIOS[number];
+
+export const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
+export type Difficulty = typeof DIFFICULTIES[number];
+
+export const EXPERIENCE_LEVELS = ["Intern", "Fresher", "Junior Developer", "Mid-Level Developer", "Senior Developer", "Lead Developer", "Staff Engineer", "Principal Engineer", "Software Architect", "Engineering Manager", "Director of Engineering", "VP of Engineering", "Chief Technology Officer"] as const;
+export type ExperienceLevel = typeof EXPERIENCE_LEVELS[number];
+
+export const FORMATS = ["MCQ", "Multiple Select", "Description", "Coding"] as const;
+export type Format = typeof FORMATS[number];
+
 
 export interface LabItem {
   id: string;
   title: string;
   domain: Domain;
-  tech: Tech;
+  programming_languages: ProgrammingLanguage[];
+  databases: Database[];
   scenario: Scenario;
-  level: Level;
+  difficulty: Difficulty;
   marks: number;
-  minutes: number;
-  tasks: number;
+  duration_minutes: number;
+  tasks?: number; // legacy optional for frontend UI compat
 }
 
 export interface QuestionItem {
   id: string;
-  text: string;
-  tech: Tech;
-  topic: string;
-  difficulty: "Easy" | "Medium" | "Hard";
-  experience: "Fresher" | "1-3" | "3-5";
-  format: "MCQ" | "Multiple Select" | "Scenario Based";
+  text: string; // Wait, frontend uses text instead of title maybe? Or text was in the mock. Let's use text for compat
+  title?: string;
+  programming_languages: ProgrammingLanguage[];
+  databases: Database[];
+  difficulty: Difficulty;
+  experience: ExperienceLevel;
+  format: Format;
   marks: number;
-  seconds: number;
+  duration_minutes: number;
+  seconds?: number; // legacy
+  course?: string;
+  topic?: string;
+}
+
+export interface CourseItem {
+  id: string;
+  name: string;
+}
+
+export interface TopicItem {
+  id: string;
+  name: string;
+  course: string;
 }
 
 export type SectionType = "labs" | "assessment" | "discussion";
@@ -36,18 +71,13 @@ export interface LabsSection {
   title: string;
   labs: LabItem[];
 }
-export interface Subsection {
-  id: string;
-  name: string; // Java, SQL, ...
-  questions: QuestionItem[];
-  randomize?: boolean;
-  shuffle?: boolean;
-}
 export interface AssessmentSection {
   id: string;
   kind: "assessment";
   title: string;
-  subsections: Subsection[];
+  questions: QuestionItem[];
+  randomize?: boolean;
+  shuffle?: boolean;
 }
 export interface DiscussionSection {
   id: string;
@@ -78,138 +108,262 @@ export interface Evaluation {
   };
 }
 
-// ------- Seed data -------
-export const LAB_LIBRARY: LabItem[] = [
-  { id: "l1", title: "Payment API Broken", domain: "Finance", tech: "Java", scenario: "Debugging", level: "L2", marks: 10, minutes: 15, tasks: 4 },
-  { id: "l2", title: "Inventory SQL Optimization", domain: "Supply Chain", tech: "SQL", scenario: "Optimization", level: "L2", marks: 10, minutes: 20, tasks: 3 },
-  { id: "l3", title: "JWT Authentication Failure", domain: "Insurance", tech: "Security", scenario: "Security", level: "L3", marks: 15, minutes: 20, tasks: 5 },
-  { id: "l4", title: "React Checkout Regression", domain: "Retail", tech: "React", scenario: "Debugging", level: "L2", marks: 10, minutes: 18, tasks: 4 },
-  { id: "l5", title: "Patient Records Feature", domain: "Healthcare", tech: "Python", scenario: "Feature Development", level: "L1", marks: 8, minutes: 20, tasks: 3 },
-  { id: "l6", title: "Deploy Pipeline Broken", domain: "EdTech", tech: "DevOps", scenario: "Production Incident", level: "L3", marks: 15, minutes: 25, tasks: 5 },
-  { id: "l7", title: "Order API Performance", domain: "Retail", tech: "Node", scenario: "Performance", level: "L2", marks: 12, minutes: 20, tasks: 4 },
-  { id: "l8", title: "Claims Service Architecture", domain: "Insurance", tech: "Java", scenario: "Architecture", level: "L3", marks: 15, minutes: 30, tasks: 5 },
-  { id: "l9", title: "Flaky Test Suite", domain: "EdTech", tech: "Testing", scenario: "Testing", level: "L1", marks: 8, minutes: 15, tasks: 3 },
-  { id: "l10", title: "Trade Reconciliation API", domain: "Finance", tech: "Java", scenario: "API", level: "L2", marks: 12, minutes: 22, tasks: 4 },
-];
+// Ensure unique ID generation
+export function newUid() { return Math.random().toString(36).slice(2, 10); }
 
-export const QUESTION_BANK: QuestionItem[] = [
-  { id: "q1", text: "What happens when HashMap capacity is exceeded?", tech: "Java", topic: "Collections", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 45 },
-  { id: "q2", text: "Which Stream operation is a terminal operation?", tech: "Java", topic: "Streams", difficulty: "Easy", experience: "Fresher", format: "MCQ", marks: 2, seconds: 40 },
-  { id: "q3", text: "Explain volatile vs synchronized.", tech: "Java", topic: "Concurrency", difficulty: "Hard", experience: "3-5", format: "Scenario Based", marks: 3, seconds: 90 },
-  { id: "q4", text: "How does Spring Boot autoconfigure work?", tech: "Java", topic: "Spring", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 60 },
-  { id: "q5", text: "What is a G1 GC pause?", tech: "Java", topic: "JVM", difficulty: "Hard", experience: "3-5", format: "MCQ", marks: 3, seconds: 60 },
-  { id: "q6", text: "Difference between INNER JOIN and LEFT JOIN?", tech: "SQL", topic: "Joins", difficulty: "Easy", experience: "Fresher", format: "MCQ", marks: 2, seconds: 45 },
-  { id: "q7", text: "How would you optimize a slow query?", tech: "SQL", topic: "Optimization", difficulty: "Hard", experience: "3-5", format: "Scenario Based", marks: 3, seconds: 90 },
-  { id: "q8", text: "What is a window function?", tech: "SQL", topic: "Analytics", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 60 },
-  { id: "q9", text: "Explain event loop in JavaScript.", tech: "JavaScript", topic: "Runtime", difficulty: "Medium", experience: "1-3", format: "Scenario Based", marks: 2, seconds: 60 },
-  { id: "q10", text: "What is a closure?", tech: "JavaScript", topic: "Functions", difficulty: "Easy", experience: "Fresher", format: "MCQ", marks: 2, seconds: 45 },
-  { id: "q11", text: "Difference between var, let, const?", tech: "JavaScript", topic: "Scoping", difficulty: "Easy", experience: "Fresher", format: "MCQ", marks: 2, seconds: 40 },
-  { id: "q12", text: "React reconciliation strategy?", tech: "React", topic: "Rendering", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 60 },
-  { id: "q13", text: "What triggers a Python GIL contention?", tech: "Python", topic: "Runtime", difficulty: "Hard", experience: "3-5", format: "Scenario Based", marks: 3, seconds: 90 },
-  { id: "q14", text: "Explain Node.js clustering.", tech: "Node", topic: "Runtime", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 60 },
-  { id: "q15", text: "What is JWT signature verification?", tech: "Security", topic: "Auth", difficulty: "Medium", experience: "1-3", format: "MCQ", marks: 2, seconds: 60 },
-];
+const API_BASE = "http://localhost:8002/api/skill_evaluation";
 
-export const SUBSECTION_NAMES = ["Java", "SQL", "DSA", "JavaScript", "Python", "React", "Node", "Aptitude", "System Design", "Custom"] as const;
-
-// ------- Store -------
-const KEY = "yuvro-recruiter-evals-v1";
-
-function uid() { return Math.random().toString(36).slice(2, 10); }
-
-function seed(): Evaluation[] {
-  return [
-    {
-      id: uid(), title: "Java Backend Engineer", domain: "Finance", status: "published",
-      createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2, publishedAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
-      candidatesInvited: 52, candidatesCompleted: 34,
-      sections: [
-        { id: uid(), kind: "labs", title: "Engineering Labs", labs: [LAB_LIBRARY[0], LAB_LIBRARY[9]] },
-        { id: uid(), kind: "assessment", title: "Knowledge Assessment", subsections: [
-          { id: uid(), name: "Java", questions: QUESTION_BANK.filter(q => q.tech === "Java").slice(0, 5) },
-          { id: uid(), name: "SQL", questions: QUESTION_BANK.filter(q => q.tech === "SQL").slice(0, 3) },
-        ] },
-        { id: uid(), kind: "discussion", title: "Engineering Discussion", duration: 15, mode: "Automatic", questions: [] },
-      ],
-    },
-    {
-      id: uid(), title: "Frontend React", domain: "Retail", status: "draft",
-      createdAt: Date.now() - 1000 * 60 * 60 * 24, candidatesInvited: 0, candidatesCompleted: 0,
-      sections: [
-        { id: uid(), kind: "labs", title: "Engineering Labs", labs: [LAB_LIBRARY[3]] },
-      ],
-    },
-    {
-      id: uid(), title: "Python Backend", domain: "Healthcare", status: "published",
-      createdAt: Date.now() - 1000 * 60 * 60 * 24 * 5, publishedAt: Date.now() - 1000 * 60 * 60 * 24 * 5,
-      candidatesInvited: 28, candidatesCompleted: 19,
-      sections: [
-        { id: uid(), kind: "labs", title: "Engineering Labs", labs: [LAB_LIBRARY[4]] },
-        { id: uid(), kind: "assessment", title: "Knowledge Assessment", subsections: [
-          { id: uid(), name: "Python", questions: QUESTION_BANK.filter(q => q.tech === "Python").slice(0, 2) },
-        ] },
-      ],
-    },
-  ];
-}
-
-export function listEvaluations(): Evaluation[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) {
-      const s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s;
-    }
-    return JSON.parse(raw);
-  } catch { return []; }
-}
-function writeAll(list: Evaluation[]) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {}
-}
-export function getEvaluation(id: string): Evaluation | undefined {
-  return listEvaluations().find(e => e.id === id);
-}
-export function saveEvaluation(e: Evaluation) {
-  const list = listEvaluations();
-  const i = list.findIndex(x => x.id === e.id);
-  if (i >= 0) list[i] = e; else list.push(e);
-  writeAll(list);
-}
-export function createEvaluation(): Evaluation {
-  const e: Evaluation = {
-    id: uid(), title: "Untitled Evaluation", domain: "", status: "draft",
-    createdAt: Date.now(), candidatesInvited: 0, candidatesCompleted: 0, sections: [],
+function mapBackendToFrontend(be: any): Evaluation {
+  return {
+    id: be.id,
+    title: be.title || "Untitled Evaluation",
+    domain: (be.domain === "OTHER" ? "" : be.domain) as any,
+    status: be.is_published ? "published" : "draft",
+    createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
+    candidatesInvited: be.candidate_invited_emails?.length || 0,
+    candidatesCompleted: 0,
+    sections: (be.sections || []).map((s: any) => {
+      if (s.type === "LAB") {
+        return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
+      } else if (s.type === "VITARKA_AI_INTERVIEW") {
+        let meta = { duration: 15, mode: "Automatic" };
+        try { meta = JSON.parse(s.description || "{}"); } catch {}
+        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: meta.mode || "Automatic", questions: s.questions || [] };
+      } else {
+        return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [] };
+      }
+    }),
   };
-  const list = listEvaluations(); list.unshift(e); writeAll(list); return e;
-}
-export function deleteEvaluation(id: string) {
-  writeAll(listEvaluations().filter(e => e.id !== id));
-}
-export function duplicateEvaluation(id: string): Evaluation | undefined {
-  const src = getEvaluation(id); if (!src) return;
-  const copy: Evaluation = { ...JSON.parse(JSON.stringify(src)), id: uid(), title: src.title + " (Copy)", status: "draft", createdAt: Date.now(), publishedAt: undefined, candidatesInvited: 0, candidatesCompleted: 0 };
-  const list = listEvaluations(); list.unshift(copy); writeAll(list); return copy;
 }
 
-// ------- Derived -------
+function mapFrontendToBackend(fe: Evaluation): any {
+  return {
+    title: fe.title,
+    domain: fe.domain || "OTHER",
+    is_published: fe.status === "published",
+    sections: fe.sections.map((s: any, idx: number) => {
+      let type = "KNOWLEDGE_ASSESSMENT";
+      let qs = [];
+      let desc = "";
+      if (s.kind === "labs") { type = "LAB"; qs = s.labs || []; }
+      else if (s.kind === "assessment") { type = "KNOWLEDGE_ASSESSMENT"; qs = s.questions || []; }
+      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: s.mode }); }
+      
+      return {
+        title: s.title,
+        description: desc,
+        type: type,
+        order_index: idx,
+        questions: qs,
+      };
+    }),
+  };
+}
+
+export async function listEvaluations(): Promise<Evaluation[]> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.map(mapBackendToFrontend);
+  } catch {
+    return [];
+  }
+}
+
+export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${id}/`);
+    if (!res.ok) return undefined;
+    const data = await res.json();
+    return mapBackendToFrontend(data);
+  } catch {
+    return undefined;
+  }
+}
+
+export async function saveEvaluation(e: Evaluation): Promise<Evaluation | undefined> {
+  try {
+    const payload = mapFrontendToBackend(e);
+    let res;
+    if (e.id === "draft") {
+      res = await fetch(`${API_BASE}/evaluations/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      res = await fetch(`${API_BASE}/evaluations/${e.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    }
+    
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Backend returned error:", res.status, errText);
+      alert("Error saving: " + errText);
+      return undefined;
+    }
+    
+    const data = await res.json();
+    return mapBackendToFrontend(data);
+  } catch (err) {
+    console.error("Error saving evaluation", err);
+    alert("Network error while saving.");
+    return undefined;
+  }
+}
+
+export async function createEvaluation(): Promise<Evaluation> {
+  return {
+    id: "draft",
+    title: "Untitled Evaluation",
+    domain: "",
+    status: "draft",
+    createdAt: Date.now(),
+    candidatesInvited: 0,
+    candidatesCompleted: 0,
+    sections: []
+  };
+}
+
+export function saveDraftLocally(e: Evaluation) {
+  try {
+    localStorage.setItem(`draft_eval_${e.id}`, JSON.stringify(e));
+  } catch (err) {
+    console.error("Failed to save draft locally", err);
+  }
+}
+
+export function getDraftLocally(id: string): Evaluation | null {
+  try {
+    const raw = localStorage.getItem(`draft_eval_${id}`);
+    if (raw) return JSON.parse(raw) as Evaluation;
+  } catch {}
+  return null;
+}
+
+export function clearDraftLocally(id: string) {
+  try {
+    localStorage.removeItem(`draft_eval_${id}`);
+  } catch {}
+}
+
+export async function deleteEvaluation(id: string) {
+  try {
+    await fetch(`${API_BASE}/evaluations/${id}/`, { method: "DELETE" });
+  } catch {}
+}
+
+export async function duplicateEvaluation(id: string): Promise<Evaluation | undefined> {
+  const src = await getEvaluation(id); if (!src) return;
+  const payload = mapFrontendToBackend(src);
+  payload.title = payload.title + " (Copy)";
+  const res = await fetch(`${API_BASE}/evaluations/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  return mapBackendToFrontend(data);
+}
+
+export async function fetchLabs(): Promise<LabItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/lab-questions/`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchCourses(): Promise<CourseItem[]> {
+  try {
+    const data = await ycodeApiAuthUtil.get<any>('/course/courses/');
+    return Array.isArray(data) ? data : (data.results || []);
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
+  try {
+    const url = courseId ? `/course/topics/?course=${courseId}` : `/course/topics/`;
+    const data = await ycodeApiAuthUtil.get<any>(url);
+    return Array.isArray(data) ? data : (data.results || []);
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchQuestions(): Promise<QuestionItem[]> {
+  try {
+    const data = await ycodeApiAuthUtil.get<any[]>('/course/questions/');
+    // Handle paginated response if backend returns { results: [...] }
+    const results = Array.isArray(data) ? data : (data as any).results || [];
+    return results.map((q: any) => ({
+      ...q,
+      id: q.id,
+      text: q.content || "",
+      title: q.title || "",
+      programming_languages: [],
+      databases: [],
+      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      experience: "Fresher" as ExperienceLevel,
+      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      marks: q.marks || 1,
+      duration_minutes: q.duration || 1,
+      course: q.course,
+      topic: q.topic
+    }));
+  } catch (err) {
+    console.error("fetchQuestions error", err);
+    return [];
+  }
+}
+
+export async function fetchQuestionDetails(id: string): Promise<QuestionItem | null> {
+  try {
+    const q = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);
+    if (!q) return null;
+    return {
+      ...q,
+      id: q.id,
+      text: q.content || "",
+      title: q.title || "",
+      programming_languages: [],
+      databases: [],
+      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      experience: "Fresher" as ExperienceLevel,
+      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      marks: q.marks || 1,
+      duration_minutes: q.duration || 1,
+      course: q.course,
+      topic: q.topic
+    };
+  } catch (err) {
+    console.error("fetchQuestionDetails error", err);
+    return null;
+  }
+}
+
 export function evaluationTotals(e: Evaluation) {
   let minutes = 0, marks = 0, labs = 0, questions = 0, discussion = 0;
   for (const s of e.sections) {
     if (s.kind === "labs") {
       labs += s.labs.length;
-      minutes += s.labs.reduce((a, l) => a + l.minutes, 0);
-      marks += s.labs.reduce((a, l) => a + l.marks, 0);
+      minutes += s.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0);
+      marks += s.labs.reduce((a, l) => a + (l.marks || 0), 0);
     } else if (s.kind === "assessment") {
-      for (const sub of s.subsections) {
-        questions += sub.questions.length;
-        marks += sub.questions.reduce((a, q) => a + q.marks, 0);
-        minutes += Math.ceil(sub.questions.reduce((a, q) => a + q.seconds, 0) / 60);
-      }
+      questions += s.questions.length;
+      marks += s.questions.reduce((a, q) => a + (q.marks || 0), 0);
+      minutes += s.questions.reduce((a, q) => a + ((q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)) || 0), 0);
     } else if (s.kind === "discussion") {
       discussion += s.duration; minutes += s.duration;
     }
   }
   return { minutes, marks, labs, questions, discussion, sections: e.sections.length };
 }
-
-export function newUid() { return uid(); }

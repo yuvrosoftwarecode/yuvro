@@ -1,5 +1,23 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Flame, Zap, Trophy, User, Users, LayoutDashboard, MessagesSquare, Award, BarChart3, Sun, Moon, LogOut, Rocket, ChevronDown, MoreHorizontal, X } from "lucide-react";
+import {
+  Flame,
+  Zap,
+  Trophy,
+  User,
+  Users,
+  LayoutDashboard,
+  MessagesSquare,
+  Award,
+  BarChart3,
+  Sun,
+  Moon,
+  LogOut,
+  ChevronDown,
+  MoreHorizontal,
+  Rocket,
+  X,
+} from "lucide-react";
+
 import { useTheme } from "@/hooks/use-theme";
 import { me } from "@/lib/dummy";
 import { useAuth } from "@/lib/auth";
@@ -61,13 +79,21 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
           <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
-          {primaryLinks.map((l) => {
-            const active = isActive(l.to);
-            const Icon = l.icon;
+          {primaryLinks.map((link) => {
+            const Icon = link.icon;
+            const active = activePath.startsWith(link.to);
             return (
-              <Link key={l.to} to={l.to}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}>
-                <Icon className="h-3.5 w-3.5" />{l.label}
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors ${
+                  active
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {link.label}
               </Link>
             );
           })}
