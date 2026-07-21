@@ -1,0 +1,104 @@
+{
+  "title": "Sprint 3 - Basic Data Insertion",
+  "description": "Complete all SQL queries in this sprint.",
+  "order_index": 3,
+  "lab_title": "PostgreSQL Lab",
+  "tickets": [
+    {
+      "title": "Insert First Users",
+      "ticket_slug": "postgresql-301",
+      "description": "Add five users to the system: 'alice_dev' (alice@email.com), 'bob_ops' (bob@email.com), 'charlie_ux' (charlie@email.com), 'david_qa' (david@email.com), and 'eve_mgr' (eve@email.com). For PostgreSQL, specify explicit id values 1 through 5 to ensure consistent key alignment.",
+      "tasks": [
+        "Add five users to the system: 'alice_dev' (alice@email.com), 'bob_ops' (bob@email.com), 'charlie_ux' (charlie@email.com), 'david_qa' (david@email.com), and 'eve_mgr' (eve@email.com). For PostgreSQL, specify explicit id values 1 through 5 to ensure consistent key alignment."
+      ],
+      "learning_objectives": [
+        "Use INSERT INTO for multiple rows."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting the semicolon or mismatching parentheses."
+      ],
+      "hints": [
+        "Use INSERT INTO with columns (id, username, email)."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM users ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "INSERT INTO users (id, username, email) VALUES \n(1, 'alice_dev', 'alice@email.com'),\n(2, 'bob_ops', 'bob@email.com'),\n(3, 'charlie_ux', 'charlie@email.com'),\n(4, 'david_qa', 'david@email.com'),\n(5, 'eve_mgr', 'eve@email.com');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Insert First Todos",
+      "ticket_slug": "postgresql-302",
+      "description": "Assign a first batch of tasks (with ID values 1 through 9) to different users:\n1. For Alice (`user_id = 1`): 'Setup database' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Design schema' (priority 1, status 'completed', due date in the past '2026-06-15').\n3. For Alice (`user_id = 1`): 'Configure CI/CD' (priority 3, status 'cancelled', no due date).\n4. For Bob (`user_id = 2`): 'Deploy production' (priority 1, status 'completed', due date in the past '2026-06-20').\n5. For Bob (`user_id = 2`): 'Monitor disk usage' (priority 2, status 'pending', due date in the past '2026-06-25').\n6. For Charlie (`user_id = 3`): 'Create wireframes' (priority 2, status 'completed', due date in the past '2026-06-10').\n7. For David (`user_id = 4`): 'Write test cases' (priority 3, status 'pending', due date in the future '2026-07-25').\n8. For Eve (`user_id = 5`): 'Project kickoff' (priority 1, status 'completed', due date in the past '2026-06-01').\n9. For Eve (`user_id = 5`): 'Weekly sync' (priority 3, status 'pending', due date in the future '2026-07-30').",
+      "tasks": [
+        "Assign a first batch of tasks (with ID values 1 through 9) to different users:\n1. For Alice (`user_id = 1`): 'Setup database' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Design schema' (priority 1, status 'completed', due date in the past '2026-06-15').\n3. For Alice (`user_id = 1`): 'Configure CI/CD' (priority 3, status 'cancelled', no due date).\n4. For Bob (`user_id = 2`): 'Deploy production' (priority 1, status 'completed', due date in the past '2026-06-20').\n5. For Bob (`user_id = 2`): 'Monitor disk usage' (priority 2, status 'pending', due date in the past '2026-06-25').\n6. For Charlie (`user_id = 3`): 'Create wireframes' (priority 2, status 'completed', due date in the past '2026-06-10').\n7. For David (`user_id = 4`): 'Write test cases' (priority 3, status 'pending', due date in the future '2026-07-25').\n8. For Eve (`user_id = 5`): 'Project kickoff' (priority 1, status 'completed', due date in the past '2026-06-01').\n9. For Eve (`user_id = 5`): 'Weekly sync' (priority 3, status 'pending', due date in the future '2026-07-30')."
+      ],
+      "learning_objectives": [
+        "Understand auto-increment IDs and default values during insertion."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Mismatching columns or values."
+      ],
+      "hints": [
+        "Write individual INSERT statements to cleanly omit the due_date column where it is null."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "INSERT INTO todos (id, user_id, title, priority, status) VALUES (1, 1, 'Setup database', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (2, 1, 'Design schema', 1, '2026-06-15', 'completed');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (3, 1, 'Configure CI/CD', 3, 'cancelled');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (4, 2, 'Deploy production', 1, '2026-06-20', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (5, 2, 'Monitor disk usage', 2, '2026-06-25', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (6, 3, 'Create wireframes', 2, '2026-06-10', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (7, 4, 'Write test cases', 3, '2026-07-25', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (8, 5, 'Project kickoff', 1, '2026-06-01', 'completed');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (9, 5, 'Weekly sync', 3, '2026-07-30', 'pending');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "DEFAULT Demonstration",
+      "ticket_slug": "postgresql-303",
+      "description": "Assign a second batch of tasks (with ID values 10 through 18) to represent different scenarios:\n1. For Alice (`user_id = 1`): 'Write documentation' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Review pull requests' (priority 2, status 'pending', due date in the future '2026-07-20').\n3. For Alice (`user_id = 1`): 'Fix bug #104' (priority 1, status 'pending', due date in the past '2026-06-30').\n4. For Alice (`user_id = 1`): 'Refactor auth logic' (priority 2, status 'pending', due date in the future '2026-07-22').\n5. For Alice (`user_id = 1`): 'Run security audit' (priority 5, status 'pending', due date in the future '2026-07-28').\n6. For Bob (`user_id = 2`): 'Backup database' (priority 3, status 'completed', no due date).\n7. For Charlie (`user_id = 3`): 'User testing' (priority 3, status 'pending', no due date).\n8. For David (`user_id = 4`): 'Run load tests' (priority 2, status 'pending', no due date).\n9. For Eve (`user_id = 5`): 'Budget review' (priority 5, status 'pending', due date in the future '2026-07-27').",
+      "tasks": [
+        "Assign a second batch of tasks (with ID values 10 through 18) to represent different scenarios:\n1. For Alice (`user_id = 1`): 'Write documentation' (priority 3, status 'pending', no due date).\n2. For Alice (`user_id = 1`): 'Review pull requests' (priority 2, status 'pending', due date in the future '2026-07-20').\n3. For Alice (`user_id = 1`): 'Fix bug #104' (priority 1, status 'pending', due date in the past '2026-06-30').\n4. For Alice (`user_id = 1`): 'Refactor auth logic' (priority 2, status 'pending', due date in the future '2026-07-22').\n5. For Alice (`user_id = 1`): 'Run security audit' (priority 5, status 'pending', due date in the future '2026-07-28').\n6. For Bob (`user_id = 2`): 'Backup database' (priority 3, status 'completed', no due date).\n7. For Charlie (`user_id = 3`): 'User testing' (priority 3, status 'pending', no due date).\n8. For David (`user_id = 4`): 'Run load tests' (priority 2, status 'pending', no due date).\n9. For Eve (`user_id = 5`): 'Budget review' (priority 5, status 'pending', due date in the future '2026-07-27')."
+      ],
+      "learning_objectives": [
+        "Explicitly use DEFAULT keyword in INSERT."
+      ],
+      "evaluation": "DATABASE_STATE",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Missing commas or statements."
+      ],
+      "hints": [
+        "Write individual INSERT statements to cleanly omit due_date where it is null."
+      ],
+      "scoring_rules": {
+        "system_query": "SELECT * FROM todos ORDER BY id;"
+      },
+      "solution": {
+        "query.sql": "INSERT INTO todos (id, user_id, title, priority, status) VALUES (10, 1, 'Write documentation', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (11, 1, 'Review pull requests', 2, '2026-07-20', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (12, 1, 'Fix bug #104', 1, '2026-06-30', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (13, 1, 'Refactor auth logic', 2, '2026-07-22', 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (14, 1, 'Run security audit', 5, '2026-07-28', 'pending');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (15, 2, 'Backup database', 3, 'completed');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (16, 3, 'User testing', 3, 'pending');\nINSERT INTO todos (id, user_id, title, priority, status) VALUES (17, 4, 'Run load tests', 2, 'pending');\nINSERT INTO todos (id, user_id, title, priority, due_date, status) VALUES (18, 5, 'Budget review', 5, '2026-07-27', 'pending');",
+        "database_identifier": "todo_management"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "SQL"
+      ],
+      "order_index": 3
+    }
+  ]
+}

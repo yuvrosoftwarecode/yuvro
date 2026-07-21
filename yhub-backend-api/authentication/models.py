@@ -35,6 +35,21 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
+    def is_admin(self):
+        return any(role == "admin" for role in self.roles.values())
+
+    def is_instructor(self):
+        return any(role == "instructor" for role in self.roles.values())
+
+    def is_recruiter(self):
+        return any(role == "recruiter" for role in self.roles.values())
+
+    def is_student(self):
+        return any(role == "student" for role in self.roles.values())
+
+    def is_guest(self):
+        return any(role == "guest" for role in self.roles.values())
+
     def clean(self):
         super().clean()
         if not isinstance(self.roles, dict):

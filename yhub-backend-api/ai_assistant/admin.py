@@ -225,6 +225,7 @@ class InterviewSessionAdmin(admin.ModelAdmin):
         "status",
         "duration_minutes",
         "created_at",
+        "updated_at",
         "completed_at",
     ]
     list_filter = ["status", "difficulty", "role_level", "created_at"]
