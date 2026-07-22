@@ -5,9 +5,9 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 
-export const Route = createFileRoute("/admin")({ 
+export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location }) => requireAdminAuth(location.href),
-  component: AdminLayout 
+  component: AdminLayout,
 });
 
 function AdminLayout() {

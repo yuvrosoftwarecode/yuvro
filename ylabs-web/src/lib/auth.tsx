@@ -1,5 +1,5 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import authService from '../services/authService';
+import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
+import authService from "../services/authService";
 
 export interface User {
   id: string;
@@ -33,12 +33,12 @@ interface AuthState {
 }
 
 type AuthAction =
-  | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string } }
-  | { type: 'LOGIN_FAILURE' }
-  | { type: 'LOGOUT' }
-  | { type: 'UPDATE_USER'; payload: User }
-  | { type: 'SET_LOADING'; payload: boolean };
+  | { type: "LOGIN_START" }
+  | { type: "LOGIN_SUCCESS"; payload: { user: User; token: string } }
+  | { type: "LOGIN_FAILURE" }
+  | { type: "LOGOUT" }
+  | { type: "UPDATE_USER"; payload: User }
+  | { type: "SET_LOADING"; payload: boolean };
 
 export interface AuthContextType extends AuthState {
   login: (user: User, token: string) => void;
@@ -48,9 +48,9 @@ export interface AuthContextType extends AuthState {
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
-    case 'LOGIN_START':
+    case "LOGIN_START":
       return { ...state, isLoading: true };
-    case 'LOGIN_SUCCESS':
+    case "LOGIN_SUCCESS":
       return {
         ...state,
         isLoading: false,
@@ -58,7 +58,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         user: action.payload.user,
         token: action.payload.token,
       };
-    case 'LOGIN_FAILURE':
+    case "LOGIN_FAILURE":
       return {
         ...state,
         isLoading: false,
@@ -66,19 +66,19 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         user: null,
         token: null,
       };
-    case 'LOGOUT':
+    case "LOGOUT":
       return {
         ...state,
         isAuthenticated: false,
         user: null,
         token: null,
       };
-    case 'UPDATE_USER':
+    case "UPDATE_USER":
       return {
         ...state,
         user: action.payload,
       };
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return {
         ...state,
         isLoading: action.payload,
@@ -89,7 +89,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 const getInitialState = (): AuthState => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
       user: null,
       token: null,
@@ -98,16 +98,16 @@ const getInitialState = (): AuthState => {
     };
   }
 
-  const accessToken = localStorage.getItem('access');
-  const storedUser = localStorage.getItem('user');
+  const accessToken = localStorage.getItem("access");
+  const storedUser = localStorage.getItem("user");
 
   let user = null;
-  if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+  if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
     try {
       user = JSON.parse(storedUser);
     } catch (e) {
-      console.warn('Failed to parse stored user data:', e);
-      localStorage.removeItem('user');
+      console.warn("Failed to parse stored user data:", e);
+      localStorage.removeItem("user");
     }
   }
 
@@ -134,16 +134,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (state.isAuthenticated && state.token) {
-      localStorage.setItem('access', state.token);
+      localStorage.setItem("access", state.token);
       authService.setAuthToken(state.token);
     } else {
-      localStorage.removeItem('access');
-      localStorage.removeItem('refresh');
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
     }
   }, [state.isAuthenticated, state.token]);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('access');
+    const accessToken = localStorage.getItem("access");
 
     if (accessToken) {
       authService.setAuthToken(accessToken);
@@ -153,43 +153,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .getCurrentUser()
         .then((userData) => {
           const latestToken = authService.getAuthToken() || accessToken;
-          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem("user", JSON.stringify(userData));
           dispatch({
-            type: 'LOGIN_SUCCESS',
+            type: "LOGIN_SUCCESS",
             payload: { user: userData, token: latestToken },
           });
         })
         .catch((error) => {
-          console.error('Failed to fetch user on load:', error);
+          console.error("Failed to fetch user on load:", error);
           if (error.status === 401) {
             authService.logoutUser();
-            dispatch({ type: 'LOGIN_FAILURE' });
+            dispatch({ type: "LOGIN_FAILURE" });
           } else {
-            dispatch({ type: 'SET_LOADING', payload: false });
+            dispatch({ type: "SET_LOADING", payload: false });
           }
         });
     } else {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   }, []);
 
   const login = (user: User, token: string) => {
-    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
     dispatch({
-      type: 'LOGIN_SUCCESS',
+      type: "LOGIN_SUCCESS",
       payload: { user, token },
     });
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     authService.logoutUser();
-    dispatch({ type: 'LOGOUT' });
+    dispatch({ type: "LOGOUT" });
   };
 
   const updateUser = (user: User) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    dispatch({ type: 'UPDATE_USER', payload: user });
+    localStorage.setItem("user", JSON.stringify(user));
+    dispatch({ type: "UPDATE_USER", payload: user });
   };
 
   return (
@@ -209,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

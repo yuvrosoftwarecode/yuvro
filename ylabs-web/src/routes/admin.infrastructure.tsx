@@ -6,7 +6,7 @@ export const Route = createFileRoute("/admin/infrastructure")({ component: Infra
 
 function InfraPage() {
   return (
-    <AdminShell title="Infrastructure" breadcrumb={["Operations","Infrastructure"]}>
+    <AdminShell title="Infrastructure" breadcrumb={["Operations", "Infrastructure"]}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Containers running" value="4,128" color="primary" icon={Container} />
         <KpiCard label="CPU usage" value="62%" color="ui" icon={Cpu} />
@@ -22,10 +22,15 @@ function InfraPage() {
               { l: "In-progress", v: 1284, c: "ui" },
               { l: "Failed (1h)", v: 12, c: "warning" },
               { l: "Avg wait time", v: "240ms", c: "success" },
-            ].map(x => (
-              <div key={x.l} className="flex items-center justify-between border-b border-border/40 last:border-0 py-2">
+            ].map((x) => (
+              <div
+                key={x.l}
+                className="flex items-center justify-between border-b border-border/40 last:border-0 py-2"
+              >
                 <span className="text-muted-foreground">{x.l}</span>
-                <span className="font-mono" style={{ color: `var(--${x.c})` }}>{x.v}</span>
+                <span className="font-mono" style={{ color: `var(--${x.c})` }}>
+                  {x.v}
+                </span>
               </div>
             ))}
           </div>
@@ -40,10 +45,13 @@ function InfraPage() {
               { l: "Object storage", c: "success" },
               { l: "Database (primary)", c: "success" },
               { l: "Database (read replica)", c: "success" },
-            ].map(x => (
+            ].map((x) => (
               <div key={x.l} className="flex items-center justify-between">
                 <span>{x.l}</span>
-                <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: `var(--${x.c})` }}>
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs"
+                  style={{ color: `var(--${x.c})` }}
+                >
                   <Activity className="h-3 w-3" /> {x.c === "warning" ? "degraded" : "operational"}
                 </span>
               </div>
@@ -59,7 +67,7 @@ function InfraPage() {
             { l: "Container images", v: "8.2 TB" },
             { l: "Logs", v: "4.1 TB" },
             { l: "Artifacts", v: "2.6 TB" },
-          ].map(x => (
+          ].map((x) => (
             <div key={x.l} className="rounded-md border border-border p-3">
               <div className="text-[10px] uppercase text-muted-foreground">{x.l}</div>
               <div className="font-semibold mt-1 font-mono">{x.v}</div>

@@ -14,7 +14,7 @@ export default defineConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ['recharts'],
+      include: ["recharts"],
     },
     build: {
       modulePreload: {
@@ -33,11 +33,11 @@ export default defineConfig({
         protocol: "ws",
         host: "localhost",
         clientPort: 3002,
-        overlay: true
+        overlay: true,
       },
       watch: {
-        usePolling: true
-      }
-    }
-  }
+        usePolling: true,
+      },
+    },
+  },
 });

@@ -16,7 +16,7 @@ function UsersPage() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await restApiAuthUtil.get<any[]>('/auth/users/');
+        const response = await restApiAuthUtil.get<any[]>("/auth/users/");
         const mappedUsers = response.map((u, i) => {
           let userRole = "Student";
           if (u.role === "admin") {
@@ -24,10 +24,13 @@ function UsersPage() {
           } else if (u.role === "developer") {
             userRole = "Mentor";
           }
-          
+
           return {
             id: u.id,
-            name: (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.username || `User ${i}`,
+            name:
+              u.first_name || u.last_name
+                ? `${u.first_name || ""} ${u.last_name || ""}`.trim()
+                : u.username || `User ${i}`,
             email: u.email,
             role: userRole,
             active: u.last_login ? new Date(u.last_login).toLocaleDateString() : "-",
@@ -42,20 +45,36 @@ function UsersPage() {
     fetchUsers();
   }, []);
 
-  const filtered = users.filter(u =>
-    (role === "All" || u.role === role) &&
-    (u.name.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()))
+  const filtered = users.filter(
+    (u) =>
+      (role === "All" || u.role === role) &&
+      (u.name.toLowerCase().includes(q.toLowerCase()) ||
+        u.email.toLowerCase().includes(q.toLowerCase())),
   );
 
   return (
-    <AdminShell title="Users" breadcrumb={["People", "Users"]} right={
-      <div className="flex items-center gap-2">
-        <button className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1.5"><Download className="h-3.5 w-3.5" /> Export CSV</button>
-        <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Invite users</button>
-      </div>
-    }>
+    <AdminShell
+      title="Users"
+      breadcrumb={["People", "Users"]}
+      right={
+        <div className="flex items-center gap-2">
+          <button className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1.5">
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </button>
+          <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center gap-1.5">
+            <UserPlus className="h-3.5 w-3.5" /> Invite users
+          </button>
+        </div>
+      }
+    >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KpiCard label="Total users" value="1,284,991" delta="+12.4% MoM" color="primary" icon={Users} />
+        <KpiCard
+          label="Total users"
+          value="1,284,991"
+          delta="+12.4% MoM"
+          color="primary"
+          icon={Users}
+        />
         <KpiCard label="Active (24h)" value="48,127" delta="+3.2%" color="success" />
         <KpiCard label="New signups" value="2,418" delta="last 24h" color="ui" />
         <KpiCard label="Suspended" value="62" delta="-4 this week" color="warning" />
@@ -65,40 +84,84 @@ function UsersPage() {
         <div className="flex items-center gap-3 p-4 border-b border-border/60">
           <div className="flex items-center gap-2 rounded-md border border-border bg-background/50 px-2.5 py-1.5 text-xs w-72">
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or email" className="bg-transparent outline-none flex-1" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by name or email"
+              className="bg-transparent outline-none flex-1"
+            />
           </div>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5">
-            <option>All</option>{ROLES.map(r => <option key={r}>{r}</option>)}
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5"
+          >
+            <option>All</option>
+            {ROLES.map((r) => (
+              <option key={r}>{r}</option>
+            ))}
           </select>
-          <button className="text-xs px-2 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1"><Filter className="h-3.5 w-3.5" /> More filters</button>
-          <span className="ml-auto text-xs text-muted-foreground">{filtered.length.toLocaleString()} of {users.length} shown</span>
+          <button className="text-xs px-2 py-1.5 rounded-md border border-border hover:bg-accent inline-flex items-center gap-1">
+            <Filter className="h-3.5 w-3.5" /> More filters
+          </button>
+          <span className="ml-auto text-xs text-muted-foreground">
+            {filtered.length.toLocaleString()} of {users.length} shown
+          </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
               <tr>
-                {["Name","Email","Role","Last active","Status",""].map(h => (
-                  <th key={h} className="text-left font-medium px-4 py-2">{h}</th>
+                {["Name", "Email", "Role", "Last active", "Status", ""].map((h) => (
+                  <th key={h} className="text-left font-medium px-4 py-2">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.map(u => (
+              {filtered.map((u) => (
                 <tr key={u.id} className="border-t border-border/40 hover:bg-accent/30">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="grid h-7 w-7 place-items-center rounded-full bg-primary/20 text-primary text-[11px] font-semibold">{u.name[0]}</div>
+                      <div className="grid h-7 w-7 place-items-center rounded-full bg-primary/20 text-primary text-[11px] font-semibold">
+                        {u.name[0]}
+                      </div>
                       <span className="font-medium">{u.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.email}</td>
-                  <td className="px-4 py-2.5"><Badge tone={u.role === "Admin" ? "destructive" : u.role === "Recruiter" ? "ui" : "muted"}>{u.role}</Badge></td>
+                  <td className="px-4 py-2.5">
+                    <Badge
+                      tone={
+                        u.role === "Admin" ? "destructive" : u.role === "Recruiter" ? "ui" : "muted"
+                      }
+                    >
+                      {u.role}
+                    </Badge>
+                  </td>
                   <td className="px-4 py-2.5 text-muted-foreground">{u.active}</td>
                   <td className="px-4 py-2.5">
-                    <Badge tone={u.status === "active" ? "success" : u.status === "invited" ? "primary" : "destructive"}>{u.status}</Badge>
+                    <Badge
+                      tone={
+                        u.status === "active"
+                          ? "success"
+                          : u.status === "invited"
+                            ? "primary"
+                            : "destructive"
+                      }
+                    >
+                      {u.status}
+                    </Badge>
                   </td>
                   <td className="px-4 py-2.5">
-                    <Link to="/admin/users/$id" params={{ id: u.id }} className="text-xs text-primary hover:underline">View →</Link>
+                    <Link
+                      to="/admin/users/$id"
+                      params={{ id: u.id }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      View →
+                    </Link>
                   </td>
                 </tr>
               ))}

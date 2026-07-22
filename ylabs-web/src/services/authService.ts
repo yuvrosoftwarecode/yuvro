@@ -1,6 +1,6 @@
-import type { User } from '../lib/auth';
-import { restApiAuthUtil, yhubApiAuthUtil, ycodeApiAuthUtil } from '../utils/RestApiAuthUtil';
-import { restApiUtil } from '../utils/RestApiUtil';
+import type { User } from "../lib/auth";
+import { restApiAuthUtil, yhubApiAuthUtil, ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { restApiUtil } from "../utils/RestApiUtil";
 
 export interface LoginResponse {
   access: string;
@@ -35,7 +35,7 @@ class AuthService {
   }
 
   initializeFromStorage(): void {
-    const token = localStorage.getItem('access');
+    const token = localStorage.getItem("access");
     if (token) {
       restApiAuthUtil.setAuthToken(token);
       yhubApiAuthUtil.setAuthToken(token);
@@ -44,10 +44,13 @@ class AuthService {
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/login/?product=ylabs', { email, password });
+    const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/login/?product=ylabs", {
+      email,
+      password,
+    });
 
-    localStorage.setItem('access', response.access);
-    localStorage.setItem('refresh', response.refresh);
+    localStorage.setItem("access", response.access);
+    localStorage.setItem("refresh", response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);
@@ -56,10 +59,13 @@ class AuthService {
   }
 
   async register(data: RegisterRequest): Promise<LoginResponse> {
-    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/register/?product=ylabs', data);
+    const response = await yhubApiAuthUtil.post<LoginResponse>(
+      "/auth/register/?product=ylabs",
+      data,
+    );
 
-    localStorage.setItem('access', response.access);
-    localStorage.setItem('refresh', response.refresh);
+    localStorage.setItem("access", response.access);
+    localStorage.setItem("refresh", response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);
@@ -68,10 +74,12 @@ class AuthService {
   }
 
   async loginWithGoogle(token: string): Promise<LoginResponse> {
-    const response = await yhubApiAuthUtil.post<LoginResponse>('/auth/google/?product=ylabs', { token });
+    const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/google/?product=ylabs", {
+      token,
+    });
 
-    localStorage.setItem('access', response.access);
-    localStorage.setItem('refresh', response.refresh);
+    localStorage.setItem("access", response.access);
+    localStorage.setItem("refresh", response.refresh);
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);
@@ -81,43 +89,48 @@ class AuthService {
 
   async getCurrentUser(): Promise<User> {
     // Fetch from YHub so profile_image / cover_image are always present
-    return await yhubApiAuthUtil.get<User>('/auth/user/');
+    return await yhubApiAuthUtil.get<User>("/auth/user/");
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
-    return await yhubApiAuthUtil.put<User>('/auth/user/', userData);
+    return await yhubApiAuthUtil.put<User>("/auth/user/", userData);
   }
 
-  async uploadProfileImage(file: File, field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
+  async uploadProfileImage(
+    file: File,
+    field: "profile_image" | "cover_image" = "profile_image",
+  ): Promise<User> {
     const formData = new FormData();
-    formData.append('image', file);
-    formData.append('field', field);
-    return await yhubApiAuthUtil.post<User>('/auth/profile/upload-image/', formData);
+    formData.append("image", file);
+    formData.append("field", field);
+    return await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
   }
 
-  async removeProfileImage(field: 'profile_image' | 'cover_image' = 'profile_image'): Promise<User> {
-    return await yhubApiAuthUtil.post<User>('/auth/profile/remove-image/', { field });
+  async removeProfileImage(
+    field: "profile_image" | "cover_image" = "profile_image",
+  ): Promise<User> {
+    return await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field });
   }
 
   async logoutUser(): Promise<void> {
-    const refreshToken = localStorage.getItem('refresh');
+    const refreshToken = localStorage.getItem("refresh");
     if (refreshToken) {
-      yhubApiAuthUtil.post('/auth/logout/', { refresh: refreshToken }).catch(error => {
-        console.warn('Logout error:', error);
+      yhubApiAuthUtil.post("/auth/logout/", { refresh: refreshToken }).catch((error) => {
+        console.warn("Logout error:", error);
       });
     }
     restApiAuthUtil.clearAuthToken();
     yhubApiAuthUtil.clearAuthToken();
     ycodeApiAuthUtil.clearAuthToken();
-    window.location.href = '/auth?tab=signin';
+    window.location.href = "/auth?tab=signin";
   }
 
   async healthCheck(): Promise<{ status: string }> {
-    return await restApiAuthUtil.get<{ status: string }>('/health/');
+    return await restApiAuthUtil.get<{ status: string }>("/health/");
   }
 
   async forgotPassword(email: string): Promise<any> {
-    return await yhubApiAuthUtil.post('/auth/forgot-password/', { email });
+    return await yhubApiAuthUtil.post("/auth/forgot-password/", { email });
   }
 
   async resetPassword(uidb64: string, token: string, password: string): Promise<any> {
@@ -125,7 +138,7 @@ class AuthService {
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<any> {
-    return await yhubApiAuthUtil.post('/auth/change-password/', {
+    return await yhubApiAuthUtil.post("/auth/change-password/", {
       password: newPassword,
     });
   }

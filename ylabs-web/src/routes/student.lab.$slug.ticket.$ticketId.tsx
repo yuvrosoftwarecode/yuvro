@@ -1,4 +1,11 @@
-import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useMatch,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { EditorView } from "@codemirror/view";
 import { useTheme } from "@/hooks/use-theme";
@@ -13,18 +20,61 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
-import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
+import {
+  runDynamicSqlQuery,
+  runDynamicMongoQuery,
+  getAlasqlSchema,
+  getMongoSchema,
+} from "@/lib/dbEngine";
 import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
 import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
-  Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
-  FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
-  CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
-  MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
-  Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
-  FilePlus, FolderPlus, Pencil, Trash2, X,
+  Play,
+  Save,
+  Send,
+  Lightbulb,
+  AlertTriangle,
+  ChevronRight,
+  ChevronDown,
+  ChevronLeft,
+  FileCode2,
+  Folder,
+  FolderOpen,
+  Search,
+  GitBranch,
+  Bug,
+  Package,
+  Settings,
+  CircleDot,
+  Terminal as TerminalIcon,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Zap,
+  MessageSquare,
+  Lock,
+  Unlock,
+  RotateCcw,
+  Copy,
+  Share2,
+  Flag,
+  HelpCircle,
+  Sparkles,
+  Gauge,
+  Wand2,
+  Globe,
+  Check,
+  ArrowLeft,
+  PanelLeftClose,
+  PanelLeftOpen,
+  BookOpen,
+  FilePlus,
+  FolderPlus,
+  Pencil,
+  Trash2,
+  X,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -46,7 +96,9 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({ component: TicketEditorRoute });
+export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({
+  component: TicketEditorRoute,
+});
 
 export type StudentPreviewOverride = {
   title?: string;
@@ -70,7 +122,9 @@ function TicketEditorRoute() {
     try {
       const raw = sessionStorage.getItem("__adminPreviewTicket");
       if (raw) setPreviewOverride(JSON.parse(raw));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [ticketId]);
   return <StudentTicketView slug={slug} ticketId={ticketId} previewOverride={previewOverride} />;
 }
@@ -383,7 +437,8 @@ Open http://127.0.0.1:8000/ to use the app.
 
 /* ---------- Per-lab starter kits ---------- */
 
-type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
+type KitName =
+  "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -395,7 +450,10 @@ interface Kit {
 
 const PY_KITS: Record<string, Kit> = {
   "Py Fundamentals": {
-    name: "python", rootLabel: "py-fundamentals", primary: "main.py", runtime: "Python 3.12",
+    name: "python",
+    rootLabel: "py-fundamentals",
+    primary: "main.py",
+    runtime: "Python 3.12",
     fileList: ["main.py", "test_main.py", "README.md"],
     files: {
       "main.py": `"""Variables, types and f-strings."""
@@ -449,7 +507,10 @@ python -m pytest -q
     },
   },
   "Py Data": {
-    name: "python", rootLabel: "py-data", primary: "app.py", runtime: "Python 3.12",
+    name: "python",
+    rootLabel: "py-data",
+    primary: "app.py",
+    runtime: "Python 3.12",
     fileList: ["app.py", "data/sales.csv", "requirements.txt", "README.md"],
     files: {
       "app.py": `"""Read sales.csv, group by category and print totals."""
@@ -490,7 +551,10 @@ Aggregate \`data/sales.csv\` by category. Run with \`python app.py\`.
 };
 
 const SQL_KIT_DEFAULT: Kit = {
-  name: "sql", rootLabel: "sql-lab", primary: "query.sql", runtime: "PostgreSQL 16",
+  name: "sql",
+  rootLabel: "sql-lab",
+  primary: "query.sql",
+  runtime: "PostgreSQL 16",
   fileList: ["query.sql", "schema.sql", "seed.sql", "README.md"],
   files: {
     "query.sql": `-- Write a query that returns:
@@ -546,27 +610,36 @@ Results appear in the bottom **Results** panel.
 };
 
 const MYSQL_KIT_DEFAULT: Kit = {
-  name: "mysql", rootLabel: "mysql-lab", primary: "query.sql", runtime: "MySQL 8.x",
+  name: "mysql",
+  rootLabel: "mysql-lab",
+  primary: "query.sql",
+  runtime: "MySQL 8.x",
   fileList: ["query.sql", "schema.sql", "README.md"],
   files: {
     "query.sql": `-- MySQL - write your query here and press Run\n\nSELECT * FROM customers;`,
     "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
-    "README.md": `# MySQL Lab\n\nWrite SQL queries against the external database.\n`
-  }
+    "README.md": `# MySQL Lab\n\nWrite SQL queries against the external database.\n`,
+  },
 };
 
 const POSTGRES_KIT_DEFAULT: Kit = {
-  name: "postgresql", rootLabel: "postgres-lab", primary: "query.sql", runtime: "PostgreSQL 16",
+  name: "postgresql",
+  rootLabel: "postgres-lab",
+  primary: "query.sql",
+  runtime: "PostgreSQL 16",
   fileList: ["query.sql", "schema.sql", "README.md"],
   files: {
     "query.sql": `-- PostgreSQL - write your query here and press Run\n\nSELECT * FROM customers;`,
     "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
-    "README.md": `# PostgreSQL Lab\n\nWrite SQL queries against the external database.\n`
-  }
+    "README.md": `# PostgreSQL Lab\n\nWrite SQL queries against the external database.\n`,
+  },
 };
 
 const MONGO_KIT_DEFAULT: Kit = {
-  name: "mongo", rootLabel: "mongo-lab", primary: "query.js", runtime: "MongoDB 7 · mongosh",
+  name: "mongo",
+  rootLabel: "mongo-lab",
+  primary: "query.js",
+  runtime: "MongoDB 7 · mongosh",
   fileList: ["query.js", "seed.js", "README.md"],
   files: {
     "query.js": `// Mongo shell — write a query and press Run.
@@ -607,7 +680,10 @@ Mongo shell-style queries. Edit \`query.js\` and press **Run** to see results.
 };
 
 const UI_KIT_DEFAULT: Kit = {
-  name: "ui", rootLabel: "ui-lab", primary: "index.html", runtime: "Static · HTML/CSS",
+  name: "ui",
+  rootLabel: "ui-lab",
+  primary: "index.html",
+  runtime: "Static · HTML/CSS",
   fileList: ["index.html", "styles.css", "README.md"],
   files: {
     "index.html": `<!DOCTYPE html>
@@ -646,7 +722,10 @@ Click **Run** to compare your code against the expected target design!
 };
 
 const LINUX_KIT_DEFAULT: Kit = {
-  name: "bash", rootLabel: "linux-lab", primary: "script.sh", runtime: "Ubuntu 24.04 · Bash",
+  name: "bash",
+  rootLabel: "linux-lab",
+  primary: "script.sh",
+  runtime: "Ubuntu 24.04 · Bash",
   fileList: ["script.sh", "README.md"],
   files: {
     "script.sh": `#!/usr/bin/env bash\n\n# Write your solution here\n`,
@@ -655,7 +734,10 @@ const LINUX_KIT_DEFAULT: Kit = {
 };
 
 const GIT_KIT_DEFAULT: Kit = {
-  name: "git", rootLabel: "git-lab", primary: "README.md", runtime: "Git 2.x · Bash",
+  name: "git",
+  rootLabel: "git-lab",
+  primary: "README.md",
+  runtime: "Git 2.x · Bash",
   fileList: ["README.md"],
   files: {
     "README.md": `# Git Lab\n\nUse the terminal below to practice Git commands.\n`,
@@ -666,22 +748,45 @@ function getKit(slug: string, tag: string, labTitle?: string): Kit {
   if (labTitle && labTitle.toLowerCase().includes("git")) return GIT_KIT_DEFAULT;
   if (tag === "Django Todo") {
     return {
-      name: "django", rootLabel: "todo-app", primary: "todos/views.py", runtime: "Python 3.12 · Django 5",
-      fileList: [...DJANGO_FILES], files: { ...DJANGO_STARTERS },
+      name: "django",
+      rootLabel: "todo-app",
+      primary: "todos/views.py",
+      runtime: "Python 3.12 · Django 5",
+      fileList: [...DJANGO_FILES],
+      files: { ...DJANGO_STARTERS },
     };
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
   if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
   if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
-  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo") return MONGO_KIT_DEFAULT;
+  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo")
+    return MONGO_KIT_DEFAULT;
   if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
-  if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
+  if (
+    slug === "linux" ||
+    tag === "bash" ||
+    tag === "Linux Basics" ||
+    tag === "Linux Files" ||
+    tag === "Linux Perms" ||
+    tag === "Linux Processes" ||
+    tag === "Linux Network" ||
+    tag === "Linux Shell" ||
+    tag === "Linux Services"
+  )
+    return LINUX_KIT_DEFAULT;
   return {
-    name: "java", rootLabel: "java-101", primary: "Main.java", runtime: "Java 17",
+    name: "java",
+    rootLabel: "java-101",
+    primary: "Main.java",
+    runtime: "Java 17",
     fileList: [...FILE_LIST],
-    files: { "Main.java": STARTER_MAIN, "MainTest.java": STARTER_TEST, "README.md": STARTER_README },
+    files: {
+      "Main.java": STARTER_MAIN,
+      "MainTest.java": STARTER_TEST,
+      "README.md": STARTER_README,
+    },
   };
 }
 
@@ -697,7 +802,10 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
-  const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+  const reviewMatch = useMatch({
+    from: "/student/lab/$slug/ticket/$ticketId/review",
+    shouldThrow: false,
+  });
 
   const [resolvedTicket, setResolvedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -715,26 +823,34 @@ export function StudentTicketView({
 
     let active = true;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/lab/tickets/${ticketId}/`)
-        .then(t => {
+      api
+        .get<any>(`/lab/tickets/${ticketId}/`)
+        .then((t) => {
           if (!active) return;
           setResolvedTicket({
             id: t.id,
             ticket_slug: t.ticket_slug,
             title: t.title,
             description: t.description ?? "",
-            difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+            difficulty:
+              t.difficulty === "HARD"
+                ? "Advanced"
+                : t.difficulty === "MEDIUM"
+                  ? "Intermediate"
+                  : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
-            tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
-              if (typeof task === "object" && task.title && !task.task_slug) {
-                const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
-                if (slugMatch) task.task_slug = `task-${slugMatch[1].replace(/\./g, "-")}`;
-              }
-              return task;
-            }) : [],
+            tasks: Array.isArray(t.tasks)
+              ? t.tasks.map((task: any) => {
+                  if (typeof task === "object" && task.title && !task.task_slug) {
+                    const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
+                    if (slugMatch) task.task_slug = `task-${slugMatch[1].replace(/\./g, "-")}`;
+                  }
+                  return task;
+                })
+              : [],
             learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
             common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
           });
@@ -748,7 +864,9 @@ export function StudentTicketView({
           }
         });
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [ticketId]);
 
   if (reviewMatch) return <Outlet />;
@@ -764,14 +882,14 @@ export function StudentTicketView({
 
   const ticket = previewOverride
     ? {
-      ...resolvedTicket,
-      title: previewOverride.title ?? resolvedTicket.title,
-      description: previewOverride.description ?? resolvedTicket.description,
-      difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
-      xp: previewOverride.xp ?? resolvedTicket.xp,
-      estMin: previewOverride.estMin ?? resolvedTicket.estMin,
-      tag: previewOverride.tag ?? resolvedTicket.tag,
-    }
+        ...resolvedTicket,
+        title: previewOverride.title ?? resolvedTicket.title,
+        description: previewOverride.description ?? resolvedTicket.description,
+        difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
+        xp: previewOverride.xp ?? resolvedTicket.xp,
+        estMin: previewOverride.estMin ?? resolvedTicket.estMin,
+        tag: previewOverride.tag ?? resolvedTicket.tag,
+      }
     : resolvedTicket;
 
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
@@ -789,7 +907,10 @@ export function TicketIDE({
   isEvaluationMode?: boolean;
 }) {
   const navigate = useNavigate();
-  const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+  const reviewMatch = useMatch({
+    from: "/student/lab/$slug/ticket/$ticketId/review",
+    shouldThrow: false,
+  });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
 
   const [labTitle, setLabTitle] = useState("");
@@ -803,11 +924,15 @@ export function TicketIDE({
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
-  const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isAnySql || isMongo;
+  const isDbEditor =
+    ticket.editor_type === "sql_editor" ||
+    ticket.editor_type === "db_editor" ||
+    isAnySql ||
+    isMongo;
   const isBash = kit.name === "bash";
   const isGit = kit.name === "git";
 
-  const isReal = !tickets.some(t => t.id === ticket.id);
+  const isReal = !tickets.some((t) => t.id === ticket.id);
 
   const { user } = useAuth();
   const userId = useMemo(() => {
@@ -819,7 +944,12 @@ export function TicketIDE({
   const isMultiLang = slug === "programming" || slug === "datastructures";
   type ProgLang = "python" | "c" | "cpp" | "js";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js" };
-  const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js" };
+  const PROG_LABEL: Record<ProgLang, string> = {
+    python: "Python 3",
+    c: "C (gcc)",
+    cpp: "C++ (g++)",
+    js: "Node.js",
+  };
   const [progLang, setProgLang] = useState<ProgLang>("python");
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
@@ -842,14 +972,14 @@ export function TicketIDE({
   const [openTabs, setOpenTabs] = useState<string[]>(isReal ? [] : [...initialFileList]);
 
   function openFile(path: string) {
-    setOpenTabs(prev => prev.includes(path) ? prev : [...prev, path]);
+    setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
     setActiveFile(path);
   }
 
   function closeTab(path: string, e: React.MouseEvent) {
     e.stopPropagation();
-    setOpenTabs(prev => {
-      const next = prev.filter(p => p !== path);
+    setOpenTabs((prev) => {
+      const next = prev.filter((p) => p !== path);
       if (activeFile === path) {
         setActiveFile(next.length > 0 ? next[next.length - 1] : "");
       }
@@ -858,42 +988,48 @@ export function TicketIDE({
   }
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
-  const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
-    if (!isReal) return;
-    setWsLoaded(false);
-    try {
-      const res = await fetchFileTree(userId, labId, sprintId, starters);
-      const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
-        if (node.name === ".bash_history") return acc;
-        if (node.type === "file") { acc[node.path] = ""; }
-        else node.children?.forEach(c => flatten(c, acc));
-        return acc;
-      };
-      const paths = flatten(res.tree, {});
-      if (Object.keys(paths).length > 0) {
-        setFiles(prev => {
-          // preserve contents of already loaded files if possible
-          const next = { ...paths };
-          for (const p of Object.keys(next)) {
-            if (prev[p]) next[p] = prev[p];
+  const loadWorkspaceFiles = useCallback(
+    async (preserveActive = false) => {
+      if (!isReal) return;
+      setWsLoaded(false);
+      try {
+        const res = await fetchFileTree(userId, labId, sprintId, starters);
+        const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
+          if (node.name === ".bash_history") return acc;
+          if (node.type === "file") {
+            acc[node.path] = "";
+          } else node.children?.forEach((c) => flatten(c, acc));
+          return acc;
+        };
+        const paths = flatten(res.tree, {});
+        if (Object.keys(paths).length > 0) {
+          setFiles((prev) => {
+            // preserve contents of already loaded files if possible
+            const next = { ...paths };
+            for (const p of Object.keys(next)) {
+              if (prev[p]) next[p] = prev[p];
+            }
+            return next;
+          });
+          const firstPath = Object.keys(paths)[0];
+          if (!preserveActive && firstPath) {
+            setOpenTabs((prev) => (prev.includes(firstPath) ? prev : [...prev, firstPath]));
+            setActiveFile(firstPath);
+            try {
+              const content = await fetchFile(userId, labId, sprintId, firstPath);
+              setFiles((f) => ({ ...f, [firstPath]: content }));
+            } catch {
+              /* ignore */
+            }
           }
-          return next;
-        });
-        const firstPath = Object.keys(paths)[0];
-        if (!preserveActive && firstPath) {
-          setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
-          setActiveFile(firstPath);
-          try {
-            const content = await fetchFile(userId, labId, sprintId, firstPath);
-            setFiles(f => ({ ...f, [firstPath]: content }));
-          } catch { /* ignore */ }
         }
+        setWsLoaded(true);
+      } catch {
+        setWsLoaded(true); // fall back to local starters on error
       }
-      setWsLoaded(true);
-    } catch {
-      setWsLoaded(true); // fall back to local starters on error
-    }
-  }, [isReal, userId, labId, sprintId, starters]);
+    },
+    [isReal, userId, labId, sprintId, starters],
+  );
 
   useEffect(() => {
     loadWorkspaceFiles();
@@ -905,16 +1041,20 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal || !wsLoaded) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
+    if (files[activeFile] !== "") {
+      loadedFiles.current.add(activeFile);
+      return;
+    }
     fetchFile(userId, labId, sprintId, activeFile)
-      .then(content => {
-        setFiles(f => ({ ...f, [activeFile]: content }));
+      .then((content) => {
+        setFiles((f) => ({ ...f, [activeFile]: content }));
         loadedFiles.current.add(activeFile);
       })
-      .catch(() => { loadedFiles.current.add(activeFile); });
+      .catch(() => {
+        loadedFiles.current.add(activeFile);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile, isReal, wsLoaded]);
-
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -956,7 +1096,9 @@ export function TicketIDE({
     window.addEventListener("mouseup", onUp);
   }
 
-  useEffect(() => { setSideWidth(null); }, [sidePanel]);
+  useEffect(() => {
+    setSideWidth(null);
+  }, [sidePanel]);
 
   // Reset file state when switching tickets (esp. between Java and Django sets)
   // For real tickets, workspace files are loaded by loadWorkspaceFiles — don't overwrite them.
@@ -973,29 +1115,35 @@ export function TicketIDE({
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
-  
+
   useEffect(() => {
     if (previewOverride) return;
     const isDummy = !isReal;
 
     const RECENT_LAB_KEY = "ylabs-recent-lab";
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(`/lab/labs/${slug}/`)
+      api
+        .get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
           setLabTitle(realLab.title);
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch {}
+          try {
+            localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title }));
+          } catch {}
         })
         .catch(() => {
-          const labName = labs.find(l => l.slug === slug)?.name ?? slug;
+          const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
           setLabTitle(labName);
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch {}
+          try {
+            localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
+          } catch {}
         });
     });
 
     if (isDummy) return;
 
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`)
+      api
+        .get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`)
         .then(async (subs) => {
           if (subs.length === 0) {
             const created = await api.post<any>("/lab/submissions/", {
@@ -1015,11 +1163,11 @@ export function TicketIDE({
               try {
                 const parsed = JSON.parse(sub.solution);
                 if (typeof parsed === "object" && parsed !== null) {
-                  setFiles(prev => ({ ...prev, ...parsed }));
+                  setFiles((prev) => ({ ...prev, ...parsed }));
                 }
               } catch (e) {
                 // Legacy fallback: single string
-                setFiles(prev => ({ ...prev, [kit.primary]: sub.solution }));
+                setFiles((prev) => ({ ...prev, [kit.primary]: sub.solution }));
               }
             }
           }
@@ -1027,7 +1175,6 @@ export function TicketIDE({
         .catch(console.error);
     });
   }, [ticket.id, slug]);
-
 
   function progStarter(lang: ProgLang, title: string): string {
     const banner = `${title}`;
@@ -1055,15 +1202,17 @@ export function TicketIDE({
     setActiveFile(fname);
   }
 
-
   // ---- File ops (VS Code-like): create / rename / delete ----
   function createFile(path: string, contents = "") {
     const trimmed = path.trim().replace(/^\/+/, "");
     if (!trimmed) return;
-    if (files[trimmed] !== undefined) { showToast("File already exists"); return; }
+    if (files[trimmed] !== undefined) {
+      showToast("File already exists");
+      return;
+    }
     setFiles((f) => ({ ...f, [trimmed]: contents }));
     setDirty((d) => ({ ...d, [trimmed]: true }));
-    setOpenTabs(prev => prev.includes(trimmed) ? prev : [...prev, trimmed]);
+    setOpenTabs((prev) => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
     setActiveFile(trimmed);
     if (isReal) {
       wsWriteFile(userId, labId, sprintId, trimmed, contents)
@@ -1074,7 +1223,10 @@ export function TicketIDE({
   function renameFile(oldPath: string, newPath: string) {
     const trimmed = newPath.trim().replace(/^\/+/, "");
     if (!trimmed || trimmed === oldPath) return;
-    if (files[trimmed] !== undefined) { showToast("Target path already exists"); return; }
+    if (files[trimmed] !== undefined) {
+      showToast("Target path already exists");
+      return;
+    }
     const content = files[oldPath] ?? "";
     setFiles((f) => {
       const { [oldPath]: _, ...rest } = f;
@@ -1106,8 +1258,9 @@ export function TicketIDE({
       if (next) setActiveFile(next);
     }
     if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, path)
-        .catch(() => showToast(`⚠ Could not delete ${path}`));
+      deleteWorkspaceFile(userId, labId, sprintId, path).catch(() =>
+        showToast(`⚠ Could not delete ${path}`),
+      );
     }
   }
   function deleteFolder(prefix: string) {
@@ -1116,12 +1269,16 @@ export function TicketIDE({
     if (!confirm(`Delete folder ${prefix}/ and ${targets.length} file(s)?`)) return;
     setFiles((f) => {
       const next = { ...f };
-      targets.forEach((p) => { delete next[p]; });
+      targets.forEach((p) => {
+        delete next[p];
+      });
       return next;
     });
     setDirty((d) => {
       const next = { ...d };
-      targets.forEach((p) => { delete next[p]; });
+      targets.forEach((p) => {
+        delete next[p];
+      });
       return next;
     });
     if (targets.includes(activeFile)) {
@@ -1129,8 +1286,9 @@ export function TicketIDE({
       if (remaining[0]) setActiveFile(remaining[0]);
     }
     if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, prefix)
-        .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
+      deleteWorkspaceFile(userId, labId, sprintId, prefix).catch(() =>
+        showToast(`⚠ Could not delete folder ${prefix}`),
+      );
     }
   }
   const [output, setOutput] = useState<string>("");
@@ -1155,8 +1313,14 @@ export function TicketIDE({
   // Keyboard: Ctrl/Cmd+Enter to run
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRun();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -1172,7 +1336,8 @@ export function TicketIDE({
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
     const m = files["Main.java"];
     if (!/class\s+\w+/.test(m) || !/public\s+static\s+void\s+main/.test(m)) return "err";
-    if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m)) return "warn";
+    if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
+      return "warn";
     return "ok";
   }, [files]);
 
@@ -1199,7 +1364,7 @@ export function TicketIDE({
   async function handleRun() {
     if (isReal) {
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+        Object.keys(files).map((p) => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "")),
       ).catch(console.error);
     }
     setRunning(true);
@@ -1209,10 +1374,10 @@ export function TicketIDE({
 
     if (isAnySql || isMongo) {
       setExecutedQuery(src);
-      setRunId(prev => prev + 1);
+      setRunId((prev) => prev + 1);
       setBottomTab("preview");
       setRunning(false);
-      // Wait for child components (SqlResultsView/MongoResultsView) to finish execution 
+      // Wait for child components (SqlResultsView/MongoResultsView) to finish execution
       // before refreshing schema, or they can trigger the refresh via a prop.
       if (!isExternalDb) {
         // We let the child trigger refreshSchema
@@ -1221,31 +1386,40 @@ export function TicketIDE({
     }
 
     if (isMultiLang) {
-      const lang: ProgLang =
-        file.endsWith(".c") ? "c" :
-          file.endsWith(".cpp") || file.endsWith(".cc") ? "cpp" :
-            file.endsWith(".js") || file.endsWith(".ts") ? "js" :
-              "python";
+      const lang: ProgLang = file.endsWith(".c")
+        ? "c"
+        : file.endsWith(".cpp") || file.endsWith(".cc")
+          ? "cpp"
+          : file.endsWith(".js") || file.endsWith(".ts")
+            ? "js"
+            : "python";
       const cmd =
-        lang === "python" ? `$ python ${file}` :
-          lang === "c" ? `$ gcc ${file} -o a.out && ./a.out` :
-            lang === "cpp" ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out` :
-              `$ node ${file}`;
+        lang === "python"
+          ? `$ python ${file}`
+          : lang === "c"
+            ? `$ gcc ${file} -o a.out && ./a.out`
+            : lang === "cpp"
+              ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out`
+              : `$ node ${file}`;
       setOutput(`${cmd}\n…running…\n`);
       setTimeout(() => {
         const out: string[] = [];
         if (lang === "python") {
           const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-          let m; while ((m = re.exec(src))) out.push(m[1]);
+          let m;
+          while ((m = re.exec(src))) out.push(m[1]);
         } else if (lang === "js") {
           const re = /console\.log\(\s*["'`]([^"'`]*)["'`]\s*\)/g;
-          let m; while ((m = re.exec(src))) out.push(m[1]);
+          let m;
+          while ((m = re.exec(src))) out.push(m[1]);
         } else if (lang === "c") {
           const re = /printf\(\s*"([^"]*)"/g;
-          let m; while ((m = re.exec(src))) out.push(m[1].replace(/\\n/g, ""));
+          let m;
+          while ((m = re.exec(src))) out.push(m[1].replace(/\\n/g, ""));
         } else {
           const re = /cout\s*<<\s*"([^"]*)"/g;
-          let m; while ((m = re.exec(src))) out.push(m[1]);
+          let m;
+          while ((m = re.exec(src))) out.push(m[1]);
         }
         setOutput(`${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`);
         setRunning(false);
@@ -1257,7 +1431,8 @@ export function TicketIDE({
       setTimeout(() => {
         const out: string[] = [];
         const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-        let m; while ((m = re.exec(src))) out.push(m[1]);
+        let m;
+        while ((m = re.exec(src))) out.push(m[1]);
         setOutput(`$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`);
         setRunning(false);
       }, 500);
@@ -1266,7 +1441,9 @@ export function TicketIDE({
     if (isAnySql) {
       setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
       setTimeout(() => {
-        setOutput(`-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`);
+        setOutput(
+          `-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`,
+        );
         setRunning(false);
       }, 500);
       return;
@@ -1283,40 +1460,45 @@ export function TicketIDE({
       setRunning(true);
       setBottomTab("output");
       setOutput("Running UI validation...");
-      
+
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-        api.post("/lab/frontend-validate/", {
-          ticket_slug: ticket.ticket_slug ?? ticket.id,
-          user_html: files["index.html"] ?? "",
-          user_css: files["styles.css"] ?? "",
-          lab_id: labId,   // lab UUID — lets executor resolve starter repo path
-        }).then((res: any) => {
-          setRunning(false);
-          
-          // Create a clean object to show in the console without flooding it with base64 images
-          const resultJson = {
-            ui_score: res.ui_score ?? 0,
-            structural_score: res.structural_score ?? 0,
-            checks: res.checks ?? []
-          };
-          
-          setOutput(JSON.stringify(resultJson, null, 2));
-          
-          if (isReal && submissionId) {
-             const uiScore = res.ui_score ?? 0;
-             const structScore = res.structural_score ?? 0;
-             const isPass = uiScore >= 75 && structScore >= 75;
-             api.patch(`/lab/submissions/${submissionId}/`, {
-               ticket_status: isPass ? "in_review" : "in_progress",
-               solution: JSON.stringify(files),
-             }).catch(console.error);
-          }
-        }).catch((err: any) => {
-          console.error(err);
-          setOutput(`Error running validation: ${err.message}`);
-          setBottomTab("output");
-          setRunning(false);
-        });
+        api
+          .post("/lab/frontend-validate/", {
+            ticket_slug: ticket.ticket_slug ?? ticket.id,
+            user_html: files["index.html"] ?? "",
+            user_css: files["styles.css"] ?? "",
+            lab_id: labId, // lab UUID — lets executor resolve starter repo path
+          })
+          .then((res: any) => {
+            setRunning(false);
+
+            // Create a clean object to show in the console without flooding it with base64 images
+            const resultJson = {
+              ui_score: res.ui_score ?? 0,
+              structural_score: res.structural_score ?? 0,
+              checks: res.checks ?? [],
+            };
+
+            setOutput(JSON.stringify(resultJson, null, 2));
+
+            if (isReal && submissionId) {
+              const uiScore = res.ui_score ?? 0;
+              const structScore = res.structural_score ?? 0;
+              const isPass = uiScore >= 75 && structScore >= 75;
+              api
+                .patch(`/lab/submissions/${submissionId}/`, {
+                  ticket_status: isPass ? "in_review" : "in_progress",
+                  solution: JSON.stringify(files),
+                })
+                .catch(console.error);
+            }
+          })
+          .catch((err: any) => {
+            console.error(err);
+            setOutput(`Error running validation: ${err.message}`);
+            setBottomTab("output");
+            setRunning(false);
+          });
       });
       return;
     }
@@ -1341,7 +1523,7 @@ export function TicketIDE({
         const task = tasks[idx];
         const taskSlug = task.task_slug || `task-${idx}`;
         const scoringRules: Record<string, any> = task.scoring_rules ?? {};
-        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+        setEvaluating((prev) => ({ ...prev, [taskSlug]: true }));
         try {
           const result = await evaluateTask(userId, labId, sprintId, "git", taskSlug, scoringRules);
           results[taskSlug] = {
@@ -1349,13 +1531,16 @@ export function TicketIDE({
             passed: result.passed,
             reason: result.reason,
           };
-          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+          setEvalResult((prev) => ({ ...prev, [taskSlug]: result }));
           if (result.passed) passedCount++;
         } catch (err: any) {
           results[taskSlug] = { title: task.title ?? taskSlug, passed: false, reason: err.message };
-          setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+          setEvalResult((prev) => ({
+            ...prev,
+            [taskSlug]: { passed: false, reason: err.message },
+          }));
         } finally {
-          setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+          setEvaluating((prev) => ({ ...prev, [taskSlug]: false }));
         }
       }
 
@@ -1368,24 +1553,28 @@ export function TicketIDE({
             tasks: results,
           },
           null,
-          2
-        )
+          2,
+        ),
       );
 
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.patch(`/lab/submissions/${submissionId}/`, {
-            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
-          }).catch(console.error);
+          api
+            .patch(`/lab/submissions/${submissionId}/`, {
+              ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+              solution: JSON.stringify(files),
+            })
+            .catch(console.error);
         });
       } else if (isReal && !submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.post("/lab/submissions/", {
-            lab_sprint_ticket: ticket.id,
-            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
-          }).catch(console.error);
+          api
+            .post("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+              solution: JSON.stringify(files),
+            })
+            .catch(console.error);
         });
       }
 
@@ -1393,7 +1582,9 @@ export function TicketIDE({
       return;
     }
     if (isDjango) {
-      setOutput(`$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`);
+      setOutput(
+        `$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`,
+      );
       setRunning(false);
       return;
     }
@@ -1414,29 +1605,37 @@ export function TicketIDE({
     setTimeout(() => {
       const m = files["Main.java"] ?? "";
       if (compileState === "err") {
-        setOutput("$ javac Main.java\n❌ Main.java:1: error: class or main method missing\n1 error");
+        setOutput(
+          "$ javac Main.java\n❌ Main.java:1: error: class or main method missing\n1 error",
+        );
         setBottomTab("errors");
       } else {
         const out: string[] = [];
         const re = /System\.out\.println\("([^"]*)"\s*\+\s*([^)]+)\)/g;
         let match;
         const ctx: Record<string, string> = {
-          integerValue: "42", pi: "3.14", isJavaFun: "true", greeting: "Hello Java",
+          integerValue: "42",
+          pi: "3.14",
+          isJavaFun: "true",
+          greeting: "Hello Java",
         };
         while ((match = re.exec(m))) {
           const label = match[1];
           let val = match[2].trim();
-          if (val.endsWith(".length()")) val = String(("Hello Java").length);
+          if (val.endsWith(".length()")) val = String("Hello Java".length);
           else if (val.endsWith(".charAt(0)")) val = "H";
           else val = ctx[val] ?? val;
           out.push(label + val);
         }
-        setOutput("$ javac Main.java\n$ java Main\n" + out.join("\n") + "\n\n✓ Program ran successfully (1.2s)");
+        setOutput(
+          "$ javac Main.java\n$ java Main\n" +
+            out.join("\n") +
+            "\n\n✓ Program ran successfully (1.2s)",
+        );
       }
       setRunning(false);
     }, 700);
   }
-
 
   function handleRunTests() {
     setBottomTab("tests");
@@ -1444,11 +1643,29 @@ export function TicketIDE({
     setTimeout(() => {
       const m = files["Main.java"];
       const next: TestResult[] = [
-        { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
-        { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
+        {
+          name: "Test 1 · Variables Declaration",
+          pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m),
+          time: "12ms",
+        },
+        {
+          name: "Test 2 · Type Casting (implicit)",
+          pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m),
+          time: "8ms",
+        },
         { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
-        { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
-        { name: "Test 5 · Output Format", pass: /printf\(/.test(m), time: "11ms", expected: '"Result: 42"', got: '"Result42"' },
+        {
+          name: "Test 4 · String Operations",
+          pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m),
+          time: "7ms",
+        },
+        {
+          name: "Test 5 · Output Format",
+          pass: /printf\(/.test(m),
+          time: "11ms",
+          expected: '"Result: 42"',
+          got: '"Result42"',
+        },
       ];
       setTests(next);
       setTestsRan(true);
@@ -1457,27 +1674,40 @@ export function TicketIDE({
 
   const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
   const [executedQuery, setExecutedQuery] = useState("");
-  const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
+  const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>(
+    {},
+  );
   const [ticketScore, setTicketScore] = useState<{ passed: number; total: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleEvaluate = async (taskSlug: string, requiredCommand: string, scoringRules?: Record<string, any>) => {
-    setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+  const handleEvaluate = async (
+    taskSlug: string,
+    requiredCommand: string,
+    scoringRules?: Record<string, any>,
+  ) => {
+    setEvaluating((prev) => ({ ...prev, [taskSlug]: true }));
     try {
       const { evaluateTask } = await import("@/services/workspaceService");
-      const result = await evaluateTask(userId, labId, sprintId, requiredCommand, taskSlug, scoringRules);
-      setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+      const result = await evaluateTask(
+        userId,
+        labId,
+        sprintId,
+        requiredCommand,
+        taskSlug,
+        scoringRules,
+      );
+      setEvalResult((prev) => ({ ...prev, [taskSlug]: result }));
     } catch (err: any) {
-      setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+      setEvalResult((prev) => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
     } finally {
-      setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+      setEvaluating((prev) => ({ ...prev, [taskSlug]: false }));
     }
   };
 
   async function handleSubmit() {
     if (isReal) {
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+        Object.keys(files).map((p) => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "")),
       ).catch(console.error);
     }
     if (isUi && uiDiffResult) {
@@ -1485,18 +1715,25 @@ export function TicketIDE({
       if (isPass) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (isReal && submissionId) {
-            api.patch(`/lab/submissions/${submissionId}/`, {
-              ticket_status: "in_review",
-              solution: JSON.stringify(files),
-            }).catch(console.error);
+            api
+              .patch(`/lab/submissions/${submissionId}/`, {
+                ticket_status: "in_review",
+                solution: JSON.stringify(files),
+              })
+              .catch(console.error);
           } else if (isReal && !submissionId) {
-            api.post("/lab/submissions/", {
-              lab_sprint_ticket: ticket.id,
-              ticket_status: "in_review",
-              solution: JSON.stringify(files),
-            }).catch(console.error);
+            api
+              .post("/lab/submissions/", {
+                lab_sprint_ticket: ticket.id,
+                ticket_status: "in_review",
+                solution: JSON.stringify(files),
+              })
+              .catch(console.error);
           }
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          navigate({
+            to: "/student/lab/$slug/ticket/$ticketId/review",
+            params: { slug, ticketId: ticket.id },
+          });
         });
       } else {
         showToast("Fix failing UI validation before submitting");
@@ -1516,16 +1753,26 @@ export function TicketIDE({
         // required_command is only a fallback for tasks without scoring_rules
         const reqCmd = "git";
 
-        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+        setEvaluating((prev) => ({ ...prev, [taskSlug]: true }));
         try {
           const { evaluateTask } = await import("@/services/workspaceService");
-          const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules);
-          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+          const result = await evaluateTask(
+            userId,
+            labId,
+            sprintId,
+            reqCmd,
+            taskSlug,
+            scoringRules,
+          );
+          setEvalResult((prev) => ({ ...prev, [taskSlug]: result }));
           if (result.passed) passedCount++;
         } catch (err: any) {
-          setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+          setEvalResult((prev) => ({
+            ...prev,
+            [taskSlug]: { passed: false, reason: err.message },
+          }));
         } finally {
-          setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+          setEvaluating((prev) => ({ ...prev, [taskSlug]: false }));
         }
       });
       await Promise.all(promises);
@@ -1539,39 +1786,61 @@ export function TicketIDE({
     setTimeout(() => {
       const m = files["Main.java"];
       const next: TestResult[] = [
-        { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
-        { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
+        {
+          name: "Test 1 · Variables Declaration",
+          pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m),
+          time: "12ms",
+        },
+        {
+          name: "Test 2 · Type Casting (implicit)",
+          pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m),
+          time: "8ms",
+        },
         { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
-        { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
-        { name: "Test 5 · Output Format", pass: /System\.out\.println/.test(m) || /printf\(/.test(m), time: "11ms" },
+        {
+          name: "Test 4 · String Operations",
+          pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m),
+          time: "7ms",
+        },
+        {
+          name: "Test 5 · Output Format",
+          pass: /System\.out\.println/.test(m) || /printf\(/.test(m),
+          time: "11ms",
+        },
       ];
       setTests(next);
       setTestsRan(true);
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.patch(`/lab/submissions/${submissionId}/`, {
-            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
-          }).catch(console.error);
+          api
+            .patch(`/lab/submissions/${submissionId}/`, {
+              ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              solution: JSON.stringify(files),
+            })
+            .catch(console.error);
         });
       } else if (isReal && !submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.post("/lab/submissions/", {
-            lab_sprint_ticket: ticket.id,
-            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
-          }).catch(console.error);
+          api
+            .post("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              solution: JSON.stringify(files),
+            })
+            .catch(console.error);
         });
       }
 
       if (next.every((t) => t.pass)) {
-        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        navigate({
+          to: "/student/lab/$slug/ticket/$ticketId/review",
+          params: { slug, ticketId: ticket.id },
+        });
       } else {
         showToast("Fix failing tests before submitting");
       }
     }, 600);
   }
-
 
   function handleSave() {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
@@ -1580,25 +1849,30 @@ export function TicketIDE({
     if (isReal) {
       // Persist ALL files (not just dirty) to the workspace so disk is always in sync
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+        Object.keys(files).map((p) => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "")),
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
-      
+
       // Also save to database so the IDE loads it perfectly on refresh
       if (submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.patch(`/lab/submissions/${submissionId}/`, {
-            solution: JSON.stringify(files),
-          }).catch(console.error);
+          api
+            .patch(`/lab/submissions/${submissionId}/`, {
+              solution: JSON.stringify(files),
+            })
+            .catch(console.error);
         });
       } else {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.post("/lab/submissions/", {
-            lab_sprint_ticket: ticket.id,
-            ticket_status: "in_progress",
-            solution: JSON.stringify(files),
-          }).then((res: any) => {
-             setSubmissionId(res.data.id);
-          }).catch(console.error);
+          api
+            .post("/lab/submissions/", {
+              lab_sprint_ticket: ticket.id,
+              ticket_status: "in_progress",
+              solution: JSON.stringify(files),
+            })
+            .then((res: any) => {
+              setSubmissionId(res.data.id);
+            })
+            .catch(console.error);
         });
       }
     }
@@ -1628,9 +1902,13 @@ export function TicketIDE({
 
   async function handleShare() {
     try {
-      await navigator.clipboard.writeText(`${ticket.id} solution by @alex\n\n\`\`\`java\n${files["Main.java"]}\n\`\`\``);
+      await navigator.clipboard.writeText(
+        `${ticket.id} solution by @alex\n\n\`\`\`java\n${files["Main.java"]}\n\`\`\``,
+      );
       showToast("Share link copied");
-    } catch { showToast("Copy failed"); }
+    } catch {
+      showToast("Copy failed");
+    }
   }
 
   function updateCode(v: string) {
@@ -1638,10 +1916,13 @@ export function TicketIDE({
     setDirty((d) => ({ ...d, [activeFile]: true }));
   }
 
-
-
   const handleResetProgress = async () => {
-    if (!confirm("Are you sure you want to reset your progress? This will delete all your files and restart the ticket.")) return;
+    if (
+      !confirm(
+        "Are you sure you want to reset your progress? This will delete all your files and restart the ticket.",
+      )
+    )
+      return;
     try {
       const { deleteWorkspaceFile } = await import("@/services/workspaceService");
       await deleteWorkspaceFile(userId, labId, sprintId, "");
@@ -1659,14 +1940,26 @@ export function TicketIDE({
     <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
-        {(!previewOverride && !isEvaluationMode) && (
-          <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
-            <ArrowLeft className="h-3 w-3" />Exit
+        {!previewOverride && !isEvaluationMode && (
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Exit
           </Link>
         )}
-        <button onClick={() => setLeftCollapsed((v) => !v)} title="Toggle panel"
-          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
-          {leftCollapsed ? <PanelLeftOpen className="h-3 w-3" /> : <PanelLeftClose className="h-3 w-3" />}
+        <button
+          onClick={() => setLeftCollapsed((v) => !v)}
+          title="Toggle panel"
+          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
+        >
+          {leftCollapsed ? (
+            <PanelLeftOpen className="h-3 w-3" />
+          ) : (
+            <PanelLeftClose className="h-3 w-3" />
+          )}
           <span className="hidden md:inline">{leftCollapsed ? "Show" : "Hide"} panel</span>
         </button>
         <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -1674,36 +1967,69 @@ export function TicketIDE({
         </div>
         <StatusBadge value={ticket.status} />
         <DiffBadge value={ticket.difficulty} />
-        {!isEvaluationMode && <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>}
-        <span className="text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Est. {ticket.estMin}m · Elapsed <span className="font-mono text-foreground">{timeStr}</span></span>
-        {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
-        <button onClick={handleResetProgress} title="Reset Progress" className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1">
-          <RotateCcw className="h-3 w-3" />Reset
+        {!isEvaluationMode && (
+          <span className="text-muted-foreground inline-flex items-center gap-1">
+            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP
+          </span>
+        )}
+        <span className="text-muted-foreground inline-flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          Est. {ticket.estMin}m · Elapsed{" "}
+          <span className="font-mono text-foreground">{timeStr}</span>
+        </span>
+        {savedAt && (
+          <span className="text-success inline-flex items-center gap-1">
+            <Check className="h-3 w-3" />
+            Saved {savedAt}
+          </span>
+        )}
+        <button
+          onClick={handleResetProgress}
+          title="Reset Progress"
+          className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1"
+        >
+          <RotateCcw className="h-3 w-3" />
+          Reset
         </button>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <button onClick={() => {
-            if (sidePanel !== "preview") {
-              setSidePanel("preview");
-              setLeftCollapsed(true);
-            } else {
-              setSidePanel(null);
-            }
-          }}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}>
-            <Globe className="h-3 w-3" />Preview
+          <button
+            onClick={() => {
+              if (sidePanel !== "preview") {
+                setSidePanel("preview");
+                setLeftCollapsed(true);
+              } else {
+                setSidePanel(null);
+              }
+            }}
+            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}
+          >
+            <Globe className="h-3 w-3" />
+            Preview
           </button>
-          <button onClick={() => setSidePanel((p) => p === "mentor" ? null : "mentor")}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}>
-            <Sparkles className="h-3 w-3" />AI Mentor
+          <button
+            onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
+            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
+          >
+            <Sparkles className="h-3 w-3" />
+            AI Mentor
           </button>
-          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
-            <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
+          <button
+            onClick={handleRun}
+            disabled={running}
+            className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60"
+          >
+            <Play className="h-3 w-3" />
+            {running ? "Running…" : "Run"}{" "}
+            <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
-          <button onClick={handleSubmit}
+          <button
+            onClick={handleSubmit}
             disabled={submitting}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
-            <Send className="h-3 w-3" />{submitting ? "Submitting..." : "Submit"}
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            <Send className="h-3 w-3" />
+            {submitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -1716,9 +2042,16 @@ export function TicketIDE({
             onClick={() => setFileTreeOpen((v) => !v)}
             title={fileTreeOpen ? "Hide Explorer" : "Show Explorer"}
             className={`grid h-9 w-9 place-items-center rounded ${fileTreeOpen ? "text-foreground bg-accent" : "hover:text-foreground"}`}
-          ><FileCode2 className="h-4 w-4" /></button>
+          >
+            <FileCode2 className="h-4 w-4" />
+          </button>
           {[Search, GitBranch, Bug, Package].map((I, i) => (
-            <button key={i} className="grid h-9 w-9 place-items-center rounded hover:text-foreground"><I className="h-4 w-4" /></button>
+            <button
+              key={i}
+              className="grid h-9 w-9 place-items-center rounded hover:text-foreground"
+            >
+              <I className="h-4 w-4" />
+            </button>
           ))}
           <Settings className="mt-auto h-4 w-4" />
         </div>
@@ -1731,13 +2064,23 @@ export function TicketIDE({
               { k: "hints", I: Lightbulb, label: "Hints" },
               { k: "discuss", I: MessageSquare, label: "Discuss" },
             ].map(({ k, I, label }) => (
-              <button key={k} title={label} onClick={() => { setLeftCollapsed(false); setTab(k as typeof tab); }}
-                className="grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent">
+              <button
+                key={k}
+                title={label}
+                onClick={() => {
+                  setLeftCollapsed(false);
+                  setTab(k as typeof tab);
+                }}
+                className="grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
+              >
                 <I className="h-4 w-4" />
               </button>
             ))}
-            <button onClick={() => setLeftCollapsed(false)} title="Expand panel"
-              className="mt-auto grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent">
+            <button
+              onClick={() => setLeftCollapsed(false)}
+              title="Expand panel"
+              className="mt-auto grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
+            >
               <PanelLeftOpen className="h-4 w-4" />
             </button>
           </aside>
@@ -1749,11 +2092,19 @@ export function TicketIDE({
                 { k: "hints", label: "Hints" },
                 { k: "discuss", label: "Discuss" },
               ].map((t) => (
-                <button key={t.k} onClick={() => setTab(t.k as typeof tab)}
-                  className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>{t.label}</button>
+                <button
+                  key={t.k}
+                  onClick={() => setTab(t.k as typeof tab)}
+                  className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {t.label}
+                </button>
               ))}
-              <button onClick={() => setLeftCollapsed(true)} title="Collapse panel"
-                className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground">
+              <button
+                onClick={() => setLeftCollapsed(true)}
+                title="Collapse panel"
+                className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+              >
                 <PanelLeftClose className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -1762,14 +2113,21 @@ export function TicketIDE({
                 <ProblemPanel
                   ticket={ticket}
                   slug={slug}
-                  isReal={!tickets.some(t => t.id === ticket.id)}
+                  isReal={!tickets.some((t) => t.id === ticket.id)}
                   evaluating={evaluating}
                   evalResult={evalResult}
                   ticketScore={ticketScore}
                   onEvaluate={handleEvaluate}
                 />
               )}
-              {tab === "hints" && <HintsPanel level={hintLevel} setLevel={setHintLevel} elapsed={elapsed} onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)} />}
+              {tab === "hints" && (
+                <HintsPanel
+                  level={hintLevel}
+                  setLevel={setHintLevel}
+                  elapsed={elapsed}
+                  onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)}
+                />
+              )}
               {tab === "discuss" && <DiscussPanel />}
             </div>
           </aside>
@@ -1791,7 +2149,9 @@ export function TicketIDE({
                         if (name) createFile(name);
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                    ><FilePlus className="h-3.5 w-3.5" /></button>
+                    >
+                      <FilePlus className="h-3.5 w-3.5" />
+                    </button>
                     <button
                       title="New Folder"
                       onClick={() => {
@@ -1802,19 +2162,33 @@ export function TicketIDE({
                         }
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                    ><FolderPlus className="h-3.5 w-3.5" /></button>
+                    >
+                      <FolderPlus className="h-3.5 w-3.5" />
+                    </button>
                     <button
                       title="Refresh Workspace"
                       onClick={() => loadWorkspaceFiles(true)}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
+                      </svg>
                     </button>
                   </div>
                 </div>
                 <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
-                    rootLabel={isReal ? (ticket.title || "Project") : kit.rootLabel}
+                    rootLabel={isReal ? ticket.title || "Project" : kit.rootLabel}
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
@@ -1832,63 +2206,195 @@ export function TicketIDE({
                     <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                       <span>DB Explorer</span>
                     </div>
-                    {dbSchemas.length === 0 && <div className="px-3 py-2 text-xs text-muted-foreground italic">No databases found</div>}
-                    {dbSchemas.map(schema => (
+                    {dbSchemas.length === 0 && (
+                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
+                        No databases found
+                      </div>
+                    )}
+                    {dbSchemas.map((schema) => (
                       <React.Fragment key={schema.name}>
                         <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
-                          <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                          <svg
+                            className="h-3.5 w-3.5 text-primary"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                          </svg>
                           {schema.name}
                         </div>
                         {schema.tables.length > 0 ? (
                           <>
-                            <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
-                            {schema.tables.map(t => (
-                              <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${schema.name}.${t.name}`)) setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]); setActiveFile(`schema:${schema.name}.${t.name}`); }}
-                                className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
-                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                            <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">
+                              Tables
+                            </div>
+                            {schema.tables.map((t) => (
+                              <button
+                                key={t.name}
+                                onClick={() => {
+                                  if (!openTabs.includes(`schema:${schema.name}.${t.name}`))
+                                    setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]);
+                                  setActiveFile(`schema:${schema.name}.${t.name}`);
+                                }}
+                                className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                              >
+                                <svg
+                                  className="h-3 w-3"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                                  <line x1="9" y1="21" x2="9" y2="9"></line>
+                                </svg>
                                 {t.name}
-                                <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
+                                <span className="ml-auto text-[10px] opacity-50">
+                                  {t.columns.length} cols
+                                </span>
                               </button>
                             ))}
                           </>
                         ) : (
-                          <div className="px-5 py-1 text-[11px] text-muted-foreground italic">0 tables</div>
+                          <div className="px-5 py-1 text-[11px] text-muted-foreground italic">
+                            0 tables
+                          </div>
                         )}
                       </React.Fragment>
                     ))}
                     {(isMysql || isPostgres) && (
                       <div className="px-4 py-3 mt-4 border-t border-border">
-                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">Need a free database?</div>
+                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">
+                          Need a free database?
+                        </div>
                         <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
-                          {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Postgres)</li>}
-                          {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Postgres)</li>}
-                          {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Postgres)</li>}
-                          {isMysql && <li><a href="https://planetscale.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">PlanetScale</a> (MySQL)</li>}
-                          {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven</a> (MySQL)</li>}
-                          {isMysql && <li><a href="https://tidbcloud.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Cloud</a> (MySQL)</li>}
-                          <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Both)</li>
+                          {isPostgres && (
+                            <li>
+                              <a
+                                href="https://supabase.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                Supabase
+                              </a>{" "}
+                              (Postgres)
+                            </li>
+                          )}
+                          {isPostgres && (
+                            <li>
+                              <a
+                                href="https://neon.tech"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                Neon
+                              </a>{" "}
+                              (Postgres)
+                            </li>
+                          )}
+                          {isPostgres && (
+                            <li>
+                              <a
+                                href="https://render.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                Render
+                              </a>{" "}
+                              (Postgres)
+                            </li>
+                          )}
+                          {isMysql && (
+                            <li>
+                              <a
+                                href="https://planetscale.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                PlanetScale
+                              </a>{" "}
+                              (MySQL)
+                            </li>
+                          )}
+                          {isMysql && (
+                            <li>
+                              <a
+                                href="https://aiven.io/mysql"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                Aiven
+                              </a>{" "}
+                              (MySQL)
+                            </li>
+                          )}
+                          {isMysql && (
+                            <li>
+                              <a
+                                href="https://tidbcloud.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                TiDB Cloud
+                              </a>{" "}
+                              (MySQL)
+                            </li>
+                          )}
+                          <li>
+                            <a
+                              href="https://railway.app"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary hover:underline font-medium"
+                            >
+                              Railway
+                            </a>{" "}
+                            (Both)
+                          </li>
                         </ul>
                       </div>
                     )}
                   </div>
                 )}
                 <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
-                  <div className="flex items-center gap-1"><GitBranch className="h-3 w-3" /> main</div>
+                  <div className="flex items-center gap-1">
+                    <GitBranch className="h-3 w-3" /> main
+                  </div>
                 </div>
               </div>
             )}
 
-
             <div className="flex flex-1 min-w-0 flex-col">
-
               {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
                 {openTabs.map((f) => (
-                  <button key={f} onClick={() => setActiveFile(f)}
-                    className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}>
-                    <FileCode2 className="h-3 w-3" />{f.split("/").pop()}
+                  <button
+                    key={f}
+                    onClick={() => setActiveFile(f)}
+                    className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}
+                  >
+                    <FileCode2 className="h-3 w-3" />
+                    {f.split("/").pop()}
                     {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
-                    <div onClick={(e) => closeTab(f, e)} className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive p-0.5 rounded-sm hover:bg-muted/50">
+                    <div
+                      onClick={(e) => closeTab(f, e)}
+                      className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive p-0.5 rounded-sm hover:bg-muted/50"
+                    >
                       <X className="h-3 w-3" />
                     </div>
                   </button>
@@ -1911,11 +2417,20 @@ export function TicketIDE({
                   )}
                   {isJava && <CompileBadge state={compileState} />}
                   {!isEvaluationMode && (
-                    <button onClick={toggleTheme} className="rounded border px-2 py-0.5 hover:bg-accent">
+                    <button
+                      onClick={toggleTheme}
+                      className="rounded border px-2 py-0.5 hover:bg-accent"
+                    >
                       {theme === "dark" ? "☀ Light" : "🌙 Dark"}
                     </button>
                   )}
-                  <button title="Format" onClick={() => showToast("Code formatted")} className="rounded border px-2 py-0.5 hover:bg-accent"><Wand2 className="h-3 w-3" /></button>
+                  <button
+                    title="Format"
+                    onClick={() => showToast("Code formatted")}
+                    className="rounded border px-2 py-0.5 hover:bg-accent"
+                  >
+                    <Wand2 className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
 
@@ -1942,47 +2457,89 @@ export function TicketIDE({
               {/* Editor */}
               <div className="flex flex-1 min-h-0">
                 {activeFile.startsWith("schema:") ? (
-                  <SchemaViewer tablePath={activeFile.replace("schema:", "")} dbSchemas={dbSchemas} />
+                  <SchemaViewer
+                    tablePath={activeFile.replace("schema:", "")}
+                    dbSchemas={dbSchemas}
+                  />
                 ) : (
-                  <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
+                  <CodeEditor
+                    code={code}
+                    onChange={updateCode}
+                    language={editorLanguage(activeFile)}
+                    theme={theme}
+                  />
                 )}
               </div>
-
 
               {/* Bottom panel */}
               <div className="border-t bg-editor-panel">
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "errors", label: "Errors", icon: AlertTriangle }] : []),
-                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe }] : []),
-                    { k: "terminal", label: "Terminal", icon: TerminalIcon }
+                    ...(!labTitle.toLowerCase().includes("git")
+                      ? [{ k: "errors", label: "Errors", icon: AlertTriangle }]
+                      : []),
+                    ...(!labTitle.toLowerCase().includes("git")
+                      ? [
+                          {
+                            k: "preview",
+                            label: isSql || isMongo ? "Results" : "Preview",
+                            icon: Globe,
+                          },
+                        ]
+                      : []),
+                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
-                    <button key={t.k} onClick={() => setBottomTab(t.k as BottomTab)}
-                      className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide ${bottomTab === t.k ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
-                      <t.icon className="h-3 w-3" />{t.label}
+                    <button
+                      key={t.k}
+                      onClick={() => setBottomTab(t.k as BottomTab)}
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide ${bottomTab === t.k ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <t.icon className="h-3 w-3" />
+                      {t.label}
                     </button>
                   ))}
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
                   {bottomTab === "output" && <OutputView output={output} />}
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
-                  {bottomTab === "preview" && (
-                    isDjango ? <DjangoTodoPreview /> :
-                      isSql ? (
-                        <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isMongo ? (
-                        <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isExternalDb ? (
-                        <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
-                      ) : isUi ? <UiPreview files={files} /> :
-                                isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                                  <PreviewView />
-                  )}
+                  {bottomTab === "preview" &&
+                    (isDjango ? (
+                      <DjangoTodoPreview />
+                    ) : isSql ? (
+                      <SqlResultsView
+                        query={executedQuery}
+                        runId={runId}
+                        onQueryExecuted={refreshSchema}
+                      />
+                    ) : isMongo ? (
+                      <MongoResultsView
+                        query={executedQuery}
+                        runId={runId}
+                        onQueryExecuted={refreshSchema}
+                      />
+                    ) : isExternalDb ? (
+                      <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
+                    ) : isUi ? (
+                      <UiPreview files={files} />
+                    ) : isPython ? (
+                      <PythonOutputView code={files[activeFile] ?? ""} />
+                    ) : (
+                      <PreviewView />
+                    ))}
                   {bottomTab === "terminal" && (
                     <TerminalView
                       theme={theme}
-                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other") : null}
+                      wsUrl={
+                        isReal
+                          ? getTerminalWsUrl(
+                              userId,
+                              labId,
+                              sprintId,
+                              labTitle === "SQLite Lab" ? "sqlite" : "other",
+                            )
+                          : null
+                      }
                       onCommandRun={() => loadWorkspaceFiles(true)}
                     />
                   )}
@@ -2002,54 +2559,96 @@ export function TicketIDE({
               <aside
                 className="flex flex-col bg-editor-panel min-w-0"
                 style={{
-                  flex: sideWidth != null
-                    ? `0 0 ${sideWidth}px`
-                    : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`
+                  flex:
+                    sideWidth != null
+                      ? `0 0 ${sideWidth}px`
+                      : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`,
                 }}
               >
                 <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
-                    {sidePanel === "preview" ? <><Globe className="h-3 w-3" />Live Preview</> : <><Sparkles className="h-3 w-3 text-primary" />AI Mentor</>}
+                    {sidePanel === "preview" ? (
+                      <>
+                        <Globe className="h-3 w-3" />
+                        Live Preview
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3 text-primary" />
+                        AI Mentor
+                      </>
+                    )}
                   </span>
                   {sidePanel === "preview" && (
                     <div className="flex items-center gap-1">
                       {(["Mobile", "Tablet", "Desktop"] as const).map((d) => (
-                        <button key={d} onClick={() => setPreviewDevice(d)}
-                          className={`rounded border px-2 py-0.5 text-[10px] ${previewDevice === d ? "bg-accent text-foreground border-primary/40" : "text-muted-foreground hover:bg-accent"}`}>
+                        <button
+                          key={d}
+                          onClick={() => setPreviewDevice(d)}
+                          className={`rounded border px-2 py-0.5 text-[10px] ${previewDevice === d ? "bg-accent text-foreground border-primary/40" : "text-muted-foreground hover:bg-accent"}`}
+                        >
                           {d}
                         </button>
                       ))}
                     </div>
                   )}
-                  <button onClick={() => setSidePanel(null)} className="ml-auto text-muted-foreground hover:text-foreground">✕</button>
+                  <button
+                    onClick={() => setSidePanel(null)}
+                    className="ml-auto text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </button>
                 </div>
                 <div className="flex-1 overflow-auto scrollbar-thin p-3 text-xs min-w-0">
-                  {sidePanel === "preview"
-                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} />
-                    : <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />}
+                  {sidePanel === "preview" ? (
+                    <SidePreview
+                      device={previewDevice}
+                      kit={kit}
+                      files={files}
+                      activeFile={activeFile}
+                    />
+                  ) : (
+                    <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />
+                  )}
                 </div>
               </aside>
             )}
-
           </div>
-
         </section>
       </div>
 
       {/* Status bar */}
       <div className="flex items-center gap-3 border-t bg-primary/90 px-3 py-1 text-[11px] text-primary-foreground">
-        <span className="inline-flex items-center gap-1"><GitBranch className="h-3 w-3" /> main</span>
+        <span className="inline-flex items-center gap-1">
+          <GitBranch className="h-3 w-3" /> main
+        </span>
         <span>{kit.runtime}</span>
         <span>UTF-8</span>
         <span>LF</span>
         {isJava && (
           <span className="inline-flex items-center gap-1">
-            {compileState === "ok" && <><CheckCircle2 className="h-3 w-3" />Compiled</>}
-            {compileState === "warn" && <><AlertTriangle className="h-3 w-3" />1 warning</>}
-            {compileState === "err" && <><XCircle className="h-3 w-3" />Compile error</>}
+            {compileState === "ok" && (
+              <>
+                <CheckCircle2 className="h-3 w-3" />
+                Compiled
+              </>
+            )}
+            {compileState === "warn" && (
+              <>
+                <AlertTriangle className="h-3 w-3" />1 warning
+              </>
+            )}
+            {compileState === "err" && (
+              <>
+                <XCircle className="h-3 w-3" />
+                Compile error
+              </>
+            )}
           </span>
         )}
-        <span className="ml-auto">{activeFile} · {code.split("\n").length} lines</span>
+        <span className="ml-auto">
+          {activeFile} · {code.split("\n").length} lines
+        </span>
       </div>
 
       {/* Toast */}
@@ -2064,7 +2663,8 @@ export function TicketIDE({
 
 /* ---------- Editor ---------- */
 
-type EditorLang = "java" | "py" | "html" | "md" | "txt" | "sql" | "js" | "css" | "json" | "cpp" | "c";
+type EditorLang =
+  "java" | "py" | "html" | "md" | "txt" | "sql" | "js" | "css" | "json" | "cpp" | "c";
 function editorLanguage(file: string): EditorLang {
   if (file.endsWith(".py")) return "py";
   if (file.endsWith(".html")) return "html";
@@ -2079,36 +2679,58 @@ function editorLanguage(file: string): EditorLang {
   return "txt";
 }
 
-function CodeEditor({ code, onChange, language, theme }: { code: string; onChange: (v: string) => void; language: EditorLang; theme: "dark" | "light" }) {
+function CodeEditor({
+  code,
+  onChange,
+  language,
+  theme,
+}: {
+  code: string;
+  onChange: (v: string) => void;
+  language: EditorLang;
+  theme: "dark" | "light";
+}) {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const extensions = useMemo(() => {
     switch (language) {
-      case "py": return [python()];
-      case "java": return [java()];
-      case "html": return [cmHtml()];
-      case "md": return [cmMarkdown()];
-      case "sql": return [sql()];
-      case "js": return [javascript({ typescript: true })];
-      case "css": return [css()];
-      case "json": return [jsonLang()];
+      case "py":
+        return [python()];
+      case "java":
+        return [java()];
+      case "html":
+        return [cmHtml()];
+      case "md":
+        return [cmMarkdown()];
+      case "sql":
+        return [sql()];
+      case "js":
+        return [javascript({ typescript: true })];
+      case "css":
+        return [css()];
+      case "json":
+        return [jsonLang()];
       case "cpp":
-      case "c": return [cpp()];
-      default: return [];
+      case "c":
+        return [cpp()];
+      default:
+        return [];
     }
   }, [language]);
 
   const transparentTheme = useMemo(() => {
     return EditorView.theme({
       "&": { backgroundColor: "transparent !important" },
-      ".cm-gutters": { 
-        backgroundColor: "transparent !important", 
+      ".cm-gutters": {
+        backgroundColor: "transparent !important",
         borderRight: "1px solid var(--color-border) !important",
-        color: "var(--color-muted-foreground)"
+        color: "var(--color-muted-foreground)",
       },
       ".cm-activeLine": { backgroundColor: "var(--color-muted) !important" },
-      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" }
+      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" },
     });
   }, []);
 
@@ -2149,21 +2771,47 @@ function CodeEditor({ code, onChange, language, theme }: { code: string; onChang
 function CompileBadge({ state }: { state: "ok" | "warn" | "err" }) {
   const map = {
     ok: { txt: "Compiled", cls: "text-success border-success/40 bg-success/10", I: CheckCircle2 },
-    warn: { txt: "Warnings", cls: "text-warning border-warning/40 bg-warning/10", I: AlertTriangle },
-    err: { txt: "Errors", cls: "text-destructive border-destructive/40 bg-destructive/10", I: XCircle },
+    warn: {
+      txt: "Warnings",
+      cls: "text-warning border-warning/40 bg-warning/10",
+      I: AlertTriangle,
+    },
+    err: {
+      txt: "Errors",
+      cls: "text-destructive border-destructive/40 bg-destructive/10",
+      I: XCircle,
+    },
   } as const;
   const { txt, cls, I } = map[state];
-  return <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 ${cls}`}><I className="h-3 w-3" />{txt}</span>;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 ${cls}`}>
+      <I className="h-3 w-3" />
+      {txt}
+    </span>
+  );
 }
 
-function TestsView({ tests, ran, onRun }: { tests: TestResult[]; ran: boolean; onRun: () => void }) {
+function TestsView({
+  tests,
+  ran,
+  onRun,
+}: {
+  tests: TestResult[];
+  ran: boolean;
+  onRun: () => void;
+}) {
   const passed = tests.filter((t) => t.pass).length;
   if (!ran) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
         <CheckCircle2 className="h-6 w-6" />
         <div>No test results yet</div>
-        <button onClick={onRun} className="rounded border bg-primary px-3 py-1 text-xs text-primary-foreground hover:opacity-90">Run tests</button>
+        <button
+          onClick={onRun}
+          className="rounded border bg-primary px-3 py-1 text-xs text-primary-foreground hover:opacity-90"
+        >
+          Run tests
+        </button>
       </div>
     );
   }
@@ -2174,44 +2822,91 @@ function TestsView({ tests, ran, onRun }: { tests: TestResult[]; ran: boolean; o
       {tests.map((t) => (
         <div key={t.name}>
           <div className="flex items-center gap-2">
-            {t.pass ? <CheckCircle2 className="h-3.5 w-3.5 text-success" /> : <XCircle className="h-3.5 w-3.5 text-destructive" />}
+            {t.pass ? (
+              <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+            ) : (
+              <XCircle className="h-3.5 w-3.5 text-destructive" />
+            )}
             <span className={t.pass ? "" : "text-destructive"}>{t.name}</span>
             <span className="ml-auto text-muted-foreground">{t.time}</span>
           </div>
           {!t.pass && t.expected && (
             <div className="ml-5 mt-1 rounded border border-destructive/30 bg-destructive/5 p-1.5 text-[11px] text-destructive/90">
-              <div>Expected: <span className="text-success">{t.expected}</span></div>
-              <div>Got:      <span className="text-destructive">{t.got}</span></div>
+              <div>
+                Expected: <span className="text-success">{t.expected}</span>
+              </div>
+              <div>
+                Got: <span className="text-destructive">{t.got}</span>
+              </div>
             </div>
           )}
         </div>
       ))}
       <div className="mt-2 border-t pt-2">
-        Score: <span className="text-foreground font-semibold">{passed}/{tests.length}</span> ({Math.round((passed / tests.length) * 100)}%)
-        {passed < tests.length && <span className="ml-2 text-destructive">Submit when all tests pass.</span>}
+        Score:{" "}
+        <span className="text-foreground font-semibold">
+          {passed}/{tests.length}
+        </span>{" "}
+        ({Math.round((passed / tests.length) * 100)}%)
+        {passed < tests.length && (
+          <span className="ml-2 text-destructive">Submit when all tests pass.</span>
+        )}
       </div>
     </div>
   );
 }
 
 function OutputView({ output }: { output: string }) {
-  if (!output) return <div className="text-muted-foreground">Click <span className="text-foreground font-medium">Run</span> to execute your code.</div>;
+  if (!output)
+    return (
+      <div className="text-muted-foreground">
+        Click <span className="text-foreground font-medium">Run</span> to execute your code.
+      </div>
+    );
   return <pre className="font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>;
 }
 
 function ErrorsView({ state }: { state: "ok" | "warn" | "err" }) {
-  const items = state === "err" ? [
-    { sev: "err" as const, line: 1, msg: "Missing class or main method", fix: "Ensure 'public class Main { public static void main(String[] args) {} }'" },
-  ] : state === "warn" ? [
-    { sev: "warn" as const, line: 18, msg: "Unused variable 'castedDouble'", fix: "Remove the declaration or print it" },
-  ] : [];
-  if (!items.length) return <div className="text-muted-foreground inline-flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-success" />No errors or warnings.</div>;
+  const items =
+    state === "err"
+      ? [
+          {
+            sev: "err" as const,
+            line: 1,
+            msg: "Missing class or main method",
+            fix: "Ensure 'public class Main { public static void main(String[] args) {} }'",
+          },
+        ]
+      : state === "warn"
+        ? [
+            {
+              sev: "warn" as const,
+              line: 18,
+              msg: "Unused variable 'castedDouble'",
+              fix: "Remove the declaration or print it",
+            },
+          ]
+        : [];
+  if (!items.length)
+    return (
+      <div className="text-muted-foreground inline-flex items-center gap-1">
+        <CheckCircle2 className="h-3 w-3 text-success" />
+        No errors or warnings.
+      </div>
+    );
   return (
     <div className="space-y-1.5 font-mono">
       {items.map((e, i) => (
-        <div key={i} className={`rounded border p-2 ${e.sev === "err" ? "border-destructive/30 bg-destructive/5" : "border-warning/30 bg-warning/5"}`}>
+        <div
+          key={i}
+          className={`rounded border p-2 ${e.sev === "err" ? "border-destructive/30 bg-destructive/5" : "border-warning/30 bg-warning/5"}`}
+        >
           <div className="flex items-center gap-2">
-            {e.sev === "err" ? <XCircle className="h-3 w-3 text-destructive" /> : <AlertTriangle className="h-3 w-3 text-warning" />}
+            {e.sev === "err" ? (
+              <XCircle className="h-3 w-3 text-destructive" />
+            ) : (
+              <AlertTriangle className="h-3 w-3 text-warning" />
+            )}
             <span className="underline-offset-2">Main.java:{e.line}</span>
             <span className={e.sev === "err" ? "text-destructive" : "text-warning"}>{e.msg}</span>
           </div>
@@ -2228,14 +2923,29 @@ function QualityView({ code }: { code: string }) {
   const items = [
     { ok: true, t: "Naming conventions followed" },
     { ok: true, t: "No unused imports" },
-    { ok: todos === 0, sev: "warn" as const, t: `Resolve ${todos} TODO comment${todos === 1 ? "" : "s"}` },
-    { ok: code.includes("/**") || code.includes("//"), sev: "warn" as const, t: "Add comments to explain logic" },
-    { ok: code.split("\n").length < 40, sev: "err" as const, t: "Method too long — consider refactoring" },
+    {
+      ok: todos === 0,
+      sev: "warn" as const,
+      t: `Resolve ${todos} TODO comment${todos === 1 ? "" : "s"}`,
+    },
+    {
+      ok: code.includes("/**") || code.includes("//"),
+      sev: "warn" as const,
+      t: "Add comments to explain logic",
+    },
+    {
+      ok: code.split("\n").length < 40,
+      sev: "err" as const,
+      t: "Method too long — consider refactoring",
+    },
   ];
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3">
-        <div className="text-2xl font-semibold">{score}<span className="text-muted-foreground text-sm">/10</span></div>
+        <div className="text-2xl font-semibold">
+          {score}
+          <span className="text-muted-foreground text-sm">/10</span>
+        </div>
         <div className="flex-1 h-2 rounded-full bg-accent overflow-hidden">
           <div className="h-full bg-success transition-all" style={{ width: `${score * 10}%` }} />
         </div>
@@ -2243,10 +2953,16 @@ function QualityView({ code }: { code: string }) {
       <ul className="space-y-1 font-mono">
         {items.map((i, k) => (
           <li key={k} className="flex items-center gap-2">
-            {i.ok
-              ? <CheckCircle2 className="h-3 w-3 text-success" />
-              : i.sev === "warn" ? <AlertTriangle className="h-3 w-3 text-warning" /> : <XCircle className="h-3 w-3 text-destructive" />}
-            <span className={i.ok ? "" : i.sev === "warn" ? "text-warning" : "text-destructive"}>{i.t}</span>
+            {i.ok ? (
+              <CheckCircle2 className="h-3 w-3 text-success" />
+            ) : i.sev === "warn" ? (
+              <AlertTriangle className="h-3 w-3 text-warning" />
+            ) : (
+              <XCircle className="h-3 w-3 text-destructive" />
+            )}
+            <span className={i.ok ? "" : i.sev === "warn" ? "text-warning" : "text-destructive"}>
+              {i.t}
+            </span>
           </li>
         ))}
       </ul>
@@ -2261,41 +2977,68 @@ function PreviewView() {
         <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
         <h2 className="mt-1 text-lg font-semibold">Hello Java</h2>
         <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
-        <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
+        <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-xs text-white">
+          Run sample
+        </button>
       </div>
       <div className="w-40 space-y-1 text-[11px] text-muted-foreground">
         <div className="font-semibold text-foreground">Responsive</div>
         {["Mobile 375", "Tablet 768", "Desktop 1280"].map((d) => (
-          <button key={d} className="block w-full rounded border px-2 py-1 text-left hover:bg-accent">{d}</button>
+          <button
+            key={d}
+            className="block w-full rounded border px-2 py-1 text-left hover:bg-accent"
+          >
+            {d}
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
-function SidePreview({ device, kit, files, activeFile }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string }) {
+function SidePreview({
+  device,
+  kit,
+  files,
+  activeFile,
+}: {
+  device: "Mobile" | "Tablet" | "Desktop";
+  kit: Kit;
+  files: Record<string, string>;
+  activeFile: string;
+}) {
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
   const body =
-    kit.name === "django" ? <DjangoTodoApp /> :
-      kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
-            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
-              kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
-                kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                  (
-                    <div className="p-4 space-y-2">
-                      <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
-                      <h2 className="text-xl font-semibold">Hello Java</h2>
-                      <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
-                      <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
-                      <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
-                    </div>
-                  );
+    kit.name === "django" ? (
+      <DjangoTodoApp />
+    ) : kit.name === "ui" ? (
+      <UiPreview files={files} fullHeight />
+    ) : kit.name === "sql" ? (
+      <SqlResultsView query={files[activeFile] ?? ""} />
+    ) : kit.name === "mysql" ? (
+      <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" />
+    ) : kit.name === "postgresql" ? (
+      <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" />
+    ) : kit.name === "mongo" ? (
+      <MongoResultsView query={files[activeFile] ?? ""} />
+    ) : kit.name === "python" ? (
+      <PythonOutputView code={files[activeFile] ?? ""} />
+    ) : (
+      <div className="p-4 space-y-2">
+        <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
+        <h2 className="text-xl font-semibold">Hello Java</h2>
+        <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
+        <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
+        <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
+      </div>
+    );
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex-1 grid place-items-center overflow-auto rounded border bg-accent/30 p-2">
-        <div className="mx-auto h-full w-full overflow-auto rounded bg-white text-black shadow" style={{ width: w, maxWidth: "100%" }}>
+        <div
+          className="mx-auto h-full w-full overflow-auto rounded bg-white text-black shadow"
+          style={{ width: w, maxWidth: "100%" }}
+        >
           {body}
         </div>
       </div>
@@ -2339,9 +3082,13 @@ function DjangoTodoApp() {
     <div className="mx-auto max-w-[560px] p-5 font-sans">
       <div className="mb-3 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Todos</h1>
-        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">{remaining} left</span>
+        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">
+          {remaining} left
+        </span>
       </div>
-      <p className="mb-4 text-xs text-gray-500">Django 5 · SQLite · {todos.length} item{todos.length === 1 ? "" : "s"}</p>
+      <p className="mb-4 text-xs text-gray-500">
+        Django 5 · SQLite · {todos.length} item{todos.length === 1 ? "" : "s"}
+      </p>
 
       <form onSubmit={add} className="mb-4 flex gap-2">
         <input
@@ -2350,13 +3097,18 @@ function DjangoTodoApp() {
           placeholder="What needs doing?"
           className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
         />
-        <button type="submit" className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
+        <button
+          type="submit"
+          className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
           Add
         </button>
       </form>
 
       <ul className="divide-y divide-gray-200 rounded border border-gray-200">
-        {todos.length === 0 && <li className="p-4 text-center text-sm text-gray-500">No todos yet — add one above.</li>}
+        {todos.length === 0 && (
+          <li className="p-4 text-center text-sm text-gray-500">No todos yet — add one above.</li>
+        )}
         {todos.map((t) => (
           <li key={t.id} className="flex items-center gap-3 px-3 py-2">
             <button
@@ -2366,28 +3118,48 @@ function DjangoTodoApp() {
             >
               ✓
             </button>
-            <span className={`flex-1 text-sm ${t.completed ? "text-gray-400 line-through" : "text-gray-900"}`}>{t.title}</span>
-            <button onClick={() => remove(t.id)} className="text-xs text-gray-400 hover:text-red-600" aria-label="delete">
+            <span
+              className={`flex-1 text-sm ${t.completed ? "text-gray-400 line-through" : "text-gray-900"}`}
+            >
+              {t.title}
+            </span>
+            <button
+              onClick={() => remove(t.id)}
+              className="text-xs text-gray-400 hover:text-red-600"
+              aria-label="delete"
+            >
               🗑
             </button>
           </li>
         ))}
       </ul>
 
-      <p className="mt-3 text-[10px] uppercase tracking-wider text-gray-400">POST /todos/ · CSRF protected</p>
+      <p className="mt-3 text-[10px] uppercase tracking-wider text-gray-400">
+        POST /todos/ · CSRF protected
+      </p>
     </div>
   );
 }
 
 function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
   const [msgs, setMsgs] = useState<{ role: "ai" | "me"; text: string }[]>([
-    { role: "ai", text: "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?" },
+    {
+      role: "ai",
+      text: "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?",
+    },
   ]);
   const [input, setInput] = useState("");
   const send = () => {
     if (!input.trim()) return;
     const q = input.trim();
-    setMsgs((m) => [...m, { role: "me", text: q }, { role: "ai", text: `Think about what type each value should be. Try declaring an \`int\` and a \`double\`, then cast between them. What happens when you narrow \`3.99\` to \`int\`?` }]);
+    setMsgs((m) => [
+      ...m,
+      { role: "me", text: q },
+      {
+        role: "ai",
+        text: `Think about what type each value should be. Try declaring an \`int\` and a \`double\`, then cast between them. What happens when you narrow \`3.99\` to \`int\`?`,
+      },
+    ]);
     onAsk(q);
     setInput("");
   };
@@ -2396,27 +3168,54 @@ function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {msgs.map((m, i) => (
           <div key={i} className={`flex ${m.role === "me" ? "justify-end" : ""}`}>
-            <div className={`max-w-[85%] rounded-md px-2.5 py-1.5 text-[12px] ${m.role === "me" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"}`}>
+            <div
+              className={`max-w-[85%] rounded-md px-2.5 py-1.5 text-[12px] ${m.role === "me" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"}`}
+            >
               {m.text}
             </div>
           </div>
         ))}
       </div>
       <div className="flex flex-wrap gap-1">
-        {["Explain this error", "Give a hint", "Review my code", "Why is my test failing?"].map((s) => (
-          <button key={s} onClick={() => { setInput(s); }} className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent">{s}</button>
-        ))}
+        {["Explain this error", "Give a hint", "Review my code", "Why is my test failing?"].map(
+          (s) => (
+            <button
+              key={s}
+              onClick={() => {
+                setInput(s);
+              }}
+              className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent"
+            >
+              {s}
+            </button>
+          ),
+        )}
       </div>
       <div className="flex gap-1">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Ask AI mentor…" className="flex-1 rounded border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary" />
-        <button onClick={send} className="rounded bg-primary px-3 text-xs text-primary-foreground">Ask</button>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          placeholder="Ask AI mentor…"
+          className="flex-1 rounded border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary"
+        />
+        <button onClick={send} className="rounded bg-primary px-3 text-xs text-primary-foreground">
+          Ask
+        </button>
       </div>
     </div>
   );
 }
 
-function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; theme: "dark" | "light" | "system"; onCommandRun?: () => void }) {
+function TerminalView({
+  wsUrl,
+  theme,
+  onCommandRun,
+}: {
+  wsUrl: string | null;
+  theme: "dark" | "light" | "system";
+  onCommandRun?: () => void;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<any>(null);
   const fitRef = useRef<any>(null);
@@ -2432,9 +3231,11 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
       import("@xterm/xterm"),
       // @ts-ignore
       import("@xterm/addon-fit"),
-    ]).then(([xterm, fit]) => {
-      setLibs({ Terminal: xterm.Terminal, FitAddon: fit.FitAddon });
-    }).catch(() => setError("Failed to load terminal library"));
+    ])
+      .then(([xterm, fit]) => {
+        setLibs({ Terminal: xterm.Terminal, FitAddon: fit.FitAddon });
+      })
+      .catch(() => setError("Failed to load terminal library"));
   }, []);
 
   // Mount xterm when libs are ready and container is available
@@ -2445,7 +3246,7 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
     const term = new libs.Terminal({
       cursorBlink: true,
       fontSize: 13,
-      fontFamily: "\"JetBrains Mono\", \"Fira Code\", monospace",
+      fontFamily: '"JetBrains Mono", "Fira Code", monospace',
       theme: {
         background: "transparent",
         foreground: theme === "dark" ? "#e6edf3" : "#24292f",
@@ -2481,7 +3282,11 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
 
     // Resize observer
     const ro = new ResizeObserver(() => {
-      try { fitAddon.fit(); } catch { /* ignore */ }
+      try {
+        fitAddon.fit();
+      } catch {
+        /* ignore */
+      }
     });
     ro.observe(containerRef.current);
 
@@ -2514,7 +3319,11 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
       setError(null);
       termRef.current?.writeln("\x1b[32m✓ Connected\x1b[0m\r\n");
       // Resize hint
-      try { fitRef.current?.fit(); } catch { /* ignore */ }
+      try {
+        fitRef.current?.fit();
+      } catch {
+        /* ignore */
+      }
     };
 
     ws.onmessage = (ev) => {
@@ -2524,7 +3333,7 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
       } else {
         // Fallback for blobs if any
         if (ev.data instanceof Blob) {
-          ev.data.text().then(t => termRef.current?.write(t));
+          ev.data.text().then((t) => termRef.current?.write(t));
         }
       }
     };
@@ -2552,7 +3361,9 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
   useEffect(() => {
     if (!termRef.current || !wsUrl) return;
     connect();
-    return () => { wsRef.current?.close(); };
+    return () => {
+      wsRef.current?.close();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wsUrl, libs]);
 
@@ -2560,9 +3371,15 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
   if (!wsUrl) {
     return (
       <div className="font-mono text-muted-foreground space-y-0.5">
-        <div><span className="text-success">student@labs</span>:<span className="text-info">~/workspace</span>$ ls</div>
-        <div className="text-foreground">script.sh  README.md</div>
-        <div><span className="text-success">student@labs</span>:<span className="text-info">~/workspace</span>$ <span className="animate-pulse">▌</span></div>
+        <div>
+          <span className="text-success">student@labs</span>:
+          <span className="text-info">~/workspace</span>$ ls
+        </div>
+        <div className="text-foreground">script.sh README.md</div>
+        <div>
+          <span className="text-success">student@labs</span>:
+          <span className="text-info">~/workspace</span>$ <span className="animate-pulse">▌</span>
+        </div>
       </div>
     );
   }
@@ -2571,9 +3388,11 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
     <div className="flex flex-col h-full w-full bg-black text-white p-1 rounded">
       {/* Status bar */}
       <div className="flex items-center gap-2 mb-2 px-1">
-        <span className={`h-2 w-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-destructive"}`} />
+        <span
+          className={`h-2 w-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-destructive"}`}
+        />
         <span className="text-muted-foreground text-[10px] font-mono">
-          {connected ? "Connected to workspace terminal" : error ?? "Disconnected"}
+          {connected ? "Connected to workspace terminal" : (error ?? "Disconnected")}
         </span>
         {!connected && (
           <button
@@ -2586,22 +3405,46 @@ function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; th
       </div>
       {/* xterm container */}
       <div className="flex-1 w-full relative">
-        <div
-          ref={containerRef}
-          className="absolute inset-0"
-        />
+        <div ref={containerRef} className="absolute inset-0" />
       </div>
     </div>
   );
 }
 
-function ProgressTile({ icon: Icon, label, value, tone, pct }: { icon: typeof Zap; label: string; value: string; tone: "success" | "warning" | "info" | "primary" | "muted"; pct: number }) {
-  const color = { success: "text-success", warning: "text-warning", info: "text-info", primary: "text-primary", muted: "text-muted-foreground" }[tone];
-  const bar = { success: "bg-success", warning: "bg-warning", info: "bg-info", primary: "bg-primary", muted: "bg-muted-foreground" }[tone];
+function ProgressTile({
+  icon: Icon,
+  label,
+  value,
+  tone,
+  pct,
+}: {
+  icon: typeof Zap;
+  label: string;
+  value: string;
+  tone: "success" | "warning" | "info" | "primary" | "muted";
+  pct: number;
+}) {
+  const color = {
+    success: "text-success",
+    warning: "text-warning",
+    info: "text-info",
+    primary: "text-primary",
+    muted: "text-muted-foreground",
+  }[tone];
+  const bar = {
+    success: "bg-success",
+    warning: "bg-warning",
+    info: "bg-info",
+    primary: "bg-primary",
+    muted: "bg-muted-foreground",
+  }[tone];
   return (
     <div className="rounded-md border bg-editor-bg p-2">
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1 text-muted-foreground"><Icon className={`h-3 w-3 ${color}`} />{label}</span>
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <Icon className={`h-3 w-3 ${color}`} />
+          {label}
+        </span>
         <span className={`font-semibold ${color}`}>{value}</span>
       </div>
       <div className="mt-1.5 h-1 rounded-full bg-accent overflow-hidden">
@@ -2616,7 +3459,14 @@ function Minimap({ code }: { code: string }) {
   return (
     <div className="hidden xl:block w-16 border-l bg-editor-bg/60 p-1 overflow-hidden">
       {lines.map((l, i) => (
-        <div key={i} className="h-[3px] mb-[1px] rounded-sm" style={{ width: `${Math.min(100, l.trim().length * 2.2)}%`, background: "color-mix(in oklab, var(--muted-foreground) 35%, transparent)" }} />
+        <div
+          key={i}
+          className="h-[3px] mb-[1px] rounded-sm"
+          style={{
+            width: `${Math.min(100, l.trim().length * 2.2)}%`,
+            background: "color-mix(in oklab, var(--muted-foreground) 35%, transparent)",
+          }}
+        />
       ))}
     </div>
   );
@@ -2629,7 +3479,7 @@ function ProblemPanel({
   evaluating,
   evalResult,
   ticketScore,
-  onEvaluate
+  onEvaluate,
 }: {
   ticket: any;
   isReal?: boolean;
@@ -2640,16 +3490,22 @@ function ProblemPanel({
   onEvaluate: (taskSlug: string, requiredCommand: string) => void;
 }) {
   const tasks: any[] = Array.isArray(ticket.tasks) ? ticket.tasks : [];
-  const objectives: any[] = Array.isArray(ticket.learning_objectives) ? ticket.learning_objectives : [];
+  const objectives: any[] = Array.isArray(ticket.learning_objectives)
+    ? ticket.learning_objectives
+    : [];
   const mistakes: any[] = Array.isArray(ticket.common_mistakes) ? ticket.common_mistakes : [];
 
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{ticket.id} · {ticket.tag}</div>
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          {ticket.id} · {ticket.tag}
+        </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
         <p className="mt-2 text-muted-foreground">
-          {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
+          {isReal
+            ? ticket.description
+            : "📋 Create a program demonstrating Java variables and data types."}
         </p>
       </div>
 
@@ -2660,18 +3516,26 @@ function ProblemPanel({
             <Section title="✅ Tasks">
               <div className="space-y-2 text-muted-foreground">
                 {tasks.map((task: any, idx: number) => {
-                  const taskTitle = typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
+                  const taskTitle =
+                    typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
                   return (
-                    <div key={idx} className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors">
+                    <div
+                      key={idx}
+                      className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors"
+                    >
                       <div className="flex items-start gap-3">
                         <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
                           {idx + 1}
                         </span>
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
+                          {taskDesc && (
+                            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                              {taskDesc}
+                            </p>
+                          )}
                           {taskMethod && (
                             <div className="mt-3 flex items-center flex-wrap gap-2">
                               <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-1 text-[11px] font-medium text-info">
@@ -2680,11 +3544,16 @@ function ProblemPanel({
                             </div>
                           )}
                           {evalResult[task.task_slug || `task-${idx}`] && (
-                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${evalResult[task.task_slug || `task-${idx}`].passed
-                              ? "border-success/20 bg-success/10 text-success"
-                              : "border-destructive/20 bg-destructive/10 text-destructive"
-                              }`}>
-                              {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
+                            <div
+                              className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                                evalResult[task.task_slug || `task-${idx}`].passed
+                                  ? "border-success/20 bg-success/10 text-success"
+                                  : "border-destructive/20 bg-destructive/10 text-destructive"
+                              }`}
+                            >
+                              {evalResult[task.task_slug || `task-${idx}`].passed
+                                ? "✅ Passed: "
+                                : "❌ Failed: "}
                               {evalResult[task.task_slug || `task-${idx}`].reason}
                             </div>
                           )}
@@ -2697,7 +3566,15 @@ function ProblemPanel({
               <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
                 {ticketScore && (
                   <div className="mb-3 text-sm font-medium">
-                    Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> tasks completed
+                    Score:{" "}
+                    <span
+                      className={
+                        ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"
+                      }
+                    >
+                      {ticketScore.passed}/{ticketScore.total}
+                    </span>{" "}
+                    tasks completed
                   </div>
                 )}
               </div>
@@ -2711,7 +3588,9 @@ function ProblemPanel({
                 {objectives.map((obj: any, i: number) => (
                   <li key={i} className="flex items-start gap-1.5 text-[12px]">
                     <span className="mt-0.5 text-success shrink-0">✓</span>
-                    <span>{typeof obj === "string" ? obj : obj.title ?? JSON.stringify(obj)}</span>
+                    <span>
+                      {typeof obj === "string" ? obj : (obj.title ?? JSON.stringify(obj))}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -2725,7 +3604,9 @@ function ProblemPanel({
                 {mistakes.map((m: any, i: number) => (
                   <li key={i} className="flex items-start gap-1.5 text-[12px]">
                     <span className="text-warning shrink-0 mt-0.5">•</span>
-                    <span>{typeof m === "string" ? m : m.description ?? m.title ?? JSON.stringify(m)}</span>
+                    <span>
+                      {typeof m === "string" ? m : (m.description ?? m.title ?? JSON.stringify(m))}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -2753,7 +3634,9 @@ function ProblemPanel({
           <Section title="✅ Tasks">
             <div className="space-y-2 text-muted-foreground">
               <div>
-                <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
+                <div className="text-foreground">
+                  Task 1 · Create variables for all primitive types
+                </div>
                 <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
                   <li>int, double, boolean, char, long, float, byte, short</li>
                   <li>Initialize with appropriate values</li>
@@ -2798,9 +3681,15 @@ Character at index 0: H`}</pre>
 
           <Section title="⚠️ Common mistakes">
             <ul className="space-y-1 text-muted-foreground">
-              <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
-              <li>• Forgetting <code>(int)</code> when narrowing</li>
-              <li>• <code>charAt</code> out-of-bounds on empty strings</li>
+              <li>
+                • Type mismatch: <code>double → int</code> requires explicit cast
+              </li>
+              <li>
+                • Forgetting <code>(int)</code> when narrowing
+              </li>
+              <li>
+                • <code>charAt</code> out-of-bounds on empty strings
+              </li>
             </ul>
           </Section>
         </>
@@ -2809,43 +3698,102 @@ Character at index 0: H`}</pre>
   );
 }
 
-function HintsPanel({ level, setLevel, elapsed, onUnlock }: { level: number; setLevel: (n: number) => void; elapsed: number; onUnlock: (n: number, cost: string) => void }) {
+function HintsPanel({
+  level,
+  setLevel,
+  elapsed,
+  onUnlock,
+}: {
+  level: number;
+  setLevel: (n: number) => void;
+  elapsed: number;
+  onUnlock: (n: number, cost: string) => void;
+}) {
   const mins = elapsed / 60;
   const hints = [
-    { n: 1, cost: "Free", title: "Think about it", body: "Think about what data type each variable needs. List the 8 Java primitives.", unlockMin: 0 },
-    { n: 2, cost: mins >= 5 ? "Free" : `Free in ${Math.ceil(5 - mins)}m`, title: "Approach", body: "First declare all 8 primitive types with sensible defaults. Then print each, then attempt one cast in each direction.", unlockMin: 5 },
-    { n: 3, cost: mins >= 15 ? "Free" : "10 XP", title: "Code template", body: "int a = 42;\ndouble b = a;        // implicit\nint c = (int) 3.99;  // explicit", unlockMin: 15 },
-    { n: 4, cost: mins >= 25 ? "Free" : "20 XP", title: "Partial solution (50%)", body: "Use greeting.length() + greeting.charAt(0). Now complete the casting part…", unlockMin: 25 },
+    {
+      n: 1,
+      cost: "Free",
+      title: "Think about it",
+      body: "Think about what data type each variable needs. List the 8 Java primitives.",
+      unlockMin: 0,
+    },
+    {
+      n: 2,
+      cost: mins >= 5 ? "Free" : `Free in ${Math.ceil(5 - mins)}m`,
+      title: "Approach",
+      body: "First declare all 8 primitive types with sensible defaults. Then print each, then attempt one cast in each direction.",
+      unlockMin: 5,
+    },
+    {
+      n: 3,
+      cost: mins >= 15 ? "Free" : "10 XP",
+      title: "Code template",
+      body: "int a = 42;\ndouble b = a;        // implicit\nint c = (int) 3.99;  // explicit",
+      unlockMin: 15,
+    },
+    {
+      n: 4,
+      cost: mins >= 25 ? "Free" : "20 XP",
+      title: "Partial solution (50%)",
+      body: "Use greeting.length() + greeting.charAt(0). Now complete the casting part…",
+      unlockMin: 25,
+    },
   ];
   return (
     <div className="space-y-3">
       <div className="rounded-md border border-warning/40 bg-warning/10 p-2 text-xs text-warning">
-        <Lightbulb className="inline h-3 w-3 mr-1" /> Progressive hints — unlocking deeper hints costs XP unless you wait.
+        <Lightbulb className="inline h-3 w-3 mr-1" /> Progressive hints — unlocking deeper hints
+        costs XP unless you wait.
       </div>
       {hints.map((h) => {
         const unlocked = level >= h.n || mins >= h.unlockMin;
         return (
           <div key={h.n} className="rounded-md border bg-editor-bg p-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">Level {h.n} · {h.title}</div>
+              <div className="text-sm font-medium">
+                Level {h.n} · {h.title}
+              </div>
               <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                {unlocked ? <Unlock className="h-3 w-3 text-success" /> : <Lock className="h-3 w-3" />}{h.cost}
+                {unlocked ? (
+                  <Unlock className="h-3 w-3 text-success" />
+                ) : (
+                  <Lock className="h-3 w-3" />
+                )}
+                {h.cost}
               </span>
             </div>
             {unlocked ? (
-              <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground font-mono">{h.body}</pre>
+              <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground font-mono">
+                {h.body}
+              </pre>
             ) : (
               <div className="mt-2 space-y-1">
-                <div className="text-[11px] text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Auto-unlocks at {h.unlockMin}m elapsed</div>
-                <button onClick={() => { setLevel(h.n); onUnlock(h.n, h.cost); }} className="w-full rounded border border-dashed py-1.5 text-xs hover:bg-accent">Unlock now for {h.cost}</button>
+                <div className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  Auto-unlocks at {h.unlockMin}m elapsed
+                </div>
+                <button
+                  onClick={() => {
+                    setLevel(h.n);
+                    onUnlock(h.n, h.cost);
+                  }}
+                  className="w-full rounded border border-dashed py-1.5 text-xs hover:bg-accent"
+                >
+                  Unlock now for {h.cost}
+                </button>
               </div>
             )}
           </div>
         );
       })}
       <div className="rounded-md border bg-editor-bg p-3 text-xs">
-        <div className="font-medium inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-primary" /> Full solution review</div>
-        <div className="mt-1 text-muted-foreground">Unlocked after submission — includes annotated solution, alternatives, and best practices.</div>
+        <div className="font-medium inline-flex items-center gap-1">
+          <Sparkles className="h-3 w-3 text-primary" /> Full solution review
+        </div>
+        <div className="mt-1 text-muted-foreground">
+          Unlocked after submission — includes annotated solution, alternatives, and best practices.
+        </div>
       </div>
     </div>
   );
@@ -2860,7 +3808,12 @@ function DiscussPanel() {
         { u: "Sofia R.", t: "Got 100% — used String.format for clean output.", r: 7 },
       ].map((d, i) => (
         <div key={i} className="rounded-md border p-2 bg-editor-bg">
-          <div className="flex items-center gap-2"><span className="grid h-5 w-5 place-items-center rounded-full bg-accent text-[10px]">{d.u[0]}</span><span className="font-medium">{d.u}</span></div>
+          <div className="flex items-center gap-2">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-accent text-[10px]">
+              {d.u[0]}
+            </span>
+            <span className="font-medium">{d.u}</span>
+          </div>
           <div className="mt-1 text-muted-foreground">{d.t}</div>
           <div className="mt-1 text-[10px] text-muted-foreground">{d.r} replies</div>
         </div>
@@ -2873,49 +3826,86 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   const [open, setOpen] = useState(true);
   return (
     <div className="rounded-md border bg-editor-bg/60">
-      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-3 py-2 text-xs font-medium">
-        <span>{title}</span>{open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between px-3 py-2 text-xs font-medium"
+      >
+        <span>{title}</span>
+        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
       </button>
       {open && <div className="px-3 pb-3 text-xs">{children}</div>}
     </div>
   );
 }
 
-function TreeFolder({ label, open: openProp, onToggle, children }: { label: string; open?: boolean; onToggle?: () => void; children: React.ReactNode }) {
+function TreeFolder({
+  label,
+  open: openProp,
+  onToggle,
+  children,
+}: {
+  label: string;
+  open?: boolean;
+  onToggle?: () => void;
+  children: React.ReactNode;
+}) {
   const [internalOpen, setInternalOpen] = useState(openProp ?? false);
   const isControlled = onToggle !== undefined;
   const open = isControlled ? (openProp ?? false) : internalOpen;
   const handleClick = () => (isControlled ? onToggle!() : setInternalOpen((o) => !o));
   return (
     <div>
-      <button onClick={handleClick} className="flex w-full items-center gap-1 rounded px-1.5 py-0.5 hover:bg-accent/60">
+      <button
+        onClick={handleClick}
+        className="flex w-full items-center gap-1 rounded px-1.5 py-0.5 hover:bg-accent/60"
+      >
         {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        {open ? <FolderOpen className="h-3 w-3 text-info" /> : <Folder className="h-3 w-3 text-info" />}
+        {open ? (
+          <FolderOpen className="h-3 w-3 text-info" />
+        ) : (
+          <Folder className="h-3 w-3 text-info" />
+        )}
         <span>{label}</span>
       </button>
       {open && <div className="pl-4">{children}</div>}
     </div>
   );
 }
-function TreeFile({ name, active, modified, onClick }: { name: string; active?: boolean; modified?: boolean; onClick?: () => void }) {
+function TreeFile({
+  name,
+  active,
+  modified,
+  onClick,
+}: {
+  name: string;
+  active?: boolean;
+  modified?: boolean;
+  onClick?: () => void;
+}) {
   return (
-    <button onClick={onClick} className={`flex w-full items-center gap-1.5 rounded px-1.5 py-0.5 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"}`}>
-      <FileCode2 className="h-3 w-3" /><span className="flex-1 truncate">{name}</span>
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-1.5 rounded px-1.5 py-0.5 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"}`}
+    >
+      <FileCode2 className="h-3 w-3" />
+      <span className="flex-1 truncate">{name}</span>
       {modified && <span className="h-1.5 w-1.5 rounded-full bg-warning" />}
     </button>
   );
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
+  return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
 }
 
 function highlight(line: string): string {
   let h = escapeHtml(line);
   h = h.replace(/(\/\/.*$)/g, '<span style="color:var(--syntax-comment)">$1</span>');
   h = h.replace(/(&quot;.*?&quot;|".*?")/g, '<span style="color:var(--syntax-string)">$1</span>');
-  h = h.replace(/\b(public|class|static|void|int|double|boolean|String|char|long|float|byte|short|return|if|else|for|while|new|true|false|null|import)\b/g,
-    '<span style="color:var(--syntax-keyword)">$1</span>');
+  h = h.replace(
+    /\b(public|class|static|void|int|double|boolean|String|char|long|float|byte|short|return|if|else|for|while|new|true|false|null|import)\b/g,
+    '<span style="color:var(--syntax-keyword)">$1</span>',
+  );
   h = h.replace(/\b(\d+\.?\d*)\b/g, '<span style="color:var(--syntax-number)">$1</span>');
   h = h.replace(/\b([a-zA-Z_][\w]*)(?=\()/g, '<span style="color:var(--syntax-fn)">$1</span>');
   return h;
@@ -2949,7 +3939,9 @@ function buildTree(paths: readonly string[]): TreeNode {
   }
   // sort: folders first, then alpha
   const sort = (n: TreeNode) => {
-    n.children.sort((a, b) => (a.isFile === b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1));
+    n.children.sort((a, b) =>
+      a.isFile === b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1,
+    );
     n.children.forEach(sort);
   };
   sort(root);
@@ -2985,11 +3977,22 @@ function FileTree(props: FileTreeProps) {
 }
 
 function TreeFolderNode({
-  node, depth, isRoot,
-  activeFile, dirty,
-  onOpenFile, onCreateFile, onRenameFile, onDeleteFile, onDeleteFolder,
-  isFolderOpen, toggleFolder,
-}: { node: TreeNode; depth: number; isRoot?: boolean } & Omit<FileTreeProps, "paths" | "rootLabel">) {
+  node,
+  depth,
+  isRoot,
+  activeFile,
+  dirty,
+  onOpenFile,
+  onCreateFile,
+  onRenameFile,
+  onDeleteFile,
+  onDeleteFolder,
+  isFolderOpen,
+  toggleFolder,
+}: { node: TreeNode; depth: number; isRoot?: boolean } & Omit<
+  FileTreeProps,
+  "paths" | "rootLabel"
+>) {
   const key = node.path || "__root__";
   const open = isFolderOpen(key);
   const pad = { paddingLeft: depth * 10 + 4 };
@@ -3014,14 +4017,28 @@ function TreeFolderNode({
             style={pad}
             className="group flex w-full items-center gap-1 rounded py-0.5 pr-1 text-left hover:bg-accent/60"
           >
-            {open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
-            {open ? <FolderOpen className="h-3 w-3 shrink-0 text-info" /> : <Folder className="h-3 w-3 shrink-0 text-info" />}
+            {open ? (
+              <ChevronDown className="h-3 w-3 shrink-0" />
+            ) : (
+              <ChevronRight className="h-3 w-3 shrink-0" />
+            )}
+            {open ? (
+              <FolderOpen className="h-3 w-3 shrink-0 text-info" />
+            ) : (
+              <Folder className="h-3 w-3 shrink-0 text-info" />
+            )}
             <span className="truncate">{node.name}</span>
           </button>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-44">
-          <ContextMenuItem onSelect={handleNewFile}><FilePlus className="mr-2 h-3.5 w-3.5" />New File</ContextMenuItem>
-          <ContextMenuItem onSelect={handleNewFolder}><FolderPlus className="mr-2 h-3.5 w-3.5" />New Folder</ContextMenuItem>
+          <ContextMenuItem onSelect={handleNewFile}>
+            <FilePlus className="mr-2 h-3.5 w-3.5" />
+            New File
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleNewFolder}>
+            <FolderPlus className="mr-2 h-3.5 w-3.5" />
+            New Folder
+          </ContextMenuItem>
           {!isRoot && (
             <>
               <ContextMenuSeparator />
@@ -3037,11 +4054,17 @@ function TreeFolderNode({
                     affected.forEach((p) => onRenameFile(p, p.replace(prefix, newPrefix)));
                   }
                 }}
-              ><Pencil className="mr-2 h-3.5 w-3.5" />Rename Folder</ContextMenuItem>
+              >
+                <Pencil className="mr-2 h-3.5 w-3.5" />
+                Rename Folder
+              </ContextMenuItem>
               <ContextMenuItem
                 className="text-destructive focus:text-destructive"
                 onSelect={() => onDeleteFolder(node.path)}
-              ><Trash2 className="mr-2 h-3.5 w-3.5" />Delete Folder</ContextMenuItem>
+              >
+                <Trash2 className="mr-2 h-3.5 w-3.5" />
+                Delete Folder
+              </ContextMenuItem>
             </>
           )}
         </ContextMenuContent>
@@ -3075,7 +4098,7 @@ function TreeFolderNode({
                 isFolderOpen={isFolderOpen}
                 toggleFolder={toggleFolder}
               />
-            )
+            ),
           )}
         </div>
       )}
@@ -3095,7 +4118,13 @@ function props_get_paths_under(node: TreeNode, _prefix: string): string[] {
 }
 
 function TreeFileNode({
-  node, depth, active, modified, onOpenFile, onRenameFile, onDeleteFile,
+  node,
+  depth,
+  active,
+  modified,
+  onOpenFile,
+  onRenameFile,
+  onDeleteFile,
 }: {
   node: TreeNode;
   depth: number;
@@ -3112,8 +4141,9 @@ function TreeFileNode({
         <button
           onClick={() => onOpenFile(node.path)}
           style={pad}
-          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-            }`}
+          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${
+            active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
+          }`}
         >
           <span className="w-3" />
           <FileCode2 className="h-3 w-3 shrink-0" />
@@ -3129,11 +4159,17 @@ function TreeFileNode({
             const next = prompt("Rename file", node.path);
             if (next && next !== node.path) onRenameFile(node.path, next);
           }}
-        ><Pencil className="mr-2 h-3.5 w-3.5" />Rename</ContextMenuItem>
+        >
+          <Pencil className="mr-2 h-3.5 w-3.5" />
+          Rename
+        </ContextMenuItem>
         <ContextMenuItem
           className="text-destructive focus:text-destructive"
           onSelect={() => onDeleteFile(node.path)}
-        ><Trash2 className="mr-2 h-3.5 w-3.5" />Delete</ContextMenuItem>
+        >
+          <Trash2 className="mr-2 h-3.5 w-3.5" />
+          Delete
+        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
@@ -3141,28 +4177,42 @@ function TreeFileNode({
 
 /* ---------- SQL Mock DB Schema ---------- */
 
-export type DbColumn = { name: string; type: string; nullable: "YES" | "NO"; default: string; key: "PK" | "FK" | "-" };
+export type DbColumn = {
+  name: string;
+  type: string;
+  nullable: "YES" | "NO";
+  default: string;
+  key: "PK" | "FK" | "-";
+};
 export type DbTable = { name: string; columns: DbColumn[]; ddl: string };
-export type DbSchema = { name: string; type: "PostgreSQL" | "MySQL" | "SQLite" | "MongoDB"; tables: DbTable[] };
+export type DbSchema = {
+  name: string;
+  type: "PostgreSQL" | "MySQL" | "SQLite" | "MongoDB";
+  tables: DbTable[];
+};
 
 export const MOCK_DB_SCHEMA: DbSchema = {
   name: "yuvro_sql_lab",
   type: "SQLite",
-  tables: []
+  tables: [],
 };
 
 function SchemaViewer({ tablePath, dbSchemas }: { tablePath: string; dbSchemas: DbSchema[] }) {
   const [dbName, tableName] = tablePath.split(".");
-  const schema = dbSchemas.find(s => s.name === dbName);
-  const table = schema?.tables.find(t => t.name === tableName);
+  const schema = dbSchemas.find((s) => s.name === dbName);
+  const table = schema?.tables.find((t) => t.name === tableName);
   if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
 
   return (
     <div className="flex flex-col h-full bg-background overflow-auto p-4 text-sm">
       <div className="flex items-center gap-2 mb-4">
         <Package className="h-5 w-5 text-primary" />
-        <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
-        <span className="text-foreground">{dbName}.{table.name}</span>
+        <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">
+          Schema Viewer
+        </h2>
+        <span className="text-foreground">
+          {dbName}.{table.name}
+        </span>
       </div>
 
       <div className="mb-6">
@@ -3187,7 +4237,9 @@ function SchemaViewer({ tablePath, dbSchemas }: { tablePath: string; dbSchemas: 
                   <td className="px-3 py-2 font-mono text-muted-foreground">{c.default}</td>
                   <td className="px-3 py-2">
                     {c.key !== "-" && (
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.key === "PK" ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-blue-500/20 text-blue-600 dark:text-blue-400"}`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.key === "PK" ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-blue-500/20 text-blue-600 dark:text-blue-400"}`}
+                      >
                         {c.key}
                       </span>
                     )}
@@ -3223,9 +4275,20 @@ function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: stri
 }
 /* ---------- External SQL query results viewer ---------- */
 
-function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mysql" | "postgresql" }) {
+function ExternalSqlResultsView({
+  query,
+  dbType,
+}: {
+  query: string;
+  dbType: "mysql" | "postgresql";
+}) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
-  const [res, setRes] = useState<{ columns: string[]; rows: any[]; note: string; ms: number } | null>(null);
+  const [res, setRes] = useState<{
+    columns: string[];
+    rows: any[];
+    note: string;
+    ms: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uri, setUri] = useState<string>(() => {
@@ -3261,13 +4324,17 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
       }
     };
     run();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [query, uri, dbType]);
 
   const handleDownloadCsv = () => {
     if (!res || res.rows.length === 0) return;
     const header = res.columns.join(",");
-    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvRows = res.rows.map((r) =>
+      res.columns.map((c) => JSON.stringify(r[c] ?? "")).join(","),
+    );
     const csvStr = [header, ...csvRows].join("\n");
     const blob = new Blob([csvStr], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -3289,7 +4356,10 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
             <span className="font-semibold text-foreground">Database Connection</span>
           </div>
           <button
-            onClick={() => { setEditingUri(true); setTempUri(uri); }}
+            onClick={() => {
+              setEditingUri(true);
+              setTempUri(uri);
+            }}
             className="text-muted-foreground hover:text-foreground underline decoration-dashed"
           >
             {uri ? `Connected (${dbType})` : "Click to configure URI"}
@@ -3300,19 +4370,39 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
             <input
               type="text"
               value={tempUri}
-              onChange={e => setTempUri(e.target.value)}
-              placeholder={dbType === "mysql" ? "mysql://user:pass@host:3306/db" : "postgresql://user:pass@host:5432/db"}
+              onChange={(e) => setTempUri(e.target.value)}
+              placeholder={
+                dbType === "mysql"
+                  ? "mysql://user:pass@host:3306/db"
+                  : "postgresql://user:pass@host:5432/db"
+              }
               className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
             />
-            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
-            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+            <button
+              onClick={saveUri}
+              className="bg-primary text-primary-foreground px-2 py-1 rounded"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setEditingUri(false)}
+              className="text-muted-foreground hover:text-foreground px-2"
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
-        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+        {loading && (
+          <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>
+        )}
+        {error && (
+          <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">
+            {error}
+          </div>
+        )}
 
         {res && (
           <>
@@ -3320,10 +4410,25 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
               <div className="flex items-center gap-3">
                 <span>{res.note}</span>
                 <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
-                  <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
-                  <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+                  <button
+                    onClick={() => setViewMode("TABLE")}
+                    className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+                  >
+                    TABLE
+                  </button>
+                  <button
+                    onClick={() => setViewMode("JSON")}
+                    className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+                  >
+                    JSON
+                  </button>
                 </div>
-                <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+                <button
+                  onClick={handleDownloadCsv}
+                  className="hover:text-foreground text-[11px] underline"
+                >
+                  Download CSV
+                </button>
               </div>
               <span>executed in {res.ms}ms</span>
             </div>
@@ -3334,12 +4439,22 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
               <div className="overflow-auto rounded border flex-1">
                 <table className="w-full font-mono">
                   <thead className="bg-accent/40 text-muted-foreground">
-                    <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+                    <tr>
+                      {res.columns.map((c) => (
+                        <th key={c} className="px-2 py-1 text-left font-medium">
+                          {c}
+                        </th>
+                      ))}
+                    </tr>
                   </thead>
                   <tbody>
                     {res.rows.map((r, i) => (
                       <tr key={i} className="border-t hover:bg-accent/30">
-                        {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                        {res.columns.map((c) => (
+                          <td key={c} className="px-2 py-1 whitespace-nowrap">
+                            {String(r[c])}
+                          </td>
+                        ))}
                       </tr>
                     ))}
                   </tbody>
@@ -3359,9 +4474,22 @@ function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mys
   );
 }
 
-function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
+function SqlResultsView({
+  query,
+  runId,
+  onQueryExecuted,
+}: {
+  query: string;
+  runId: number;
+  onQueryExecuted: () => void;
+}) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
-  const [res, setRes] = useState<{ columns: string[]; rows: SqlRow[]; note: string; ms: number } | null>(null);
+  const [res, setRes] = useState<{
+    columns: string[];
+    rows: SqlRow[];
+    note: string;
+    ms: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!query) return;
@@ -3384,7 +4512,9 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
   const handleDownloadCsv = () => {
     if (res.rows.length === 0) return;
     const header = res.columns.join(",");
-    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvRows = res.rows.map((r) =>
+      res.columns.map((c) => JSON.stringify(r[c] ?? "")).join(","),
+    );
     const csvStr = [header, ...csvRows].join("\n");
     const blob = new Blob([csvStr], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -3403,10 +4533,25 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
         <div className="flex items-center gap-3">
           <span>{res.note}</span>
           <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
-            <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
-            <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+            <button
+              onClick={() => setViewMode("TABLE")}
+              className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              TABLE
+            </button>
+            <button
+              onClick={() => setViewMode("JSON")}
+              className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              JSON
+            </button>
           </div>
-          <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+          <button
+            onClick={handleDownloadCsv}
+            className="hover:text-foreground text-[11px] underline"
+          >
+            Download CSV
+          </button>
         </div>
         <span>executed in {res.ms}ms</span>
       </div>
@@ -3415,12 +4560,22 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
         <div className="overflow-auto rounded border flex-1">
           <table className="w-full font-mono">
             <thead className="bg-accent/40 text-muted-foreground">
-              <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+              <tr>
+                {res.columns.map((c) => (
+                  <th key={c} className="px-2 py-1 text-left font-medium">
+                    {c}
+                  </th>
+                ))}
+              </tr>
             </thead>
             <tbody>
               {res.rows.map((r, i) => (
                 <tr key={i} className="border-t hover:bg-accent/30">
-                  {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                  {res.columns.map((c) => (
+                    <td key={c} className="px-2 py-1 whitespace-nowrap">
+                      {String(r[c])}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -3447,7 +4602,15 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
   return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
+function MongoResultsView({
+  query,
+  runId,
+  onQueryExecuted,
+}: {
+  query: string;
+  runId: number;
+  onQueryExecuted: () => void;
+}) {
   const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -3499,7 +4662,9 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       }
     };
     run();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [query, mongoUri]);
 
   return (
@@ -3512,7 +4677,10 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
             <span className="font-semibold text-foreground">Database Connection</span>
           </div>
           <button
-            onClick={() => { setEditingUri(true); setTempUri(mongoUri); }}
+            onClick={() => {
+              setEditingUri(true);
+              setTempUri(mongoUri);
+            }}
             className="text-muted-foreground hover:text-foreground underline decoration-dashed"
           >
             {mongoUri ? "Connected (External Atlas)" : "Local In-Memory (Mock)"}
@@ -3523,20 +4691,36 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
             <input
               type="text"
               value={tempUri}
-              onChange={e => setTempUri(e.target.value)}
+              onChange={(e) => setTempUri(e.target.value)}
               placeholder="mongodb+srv://..."
               className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
             />
-            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
-            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+            <button
+              onClick={saveUri}
+              className="bg-primary text-primary-foreground px-2 py-1 rounded"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setEditingUri(false)}
+              className="text-muted-foreground hover:text-foreground px-2"
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>
 
       {/* Query Results */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
-        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+        {loading && (
+          <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>
+        )}
+        {error && (
+          <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">
+            {error}
+          </div>
+        )}
 
         {res && (
           <>
@@ -3562,7 +4746,8 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
 
 function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullHeight?: boolean }) {
   const srcDoc = useMemo(() => {
-    const html = files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
+    const html =
+      files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
     const cssText = files["styles.css"] ?? "";
     const jsText = files["app.js"] ?? "";
     const cssTag = `<style>${cssText}</style>`;
@@ -3611,49 +4796,77 @@ function PythonOutputView({ code }: { code: string }) {
 /* ---------- UI Diff View ---------- */
 
 function UiDiffView({ result }: { result: any }) {
-  if (!result) return <div className="text-muted-foreground p-3">Click Run to validate UI against the design target.</div>;
-  if (result.error) return <div className="text-destructive p-3">Validation failed: {result.error}</div>;
+  if (!result)
+    return (
+      <div className="text-muted-foreground p-3">
+        Click Run to validate UI against the design target.
+      </div>
+    );
+  if (result.error)
+    return <div className="text-destructive p-3">Validation failed: {result.error}</div>;
 
   return (
     <div className="flex h-full gap-4 overflow-auto">
       <div className="flex-1 space-y-4 pr-2">
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-center gap-1">
-            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">UI Match</div>
-            <div className={`text-2xl font-bold ${result.ui_score >= 75 ? 'text-success' : 'text-warning'}`}>
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              UI Match
+            </div>
+            <div
+              className={`text-2xl font-bold ${result.ui_score >= 75 ? "text-success" : "text-warning"}`}
+            >
               {result.ui_score.toFixed(1)}%
             </div>
           </div>
           <div className="flex flex-col items-center gap-1">
-            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Structure</div>
-            <div className={`text-2xl font-bold ${result.structural_score >= 75 ? 'text-success' : 'text-warning'}`}>
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Structure
+            </div>
+            <div
+              className={`text-2xl font-bold ${result.structural_score >= 75 ? "text-success" : "text-warning"}`}
+            >
               {result.structural_score.toFixed(1)}%
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <h3 className="font-semibold text-sm">Structural Checks</h3>
           <div className="space-y-1">
             {result.checks?.map((check: any, idx: number) => (
               <div key={idx} className="flex items-center gap-2 text-xs font-mono">
-                {check.passed ? <CheckCircle2 className="h-3 w-3 text-success" /> : <XCircle className="h-3 w-3 text-destructive" />}
-                <span className={check.passed ? "text-foreground" : "text-destructive"}>{check.name}</span>
+                {check.passed ? (
+                  <CheckCircle2 className="h-3 w-3 text-success" />
+                ) : (
+                  <XCircle className="h-3 w-3 text-destructive" />
+                )}
+                <span className={check.passed ? "text-foreground" : "text-destructive"}>
+                  {check.name}
+                </span>
                 <span className="text-muted-foreground ml-auto">{check.reason}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
-      
+
       <div className="flex-[2] flex gap-4 min-h-0 bg-background/50 p-2 rounded border">
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Target Design</div>
+          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">
+            Target Design
+          </div>
           <div className="flex-1 overflow-auto border border-border/50 bg-white">
             {result.base_img_b64 ? (
-              <img src={`data:image/png;base64,${result.base_img_b64}`} alt="Target Design" className="max-w-full" />
+              <img
+                src={`data:image/png;base64,${result.base_img_b64}`}
+                alt="Target Design"
+                className="max-w-full"
+              />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
+                No image
+              </div>
             )}
           </div>
         </div>
@@ -3661,17 +4874,29 @@ function UiDiffView({ result }: { result: any }) {
           <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Your UI</div>
           <div className="flex-1 overflow-auto border border-border/50 bg-white">
             {result.user_img_b64 ? (
-              <img src={`data:image/png;base64,${result.user_img_b64}`} alt="Your UI" className="max-w-full" />
+              <img
+                src={`data:image/png;base64,${result.user_img_b64}`}
+                alt="Your UI"
+                className="max-w-full"
+              />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
+                No image
+              </div>
             )}
           </div>
         </div>
         {result.diff_img_b64 && (
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Diff Overlay</div>
+            <div className="text-xs font-medium text-center mb-1 text-muted-foreground">
+              Diff Overlay
+            </div>
             <div className="flex-1 overflow-auto border border-border/50 bg-white">
-              <img src={`data:image/png;base64,${result.diff_img_b64}`} alt="Diff Overlay" className="max-w-full" />
+              <img
+                src={`data:image/png;base64,${result.diff_img_b64}`}
+                alt="Diff Overlay"
+                className="max-w-full"
+              />
             </div>
           </div>
         )}

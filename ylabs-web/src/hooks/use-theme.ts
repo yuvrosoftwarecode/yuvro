@@ -16,7 +16,9 @@ export function useTheme() {
     if (!ready) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
-    try { localStorage.setItem("pl-theme", theme); } catch {}
+    try {
+      localStorage.setItem("pl-theme", theme);
+    } catch {}
   }, [theme, ready]);
 
   const toggle = () => {

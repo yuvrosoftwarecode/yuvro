@@ -1,27 +1,74 @@
 // Recruiter data + backend API
 import { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
 
-export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
-export type Domain = typeof DOMAINS[number];
+export const DOMAINS = [
+  "Finance",
+  "Insurance",
+  "EdTech",
+  "Supply Chain",
+  "Healthcare",
+  "Retail",
+  "Payment",
+  "Other",
+] as const;
+export type Domain = (typeof DOMAINS)[number];
 
-export const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"] as const;
-export type ProgrammingLanguage = typeof PROGRAMMING_LANGUAGES[number];
+export const PROGRAMMING_LANGUAGES = [
+  "C",
+  "C++",
+  "Python",
+  "Java",
+  "SQL",
+  "Bash",
+  "JavaScript",
+  "TypeScript",
+] as const;
+export type ProgrammingLanguage = (typeof PROGRAMMING_LANGUAGES)[number];
 
-export const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"] as const;
-export type Database = typeof DATABASES[number];
+export const DATABASES = [
+  "SQLite",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "Elasticsearch",
+] as const;
+export type Database = (typeof DATABASES)[number];
 
-export const SCENARIOS = ["Debugging", "Feature Development", "API Optimization", "Security", "Architecture", "Performance", "Testing", "Production Incident"] as const;
-export type Scenario = typeof SCENARIOS[number];
+export const SCENARIOS = [
+  "Debugging",
+  "Feature Development",
+  "API Optimization",
+  "Security",
+  "Architecture",
+  "Performance",
+  "Testing",
+  "Production Incident",
+] as const;
+export type Scenario = (typeof SCENARIOS)[number];
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
-export type Difficulty = typeof DIFFICULTIES[number];
+export type Difficulty = (typeof DIFFICULTIES)[number];
 
-export const EXPERIENCE_LEVELS = ["Intern", "Fresher", "Junior Developer", "Mid-Level Developer", "Senior Developer", "Lead Developer", "Staff Engineer", "Principal Engineer", "Software Architect", "Engineering Manager", "Director of Engineering", "VP of Engineering", "Chief Technology Officer"] as const;
-export type ExperienceLevel = typeof EXPERIENCE_LEVELS[number];
+export const EXPERIENCE_LEVELS = [
+  "Intern",
+  "Fresher",
+  "Junior Developer",
+  "Mid-Level Developer",
+  "Senior Developer",
+  "Lead Developer",
+  "Staff Engineer",
+  "Principal Engineer",
+  "Software Architect",
+  "Engineering Manager",
+  "Director of Engineering",
+  "VP of Engineering",
+  "Chief Technology Officer",
+] as const;
+export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 
 export const FORMATS = ["MCQ", "Multiple Select", "Description", "Coding"] as const;
-export type Format = typeof FORMATS[number];
-
+export type Format = (typeof FORMATS)[number];
 
 export interface LabItem {
   id: string;
@@ -116,7 +163,9 @@ export interface Evaluation {
 }
 
 // Ensure unique ID generation
-export function newUid() { return Math.random().toString(36).slice(2, 10); }
+export function newUid() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 const API_BASE = "http://localhost:8002/api/skill_evaluation";
 
@@ -129,21 +178,38 @@ function mapBackendToFrontend(be: any): Evaluation {
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
-    invite: be.candidate_invited_emails?.length ? {
-      type: "email",
-      emails: be.candidate_invited_emails,
-      expiry: "7",
-      attempts: "1"
-    } : undefined,
+    invite: be.candidate_invited_emails?.length
+      ? {
+          type: "email",
+          emails: be.candidate_invited_emails,
+          expiry: "7",
+          attempts: "1",
+        }
+      : undefined,
     sections: (be.sections || []).map((s: any) => {
       if (s.type === "LAB") {
         return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
         let meta: any = { duration: 15, mode: "Custom" };
-        try { meta = JSON.parse(s.description || "{}"); } catch {}
-        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId };
+        try {
+          meta = JSON.parse(s.description || "{}");
+        } catch {}
+        return {
+          id: s.id || newUid(),
+          kind: "discussion",
+          title: s.title,
+          duration: meta.duration || 15,
+          mode: "Custom",
+          questions: s.questions || [],
+          mockInterviewId: meta.mockInterviewId,
+        };
       } else {
-        return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [] };
+        return {
+          id: s.id || newUid(),
+          kind: "assessment",
+          title: s.title,
+          questions: s.questions || [],
+        };
       }
     }),
   };
@@ -154,15 +220,28 @@ function mapFrontendToBackend(fe: Evaluation): any {
     title: fe.title,
     domain: fe.domain || "OTHER",
     is_published: fe.status === "published",
-    candidate_invited_emails: (fe.invite?.type === "email" && fe.invite?.emails) ? fe.invite.emails : [],
+    candidate_invited_emails:
+      fe.invite?.type === "email" && fe.invite?.emails ? fe.invite.emails : [],
     sections: fe.sections.map((s: any, idx: number) => {
       let type = "KNOWLEDGE_ASSESSMENT";
       let qs = [];
       let desc = "";
-      if (s.kind === "labs") { type = "LAB"; qs = s.labs || []; }
-      else if (s.kind === "assessment") { type = "KNOWLEDGE_ASSESSMENT"; qs = s.questions || []; }
-      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: "Custom", mockInterviewId: s.mockInterviewId }); }
-      
+      if (s.kind === "labs") {
+        type = "LAB";
+        qs = s.labs || [];
+      } else if (s.kind === "assessment") {
+        type = "KNOWLEDGE_ASSESSMENT";
+        qs = s.questions || [];
+      } else if (s.kind === "discussion") {
+        type = "VITARKA_AI_INTERVIEW";
+        qs = s.questions || [];
+        desc = JSON.stringify({
+          duration: s.duration,
+          mode: "Custom",
+          mockInterviewId: s.mockInterviewId,
+        });
+      }
+
       return {
         title: s.title,
         description: desc,
@@ -210,7 +289,7 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
         description: "Vitarka AI Interview created from ylabs-web",
         publish_status: "active",
         max_duration: section.duration,
-        predefined_tree: section.questions
+        predefined_tree: section.questions,
       };
       try {
         if (section.mockInterviewId) {
@@ -257,14 +336,14 @@ export async function saveEvaluation(e: Evaluation): Promise<Evaluation | undefi
         body: JSON.stringify(payload),
       });
     }
-    
+
     if (!res.ok) {
       const errText = await res.text();
       console.error("Backend returned error:", res.status, errText);
       alert("Error saving: " + errText);
       return undefined;
     }
-    
+
     const data = await res.json();
     return mapBackendToFrontend(data);
   } catch (err) {
@@ -283,7 +362,7 @@ export async function createEvaluation(): Promise<Evaluation> {
     createdAt: Date.now(),
     candidatesInvited: 0,
     candidatesCompleted: 0,
-    sections: []
+    sections: [],
   };
 }
 
@@ -316,7 +395,8 @@ export async function deleteEvaluation(id: string) {
 }
 
 export async function duplicateEvaluation(id: string): Promise<Evaluation | undefined> {
-  const src = await getEvaluation(id); if (!src) return;
+  const src = await getEvaluation(id);
+  if (!src) return;
   const payload = mapFrontendToBackend(src);
   payload.title = payload.title + " (Copy)";
   const res = await fetch(`${API_BASE}/evaluations/`, {
@@ -340,8 +420,8 @@ export async function fetchLabs(): Promise<LabItem[]> {
 
 export async function fetchCourses(): Promise<CourseItem[]> {
   try {
-    const data = await ycodeApiAuthUtil.get<any>('/course/courses/');
-    return Array.isArray(data) ? data : (data.results || []);
+    const data = await ycodeApiAuthUtil.get<any>("/course/courses/");
+    return Array.isArray(data) ? data : data.results || [];
   } catch {
     return [];
   }
@@ -351,7 +431,7 @@ export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
   try {
     const url = courseId ? `/course/topics/?course=${courseId}` : `/course/topics/`;
     const data = await ycodeApiAuthUtil.get<any>(url);
-    return Array.isArray(data) ? data : (data.results || []);
+    return Array.isArray(data) ? data : data.results || [];
   } catch {
     return [];
   }
@@ -359,7 +439,7 @@ export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
 
 export async function fetchQuestions(): Promise<QuestionItem[]> {
   try {
-    const data = await ycodeApiAuthUtil.get<any[]>('/course/questions/');
+    const data = await ycodeApiAuthUtil.get<any[]>("/course/questions/");
     // Handle paginated response if backend returns { results: [...] }
     const results = Array.isArray(data) ? data : (data as any).results || [];
     return results.map((q: any) => ({
@@ -369,13 +449,23 @@ export async function fetchQuestions(): Promise<QuestionItem[]> {
       title: q.title || "",
       programming_languages: [],
       databases: [],
-      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      difficulty: (q.difficulty === "medium"
+        ? "Medium"
+        : q.difficulty === "hard"
+          ? "Hard"
+          : "Easy") as Difficulty,
       experience: "Fresher" as ExperienceLevel,
-      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      format: (q.type === "mcq_single"
+        ? "MCQ"
+        : q.type === "mcq_multiple"
+          ? "Multiple Select"
+          : q.type === "coding"
+            ? "Coding"
+            : "Description") as Format,
       marks: q.marks || 1,
       duration_minutes: q.duration || 1,
       course: q.course,
-      topic: q.topic
+      topic: q.topic,
     }));
   } catch (err) {
     console.error("fetchQuestions error", err);
@@ -394,13 +484,23 @@ export async function fetchQuestionDetails(id: string): Promise<QuestionItem | n
       title: q.title || "",
       programming_languages: [],
       databases: [],
-      difficulty: (q.difficulty === "medium" ? "Medium" : q.difficulty === "hard" ? "Hard" : "Easy") as Difficulty,
+      difficulty: (q.difficulty === "medium"
+        ? "Medium"
+        : q.difficulty === "hard"
+          ? "Hard"
+          : "Easy") as Difficulty,
       experience: "Fresher" as ExperienceLevel,
-      format: (q.type === "mcq_single" ? "MCQ" : q.type === "mcq_multiple" ? "Multiple Select" : q.type === "coding" ? "Coding" : "Description") as Format,
+      format: (q.type === "mcq_single"
+        ? "MCQ"
+        : q.type === "mcq_multiple"
+          ? "Multiple Select"
+          : q.type === "coding"
+            ? "Coding"
+            : "Description") as Format,
       marks: q.marks || 1,
       duration_minutes: q.duration || 1,
       course: q.course,
-      topic: q.topic
+      topic: q.topic,
     };
   } catch (err) {
     console.error("fetchQuestionDetails error", err);
@@ -409,7 +509,11 @@ export async function fetchQuestionDetails(id: string): Promise<QuestionItem | n
 }
 
 export function evaluationTotals(e: Evaluation) {
-  let minutes = 0, marks = 0, labs = 0, questions = 0, discussion = 0;
+  let minutes = 0,
+    marks = 0,
+    labs = 0,
+    questions = 0,
+    discussion = 0;
   for (const s of e.sections) {
     if (s.kind === "labs") {
       labs += s.labs.length;
@@ -418,9 +522,13 @@ export function evaluationTotals(e: Evaluation) {
     } else if (s.kind === "assessment") {
       questions += s.questions.length;
       marks += s.questions.reduce((a, q) => a + (q.marks || 0), 0);
-      minutes += s.questions.reduce((a, q) => a + ((q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)) || 0), 0);
+      minutes += s.questions.reduce(
+        (a, q) => a + (q.duration_minutes || (q.seconds ? Math.ceil(q.seconds / 60) : 0) || 0),
+        0,
+      );
     } else if (s.kind === "discussion") {
-      discussion += s.duration; minutes += s.duration;
+      discussion += s.duration;
+      minutes += s.duration;
     }
   }
   return { minutes, marks, labs, questions, discussion, sections: e.sections.length };

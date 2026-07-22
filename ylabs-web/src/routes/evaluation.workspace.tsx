@@ -8,10 +8,11 @@ import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "./student.lab.$slug.ticket.$ticketId";
 
 export const Route = createFileRoute("/evaluation/workspace")({
-  head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }],
+  }),
   component: Workspace,
 });
-
 
 type LabId = string;
 type SectionId = string;
@@ -25,10 +26,10 @@ interface KnowledgeQuestion {
   marks: number;
 }
 
-type AppSection = 
-  | { type: "LAB", id: string, title: string, labs: RealLab[] }
-  | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[] }
-  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string };
+type AppSection =
+  | { type: "LAB"; id: string; title: string; labs: RealLab[] }
+  | { type: "KNOWLEDGE_ASSESSMENT"; id: string; title: string; questions: KnowledgeQuestion[] }
+  | { type: "VITARKA_AI_INTERVIEW"; id: string; title: string; description?: string };
 
 interface RealLab {
   id: string;
@@ -43,8 +44,6 @@ interface RealLab {
   terminal: string[];
 }
 
-
-
 const DISCUSSION_QUESTIONS = [
   "Walk me through the regression you identified in the payments queue. Why do you think it was introduced?",
   "You chose exponential backoff for retries — how would you decide the max attempts and the ceiling?",
@@ -56,33 +55,35 @@ const DISCUSSION_QUESTIONS = [
 const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
-
 export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate();
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
+  const searchParams = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
+  );
+  const evaluationId = previewData ? "" : searchParams.get("e") || "";
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
   const [discussionQuestions, setDiscussionQuestions] = useState<string[]>(DISCUSSION_QUESTIONS);
-  const [debugData, setDebugData] = useState<any>(null);  
-  
+  const [debugData, setDebugData] = useState<any>(null);
+
   useEffect(() => {
     if (previewData) {
       processWorkspaceData(previewData);
       return;
     }
     if (!evaluationId) return;
-    evaluationService.getWorkspaceData(evaluationId)
-      .then(res => processWorkspaceData(res))
-      .catch(err => setDebugData({ error: err.message || err.toString() }));
+    evaluationService
+      .getWorkspaceData(evaluationId)
+      .then((res) => processWorkspaceData(res))
+      .catch((err) => setDebugData({ error: err.message || err.toString() }));
   }, [evaluationId, previewData]);
 
   const processWorkspaceData = (res: any) => {
     setDebugData(res);
     const mappedSections: AppSection[] = [];
     let durationMinutes = 0;
-    
+
     let dQs: string[] = [];
     let mappedLabs: RealLab[] = [];
     const extractQuestions = (nodes: any[]) => {
@@ -93,127 +94,156 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
 
     (res.sections || []).forEach((sec: any) => {
-          if (sec.type === "LAB") {
-            (sec.questions || []).forEach((q: any) => {
-              mappedLabs.push({
-                id: q.id || Math.random().toString(),
-                title: q.title || "Untitled Lab",
-                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
-                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
-                minutes: q.duration_minutes || 30,
-                problem: q.description || q.scenario || "Complete the lab objectives.",
-                tasks: Array.isArray(q.tasks) 
-                  ? q.tasks.map((t: any) => ({
-                      title: t.title || "Task",
-                      description: t.description || ""
-                    }))
-                  : typeof q.tasks === 'number'
-                  ? Array.from({ length: q.tasks }).map((_, i) => ({
-                      title: `Task ${i + 1}`,
-                      description: "Fulfill the specified objective."
-                    }))
-                  : [
-                      { title: "Main Task", description: "Complete the scenario requirements." }
-                    ],
-                file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
-                code: "// Code editor initialized.",
-                terminal: []
-              });
-              durationMinutes += (q.duration_minutes || 30);
-            });
-            mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs });
-          } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
-            mappedSections.push({
-              type: "KNOWLEDGE_ASSESSMENT",
-              id: sec.id,
-              title: sec.title || "Knowledge Assessment",
-              questions: (sec.questions || []).map((q: any) => {
-                const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
-                let mappedOptions = q.options || [];
-                let mappedCorrect = q.correct_answer ?? 0;
-                
-                if (isMcq) {
-                  mappedOptions = q.mcq_options.map((opt: any) => opt.text || "");
-                  const correctIdx = q.mcq_options.findIndex((opt: any) => opt.is_correct === true);
-                  if (correctIdx !== -1) mappedCorrect = correctIdx;
-                }
-
-                return {
-                  ...q,
-                  id: q.id,
-                  q: q.title || q.text || q.content || "Untitled Question",
-                  description: q.content || q.description || q.text || "",
-                  format: q.format || (isMcq ? "MCQ" : "Description"),
-                  options: mappedOptions,
-                  correct: mappedCorrect,
-                  marks: q.marks || 1,
-                  examples: Array.isArray(q.test_cases_basic) ? q.test_cases_basic : []
-                };
-              })
-            });
-          } else if (sec.type === "VITARKA_AI_INTERVIEW") {
-            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description });
-            if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
-              extractQuestions(sec.questions);
-            } else {
-              let meta: any = {};
-              try { meta = JSON.parse(sec.description || "{}"); } catch {}
-              if (meta.mockInterviewId) {
-                yhubApiAuthUtil.get<any>(`/mock-interviews/${meta.mockInterviewId}/`)
-                  .then(yhubRes => {
-                    if (yhubRes.predefined_tree && Array.isArray(yhubRes.predefined_tree)) {
-                      let asyncDQs: string[] = [];
-                      const extractAsync = (nodes: any[]) => {
-                        for (const n of nodes) {
-                          if (n.text) asyncDQs.push(n.text);
-                          if (n.follow_ups && n.follow_ups.length > 0) extractAsync(n.follow_ups);
-                        }
-                      };
-                      extractAsync(yhubRes.predefined_tree);
-                      if (asyncDQs.length > 0) setDiscussionQuestions(asyncDQs);
-                    }
-                  })
-                  .catch(err => console.error("Failed to fetch mock interview from yhub", err));
-              }
-            }
-          }
+      if (sec.type === "LAB") {
+        (sec.questions || []).forEach((q: any) => {
+          mappedLabs.push({
+            id: q.id || Math.random().toString(),
+            title: q.title || "Untitled Lab",
+            sub: `${(q.programming_languages || []).join(", ")} · ${(q.databases || []).join(", ")}`,
+            tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
+            minutes: q.duration_minutes || 30,
+            problem: q.description || q.scenario || "Complete the lab objectives.",
+            tasks: Array.isArray(q.tasks)
+              ? q.tasks.map((t: any) => ({
+                  title: t.title || "Task",
+                  description: t.description || "",
+                }))
+              : typeof q.tasks === "number"
+                ? Array.from({ length: q.tasks }).map((_, i) => ({
+                    title: `Task ${i + 1}`,
+                    description: "Fulfill the specified objective.",
+                  }))
+                : [{ title: "Main Task", description: "Complete the scenario requirements." }],
+            file: q.programming_languages?.includes("PYTHON")
+              ? "main.py"
+              : q.programming_languages?.includes("JAVA")
+                ? "Main.java"
+                : "index.js",
+            code: "// Code editor initialized.",
+            terminal: [],
+          });
+          durationMinutes += q.duration_minutes || 30;
         });
-      setAppSections(mappedSections);
-      if (mappedSections.length > 0) {
-        setSection(mappedSections[0].id);
+        mappedSections.push({
+          type: "LAB",
+          id: sec.id,
+          title: sec.title || "Engineering Labs",
+          labs: mappedLabs,
+        });
+      } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+        mappedSections.push({
+          type: "KNOWLEDGE_ASSESSMENT",
+          id: sec.id,
+          title: sec.title || "Knowledge Assessment",
+          questions: (sec.questions || []).map((q: any) => {
+            const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
+            let mappedOptions = q.options || [];
+            let mappedCorrect = q.correct_answer ?? 0;
+
+            if (isMcq) {
+              mappedOptions = q.mcq_options.map((opt: any) => opt.text || "");
+              const correctIdx = q.mcq_options.findIndex((opt: any) => opt.is_correct === true);
+              if (correctIdx !== -1) mappedCorrect = correctIdx;
+            }
+
+            return {
+              ...q,
+              id: q.id,
+              q: q.title || q.text || q.content || "Untitled Question",
+              description: q.content || q.description || q.text || "",
+              format: q.format || (isMcq ? "MCQ" : "Description"),
+              options: mappedOptions,
+              correct: mappedCorrect,
+              marks: q.marks || 1,
+              examples: Array.isArray(q.test_cases_basic) ? q.test_cases_basic : [],
+            };
+          }),
+        });
+      } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+        mappedSections.push({
+          type: "VITARKA_AI_INTERVIEW",
+          id: sec.id,
+          title: sec.title || "Engineering Discussion",
+          description: sec.description,
+        });
+        if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
+          extractQuestions(sec.questions);
+        } else {
+          let meta: any = {};
+          try {
+            meta = JSON.parse(sec.description || "{}");
+          } catch {}
+          if (meta.mockInterviewId) {
+            yhubApiAuthUtil
+              .get<any>(`/mock-interviews/${meta.mockInterviewId}/`)
+              .then((yhubRes) => {
+                if (yhubRes.predefined_tree && Array.isArray(yhubRes.predefined_tree)) {
+                  let asyncDQs: string[] = [];
+                  const extractAsync = (nodes: any[]) => {
+                    for (const n of nodes) {
+                      if (n.text) asyncDQs.push(n.text);
+                      if (n.follow_ups && n.follow_ups.length > 0) extractAsync(n.follow_ups);
+                    }
+                  };
+                  extractAsync(yhubRes.predefined_tree);
+                  if (asyncDQs.length > 0) setDiscussionQuestions(asyncDQs);
+                }
+              })
+              .catch((err) => console.error("Failed to fetch mock interview from yhub", err));
+          }
+        }
       }
-      
-      if (dQs.length > 0) setDiscussionQuestions(dQs);
-      
-      setLabsData(mappedLabs);
+    });
+    setAppSections(mappedSections);
+    if (mappedSections.length > 0) {
+      setSection(mappedSections[0].id);
+    }
+
+    if (dQs.length > 0) setDiscussionQuestions(dQs);
+
+    setLabsData(mappedLabs);
   };
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
   const [submittedLabs, setSubmittedLabs] = useState<Set<LabId>>(new Set());
   const [taskState, setTaskState] = useState<Record<string, Set<number>>>({});
-  
+
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, any>>({}); // Maps question id to its answer
   const [marked, setMarked] = useState<Record<string, Set<string>>>({}); // Maps section id to set of marked question ids
   const [submittedSections, setSubmittedSections] = useState<Set<string>>(new Set());
-  
+
   const [codingCode, setCodingCode] = useState<Record<string, string>>({});
-  const [codingResults, setCodingResults] = useState<Record<string, { name: string; pass: boolean }[] | null>>({});
+  const [codingResults, setCodingResults] = useState<
+    Record<string, { name: string; pass: boolean }[] | null>
+  >({});
 
   const [discussionIndex, setDiscussionIndex] = useState(0);
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" }>(null);
+  const [modal, setModal] = useState<
+    | null
+    | { kind: "submit-lab"; id: LabId }
+    | { kind: "submit-section"; id: string }
+    | { kind: "end-discussion" }
+    | { kind: "exit" }
+    | { kind: "tab-warning" }
+    | { kind: "discussion-starting" }
+    | { kind: "fullscreen" }
+  >(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
 
   useEffect(() => {
     const t = setInterval(() => {
-      setRemaining(r => {
-        if (r <= 1) { clearInterval(t); return 0; }
+      setRemaining((r) => {
+        if (r <= 1) {
+          clearInterval(t);
+          return 0;
+        }
         return r - 1;
       });
     }, 1000);
@@ -223,11 +253,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     if (remaining <= DISCUSSION_LOCK_SECONDS && !discussionTriggered.current && remaining > 0) {
       discussionTriggered.current = true;
-      const discussionSection = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
+      const discussionSection = appSections.find((s) => s.type === "VITARKA_AI_INTERVIEW");
       if (discussionSection) {
         setSection(discussionSection.id);
       } else {
-        setSection("discussion-dummy"); 
+        setSection("discussion-dummy");
       }
       setOpenLab(null);
       setActiveQuestionId(null);
@@ -239,7 +269,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   // Tab-switch warning
   useEffect(() => {
     const onVis = () => {
-      if (document.hidden) setModal(m => m ?? { kind: "tab-warning" });
+      if (document.hidden) setModal((m) => m ?? { kind: "tab-warning" });
     };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
@@ -251,7 +281,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     const off = () => setOnline(false);
     window.addEventListener("online", on);
     window.addEventListener("offline", off);
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
   }, []);
 
   // Autosave feel
@@ -264,7 +297,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const locked = discussionTriggered.current;
 
   const submitEvaluation = () => {
-    try { document.exitFullscreen?.(); } catch {}
+    try {
+      document.exitFullscreen?.();
+    } catch {}
     nav({ to: "/evaluation/complete" });
   };
 
@@ -274,19 +309,23 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return "not-started";
   };
   const getLabStatus = (secId: string, labs: RealLab[]): Status => {
-    const submittedCount = labs.filter(l => submittedLabs.has(l.id)).length;
+    const submittedCount = labs.filter((l) => submittedLabs.has(l.id)).length;
     if (submittedCount === labs.length && labs.length > 0) return "complete";
     if (submittedCount > 0) return "in-progress";
     if (section === secId) return "current";
     return "not-started";
   };
-  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW" || section === "discussion-dummy";
+  const isDiscussionSection =
+    appSections.find((x) => x.id === section)?.type === "VITARKA_AI_INTERVIEW" ||
+    section === "discussion-dummy";
   const discussionStatus = isDiscussionSection ? "current" : "not-started";
 
   const [qIndex, setQIndex] = useState(0);
 
   const goSection = (s: string) => {
-    const isDiscussion = appSections.find(x => x.id === s)?.type === "VITARKA_AI_INTERVIEW" || s === "discussion-dummy";
+    const isDiscussion =
+      appSections.find((x) => x.id === s)?.type === "VITARKA_AI_INTERVIEW" ||
+      s === "discussion-dummy";
     if (locked && !isDiscussion) return;
     setSection(s);
     setOpenLab(null);
@@ -295,15 +334,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   const toggleTask = (labId: LabId, i: number) => {
-    setTaskState(prev => {
+    setTaskState((prev) => {
       const s = new Set(prev[labId] ?? []);
-      if (s.has(i)) s.delete(i); else s.add(i);
+      if (s.has(i)) s.delete(i);
+      else s.add(i);
       return { ...prev, [labId]: s };
     });
     touchAutosave();
   };
   const confirmSubmitLab = (labId: LabId) => {
-    setSubmittedLabs(prev => new Set(prev).add(labId));
+    setSubmittedLabs((prev) => new Set(prev).add(labId));
     setOpenLab(null);
     setModal(null);
   };
@@ -311,17 +351,17 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     try {
       await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, answers);
     } catch (e) {}
-    setSubmittedSections(prev => new Set(prev).add(secId));
+    setSubmittedSections((prev) => new Set(prev).add(secId));
     setActiveQuestionId(null);
     setModal(null);
   };
 
   const setAnswer = (qId: string, opt: any) => {
-    setAnswers(prev => ({ ...prev, [qId]: opt }));
+    setAnswers((prev) => ({ ...prev, [qId]: opt }));
     touchAutosave();
   };
   const clearAnswer = (qId: string) => {
-    setAnswers(prev => {
+    setAnswers((prev) => {
       const next = { ...prev };
       delete next[qId];
       return next;
@@ -329,9 +369,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     touchAutosave();
   };
   const toggleMarked = (secId: string, qId: string) => {
-    setMarked(prev => {
+    setMarked((prev) => {
       const s = new Set(prev[secId] ?? []);
-      if (s.has(qId)) s.delete(qId); else s.add(qId);
+      if (s.has(qId)) s.delete(qId);
+      else s.add(qId);
       return { ...prev, [secId]: s };
     });
   };
@@ -352,9 +393,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
   const submitDiscussionAnswer = () => {
     if (!discussionDraft.trim()) return;
-    setDiscussionResponses(r => [...r, discussionDraft.trim()]);
+    setDiscussionResponses((r) => [...r, discussionDraft.trim()]);
     setDiscussionDraft("");
-    setDiscussionIndex(i => i + 1);
+    setDiscussionIndex((i) => i + 1);
   };
 
   return (
@@ -376,8 +417,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           openLab={openLab}
           activeQuestionId={String(qIndex)}
           onSelectSection={goSection}
-          onSelectLab={(id) => { setSection(appSections.find(s => s.type === "LAB")?.id || ""); setOpenLab(id); }}
-          onSelectQuestion={(secId, idxStr) => { setSection(secId); setQIndex(parseInt(idxStr)); }}
+          onSelectLab={(id) => {
+            setSection(appSections.find((s) => s.type === "LAB")?.id || "");
+            setOpenLab(id);
+          }}
+          onSelectQuestion={(secId, idxStr) => {
+            setSection(secId);
+            setQIndex(parseInt(idxStr));
+          }}
           getSectionStatus={getSectionStatus}
           getLabStatus={getLabStatus}
           discussionStatus={discussionStatus}
@@ -385,46 +432,48 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           submittedSections={submittedSections}
           locked={locked}
           collapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
+          onToggleCollapse={() => setIsSidebarCollapsed((c) => !c)}
         />
 
         <main className="min-w-0 flex-1 overflow-y-auto">
-          {appSections.map(sec => {
+          {appSections.map((sec) => {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
-              return openLab ? (() => {
-                const lab = sec.labs.find(l => l.id === openLab)!;
-                const mappedTicket = {
-                  id: lab.id,
-                  title: lab.title,
-                  description: lab.problem,
-                  tag: lab.tag,
-                  tasks: lab.tasks.map(t => ({ title: t.title, description: t.description })),
-                  difficulty: "Intermediate",
-                  xp: 100,
-                  estMin: lab.minutes,
-                  sprintOrder: 1,
-                  ticketOrder: 1,
-                  learning_objectives: [],
-                  common_mistakes: [],
-                };
-                return (
-                  <TicketIDE
-                    key={sec.id}
-                    slug={lab.id}
-                    ticket={mappedTicket}
-                    previewOverride={null}
-                    isEvaluationMode={true}
-                  />
-                );
-              })() : (
+              return openLab ? (
+                (() => {
+                  const lab = sec.labs.find((l) => l.id === openLab)!;
+                  const mappedTicket = {
+                    id: lab.id,
+                    title: lab.title,
+                    description: lab.problem,
+                    tag: lab.tag,
+                    tasks: lab.tasks.map((t) => ({ title: t.title, description: t.description })),
+                    difficulty: "Intermediate",
+                    xp: 100,
+                    estMin: lab.minutes,
+                    sprintOrder: 1,
+                    ticketOrder: 1,
+                    learning_objectives: [],
+                    common_mistakes: [],
+                  };
+                  return (
+                    <TicketIDE
+                      key={sec.id}
+                      slug={lab.id}
+                      ticket={mappedTicket}
+                      previewOverride={null}
+                      isEvaluationMode={true}
+                    />
+                  );
+                })()
+              ) : (
                 <LabsList
                   key={sec.id}
                   labs={sec.labs}
                   submitted={submittedLabs}
                   onOpen={(id) => setOpenLab(id)}
                   onFinishSection={() => {
-                    const idx = appSections.findIndex(s => s.id === sec.id);
+                    const idx = appSections.findIndex((s) => s.id === sec.id);
                     if (idx + 1 < appSections.length) goSection(appSections[idx + 1].id);
                   }}
                 />
@@ -438,11 +487,21 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   index={qIndex}
                   setIndex={setQIndex}
                   answers={answers}
-                  setAnswer={(qId, val) => { setAnswers(prev => ({ ...prev, [qId]: val })); touchAutosave(); }}
-                  clearAnswer={(qId) => { setAnswers(prev => { const next = { ...prev }; delete next[qId]; return next; }); touchAutosave(); }}
+                  setAnswer={(qId, val) => {
+                    setAnswers((prev) => ({ ...prev, [qId]: val }));
+                    touchAutosave();
+                  }}
+                  clearAnswer={(qId) => {
+                    setAnswers((prev) => {
+                      const next = { ...prev };
+                      delete next[qId];
+                      return next;
+                    });
+                    touchAutosave();
+                  }}
                   marked={marked[sec.id] || new Set()}
                   onMark={(qId) => {
-                    setMarked(prev => {
+                    setMarked((prev) => {
                       const s = new Set(prev[sec.id] || []);
                       if (s.has(qId)) s.delete(qId);
                       else s.add(qId);
@@ -453,21 +512,32 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   onBack={() => {}}
                   onSubmit={() => setModal({ kind: "submit-section", id: sec.id })}
                   codingCode={codingCode}
-                  setCodingCode={(qId, val) => setCodingCode(prev => ({ ...prev, [qId]: val }))}
+                  setCodingCode={(qId, val) => setCodingCode((prev) => ({ ...prev, [qId]: val }))}
                   codingResults={codingResults}
                   runCode={(qId) => {
                     const code = codingCode[qId] || "";
                     if (code.length > 5) {
-                      setCodingResults(prev => ({ ...prev, [qId]: [{ name: "Example test", pass: true }, { name: "Edge cases", pass: Math.random() > 0.5 }] }));
+                      setCodingResults((prev) => ({
+                        ...prev,
+                        [qId]: [
+                          { name: "Example test", pass: true },
+                          { name: "Edge cases", pass: Math.random() > 0.5 },
+                        ],
+                      }));
                     } else {
-                      setCodingResults(prev => ({ ...prev, [qId]: [{ name: "Example test", pass: false }] }));
+                      setCodingResults((prev) => ({
+                        ...prev,
+                        [qId]: [{ name: "Example test", pass: false }],
+                      }));
                     }
                   }}
                 />
               );
             } else if (sec.type === "VITARKA_AI_INTERVIEW") {
               let meta: any = {};
-              try { meta = JSON.parse(sec.description || "{}"); } catch {}
+              try {
+                meta = JSON.parse(sec.description || "{}");
+              } catch {}
               return (
                 <VitarkaInterviewScreen
                   key={sec.id}
@@ -480,7 +550,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           })}
           {section === "discussion-dummy" && (
             <VitarkaInterviewScreen
-              mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
+              mockInterviewId={
+                appSections.find((s) => s.type === "VITARKA_AI_INTERVIEW")?.description
+                  ? JSON.parse(
+                      appSections.find((s) => s.type === "VITARKA_AI_INTERVIEW")!.description ||
+                        "{}",
+                    ).mockInterviewId
+                  : ""
+              }
               onEnd={() => setModal({ kind: "end-discussion" })}
             />
           )}
@@ -499,7 +576,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       )}
       {modal?.kind === "submit-section" && (
         <Confirm
-          title={`Submit ${appSections.find(s => s.id === modal.id)?.title} section?`}
+          title={`Submit ${appSections.find((s) => s.id === modal.id)?.title} section?`}
           body="You cannot return to these questions once submitted."
           confirm="Submit section"
           onConfirm={() => confirmSubmitSection(modal.id)}
@@ -521,7 +598,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           body="Your progress will not be saved and you may lose access to this evaluation. Are you sure?"
           confirm="Exit evaluation"
           destructive
-          onConfirm={() => { try { document.exitFullscreen?.(); } catch {}; nav({ to: "/" }); }}
+          onConfirm={() => {
+            try {
+              document.exitFullscreen?.();
+            } catch {}
+            nav({ to: "/" });
+          }}
           onCancel={() => setModal(null)}
         />
       )}
@@ -550,21 +632,43 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 // Top bar
 // ────────────────────────────────────────────────────────────────────────────
 
-function TopBar({ remaining, online, autosave, section, appSections, onExit, onJumpToDiscussion }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void; onJumpToDiscussion: () => void }) {
+function TopBar({
+  remaining,
+  online,
+  autosave,
+  section,
+  appSections,
+  onExit,
+  onJumpToDiscussion,
+}: {
+  remaining: number;
+  online: boolean;
+  autosave: "idle" | "saving" | "saved";
+  section: string | null;
+  appSections: AppSection[];
+  onExit: () => void;
+  onJumpToDiscussion: () => void;
+}) {
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
-    return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+      : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
   const critical = remaining <= 15 * 60;
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 bg-white/80 px-5 backdrop-blur">
       <div className="flex min-w-0 items-center gap-4">
-        <div className="grid h-6 w-6 place-items-center rounded-md bg-neutral-900 text-[10px] font-mono text-white">Y</div>
+        <div className="grid h-6 w-6 place-items-center rounded-md bg-neutral-900 text-[10px] font-mono text-white">
+          Y
+        </div>
         <div className="min-w-0">
-          <div className="truncate text-[12px] leading-none text-neutral-500">Yuvro Labs · Backend Engineer Evaluation</div>
+          <div className="truncate text-[12px] leading-none text-neutral-500">
+            Yuvro Labs · Backend Engineer Evaluation
+          </div>
           <div className="mt-1 flex items-center gap-2 text-[11px] text-neutral-500">
             <span>Section</span>
             <span className="text-neutral-900">{sectionLabel(section, appSections)}</span>
@@ -572,7 +676,9 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         </div>
       </div>
 
-      <div className={`font-mono text-[15px] tracking-wide ${critical ? "text-neutral-900" : "text-neutral-700"}`}>
+      <div
+        className={`font-mono text-[15px] tracking-wide ${critical ? "text-neutral-900" : "text-neutral-700"}`}
+      >
         {fmt(remaining)}
       </div>
 
@@ -584,11 +690,17 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
           {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
         </span>
         <span className="hidden text-neutral-300 md:inline">·</span>
-        <button onClick={onJumpToDiscussion} title="Demo: jump to 15:00 remaining" className="hidden rounded-md border border-dashed border-neutral-300 px-2 py-0.5 text-[10px] text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 md:inline">
+        <button
+          onClick={onJumpToDiscussion}
+          title="Demo: jump to 15:00 remaining"
+          className="hidden rounded-md border border-dashed border-neutral-300 px-2 py-0.5 text-[10px] text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 md:inline"
+        >
           demo · jump to 15:00
         </button>
         <button className="text-neutral-500 hover:text-neutral-900">Help</button>
-        <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">Exit</button>
+        <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">
+          Exit
+        </button>
         <ThemeToggle />
       </div>
     </header>
@@ -613,7 +725,9 @@ function ThemeToggle() {
 function StatusDot({ label, tone }: { label: string; tone: "ok" | "warn" }) {
   return (
     <span className="hidden items-center gap-1.5 sm:inline-flex">
-      <span className={`h-1.5 w-1.5 rounded-full ${tone === "ok" ? "bg-emerald-500" : "bg-amber-500"}`} />
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${tone === "ok" ? "bg-emerald-500" : "bg-amber-500"}`}
+      />
       {label}
     </span>
   );
@@ -623,7 +737,7 @@ function sectionLabel(s: string | null, appSections: AppSection[]) {
   if (!s) return "";
   if (s === "discussion-dummy") return "Engineering Discussion";
   if (s === "knowledge") return "Knowledge Assessment";
-  const sec = appSections.find(x => x.id === s);
+  const sec = appSections.find((x) => x.id === s);
   return sec ? sec.title : s;
 }
 
@@ -635,40 +749,59 @@ type Status = "not-started" | "current" | "in-progress" | "complete" | "locked";
 
 function Sidebar({
   appSections,
-  section, openLab, activeQuestionId,
-  onSelectSection, onSelectLab, onSelectQuestion,
-  getSectionStatus, getLabStatus, discussionStatus,
-  submittedLabs, submittedSections, locked,
-  collapsed, onToggleCollapse,
+  section,
+  openLab,
+  activeQuestionId,
+  onSelectSection,
+  onSelectLab,
+  onSelectQuestion,
+  getSectionStatus,
+  getLabStatus,
+  discussionStatus,
+  submittedLabs,
+  submittedSections,
+  locked,
+  collapsed,
+  onToggleCollapse,
 }: {
   appSections: AppSection[];
-  section: string | null; openLab: string | null; activeQuestionId: string | null;
-  onSelectSection: (s: string) => void; onSelectLab: (id: string) => void; onSelectQuestion: (secId: string, id: string) => void;
-  getSectionStatus: (id: string) => Status; getLabStatus: (secId: string, labs: RealLab[]) => Status; discussionStatus: Status;
-  submittedLabs: Set<string>; submittedSections: Set<string>; locked: boolean;
-  collapsed: boolean; onToggleCollapse: () => void;
+  section: string | null;
+  openLab: string | null;
+  activeQuestionId: string | null;
+  onSelectSection: (s: string) => void;
+  onSelectLab: (id: string) => void;
+  onSelectQuestion: (secId: string, id: string) => void;
+  getSectionStatus: (id: string) => Status;
+  getLabStatus: (secId: string, labs: RealLab[]) => Status;
+  discussionStatus: Status;
+  submittedLabs: Set<string>;
+  submittedSections: Set<string>;
+  locked: boolean;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }) {
-  const labSections = appSections.filter(s => s.type === "LAB");
-  const knowledgeSections = appSections.filter(s => s.type === "KNOWLEDGE_ASSESSMENT");
-  const discussionSection = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
+  const labSections = appSections.filter((s) => s.type === "LAB");
+  const knowledgeSections = appSections.filter((s) => s.type === "KNOWLEDGE_ASSESSMENT");
+  const discussionSection = appSections.find((s) => s.type === "VITARKA_AI_INTERVIEW");
 
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [hasInitializedExpand, setHasInitializedExpand] = useState(false);
 
   const knowledgeHierarchy = useMemo(() => {
     if (knowledgeSections.length === 0) return null;
-    
+
     type Hierarchy = Record<string, Record<string, Record<string, any[]>>>;
     const h: Hierarchy = {};
 
-    knowledgeSections.forEach(sec => {
+    knowledgeSections.forEach((sec) => {
       sec.questions.forEach((q, localIdx) => {
         const item = { q, parentSec: sec, localIdx };
-        
+
         const subject = (q as any).course_title || (q as any).course_name || "Other Subjects";
         const topic = (q as any).topic_title || (q as any).topic_name || "Other Topics";
-        
-        let format = q.format || (Array.isArray(q.options) && q.options.length > 0 ? "MCQ" : "Description");
+
+        let format =
+          q.format || (Array.isArray(q.options) && q.options.length > 0 ? "MCQ" : "Description");
         if (format === "MCQ") format = "MCQ";
         else if (format === "Multiple Select") format = "Multiple MCQ";
         else if (format === "Coding") format = "Coding";
@@ -677,32 +810,36 @@ function Sidebar({
         if (!h[subject]) h[subject] = {};
         if (!h[subject][topic]) h[subject][topic] = {};
         if (!h[subject][topic][format]) h[subject][topic][format] = [];
-        
+
         h[subject][topic][format].push(item);
       });
     });
 
     const sortedH: any[] = [];
-    Object.keys(h).sort().forEach(subj => {
-      const subjObj = { name: subj, topics: [] as any[] };
-      Object.keys(h[subj]).sort().forEach(top => {
-        const topObj = { name: top, formats: [] as any[] };
-        const formatOrder = ["MCQ", "Multiple MCQ", "Coding", "Other"];
-        const existingFormats = Object.keys(h[subj][top]);
-        formatOrder.forEach(f => {
-          if (existingFormats.includes(f)) {
-            topObj.formats.push({ name: f, questions: h[subj][top][f] });
-          }
-        });
-        existingFormats.forEach(f => {
-          if (!formatOrder.includes(f)) {
-            topObj.formats.push({ name: f, questions: h[subj][top][f] });
-          }
-        });
-        subjObj.topics.push(topObj);
+    Object.keys(h)
+      .sort()
+      .forEach((subj) => {
+        const subjObj = { name: subj, topics: [] as any[] };
+        Object.keys(h[subj])
+          .sort()
+          .forEach((top) => {
+            const topObj = { name: top, formats: [] as any[] };
+            const formatOrder = ["MCQ", "Multiple MCQ", "Coding", "Other"];
+            const existingFormats = Object.keys(h[subj][top]);
+            formatOrder.forEach((f) => {
+              if (existingFormats.includes(f)) {
+                topObj.formats.push({ name: f, questions: h[subj][top][f] });
+              }
+            });
+            existingFormats.forEach((f) => {
+              if (!formatOrder.includes(f)) {
+                topObj.formats.push({ name: f, questions: h[subj][top][f] });
+              }
+            });
+            subjObj.topics.push(topObj);
+          });
+        sortedH.push(subjObj);
       });
-      sortedH.push(subjObj);
-    });
 
     return sortedH;
   }, [knowledgeSections]);
@@ -733,7 +870,14 @@ function Sidebar({
   if (knowledgeSections.length > 0) sectionCount++;
   sectionCount++; // discussion
 
-  const knowStatus: Status = knowledgeSections.every(s => submittedSections.has(s.id)) && knowledgeSections.length > 0 ? "complete" : knowledgeSections.some(s => getSectionStatus(s.id) === "in-progress" || section === s.id) ? "in-progress" : section === "knowledge" ? "current" : "not-started";
+  const knowStatus: Status =
+    knowledgeSections.every((s) => submittedSections.has(s.id)) && knowledgeSections.length > 0
+      ? "complete"
+      : knowledgeSections.some((s) => getSectionStatus(s.id) === "in-progress" || section === s.id)
+        ? "in-progress"
+        : section === "knowledge"
+          ? "current"
+          : "not-started";
 
   let counter = 1;
   const getNum = () => String(counter++).padStart(2, "0");
@@ -741,7 +885,11 @@ function Sidebar({
   if (collapsed) {
     return (
       <aside className="hidden w-12 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col items-center py-4">
-        <button onClick={onToggleCollapse} className="text-neutral-500 hover:text-neutral-900 transition" title="Expand Sidebar">
+        <button
+          onClick={onToggleCollapse}
+          className="text-neutral-500 hover:text-neutral-900 transition"
+          title="Expand Sidebar"
+        >
           <PanelLeftOpen className="w-5 h-5" />
         </button>
       </aside>
@@ -753,9 +901,15 @@ function Sidebar({
       <div className="border-b border-neutral-200 px-5 py-4 flex items-center justify-between">
         <div>
           <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
-          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">
+            {sectionCount} sections
+          </div>
         </div>
-        <button onClick={onToggleCollapse} className="text-neutral-400 hover:text-neutral-800 transition" title="Collapse Sidebar">
+        <button
+          onClick={onToggleCollapse}
+          className="text-neutral-400 hover:text-neutral-800 transition"
+          title="Collapse Sidebar"
+        >
           <PanelLeftClose className="w-4 h-4" />
         </button>
       </div>
@@ -764,12 +918,14 @@ function Sidebar({
         {labSections.map((sec) => (
           <SectionItem
             key={sec.id}
-            n={getNum()} label={sec.title} status={getLabStatus(sec.id, sec.labs)}
+            n={getNum()}
+            label={sec.title}
+            status={getLabStatus(sec.id, sec.labs)}
             onClick={() => onSelectSection(sec.id)}
             disabled={locked && sec.type !== "VITARKA_AI_INTERVIEW"}
           >
             <div className="mt-2 flex flex-col gap-0.5 pl-8">
-              {sec.labs.map(l => (
+              {sec.labs.map((l) => (
                 <button
                   key={l.id}
                   disabled={locked && !submittedLabs.has(l.id)}
@@ -777,7 +933,9 @@ function Sidebar({
                   className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${openLab === l.id && section === sec.id ? "bg-neutral-100 text-neutral-900" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"} disabled:cursor-not-allowed disabled:text-neutral-300`}
                 >
                   <span className="truncate text-[12px]">{l.title}</span>
-                  {submittedLabs.has(l.id) && <span className="text-[10px] text-emerald-600">Done</span>}
+                  {submittedLabs.has(l.id) && (
+                    <span className="text-[10px] text-emerald-600">Done</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -786,7 +944,9 @@ function Sidebar({
 
         {knowledgeSections.length > 0 && knowledgeHierarchy && (
           <SectionItem
-            n={getNum()} label="Knowledge Assessment" status={knowledgeSections.some(s => s.id === section) ? "current" : knowStatus}
+            n={getNum()}
+            label="Knowledge Assessment"
+            status={knowledgeSections.some((s) => s.id === section) ? "current" : knowStatus}
             onClick={() => onSelectQuestion(knowledgeSections[0].id, "0")}
             disabled={locked}
           >
@@ -796,12 +956,19 @@ function Sidebar({
                 const isSubjExpanded = expandedNodes.has(subjId);
                 return (
                   <div key={subjId} className="flex flex-col">
-                    <button 
+                    <button
                       disabled={locked}
-                      onClick={(e) => { e.stopPropagation(); toggleNode(subjId); }} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleNode(subjId);
+                      }}
                       className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 transition"
                     >
-                      {isSubjExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
+                      {isSubjExpanded ? (
+                        <ChevronDown className="h-3 w-3 text-neutral-400" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3 text-neutral-400" />
+                      )}
                       <span className="truncate">{subj.name}</span>
                     </button>
                     {isSubjExpanded && (
@@ -811,12 +978,19 @@ function Sidebar({
                           const isTopExpanded = expandedNodes.has(topId);
                           return (
                             <div key={topId} className="flex flex-col mt-0.5">
-                              <button 
+                              <button
                                 disabled={locked}
-                                onClick={(e) => { e.stopPropagation(); toggleNode(topId); }} 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleNode(topId);
+                                }}
                                 className="flex items-center gap-1.5 rounded-md px-2 py-1 text-left text-[11px] font-medium text-neutral-600 hover:bg-neutral-50 transition"
                               >
-                                {isTopExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
+                                {isTopExpanded ? (
+                                  <ChevronDown className="h-3 w-3 text-neutral-400" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3 text-neutral-400" />
+                                )}
                                 <span className="truncate">{top.name}</span>
                               </button>
                               {isTopExpanded && (
@@ -828,15 +1002,25 @@ function Sidebar({
                                       </div>
                                       <div className="flex flex-col mt-0.5 ml-1">
                                         {fmt.questions.map((item: any) => {
-                                          const isCurrent = section === item.parentSec.id && activeQuestionId === String(item.localIdx);
+                                          const isCurrent =
+                                            section === item.parentSec.id &&
+                                            activeQuestionId === String(item.localIdx);
                                           return (
                                             <button
                                               key={item.q.id}
                                               disabled={locked}
-                                              onClick={(e) => { e.stopPropagation(); onSelectQuestion(item.parentSec.id, String(item.localIdx)); }}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                onSelectQuestion(
+                                                  item.parentSec.id,
+                                                  String(item.localIdx),
+                                                );
+                                              }}
                                               className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${isCurrent ? "bg-neutral-100 text-neutral-900 font-medium" : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"} disabled:cursor-not-allowed disabled:text-neutral-300`}
                                             >
-                                              <span className="truncate text-[11px]">{item.q.q}</span>
+                                              <span className="truncate text-[11px]">
+                                                {item.q.q}
+                                              </span>
                                             </button>
                                           );
                                         })}
@@ -859,7 +1043,9 @@ function Sidebar({
 
         {discussionSection ? (
           <SectionItem
-            n={getNum()} label={discussionSection.title} status={discussionStatus}
+            n={getNum()}
+            label={discussionSection.title}
+            status={discussionStatus}
             hint="Last 15 minutes"
             onClick={() => onSelectSection(discussionSection.id)}
             disabled={discussionStatus === "locked"}
@@ -867,7 +1053,9 @@ function Sidebar({
         ) : (
           <SectionItem
             key="discussion-dummy"
-            n={getNum()} label="Engineering Discussion" status={discussionStatus}
+            n={getNum()}
+            label="Engineering Discussion"
+            status={discussionStatus}
             hint="Last 15 minutes"
             onClick={() => onSelectSection("discussion-dummy")}
             disabled={discussionStatus === "locked"}
@@ -878,7 +1066,23 @@ function Sidebar({
   );
 }
 
-function SectionItem({ n, label, status, hint, onClick, disabled, children }: { n: string; label: string; status: Status; hint?: string; onClick: () => void; disabled?: boolean; children?: ReactNode }) {
+function SectionItem({
+  n,
+  label,
+  status,
+  hint,
+  onClick,
+  disabled,
+  children,
+}: {
+  n: string;
+  label: string;
+  status: Status;
+  hint?: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children?: ReactNode;
+}) {
   return (
     <div>
       <button
@@ -889,7 +1093,11 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
         <span className="mt-0.5 font-mono text-[10px] tracking-widest text-neutral-400">{n}</span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className={`text-[13px] ${status === "current" ? "text-neutral-900" : "text-neutral-700"}`}>{label}</span>
+            <span
+              className={`text-[13px] ${status === "current" ? "text-neutral-900" : "text-neutral-700"}`}
+            >
+              {label}
+            </span>
             <StatusChip status={status} />
           </span>
           {hint && <span className="mt-0.5 block text-[11px] text-neutral-400">{hint}</span>}
@@ -903,10 +1111,10 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
 function StatusChip({ status }: { status: Status }) {
   const map: Record<Status, { label: string; cls: string }> = {
     "not-started": { label: "", cls: "" },
-    "current": { label: "Current", cls: "text-neutral-900" },
+    current: { label: "Current", cls: "text-neutral-900" },
     "in-progress": { label: "In progress", cls: "text-amber-600" },
-    "complete": { label: "Done", cls: "text-emerald-600" },
-    "locked": { label: "Locked", cls: "text-neutral-400" },
+    complete: { label: "Done", cls: "text-emerald-600" },
+    locked: { label: "Locked", cls: "text-neutral-400" },
   };
   const { label, cls } = map[status];
   if (!label) return null;
@@ -917,11 +1125,25 @@ function StatusChip({ status }: { status: Status }) {
 // Section: Labs
 // ────────────────────────────────────────────────────────────────────────────
 
-function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void }) {
+function LabsList({
+  labs,
+  submitted,
+  onOpen,
+  onFinishSection,
+}: {
+  labs: RealLab[];
+  submitted: Set<LabId>;
+  onOpen: (id: LabId) => void;
+  onFinishSection: () => void;
+}) {
   const allDone = submitted.size === labs.length;
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
-      <SectionHeader eyebrow="Section 01" title="Engineering Labs" body="Two labs. Pick one to start. You can submit each independently." />
+      <SectionHeader
+        eyebrow="Section 01"
+        title="Engineering Labs"
+        body="Two labs. Pick one to start. You can submit each independently."
+      />
       <div className="mt-10 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200 bg-white">
         {labs.map((l, i) => {
           const done = submitted.has(l.id);
@@ -929,11 +1151,15 @@ function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[
             <div key={l.id} className="flex items-center justify-between gap-6 px-6 py-5">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-[11px] tracking-widest text-neutral-400">L0{i + 1}</span>
+                  <span className="font-mono text-[11px] tracking-widest text-neutral-400">
+                    L0{i + 1}
+                  </span>
                   <div className="text-[15px] text-neutral-900">{l.title}</div>
                   {done && <span className="text-[11px] text-emerald-600">· Submitted</span>}
                 </div>
-                <div className="mt-1 text-[12px] text-neutral-500">{l.sub} · ~{l.minutes} min</div>
+                <div className="mt-1 text-[12px] text-neutral-500">
+                  {l.sub} · ~{l.minutes} min
+                </div>
               </div>
               <button
                 onClick={() => onOpen(l.id)}
@@ -946,8 +1172,14 @@ function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[
         })}
       </div>
       <div className="mt-8 flex items-center justify-between">
-        <span className="text-[12px] text-neutral-500">{submitted.size} of {labs.length} submitted</span>
-        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+        <span className="text-[12px] text-neutral-500">
+          {submitted.size} of {labs.length} submitted
+        </span>
+        <button
+          onClick={onFinishSection}
+          disabled={!allDone}
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+        >
           Continue to Knowledge Assessment →
         </button>
       </div>
@@ -956,32 +1188,50 @@ function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[
 }
 
 function DummyEditor({
-  file, code, terminal,
-  onCodeChange, disabled,
-  runCode, codingResults
+  file,
+  code,
+  terminal,
+  onCodeChange,
+  disabled,
+  runCode,
+  codingResults,
 }: {
-  file: string; code: string; terminal: string[];
-  onCodeChange?: (val: string) => void; disabled?: boolean;
-  runCode?: () => void; codingResults?: { name: string; pass: boolean }[] | null;
+  file: string;
+  code: string;
+  terminal: string[];
+  onCodeChange?: (val: string) => void;
+  disabled?: boolean;
+  runCode?: () => void;
+  codingResults?: { name: string; pass: boolean }[] | null;
 }) {
   const [tab, setTab] = useState<"code" | "terminal" | "db" | "preview" | "docs">("code");
   return (
     <div className="flex min-h-0 flex-col h-full bg-[#fafaf7]">
       <div className="flex items-center gap-1 border-b border-neutral-200 bg-white/80 px-3">
-        {(["code", "terminal", "db", "preview", "docs"] as const).map(t => (
+        {(["code", "terminal", "db", "preview", "docs"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`border-b-2 px-3 py-2 text-[12px] transition ${tab === t ? "border-neutral-900 text-neutral-900" : "border-transparent text-neutral-500 hover:text-neutral-900"}`}
           >
-            {t === "code" ? "VS Code" : t === "terminal" ? "Terminal" : t === "db" ? "Database" : t === "preview" ? "Browser" : "Docs"}
+            {t === "code"
+              ? "VS Code"
+              : t === "terminal"
+                ? "Terminal"
+                : t === "db"
+                  ? "Database"
+                  : t === "preview"
+                    ? "Browser"
+                    : "Docs"}
           </button>
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden">
         {tab === "code" && (
           <div className="flex h-full flex-col">
-            <div className="border-b border-neutral-200 bg-neutral-50/60 px-4 py-1.5 font-mono text-[11px] text-neutral-500">{file}</div>
+            <div className="border-b border-neutral-200 bg-neutral-50/60 px-4 py-1.5 font-mono text-[11px] text-neutral-500">
+              {file}
+            </div>
             {onCodeChange ? (
               <div className="flex-1 flex flex-col min-h-0 relative">
                 <textarea
@@ -994,12 +1244,21 @@ function DummyEditor({
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0b0b0c] to-transparent flex items-end justify-between pointer-events-none">
                   <div className="pointer-events-auto">
-                    <button onClick={runCode} disabled={disabled} className="rounded-md border border-neutral-600 bg-neutral-800 px-3 py-1.5 text-[12px] text-white hover:border-neutral-500 disabled:opacity-50">Run Test Cases</button>
+                    <button
+                      onClick={runCode}
+                      disabled={disabled}
+                      className="rounded-md border border-neutral-600 bg-neutral-800 px-3 py-1.5 text-[12px] text-white hover:border-neutral-500 disabled:opacity-50"
+                    >
+                      Run Test Cases
+                    </button>
                   </div>
                   <div className="pointer-events-auto flex gap-3 text-[12px] font-mono bg-[#0b0b0c] p-2 rounded-md">
-                    {codingResults && codingResults.map((r, i) => (
-                      <span key={i} className={r.pass ? "text-emerald-500" : "text-red-500"}>{r.name}: {r.pass ? "pass" : "fail"}</span>
-                    ))}
+                    {codingResults &&
+                      codingResults.map((r, i) => (
+                        <span key={i} className={r.pass ? "text-emerald-500" : "text-red-500"}>
+                          {r.name}: {r.pass ? "pass" : "fail"}
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -1022,12 +1281,19 @@ function DummyEditor({
         )}
         {tab === "db" && (
           <div className="p-6 text-[13px] text-neutral-600">
-            <div className="text-neutral-900">Connected to <span className="font-mono">yuvro_lab_db</span></div>
-            <div className="mt-2 text-neutral-500">7 tables · 14,204,881 rows · seeded for this lab.</div>
+            <div className="text-neutral-900">
+              Connected to <span className="font-mono">yuvro_lab_db</span>
+            </div>
+            <div className="mt-2 text-neutral-500">
+              7 tables · 14,204,881 rows · seeded for this lab.
+            </div>
           </div>
         )}
         {tab === "preview" && (
-          <div className="grid h-full place-items-center bg-neutral-50/60 text-[12px] text-neutral-500">Browser preview attached to <span className="mx-1 font-mono text-neutral-900">http://localhost:3000</span></div>
+          <div className="grid h-full place-items-center bg-neutral-50/60 text-[12px] text-neutral-500">
+            Browser preview attached to{" "}
+            <span className="mx-1 font-mono text-neutral-900">http://localhost:3000</span>
+          </div>
         )}
         {tab === "docs" && (
           <div className="p-6 text-[13px] text-neutral-600">
@@ -1044,13 +1310,35 @@ function DummyEditor({
   );
 }
 
-function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { lab: RealLab; tasks: Set<number>; submitted: boolean; onToggleTask: (i: number) => void; onBack: () => void; onSubmit: () => void }) {
+function LabDetail({
+  lab,
+  tasks,
+  submitted,
+  onToggleTask,
+  onBack,
+  onSubmit,
+}: {
+  lab: RealLab;
+  tasks: Set<number>;
+  submitted: boolean;
+  onToggleTask: (i: number) => void;
+  onBack: () => void;
+  onSubmit: () => void;
+}) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-3 text-[12px]">
-        <button onClick={onBack} className="text-neutral-500 hover:text-neutral-900">← All labs</button>
-        <div className="text-neutral-500">Lab · <span className="text-neutral-900">{lab.title}</span></div>
-        <button onClick={onSubmit} disabled={submitted} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+        <button onClick={onBack} className="text-neutral-500 hover:text-neutral-900">
+          ← All labs
+        </button>
+        <div className="text-neutral-500">
+          Lab · <span className="text-neutral-900">{lab.title}</span>
+        </div>
+        <button
+          onClick={onSubmit}
+          disabled={submitted}
+          className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+        >
           {submitted ? "Submitted" : "Submit lab"}
         </button>
       </div>
@@ -1065,10 +1353,22 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
             {lab.tasks.map((t, i) => (
               <li key={i}>
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-md px-2 py-1.5 hover:bg-neutral-100">
-                  <input type="checkbox" checked={tasks.has(i)} onChange={() => onToggleTask(i)} disabled={submitted} className="mt-0.5 h-4 w-4 rounded border-neutral-300" />
-                  <span className={`text-[13px] flex-1 ${tasks.has(i) ? "text-neutral-400" : "text-neutral-800"}`}>
+                  <input
+                    type="checkbox"
+                    checked={tasks.has(i)}
+                    onChange={() => onToggleTask(i)}
+                    disabled={submitted}
+                    className="mt-0.5 h-4 w-4 rounded border-neutral-300"
+                  />
+                  <span
+                    className={`text-[13px] flex-1 ${tasks.has(i) ? "text-neutral-400" : "text-neutral-800"}`}
+                  >
                     <div className={tasks.has(i) ? "line-through" : "font-medium"}>{t.title}</div>
-                    {t.description && <div className="mt-0.5 text-[12px] text-neutral-500 line-clamp-2">{t.description}</div>}
+                    {t.description && (
+                      <div className="mt-0.5 text-[12px] text-neutral-500 line-clamp-2">
+                        {t.description}
+                      </div>
+                    )}
                   </span>
                 </label>
               </li>
@@ -1076,16 +1376,13 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
           </ol>
 
           <div className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3 text-[11px] text-neutral-500">
-            {tasks.size} of {lab.tasks.length} tasks marked complete. This is only your local tracker.
+            {tasks.size} of {lab.tasks.length} tasks marked complete. This is only your local
+            tracker.
           </div>
         </div>
 
         <div className="flex min-h-0 flex-col">
-          <DummyEditor
-            file={lab.file}
-            code={lab.code}
-            terminal={lab.terminal}
-          />
+          <DummyEditor file={lab.file} code={lab.code} terminal={lab.terminal} />
         </div>
       </div>
     </div>
@@ -1096,29 +1393,60 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
 // Section: Knowledge Assessment
 // ────────────────────────────────────────────────────────────────────────────
 
-function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { sections: any[]; submitted: Set<string>; onOpen: (id: string) => void; onFinishSection: () => void }) {
-  const allDone = sections.length > 0 && sections.every(s => submitted.has(s.id));
+function KnowledgeList({
+  sections,
+  submitted,
+  onOpen,
+  onFinishSection,
+}: {
+  sections: any[];
+  submitted: Set<string>;
+  onOpen: (id: string) => void;
+  onFinishSection: () => void;
+}) {
+  const allDone = sections.length > 0 && sections.every((s) => submitted.has(s.id));
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
-      <SectionHeader eyebrow="Section 02" title="Knowledge Assessment" body={`${sections.length} subjects. Submit each independently — you'll only see the summary at the end.`} />
+      <SectionHeader
+        eyebrow="Section 02"
+        title="Knowledge Assessment"
+        body={`${sections.length} subjects. Submit each independently — you'll only see the summary at the end.`}
+      />
       <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {sections.map(s => {
+        {sections.map((s) => {
           const done = submitted.has(s.id);
           return (
-            <button key={s.id} onClick={() => onOpen(s.id)} className="group rounded-xl border border-neutral-200 bg-white p-5 text-left transition hover:border-neutral-900">
+            <button
+              key={s.id}
+              onClick={() => onOpen(s.id)}
+              className="group rounded-xl border border-neutral-200 bg-white p-5 text-left transition hover:border-neutral-900"
+            >
               <div className="flex items-center justify-between">
-                <div className="font-serif text-[20px] tracking-tight text-neutral-900">{s.title}</div>
+                <div className="font-serif text-[20px] tracking-tight text-neutral-900">
+                  {s.title}
+                </div>
                 {done && <span className="text-[11px] text-emerald-600">Submitted</span>}
               </div>
-              <div className="mt-1 text-[12px] text-neutral-500">{s.questions?.length || 0} questions</div>
-              <div className="mt-6 text-[12px] text-neutral-500 group-hover:text-neutral-900">{done ? "Review submitted" : "Start subject →"}</div>
+              <div className="mt-1 text-[12px] text-neutral-500">
+                {s.questions?.length || 0} questions
+              </div>
+              <div className="mt-6 text-[12px] text-neutral-500 group-hover:text-neutral-900">
+                {done ? "Review submitted" : "Start subject →"}
+              </div>
             </button>
           );
         })}
       </div>
       <div className="mt-8 flex items-center justify-between">
-        <span className="text-[12px] text-neutral-500">{Array.from(submitted).filter(id => sections.some(s => s.id === id)).length} of {sections.length} submitted</span>
-        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+        <span className="text-[12px] text-neutral-500">
+          {Array.from(submitted).filter((id) => sections.some((s) => s.id === id)).length} of{" "}
+          {sections.length} submitted
+        </span>
+        <button
+          onClick={onFinishSection}
+          disabled={!allDone}
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+        >
           Continue to Engineering Discussion →
         </button>
       </div>
@@ -1127,16 +1455,37 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { secti
 }
 
 function KnowledgeRunner({
-  subject, submitted, index, setIndex, answers, marked,
-  setAnswer, clearAnswer, onMark, onBack, onSubmit,
-  codingCode, setCodingCode, codingResults, runCode
+  subject,
+  submitted,
+  index,
+  setIndex,
+  answers,
+  marked,
+  setAnswer,
+  clearAnswer,
+  onMark,
+  onBack,
+  onSubmit,
+  codingCode,
+  setCodingCode,
+  codingResults,
+  runCode,
 }: {
-  subject: any; submitted: boolean; index: number; setIndex: (i: number) => void;
-  answers: Record<string, any>; marked: Set<string>;
-  setAnswer: (qId: string, val: any) => void; clearAnswer: (qId: string) => void; onMark: (qId: string) => void;
-  onBack: () => void; onSubmit: () => void;
-  codingCode: Record<string, string>; setCodingCode: (qId: string, val: string) => void;
-  codingResults: Record<string, { name: string; pass: boolean }[] | null>; runCode: (qId: string) => void;
+  subject: any;
+  submitted: boolean;
+  index: number;
+  setIndex: (i: number) => void;
+  answers: Record<string, any>;
+  marked: Set<string>;
+  setAnswer: (qId: string, val: any) => void;
+  clearAnswer: (qId: string) => void;
+  onMark: (qId: string) => void;
+  onBack: () => void;
+  onSubmit: () => void;
+  codingCode: Record<string, string>;
+  setCodingCode: (qId: string, val: string) => void;
+  codingResults: Record<string, { name: string; pass: boolean }[] | null>;
+  runCode: (qId: string) => void;
 }) {
   const q = subject.questions[index];
   const disabled = submitted;
@@ -1161,21 +1510,43 @@ function KnowledgeRunner({
     return (
       <div className="flex h-full flex-col bg-[#fafaf7] overflow-hidden">
         <div className="flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-3 text-[12px] shrink-0">
-          <div className="text-neutral-500">Assessment · <span className="text-neutral-900">{subject.title}</span></div>
+          <div className="text-neutral-500">
+            Assessment · <span className="text-neutral-900">{subject.title}</span>
+          </div>
           <div className="flex items-center gap-3">
-             <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
-             {index < subject.questions.length - 1 ? (
-               <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
-             ) : (
-               <button onClick={onSubmit} disabled={submitted} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-                 {submitted ? "Submitted" : `Submit ${subject.title}`}
-               </button>
-             )}
+            <button
+              onClick={() => setIndex(Math.max(0, index - 1))}
+              disabled={index === 0}
+              className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            {index < subject.questions.length - 1 ? (
+              <button
+                onClick={() => setIndex(index + 1)}
+                className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={onSubmit}
+                disabled={submitted}
+                className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+              >
+                {submitted ? "Submitted" : `Submit ${subject.title}`}
+              </button>
+            )}
           </div>
         </div>
 
         <div className="min-h-0 flex-1">
-          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true} />
+          <TicketIDE
+            slug="knowledge"
+            ticket={mappedTicket}
+            previewOverride={null}
+            isEvaluationMode={true}
+          />
         </div>
       </div>
     );
@@ -1184,30 +1555,51 @@ function KnowledgeRunner({
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 flex flex-col min-h-0 h-full">
       <div className="flex items-center justify-between text-[12px] text-neutral-500 shrink-0">
-        <button onClick={onBack} className="hover:text-neutral-900">← All subjects</button>
-        <span>{subject.title} · Question {index + 1} of {subject.questions.length}</span>
+        <button onClick={onBack} className="hover:text-neutral-900">
+          ← All subjects
+        </button>
+        <span>
+          {subject.title} · Question {index + 1} of {subject.questions.length}
+        </span>
       </div>
 
       <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-8 flex-1 min-h-0 flex flex-col">
-        <div className="font-serif text-[22px] leading-snug tracking-tight text-neutral-900 shrink-0">{q.q}</div>
-        {q.description && <div className="mt-3 text-[14px] leading-relaxed text-neutral-700 shrink-0 whitespace-pre-wrap">{q.description}</div>}
-        
+        <div className="font-serif text-[22px] leading-snug tracking-tight text-neutral-900 shrink-0">
+          {q.q}
+        </div>
+        {q.description && (
+          <div className="mt-3 text-[14px] leading-relaxed text-neutral-700 shrink-0 whitespace-pre-wrap">
+            {q.description}
+          </div>
+        )}
+
         <div className="mt-6 flex-1 overflow-y-auto">
           {q.format === "MCQ" || q.format === "Multiple Select" ? (
             <div className="space-y-2">
               {q.options.map((opt: string, i: number) => {
                 const isMulti = q.format === "Multiple Select";
-                const ansArray = Array.isArray(answers[q.id]) ? answers[q.id] : (answers[q.id] !== undefined ? [answers[q.id]] : []);
+                const ansArray = Array.isArray(answers[q.id])
+                  ? answers[q.id]
+                  : answers[q.id] !== undefined
+                    ? [answers[q.id]]
+                    : [];
                 const active = isMulti ? ansArray.includes(i) : answers[q.id] === i;
                 return (
-                  <label key={i} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}>
-                    <input 
+                  <label
+                    key={i}
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    <input
                       type={isMulti ? "checkbox" : "radio"}
                       disabled={disabled}
                       checked={active}
                       onChange={() => {
                         if (isMulti) {
-                          if (active) setAnswer(q.id, ansArray.filter((x: number) => x !== i));
+                          if (active)
+                            setAnswer(
+                              q.id,
+                              ansArray.filter((x: number) => x !== i),
+                            );
                           else setAnswer(q.id, [...ansArray, i]);
                         } else {
                           setAnswer(q.id, i);
@@ -1231,20 +1623,45 @@ function KnowledgeRunner({
             />
           )}
         </div>
-        
+
         <div className="mt-6 flex items-center justify-between text-[12px] shrink-0 pt-4 border-t border-neutral-100">
           <div className="flex items-center gap-3 text-neutral-500">
-            <button onClick={() => onMark(q.id)} disabled={disabled} className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-50">
+            <button
+              onClick={() => onMark(q.id)}
+              disabled={disabled}
+              className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-50"
+            >
               {marked.has(q.id) ? "Unmark" : "Mark for review"}
             </button>
-            <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="hover:text-neutral-900 disabled:opacity-50">Clear answer</button>
+            <button
+              onClick={() => clearAnswer(q.id)}
+              disabled={disabled}
+              className="hover:text-neutral-900 disabled:opacity-50"
+            >
+              Clear answer
+            </button>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
+            <button
+              onClick={() => setIndex(Math.max(0, index - 1))}
+              disabled={index === 0}
+              className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40"
+            >
+              Previous
+            </button>
             {index < subject.questions.length - 1 ? (
-              <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
+              <button
+                onClick={() => setIndex(index + 1)}
+                className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800"
+              >
+                Next
+              </button>
             ) : (
-              <button onClick={onSubmit} disabled={submitted} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+              <button
+                onClick={onSubmit}
+                disabled={submitted}
+                className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+              >
                 {submitted ? "Submitted" : `Submit ${subject.title}`}
               </button>
             )}
@@ -1253,14 +1670,23 @@ function KnowledgeRunner({
       </div>
 
       <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4 shrink-0">
-        <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question navigator</div>
+        <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-neutral-500">
+          Question navigator
+        </div>
         <div className="flex flex-wrap gap-2">
           {subject.questions.map((_: any, i: number) => {
-            const answered = answers[subject.questions[i].id] !== undefined && answers[subject.questions[i].id] !== null && answers[subject.questions[i].id] !== "";
+            const answered =
+              answers[subject.questions[i].id] !== undefined &&
+              answers[subject.questions[i].id] !== null &&
+              answers[subject.questions[i].id] !== "";
             const isCurrent = i === index;
             const isMarked = marked.has(subject.questions[i].id);
             return (
-              <button key={i} onClick={() => setIndex(i)} className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white" : answered ? "border-emerald-500/40 bg-emerald-50 text-emerald-700" : isMarked ? "border-amber-400 bg-amber-50 text-amber-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
+              <button
+                key={i}
+                onClick={() => setIndex(i)}
+                className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white" : answered ? "border-emerald-500/40 bg-emerald-50 text-emerald-700" : isMarked ? "border-amber-400 bg-amber-50 text-amber-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}
+              >
                 {i + 1}
               </button>
             );
@@ -1271,29 +1697,65 @@ function KnowledgeRunner({
   );
 }
 
-
-
-
-
-function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
+function SectionHeader({
+  eyebrow,
+  title,
+  body,
+}: {
+  eyebrow: string;
+  title: string;
+  body?: string;
+}) {
   return (
     <div>
       <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">{eyebrow}</div>
-      <h2 className="mt-2 font-serif text-[34px] leading-tight tracking-tight text-neutral-900">{title}</h2>
-      {body && <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-neutral-600">{body}</p>}
+      <h2 className="mt-2 font-serif text-[34px] leading-tight tracking-tight text-neutral-900">
+        {title}
+      </h2>
+      {body && (
+        <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-neutral-600">{body}</p>
+      )}
     </div>
   );
 }
 
-function Confirm({ title, body, confirm, onConfirm, onCancel, destructive }: { title: string; body: string; confirm: string; onConfirm: () => void; onCancel?: () => void; destructive?: boolean }) {
+function Confirm({
+  title,
+  body,
+  confirm,
+  onConfirm,
+  onCancel,
+  destructive,
+}: {
+  title: string;
+  body: string;
+  confirm: string;
+  onConfirm: () => void;
+  onCancel?: () => void;
+  destructive?: boolean;
+}) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-neutral-900/40 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl">
-        <div className="font-serif text-[22px] leading-tight tracking-tight text-neutral-900">{title}</div>
+        <div className="font-serif text-[22px] leading-tight tracking-tight text-neutral-900">
+          {title}
+        </div>
         <p className="mt-3 text-[13px] leading-relaxed text-neutral-600">{body}</p>
         <div className="mt-6 flex items-center justify-end gap-2">
-          {onCancel && <button onClick={onCancel} className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-[13px] text-neutral-700 hover:border-neutral-900 hover:text-neutral-900">Cancel</button>}
-          <button onClick={onConfirm} className={`rounded-lg px-4 py-2 text-[13px] text-white ${destructive ? "bg-red-600 hover:bg-red-700" : "bg-neutral-900 hover:bg-neutral-800"}`}>{confirm}</button>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-[13px] text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            onClick={onConfirm}
+            className={`rounded-lg px-4 py-2 text-[13px] text-white ${destructive ? "bg-red-600 hover:bg-red-700" : "bg-neutral-900 hover:bg-neutral-800"}`}
+          >
+            {confirm}
+          </button>
         </div>
       </div>
     </div>
