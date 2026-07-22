@@ -21,6 +21,7 @@ import base64
 import io
 import tempfile
 from playwright.sync_api import sync_playwright
+import datetime as _dt
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -2072,9 +2073,6 @@ async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
     except Exception as e:
         return {"error": str(e)}
 
-# ─────────────────────────────────────────────────────────────
-# UI Validate — Playwright screenshots + ui-diff comparison
-# ─────────────────────────────────────────────────────────────
 
 class UiValidateRequest(BaseModel):
     ticket_slug: str           # e.g. "ticket-01"
@@ -2087,8 +2085,6 @@ class UiValidateRequest(BaseModel):
 
 
 def _render_html_screenshot(html_content: str, css_content: str, width: int = 1280, height: int = 800) -> bytes:
-    """Render HTML+CSS to a PNG screenshot bytes using Playwright (synchronous)."""
-    # Inject CSS into <head> so it renders identically to a real browser load
     css_tag = f"<style>{css_content}</style>"
     if "<head>" in html_content:
         rendered_html = html_content.replace("</head>", f"{css_tag}</head>", 1)
@@ -2147,21 +2143,7 @@ def _structural_score(base_html: str, user_html: str) -> dict:
 
 
 def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_slug: str, js_checks: list = None) -> dict:
-    """
-    Run JS behavioral checks using a headless Playwright browser.
-    
-    Checks are CUMULATIVE — each ticket validates all features from
-    previous tickets plus its own new feature:
-      ticket-01  : year, menu_toggle
-      ticket-02  : + typed_effect
-      ticket-03  : + project_filter
-      ticket-04  : + contact_form
-      ticket-05  : + intersection_observer, scroll_to_top
-    
-    js_checks (optional): explicit list of check IDs to run.
-    If not given, the list is derived from ticket_slug.
-    """
-    import datetime as _dt
+
 
     if not js_content.strip():
         return {"score": 0.0, "checks": [{"name": "JavaScript file", "passed": False, "reason": "script.js is empty — nothing to evaluate"}]}
@@ -2211,7 +2193,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
         # ── Individual check functions ─────────────────────────────────────
 
         def check_year():
-            """#year element must contain the current 4-digit year."""
             try:
                 curr = str(_dt.datetime.now().year)
                 el_count = page.locator("#year").count()
@@ -2225,7 +2206,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
                 return {"name": "Dynamic year (#year)", "passed": False, "reason": f"Error: {exc}"}
 
         def check_menu_toggle():
-            """Clicking #menuBtn must toggle class 'open' on .nav-links."""
             try:
                 btn_count = page.locator("#menuBtn").count()
                 nav_count = page.locator(".nav-links").count()
@@ -2249,7 +2229,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
                 return {"name": "Mobile menu toggle (#menuBtn)", "passed": False, "reason": f"Error: {exc}"}
 
         def check_typed_effect():
-            """The .typed element text must change over ~600ms (typing animation running)."""
             try:
                 el_count = page.locator(".typed").count()
                 if el_count == 0:
@@ -2264,10 +2243,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
                 return {"name": "Typed animation (.typed)", "passed": False, "reason": f"Error: {exc}"}
 
         def check_project_filter():
-            """
-            Clicking a non-'all' .filter button must hide some .project elements
-            (add class 'hidden'), and set that button as 'active'.
-            """
             try:
                 filter_count = page.locator(".filter").count()
                 project_count = page.locator(".project").count()
@@ -2291,11 +2266,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
                 return {"name": "Project filters (.filter)", "passed": False, "reason": f"Error: {exc}"}
 
         def check_contact_form():
-            """
-            Submitting #contactForm must:
-              - Prevent page reload (preventDefault)
-              - Show a non-empty message in #formNote
-            """
             try:
                 form_count = page.locator("#contactForm").count()
                 note_count = page.locator("#formNote").count()
@@ -2397,16 +2367,6 @@ def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_sl
 
 @workspace_router.post("/ui-validate")
 def ui_validate(body: UiValidateRequest):
-    """
-    Full UI validation pipeline:
-      1. Read base HTML/CSS from /workspaces/labs/<lab_name>/tickets/<ticket_slug>/
-      2. Render both base and user HTML to PNG with Playwright
-      3. Compare screenshots with ui-diff
-      4. Run structural (tag + class) checks
-      5. Return scores, checks, and base64-encoded images
-    """
-    # ── 1. Load base files ───────────────────────────────────────────────────
-    # Resolve base HTML using the new canonical layout first, fall back to legacy.
     base_html_path: Optional[Path] = None
 
     # New canonical: labs/<lab_uuid>/<starter_repo_name>/tickets/<ticket_slug>/index.html
@@ -2483,11 +2443,6 @@ def ui_validate(body: UiValidateRequest):
 
     # ── 4. Structural checks ──────────────────────────────────────────────────
     structural = _structural_score(base_html, body.user_html)
-
-    # ── 4.5 JS Behavioral checks ──────────────────────────────────────────────
-    # Runs for any ticket that has user_js submitted.
-    # The check list is pulled from scoring_rules.js_checks if provided,
-    # otherwise defaults to the cumulative set for that ticket slug.
     _js_tickets = {"ticket-01", "ticket-02", "ticket-03", "ticket-04", "ticket-05"}
     js_score = 0.0
     if body.user_js and body.ticket_slug in _js_tickets:

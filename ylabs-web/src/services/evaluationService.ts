@@ -2,12 +2,12 @@ import { restApiUtil, yhubApiUtil } from '../utils/RestApiUtil';
 import { restApiAuthUtil } from '../utils/RestApiAuthUtil';
 
 export const evaluationService = {
-  async sendRegistrationOtp(evaluationId: string, email: string): Promise<any> {
+  async sendRegistrationOtp(evaluationId: string, email: string, title: string = 'Evaluation'): Promise<any> {
     return yhubApiUtil.post(`/auth/public_send_otp/`, { 
       resource_id: evaluationId, 
       resource_type: 'evaluation',
       email, 
-      contest_title: 'Evaluation' 
+      contest_title: title 
     });
   },
 

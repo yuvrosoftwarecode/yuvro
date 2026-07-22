@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { EditorView } from "@codemirror/view";
+import { useTheme } from "@/hooks/use-theme";
 import {
   fetchFileTree,
   fetchFile,
@@ -775,14 +777,16 @@ export function StudentTicketView({
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
 }
 
-function TicketIDE({
+export function TicketIDE({
   slug,
   ticket,
   previewOverride,
+  isEvaluationMode,
 }: {
   slug: string;
   ticket: any;
   previewOverride: StudentPreviewOverride | null;
+  isEvaluationMode?: boolean;
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
@@ -918,7 +922,7 @@ function TicketIDE({
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
   const [fileTreeOpen, setFileTreeOpen] = useState(true);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
@@ -1655,13 +1659,7 @@ function TicketIDE({
     setDirty((d) => ({ ...d, [activeFile]: true }));
   }
 
-  function toggleTheme() {
-    setTheme((t) => {
-      const next = t === "dark" ? "light" : "dark";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return next;
-    });
-  }
+
 
   const handleResetProgress = async () => {
     if (!confirm("Are you sure you want to reset your progress? This will delete all your files and restart the ticket.")) return;
@@ -1679,10 +1677,10 @@ function TicketIDE({
   if (reviewMatch) return <Outlet />;
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
-        {!previewOverride && (
+        {(!previewOverride && !isEvaluationMode) && (
           <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
             <ArrowLeft className="h-3 w-3" />Exit
           </Link>
@@ -1697,7 +1695,7 @@ function TicketIDE({
         </div>
         <StatusBadge value={ticket.status} />
         <DiffBadge value={ticket.difficulty} />
-        <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>
+        {!isEvaluationMode && <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>}
         <span className="text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Est. {ticket.estMin}m · Elapsed <span className="font-mono text-foreground">{timeStr}</span></span>
         {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
         <button onClick={handleResetProgress} title="Reset Progress" className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1">
@@ -1933,9 +1931,11 @@ function TicketIDE({
                     </label>
                   )}
                   {isJava && <CompileBadge state={compileState} />}
-                  <button onClick={toggleTheme} className="rounded border px-2 py-0.5 hover:bg-accent">
-                    {theme === "dark" ? "☀ Light" : "🌙 Dark"}
-                  </button>
+                  {!isEvaluationMode && (
+                    <button onClick={toggleTheme} className="rounded border px-2 py-0.5 hover:bg-accent">
+                      {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+                    </button>
+                  )}
                   <button title="Format" onClick={() => showToast("Code formatted")} className="rounded border px-2 py-0.5 hover:bg-accent"><Wand2 className="h-3 w-3" /></button>
                 </div>
               </div>
@@ -2002,7 +2002,9 @@ function TicketIDE({
                   )}
                   {bottomTab === "terminal" && (
                     <TerminalView
-                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId) : null}
+                      theme={theme}
+                      wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other") : null}
+                      onCommandRun={() => loadWorkspaceFiles(true)}
                     />
                   )}
                 </div>
@@ -2118,6 +2120,19 @@ function CodeEditor({ code, onChange, language, theme }: { code: string; onChang
     }
   }, [language]);
 
+  const transparentTheme = useMemo(() => {
+    return EditorView.theme({
+      "&": { backgroundColor: "transparent !important" },
+      ".cm-gutters": { 
+        backgroundColor: "transparent !important", 
+        borderRight: "1px solid var(--color-border) !important",
+        color: "var(--color-muted-foreground)"
+      },
+      ".cm-activeLine": { backgroundColor: "var(--color-muted) !important" },
+      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" }
+    });
+  }, []);
+
   if (!mounted) {
     return (
       <div className="flex flex-1 min-w-0 overflow-hidden bg-editor-bg font-mono text-[13px] leading-6">
@@ -2132,7 +2147,7 @@ function CodeEditor({ code, onChange, language, theme }: { code: string; onChang
         value={code}
         onChange={(v) => onChange(v)}
         theme={theme === "dark" ? vscodeDark : vscodeLight}
-        extensions={extensions}
+        extensions={[transparentTheme, ...extensions]}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLine: true,
@@ -2422,7 +2437,7 @@ function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
   );
 }
 
-function TerminalView({ wsUrl }: { wsUrl: string | null }) {
+function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; theme: "dark" | "light" | "system"; onCommandRun?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<any>(null);
   const fitRef = useRef<any>(null);
@@ -2453,9 +2468,9 @@ function TerminalView({ wsUrl }: { wsUrl: string | null }) {
       fontSize: 13,
       fontFamily: "\"JetBrains Mono\", \"Fira Code\", monospace",
       theme: {
-        background: "#0d1117",
-        foreground: "#e6edf3",
-        cursor: "#58a6ff",
+        background: "transparent",
+        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
+        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
         black: "#0d1117",
         brightBlack: "#484f58",
         red: "#ff7b72",
@@ -2497,7 +2512,7 @@ function TerminalView({ wsUrl }: { wsUrl: string | null }) {
       termRef.current = null;
       fitRef.current = null;
     };
-  }, [libs]);
+  }, [libs, theme]);
 
   // Connect WebSocket
   const connect = useCallback(() => {

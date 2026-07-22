@@ -1,5 +1,5 @@
 // Recruiter data + backend API
-import { ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const DOMAINS = ["Finance", "Insurance", "EdTech", "Supply Chain", "Healthcare", "Retail", "Payment", "Other"] as const;
 export type Domain = typeof DOMAINS[number];
@@ -79,13 +79,20 @@ export interface AssessmentSection {
   randomize?: boolean;
   shuffle?: boolean;
 }
+export interface PredefinedQuestion {
+  id?: string;
+  text: string;
+  follow_ups: PredefinedQuestion[];
+}
+
 export interface DiscussionSection {
   id: string;
   kind: "discussion";
   title: string;
   duration: number;
-  mode: "Automatic" | "Custom" | "Hybrid";
-  questions: string[]; // custom questions
+  mode: "Custom";
+  questions: PredefinedQuestion[];
+  mockInterviewId?: string;
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
@@ -132,9 +139,9 @@ function mapBackendToFrontend(be: any): Evaluation {
       if (s.type === "LAB") {
         return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
-        let meta = { duration: 15, mode: "Automatic" };
+        let meta: any = { duration: 15, mode: "Custom" };
         try { meta = JSON.parse(s.description || "{}"); } catch {}
-        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: meta.mode || "Automatic", questions: s.questions || [] };
+        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId };
       } else {
         return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [] };
       }
@@ -154,7 +161,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
       let desc = "";
       if (s.kind === "labs") { type = "LAB"; qs = s.labs || []; }
       else if (s.kind === "assessment") { type = "KNOWLEDGE_ASSESSMENT"; qs = s.questions || []; }
-      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: s.mode }); }
+      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: "Custom", mockInterviewId: s.mockInterviewId }); }
       
       return {
         title: s.title,
@@ -178,12 +185,56 @@ export async function listEvaluations(): Promise<Evaluation[]> {
   }
 }
 
+export async function hydrateDiscussionQuestions(ev: Evaluation): Promise<Evaluation> {
+  for (const section of ev.sections) {
+    if (section.kind === "discussion" && section.mockInterviewId) {
+      try {
+        const res = await yhubApiAuthUtil.get<any>(`/mock-interviews/${section.mockInterviewId}/`);
+        if (res.predefined_tree) {
+          section.questions = res.predefined_tree;
+        }
+      } catch (err) {
+        console.error("Failed to fetch mock interview tree", err);
+      }
+    }
+  }
+  return ev;
+}
+
+export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
+  let discussionCounter = 1;
+  for (const section of e.sections) {
+    if (section.kind === "discussion") {
+      const payload = {
+        title: `${e.title} - ${discussionCounter}`,
+        description: "Vitarka AI Interview created from ylabs-web",
+        publish_status: "active",
+        max_duration: section.duration,
+        predefined_tree: section.questions
+      };
+      try {
+        if (section.mockInterviewId) {
+          await yhubApiAuthUtil.put(`/mock-interviews/${section.mockInterviewId}/`, payload);
+        } else {
+          const res = await yhubApiAuthUtil.post<any>(`/mock-interviews/`, payload);
+          section.mockInterviewId = res.id;
+        }
+      } catch (err) {
+        console.error("Failed to sync mock interview", err);
+      }
+      discussionCounter++;
+    }
+  }
+  return e;
+}
+
 export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
   try {
     const res = await fetch(`${API_BASE}/evaluations/${id}/`);
     if (!res.ok) return undefined;
     const data = await res.json();
-    return mapBackendToFrontend(data);
+    const fe = mapBackendToFrontend(data);
+    return await hydrateDiscussionQuestions(fe);
   } catch {
     return undefined;
   }
