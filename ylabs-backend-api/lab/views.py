@@ -34,6 +34,9 @@ class FrontendValidateView(APIView):
         ticket_slug = request.data.get("ticket_slug")
         user_html   = request.data.get("user_html", "")
         user_css    = request.data.get("user_css", "")
+        user_js     = request.data.get("user_js", "")
+        # lab_id is the Lab UUID — used to resolve the starter repo path.
+        # Falls back to the legacy "frontend-portfolio" folder if not provided.
         lab_id      = request.data.get("lab_id", "")
 
         if not ticket_slug:
@@ -47,8 +50,9 @@ class FrontendValidateView(APIView):
                     "ticket_slug": ticket_slug,
                     "user_html":   user_html,
                     "user_css":    user_css,
-                    "lab_name":    "frontend-portfolio", 
-                    "lab_id":      lab_id,           
+                    "user_js":     user_js,
+                    "lab_name":    "frontend-portfolio",  # legacy fallback
+                    "lab_id":      lab_id,                # new canonical lookup
                 },
                 timeout=60, 
             )
@@ -216,19 +220,7 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         evaluate_and_score_submission(submission)
         submission.save()
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def student_stats_view(request):
-    user = request.user
-    
-    done_submissions = UserLabSprintTicketSubmission.objects.filter(
-        user=user,
-        ticket_status__in=['in_review', 'done']
-    ).select_related('lab_sprint_ticket')
-    
-    total_yp = done_submissions.aggregate(
-        total_yp=Sum('lab_sprint_ticket__yuvro_points')
-    )['total_yp'] or 0
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

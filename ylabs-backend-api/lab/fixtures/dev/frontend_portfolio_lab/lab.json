@@ -1,11 +1,12 @@
 {
   "labs": [
     {
-      "title": "Frontend Portfolio Lab",
+      "id": "a5e4a933-58fb-4f75-93d6-081d57c092a0",
+      "title": "Portfolio Lab",
       "type": "FRONTEND",
       "description": "Build a modern portfolio website from scratch using HTML and CSS. You will be evaluated based on the visual accuracy and structural correctness of your web pages.",
       "difficulty": "EASY",
-      "icon": "Frontend",
+      "icon": "Portfolio",
       "git_repo_starter_url": "https://github.com/yuvro/frontend-portfolio"
     }
   ]
