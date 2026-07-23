@@ -24,6 +24,8 @@ from .workspace_manager import provision_user_lab_repo, get_repo_name_from_url, 
 import os
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+from .services import evaluate_and_score_submission
+import threading
 from .frontend_validator import validate_frontend_ticket
 import requests as http_requests
 
