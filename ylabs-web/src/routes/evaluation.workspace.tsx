@@ -1,7 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "../services/evaluationService";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { VitarkaInterviewScreen } from "../components/discussion/VitarkaInterviewScreen";
+import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
+import { TicketIDE } from "./student.lab.$slug.ticket.$ticketId";
 
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -24,12 +28,13 @@ interface KnowledgeQuestion {
 type AppSection = 
   | { type: "LAB", id: string, title: string, labs: RealLab[] }
   | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[] }
-  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string };
+  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string };
 
 interface RealLab {
   id: string;
   title: string;
   sub: string;
+  tag: string;
   minutes: number;
   problem: string;
   tasks: { title: string; description: string }[];
@@ -52,30 +57,49 @@ const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 
-function Workspace() {
+export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = searchParams.get('e') || '';
+  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
+  const [labsData, setLabsData] = useState<RealLab[]>([]);
+  const [discussionQuestions, setDiscussionQuestions] = useState<string[]>(DISCUSSION_QUESTIONS);
   const [debugData, setDebugData] = useState<any>(null);  
   
   useEffect(() => {
+    if (previewData) {
+      processWorkspaceData(previewData);
+      return;
+    }
     if (!evaluationId) return;
     evaluationService.getWorkspaceData(evaluationId)
-      .then(res => {
-        setDebugData(res);
-        const mappedSections: AppSection[] = [];
-        let durationMinutes = 0;
+      .then(res => processWorkspaceData(res))
+      .catch(err => setDebugData({ error: err.message || err.toString() }));
+  }, [evaluationId, previewData]);
 
-        (res.sections || []).forEach((sec: any) => {
+  const processWorkspaceData = (res: any) => {
+    setDebugData(res);
+    const mappedSections: AppSection[] = [];
+    let durationMinutes = 0;
+    
+    let dQs: string[] = [];
+    let mappedLabs: RealLab[] = [];
+    const extractQuestions = (nodes: any[]) => {
+      for (const n of nodes) {
+        if (n.text) dQs.push(n.text);
+        if (n.follow_ups && n.follow_ups.length > 0) extractQuestions(n.follow_ups);
+      }
+    };
+
+    (res.sections || []).forEach((sec: any) => {
           if (sec.type === "LAB") {
-            const mappedLabs: RealLab[] = [];
             (sec.questions || []).forEach((q: any) => {
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
                 sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
+                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 tasks: Array.isArray(q.tasks) 
@@ -128,17 +152,41 @@ function Workspace() {
               })
             });
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
-            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion" });
+            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description });
+            if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
+              extractQuestions(sec.questions);
+            } else {
+              let meta: any = {};
+              try { meta = JSON.parse(sec.description || "{}"); } catch {}
+              if (meta.mockInterviewId) {
+                yhubApiAuthUtil.get<any>(`/mock-interviews/${meta.mockInterviewId}/`)
+                  .then(yhubRes => {
+                    if (yhubRes.predefined_tree && Array.isArray(yhubRes.predefined_tree)) {
+                      let asyncDQs: string[] = [];
+                      const extractAsync = (nodes: any[]) => {
+                        for (const n of nodes) {
+                          if (n.text) asyncDQs.push(n.text);
+                          if (n.follow_ups && n.follow_ups.length > 0) extractAsync(n.follow_ups);
+                        }
+                      };
+                      extractAsync(yhubRes.predefined_tree);
+                      if (asyncDQs.length > 0) setDiscussionQuestions(asyncDQs);
+                    }
+                  })
+                  .catch(err => console.error("Failed to fetch mock interview from yhub", err));
+              }
+            }
           }
         });
-        
-        setAppSections(mappedSections);
-        if (mappedSections.length > 0) {
-          setSection(mappedSections[0].id);
-        }
-      })
-      .catch(err => setDebugData({ error: err.message || err.toString() }));
-  }, [evaluationId]);
+      setAppSections(mappedSections);
+      if (mappedSections.length > 0) {
+        setSection(mappedSections[0].id);
+      }
+      
+      if (dQs.length > 0) setDiscussionQuestions(dQs);
+      
+      setLabsData(mappedLabs);
+  };
   const [remaining, setRemaining] = useState(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
@@ -156,12 +204,12 @@ function Workspace() {
   const [discussionIndex, setDiscussionIndex] = useState(0);
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
 
-  // Timer
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining(r => {
@@ -172,7 +220,6 @@ function Workspace() {
     return () => clearInterval(t);
   }, []);
 
-  // Trigger discussion lock at 15 min
   useEffect(() => {
     if (remaining <= DISCUSSION_LOCK_SECONDS && !discussionTriggered.current && remaining > 0) {
       discussionTriggered.current = true;
@@ -180,14 +227,13 @@ function Workspace() {
       if (discussionSection) {
         setSection(discussionSection.id);
       } else {
-        setSection("discussion-dummy"); // fallback if not in backend but triggered by time
+        setSection("discussion-dummy"); 
       }
       setOpenLab(null);
       setActiveQuestionId(null);
       setModal({ kind: "discussion-starting" });
     }
     if (remaining === 0) submitEvaluation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining]);
 
   // Tab-switch warning
@@ -228,14 +274,14 @@ function Workspace() {
     return "not-started";
   };
   const getLabStatus = (secId: string, labs: RealLab[]): Status => {
-    // Basic logic: if all labs in section are submitted, it's complete.
     const submittedCount = labs.filter(l => submittedLabs.has(l.id)).length;
     if (submittedCount === labs.length && labs.length > 0) return "complete";
     if (submittedCount > 0) return "in-progress";
     if (section === secId) return "current";
     return "not-started";
   };
-  const discussionStatus = discussionIndex >= DISCUSSION_QUESTIONS.length ? "complete" : locked ? "current" : "locked";
+  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW" || section === "discussion-dummy";
+  const discussionStatus = isDiscussionSection ? "current" : "not-started";
 
   const [qIndex, setQIndex] = useState(0);
 
@@ -248,7 +294,6 @@ function Workspace() {
     setQIndex(0);
   };
 
-  // Handlers
   const toggleTask = (labId: LabId, i: number) => {
     setTaskState(prev => {
       const s = new Set(prev[labId] ?? []);
@@ -264,7 +309,6 @@ function Workspace() {
   };
   const confirmSubmitSection = async (secId: string) => {
     try {
-      // In real scenario, we map answers and send. For now, dummy logic just records submission locally.
       await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, answers);
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
@@ -314,7 +358,7 @@ function Workspace() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
+    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
       <TopBar
         remaining={remaining}
         online={online}
@@ -340,23 +384,40 @@ function Workspace() {
           submittedLabs={submittedLabs}
           submittedSections={submittedSections}
           locked={locked}
+          collapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         />
 
         <main className="min-w-0 flex-1 overflow-y-auto">
           {appSections.map(sec => {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
-              return openLab ? (
-                <LabDetail
-                  key={sec.id}
-                  lab={sec.labs.find(l => l.id === openLab)!}
-                  tasks={taskState[openLab] ?? new Set()}
-                  submitted={submittedLabs.has(openLab)}
-                  onToggleTask={(i) => toggleTask(openLab, i)}
-                  onBack={() => setOpenLab(null)}
-                  onSubmit={() => setModal({ kind: "submit-lab", id: openLab })}
-                />
-              ) : (
+              return openLab ? (() => {
+                const lab = sec.labs.find(l => l.id === openLab)!;
+                const mappedTicket = {
+                  id: lab.id,
+                  title: lab.title,
+                  description: lab.problem,
+                  tag: lab.tag,
+                  tasks: lab.tasks.map(t => ({ title: t.title, description: t.description })),
+                  difficulty: "Intermediate",
+                  xp: 100,
+                  estMin: lab.minutes,
+                  sprintOrder: 1,
+                  ticketOrder: 1,
+                  learning_objectives: [],
+                  common_mistakes: [],
+                };
+                return (
+                  <TicketIDE
+                    key={sec.id}
+                    slug={lab.id}
+                    ticket={mappedTicket}
+                    previewOverride={null}
+                    isEvaluationMode={true}
+                  />
+                );
+              })() : (
                 <LabsList
                   key={sec.id}
                   labs={sec.labs}
@@ -405,32 +466,22 @@ function Workspace() {
                 />
               );
             } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+              let meta: any = {};
+              try { meta = JSON.parse(sec.description || "{}"); } catch {}
               return (
-                <Discussion
+                <VitarkaInterviewScreen
                   key={sec.id}
-                  index={discussionIndex}
-                  responses={discussionResponses}
-                  draft={discussionDraft}
-                  setDraft={setDiscussionDraft}
-                  onSubmit={submitDiscussionAnswer}
+                  mockInterviewId={meta.mockInterviewId}
                   onEnd={() => setModal({ kind: "end-discussion" })}
-                  done={discussionIndex >= DISCUSSION_QUESTIONS.length}
-                  onFinish={submitEvaluation}
                 />
               );
             }
             return null;
           })}
           {section === "discussion-dummy" && (
-            <Discussion
-              index={discussionIndex}
-              responses={discussionResponses}
-              draft={discussionDraft}
-              setDraft={setDiscussionDraft}
-              onSubmit={submitDiscussionAnswer}
+            <VitarkaInterviewScreen
+              mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
               onEnd={() => setModal({ kind: "end-discussion" })}
-              done={discussionIndex >= DISCUSSION_QUESTIONS.length}
-              onFinish={submitEvaluation}
             />
           )}
         </main>
@@ -538,8 +589,24 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         </button>
         <button className="text-neutral-500 hover:text-neutral-900">Help</button>
         <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">Exit</button>
+        <ThemeToggle />
       </div>
     </header>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle theme"
+      title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900 ml-1"
+    >
+      {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+    </button>
   );
 }
 
@@ -572,12 +639,14 @@ function Sidebar({
   onSelectSection, onSelectLab, onSelectQuestion,
   getSectionStatus, getLabStatus, discussionStatus,
   submittedLabs, submittedSections, locked,
+  collapsed, onToggleCollapse,
 }: {
   appSections: AppSection[];
   section: string | null; openLab: string | null; activeQuestionId: string | null;
   onSelectSection: (s: string) => void; onSelectLab: (id: string) => void; onSelectQuestion: (secId: string, id: string) => void;
   getSectionStatus: (id: string) => Status; getLabStatus: (secId: string, labs: RealLab[]) => Status; discussionStatus: Status;
   submittedLabs: Set<string>; submittedSections: Set<string>; locked: boolean;
+  collapsed: boolean; onToggleCollapse: () => void;
 }) {
   const labSections = appSections.filter(s => s.type === "LAB");
   const knowledgeSections = appSections.filter(s => s.type === "KNOWLEDGE_ASSESSMENT");
@@ -669,11 +738,26 @@ function Sidebar({
   let counter = 1;
   const getNum = () => String(counter++).padStart(2, "0");
 
+  if (collapsed) {
+    return (
+      <aside className="hidden w-12 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col items-center py-4">
+        <button onClick={onToggleCollapse} className="text-neutral-500 hover:text-neutral-900 transition" title="Expand Sidebar">
+          <PanelLeftOpen className="w-5 h-5" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white/60 md:block">
-      <div className="border-b border-neutral-200 px-5 py-4">
-        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
-        <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col h-full overflow-y-auto">
+      <div className="border-b border-neutral-200 px-5 py-4 flex items-center justify-between">
+        <div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
+          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+        </div>
+        <button onClick={onToggleCollapse} className="text-neutral-400 hover:text-neutral-800 transition" title="Collapse Sidebar">
+          <PanelLeftClose className="w-4 h-4" />
+        </button>
       </div>
 
       <nav className="flex flex-col gap-1 px-2 py-3 text-[13px]">
@@ -1059,8 +1143,23 @@ function KnowledgeRunner({
   if (!q) return null;
 
   if (q.format === "Coding") {
+    const mappedTicket = {
+      id: q.id,
+      title: q.q,
+      description: q.description || q.q,
+      tag: q.programming_languages?.[0]?.toLowerCase() || "javascript",
+      tasks: [],
+      difficulty: "Intermediate",
+      xp: 10,
+      estMin: 15,
+      sprintOrder: index + 1,
+      ticketOrder: 1,
+      learning_objectives: [],
+      common_mistakes: [],
+    };
+
     return (
-      <div className="flex h-full flex-col bg-[#fafaf7]">
+      <div className="flex h-full flex-col bg-[#fafaf7] overflow-hidden">
         <div className="flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-3 text-[12px] shrink-0">
           <div className="text-neutral-500">Assessment · <span className="text-neutral-900">{subject.title}</span></div>
           <div className="flex items-center gap-3">
@@ -1075,75 +1174,8 @@ function KnowledgeRunner({
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[360px_1fr]">
-          <div className="min-h-0 overflow-y-auto border-r border-neutral-200 bg-white/60 p-6 flex flex-col">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Problem</div>
-            <div className="mt-3 text-[15px] font-serif tracking-tight text-neutral-900 leading-relaxed whitespace-pre-wrap">{q.q}</div>
-            {q.description && <div className="mt-4 text-[13px] leading-relaxed text-neutral-700 whitespace-pre-wrap">{q.description}</div>}
-
-            {q.examples && q.examples.length > 0 && (
-              <div className="mt-6 space-y-4">
-                <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Examples</div>
-                {q.examples.map((ex: any, i: number) => (
-                  <div key={i} className="bg-white border border-neutral-200 rounded-md p-3">
-                    <div className="text-[12px] font-semibold text-neutral-900 mb-1">Example {i + 1}</div>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <div className="text-[10px] uppercase text-neutral-500 mb-1">Input</div>
-                        <pre className="text-[12px] font-mono bg-neutral-50 p-2 rounded">{ex.input}</pre>
-                      </div>
-                      <div>
-                        <div className="text-[10px] uppercase text-neutral-500 mb-1">Output</div>
-                        <pre className="text-[12px] font-mono bg-neutral-50 p-2 rounded">{ex.output}</pre>
-                      </div>
-                    </div>
-                    {ex.explanation && (
-                      <div className="mt-3 pt-3 border-t border-neutral-100 text-[12px] text-neutral-600">
-                        <span className="font-semibold">Explanation:</span> {ex.explanation}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <div className="mt-8 pt-6 border-t border-neutral-200 shrink-0">
-              <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question navigator</div>
-              <div className="flex flex-wrap gap-2">
-                {subject.questions.map((_: any, i: number) => {
-                  const answered = answers[subject.questions[i].id] !== undefined && answers[subject.questions[i].id] !== null && answers[subject.questions[i].id] !== "";
-                  const isCurrent = i === index;
-                  const isMarked = marked.has(subject.questions[i].id);
-                  return (
-                    <button key={i} onClick={() => setIndex(i)} className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white" : answered ? "border-emerald-500/40 bg-emerald-50 text-emerald-700" : isMarked ? "border-amber-400 bg-amber-50 text-amber-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
-                      {i + 1}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            <div className="mt-4 flex items-center justify-between text-[12px] shrink-0">
-              <button onClick={() => onMark(q.id)} disabled={disabled} className="text-neutral-500 hover:text-neutral-900 disabled:opacity-50">
-                {marked.has(q.id) ? "Unmark" : "Mark for review"}
-              </button>
-              <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="text-neutral-500 hover:text-neutral-900 disabled:opacity-50">Clear answer</button>
-            </div>
-          </div>
-          <div className="flex min-h-0 flex-col">
-            <DummyEditor
-              file="main.js"
-              code={codingCode[q.id] ?? q.starter_code ?? ""}
-              terminal={["$ node main.js", "Ready to run..."]}
-              onCodeChange={(val) => {
-                setCodingCode(q.id, val);
-                setAnswer(q.id, val);
-              }}
-              disabled={submitted}
-              runCode={() => runCode(q.id)}
-              codingResults={codingResults[q.id]}
-            />
-          </div>
+        <div className="min-h-0 flex-1">
+          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true} />
         </div>
       </div>
     );
@@ -1239,86 +1271,9 @@ function KnowledgeRunner({
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Section: Engineering Discussion
-// ────────────────────────────────────────────────────────────────────────────
 
-function Discussion({ index, responses, draft, setDraft, onSubmit, onEnd, done, onFinish }: {
-  index: number; responses: string[]; draft: string; setDraft: (v: string) => void;
-  onSubmit: () => void; onEnd: () => void; done: boolean; onFinish: () => void;
-}) {
-  const question = DISCUSSION_QUESTIONS[Math.min(index, DISCUSSION_QUESTIONS.length - 1)];
-  return (
-    <div className="mx-auto max-w-5xl px-8 py-12">
-      <SectionHeader eyebrow="Section 04" title="Engineering Discussion" body="A short reflection on what you built. Answer in your own words — this is a conversation, not a test." />
 
-      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        <div>
-          {!done ? (
-            <>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-8">
-                <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question {index + 1} of {DISCUSSION_QUESTIONS.length}</div>
-                <div className="mt-3 font-serif text-[22px] leading-snug tracking-tight text-neutral-900">{question}</div>
-                <textarea
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  rows={5}
-                  placeholder="Speak or type your answer…"
-                  className="mt-6 w-full resize-none rounded-lg border border-neutral-200 bg-white p-4 text-[14px] leading-relaxed text-neutral-900 outline-none focus:border-neutral-900"
-                />
-                <div className="mt-4 flex items-center justify-between">
-                  <button onClick={onEnd} className="text-[12px] text-neutral-500 hover:text-neutral-900">End discussion early</button>
-                  <button onClick={onSubmit} disabled={!draft.trim()} className="rounded-md bg-neutral-900 px-4 py-2 text-[13px] text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-                    {index === DISCUSSION_QUESTIONS.length - 1 ? "Submit final answer" : "Next question"}
-                  </button>
-                </div>
-              </div>
 
-              {responses.length > 0 && (
-                <div className="mt-8">
-                  <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Transcript</div>
-                  <div className="mt-3 space-y-4">
-                    {responses.map((r, i) => (
-                      <div key={i} className="rounded-lg border border-neutral-200 bg-white/60 p-4">
-                        <div className="text-[11px] text-neutral-500">Q{i + 1} · {DISCUSSION_QUESTIONS[i]}</div>
-                        <div className="mt-2 text-[13px] leading-relaxed text-neutral-800">{r}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center">
-              <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l3.5 3.5L16 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </div>
-              <div className="mt-4 font-serif text-[24px] tracking-tight text-neutral-900">Discussion complete</div>
-              <div className="mt-2 text-[13px] text-neutral-500">Nice work. Submit to generate your report.</div>
-              <button onClick={onFinish} className="mt-6 rounded-lg bg-neutral-900 px-5 py-2.5 text-[13px] text-white hover:bg-neutral-800">Submit evaluation</button>
-            </div>
-          )}
-        </div>
-
-        <aside className="space-y-4">
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-950 aspect-video grid place-items-center text-[11px] text-neutral-400">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" /> Camera active
-            </div>
-          </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-4 text-[12px] text-neutral-600">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">How this works</div>
-            <p className="mt-2 leading-relaxed">Questions are generated from the work you did in Sections 1–3. Speak the way you'd speak to a colleague — clarity beats jargon.</p>
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Shared
-// ────────────────────────────────────────────────────────────────────────────
 
 function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
   return (

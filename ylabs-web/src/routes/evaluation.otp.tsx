@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton } from "@/components/evaluation/EvalShell";
 import { evaluationService } from "../services/evaluationService";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { authService } from "../services/authService";
 
 export const Route = createFileRoute("/evaluation/otp")({
   head: () => ({ meta: [{ title: "Verify — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -19,6 +20,7 @@ function OtpPage() {
   const searchParams = new URLSearchParams(window.location.search);
   const evaluationId = searchParams.get('e') || '';
   const email = (() => { try { return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").email; } catch { return ""; } })();
+  const title = (() => { try { return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").title || "Evaluation"; } catch { return "Evaluation"; } })();
 
   useEffect(() => {
     refs.current[0]?.focus();
@@ -59,7 +61,7 @@ function OtpPage() {
     try {
       const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp);
       if (verifyRes.access_token) {
-        restApiAuthUtil.setAuthToken(verifyRes.access_token);
+        authService.setAuthToken(verifyRes.access_token);
         
         await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token);
         
@@ -78,7 +80,7 @@ function OtpPage() {
     if (cooldown > 0) return;
     setErr(null);
     try {
-      await evaluationService.sendRegistrationOtp(evaluationId, email);
+      await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       setCooldown(30);
     } catch (error: any) {
       setErr(error?.message || "Failed to resend OTP.");
