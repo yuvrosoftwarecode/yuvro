@@ -872,8 +872,6 @@ export function TicketIDE({
     });
   }
 
-  const [labTitle, setLabTitle] = useState("");
-
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
     if (!isReal) return;
@@ -1257,7 +1255,7 @@ export function TicketIDE({
     setTicketScore({ passed: passedCount, total: ticket.tasks.length });
   };
 
-  function handleRun() {
+  async function handleRun() {
     setRunning(true);
     setBottomTab("output");
     const src = files[activeFile] ?? "";
