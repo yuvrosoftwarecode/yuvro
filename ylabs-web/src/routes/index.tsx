@@ -140,38 +140,15 @@ function useInView<T extends Element>(opts: IntersectionObserverInit = { thresho
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) {
-        setInView(true);
-        io.disconnect();
-      }
-    }, opts);
-    io.observe(el);
-    return () => io.disconnect();
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setInView(true); io.disconnect(); } }, opts);
+    io.observe(el); return () => io.disconnect();
   }, []);
   return { ref, inView };
 }
-function Reveal({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const { ref, inView } = useInView<HTMLDivElement>();
-  return (
-    <div
-      ref={ref}
-      className={`yvr-reveal ${inView ? "is-in" : ""} ${className}`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
+  return <div ref={ref} className={`yvr-reveal ${inView ? "is-in" : ""} ${className}`} style={{ animationDelay: `${delay}ms` }}>{children}</div>;
 }
 function CountUp({ to, duration = 1200 }: { to: number; duration?: number }) {
   const { ref, inView } = useInView<HTMLSpanElement>();
@@ -215,41 +192,24 @@ function LandingNav() {
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-neutral-200">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-600 via-blue-500 to-blue-600 text-white font-mono text-sm shadow-lg shadow-blue-500/30">
-            Y
+          <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
+            <img src="/logo.png" alt="Yuvro" className="h-full w-full object-contain" />
           </div>
           <span className="text-base">Yuvro Labs</span>
         </Link>
-        <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-          <a href="#labs" className="hover:text-foreground transition">
-            Labs
-          </a>
-          <a href="#process" className="hover:text-foreground transition">
-            How it works
-          </a>
-          <a href="#report" className="hover:text-foreground transition">
-            Report
-          </a>
-          <Link to="/auth" search={{ tab: "signin" }} className="hover:text-foreground transition">
-            Recruiter Login
-          </Link>
+        <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-[#6B6B6B]">
+          <a href="#labs" className="hover:text-[#0A0A0A] transition">Labs</a>
+          <a href="#process" className="hover:text-[#0A0A0A] transition">How it works</a>
+          <a href="#report" className="hover:text-[#0A0A0A] transition">Report</a>
+          <Link to="/recruiter-login" className="hover:text-[#0A0A0A] transition">Recruiter Login</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <Link
-            to="/auth"
-            search={{ tab: "signin" }}
-            className="text-sm text-muted-foreground hover:text-foreground transition"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/auth"
-            search={{ tab: "signup" }}
-            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 hover:shadow-blue-600/40 transition"
-          >
+          <Link to="/auth" search={{ tab: "signin" }} className="text-sm text-[#6B6B6B] hover:text-[#0A0A0A] transition">Sign In</Link>
+          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium text-white transition hover:brightness-95" style={{ background: "#F5A623" }}>
             Get Started <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+
       </div>
     </header>
   );
@@ -259,278 +219,64 @@ function LandingNav() {
    1 — HERO
    ================================================================ */
 function Hero() {
+  const logos = ["Acme", "Northwind", "Globex", "Initech", "Umbrella", "Hooli"];
   return (
-    <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6 pt-24 pb-28 lg:pt-28 lg:pb-32 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-16 items-center">
+    <section className="relative overflow-hidden border-b border-[#E8E6E1]">
+      <div className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:pt-16 lg:pb-24 text-center">
         <Reveal>
-          <div className="inline-flex items-center gap-2 font-mono text-[12px] font-medium tracking-[0.08em] uppercase text-[#6B6B6B]">
-            <span className="h-px w-8 bg-[#E8E6E1]" />
-            Engineering Capability Verification
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E6E1] bg-white px-3 py-1 font-mono text-[11px] font-medium tracking-[0.08em] uppercase text-[#6B6B6B]">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#F5A623" }} />
+            Engineering Capability Verification Platform
           </div>
-          <h1 className="mt-6 text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] font-bold">
-            Stop Hiring
-            <br />
-            <span className="text-[#6B6B6B]">Developers.</span>
-            <br />
-            Start Verifying
-            <br />
-            <span className="relative inline-block">
-              Engineers.
-              <span
-                className="absolute -bottom-1 left-0 right-0 h-[6px]"
-                style={{ background: "#F5A623" }}
-              />
+          <h1 className="mt-6 text-[52px] lg:text-[76px] leading-[1.02] tracking-[-0.025em] font-bold">
+            Hire engineers with<br />
+            <span className="inline-block">
+              verified capability.
             </span>
           </h1>
-          <p className="mt-8 max-w-xl text-[18px] leading-relaxed text-[#6B6B6B]">
-            Yuvro Labs evaluates real engineering capability using Engineering Simulation Labs,
-            Knowledge Assessments and Vitarka AI Interviews. Know how candidates think, debug,
-            collaborate and solve production problems — before making hiring decisions.
+          <p className="mx-auto mt-6 max-w-2xl text-[18px] leading-relaxed text-[#6B6B6B]">
+            Yuvro Labs replaces resumes and guesswork with evidence. Evaluate how candidates think, debug, collaborate and execute through Engineering Simulation Labs, Knowledge Assessments and Vitarka AI Interviews.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link
-              to="/auth"
-              search={{ tab: "signup" }}
-              className="inline-flex items-center gap-2 rounded-md bg-[#0A0A0A] px-5 py-3 text-[14px] font-medium text-white hover:bg-black transition"
-            >
-              Get Started <ArrowRight className="h-4 w-4" />
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md px-5 py-3 text-[14px] font-medium text-white transition hover:brightness-95" style={{ background: "#F5A623" }}>
+              Start Free Trial <ArrowRight className="h-4 w-4" />
             </Link>
-            <a
-              href="#process"
-              className="inline-flex items-center gap-2 rounded-md border border-[#E8E6E1] bg-transparent px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:border-[#0A0A0A] transition"
-            >
-              <Play className="h-3.5 w-3.5" /> Book Demo
+            <a href="#process" className="inline-flex items-center gap-2 rounded-md border border-[#E8E6E1] bg-white px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:border-[#0A0A0A] transition">
+              <Play className="h-3.5 w-3.5" /> Book a Demo
             </a>
           </div>
-          <div className="mt-12 flex items-center gap-8 font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-            <span>Engineering Labs</span>
-            <span className="h-1 w-1 rounded-full bg-[#E8E6E1]" />
-            <span>Knowledge Assessment</span>
-            <span className="h-1 w-1 rounded-full bg-[#E8E6E1]" />
-            <span>Vitarka AI</span>
-          </div>
-        </Reveal>
-
-        <Reveal delay={120}>
-          <HeroWorkspace />
         </Reveal>
       </div>
     </section>
   );
 }
 
-function HeroWorkspace() {
-  return (
-    <div className="relative">
-      <div className="absolute -inset-8 -z-10 opacity-[0.35] [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]">
-        <div className="h-full w-full bg-[linear-gradient(to_right,rgb(0_0_0/0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgb(0_0_0/0.06)_1px,transparent_1px)] bg-[size:24px_24px]" />
-      </div>
 
-      {/* OS-window chrome — border + subtle inner top highlight, no shadow */}
-      <div
-        className="relative rounded-[4px] border border-[#E8E6E1] bg-white"
-        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}
-      >
-        <div className="flex items-center justify-between border-b border-[#E8E6E1] px-4 py-2.5">
-          <div className="flex items-center gap-2 font-mono text-[12px] text-[#6B6B6B]">
-            <div className="flex gap-1">
-              <div className="h-2 w-2 rounded-full bg-[#E8E6E1]" />
-              <div className="h-2 w-2 rounded-full bg-[#E8E6E1]" />
-              <div className="h-2 w-2 rounded-full bg-[#E8E6E1]" />
-            </div>
-            <span className="ml-2 uppercase tracking-[0.08em]">evaluation / EVAL-2847</span>
-          </div>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-[#0A0A0A]">
-            <span
-              className="h-1.5 w-1.5 rounded-full yvr-pulse"
-              style={{ background: "#F5A623" }}
-            />
-            LIVE
-          </span>
-        </div>
-
-        <div className="grid grid-cols-[1fr_1.4fr]">
-          {/* Stages */}
-          <div
-            className="border-r border-[#E8E6E1] p-4 space-y-3"
-            style={{ background: "#FAFAF8" }}
-          >
-            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-2">
-              Stages
-            </div>
-            {[
-              { t: "Engineering Labs", s: "PASSED", v: 92, d: true, active: false },
-              { t: "Knowledge Assessment", s: "PASSED", v: 84, d: true, active: false },
-              { t: "Vitarka AI Interview", s: "IN REVIEW", v: 76, d: false, active: true },
-              { t: "Recruiter Evaluation", s: "PENDING", v: 0, d: false, active: false },
-            ].map((r, i) => (
-              <Reveal key={i} delay={i * 60}>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[13px] font-medium text-[#0A0A0A]">
-                      <span
-                        className={`grid h-4 w-4 place-items-center rounded-full border ${r.d ? "border-[#0A0A0A] bg-[#0A0A0A]" : r.active ? "border-[#F5A623] bg-white" : "border-[#E8E6E1] bg-white"}`}
-                      >
-                        {r.d ? (
-                          <Check className="h-2.5 w-2.5 text-white" />
-                        ) : r.active ? (
-                          <span
-                            className="h-1.5 w-1.5 rounded-full"
-                            style={{ background: "#F5A623" }}
-                          />
-                        ) : (
-                          <Circle className="h-1.5 w-1.5 fill-[#E8E6E1] text-[#E8E6E1]" />
-                        )}
-                      </span>
-                      {r.t}
-                      {r.active && <span className="yvr-caret font-mono text-[#F5A623]">▍</span>}
-                    </div>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                      {r.s}
-                    </span>
-                  </div>
-                  <div className="mt-2 ml-6 h-[3px] rounded-full bg-[#E8E6E1] overflow-hidden">
-                    <div className="h-full bg-[#0A0A0A]" style={{ width: `${r.v}%` }} />
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* ECI + activity */}
-          <div className="p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                  Engineering Capability Index
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-[52px] leading-none font-semibold tracking-tight">
-                    <CountUp to={84} />
-                  </span>
-                  <span className="font-mono text-[12px] text-[#6B6B6B]">/ 100</span>
-                </div>
-                <div className="mt-3 h-[6px] w-40 rounded-full bg-[#E8E6E1] overflow-hidden">
-                  <div className="h-full" style={{ width: "84%", background: "#F5A623" }} />
-                </div>
-                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#E8E6E1] px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[#0A0A0A]">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#1A8F5C" }} />{" "}
-                  Strong Fit
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {[92, 84, 76, 88, 71, 90].map((v, i) => (
-                  <div
-                    key={i}
-                    className="h-8 w-8 rounded-[4px] border border-[#E8E6E1] grid place-items-center font-mono text-[11px] text-[#0A0A0A]"
-                  >
-                    {v}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5 border-t border-[#E8E6E1] pt-4">
-              <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">
-                Recent Signals
-              </div>
-              <div className="space-y-2.5 text-[13px]">
-                <Signal
-                  icon={<GitPullRequest className="h-3 w-3" />}
-                  label="Fixed payment webhook race condition"
-                  meta="LAB · DEBUGGING"
-                />
-                <Signal
-                  icon={<Terminal className="h-3 w-3" />}
-                  label="Explained JWT rotation trade-offs"
-                  meta="VITARKA · 4M CLIP"
-                />
-                <Signal
-                  icon={<Database className="h-3 w-3" />}
-                  label="Optimized N+1 query (−340ms)"
-                  meta="LAB · PERFORMANCE"
-                />
-                <Signal
-                  icon={<Bug className="h-3 w-3" />}
-                  label="Identified missing idempotency key"
-                  meta="LAB · INCIDENT"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating recommendation — border only, no drop shadow */}
-      <div className="absolute -bottom-5 -left-5 rotate-[-2deg] rounded-[4px] border border-[#E8E6E1] bg-white px-3 py-2">
-        <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6B6B6B]">
-          Recommendation
-        </div>
-        <div className="text-[13px] font-semibold text-[#0A0A0A]">Shortlist for onsite</div>
-      </div>
-    </div>
-  );
-}
-
-function Signal({ icon, label, meta }: { icon: React.ReactNode; label: string; meta: string }) {
-  return (
-    <div className="flex items-start gap-2.5">
-      <div className="mt-0.5 grid h-5 w-5 place-items-center rounded-[4px] border border-[#E8E6E1] bg-white text-[#6B6B6B]">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[#0A0A0A] truncate">{label}</div>
-        <div className="font-mono text-[10px] tracking-[0.08em] text-[#6B6B6B]">{meta}</div>
-      </div>
-    </div>
-  );
-}
 
 /* ================================================================
    2 — Traditional vs Yuvro Labs
    ================================================================ */
 function VersusSection() {
   const traditional = ["Resume", "MCQ", "Interview", "Guesswork", "Hire"];
-  const yuvro = [
-    "Engineering Labs",
-    "Knowledge Assessment",
-    "Vitarka AI",
-    "Engineering Capability Index",
-    "Evidence Based Hiring",
-  ];
+  const yuvro = ["Engineering Labs", "Knowledge Assessment", "Vitarka AI", "Engineering Capability Index", "Evidence Based Hiring"];
   return (
     <section className="border-t border-[#E8E6E1]">
       <div className="mx-auto max-w-7xl px-6 py-[120px]">
         <Reveal>
           <SectionGlyph />
-          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-            The Shift
-          </div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">The Shift</div>
           <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
-            Recruiters don't hire resumes.
-            <br />
+            Recruiters don't hire resumes.<br />
             <span className="text-[#6B6B6B]">They hire engineering capability.</span>
           </h2>
         </Reveal>
 
         <div className="mt-16 grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-10 lg:gap-16">
           <Reveal>
-            <FlowColumn
-              eyebrow="Traditional Hiring"
-              tone="muted"
-              steps={traditional}
-              trailingIcon={<X className="h-3.5 w-3.5" />}
-              trailingLabel="Guesswork based"
-            />
+            <FlowColumn eyebrow="Traditional Hiring" tone="muted" steps={traditional} trailingIcon={<X className="h-3.5 w-3.5" />} trailingLabel="Guesswork based" />
           </Reveal>
           <Reveal delay={120}>
-            <FlowColumn
-              eyebrow="Yuvro Labs"
-              tone="brand"
-              steps={yuvro}
-              trailingIcon={<Check className="h-3.5 w-3.5" />}
-              trailingLabel="Evidence based"
-            />
+            <FlowColumn eyebrow="Yuvro Labs" tone="brand" steps={yuvro} trailingIcon={<Check className="h-3.5 w-3.5" />} trailingLabel="Evidence based" />
           </Reveal>
         </div>
       </div>
@@ -538,33 +284,13 @@ function VersusSection() {
   );
 }
 
-function FlowColumn({
-  eyebrow,
-  tone,
-  steps,
-  trailingIcon,
-  trailingLabel,
-}: {
-  eyebrow: string;
-  tone: "muted" | "brand";
-  steps: string[];
-  trailingIcon: React.ReactNode;
-  trailingLabel: string;
-}) {
+function FlowColumn({ eyebrow, tone, steps, trailingIcon, trailingLabel }: { eyebrow: string; tone: "muted" | "brand"; steps: string[]; trailingIcon: React.ReactNode; trailingLabel: string }) {
   const brand = tone === "brand";
   return (
-    <div
-      className={`relative rounded-[12px] p-8 border ${brand ? "bg-white border-[#0A0A0A]" : "bg-transparent border-dashed border-[#E8E6E1]"}`}
-      style={brand ? {} : { opacity: 0.85 }}
-    >
+    <div className={`relative rounded-[12px] p-8 border ${brand ? "bg-white border-[#0A0A0A]" : "bg-transparent border-dashed border-[#E8E6E1]"}`} style={brand ? {} : { opacity: 0.85 }}>
       <div className="flex items-center justify-between">
-        <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-          {eyebrow}
-        </div>
-        <div
-          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] ${brand ? "text-[#0A0A0A]" : "bg-transparent text-[#6B6B6B] border border-[#E8E6E1]"}`}
-          style={brand ? { background: "#F5A623", color: "#0A0A0A" } : {}}
-        >
+        <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">{eyebrow}</div>
+        <div className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] ${brand ? "text-[#0A0A0A]" : "bg-transparent text-[#6B6B6B] border border-[#E8E6E1]"}`} style={brand ? { background: "#F5A623", color: "#0A0A0A" } : {}}>
           {trailingIcon}
           {trailingLabel}
         </div>
@@ -573,21 +299,12 @@ function FlowColumn({
         {steps.map((s, i) => (
           <Reveal key={s} delay={i * 60}>
             <div className="flex items-center gap-4 py-3">
-              <span
-                className={`grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] ${brand ? "bg-[#0A0A0A] text-white" : "border border-[#E8E6E1] bg-transparent text-[#6B6B6B]"}`}
-              >
+              <span className={`grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] ${brand ? "bg-[#0A0A0A] text-white" : "border border-[#E8E6E1] bg-transparent text-[#6B6B6B]"}`}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span
-                className={`text-[16px] tracking-tight ${brand ? "text-[#0A0A0A] font-medium" : "text-[#6B6B6B] line-through decoration-[#E8E6E1]"}`}
-                style={brand ? {} : { opacity: 0.75 }}
-              >
-                {s}
-              </span>
+              <span className={`text-[16px] tracking-tight ${brand ? "text-[#0A0A0A] font-medium" : "text-[#6B6B6B] line-through decoration-[#E8E6E1]"}`} style={brand ? {} : { opacity: 0.75 }}>{s}</span>
             </div>
-            {i < steps.length - 1 && (
-              <div className="ml-4 h-4 border-l border-dashed border-[#E8E6E1]" />
-            )}
+            {i < steps.length - 1 && <div className="ml-4 h-4 border-l border-dashed border-[#E8E6E1]" />}
           </Reveal>
         ))}
       </div>
@@ -600,43 +317,24 @@ function FlowColumn({
    ================================================================ */
 function ReportSplit() {
   const items = [
-    {
-      t: "Engineering Labs",
-      d: "Evaluate practical engineering capability through debugging, feature development, optimization and production-style tasks.",
-    },
-    {
-      t: "Knowledge Assessment",
-      d: "Measure conceptual understanding across programming languages, databases, frameworks and engineering fundamentals.",
-    },
-    {
-      t: "Vitarka AI Interview",
-      d: "Understand communication, reasoning, architecture decisions and technical depth through adaptive AI conversations.",
-    },
-    {
-      t: "Engineering Capability Index",
-      d: "One unified engineering score backed by practical evidence.",
-    },
+    { t: "Engineering Labs", d: "Evaluate practical engineering capability through debugging, feature development, optimization and production-style tasks." },
+    { t: "Knowledge Assessment", d: "Measure conceptual understanding across programming languages, databases, frameworks and engineering fundamentals." },
+    { t: "Vitarka AI Interview", d: "Understand communication, reasoning, architecture decisions and technical depth through adaptive AI conversations." },
+    { t: "Engineering Capability Index", d: "One unified engineering score backed by practical evidence." },
     { t: "Recruiter Report", d: "Everything available in one downloadable, shareable report." },
   ];
   return (
     <section id="report" className="border-t border-[#E8E6E1]">
       <div className="mx-auto max-w-7xl px-6 py-[120px] grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-16">
-        <Reveal>
-          <MiniReportPreview />
-        </Reveal>
+        <Reveal><MiniReportPreview /></Reveal>
         <Reveal delay={120}>
           <SectionGlyph />
-          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-            The Recruiter Report
-          </div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">The Recruiter Report</div>
           <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
-            Everything recruiters
-            <br />
-            actually need.
+            Everything recruiters<br />actually need.
           </h2>
           <p className="mt-5 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
-            One report. Four layers of evidence. Zero guesswork. Every claim traceable back to a
-            real engineering artifact.
+            One report. Four layers of evidence. Zero guesswork. Every claim traceable back to a real engineering artifact.
           </p>
           <div className="mt-10 divide-y divide-[#E8E6E1] border-y border-[#E8E6E1]">
             {items.map((it, i) => (
@@ -661,12 +359,8 @@ function MiniReportPreview() {
       <div className="rounded-[4px] border border-[#E8E6E1] bg-white overflow-hidden">
         <div className="border-b border-[#E8E6E1] px-6 py-5 flex items-center justify-between">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Candidate Report · CR-2847
-            </div>
-            <div className="mt-1 text-[18px] font-semibold tracking-tight">
-              Priya Nair — Senior Backend Engineer
-            </div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Candidate Report · CR-2847</div>
+            <div className="mt-1 text-[18px] font-semibold tracking-tight">Priya Nair — Senior Backend Engineer</div>
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-[4px] border border-[#E8E6E1] px-2 py-1 font-mono text-[11px] text-[#6B6B6B]">
             <Download className="h-3 w-3" /> PDF
@@ -677,14 +371,10 @@ function MiniReportPreview() {
             { k: "Labs", v: 92 },
             { k: "Assessment", v: 84 },
             { k: "Vitarka", v: 76 },
-          ].map((x) => (
+          ].map(x => (
             <div key={x.k} className="px-6 py-5">
-              <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                {x.k}
-              </div>
-              <div className="mt-1 text-[28px] font-semibold tracking-tight font-mono">
-                <CountUp to={x.v} />
-              </div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">{x.k}</div>
+              <div className="mt-1 text-[28px] font-semibold tracking-tight font-mono"><CountUp to={x.v} /></div>
               <div className="mt-2 h-[3px] rounded-full bg-[#E8E6E1] overflow-hidden">
                 <div className="h-full bg-[#0A0A0A]" style={{ width: `${x.v}%` }} />
               </div>
@@ -693,15 +383,11 @@ function MiniReportPreview() {
         </div>
         <div className="px-6 py-5">
           <div className="flex items-center justify-between">
-            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Engineering Capability Index
-            </div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Engineering Capability Index</div>
             <div className="font-mono text-[11px] text-[#6B6B6B]">weighted composite</div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-[56px] leading-none font-semibold tracking-tight">
-              <CountUp to={84} />
-            </span>
+            <span className="text-[56px] leading-none font-semibold tracking-tight"><CountUp to={84} /></span>
             <span className="font-mono text-[12px] text-[#6B6B6B]">/ 100 · STRONG FIT</span>
           </div>
           <div className="mt-4 h-[6px] rounded-full bg-[#E8E6E1] overflow-hidden">
@@ -710,41 +396,19 @@ function MiniReportPreview() {
         </div>
         <div className="border-t border-[#E8E6E1] px-6 py-4 grid grid-cols-2 gap-4">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Strengths
-            </div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Strengths</div>
             <ul className="mt-2 space-y-1.5 text-[12px] text-[#0A0A0A]">
-              {[
-                "Systems debugging under time pressure",
-                "API design & idempotency reasoning",
-                "Clear technical communication",
-              ].map((s) => (
-                <li key={s} className="flex items-start gap-2">
-                  <span
-                    className="mt-1.5 h-2 w-2 rounded-full shrink-0"
-                    style={{ background: "#1A8F5C" }}
-                  />
-                  <span>{s}</span>
-                </li>
+              {["Systems debugging under time pressure", "API design & idempotency reasoning", "Clear technical communication"].map(s => (
+                <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0" style={{ background: "#1A8F5C" }} /><span>{s}</span></li>
               ))}
             </ul>
           </div>
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Gaps
-            </div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Gaps</div>
             <ul className="mt-2 space-y-1.5 text-[12px] text-[#0A0A0A]">
-              {["Distributed cache invalidation depth", "Cost/perf trade-off articulation"].map(
-                (s) => (
-                  <li key={s} className="flex items-start gap-2">
-                    <span
-                      className="mt-1.5 h-2 w-2 rounded-full shrink-0 border"
-                      style={{ borderColor: "#F5A623" }}
-                    />
-                    <span>{s}</span>
-                  </li>
-                ),
-              )}
+              {["Distributed cache invalidation depth", "Cost/perf trade-off articulation"].map(s => (
+                <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0 border" style={{ borderColor: "#F5A623" }} /><span>{s}</span></li>
+              ))}
             </ul>
           </div>
         </div>
@@ -757,15 +421,7 @@ function MiniReportPreview() {
    4 — Inside Every Evaluation (dark flow)
    ================================================================ */
 function EvaluationFlow() {
-  const nodes = [
-    "Invite Candidate",
-    "Engineering Labs",
-    "Knowledge Assessment",
-    "Vitarka AI Interview",
-    "AI Evaluation",
-    "Engineering Capability Report",
-    "Recruiter Decision",
-  ];
+  const nodes = ["Invite Candidate", "Engineering Labs", "Knowledge Assessment", "Vitarka AI Interview", "AI Evaluation", "Engineering Capability Report", "Recruiter Decision"];
   const { ref, inView } = useInView<SVGSVGElement>();
   return (
     <section className="border-t border-[#E8E6E1] text-white" style={{ background: "#0A0A0A" }}>
@@ -780,49 +436,28 @@ function EvaluationFlow() {
               <line x1="34" y1="7" x2="40" y2="12" stroke="currentColor" strokeWidth="1" />
             </svg>
           </div>
-          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">
-            Inside Every Evaluation
-          </div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">Inside Every Evaluation</div>
           <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold text-white">
-            A single connected flow.
-            <br />
+            A single connected flow.<br />
             <span className="text-neutral-500">Every step produces evidence.</span>
           </h2>
         </Reveal>
 
         <div className="mt-16 relative">
           {/* Animated connecting line */}
-          <svg
-            ref={ref}
-            className={`absolute left-0 right-0 top-6 h-px hidden md:block yvr-line ${inView ? "is-in" : ""}`}
-            viewBox="0 0 1200 1"
-            preserveAspectRatio="none"
-            style={{ width: "100%" }}
-          >
+          <svg ref={ref} className={`absolute left-0 right-0 top-6 h-px hidden md:block yvr-line ${inView ? "is-in" : ""}`} viewBox="0 0 1200 1" preserveAspectRatio="none" style={{ width: "100%" }}>
             <line x1="0" y1="0.5" x2="1200" y2="0.5" stroke="#3f3f3f" strokeWidth="1" />
           </svg>
           <div className="grid md:grid-cols-7 gap-6 md:gap-0">
             {nodes.map((n, i) => (
               <Reveal key={n} delay={i * 60}>
                 <div className="relative flex md:flex-col items-center md:items-start gap-4 md:gap-3">
-                  <div
-                    className={`relative z-10 grid h-12 w-12 shrink-0 place-items-center rounded-full border ${i === 3 ? "border-[#F5A623] bg-[#0A0A0A]" : "border-neutral-700 bg-[#0A0A0A]"}`}
-                  >
-                    {i === 3 ? (
-                      <span className="h-2 w-2 rounded-full" style={{ background: "#F5A623" }} />
-                    ) : (
-                      <span className="font-mono text-[11px] text-neutral-400">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                    )}
+                  <div className={`relative z-10 grid h-12 w-12 shrink-0 place-items-center rounded-full border ${i === 3 ? "border-[#F5A623] bg-[#0A0A0A]" : "border-neutral-700 bg-[#0A0A0A]"}`}>
+                    {i === 3 ? <span className="h-2 w-2 rounded-full" style={{ background: "#F5A623" }} /> : <span className="font-mono text-[11px] text-neutral-400">{String(i + 1).padStart(2, "0")}</span>}
                   </div>
                   <div>
-                    <div className="text-[13px] font-medium tracking-tight text-white leading-tight max-w-[130px]">
-                      {n}
-                    </div>
-                    <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">
-                      STAGE
-                    </div>
+                    <div className="text-[13px] font-medium tracking-tight text-white leading-tight max-w-[130px]">{n}</div>
+                    <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">STAGE</div>
                   </div>
                 </div>
               </Reveal>
@@ -839,78 +474,15 @@ function EvaluationFlow() {
    ================================================================ */
 function SimulationLabs() {
   const tasks = [
-    {
-      id: "PAY-142",
-      t: "Broken Payment API",
-      diff: "Hard",
-      time: "45m",
-      domain: "FinTech",
-      skills: ["Debugging", "Idempotency", "Webhooks"],
-    },
-    {
-      id: "API-089",
-      t: "REST API Development",
-      diff: "Mid",
-      time: "60m",
-      domain: "SaaS",
-      skills: ["Design", "REST", "Validation"],
-    },
-    {
-      id: "SQL-217",
-      t: "SQL Query Optimization",
-      diff: "Mid",
-      time: "30m",
-      domain: "Data",
-      skills: ["Indexing", "Query plans"],
-    },
-    {
-      id: "BOOT-058",
-      t: "Spring Boot Debugging",
-      diff: "Hard",
-      time: "50m",
-      domain: "Enterprise",
-      skills: ["JVM", "Spring", "Traces"],
-    },
-    {
-      id: "RCT-311",
-      t: "React Performance Issue",
-      diff: "Mid",
-      time: "40m",
-      domain: "Consumer",
-      skills: ["Rendering", "Memoization"],
-    },
-    {
-      id: "MS-402",
-      t: "Microservice Failure",
-      diff: "Hard",
-      time: "55m",
-      domain: "Platform",
-      skills: ["Retries", "Circuit breakers"],
-    },
-    {
-      id: "AUTH-076",
-      t: "Authentication Flow",
-      diff: "Mid",
-      time: "35m",
-      domain: "Security",
-      skills: ["JWT", "OAuth", "Sessions"],
-    },
-    {
-      id: "CACHE-129",
-      t: "Redis Cache Issue",
-      diff: "Easy",
-      time: "30m",
-      domain: "Backend",
-      skills: ["Caching", "TTL"],
-    },
-    {
-      id: "MQ-215",
-      t: "Message Queue Processing",
-      diff: "Hard",
-      time: "50m",
-      domain: "Distributed",
-      skills: ["Kafka", "Ordering", "DLQ"],
-    },
+    { id: "PAY-142", t: "Broken Payment API", diff: "Hard", time: "45m", domain: "FinTech", skills: ["Debugging", "Idempotency", "Webhooks"] },
+    { id: "API-089", t: "REST API Development", diff: "Mid", time: "60m", domain: "SaaS", skills: ["Design", "REST", "Validation"] },
+    { id: "SQL-217", t: "SQL Query Optimization", diff: "Mid", time: "30m", domain: "Data", skills: ["Indexing", "Query plans"] },
+    { id: "BOOT-058", t: "Spring Boot Debugging", diff: "Hard", time: "50m", domain: "Enterprise", skills: ["JVM", "Spring", "Traces"] },
+    { id: "RCT-311", t: "React Performance Issue", diff: "Mid", time: "40m", domain: "Consumer", skills: ["Rendering", "Memoization"] },
+    { id: "MS-402", t: "Microservice Failure", diff: "Hard", time: "55m", domain: "Platform", skills: ["Retries", "Circuit breakers"] },
+    { id: "AUTH-076", t: "Authentication Flow", diff: "Mid", time: "35m", domain: "Security", skills: ["JWT", "OAuth", "Sessions"] },
+    { id: "CACHE-129", t: "Redis Cache Issue", diff: "Easy", time: "30m", domain: "Backend", skills: ["Caching", "TTL"] },
+    { id: "MQ-215", t: "Message Queue Processing", diff: "Hard", time: "50m", domain: "Distributed", skills: ["Kafka", "Ordering", "DLQ"] },
   ];
   return (
     <section id="labs" className="border-t border-[#E8E6E1]">
@@ -919,12 +491,9 @@ function SimulationLabs() {
           <div className="flex items-end justify-between gap-8 flex-wrap">
             <div className="max-w-2xl">
               <SectionGlyph />
-              <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                Engineering Simulation Labs
-              </div>
+              <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Engineering Simulation Labs</div>
               <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
-                Real engineering tickets.
-                <br />
+                Real engineering tickets.<br />
                 <span className="text-[#6B6B6B]">Not toy problems.</span>
               </h2>
             </div>
@@ -935,10 +504,7 @@ function SimulationLabs() {
         </Reveal>
 
         <div className="mt-12 rounded-[4px] border border-[#E8E6E1] overflow-hidden bg-white">
-          <div
-            className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 border-b border-[#E8E6E1] px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]"
-            style={{ background: "#FAFAF8" }}
-          >
+          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 border-b border-[#E8E6E1] px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]" style={{ background: "#FAFAF8" }}>
             <div className="w-20">ID</div>
             <div>Task</div>
             <div>Domain</div>
@@ -947,9 +513,7 @@ function SimulationLabs() {
           </div>
           {tasks.map((task, i) => (
             <Reveal key={task.id} delay={i * 40}>
-              <div
-                className={`yvr-row grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 px-5 py-4 ${i < tasks.length - 1 ? "border-b border-[#E8E6E1]" : ""}`}
-              >
+              <div className={`yvr-row grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 px-5 py-4 ${i < tasks.length - 1 ? "border-b border-[#E8E6E1]" : ""}`}>
                 <div className="font-mono text-[11px] text-[#6B6B6B] w-20">{task.id}</div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -957,37 +521,24 @@ function SimulationLabs() {
                     <span className="text-[15px] font-medium tracking-tight">{task.t}</span>
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {task.skills.map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-sm border border-[#E8E6E1] px-1.5 py-0.5 font-mono text-[10px] text-[#6B6B6B]"
-                      >
-                        {s}
-                      </span>
+                    {task.skills.map(s => (
+                      <span key={s} className="rounded-sm border border-[#E8E6E1] px-1.5 py-0.5 font-mono text-[10px] text-[#6B6B6B]">{s}</span>
                     ))}
                   </div>
                 </div>
                 <div className="text-[12px] text-[#6B6B6B]">{task.domain}</div>
                 <div>
                   {task.diff === "Hard" && (
-                    <span className="inline-flex items-center rounded-full bg-[#0A0A0A] text-white px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">
-                      Hard
-                    </span>
+                    <span className="inline-flex items-center rounded-full bg-[#0A0A0A] text-white px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">Hard</span>
                   )}
                   {task.diff === "Mid" && (
-                    <span className="inline-flex items-center rounded-full border border-[#0A0A0A] text-[#0A0A0A] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">
-                      Mid
-                    </span>
+                    <span className="inline-flex items-center rounded-full border border-[#0A0A0A] text-[#0A0A0A] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">Mid</span>
                   )}
                   {task.diff === "Easy" && (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                      Easy
-                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#6B6B6B]">Easy</span>
                   )}
                 </div>
-                <div className="font-mono text-[11px] text-[#6B6B6B] w-12 text-right">
-                  {task.time}
-                </div>
+                <div className="font-mono text-[11px] text-[#6B6B6B] w-12 text-right">{task.time}</div>
               </div>
             </Reveal>
           ))}
@@ -1002,30 +553,19 @@ function SimulationLabs() {
    ================================================================ */
 function CapabilityMetrics() {
   const metrics = [
-    { t: "Debugging", v: 92 },
-    { t: "Problem Solving", v: 88 },
-    { t: "Architecture", v: 74 },
-    { t: "API Development", v: 90 },
-    { t: "Database Design", v: 71 },
-    { t: "Performance Optimization", v: 82 },
-    { t: "System Thinking", v: 78 },
-    { t: "Communication", v: 85 },
-    { t: "Collaboration", v: 80 },
-    { t: "Code Quality", v: 87 },
-    { t: "Learning Ability", v: 76 },
-    { t: "Engineering Ownership", v: 89 },
+    { t: "Debugging", v: 92 }, { t: "Problem Solving", v: 88 }, { t: "Architecture", v: 74 },
+    { t: "API Development", v: 90 }, { t: "Database Design", v: 71 }, { t: "Performance Optimization", v: 82 },
+    { t: "System Thinking", v: 78 }, { t: "Communication", v: 85 }, { t: "Collaboration", v: 80 },
+    { t: "Code Quality", v: 87 }, { t: "Learning Ability", v: 76 }, { t: "Engineering Ownership", v: 89 },
   ];
   return (
     <section className="border-t border-[#E8E6E1]">
       <div className="mx-auto max-w-7xl px-6 py-[120px]">
         <Reveal>
           <SectionGlyph />
-          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-            What we measure
-          </div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">What we measure</div>
           <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
-            Twelve engineering dimensions.
-            <br />
+            Twelve engineering dimensions.<br />
             <span className="text-[#6B6B6B]">Measured as evidence, not opinion.</span>
           </h2>
         </Reveal>
@@ -1034,9 +574,7 @@ function CapabilityMetrics() {
           {metrics.map((m, i) => (
             <Reveal key={m.t} delay={i * 40}>
               <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 border-b border-[#E8E6E1]">
-                <div className="font-mono text-[11px] text-[#6B6B6B] w-6">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
+                <div className="font-mono text-[11px] text-[#6B6B6B] w-6">{String(i + 1).padStart(2, "0")}</div>
                 <div className="text-[14px] tracking-tight font-medium">{m.t}</div>
                 <div className="w-40 h-[3px] rounded-full bg-[#E8E6E1] overflow-hidden">
                   <div className="h-full bg-[#0A0A0A]" style={{ width: `${m.v}%` }} />
@@ -1061,12 +599,9 @@ function ReportPreview() {
         <Reveal>
           <div className="max-w-2xl mb-14">
             <SectionGlyph />
-            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Candidate Evaluation Report
-            </div>
+            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Candidate Evaluation Report</div>
             <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
-              One report.
-              <br />
+              One report.<br />
               <span className="text-[#6B6B6B]">Every piece of evidence.</span>
             </h2>
           </div>
@@ -1076,13 +611,9 @@ function ReportPreview() {
           <div className="rounded-[4px] border border-[#E8E6E1] bg-white overflow-hidden">
             <div className="border-b border-[#E8E6E1] px-8 py-6 flex items-start justify-between">
               <div>
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                  Report · CR-2847 · Confidential
-                </div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Report · CR-2847 · Confidential</div>
                 <div className="mt-2 text-[22px] font-semibold tracking-tight">Priya Nair</div>
-                <div className="text-[13px] text-[#6B6B6B]">
-                  Senior Backend Engineer · Evaluated for FinTech Platform Team
-                </div>
+                <div className="text-[13px] text-[#6B6B6B]">Senior Backend Engineer · Evaluated for FinTech Platform Team</div>
               </div>
               <button className="inline-flex items-center gap-1.5 rounded-[4px] bg-[#0A0A0A] text-white px-3 py-1.5 text-[12px] hover:bg-black transition">
                 <Download className="h-3.5 w-3.5" /> Download PDF
@@ -1095,14 +626,10 @@ function ReportPreview() {
                 { k: "Assessment", v: 84, sub: "42 of 50" },
                 { k: "Vitarka AI", v: 76, sub: "4 dimensions" },
                 { k: "ECI", v: 84, sub: "STRONG FIT" },
-              ].map((x) => (
+              ].map(x => (
                 <div key={x.k} className="p-6">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                    {x.k}
-                  </div>
-                  <div className="mt-2 text-[36px] font-semibold tracking-tight font-mono">
-                    <CountUp to={x.v} />
-                  </div>
+                  <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">{x.k}</div>
+                  <div className="mt-2 text-[36px] font-semibold tracking-tight font-mono"><CountUp to={x.v} /></div>
                   <div className="font-mono text-[11px] text-[#6B6B6B]">{x.sub}</div>
                 </div>
               ))}
@@ -1110,13 +637,8 @@ function ReportPreview() {
 
             <div className="border-b border-[#E8E6E1] px-8 py-6 flex items-center justify-between gap-6">
               <div>
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-                  AI Recommendation
-                </div>
-                <div className="mt-1 text-[17px] font-medium tracking-tight">
-                  Shortlist for onsite. Strong debugging, thoughtful trade-offs, clean
-                  communication.
-                </div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">AI Recommendation</div>
+                <div className="mt-1 text-[17px] font-medium tracking-tight">Shortlist for onsite. Strong debugging, thoughtful trade-offs, clean communication.</div>
               </div>
               <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E8E6E1] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.08em]">
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#1A8F5C" }} />
@@ -1126,58 +648,27 @@ function ReportPreview() {
 
             <div className="grid md:grid-cols-3 divide-x divide-[#E8E6E1]">
               <div className="p-8">
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">
-                  Strengths
-                </div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Strengths</div>
                 <ul className="space-y-3 text-[13px]">
-                  {[
-                    "Debugged race condition in under 12 minutes",
-                    "Correctly identified missing idempotency key",
-                    "Explained JWT rotation trade-offs clearly",
-                    "Optimized N+1 query, cut latency by 340ms",
-                  ].map((s) => (
-                    <li key={s} className="flex gap-2 items-start">
-                      <span
-                        className="mt-1.5 h-2 w-2 rounded-full shrink-0"
-                        style={{ background: "#1A8F5C" }}
-                      />
-                      <span className="text-[#0A0A0A]">{s}</span>
-                    </li>
+                  {["Debugged race condition in under 12 minutes", "Correctly identified missing idempotency key", "Explained JWT rotation trade-offs clearly", "Optimized N+1 query, cut latency by 340ms"].map(s => (
+                    <li key={s} className="flex gap-2 items-start"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0" style={{ background: "#1A8F5C" }} /><span className="text-[#0A0A0A]">{s}</span></li>
                   ))}
                 </ul>
               </div>
               <div className="p-8">
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">
-                  Gaps
-                </div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Gaps</div>
                 <ul className="space-y-3 text-[13px]">
-                  {[
-                    "Distributed cache invalidation depth",
-                    "Cost/performance trade-off articulation",
-                    "Limited exposure to event sourcing",
-                  ].map((s) => (
-                    <li key={s} className="flex gap-2 items-start">
-                      <span
-                        className="mt-1.5 h-2 w-2 rounded-full shrink-0 border"
-                        style={{ borderColor: "#F5A623" }}
-                      />
-                      <span className="text-[#0A0A0A]">{s}</span>
-                    </li>
+                  {["Distributed cache invalidation depth", "Cost/performance trade-off articulation", "Limited exposure to event sourcing"].map(s => (
+                    <li key={s} className="flex gap-2 items-start"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0 border" style={{ borderColor: "#F5A623" }} /><span className="text-[#0A0A0A]">{s}</span></li>
                   ))}
                 </ul>
               </div>
               <div className="p-8" style={{ background: "#FAFAF8" }}>
-                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">
-                  Recruiter Notes
-                </div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Recruiter Notes</div>
                 <div className="rounded-[4px] border border-[#E8E6E1] bg-white p-3 text-[12px] text-[#0A0A0A] leading-relaxed">
-                  Rare candidate — actually reasons about failure modes. Recommend routing to
-                  platform team round with distributed systems focus. Pair with senior on cache
-                  design in first sprint.
+                  Rare candidate — actually reasons about failure modes. Recommend routing to platform team round with distributed systems focus. Pair with senior on cache design in first sprint.
                 </div>
-                <div className="mt-3 font-mono text-[10px] text-[#6B6B6B]">
-                  — M. Rao · Head of Engineering
-                </div>
+                <div className="mt-3 font-mono text-[10px] text-[#6B6B6B]">— M. Rao · Head of Engineering</div>
               </div>
             </div>
           </div>
@@ -1197,9 +688,7 @@ function ProcessStrip() {
       <div className="mx-auto max-w-5xl px-6 py-[120px]">
         <Reveal>
           <div className="text-center max-w-xl mx-auto">
-            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
-              Evaluation Process
-            </div>
+            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Evaluation Process</div>
             <h2 className="mt-3 text-[40px] leading-[1.05] tracking-[-0.02em] font-bold">
               Four steps. Zero guesswork.
             </h2>
@@ -1213,9 +702,7 @@ function ProcessStrip() {
                   <div className="font-mono text-[11px] text-[#6B6B6B]">0{i + 1}</div>
                   <div className="mt-2 text-[20px] tracking-tight font-medium">{s}</div>
                 </div>
-                {i < steps.length - 1 && (
-                  <ChevronRight className="h-4 w-4 text-[#E8E6E1] shrink-0" />
-                )}
+                {i < steps.length - 1 && <ChevronRight className="h-4 w-4 text-[#E8E6E1] shrink-0" />}
               </div>
             </Reveal>
           ))}
@@ -1233,32 +720,21 @@ function FinalCTA() {
     <section className="border-t border-[#E8E6E1] text-white" style={{ background: "#0A0A0A" }}>
       <div className="mx-auto max-w-6xl px-6 py-[120px] grid lg:grid-cols-[1.2fr_1fr] gap-12 items-end">
         <Reveal>
-          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">
-            The bottom line
-          </div>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">The bottom line</div>
           <h2 className="mt-4 text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] font-bold">
-            Hire Engineers.
-            <br />
+            Hire Engineers.<br />
             <span className="text-neutral-500">Not Interview Performers.</span>
           </h2>
         </Reveal>
         <Reveal delay={120}>
           <p className="text-[16px] text-neutral-300 leading-relaxed max-w-md">
-            Verify engineering capability before making hiring decisions. Bring evidence into every
-            hiring conversation.
+            Verify engineering capability before making hiring decisions. Bring evidence into every hiring conversation.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:bg-neutral-100 transition"
-            >
+            <a href="#" className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:bg-neutral-100 transition">
               Book Demo <ArrowUpRight className="h-4 w-4" />
             </a>
-            <Link
-              to="/auth"
-              search={{ tab: "signup" }}
-              className="inline-flex items-center gap-2 rounded-md border border-neutral-700 px-5 py-3 text-[14px] font-medium text-white hover:border-white transition"
-            >
+            <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md border border-neutral-700 px-5 py-3 text-[14px] font-medium text-white hover:border-white transition">
               Get Started
             </Link>
           </div>
@@ -1278,18 +754,10 @@ function Footer() {
           <span>© {new Date().getFullYear()} Yuvro Labs · Engineering Capability Verification</span>
         </div>
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-[#0A0A0A]">
-            Privacy
-          </a>
-          <a href="#" className="hover:text-[#0A0A0A]">
-            Terms
-          </a>
-          <a href="#" className="hover:text-[#0A0A0A]">
-            Security
-          </a>
-          <a href="#" className="hover:text-[#0A0A0A]">
-            Contact
-          </a>
+          <a href="#" className="hover:text-[#0A0A0A]">Privacy</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Terms</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Security</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Contact</a>
         </div>
       </div>
     </footer>
