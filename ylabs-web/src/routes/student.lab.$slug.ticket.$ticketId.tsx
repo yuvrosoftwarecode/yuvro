@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { EditorView } from "@codemirror/view";
+import { useTheme } from "@/hooks/use-theme";
 import {
   fetchFileTree,
   fetchFile,
@@ -13,6 +15,10 @@ import {
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
+import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
+import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
+import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
+import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -387,7 +393,7 @@ Open http://127.0.0.1:8000/ to use the app.
 
 /* ---------- Per-lab starter kits ---------- */
 
-type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash";
+type KitName = "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -549,6 +555,26 @@ Results appear in the bottom **Results** panel.
   },
 };
 
+const MYSQL_KIT_DEFAULT: Kit = {
+  name: "mysql", rootLabel: "mysql-lab", primary: "query.sql", runtime: "MySQL 8.x",
+  fileList: ["query.sql", "schema.sql", "README.md"],
+  files: {
+    "query.sql": `-- MySQL - write your query here and press Run\n\nSELECT * FROM customers;`,
+    "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
+    "README.md": `# MySQL Lab\n\nWrite SQL queries against the external database.\n`
+  }
+};
+
+const POSTGRES_KIT_DEFAULT: Kit = {
+  name: "postgresql", rootLabel: "postgres-lab", primary: "query.sql", runtime: "PostgreSQL 16",
+  fileList: ["query.sql", "schema.sql", "README.md"],
+  files: {
+    "query.sql": `-- PostgreSQL - write your query here and press Run\n\nSELECT * FROM customers;`,
+    "schema.sql": `-- Database Schema\n\nCREATE TABLE customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(255),\n  country VARCHAR(255),\n  signed_up_at DATE\n);\n`,
+    "README.md": `# PostgreSQL Lab\n\nWrite SQL queries against the external database.\n`
+  }
+};
+
 const MONGO_KIT_DEFAULT: Kit = {
   name: "mongo", rootLabel: "mongo-lab", primary: "query.js", runtime: "MongoDB 7 · mongosh",
   fileList: ["query.js", "seed.js", "README.md"],
@@ -591,73 +617,40 @@ Mongo shell-style queries. Edit \`query.js\` and press **Run** to see results.
 };
 
 const UI_KIT_DEFAULT: Kit = {
-  name: "ui", rootLabel: "ui-lab", primary: "index.html", runtime: "Static · HTML/CSS/JS",
-  fileList: ["index.html", "styles.css", "app.js", "README.md"],
+  name: "ui", rootLabel: "ui-lab", primary: "index.html", runtime: "Static · HTML/CSS",
+  fileList: ["index.html", "styles.css", "README.md"],
   files: {
     "index.html": `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UI Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Portfolio</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <a class="logo" href="#">◆ Acme</a>
-    <nav>
-      <a href="#">Product</a>
-      <a href="#">Pricing</a>
-      <a href="#">Docs</a>
-    </nav>
-    <button id="cta" class="cta">Get started</button>
-  </header>
-
-  <main>
-    <section class="hero">
-      <h1>Build pixel-perfect UI</h1>
-      <p>Compose components with Flexbox, Grid and modern CSS.</p>
-      <p>Clicks: <output id="count">0</output></p>
-    </section>
-  </main>
-
-  <script src="app.js"></script>
+  <!-- TODO: Build your portfolio here! -->
+  <h1>Hello World</h1>
 </body>
 </html>
 `,
-    "styles.css": `:root { --brand: #4f46e5; --ink: #111827; --muted: #6b7280; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; color: var(--ink); }
-
-.site-header {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.25rem; border-bottom: 1px solid #e5e7eb;
-}
-.site-header nav { display: flex; gap: 1rem; margin-left: 1rem; }
-.site-header nav a { color: var(--muted); text-decoration: none; }
-.site-header nav a:hover { color: var(--ink); }
-.logo { font-weight: 700; color: var(--brand); text-decoration: none; }
-.cta {
-  margin-left: auto; background: var(--brand); color: #fff;
-  border: 0; padding: .55rem 1rem; border-radius: .5rem; cursor: pointer;
+    "styles.css": `/* Starter styles — minimal reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.hero { max-width: 720px; margin: 4rem auto; padding: 0 1.25rem; text-align: center; }
-.hero h1 { font-size: 2.25rem; margin-bottom: .5rem; }
-.hero p  { color: var(--muted); margin: .25rem 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  color: #111827;
+}
 `,
-    "app.js": `const cta = document.getElementById("cta");
-const count = document.getElementById("count");
-let n = 0;
-cta.addEventListener("click", () => {
-  n += 1;
-  count.textContent = String(n);
-});
-`,
-    "README.md": `# UI Lab
+    "README.md": `# Frontend Portfolio Lab
 
-Edit \`index.html\`, \`styles.css\` and \`app.js\`. The **Preview** panel renders
-your code live (it re-runs whenever you save).
+Write your HTML in \`index.html\` and CSS in \`styles.css\`.
+Click **Run** to compare your code against the expected target design!
 `,
   },
 };
@@ -671,7 +664,16 @@ const LINUX_KIT_DEFAULT: Kit = {
   },
 };
 
-function getKit(slug: string, tag: string): Kit {
+const GIT_KIT_DEFAULT: Kit = {
+  name: "git", rootLabel: "git-lab", primary: "README.md", runtime: "Git 2.x · Bash",
+  fileList: ["README.md"],
+  files: {
+    "README.md": `# Git Lab\n\nUse the terminal below to practice Git commands.\n`,
+  },
+};
+
+function getKit(slug: string, tag: string, labTitle?: string): Kit {
+  if (labTitle && labTitle.toLowerCase().includes("git")) return GIT_KIT_DEFAULT;
   if (tag === "Django Todo") {
     return {
       name: "django", rootLabel: "todo-app", primary: "todos/views.py", runtime: "Python 3.12 · Django 5",
@@ -680,8 +682,10 @@ function getKit(slug: string, tag: string): Kit {
   }
   if (slug === "python" || slug === "programming" || slug === "datastructures")
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug === "sql" || tag === "SQL") return SQL_KIT_DEFAULT;
-  if (slug === "mongo" || tag === "Mongo") return MONGO_KIT_DEFAULT;
+  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo") return MONGO_KIT_DEFAULT;
+  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
   if (slug === "ui") return UI_KIT_DEFAULT;
   if (slug === "linux" || tag === "bash" || tag === "Linux Basics" || tag === "Linux Files" || tag === "Linux Perms" || tag === "Linux Processes" || tag === "Linux Network" || tag === "Linux Shell" || tag === "Linux Services") return LINUX_KIT_DEFAULT;
   return {
@@ -692,7 +696,7 @@ function getKit(slug: string, tag: string): Kit {
 }
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
-type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal";
+type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff";
 
 export function StudentTicketView({
   slug,
@@ -726,6 +730,7 @@ export function StudentTicketView({
           if (!active) return;
           setResolvedTicket({
             id: t.id,
+            ticket_slug: t.ticket_slug,
             title: t.title,
             description: t.description ?? "",
             difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
@@ -774,39 +779,48 @@ export function StudentTicketView({
 
   const ticket = previewOverride
     ? {
-        ...resolvedTicket,
-        title: previewOverride.title ?? resolvedTicket.title,
-        description: previewOverride.description ?? resolvedTicket.description,
-        difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
-        xp: previewOverride.xp ?? resolvedTicket.xp,
-        estMin: previewOverride.estMin ?? resolvedTicket.estMin,
-        tag: previewOverride.tag ?? resolvedTicket.tag,
-      }
+      ...resolvedTicket,
+      title: previewOverride.title ?? resolvedTicket.title,
+      description: previewOverride.description ?? resolvedTicket.description,
+      difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
+      xp: previewOverride.xp ?? resolvedTicket.xp,
+      estMin: previewOverride.estMin ?? resolvedTicket.estMin,
+      tag: previewOverride.tag ?? resolvedTicket.tag,
+    }
     : resolvedTicket;
 
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
 }
 
-function TicketIDE({
+export function TicketIDE({
   slug,
   ticket,
   previewOverride,
+  isEvaluationMode,
 }: {
   slug: string;
   ticket: any;
   previewOverride: StudentPreviewOverride | null;
+  isEvaluationMode?: boolean;
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
+
+  const [labTitle, setLabTitle] = useState("");
+  const kit = useMemo(() => getKit(slug, ticket.tag, labTitle), [slug, ticket.tag, labTitle]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
+  const isMysql = kit.name === "mysql";
+  const isPostgres = kit.name === "postgresql";
+  const isAnySql = isSql || isMysql || isPostgres;
   const isMongo = kit.name === "mongo";
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python";
+  const isDbEditor = ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || isAnySql || isMongo;
   const isBash = kit.name === "bash";
+  const isGit = kit.name === "git";
 
   const isReal = !tickets.some(t => t.id === ticket.id);
 
@@ -911,7 +925,7 @@ function TicketIDE({
 
   useEffect(() => {
     loadWorkspaceFiles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id, isReal, userId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
@@ -926,16 +940,17 @@ function TicketIDE({
         loadedFiles.current.add(activeFile);
       })
       .catch(() => { loadedFiles.current.add(activeFile); });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile, isReal, wsLoaded]);
 
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
   const [fileTreeOpen, setFileTreeOpen] = useState(true);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
@@ -972,21 +987,21 @@ function TicketIDE({
   useEffect(() => { setSideWidth(null); }, [sidePanel]);
 
   // Reset file state when switching tickets (esp. between Java and Django sets)
+  // For real tickets, workspace files are loaded by loadWorkspaceFiles — don't overwrite them.
   useEffect(() => {
-    setFiles(starters);
+    if (!isReal) {
+      setFiles(starters);
+    }
     setDirty({});
     setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
-    if (isMultiLang) {
-      const valid: ProgLang[] = ["python", "c", "cpp", "js"];
-      if (valid.includes(ticket.tag as ProgLang)) setProgLang(ticket.tag as ProgLang);
-      else setProgLang("python");
-    }
+    if (isMultiLang) setProgLang("python");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  
   useEffect(() => {
     if (previewOverride) return;
     const isDummy = !isReal;
@@ -999,6 +1014,7 @@ function TicketIDE({
         })
         .catch(() => {
           const labName = labs.find(l => l.slug === slug)?.name ?? slug;
+          setLabTitle(labName);
           try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName })); } catch {}
         });
     });
@@ -1021,6 +1037,17 @@ function TicketIDE({
               await api.patch<any>(`/lab/submissions/${sub.id}/`, {
                 ticket_status: "in_progress",
               });
+            }
+            if (sub.solution) {
+              try {
+                const parsed = JSON.parse(sub.solution);
+                if (typeof parsed === "object" && parsed !== null) {
+                  setFiles(prev => ({ ...prev, ...parsed }));
+                }
+              } catch (e) {
+                // Legacy fallback: single string
+                setFiles(prev => ({ ...prev, [kit.primary]: sub.solution }));
+              }
             }
           }
         })
@@ -1135,25 +1162,13 @@ function TicketIDE({
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
-  const [tests, setTests] = useState<TestResult[]>([]);
-  
-  useEffect(() => {
-    if (isReal && ticket.tasks?.length) {
-      setTests(ticket.tasks.map((t: any, i: number) => ({
-        name: `Test ${i+1} · ${t.title || 'Validation'}`,
-        pass: false,
-        time: "—"
-      })));
-    } else if (!isReal) {
-      setTests([
-        { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
-        { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
-        { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
-        { name: "Test 4 · String Operations", pass: false, time: "—" },
-        { name: "Test 5 · Output Format", pass: false, time: "—" },
-      ]);
-    }
-  }, [ticket.tasks, isReal]);
+  const [tests, setTests] = useState<TestResult[]>([
+    { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
+    { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
+    { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
+    { name: "Test 4 · String Operations", pass: false, time: "—" },
+    { name: "Test 5 · Output Format", pass: false, time: "—" },
+  ]);
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -1199,6 +1214,21 @@ function TicketIDE({
     return "ok";
   }, [files]);
 
+  const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
+  const [runId, setRunId] = useState(0);
+
+  const refreshSchema = useCallback(() => {
+    if (isSql) {
+      setDbSchemas(getAlasqlSchema());
+    } else if (isMongo) {
+      setDbSchemas(getMongoSchema());
+    }
+  }, [isSql, isMongo]);
+
+  useEffect(() => {
+    refreshSchema();
+  }, [refreshSchema]);
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2200);
@@ -1233,17 +1263,30 @@ function TicketIDE({
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
+    if (isAnySql || isMongo) {
+      setExecutedQuery(src);
+      setRunId(prev => prev + 1);
+      setBottomTab("preview");
+      setRunning(false);
+      // Wait for child components (SqlResultsView/MongoResultsView) to finish execution 
+      // before refreshing schema, or they can trigger the refresh via a prop.
+      if (!isExternalDb) {
+        // We let the child trigger refreshSchema
+      }
+      return;
+    }
+
     if (isMultiLang) {
       const lang: ProgLang =
-        file.endsWith(".c")   ? "c"   :
-        file.endsWith(".cpp") || file.endsWith(".cc") ? "cpp" :
-        file.endsWith(".js")  || file.endsWith(".ts") ? "js"  :
-        "python";
+        file.endsWith(".c") ? "c" :
+          file.endsWith(".cpp") || file.endsWith(".cc") ? "cpp" :
+            file.endsWith(".js") || file.endsWith(".ts") ? "js" :
+              "python";
       const cmd =
         lang === "python" ? `$ python ${file}` :
-        lang === "c"      ? `$ gcc ${file} -o a.out && ./a.out` :
-        lang === "cpp"    ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out` :
-                            `$ node ${file}`;
+          lang === "c" ? `$ gcc ${file} -o a.out && ./a.out` :
+            lang === "cpp" ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out` :
+              `$ node ${file}`;
       setOutput(`${cmd}\n…running…\n`);
       setTimeout(() => {
         const out: string[] = [];
@@ -1353,9 +1396,115 @@ function TicketIDE({
       return;
     }
     if (isUi) {
-      const outText = `▶ Served ${file} in preview iframe.\n✓ Hot reload OK.`;
-      setOutput(outText);
-      evaluateSubmission(src, outText);
+      setRunning(true);
+      setBottomTab("output");
+      setOutput("Running UI validation...");
+      
+      import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+        api.post("/lab/frontend-validate/", {
+          ticket_slug: ticket.ticket_slug ?? ticket.id,
+          user_html: files["index.html"] ?? "",
+          user_css: files["styles.css"] ?? "",
+          lab_id: labId,   // lab UUID — lets executor resolve starter repo path
+        }).then((res: any) => {
+          setRunning(false);
+          
+          // Create a clean object to show in the console without flooding it with base64 images
+          const resultJson = {
+            ui_score: res.ui_score ?? 0,
+            structural_score: res.structural_score ?? 0,
+            checks: res.checks ?? []
+          };
+          
+          setOutput(JSON.stringify(resultJson, null, 2));
+          
+          if (isReal && submissionId) {
+             const uiScore = res.ui_score ?? 0;
+             const structScore = res.structural_score ?? 0;
+             const isPass = uiScore >= 75 && structScore >= 75;
+             api.patch(`/lab/submissions/${submissionId}/`, {
+               ticket_status: isPass ? "in_review" : "in_progress",
+               solution: JSON.stringify(files),
+             }).catch(console.error);
+          }
+        }).catch((err: any) => {
+          console.error(err);
+          setOutput(`Error running validation: ${err.message}`);
+          setBottomTab("output");
+          setRunning(false);
+        });
+      });
+      return;
+    }
+    if (isGit) {
+      // Git Lab: evaluate every task from ticket.tasks using scoring_rules
+      setRunning(true);
+      setBottomTab("output");
+      setOutput("⏳ Evaluating Git tasks against your terminal history...");
+
+      const tasks: any[] = ticket.tasks ?? [];
+      if (tasks.length === 0) {
+        setOutput(JSON.stringify({ error: "No tasks found for this ticket." }, null, 2));
+        setRunning(false);
+        return;
+      }
+
+      const { evaluateTask } = await import("@/services/workspaceService");
+      const results: Record<string, any> = {};
+      let passedCount = 0;
+
+      for (let idx = 0; idx < tasks.length; idx++) {
+        const task = tasks[idx];
+        const taskSlug = task.task_slug || `task-${idx}`;
+        const scoringRules: Record<string, any> = task.scoring_rules ?? {};
+        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+        try {
+          const result = await evaluateTask(userId, labId, sprintId, "git", taskSlug, scoringRules);
+          results[taskSlug] = {
+            title: task.title ?? taskSlug,
+            passed: result.passed,
+            reason: result.reason,
+          };
+          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+          if (result.passed) passedCount++;
+        } catch (err: any) {
+          results[taskSlug] = { title: task.title ?? taskSlug, passed: false, reason: err.message };
+          setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+        } finally {
+          setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+        }
+      }
+
+      setTicketScore({ passed: passedCount, total: tasks.length });
+      setOutput(
+        JSON.stringify(
+          {
+            ticket: ticket.title ?? ticket.id,
+            score: { passed: passedCount, total: tasks.length },
+            tasks: results,
+          },
+          null,
+          2
+        )
+      );
+
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: passedCount === tasks.length ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      }
+
       setRunning(false);
       return;
     }
@@ -1427,6 +1576,7 @@ function TicketIDE({
   }
 
   const [evaluating, setEvaluating] = useState<Record<string, boolean>>({});
+  const [executedQuery, setExecutedQuery] = useState("");
   const [evalResult, setEvalResult] = useState<Record<string, { passed: boolean; reason: string }>>({});
   const [ticketScore, setTicketScore] = useState<{ passed: number; total: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -1482,7 +1632,7 @@ function TicketIDE({
         const scoringRules: Record<string, any> = task.scoring_rules ?? {};
         // required_command is only a fallback for tasks without scoring_rules
         const reqCmd = "git";
-        
+
         setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
         try {
           const { evaluateTask } = await import("@/services/workspaceService");
@@ -1514,24 +1664,25 @@ function TicketIDE({
       ];
       setTests(next);
       setTestsRan(true);
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: next.every((t) => t.pass) ? "in_review" : "in_progress",
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      }
+
       if (next.every((t) => t.pass)) {
-        if (isReal && submissionId) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            api.patch(`/lab/submissions/${submissionId}/`, {
-              ticket_status: "in_review",
-              solution: files[Object.keys(files)[0]] ?? "",
-            }).catch(console.error);
-          });
-        } else if (isReal && !submissionId) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            api.post("/lab/submissions/", {
-              lab_sprint_ticket: ticket.id,
-              ticket_status: "in_review",
-              solution: files[Object.keys(files)[0]] ?? "",
-            }).catch(console.error);
-          });
-        }
-        navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       } else {
         showToast("Fix failing tests before submitting");
       }
@@ -1573,11 +1724,29 @@ function TicketIDE({
     const now = new Date();
     setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
     if (isReal) {
-      // Persist all dirty files to the workspace
-      const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
+      // Persist ALL files (not just dirty) to the workspace so disk is always in sync
       Promise.all(
-        dirtyPaths.map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
+        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? ""))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
+      
+      // Also save to database so the IDE loads it perfectly on refresh
+      if (submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            solution: JSON.stringify(files),
+          }).catch(console.error);
+        });
+      } else {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: "in_progress",
+            solution: JSON.stringify(files),
+          }).then((res: any) => {
+             setSubmissionId(res.data.id);
+          }).catch(console.error);
+        });
+      }
     }
     showToast("Saved");
   }
@@ -1615,13 +1784,7 @@ function TicketIDE({
     setDirty((d) => ({ ...d, [activeFile]: true }));
   }
 
-  function toggleTheme() {
-    setTheme((t) => {
-      const next = t === "dark" ? "light" : "dark";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return next;
-    });
-  }
+
 
   const handleResetProgress = async () => {
     if (!confirm("Are you sure you want to reset your progress? This will delete all your files and restart the ticket.")) return;
@@ -1639,10 +1802,10 @@ function TicketIDE({
   if (reviewMatch) return <Outlet />;
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
-        {!previewOverride && (
+        {(!previewOverride && !isEvaluationMode) && (
           <Link to="/student/lab/$slug" params={{ slug }} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent">
             <ArrowLeft className="h-3 w-3" />Exit
           </Link>
@@ -1657,7 +1820,7 @@ function TicketIDE({
         </div>
         <StatusBadge value={ticket.status} />
         <DiffBadge value={ticket.difficulty} />
-        <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>
+        {!isEvaluationMode && <span className="text-muted-foreground inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP</span>}
         <span className="text-muted-foreground inline-flex items-center gap-1"><Clock className="h-3 w-3" />Est. {ticket.estMin}m · Elapsed <span className="font-mono text-foreground">{timeStr}</span></span>
         {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
         <button onClick={handleResetProgress} title="Reset Progress" className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1">
@@ -1665,7 +1828,14 @@ function TicketIDE({
         </button>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <button onClick={() => setSidePanel((p) => p === "preview" ? null : "preview")}
+          <button onClick={() => {
+            if (sidePanel !== "preview") {
+              setSidePanel("preview");
+              setLeftCollapsed(true);
+            } else {
+              setSidePanel(null);
+            }
+          }}
             className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}>
             <Globe className="h-3 w-3" />Preview
           </button>
@@ -1739,10 +1909,10 @@ function TicketIDE({
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
               {tab === "problem" && (
-                <ProblemPanel 
-                  ticket={ticket} 
-                  slug={slug} 
-                  isReal={!tickets.some(t => t.id === ticket.id)} 
+                <ProblemPanel
+                  ticket={ticket}
+                  slug={slug}
+                  isReal={!tickets.some(t => t.id === ticket.id)}
                   evaluating={evaluating}
                   evalResult={evalResult}
                   ticketScore={ticketScore}
@@ -1788,11 +1958,11 @@ function TicketIDE({
                       onClick={() => loadWorkspaceFiles(true)}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
                     </button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-auto px-1 pb-2">
+                <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
                     rootLabel={isReal ? (ticket.title || "Project") : kit.rootLabel}
                     paths={fileList}
@@ -1807,6 +1977,51 @@ function TicketIDE({
                     toggleFolder={toggleFolder}
                   />
                 </div>
+                {isDbEditor && (
+                  <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
+                    <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <span>DB Explorer</span>
+                    </div>
+                    {dbSchemas.length === 0 && <div className="px-3 py-2 text-xs text-muted-foreground italic">No databases found</div>}
+                    {dbSchemas.map(schema => (
+                      <React.Fragment key={schema.name}>
+                        <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
+                          <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                          {schema.name}
+                        </div>
+                        {schema.tables.length > 0 ? (
+                          <>
+                            <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">Tables</div>
+                            {schema.tables.map(t => (
+                              <button key={t.name} onClick={() => { if (!openTabs.includes(`schema:${schema.name}.${t.name}`)) setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]); setActiveFile(`schema:${schema.name}.${t.name}`); }}
+                                className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                {t.name}
+                                <span className="ml-auto text-[10px] opacity-50">{t.columns.length} cols</span>
+                              </button>
+                            ))}
+                          </>
+                        ) : (
+                          <div className="px-5 py-1 text-[11px] text-muted-foreground italic">0 tables</div>
+                        )}
+                      </React.Fragment>
+                    ))}
+                    {(isMysql || isPostgres) && (
+                      <div className="px-4 py-3 mt-4 border-t border-border">
+                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">Need a free database?</div>
+                        <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
+                          {isPostgres && <li><a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Supabase</a> (Postgres)</li>}
+                          {isPostgres && <li><a href="https://neon.tech" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Neon</a> (Postgres)</li>}
+                          {isPostgres && <li><a href="https://render.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Render</a> (Postgres)</li>}
+                          {isMysql && <li><a href="https://planetscale.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">PlanetScale</a> (MySQL)</li>}
+                          {isMysql && <li><a href="https://aiven.io/mysql" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Aiven</a> (MySQL)</li>}
+                          {isMysql && <li><a href="https://tidbcloud.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">TiDB Cloud</a> (MySQL)</li>}
+                          <li><a href="https://railway.app" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">Railway</a> (Both)</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-1"><GitBranch className="h-3 w-3" /> main</div>
                 </div>
@@ -1845,9 +2060,11 @@ function TicketIDE({
                     </label>
                   )}
                   {isJava && <CompileBadge state={compileState} />}
-                  <button onClick={toggleTheme} className="rounded border px-2 py-0.5 hover:bg-accent">
-                    {theme === "dark" ? "☀ Light" : "🌙 Dark"}
-                  </button>
+                  {!isEvaluationMode && (
+                    <button onClick={toggleTheme} className="rounded border px-2 py-0.5 hover:bg-accent">
+                      {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+                    </button>
+                  )}
                   <button title="Format" onClick={() => showToast("Code formatted")} className="rounded border px-2 py-0.5 hover:bg-accent"><Wand2 className="h-3 w-3" /></button>
                 </div>
               </div>
@@ -1874,7 +2091,11 @@ function TicketIDE({
 
               {/* Editor */}
               <div className="flex flex-1 min-h-0">
-                <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
+                {activeFile.startsWith("schema:") ? (
+                  <SchemaViewer tablePath={activeFile.replace("schema:", "")} dbSchemas={dbSchemas} />
+                ) : (
+                  <CodeEditor code={code} onChange={updateCode} language={editorLanguage(activeFile)} theme={theme} />
+                )}
               </div>
 
 
@@ -1883,9 +2104,9 @@ function TicketIDE({
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    { k: "errors", label: "Errors", icon: AlertTriangle },
-                    { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
-                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
+                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "errors", label: "Errors", icon: AlertTriangle }] : []),
+                    ...(!labTitle.toLowerCase().includes("git") ? [{ k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe }] : []),
+                    { k: "terminal", label: "Terminal", icon: TerminalIcon }
                   ].map((t) => (
                     <button key={t.k} onClick={() => setBottomTab(t.k as BottomTab)}
                       className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide ${bottomTab === t.k ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
@@ -1903,14 +2124,19 @@ function TicketIDE({
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
                   {bottomTab === "preview" && (
                     isDjango ? <DjangoTodoPreview /> :
-                    isSql    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-                    isMongo  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
-                    isUi     ? <UiPreview files={files} /> :
-                    isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                               <PreviewView />
+                      isSql ? (
+                        <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
+                      ) : isMongo ? (
+                        <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
+                      ) : isExternalDb ? (
+                        <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
+                      ) : isUi ? <UiPreview files={files} /> :
+                                isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
+                                  <PreviewView />
                   )}
                   {bottomTab === "terminal" && (
                     <TerminalView
+                      theme={theme}
                       wsUrl={isReal ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other") : null}
                       onCommandRun={() => loadWorkspaceFiles(true)}
                     />
@@ -1930,9 +2156,11 @@ function TicketIDE({
             {sidePanel && (
               <aside
                 className="flex flex-col bg-editor-panel min-w-0"
-                style={{ flex: sideWidth != null
-                  ? `0 0 ${sideWidth}px`
-                  : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}` }}
+                style={{
+                  flex: sideWidth != null
+                    ? `0 0 ${sideWidth}px`
+                    : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`
+                }}
               >
                 <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
@@ -2072,6 +2300,19 @@ function CodeEditor({ code, onChange, language, theme }: { code: string; onChang
     }
   }, [language]);
 
+  const transparentTheme = useMemo(() => {
+    return EditorView.theme({
+      "&": { backgroundColor: "transparent !important" },
+      ".cm-gutters": { 
+        backgroundColor: "transparent !important", 
+        borderRight: "1px solid var(--color-border) !important",
+        color: "var(--color-muted-foreground)"
+      },
+      ".cm-activeLine": { backgroundColor: "var(--color-muted) !important" },
+      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" }
+    });
+  }, []);
+
   if (!mounted) {
     return (
       <div className="flex flex-1 min-w-0 overflow-hidden bg-editor-bg font-mono text-[13px] leading-6">
@@ -2086,7 +2327,7 @@ function CodeEditor({ code, onChange, language, theme }: { code: string; onChang
         value={code}
         onChange={(v) => onChange(v)}
         theme={theme === "dark" ? vscodeDark : vscodeLight}
-        extensions={extensions}
+        extensions={[transparentTheme, ...extensions]}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLine: true,
@@ -2237,19 +2478,21 @@ function SidePreview({ device, kit, files, activeFile }: { device: "Mobile" | "T
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
   const body =
     kit.name === "django" ? <DjangoTodoApp /> :
-    kit.name === "ui"     ? <UiPreview files={files} fullHeight /> :
-    kit.name === "sql"    ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-    kit.name === "mongo"  ? <MongoResultsView query={files[activeFile] ?? ""} /> :
-    kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-    (
-      <div className="p-4 space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
-        <h2 className="text-xl font-semibold">Hello Java</h2>
-        <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
-        <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
-        <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
-      </div>
-    );
+      kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
+        kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
+          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
+            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
+              kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
+                kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
+                  (
+                    <div className="p-4 space-y-2">
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
+                      <h2 className="text-xl font-semibold">Hello Java</h2>
+                      <p className="text-sm text-gray-600">Integer: 42 · Double: 3.14</p>
+                      <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
+                      <button className="rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
+                    </div>
+                  );
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex-1 grid place-items-center overflow-auto rounded border bg-accent/30 p-2">
@@ -2374,7 +2617,7 @@ function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
   );
 }
 
-function TerminalView({ wsUrl, onCommandRun }: { wsUrl: string | null; onCommandRun?: () => void }) {
+function TerminalView({ wsUrl, theme, onCommandRun }: { wsUrl: string | null; theme: "dark" | "light" | "system"; onCommandRun?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<any>(null);
   const fitRef = useRef<any>(null);
@@ -2386,7 +2629,9 @@ function TerminalView({ wsUrl, onCommandRun }: { wsUrl: string | null; onCommand
   // Lazy-load xterm to avoid SSR issues
   useEffect(() => {
     Promise.all([
+      // @ts-ignore
       import("@xterm/xterm"),
+      // @ts-ignore
       import("@xterm/addon-fit"),
     ]).then(([xterm, fit]) => {
       setLibs({ Terminal: xterm.Terminal, FitAddon: fit.FitAddon });
@@ -2403,9 +2648,9 @@ function TerminalView({ wsUrl, onCommandRun }: { wsUrl: string | null; onCommand
       fontSize: 13,
       fontFamily: "\"JetBrains Mono\", \"Fira Code\", monospace",
       theme: {
-        background: "#0d1117",
-        foreground: "#e6edf3",
-        cursor: "#58a6ff",
+        background: "transparent",
+        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
+        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
         black: "#0d1117",
         brightBlack: "#484f58",
         red: "#ff7b72",
@@ -2447,7 +2692,7 @@ function TerminalView({ wsUrl, onCommandRun }: { wsUrl: string | null; onCommand
       termRef.current = null;
       fitRef.current = null;
     };
-  }, [libs]);
+  }, [libs, theme]);
 
   // Connect WebSocket
   const connect = useCallback(() => {
@@ -2581,17 +2826,17 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ 
-  ticket, 
-  isReal, 
-  slug, 
-  evaluating, 
-  evalResult, 
-  ticketScore, 
-  onEvaluate 
-}: { 
-  ticket: any; 
-  isReal?: boolean; 
+function ProblemPanel({
+  ticket,
+  isReal,
+  slug,
+  evaluating,
+  evalResult,
+  ticketScore,
+  onEvaluate
+}: {
+  ticket: any;
+  isReal?: boolean;
   slug: string;
   evaluating: Record<string, boolean>;
   evalResult: Record<string, { passed: boolean; reason: string }>;
@@ -2639,11 +2884,10 @@ function ProblemPanel({
                             </div>
                           )}
                           {evalResult[task.task_slug || `task-${idx}`] && (
-                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                              evalResult[task.task_slug || `task-${idx}`].passed 
-                                ? "border-success/20 bg-success/10 text-success" 
-                                : "border-destructive/20 bg-destructive/10 text-destructive"
-                            }`}>
+                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${evalResult[task.task_slug || `task-${idx}`].passed
+                              ? "border-success/20 bg-success/10 text-success"
+                              : "border-destructive/20 bg-destructive/10 text-destructive"
+                              }`}>
                               {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
                               {evalResult[task.task_slug || `task-${idx}`].reason}
                             </div>
@@ -2710,60 +2954,60 @@ function ProblemPanel({
             </ul>
           </Section>
 
-      <Section title="✅ Tasks">
-        <div className="space-y-2 text-muted-foreground">
-          <div>
-            <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>int, double, boolean, char, long, float, byte, short</li>
-              <li>Initialize with appropriate values</li>
-              <li>Print them to console</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 2 · Perform type casting</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Implicit: int → double</li>
-              <li>Explicit: double → int</li>
-              <li>Show before and after values</li>
-            </ul>
-          </div>
-          <div>
-            <div className="text-foreground">Task 3 · Work with Strings</div>
-            <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
-              <li>Create a String variable</li>
-              <li>Use length(), charAt(), substring()</li>
-              <li>Print the results</li>
-            </ul>
-          </div>
-        </div>
-      </Section>
+          <Section title="✅ Tasks">
+            <div className="space-y-2 text-muted-foreground">
+              <div>
+                <div className="text-foreground">Task 1 · Create variables for all primitive types</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>int, double, boolean, char, long, float, byte, short</li>
+                  <li>Initialize with appropriate values</li>
+                  <li>Print them to console</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-foreground">Task 2 · Perform type casting</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>Implicit: int → double</li>
+                  <li>Explicit: double → int</li>
+                  <li>Show before and after values</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-foreground">Task 3 · Work with Strings</div>
+                <ul className="ml-3 mt-0.5 list-['└─_'] text-[12px]">
+                  <li>Create a String variable</li>
+                  <li>Use length(), charAt(), substring()</li>
+                  <li>Print the results</li>
+                </ul>
+              </div>
+            </div>
+          </Section>
 
-      <Section title="📥 Expected output">
-        <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground">{`Integer: 42
+          <Section title="📥 Expected output">
+            <pre className="rounded-md bg-editor-bg border p-2 text-[12px] font-mono text-muted-foreground">{`Integer: 42
 Double: 3.14
 Boolean: true
 String: Hello Java
 Length: 10
 Character at index 0: H`}</pre>
-      </Section>
+          </Section>
 
-      <Section title="🔗 Related concepts">
-        <ul className="space-y-1 text-info">
-          <li>→ JAVA-102 · Control Flow & Loops</li>
-          <li>→ JAVA-105 · Strings Deep Dive</li>
-          <li>→ Docs: Primitive vs reference types</li>
-        </ul>
-      </Section>
+          <Section title="🔗 Related concepts">
+            <ul className="space-y-1 text-info">
+              <li>→ JAVA-102 · Control Flow & Loops</li>
+              <li>→ JAVA-105 · Strings Deep Dive</li>
+              <li>→ Docs: Primitive vs reference types</li>
+            </ul>
+          </Section>
 
-        <Section title="⚠️ Common mistakes">
-          <ul className="space-y-1 text-muted-foreground">
-            <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
-            <li>• Forgetting <code>(int)</code> when narrowing</li>
-            <li>• <code>charAt</code> out-of-bounds on empty strings</li>
-          </ul>
-        </Section>
-      </>
+          <Section title="⚠️ Common mistakes">
+            <ul className="space-y-1 text-muted-foreground">
+              <li>• Type mismatch: <code>double → int</code> requires explicit cast</li>
+              <li>• Forgetting <code>(int)</code> when narrowing</li>
+              <li>• <code>charAt</code> out-of-bounds on empty strings</li>
+            </ul>
+          </Section>
+        </>
       )}
     </>
   );
@@ -3072,9 +3316,8 @@ function TreeFileNode({
         <button
           onClick={() => onOpenFile(node.path)}
           style={pad}
-          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${
-            active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-          }`}
+          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
+            }`}
         >
           <span className="w-3" />
           <FileCode2 className="h-3 w-3 shrink-0" />
@@ -3100,74 +3343,304 @@ function TreeFileNode({
   );
 }
 
+/* ---------- SQL Mock DB Schema ---------- */
+
+export type DbColumn = { name: string; type: string; nullable: "YES" | "NO"; default: string; key: "PK" | "FK" | "-" };
+export type DbTable = { name: string; columns: DbColumn[]; ddl: string };
+export type DbSchema = { name: string; type: "PostgreSQL" | "MySQL" | "SQLite" | "MongoDB"; tables: DbTable[] };
+
+export const MOCK_DB_SCHEMA: DbSchema = {
+  name: "yuvro_sql_lab",
+  type: "SQLite",
+  tables: []
+};
+
+function SchemaViewer({ tablePath, dbSchemas }: { tablePath: string; dbSchemas: DbSchema[] }) {
+  const [dbName, tableName] = tablePath.split(".");
+  const schema = dbSchemas.find(s => s.name === dbName);
+  const table = schema?.tables.find(t => t.name === tableName);
+  if (!table) return <div className="p-4 text-muted-foreground text-sm">Table not found</div>;
+
+  return (
+    <div className="flex flex-col h-full bg-background overflow-auto p-4 text-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Package className="h-5 w-5 text-primary" />
+        <h2 className="font-semibold text-lg uppercase tracking-wider text-muted-foreground">Schema Viewer</h2>
+        <span className="text-foreground">{dbName}.{table.name}</span>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Columns</h3>
+        <div className="border rounded bg-card overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-accent/50 text-muted-foreground text-xs uppercase">
+              <tr>
+                <th className="px-3 py-2 font-medium">Column</th>
+                <th className="px-3 py-2 font-medium">Type</th>
+                <th className="px-3 py-2 font-medium">Nullable</th>
+                <th className="px-3 py-2 font-medium">Default</th>
+                <th className="px-3 py-2 font-medium">Key</th>
+              </tr>
+            </thead>
+            <tbody className="text-[13px] divide-y">
+              {table.columns.map((c, i) => (
+                <tr key={i} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-3 py-2 font-mono font-medium text-foreground">{c.name}</td>
+                  <td className="px-3 py-2 font-mono text-primary/80">{c.type}</td>
+                  <td className="px-3 py-2">{c.nullable}</td>
+                  <td className="px-3 py-2 font-mono text-muted-foreground">{c.default}</td>
+                  <td className="px-3 py-2">
+                    {c.key !== "-" && (
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.key === "PK" ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-blue-500/20 text-blue-600 dark:text-blue-400"}`}>
+                        {c.key}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">DDL</h3>
+        <div className="rounded overflow-hidden border">
+          <CodeMirror
+            value={table.ddl}
+            editable={false}
+            extensions={[sql()]}
+            theme={vscodeDark}
+            basicSetup={{ lineNumbers: false, foldGutter: false }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- SQL query results viewer ---------- */
 
 type SqlRow = Record<string, string | number>;
 function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: string; ms: number } {
-  const lower = q.toLowerCase();
-  // Tiny pretend engine: pattern-match a few shapes against seed.sql data.
-  const customers = [
-    { id: 1, name: "Ada Lovelace",   country: "UK", signed_up_at: "2024-02-11" },
-    { id: 2, name: "Linus Torvalds", country: "FI", signed_up_at: "2024-05-04" },
-    { id: 3, name: "Grace Hopper",   country: "US", signed_up_at: "2023-09-30" },
-    { id: 4, name: "Hedy Lamarr",    country: "AT", signed_up_at: "2024-07-12" },
-    { id: 5, name: "Alan Turing",    country: "UK", signed_up_at: "2024-11-01" },
-  ];
-  const orders = [
-    { id: 1, customer_id: 1, amount: 120.0, created_at: "2024-03-01" },
-    { id: 2, customer_id: 1, amount: 45.5,  created_at: "2024-04-12" },
-    { id: 3, customer_id: 2, amount: 300.0, created_at: "2024-06-20" },
-    { id: 4, customer_id: 4, amount: 80.25, created_at: "2024-08-09" },
-    { id: 5, customer_id: 5, amount: 19.99, created_at: "2024-11-15" },
-  ];
+  return runDynamicSqlQuery(q) as any;
+}
+/* ---------- External SQL query results viewer ---------- */
 
-  if (lower.includes("group by") && lower.includes("country")) {
-    const byC: Record<string, { customers: number; total: number }> = {};
-    for (const c of customers) {
-      if (lower.includes("2024") && c.signed_up_at < "2024-01-01") continue;
-      byC[c.country] ??= { customers: 0, total: 0 };
-      byC[c.country].customers += 1;
-      byC[c.country].total += orders.filter((o) => o.customer_id === c.id).reduce((a, o) => a + o.amount, 0);
+function ExternalSqlResultsView({ query, dbType }: { query: string; dbType: "mysql" | "postgresql" }) {
+  const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
+  const [res, setRes] = useState<{ columns: string[]; rows: any[]; note: string; ms: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [uri, setUri] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem(`${dbType}Uri`) || "";
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(uri);
+
+  const saveUri = () => {
+    setUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`${dbType}Uri`, tempUri.trim());
     }
-    const rows: SqlRow[] = Object.entries(byC)
-      .map(([country, v]) => ({ country, customers: v.customers, total_revenue: v.total.toFixed(2) }))
-      .sort((a, b) => Number(b.total_revenue) - Number(a.total_revenue));
-    return { columns: ["country", "customers", "total_revenue"], rows, note: `${rows.length} row(s)`, ms: 7 };
-  }
-  if (lower.includes("from customers")) {
-    return { columns: ["id", "name", "country", "signed_up_at"], rows: customers, note: `${customers.length} row(s)`, ms: 3 };
-  }
-  if (lower.includes("from orders")) {
-    return { columns: ["id", "customer_id", "amount", "created_at"], rows: orders, note: `${orders.length} row(s)`, ms: 2 };
-  }
-  return { columns: [], rows: [], note: "No matching mock data. Try a SELECT against customers or orders.", ms: 1 };
+    setEditingUri(false);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      if (!uri) return;
+      setLoading(true);
+      setError(null);
+      setRes(null);
+      try {
+        const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
+        const result = await proxyCall({ data: { uri, query } });
+        if (active) setRes(result);
+      } catch (e: any) {
+        if (active) setError(e.message || "Failed to execute query");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [query, uri, dbType]);
+
+  const handleDownloadCsv = () => {
+    if (!res || res.rows.length === 0) return;
+    const header = res.columns.join(",");
+    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvStr = [header, ...csvRows].join("\n");
+    const blob = new Blob([csvStr], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="text-[12px] flex flex-col h-full gap-2">
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Database Connection</span>
+          </div>
+          <button
+            onClick={() => { setEditingUri(true); setTempUri(uri); }}
+            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+          >
+            {uri ? `Connected (${dbType})` : "Click to configure URI"}
+          </button>
+        </div>
+        {editingUri && (
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              value={tempUri}
+              onChange={e => setTempUri(e.target.value)}
+              placeholder={dbType === "mysql" ? "mysql://user:pass@host:3306/db" : "postgresql://user:pass@host:5432/db"}
+              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
+            />
+            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
+            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
+        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+
+        {res && (
+          <>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span>{res.note}</span>
+                <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
+                  <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
+                  <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+                </div>
+                <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+              </div>
+              <span>executed in {res.ms}ms</span>
+            </div>
+
+            {res.rows.length === 0 ? (
+              <div className="text-muted-foreground p-2">0 rows returned.</div>
+            ) : viewMode === "TABLE" ? (
+              <div className="overflow-auto rounded border flex-1">
+                <table className="w-full font-mono">
+                  <thead className="bg-accent/40 text-muted-foreground">
+                    <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {res.rows.map((r, i) => (
+                      <tr key={i} className="border-t hover:bg-accent/30">
+                        {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="rounded overflow-auto border flex-1 text-[11px]">
+                <pre className="p-2 text-foreground/90 font-mono">
+                  {JSON.stringify(res.rows, null, 2)}
+                </pre>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
-function SqlResultsView({ query }: { query: string }) {
-  const res = useMemo(() => runSqlQuery(query), [query]);
+function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
+  const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
+  const [res, setRes] = useState<{ columns: string[]; rows: SqlRow[]; note: string; ms: number } | null>(null);
+
+  useEffect(() => {
+    if (!query) return;
+    try {
+      const result = runSqlQuery(query);
+      setRes(result);
+    } catch (e: any) {
+      setRes({ columns: [], rows: [], note: `Error: ${e.message}`, ms: 0 });
+    }
+    // Refresh schema after query has executed and mutated db state
+    onQueryExecuted();
+  }, [query, runId, onQueryExecuted]);
+
+  if (!res) return null;
+
   if (res.columns.length === 0) {
     return <div className="text-muted-foreground p-2">{res.note}</div>;
   }
+
+  const handleDownloadCsv = () => {
+    if (res.rows.length === 0) return;
+    const header = res.columns.join(",");
+    const csvRows = res.rows.map(r => res.columns.map(c => JSON.stringify(r[c] ?? "")).join(","));
+    const csvStr = [header, ...csvRows].join("\n");
+    const blob = new Blob([csvStr], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="text-[12px]">
+    <div className="text-[12px] flex flex-col h-full">
       <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span>{res.note}</span>
+        <div className="flex items-center gap-3">
+          <span>{res.note}</span>
+          <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
+            <button onClick={() => setViewMode("TABLE")} className={`px-2 py-0.5 ${viewMode === "TABLE" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>TABLE</button>
+            <button onClick={() => setViewMode("JSON")} className={`px-2 py-0.5 border-l ${viewMode === "JSON" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>JSON</button>
+          </div>
+          <button onClick={handleDownloadCsv} className="hover:text-foreground text-[11px] underline">Download CSV</button>
+        </div>
         <span>executed in {res.ms}ms</span>
       </div>
-      <div className="overflow-auto rounded border">
-        <table className="w-full font-mono">
-          <thead className="bg-accent/40 text-muted-foreground">
-            <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
-          </thead>
-          <tbody>
-            {res.rows.map((r, i) => (
-              <tr key={i} className="border-t hover:bg-accent/30">
-                {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      {viewMode === "TABLE" ? (
+        <div className="overflow-auto rounded border flex-1">
+          <table className="w-full font-mono">
+            <thead className="bg-accent/40 text-muted-foreground">
+              <tr>{res.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+            </thead>
+            <tbody>
+              {res.rows.map((r, i) => (
+                <tr key={i} className="border-t hover:bg-accent/30">
+                  {res.columns.map((c) => <td key={c} className="px-2 py-1 whitespace-nowrap">{String(r[c])}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="rounded overflow-auto border flex-1 text-[11px]">
+          <CodeMirror
+            value={JSON.stringify(res.rows, null, 2)}
+            editable={false}
+            extensions={[jsonLang()]}
+            theme={vscodeDark}
+            basicSetup={{ lineNumbers: false, foldGutter: true }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -3175,54 +3648,116 @@ function SqlResultsView({ query }: { query: string }) {
 /* ---------- Mongo query results viewer ---------- */
 
 function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number } {
-  const lower = q.toLowerCase();
-  const users = [
-    { name: "Ada",   email: "ada@example.com",   country: "UK", active: true,  createdAt: "2024-02-11" },
-    { name: "Linus", email: "linus@example.com", country: "FI", active: true,  createdAt: "2024-05-04" },
-    { name: "Grace", email: "grace@example.com", country: "US", active: false, createdAt: "2023-09-30" },
-    { name: "Alan",  email: "alan@example.com",  country: "UK", active: true,  createdAt: "2024-11-01" },
-  ];
-  const orders = [
-    { userId: 1, category: "Books", amount: 12.5, status: "paid" },
-    { userId: 2, category: "Music", amount: 9.99, status: "paid" },
-    { userId: 1, category: "Books", amount: 4.2,  status: "refunded" },
-    { userId: 4, category: "Games", amount: 29.0, status: "paid" },
-  ];
-
-  if (lower.includes("db.orders.aggregate")) {
-    const byCat: Record<string, { total: number; n: number }> = {};
-    for (const o of orders.filter((x) => x.status === "paid")) {
-      byCat[o.category] ??= { total: 0, n: 0 };
-      byCat[o.category].total += o.amount;
-      byCat[o.category].n += 1;
-    }
-    const rows = Object.entries(byCat).map(([_id, v]) => ({ _id, total: v.total, n: v.n })).sort((a, b) => b.total - a.total);
-    return { rows, note: `${rows.length} document(s)`, ms: 6 };
-  }
-  if (lower.includes("db.users.find")) {
-    let rows = users.slice();
-    if (lower.includes('country: "uk"') || lower.includes("country: 'uk'")) rows = rows.filter((u) => u.country === "UK");
-    if (lower.includes("active: true")) rows = rows.filter((u) => u.active);
-    return { rows: rows.map(({ name, email, country }) => ({ name, email, country })), note: `${rows.length} document(s)`, ms: 3 };
-  }
-  if (lower.includes("db.orders.find")) {
-    return { rows: orders, note: `${orders.length} document(s)`, ms: 2 };
-  }
-  return { rows: [], note: "No matching mock data. Try db.users.find(...) or db.orders.aggregate([...]).", ms: 1 };
+  return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query }: { query: string }) {
-  const res = useMemo(() => runMongoQuery(query), [query]);
-  if (res.rows.length === 0) {
-    return <div className="text-muted-foreground p-2">{res.note}</div>;
-  }
+function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, runId: number, onQueryExecuted: () => void }) {
+  const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query) return;
+    try {
+      const result = runMongoQuery(query);
+      setRes(result);
+    } catch (e: any) {
+      setError(e.message || "Failed to execute");
+    }
+    onQueryExecuted();
+  }, [query, runId, onQueryExecuted]);
+  const [mongoUri, setMongoUri] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
+    return "";
+  });
+  const [editingUri, setEditingUri] = useState(false);
+  const [tempUri, setTempUri] = useState(mongoUri);
+
+  const saveUri = () => {
+    setMongoUri(tempUri.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("externalMongoUri", tempUri.trim());
+    }
+    setEditingUri(false);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      setLoading(true);
+      setError(null);
+      setRes(null);
+      try {
+        if (mongoUri) {
+          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          if (active) setRes(remoteRes);
+        } else {
+          // fallback to local in-memory engine
+          const localRes = runDynamicMongoQuery(query);
+          if (active) setRes(localRes);
+        }
+      } catch (e: any) {
+        if (active) setError(e.message || "Failed to execute query");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, [query, mongoUri]);
+
   return (
-    <div className="text-[12px]">
-      <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span>{res.note}</span>
-        <span>executed in {res.ms}ms</span>
+    <div className="text-[12px] flex flex-col h-full gap-2">
+      {/* DB Connection Header */}
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-accent/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Database Connection</span>
+          </div>
+          <button
+            onClick={() => { setEditingUri(true); setTempUri(mongoUri); }}
+            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+          >
+            {mongoUri ? "Connected (External Atlas)" : "Local In-Memory (Mock)"}
+          </button>
+        </div>
+        {editingUri && (
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              value={tempUri}
+              onChange={e => setTempUri(e.target.value)}
+              placeholder="mongodb+srv://..."
+              className="flex-1 rounded border bg-background px-2 py-1 outline-none text-foreground"
+            />
+            <button onClick={saveUri} className="bg-primary text-primary-foreground px-2 py-1 rounded">Save</button>
+            <button onClick={() => setEditingUri(false)} className="text-muted-foreground hover:text-foreground px-2">Cancel</button>
+          </div>
+        )}
       </div>
-      <pre className="overflow-auto rounded border bg-editor-bg p-2 font-mono text-foreground/90">{JSON.stringify(res.rows, null, 2)}</pre>
+
+      {/* Query Results */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {loading && <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>}
+        {error && <div className="text-destructive bg-destructive/10 border border-destructive p-2 rounded whitespace-pre-wrap">{error}</div>}
+
+        {res && (
+          <>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground">
+              <span>{res.note}</span>
+              <span>executed in {res.ms}ms</span>
+            </div>
+            {res.rows.length === 0 ? (
+              <div className="text-muted-foreground p-2">0 documents matched.</div>
+            ) : (
+              <pre className="overflow-auto flex-1 rounded border bg-editor-bg p-2 font-mono text-foreground/90">
+                {JSON.stringify(res.rows, null, 2)}
+              </pre>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -3272,7 +3807,79 @@ function PythonOutputView({ code }: { code: string }) {
   }, [code]);
   return (
     <pre className="font-mono text-foreground/90 whitespace-pre-wrap">
-{"$ python " + (Object.keys({}).length ? "" : "main.py") + "\n" + lines.join("\n")}
+      {"$ python " + (Object.keys({}).length ? "" : "main.py") + "\n" + lines.join("\n")}
     </pre>
+  );
+}
+
+/* ---------- UI Diff View ---------- */
+
+function UiDiffView({ result }: { result: any }) {
+  if (!result) return <div className="text-muted-foreground p-3">Click Run to validate UI against the design target.</div>;
+  if (result.error) return <div className="text-destructive p-3">Validation failed: {result.error}</div>;
+
+  return (
+    <div className="flex h-full gap-4 overflow-auto">
+      <div className="flex-1 space-y-4 pr-2">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">UI Match</div>
+            <div className={`text-2xl font-bold ${result.ui_score >= 75 ? 'text-success' : 'text-warning'}`}>
+              {result.ui_score.toFixed(1)}%
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Structure</div>
+            <div className={`text-2xl font-bold ${result.structural_score >= 75 ? 'text-success' : 'text-warning'}`}>
+              {result.structural_score.toFixed(1)}%
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm">Structural Checks</h3>
+          <div className="space-y-1">
+            {result.checks?.map((check: any, idx: number) => (
+              <div key={idx} className="flex items-center gap-2 text-xs font-mono">
+                {check.passed ? <CheckCircle2 className="h-3 w-3 text-success" /> : <XCircle className="h-3 w-3 text-destructive" />}
+                <span className={check.passed ? "text-foreground" : "text-destructive"}>{check.name}</span>
+                <span className="text-muted-foreground ml-auto">{check.reason}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex-[2] flex gap-4 min-h-0 bg-background/50 p-2 rounded border">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Target Design</div>
+          <div className="flex-1 overflow-auto border border-border/50 bg-white">
+            {result.base_img_b64 ? (
+              <img src={`data:image/png;base64,${result.base_img_b64}`} alt="Target Design" className="max-w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Your UI</div>
+          <div className="flex-1 overflow-auto border border-border/50 bg-white">
+            {result.user_img_b64 ? (
+              <img src={`data:image/png;base64,${result.user_img_b64}`} alt="Your UI" className="max-w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
+            )}
+          </div>
+        </div>
+        {result.diff_img_b64 && (
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="text-xs font-medium text-center mb-1 text-muted-foreground">Diff Overlay</div>
+            <div className="flex-1 overflow-auto border border-border/50 bg-white">
+              <img src={`data:image/png;base64,${result.diff_img_b64}`} alt="Diff Overlay" className="max-w-full" />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

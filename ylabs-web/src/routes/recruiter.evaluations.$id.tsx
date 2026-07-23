@@ -2,16 +2,18 @@ import { createFileRoute, useNavigate, Link, Outlet, useLocation } from "@tansta
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import {
-  ChevronLeft, Plus, X, Search, Trash2, Copy, ArrowUp, ArrowDown, ChevronDown, ChevronRight,
+  ChevronLeft, Plus, X, Search, Trash2, Copy, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight,
   Beaker, BookOpen, MessageSquare, Sparkles, Clock, Award, Star, Check, Link as LinkIcon,
   Upload, Mail, Rocket, Eye, Pencil, GripVertical, Shuffle,
 } from "lucide-react";
 import {
   getEvaluation, saveEvaluation, evaluationTotals,
   DOMAINS, PROGRAMMING_LANGUAGES, DATABASES, SCENARIOS, DIFFICULTIES, EXPERIENCE_LEVELS, FORMATS,
-  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem,
-  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally,
+  newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem, PredefinedQuestion,
+  fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally, syncMockInterviews,
 } from "@/lib/recruiter";
+import { Workspace } from "./evaluation.workspace";
+import { createPortal } from "react-dom";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
 
@@ -62,7 +64,10 @@ function EvaluationWorkspace() {
   const handleSave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
-    const saved = await saveEvaluation(ev);
+    
+    const syncedEv = await syncMockInterviews(ev);
+    
+    const saved = await saveEvaluation(syncedEv);
     if (saved) {
       clearDraftLocally(ev.id);
       if (ev.id === "draft") {
@@ -83,7 +88,10 @@ function EvaluationWorkspace() {
   if (view === "publish-done") return <PublishedScreen ev={ev} onBack={() => setView("edit")} />;
   if (view === "publish") return <PublishScreen ev={ev} onBack={() => setView("edit")} onPublish={async (invite) => { 
     setIsSaving(true);
-    const c = { ...ev, status: "published" as const, publishedAt: Date.now(), invite, candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0), sections: JSON.parse(JSON.stringify(ev.sections)) };
+    
+    const syncedEv = await syncMockInterviews(ev);
+    
+    const c = { ...syncedEv, status: "published" as const, publishedAt: Date.now(), invite, candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0), sections: JSON.parse(JSON.stringify(syncedEv.sections)) };
     const saved = await saveEvaluation(c);
     if (saved) {
       clearDraftLocally(c.id);
@@ -165,7 +173,7 @@ function EvaluationWorkspace() {
             update(x => {
               if (kind === "labs") x.sections.push({ id: newUid(), kind: "labs", title: "Engineering Labs", labs: [] });
               else if (kind === "assessment") x.sections.push({ id: newUid(), kind: "assessment", title: "Knowledge Assessment", questions: [] });
-              else x.sections.push({ id: newUid(), kind: "discussion", title: "Engineering Discussion", duration: 15, mode: "Automatic", questions: [] });
+              else x.sections.push({ id: newUid(), kind: "discussion", title: "Engineering Discussion", duration: 15, mode: "Custom", questions: [] });
             });
             setAddSectionOpen(false);
           }}
@@ -285,6 +293,122 @@ function LabsSectionBody({ section, onChange, onAddLab }: { section: LabsSection
   );
 }
 
+function LabPreview({ l }: { l: any }) {
+  return (
+    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
+      {l.description ? (
+        <div className="whitespace-pre-wrap">{l.description}</div>
+      ) : l.text ? (
+        <div className="whitespace-pre-wrap">{l.text}</div>
+      ) : (
+        <div className="italic text-neutral-500">No detailed description available.</div>
+      )}
+      
+      <div className="grid grid-cols-2 gap-4 text-[12px]">
+        <div>
+          <div className="text-neutral-500">Domain</div>
+          <div className="text-white">{l.domain || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Scenario</div>
+          <div className="text-white">{l.scenario || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Difficulty</div>
+          <div className="text-white">{l.difficulty || "N/A"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Duration</div>
+          <div className="text-white">{l.duration_minutes || 0} min</div>
+        </div>
+        <div>
+          <div className="text-neutral-500">Marks</div>
+          <div className="text-white">{l.marks || 0}</div>
+        </div>
+      </div>
+      
+      {l.programming_languages && l.programming_languages.length > 0 && (
+        <div>
+          <div className="text-neutral-500 mb-1 text-[12px]">Programming Languages</div>
+          <div className="flex flex-wrap gap-1">
+            {l.programming_languages.map((x: string) => <Chip key={x}>{x}</Chip>)}
+          </div>
+        </div>
+      )}
+      
+      {l.databases && l.databases.length > 0 && (
+        <div>
+          <div className="text-neutral-500 mb-1 text-[12px]">Databases</div>
+          <div className="flex flex-wrap gap-1">
+            {l.databases.map((x: string) => <Chip key={x}>{x}</Chip>)}
+          </div>
+        </div>
+      )}
+      
+      {l.tasks && l.tasks.length > 0 && (
+        <div className="border-t border-white/5 pt-4">
+          <div className="text-neutral-400 font-semibold mb-3">Tasks in this Lab</div>
+          <div className="space-y-2">
+            {l.tasks.map((t: any, i: number) => (
+              <div key={t.id || i} className="rounded bg-black/20 p-3 text-[12px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-white">{i + 1}. {t.title}</span>
+                  {t.difficulty && <span className="text-[10px] text-neutral-400">{t.difficulty}</span>}
+                </div>
+                {t.description && <div className="text-neutral-400 line-clamp-2 mt-1 whitespace-pre-wrap">{t.description}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function QuestionPreview({ q }: { q: any }) {
+  return (
+    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
+      {q.text && <div className="whitespace-pre-wrap">{q.text}</div>}
+      
+      {q.mcq_options && q.mcq_options.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-semibold text-neutral-400">Options:</div>
+          {q.mcq_options.map((opt: any, i: number) => (
+            <div key={i} className="flex items-start gap-3 rounded bg-black/20 px-3 py-2">
+              <div className="mt-0.5">{opt.is_correct ? <Check className="h-4 w-4 text-emerald-400" /> : <div className="h-4 w-4 rounded-full border border-white/10" />}</div>
+              <div className="flex-1">{opt.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {q.test_cases_basic && q.test_cases_basic.length > 0 && (
+        <div className="space-y-3">
+          <div className="font-semibold text-neutral-400">Examples:</div>
+          {q.test_cases_basic.map((ex: any, i: number) => (
+            <div key={i} className="rounded bg-black/20 p-3 font-mono text-[11px]">
+              <div><span className="text-neutral-500">Input:</span> {ex.input}</div>
+              <div className="mt-2"><span className="text-neutral-500">Output:</span> {ex.output}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssessmentQuestionItem({ q, onRemove }: { q: any, onRemove: () => void }) {
+  return (
+    <li className="flex flex-col rounded-md border border-white/5 bg-black/20 px-3 py-2.5">
+      <div className="flex items-center gap-3">
+        <span className="line-clamp-1 flex-1 text-[12px] text-neutral-300">{q.text || q.title || "Untitled Question"}</span>
+        <span className="text-[10px] text-neutral-500">{q.difficulty} &middot; {q.marks}m &middot; {q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)} min</span>
+        <ToolBtn title="Remove" onClick={onRemove}><X className="h-3 w-3" /></ToolBtn>
+      </div>
+    </li>
+  );
+}
+
 function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section: AssessmentSection; onChange: (s: Section) => void; onAddQuestions: () => void }) {
   const totalQ = section.questions.length;
   const totalM = section.questions.reduce((a, q) => a + q.marks, 0);
@@ -302,11 +426,11 @@ function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section:
       {section.questions.length > 0 && (
         <ul className="mt-2 space-y-1">
           {section.questions.map(q => (
-            <li key={q.id} className="flex items-center gap-3 rounded-md border border-white/5 bg-black/20 px-3 py-2.5 text-[12px]">
-              <span className="line-clamp-1 flex-1 text-neutral-300">{q.text || q.title || "Untitled Question"}</span>
-              <span className="text-[10px] text-neutral-500">{q.difficulty} · {q.marks}m · {q.duration_minutes || (q.seconds ? Math.ceil(q.seconds/60) : 0)} min</span>
-              <ToolBtn title="Remove" onClick={() => onChange({ ...section, questions: section.questions.filter(qq => qq.id !== q.id) })}><X className="h-3 w-3" /></ToolBtn>
-            </li>
+            <AssessmentQuestionItem 
+              key={q.id} 
+              q={q} 
+              onRemove={() => onChange({ ...section, questions: section.questions.filter(qq => qq.id !== q.id) })} 
+            />
           ))}
         </ul>
       )}
@@ -316,7 +440,6 @@ function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section:
 }
 
 function DiscussionSectionBody({ section, onChange }: { section: DiscussionSection; onChange: (s: Section) => void }) {
-  const [custom, setCustom] = useState("");
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
@@ -331,35 +454,65 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Question Mode</div>
           <div className="mt-1 flex items-center gap-2">
-            {(["Automatic", "Custom", "Hybrid"] as const).map(m => (
-              <button key={m} onClick={() => onChange({ ...section, mode: m })} className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === m ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}>{m}</button>
-            ))}
+            <button className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[12px] text-amber-300">Custom</button>
           </div>
         </div>
       </div>
-      {section.mode === "Automatic" && (
-        <div className="rounded-lg border border-white/5 bg-black/20 p-3 text-[12px] text-neutral-400">
-          <div className="flex items-center gap-2 text-neutral-300"><Sparkles className="h-3.5 w-3.5 text-amber-400" /> Vitarka AI will generate questions from labs, assessment answers and candidate decisions.</div>
+      
+      <div className="rounded-lg border border-white/5 bg-black/20 p-3">
+        <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
+        <div className="mt-4">
+          <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
         </div>
-      )}
-      {(section.mode === "Custom" || section.mode === "Hybrid") && (
-        <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-          <div className="text-[12px] text-neutral-300">Custom questions</div>
-          <ul className="mt-2 space-y-1">
-            {section.questions.map((q, i) => (
-              <li key={i} className="flex items-center gap-2 rounded-md bg-white/[0.02] px-2 py-1.5 text-[12px] text-neutral-300">
-                <span className="text-[10px] text-neutral-500">Q{i + 1}</span>
-                <span className="flex-1">{q}</span>
-                <ToolBtn title="Remove" onClick={() => onChange({ ...section, questions: section.questions.filter((_, j) => j !== i) })}><X className="h-3 w-3" /></ToolBtn>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-2 flex items-center gap-2">
-            <input value={custom} onChange={e => setCustom(e.target.value)} placeholder="How would you improve scalability?" className="flex-1 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-[12px] outline-none" />
-            <button onClick={() => { if (custom.trim()) { onChange({ ...section, questions: [...section.questions, custom.trim()] }); setCustom(""); } }} className="rounded-md bg-white/10 px-3 py-1.5 text-[12px] text-white hover:bg-white/15">Add</button>
+      </div>
+    </div>
+  );
+}
+
+function QuestionTreeBuilder({ questions, onChange, level = 0 }: { questions: PredefinedQuestion[], onChange: (qs: PredefinedQuestion[]) => void, level?: number }) {
+  const [newText, setNewText] = useState("");
+  
+  const addNode = () => {
+    if (newText.trim()) {
+      onChange([...questions, { text: newText.trim(), follow_ups: [] }]);
+      setNewText("");
+    }
+  };
+
+  const updateNode = (index: number, updated: PredefinedQuestion) => {
+    const copy = [...questions];
+    copy[index] = updated;
+    onChange(copy);
+  };
+
+  const removeNode = (index: number) => {
+    const copy = [...questions];
+    copy.splice(index, 1);
+    onChange(copy);
+  };
+
+  return (
+    <div className="space-y-2">
+      {questions.map((q, i) => (
+        <div key={i} className={`rounded-md border border-white/5 bg-white/[0.02] p-3 text-[12px] text-neutral-300`}>
+          <div className="flex items-start gap-2">
+            <span className="mt-1 text-[10px] text-neutral-500">{level === 0 ? "Q" : "↳"}{i + 1}</span>
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <input value={q.text} onChange={e => updateNode(i, { ...q, text: e.target.value })} className="flex-1 bg-transparent outline-none border-b border-white/10 focus:border-amber-400/50" />
+                <ToolBtn title="Remove" onClick={() => removeNode(i)}><X className="h-3 w-3" /></ToolBtn>
+              </div>
+              <div className="pl-4 border-l border-white/5">
+                <QuestionTreeBuilder questions={q.follow_ups} onChange={(f) => updateNode(i, { ...q, follow_ups: f })} level={level + 1} />
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      ))}
+      <div className="flex items-center gap-2 mt-2">
+        <input value={newText} onChange={e => setNewText(e.target.value)} placeholder={level === 0 ? "Add a main question..." : "Add a follow-up question..."} className="flex-1 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-[12px] outline-none focus:border-amber-400/50" />
+        <button onClick={addNode} className="rounded-md bg-white/10 px-3 py-1.5 text-[12px] text-white hover:bg-white/15">Add</button>
+      </div>
     </div>
   );
 }
@@ -473,6 +626,8 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   const [diff, setDiff] = useState<string>("All");
 
   const [labs, setLabs] = useState<LabItem[]>([]);
+  const [previewLab, setPreviewLab] = useState<any>(null);
+
   useEffect(() => { fetchLabs().then(setLabs); }, []);
 
   const filtered = useMemo(() => labs.filter(l => {
@@ -486,7 +641,29 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   }), [q, domain, lang, db, scenario, diff, labs]);
 
   return (
-    <Drawer title="Engineering Lab Library" subtitle="Real labs, not textbook questions." onClose={onClose}>
+    <Drawer 
+      title="Engineering Lab Library" 
+      subtitle="Real labs, not textbook questions." 
+      onClose={onClose}
+      leftPanel={
+        previewLab && (
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between border-b border-white/5 p-6">
+              <div className="text-[16px] font-semibold text-white">{previewLab.title || previewLab.text || "Preview"}</div>
+              <button onClick={() => setPreviewLab(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <LabPreview l={previewLab} />
+            </div>
+            <div className="border-t border-white/5 p-5 flex justify-end">
+              <button disabled={existing.includes(previewLab.id)} onClick={() => { onAdd(previewLab); setPreviewLab(null); }} className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50">
+                {existing.includes(previewLab.id) ? "Added" : "Add Lab"}
+              </button>
+            </div>
+          </div>
+        )
+      }
+    >
       <div className="grid gap-2 border-b border-white/5 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
@@ -511,7 +688,10 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
                   </div>
                   <div className="mt-1.5 text-[11px] text-neutral-500"><Clock className="mr-1 inline h-3 w-3" />{l.duration_minutes} min · <Award className="mr-1 inline h-3 w-3" />{l.marks} marks</div>
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setPreviewLab(l)} className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5">
+                    <Eye className="h-3 w-3" /> Preview
+                  </button>
                   <button disabled={added} onClick={() => onAdd(l)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
                     {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
                   </button>
@@ -526,6 +706,28 @@ function LabDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: 
   );
 }
 
+function QuestionDrawerItem({ it, added, onAdd, onPreview }: { it: any, added: boolean, onAdd: (q: any) => void, onPreview: (q: any) => void }) {
+  return (
+    <div className="flex flex-col rounded-lg border border-white/5 bg-white/[0.02] p-3">
+      <div className="text-[13px] text-white flex-1">{it.text || it.title}</div>
+      <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
+        {it.programming_languages?.map((x: string)=><Chip key={x}>{x}</Chip>)}{it.databases?.map((x: string)=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
+      </div>
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-[11px] text-neutral-500">{it.marks} marks &middot; {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => onPreview(it)} className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5">
+            <Eye className="h-3 w-3" /> Preview
+          </button>
+          <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
+            {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onClose: () => void; onAdd: (q: QuestionItem) => void }) {
   const [q, setQ] = useState("");
   const [lang, setLang] = useState("All");
@@ -536,6 +738,7 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [allTopics, setAllTopics] = useState<TopicItem[]>([]);
   const [course, setCourse] = useState("All");
   const [topic, setTopic] = useState("All");
 
@@ -543,11 +746,42 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   
   const [loading, setLoading] = useState(true);
   
+  const [previewQ, setPreviewQ] = useState<any>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  
+  const handlePreview = async (q: any) => {
+    setLoadingPreview(true);
+    const { fetchQuestionDetails } = await import('@/lib/recruiter');
+    const details = await fetchQuestionDetails(q.id);
+    setPreviewQ(details || q);
+    setLoadingPreview(false);
+  };
+
+  const handleAdd = async (q: any) => {
+    let finalQ = q;
+    // If we haven't fetched the details for this question yet, fetch them before adding
+    if (!q.content && !q.mcq_options) {
+      const { fetchQuestionDetails } = await import('@/lib/recruiter');
+      const details = await fetchQuestionDetails(q.id);
+      finalQ = details || q;
+    }
+
+    const c = courses.find((c: any) => c.id === finalQ.course);
+    const t = allTopics.find((t: any) => t.id === finalQ.topic);
+
+    onAdd({
+      ...finalQ,
+      course_title: c ? c.name : "Other Subjects",
+      topic_title: t ? t.name : "Other Topics",
+    });
+  };
+
   useEffect(() => { 
     setLoading(true);
     Promise.all([
       fetchQuestions().then(setQuestions),
-      fetchCourses().then(setCourses)
+      fetchCourses().then(setCourses),
+      fetchTopics().then(setAllTopics)
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -567,7 +801,29 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
   }), [q, lang, diff, format, course, topic, questions]);
 
   return (
-    <Drawer title="Assessment Question Bank" subtitle="Curated by topic and experience level." onClose={onClose}>
+    <Drawer 
+      title="Assessment Question Bank" 
+      subtitle="Curated by topic and experience level." 
+      onClose={onClose}
+      leftPanel={
+        previewQ && (
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between border-b border-white/5 p-6">
+              <div className="text-[16px] font-semibold text-white">{previewQ.title || previewQ.text || "Preview"}</div>
+              <button onClick={() => setPreviewQ(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <QuestionPreview q={previewQ} />
+            </div>
+            <div className="border-t border-white/5 p-5 flex justify-end">
+              <button disabled={existing.includes(previewQ.id)} onClick={() => { handleAdd(previewQ); setPreviewQ(null); }} className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50">
+                {existing.includes(previewQ.id) ? "Added" : "Add Question"}
+              </button>
+            </div>
+          </div>
+        )
+      }
+    >
       <div className="grid gap-2 border-b border-white/5 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
@@ -597,25 +853,9 @@ function QuestionDrawer({ existing, onClose, onAdd }: { existing: string[]; onCl
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
           </div>
         )}
-        {!loading && filtered.map(it => {
-          const added = existing.includes(it.id);
-          return (
-            <div key={it.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
-              <div className="text-[13px] text-white">{it.text || it.title}</div>
-              <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
-                {it.programming_languages?.map(x=><Chip key={x}>{x}</Chip>)}{it.databases?.map(x=><Chip key={x}>{x}</Chip>)}<Chip>{it.difficulty}</Chip><Chip>{it.experience || it.level}</Chip><Chip>{it.format || it.type}</Chip>
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-[11px] text-neutral-500">{it.marks} marks · {it.duration_minutes || it.duration || (it.seconds ? Math.ceil(it.seconds/60) : 0)} min</div>
-                <div className="flex items-center gap-1">
-                  <button disabled={added} onClick={() => onAdd(it)} className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500">
-                    {added ? <><Check className="h-3 w-3" /> Added</> : <><Plus className="h-3 w-3" /> Add</>}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {!loading && filtered.map(it => (
+          <QuestionDrawerItem key={it.id} it={it} added={existing.includes(it.id)} onAdd={handleAdd} onPreview={handlePreview} />
+        ))}
         {filtered.length === 0 && <div className="py-8 text-center text-[12px] text-neutral-500">No questions match your filters.</div>}
       </div>
     </Drawer>
@@ -661,9 +901,16 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
   );
 }
 
-function Drawer({ children, onClose, title, subtitle }: { children: React.ReactNode; onClose: () => void; title: string; subtitle?: string }) {
+function Drawer({ children, onClose, title, subtitle, leftPanel }: { children: React.ReactNode; onClose: () => void; title: string; subtitle?: string; leftPanel?: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/50 backdrop-blur" onClick={onClose}>
+      {leftPanel && (
+        <div onClick={(e) => e.stopPropagation()} className="flex flex-1 justify-end p-8 pb-10 max-h-screen">
+          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-2xl flex flex-col">
+            {leftPanel}
+          </div>
+        </div>
+      )}
       <div onClick={(e) => e.stopPropagation()} className="flex h-full w-[480px] flex-col border-l border-white/10 bg-neutral-950">
         <div className="flex items-start justify-between border-b border-white/5 p-5">
           <div>
@@ -681,76 +928,150 @@ function Drawer({ children, onClose, title, subtitle }: { children: React.ReactN
 // ---------------- Preview / Publish screens ----------------
 
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
-  const t = evaluationTotals(ev);
-  const link = typeof window !== "undefined" ? `${window.location.origin}/evaluation?e=${ev.id}` : "";
-  const [copied, setCopied] = useState(false);
+  const previewData = useMemo(() => {
+    return {
+      sections: ev.sections.map(s => {
+        if (s.kind === "labs") {
+          return {
+            type: "LAB",
+            id: s.id,
+            title: s.title,
+            questions: (s as any).labs // Workspace expects questions array for labs
+          };
+        } else if (s.kind === "assessment") {
+          return {
+            type: "KNOWLEDGE_ASSESSMENT",
+            id: s.id,
+            title: s.title,
+            questions: (s as any).questions
+          };
+        } else if (s.kind === "discussion") {
+          return {
+            type: "VITARKA_AI_INTERVIEW",
+            id: s.id,
+            title: s.title
+          };
+        }
+        return null;
+      }).filter(Boolean)
+    };
+  }, [ev]);
 
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="min-h-screen p-10">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white"><ChevronLeft className="h-3.5 w-3.5" /> Back to workspace</button>
-      <div className="mx-auto mt-8 max-w-3xl">
-        <div className="text-[10px] uppercase tracking-widest text-neutral-500">Evaluation</div>
-        <h1 className="mt-1 text-[32px] font-semibold tracking-tight">{ev.title}</h1>
-        <div className="mt-1 text-[12px] text-neutral-400">{ev.domain || "—"} · {t.minutes} min · {t.marks} marks</div>
-
-        {ev.status === "published" && (
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
-            <div className="mt-1 flex items-center justify-between">
-              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
-              <button onClick={handleCopy} className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Copied!" : "Copy Link"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 divide-y divide-white/5 border-y border-white/5">
-          {ev.sections.map((s, i) => (
-            <div key={s.id} className="py-5">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Section {i + 1}</div>
-              <div className="mt-1 text-[16px] text-white">{s.title}</div>
-              <div className="mt-1 text-[12px] text-neutral-400">
-                {s.kind === "labs" && `${s.labs?.length || 0} labs · ${s.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0)} min`}
-                {s.kind === "assessment" && `${s.questions?.length || 0} questions`}
-                {s.kind === "discussion" && `${s.duration} min · ${s.mode} mode`}
-              </div>
-            </div>
-          ))}
+  const content = (
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      <div className="flex h-12 items-center justify-between border-b border-white/10 bg-neutral-950 px-4 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-400">STUDENT PREVIEW</div>
+          <div className="text-[13px] font-medium text-neutral-300">{ev.title}</div>
         </div>
-
-        <div className="mt-6 grid grid-cols-3 gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-          <Stat label="Total sections" value={t.sections} />
-          <Stat label="Total duration" value={`${t.minutes} min`} />
-          <Stat label="Total marks" value={t.marks} />
-        </div>
-
-        <div className="mt-8 flex items-center gap-2">
-          <button onClick={onBack} className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5"><Pencil className="mr-1 inline h-3.5 w-3.5" /> Continue editing</button>
-        </div>
+        <button onClick={onBack} className="inline-flex items-center gap-1.5 rounded bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-white/20">
+          <X className="h-3.5 w-3.5" /> Close Preview
+        </button>
+      </div>
+      <div className="relative flex-1 overflow-hidden">
+        <Workspace previewData={previewData} />
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
+}
+
+function parseCSVLine(text: string) {
+  const ret = [];
+  let state = 0; // 0 = unquoted, 1 = quoted
+  let val = "";
+  for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (state === 0) {
+          if (c === '"') { state = 1; }
+          else if (c === ',') { ret.push(val); val = ""; }
+          else { val += c; }
+      } else {
+          if (c === '"') {
+              if (i + 1 < text.length && text[i + 1] === '"') { val += '"'; i++; } // escaped quote
+              else { state = 0; }
+          }
+          else { val += c; }
+      }
+  }
+  ret.push(val);
+  return ret;
 }
 
 function PublishScreen({ ev, onBack, onPublish }: { ev: Evaluation; onBack: () => void; onPublish: (invite: NonNullable<Evaluation["invite"]>) => void }) {
   const [type, setType] = useState<"email" | "link" | "csv">("email");
   const [emails, setEmails] = useState("");
+  const [csvError, setCsvError] = useState("");
+  const [csvSuccess, setCsvSuccess] = useState("");
   const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">("14");
   const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">("1");
   const link = useMemo(() => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`, [ev.id]);
   const [copied, setCopied] = useState(false);
 
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCsvError("");
+    setCsvSuccess("");
+    const f = e.target.files?.[0];
+    if (!f) return;
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      
+      if (lines.length === 0) {
+        setCsvError("CSV file is empty.");
+        return;
+      }
+      
+      const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+      const emailIdx = headers.findIndex(h => h === "email");
+      
+      if (emailIdx === -1) {
+        setCsvError("Invalid CSV format. Missing 'email' column header.");
+        return;
+      }
+      
+      const parsedEmails = new Set<string>();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      let invalidCount = 0;
+      
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        const emailStr = cols[emailIdx]?.trim();
+        if (emailStr) {
+           if (emailRegex.test(emailStr)) {
+               parsedEmails.add(emailStr);
+           } else {
+               invalidCount++;
+           }
+        }
+      }
+      
+      if (parsedEmails.size === 0) {
+         setCsvError(`No valid emails found in CSV. ${invalidCount} invalid entries.`);
+         return;
+      }
+      
+      setEmails(Array.from(parsedEmails).join("\n"));
+      setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
+    };
+    reader.readAsText(f);
+  };
+
   const submit = () => {
+    if (type === "csv" && !emails) {
+       alert("Please upload a valid CSV first.");
+       return;
+    }
     const list = emails.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
-    onPublish({ type, emails: list, expiry, attempts, link });
+    if ((type === "email" || type === "csv") && list.length === 0) {
+       alert("Please provide at least one valid email.");
+       return;
+    }
+    const publishType = type === "csv" ? "email" : type;
+    onPublish({ type: publishType, emails: list, expiry, attempts, link });
   };
 
   return (
@@ -803,8 +1124,13 @@ function PublishScreen({ ev, onBack, onPublish }: { ev: Evaluation; onBack: () =
               <div className="text-[11px] uppercase tracking-widest text-neutral-500">Upload CSV</div>
               <label className="mt-2 flex cursor-pointer items-center justify-between rounded-lg border border-dashed border-white/10 p-4 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white">
                 <span className="flex items-center gap-2"><Upload className="h-4 w-4" /> Drop CSV or browse (email,name,role)</span>
-                <input type="file" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) setEmails(`imported: ${f.name}`); }} />
+                <input type="file" accept=".csv" className="sr-only" onChange={handleCsvUpload} />
               </label>
+              <div className="mt-2 flex justify-between items-center text-[11px]">
+                  <a href={`data:text/csv;charset=utf-8,email\ncandidate1@example.com\ncandidate2@example.com\ncandidate3@example.com`} download="sample_template.csv" className="text-emerald-400 hover:underline">Download Sample CSV</a>
+              </div>
+              {csvError && <div className="mt-2 text-[12px] text-red-400">{csvError}</div>}
+              {csvSuccess && <div className="mt-2 text-[12px] text-emerald-400">{csvSuccess}</div>}
             </div>
           )}
         </div>
@@ -854,15 +1180,21 @@ function PublishedScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void })
         <h1 className="mt-6 text-[26px] font-semibold tracking-tight">Evaluation published</h1>
         <p className="mt-1 text-[13px] text-neutral-400">{ev.title} is now live.</p>
         
-        <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
-          <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
-          <div className="mt-1 flex items-center justify-between">
-            <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
-            <button onClick={handleCopy} className="ml-2 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
+        {ev.invite?.type === "email" ? (
+          <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+            <div className="text-[14px] text-emerald-400">Emails have been successfully sent to all invited candidates.</div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
+            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Shareable link</div>
+            <div className="mt-1 flex items-center justify-between">
+              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
+              <button onClick={handleCopy} className="ml-2 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20">
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="mt-8 flex items-center justify-center gap-2">
           <button onClick={onBack} className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5">Back to workspace</button>
           <Link to="/recruiter/evaluations" className="rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2 text-[12px] font-medium text-black">View all evaluations</Link>

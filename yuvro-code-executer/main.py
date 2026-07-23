@@ -19,6 +19,10 @@ from observability import setup_telemetry, instrument_fastapi_app, get_tracer, r
 import re as _re
 from database_evaluator.factory import DatabaseEvaluatorFactory
 
+import base64
+import io
+import tempfile
+from playwright.sync_api import sync_playwright
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -1754,25 +1758,59 @@ async def get_file_tree(
     """
     Return the file tree for a student's workspace.
     Creates the workspace and seeds starter files if it doesn't exist yet.
+
+    Seeding priority (for real labs that pass starters={}):
+      1. Copy from the starter repo clone at labs/<lab_id>/<repo_name>/ (canonical new layout)
+      2. Fall back to inline starters JSON if provided
+      3. Leave empty if nothing available (Git Lab — students work in terminal)
     """
     ws = _workspace_dir(user_id, lab_id, sprint_id)
     seeded = False
-
     if not ws.exists():
         ws.mkdir(parents=True, exist_ok=True)
+
+        # Parse any inline starters provided by the frontend
+        seed_files: dict = {}
         if starters is not None:
             try:
                 seed_files = json.loads(starters)
             except Exception:
-                seed_files = DEFAULT_STARTERS.copy()
+                seed_files = {}
+
+        if seed_files:
+            # Inline starters provided (demo / preview mode)
+            for fname, content in seed_files.items():
+                fpath = ws / fname
+                fpath.parent.mkdir(parents=True, exist_ok=True)
+                fpath.write_text(content)
+            seeded = True
         else:
-            seed_files = DEFAULT_STARTERS.copy()
-            
-        for fname, content in seed_files.items():
-            fpath = ws / fname
-            fpath.parent.mkdir(parents=True, exist_ok=True)
-            fpath.write_text(content)
-        seeded = True
+            # No inline starters — try to copy from the lab's starter repo clone
+            seeded = _copy_from_starter(ws, lab_id)
+            # If no starter exists (Git Lab), leave workspace empty;
+            # students work entirely through the terminal
+    else:
+        # Workspace already exists — check if it is empty (only .bash_history)
+        user_files = [
+            f for f in ws.iterdir()
+            if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
+        ]
+        if not user_files:
+            # Empty workspace — try inline starters first, then starter repo
+            seed_files = {}
+            if starters is not None:
+                try:
+                    seed_files = json.loads(starters)
+                except Exception:
+                    seed_files = {}
+            if seed_files:
+                for fname, content in seed_files.items():
+                    fpath = ws / fname
+                    fpath.parent.mkdir(parents=True, exist_ok=True)
+                    fpath.write_text(content)
+                seeded = True
+            else:
+                seeded = _copy_from_starter(ws, lab_id)
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1848,7 +1886,7 @@ class EvaluateRequest(BaseModel):
     scoring_rules: dict = {} 
 
 @workspace_router.post("/evaluate")
-async def evaluate_task(body: EvaluateRequest):
+def evaluate_task(body: EvaluateRequest):
     """
     Generic regex-based evaluation engine.
     Reads scoring_rules from the request body (originally stored in 

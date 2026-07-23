@@ -132,7 +132,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             user = request.user
             mock_interview = self.get_object()
 
-            active_session = MockInterviewSubmission.objects.filter(
+            force = request.data.get('force', False)
+            active_session = not force and MockInterviewSubmission.objects.filter(
                 user=user,
                 status__in=[MockInterviewSubmission.STATUS_STARTED, MockInterviewSubmission.STATUS_IN_PROGRESS]
             ).exists()
@@ -218,19 +219,29 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 resume=resume_file
             )
 
+            is_sequential = str(request.data.get('sequential', '')).lower() in ['true', '1', 'yes']
+
             first_question_text = ""
             if interview_type == "predefined":
-                main_pool = PredefinedInterviewQuestion.objects.filter(
-                    mock_interview=mock_interview,
-                    level=1
-                ).exclude(id__in=progress.asked_questions)
+                if is_sequential:
+                    main_pool = PredefinedInterviewQuestion.objects.filter(
+                        mock_interview=mock_interview,
+                        level=1
+                    ).order_by('created_at')
+                    selected_mains = list(main_pool)
+                else:
+                    main_pool = PredefinedInterviewQuestion.objects.filter(
+                        mock_interview=mock_interview,
+                        level=1
+                    ).exclude(id__in=progress.asked_questions)
+                    
+                    if main_pool.count() < 10:
+                        progress.asked_questions = [] 
+                        progress.save()
+                        main_pool = PredefinedInterviewQuestion.objects.filter(mock_interview=mock_interview, level=1)
+                    
+                    selected_mains = list(main_pool.order_by('?')[:10])
                 
-                if main_pool.count() < 10:
-                    progress.asked_questions = [] 
-                    progress.save()
-                    main_pool = PredefinedInterviewQuestion.objects.filter(mock_interview=mock_interview, level=1)
-                
-                selected_mains = list(main_pool.order_by('?')[:10])
                 planned_ids = [str(q.id) for q in selected_mains]
                 
                 greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
@@ -388,7 +399,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     except PredefinedInterviewQuestion.DoesNotExist:
                         return self.get_next_question(request, pk)
                 else:
-                    farewell = "Thank you! That concludes our predefined questions for today. I'll now finalize your performance report."
+                    farewell = "Thank you! That concludes our discussion for today. I'll now finalize your performance report."
                     ChatMessage.objects.create(
                         chat_session=chat_session,
                         message_type="assistant",

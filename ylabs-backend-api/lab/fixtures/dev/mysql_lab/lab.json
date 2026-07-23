@@ -1,0 +1,20 @@
+{
+  "labs": [
+    {
+      "title": "MySQL Lab",
+      "type": "BACKEND",
+      "description": "Master SQL and MySQL fundamentals through interactive queries.",
+      "difficulty": "EASY",
+      "icon": "database",
+      "prerequisites": "None",
+      "skills": [
+        "SQL",
+        "MySQL",
+        "Databases",
+        "Data Engineering"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}
