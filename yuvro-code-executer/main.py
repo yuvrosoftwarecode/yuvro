@@ -17,6 +17,8 @@ import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
 import re as _re
+from database_evaluator.factory import DatabaseEvaluatorFactory
+
 import base64
 import io
 import tempfile
