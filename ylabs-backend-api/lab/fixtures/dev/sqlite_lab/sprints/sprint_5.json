@@ -5,29 +5,35 @@
   "lab_title": "SQLite Lab",
   "tickets": [
     {
-      "title": "Sort Tasks Ascending",
-      "ticket_slug": "sqlite-501",
-      "description": "Get the `id` and `title` of all tasks, ordered by priority in ascending order.",
+      "title": "Complete a Task",
+      "ticket_slug": "sqlite-51",
+      "description": "Task with `id = 1` has been finished. Change its status to 'completed'.",
       "tasks": [
-        "Get the `id` and `title` of all tasks, ordered by priority in ascending order."
+        "Task with `id = 1` has been finished. Change its status to 'completed'."
       ],
       "learning_objectives": [
-        "Use ORDER BY ... ASC."
+        "Using UPDATE with a specific WHERE condition."
       ],
-      "evaluation": "RESULT_SET",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting ORDER BY."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
-        "ASC is the default, but write it explicitly for practice."
+        "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT id, title FROM todos ORDER BY priority ASC, id ASC;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT status FROM todos WHERE id = 1;",
+        "expected_result": "completed"
       },
       "solution": {
-        "query.sql": "SELECT id, title FROM todos ORDER BY priority ASC;",
-        "database_identifier": "todo_management"
+        "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -37,29 +43,35 @@
       "order_index": 1
     },
     {
-      "title": "Top 5 Recent Tasks (DESC)",
-      "ticket_slug": "sqlite-502",
-      "description": "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`.",
+      "title": "Delete Old Data",
+      "ticket_slug": "sqlite-52",
+      "description": "Delete any todos that belong to `user_id = 2`.",
       "tasks": [
-        "Get the 5 most recently created todos (assuming highest ID is most recent). Fetch their `id` and `title`."
+        "Delete any todos that belong to `user_id = 2`."
       ],
       "learning_objectives": [
-        "Combining ORDER BY ... DESC and LIMIT."
+        "Using DELETE."
       ],
-      "evaluation": "RESULT_SET",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the DESC keyword."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT COUNT(*) FROM todos WHERE user_id = 2;",
+        "expected_result": "0"
       },
       "solution": {
-        "query.sql": "SELECT id, title FROM todos ORDER BY id DESC LIMIT 5;",
-        "database_identifier": "todo_management"
+        "query.sql": "DELETE FROM todos WHERE user_id = 2;",
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -69,29 +81,35 @@
       "order_index": 2
     },
     {
-      "title": "Complete a Task",
-      "ticket_slug": "sqlite-503",
-      "description": "Task with `id = 1` has been finished. Change its status to 'completed'.",
+      "title": "Search by Title",
+      "ticket_slug": "sqlite-53",
+      "description": "Find all todos where the title contains the word \"database\".",
       "tasks": [
-        "Task with `id = 1` has been finished. Change its status to 'completed'."
+        "Find all todos where the title contains the word \"database\"."
       ],
       "learning_objectives": [
-        "Using UPDATE with a specific WHERE condition."
+        "Using LIKE with wildcards (%)."
       ],
-      "evaluation": "DATABASE_STATE",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting the WHERE clause (updates all rows)."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT * FROM todos ORDER BY id;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT COUNT(*) FROM todos WHERE title LIKE '%database%';",
+        "expected_result": ""
       },
       "solution": {
-        "query.sql": "UPDATE todos SET status = 'completed' WHERE id = 1;",
-        "database_identifier": "todo_management"
+        "query.sql": "SELECT * FROM todos WHERE title LIKE '%database%';",
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -99,166 +117,6 @@
         "SQL"
       ],
       "order_index": 3
-    },
-    {
-      "title": "Delete Old Data",
-      "ticket_slug": "sqlite-504",
-      "description": "Delete any todos that belong to `user_id = 2`.",
-      "tasks": [
-        "Delete any todos that belong to `user_id = 2`."
-      ],
-      "learning_objectives": [
-        "Using DELETE."
-      ],
-      "evaluation": "DATABASE_STATE",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Forgetting the WHERE clause (deletes all rows)."
-      ],
-      "hints": [
-        "Read the SQLite documentation for the specific keyword."
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT * FROM todos ORDER BY id;"
-      },
-      "solution": {
-        "query.sql": "DELETE FROM todos WHERE user_id = 2;",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 4
-    },
-    {
-      "title": "Increment Priority",
-      "ticket_slug": "sqlite-505",
-      "description": "Increase the `priority` of all pending todos by 1.",
-      "tasks": [
-        "Increase the `priority` of all pending todos by 1."
-      ],
-      "learning_objectives": [
-        "Use math inside UPDATE statements."
-      ],
-      "evaluation": "DATABASE_STATE",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Forgetting the WHERE clause or using wrong math syntax."
-      ],
-      "hints": [
-        "Use SET priority = priority + 1."
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT * FROM todos ORDER BY id;"
-      },
-      "solution": {
-        "query.sql": "UPDATE todos SET priority = priority + 1 WHERE status = 'pending';",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 5
-    },
-    {
-      "title": "Drop Column",
-      "ticket_slug": "sqlite-506",
-      "description": "Remove the `due_date` column entirely from the `todos` table.",
-      "tasks": [
-        "Remove the `due_date` column entirely from the `todos` table."
-      ],
-      "learning_objectives": [
-        "Using ALTER TABLE to drop columns."
-      ],
-      "evaluation": "SCHEMA",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Forgetting to specify the column name or using older SQLite syntax."
-      ],
-      "hints": [
-        "ALTER TABLE table_name DROP COLUMN column_name;"
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
-      },
-      "solution": {
-        "query.sql": "ALTER TABLE todos DROP COLUMN due_date;",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 6
-    },
-    {
-      "title": "Rename Column",
-      "ticket_slug": "sqlite-507",
-      "description": "Rename the `title` column to `task_name` in the `todos` table.",
-      "tasks": [
-        "Rename the `title` column to `task_name` in the `todos` table."
-      ],
-      "learning_objectives": [
-        "Using ALTER TABLE to rename columns."
-      ],
-      "evaluation": "SCHEMA",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Forgetting RENAME COLUMN."
-      ],
-      "hints": [
-        "ALTER TABLE table_name RENAME COLUMN old_name TO new_name;"
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT sql FROM sqlite_master WHERE type='table' AND name='todos';"
-      },
-      "solution": {
-        "query.sql": "ALTER TABLE todos RENAME COLUMN title TO task_name;",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 7
-    },
-    {
-      "title": "Replace a Row",
-      "ticket_slug": "sqlite-508",
-      "description": "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL).",
-      "tasks": [
-        "Replace user with `id = 2` (Bob) with a new profile having the username 'Robert' and no email address (email = NULL)."
-      ],
-      "learning_objectives": [
-        "Overwriting a row with specific column updates."
-      ],
-      "evaluation": "DATABASE_STATE",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Omitting email field update or forgetting WHERE clause."
-      ],
-      "hints": [
-        "Use UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;"
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT * FROM users ORDER BY id;"
-      },
-      "solution": {
-        "query.sql": "UPDATE users SET username = 'Robert', email = NULL WHERE id = 2;",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 8
     }
   ]
 }
