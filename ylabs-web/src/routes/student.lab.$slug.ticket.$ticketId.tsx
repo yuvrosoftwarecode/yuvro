@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import ExamplesPanel from "@/components/ExamplesPanel";
 import {
   fetchFileTree,
   fetchFile,
@@ -826,6 +827,7 @@ function TicketIDE({
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
   const [progLang, setProgLang] = useState<ProgLang>("python");
+  const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
     if (isReal) return {};
@@ -1782,6 +1784,7 @@ function TicketIDE({
                 <ProblemPanel 
                   ticket={ticket} 
                   slug={slug} 
+                  labName={labTitle}
                   isReal={!tickets.some(t => t.id === ticket.id)} 
                   evaluating={evaluating}
                   evalResult={evalResult}
@@ -1869,6 +1872,15 @@ function TicketIDE({
                   </button>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
+                  {labTitle === "Data Structures Lab" && (
+                    <button
+                      onClick={() => setIsExamplesPanelOpen(true)}
+                      className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
+                    >
+                      <BookOpen className="h-3 w-3 text-primary" />
+                      Examples
+                    </button>
+                  )}
                   {isMultiLang && (
                     <label className="flex items-center gap-1">
                       <span className="opacity-70">Lang</span>
@@ -1934,9 +1946,9 @@ function TicketIDE({
                       <t.icon className="h-3 w-3" />{t.label}
                     </button>
                   ))}
-                  {ticketScore !== null && (
+                  {ticketScore !== null && ticketScore.total > 0 && (
                     <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
-                      SCORE: {ticketScore.passed} / {ticketScore.total}
+                      SCORE: {labTitle === "Data Structures Lab" ? `${Math.round((ticketScore.passed / ticketScore.total) * 100)}%` : `${ticketScore.passed} / ${ticketScore.total}`}
                     </div>
                   )}
                 </div>
@@ -2074,6 +2086,13 @@ function TicketIDE({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Modals */}
+      {isExamplesPanelOpen && (
+        <ExamplesPanel
+          onClose={() => setIsExamplesPanelOpen(false)}
+          currentLanguage={selectedLanguage || progLang}
+        />
+      )}
     </div>
   );
 }
@@ -2613,6 +2632,33 @@ function ProgressTile({ icon: Icon, label, value, tone, pct }: { icon: typeof Za
   );
 }
 
+function parseDPMarkdown(text: string) {
+  if (!text) return "";
+  
+  const codeBlocks: string[] = [];
+  let processed = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
+    codeBlocks.push(p1);
+    return `___CODE_BLOCK_${codeBlocks.length - 1}___`;
+  });
+
+  processed = processed
+    .replace(/###\s+([^\n]+)/g, '<h3 class="text-base font-bold mt-5 mb-2 text-foreground">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="bg-accent px-1.5 py-0.5 rounded text-[11px] font-mono text-foreground">$1</code>')
+    .replace(/\n/g, '<br/>');
+
+  processed = processed.replace(/___CODE_BLOCK_(\d+)___/g, (match, idx) => {
+    let block = codeBlocks[Number(idx)].trim();
+    block = block.replace(/Input:\s*/gi, 'Input:\n')
+                 .replace(/Output:\s*/gi, '\nOutput:\n')
+                 .replace(/\n{2,}/g, '\n')
+                 .trim();
+    return `<div class="bg-editor-bg border border-border rounded-md p-3 my-3 font-mono text-xs overflow-x-auto text-foreground"><div class="whitespace-pre-wrap">${block}</div></div>`;
+  });
+
+  return processed;
+}
+
 function Minimap({ code }: { code: string }) {
   const lines = code.split("\n");
   return (
@@ -2628,6 +2674,7 @@ function ProblemPanel({
   ticket, 
   isReal, 
   slug, 
+  labName,
   evaluating, 
   evalResult, 
   ticketScore, 
@@ -2636,6 +2683,7 @@ function ProblemPanel({
   ticket: any; 
   isReal?: boolean; 
   slug: string;
+  labName?: string;
   evaluating: Record<string, boolean>;
   evalResult: Record<string, { passed: boolean; reason: string }>;
   ticketScore: { passed: number; total: number } | null;
@@ -2650,21 +2698,29 @@ function ProblemPanel({
       <div>
         <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{ticket.id} · {ticket.tag}</div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        <p className="mt-2 text-muted-foreground">
-          {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
-        </p>
+        {labName === "Data Structures Lab" && isReal ? (
+          <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
+               dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
+        ) : (
+          <p className="mt-2 text-muted-foreground">
+            {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
+          </p>
+        )}
       </div>
 
       {isReal ? (
         <>
           {/* Tasks from DB */}
           {tasks.length > 0 && (
-            <Section title="✅ Tasks">
+            <Section title={labName === "Data Structures Lab" ? "✅ Test Cases" : "✅ Tasks"}>
               <div className="space-y-2 text-muted-foreground">
                 {tasks.map((task: any, idx: number) => {
                   const taskTitle = typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
+                  const isDS = labName === "Data Structures Lab";
+                  const isHidden = typeof task === "object" && (taskTitle.toLowerCase().includes("hidden") || task.is_hidden === true);
+                  
                   return (
                     <div key={idx} className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors">
                       <div className="flex items-start gap-3">
@@ -2673,7 +2729,22 @@ function ProblemPanel({
                         </span>
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
+                          {isDS ? (
+                            isHidden ? (
+                              <div className="mt-2 text-[11px] text-muted-foreground/70 italic">
+                                This test case is hidden and will be used during final evaluation.
+                              </div>
+                            ) : (
+                              <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
+                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
+                                <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
+                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
+                                <div className="whitespace-pre-wrap font-mono text-foreground">{task.expected_output || "No output"}</div>
+                              </div>
+                            )
+                          ) : (
+                            taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>
+                          )}
                           {taskMethod && (
                             <div className="mt-3 flex items-center flex-wrap gap-2">
                               <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-1 text-[11px] font-medium text-info">
@@ -2681,7 +2752,7 @@ function ProblemPanel({
                               </span>
                             </div>
                           )}
-                          {evalResult[task.task_slug || `task-${idx}`] && (
+                          {!isDS && evalResult[task.task_slug || `task-${idx}`] && (
                             <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
                               evalResult[task.task_slug || `task-${idx}`].passed 
                                 ? "border-success/20 bg-success/10 text-success" 

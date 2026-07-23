@@ -1,12 +1,12 @@
 {
   "title": "Sprint 6 — Trees",
   "description": "Master Trees through hand-picked algorithmic challenges.",
-  "xp_pool": 1600,
+  "xp_pool": 3300,
   "tickets": [
     {
       "title": "Ticket 1 — Maximum Depth of Binary Tree",
       "ticket_slug": "ticket-maximum-depth-of-binary-t",
-      "description": "Given the root of a binary tree, return its maximum depth.\n\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -100 <= Node.val <= 100\n\n**Input Format:**\nA level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.\n\n**Output Format:**\nA single integer representing the maximum depth.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n[3,9,20,null,null,15,7]\n```\nOutput:\n```\n3\n```\nExplanation: The longest path is 3 -> 20 -> 15 (or 3 -> 20 -> 7), which has 3 nodes.\n",
+      "description": "Given the root of a binary tree, return its maximum depth.\n\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -100 <= Node.val <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,9,20,null,null,15,7]\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\n[1,null,2]\n\nOutput:\n2\n```\n\n**Example 3:**\n```\nInput:\n[1,2,3,4,null,null,5]\n\nOutput:\n3\n```\n\n**Example 4:**\n```\nInput:\n[1,2,3,4,5,6,7]\n\nOutput:\n3\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -89,7 +89,7 @@
     {
       "title": "Ticket 2 — Validate Binary Search Tree",
       "ticket_slug": "ticket-validate-binary-search-tr",
-      "description": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).\n\nA valid BST is defined as follows:\n- The left subtree of a node contains only nodes with keys less than the node's key.\n- The right subtree of a node contains only nodes with keys greater than the node's key.\n- Both the left and right subtrees must also be binary search trees.\n\n**Input Format:**\nA level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.\n\n**Output Format:**\nTrue if the tree is a valid BST, False otherwise.\n\n**Examples:**\n*Example 1:*\nInput:\n```\n[5,1,4,null,null,3,6]\n```\nOutput:\n```\nFalse\n```\nExplanation: Node 4 is the right child of root 5, but 4 < 5. This violates the BST property.\n",
+      "description": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).\n\nA valid BST is defined as follows:\n- The left subtree of a node contains only nodes with keys less than the node's key.\n- The right subtree of a node contains only nodes with keys greater than the node's key.\n- Both the left and right subtrees must also be binary search trees.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[2,1,3]\n\nOutput:\nTrue\n```\n\n**Example 2:**\n```\nInput:\n[1,1]\n\nOutput:\nFalse\n```\n\n**Example 3:**\n```\nInput:\n[1,null,1]\n\nOutput:\nFalse\n```\n\n**Example 4:**\n```\nInput:\n[1]\n\nOutput:\nTrue\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -172,7 +172,7 @@
     {
       "title": "Ticket 3 — Binary Tree Level Order Traversal",
       "ticket_slug": "ticket-binary-tree-level-order-t",
-      "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).\n\n**Constraints:**\n- The number of nodes is in the range [0, 2000].\n- -1000 <= Node.val <= 1000",
+      "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).\n\n**Constraints:**\n- The number of nodes is in the range [0, 2000].\n- -1000 <= Node.val <= 1000\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,9,20,null,null,15,7]\n\nOutput:\n[[3], [9, 20], [15, 7]]\n```\n\n**Example 2:**\n```\nInput:\n[1]\n\nOutput:\n[[1]]\n```\n\n**Example 3:**\n```\nInput:\n[1,2,null,3,null,4,null,5]\n\nOutput:\n[[1], [2], [3], [4], [5]]\n```\n\n**Example 4:**\n```\nInput:\n[1,2,3,4,5,6,7]\n\nOutput:\n[[1], [2, 3], [4, 5, 6, 7]]\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -255,7 +255,7 @@
     {
       "title": "Ticket 4 — Lowest Common Ancestor of a BST",
       "ticket_slug": "ticket-lowest-common-ancestor-of",
-      "description": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.\n\nThe lowest common ancestor is the deepest node that has both p and q as descendants (where we allow a node to be a descendant of itself).\n\n**Constraints:**\n- All Node.val are unique.\n- p != q\n- p and q will exist in the BST.",
+      "description": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.\n\nThe lowest common ancestor is the deepest node that has both p and q as descendants (where we allow a node to be a descendant of itself).\n\n**Constraints:**\n- All Node.val are unique.\n- p != q\n- p and q will exist in the BST.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[6,2,8,0,4,7,9,null,null,3,5]\n2\n8\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\n[6,2,8,0,4,7,9,null,null,3,5]\n2\n4\n\nOutput:\n2\n```\n\n**Example 3:**\n```\nInput:\n[2,1]\n2\n1\n\nOutput:\n2\n```\n\n**Example 4:**\n```\nInput:\n[1,2]\n1\n2\n\nOutput:\n1\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -337,8 +337,8 @@
     },
     {
       "title": "Ticket 5 — Binary Tree Maximum Path Sum",
-      "ticket_slug": "ticket-binary-tree-maximum-path",
-      "description": "A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.\n\nThe path sum of a path is the sum of the node's values in the path.\n\nGiven the root of a binary tree, return the maximum path sum of any non-empty path.\n\n**Constraints:**\n- The number of nodes is in the range [1, 3 * 10^4].\n- -1000 <= Node.val <= 1000",
+      "ticket_slug": "ticket-binary-tree-maximum-path-",
+      "description": "A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.\n\nThe path sum of a path is the sum of the node's values in the path.\n\nGiven the root of a binary tree, return the maximum path sum of any non-empty path.\n\n**Constraints:**\n- The number of nodes is in the range [1, 3 * 10^4].\n- -1000 <= Node.val <= 1000\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3]\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\n[-10,9,20,null,null,15,7]\n\nOutput:\n42\n```\n\n**Example 3:**\n```\nInput:\n[-3]\n\nOutput:\n-3\n```\n\n**Example 4:**\n```\nInput:\n[2,-1]\n\nOutput:\n2\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -421,7 +421,7 @@
     {
       "title": "Ticket 6 — Serialize and Deserialize Binary Tree",
       "ticket_slug": "ticket-serialize-and-deserialize",
-      "description": "Serialization is the process of converting a data structure into a sequence of bits. Design an algorithm to serialize and deserialize a binary tree.\n\nYou need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -1000 <= Node.val <= 1000",
+      "description": "Serialization is the process of converting a data structure into a sequence of bits. Design an algorithm to serialize and deserialize a binary tree.\n\nYou need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -1000 <= Node.val <= 1000\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3,null,null,4,5]\n\nOutput:\n[1, 2, 3, null, null, 4, 5]\n```\n\n**Example 2:**\n```\nInput:\n[]\n\nOutput:\n[]\n```\n\n**Example 3:**\n```\nInput:\n[1]\n\nOutput:\n[1]\n```\n\n**Example 4:**\n```\nInput:\n[1,2]\n\nOutput:\n[1, 2]\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -504,7 +504,7 @@
     {
       "title": "Ticket 7 — Construct Binary Tree from Preorder and Inorder Traversal",
       "ticket_slug": "ticket-construct-binary-tree-fro",
-      "description": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.\n\n**Constraints:**\n- 1 <= preorder.length <= 3000\n- preorder.length == inorder.length\n- All values are unique.",
+      "description": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.\n\n**Constraints:**\n- 1 <= preorder.length <= 3000\n- preorder.length == inorder.length\n- All values are unique.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,9,20,15,7]\n[9,3,15,20,7]\n\nOutput:\n[3, 9, 20, null, null, 15, 7]\n```\n\n**Example 2:**\n```\nInput:\n[-1]\n[-1]\n\nOutput:\n[-1]\n```\n\n**Example 3:**\n```\nInput:\n[1,2]\n[2,1]\n\nOutput:\n[1, 2]\n```\n\n**Example 4:**\n```\nInput:\n[1,2]\n[1,2]\n\nOutput:\n[1, null, 2]\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -581,6 +581,310 @@
           "input": "[1,2,4,5,3,6,7]\n[4,2,5,1,6,3,7]",
           "expected_output": "[1, 2, 3, 4, 5, 6, 7]",
           "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Add and Search Word - Data structure design",
+      "ticket_slug": "ticket-add-and-search-word-data-",
+      "description": "Design a data structure that supports adding new words and finding if a string matches any previously added word.\n\nIt should support two operations:\n`addWord(word)`: Adds `word` to the data structure.\n`search(word)`: Returns `true` if there is any word in the data structure that matches `word` or `false` otherwise.\n`word` may contain dots `.` where dots can be matched with any letter.\n\n**Constraints:**\n- `1 <= word.length <= 25`\n- `word` in `addWord` consists of lowercase English letters.\n- `word` in `search` consists of lowercase English letters or `.`\n- At most `2 * 10^4` calls will be made to `addWord` and `search`.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"WordDictionary\",\"addWord\",\"addWord\",\"addWord\",\"search\",\"search\",\"search\",\"search\"]\n[[],[\"bad\"],[\"dad\"],[\"mad\"],[\"pad\"],[\"bad\"],[\".ad\"],[\"b..\"]]\n\nOutput:\n[null, null, null, null, false, true, true, true]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-add-and-search-word-data-structure-design-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"addWord\",\"addWord\",\"search\",\"search\",\"search\",\"search\"]\n[[],[\"bad\"],[\"dad\"],[\"mad\"],[\"pad\"],[\"bad\"],[\".ad\"],[\"b..\"]]",
+          "expected_output": "[null, null, null, null, false, true, true, true]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-add-and-search-word-data-structure-design-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"search\"]\n[[],[\"a\"],[\".\"]]",
+          "expected_output": "[null, null, true]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-add-and-search-word-data-structure-design-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"addWord\",\"addWord\",\"addWord\",\"search\",\"search\",\"addWord\",\"search\"]\n[[],[\"at\"],[\"and\"],[\"an\"],[\"add\"],[\"a\"],[\".at\"],[\"bat\"],[\".at\"]]",
+          "expected_output": "[null, null, null, null, null, false, false, null, true]",
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Shortest Unique Prefix",
+      "ticket_slug": "ticket-shortest-unique-prefix",
+      "description": "Given a list of words, find the shortest unique prefix for each word. A unique prefix is a prefix that is not a prefix of any other word in the list.\n\n**Constraints:**\n- `1 <= words.length <= 1000`\n- `1 <= words[i].length <= 100`\n- `words[i]` consists of lowercase English letters.\n- All words are unique.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"zebra\", \"dog\", \"duck\", \"dove\"]\n\nOutput:\n[\"z\", \"dog\", \"du\", \"dov\"]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-shortest-unique-prefix-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"zebra\", \"dog\", \"duck\", \"dove\"]",
+          "expected_output": "[\"z\", \"dog\", \"du\", \"dov\"]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"apple\", \"apricot\", \"banana\"]",
+          "expected_output": "[\"app\", \"apr\", \"b\"]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"a\", \"b\", \"c\"]",
+          "expected_output": "[\"a\", \"b\", \"c\"]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"abc\", \"ab\", \"a\"]",
+          "expected_output": "[\"abc\", \"ab\", \"a\"]",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Maximum XOR of Two Numbers in an Array",
+      "ticket_slug": "ticket-maximum-xor-of-two-number",
+      "description": "Given an integer array `nums`, return the maximum result of `nums[i] XOR nums[j]`, where `0 <= i <= j < n`.\n\n**Constraints:**\n- `1 <= nums.length <= 2 * 10^5`\n- `0 <= nums[i] <= 2^31 - 1`\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,10,5,25,2,8]\n\nOutput:\n28\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,10,5,25,2,8]",
+          "expected_output": "28",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[0]",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[8,1,2,12,7,6]",
+          "expected_output": "15",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[14,70,53,83,49,91,36,80,92,51,66,70]",
+          "expected_output": "127",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Map Sum Pairs",
+      "ticket_slug": "ticket-map-sum-pairs",
+      "description": "Implement the `MapSum` class:\n\n`MapSum()` Initializes the `MapSum` object.\n`void insert(String key, int val)` Inserts the `key`-`val` pair into the map. If the `key` already existed, the original `key-val` pair will be overridden to the new one.\n`int sum(String prefix)` Returns the sum of all the values of keys that start with `prefix`.\n\n**Constraints:**\n- `1 <= key.length, prefix.length <= 50`\n- `key` and `prefix` consist of only lowercase English letters.\n- `1 <= val <= 1000`\n- At most `50` calls will be made to `insert` and `sum`.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"MapSum\", \"insert\", \"sum\", \"insert\", \"sum\"]\n[[], [\"apple\", 3], [\"ap\"], [\"app\", 2], [\"ap\"]]\n\nOutput:\n[null, null, 3, null, 5]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-map-sum-pairs-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"sum\", \"insert\", \"sum\"]\n[[], [\"apple\", 3], [\"ap\"], [\"app\", 2], [\"ap\"]]",
+          "expected_output": "[null, null, 3, null, 5]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-map-sum-pairs-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"insert\", \"sum\", \"sum\"]\n[[], [\"a\", 3], [\"b\", 2], [\"a\"], [\"b\"]]",
+          "expected_output": "[null, null, null, 3, 2]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-map-sum-pairs-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"sum\", \"insert\", \"sum\", \"insert\", \"sum\"]\n[[], [\"aa\", 3], [\"a\"], [\"aa\", 2], [\"a\"], [\"ab\", 1], [\"a\"]]",
+          "expected_output": "[null, null, 3, null, 2, null, 3]",
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — Invert Binary Tree",
+      "ticket_slug": "ticket-invert-binary-tree",
+      "description": "Given the root of a binary tree, invert the tree, and return its root.\n\n**Constraints:**\n- The number of nodes in the tree is in the range [0, 100].\n- -100 <= Node.val <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[4,2,7,1,3,6,9]\n\nOutput:\n[4, 7, 2, 9, 6, 3, 1]\n```\n\n**Example 2:**\n```\nInput:\n[2,1,3]\n\nOutput:\n[2, 3, 1]\n```\n\n**Example 3:**\n```\nInput:\n[]\n\nOutput:\n[]\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-invert-binary-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[4,2,7,1,3,6,9]",
+          "expected_output": "[4, 7, 2, 9, 6, 3, 1]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-invert-binary-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[2,1,3]",
+          "expected_output": "[2, 3, 1]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-invert-binary-tree-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-invert-binary-tree-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2]",
+          "expected_output": "[1, null, 2]",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — Binary Tree Zigzag Level Order Traversal",
+      "ticket_slug": "ticket-binary-tree-zigzag-level-",
+      "description": "Given the root of a binary tree, return the zigzag level order traversal of its nodes' values. (i.e., from left to right, then right to left for the next level and alternate between).\n\n**Constraints:**\n- The number of nodes in the tree is in the range [0, 2000].\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,9,20,null,null,15,7]\n\nOutput:\n[[3], [20, 9], [15, 7]]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-binary-tree-zigzag-level-order-traversal-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,9,20,null,null,15,7]",
+          "expected_output": "[[3], [20, 9], [15, 7]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-zigzag-level-order-traversal-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3,4,null,null,5]",
+          "expected_output": "[[1], [3, 2], [4, 5]]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Implement Trie (Prefix Tree)",
+      "ticket_slug": "ticket-implement-trie-prefix-tre",
+      "description": "A trie (pronounced as \"try\") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.\n\nImplement the Trie class:\n- Trie() Initializes the trie object.\n- void insert(String word) Inserts the string word into the trie.\n- boolean search(String word) Returns true if the string word is in the trie (i.e., was inserted before), and false otherwise.\n- boolean startsWith(String prefix) Returns true if there is a previously inserted string word that has the prefix prefix, and false otherwise.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\", \"insert\", \"search\"]\n[[], [\"apple\"], [\"apple\"], [\"app\"], [\"app\"], [\"app\"], [\"app\"]]\n\nOutput:\n[null, null, true, false, true, null, true]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-implement-trie-prefix-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\", \"insert\", \"search\"]\n[[], [\"apple\"], [\"apple\"], [\"app\"], [\"app\"], [\"app\"], [\"app\"]]",
+          "expected_output": "[null, null, true, false, true, null, true]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-implement-trie-prefix-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"Trie\", \"insert\", \"startsWith\"]\n[[], [\"a\"], [\"a\"]]",
+          "expected_output": "[null, null, true]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Word Search II",
+      "ticket_slug": "ticket-word-search-ii",
+      "description": "Given an m x n board of characters and a list of strings words, return all words on the board.\n\nEach word must be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once in a word.\n\n**Constraints:**\n- m == board.length\n- n == board[i].length\n- 1 <= m, n <= 12\n- 1 <= words.length <= 3 * 10^4\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]]\n[\"oath\",\"pea\",\"eat\",\"rain\"]\n\nOutput:\n[\"eat\", \"oath\"]\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-word-search-ii-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]]\n[\"oath\",\"pea\",\"eat\",\"rain\"]",
+          "expected_output": "[\"eat\", \"oath\"]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-word-search-ii-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[\"a\",\"b\"],[\"c\",\"d\"]]\n[\"abcb\"]",
+          "expected_output": "[]",
+          "order_index": 2
         }
       ]
     }

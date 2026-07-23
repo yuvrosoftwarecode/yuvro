@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
-import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2 } from "lucide-react";
+import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network } from "lucide-react";
 import { TIER_META } from "@/lib/labAccess";
 import { getLabIconUrl } from "@/lib/labIcons";
 import { useAuth } from "@/lib/auth";
@@ -22,7 +22,6 @@ export const Route = createFileRoute("/student/dashboard")({
   component: Hub 
 });
 
-// Original Dummy Data mappings
 const FEATURED_SLUGS = ["javaspring", "systemdesign", "cybersecurity", "pydjango", "postgres", "datastructures", "qa"];
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "AI" | "Security" | "Design";
@@ -53,7 +52,6 @@ const LAB_LANGUAGES: Record<string, string[]> = {
 
 const ALL_LANGUAGES = Array.from(new Set(Object.values(LAB_LANGUAGES).flat())).sort();
 
-// Extended interface to map backend data to frontend UI expectations
 export interface CatalogLab {
   id: string;
   name: string;
@@ -67,7 +65,6 @@ export interface CatalogLab {
   hoursLeft?: number;
 }
 
-// Fallback logic for labs missing categories
 const getLabCategory = (id: string, name: string): Category => {
   const match = Object.keys(LAB_CATEGORY).find(k => id.toLowerCase().includes(k) || name.toLowerCase().includes(k));
   if (match) return LAB_CATEGORY[match];
@@ -104,7 +101,6 @@ function Hub() {
 
   const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
 
-  // GitHub state
   const [ghState, setGhState] = useState<{ connected: boolean; username?: string }>({ connected: false });
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -129,7 +125,6 @@ function Hub() {
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
-      // Always merge mock enrollments so UI interactions persist across refresh
       try {
         const saved = localStorage.getItem("mock_enrollments");
         if (saved) {
@@ -485,8 +480,18 @@ function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: ()
   );
 }
 
-function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
+function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: string }) {
   const devIconUrl = getLabIconUrl(lab.name);
+  if (devIconUrl) {
+    return <img src={devIconUrl} alt={lab.name} className={`${sizeClass} object-contain`} />;
+  }
+  if (lab.name === "Data Structures Lab") {
+    return <Network className={`${sizeClass} text-primary`} />;
+  }
+  return <span className="text-inherit">{lab.icon}</span>;
+}
+
+function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 hover:border-primary/50 transition">
       <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-30" style={{ background: `var(--${lab.color})` }} />
@@ -495,7 +500,7 @@ function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLa
       </span>
       <div className="mt-3 flex items-start gap-3 flex-1">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center text-3xl">
-          {devIconUrl ? <img src={devIconUrl} alt={lab.name} className="h-8 w-8 object-contain" /> : lab.icon}
+          <LabIcon lab={lab} />
         </div>
         <div className="min-w-0">
           <h3 className="font-semibold truncate">{lab.name}</h3>
@@ -521,14 +526,13 @@ function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLa
 
 function EnrolledCard({ lab }: { lab: CatalogLab }) {
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
-  const devIconUrl = getLabIconUrl(lab.name);
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 hover:ring-glow transition">
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
       <div className="flex items-start justify-between flex-1">
         <div className="min-w-0">
           <div className="flex h-10 w-10 items-center text-3xl">
-            {devIconUrl ? <img src={devIconUrl} alt={lab.name} className="h-8 w-8 object-contain" /> : lab.icon}
+            <LabIcon lab={lab} />
           </div>
           <h3 className="mt-2 font-semibold truncate">{lab.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{lab.description}</p>
@@ -550,13 +554,12 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
 }
 
 function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
-  const devIconUrl = getLabIconUrl(lab.name);
   return (
     <div className="flex flex-col h-full rounded-xl border bg-card p-4 hover:border-primary/40 transition">
       <div className="flex items-start justify-between gap-3 flex-1">
         <div className="flex items-start gap-2.5 min-w-0">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center text-xl">
-            {devIconUrl ? <img src={devIconUrl} alt={lab.name} className="h-6 w-6 object-contain" /> : lab.icon}
+            <LabIcon lab={lab} sizeClass="h-6 w-6" />
           </div>
           <div className="min-w-0">
             <div className="font-medium text-sm truncate">{lab.name}</div>

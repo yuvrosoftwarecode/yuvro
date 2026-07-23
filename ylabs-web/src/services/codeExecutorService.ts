@@ -103,6 +103,10 @@ class CodeExecutorService {
       }
     }
 
+    const actual_passed = testResults.filter((r: any) => 
+      r.passed && r.error !== 'Time Limit Exceeded' && r.error !== 'Memory Limit Exceeded'
+    ).length;
+
     return {
       status: statusVal,
       reason: reasonVal,
@@ -110,10 +114,10 @@ class CodeExecutorService {
       error_message: executionResult.error || firstTestError || '',
       execution_time: executionResult.execution_time || 0,
       memory_usage: executionResult.memory_usage || 0,
-      test_cases_passed: data.total_passed || 0,
+      test_cases_passed: actual_passed,
       total_test_cases: data.total_tests || 0,
       test_results: {
-        passed: data.total_passed || 0,
+        passed: actual_passed,
         total: data.total_tests || 0,
         results: testResults.map((result: any, index: number) => ({
           test_case_id: index,

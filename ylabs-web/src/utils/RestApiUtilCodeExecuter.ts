@@ -1,6 +1,6 @@
 import { RestApiUtil } from './RestApiUtil';
 
-const CODE_EXECUTOR_BASE_URL = import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || 'http://localhost:8001';
+const CODE_EXECUTOR_BASE_URL = import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || 'http://localhost:8009';
 
 class RestApiUtilCodeExecuter extends RestApiUtil {
     constructor() {

@@ -602,7 +602,7 @@ function LabDashboard() {
                     {cols.map((c) => {
                       const items = sprintTickets.filter((t) => t.status === c.key);
                       return (
-                        <div key={c.key} className="rounded-xl border bg-card/50 p-3"
+                        <div key={c.key} className="flex flex-col rounded-xl border bg-card/50 p-3 max-h-[calc(100vh-11rem)]"
                           onDragOver={(e) => e.preventDefault()}
                           onDrop={async (e) => {
                             e.preventDefault();
@@ -631,11 +631,11 @@ function LabDashboard() {
                             }
                           }}
                         >
-                          <div className="mb-3 flex items-center justify-between px-1">
+                          <div className="mb-3 flex items-center justify-between px-1 shrink-0">
                             <div className="text-sm font-medium">{c.label}</div>
                             <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">{items.length}</span>
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-2 overflow-y-auto min-h-0 pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
                             {items.map((t) => (
                               <div key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}>

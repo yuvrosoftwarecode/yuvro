@@ -1,4 +1,3 @@
-// Per-lab sprints & tasks store (localStorage).
 export type EditorKind = "code" | "sql" | "none";
 export const EDITORS: { value: EditorKind; label: string }[] = [
   { value: "code", label: "Code Editor" },
@@ -25,7 +24,6 @@ export interface LabTask {
   starterPath?: string;
   hints?: string;
   solution?: string;
-  /** When set with 2+ entries, the ticket editor lets learners switch language. */
   allowedLanguages?: Language[];
 }
 
@@ -71,7 +69,13 @@ export async function loadSprints(labId: string): Promise<LabSprint[]> {
           tasks: Array.isArray(t.tasks) ? t.tasks : [],
           learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
           common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
-        })).sort((a: any, b: any) => a.order_index - b.order_index)
+        })).sort((a: any, b: any) => {
+          const diffRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3 };
+          const rankA = diffRank[a.difficulty] || 99;
+          const rankB = diffRank[b.difficulty] || 99;
+          if (rankA !== rankB) return rankA - rankB;
+          return a.order_index - b.order_index;
+        })
       };
     }));
     return fullSprints.sort((a: any, b: any) => a.order_index - b.order_index);
@@ -113,7 +117,6 @@ export function newTask(): LabTask {
   };
 }
 
-// ---- Seed sprints/tasks from the student-side catalog ----
 import { tickets as catalogTickets, type Ticket } from "@/lib/dummy";
 
 const SPRINT_GROUPS: Record<string, { id: string; name: string; goal: string; tags: string[] }[]> = {
