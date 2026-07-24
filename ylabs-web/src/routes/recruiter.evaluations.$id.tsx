@@ -469,7 +469,15 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Question Mode</div>
           <div className="mt-1 flex items-center gap-2">
-            <button className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[12px] text-amber-300">Custom</button>
+            {(["Custom", "Automatic", "Hybrid"] as const).map(mode => (
+              <button 
+                key={mode} 
+                onClick={() => onChange({ ...section, mode })} 
+                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Custom') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+              >
+                {mode}
+              </button>
+            ))}
           </div>
         </div>
       </div>

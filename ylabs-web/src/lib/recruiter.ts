@@ -102,7 +102,7 @@ export interface DiscussionSection {
   kind: "discussion";
   title: string;
   duration: number;
-  mode: "Custom";
+  mode: "Custom" | "Automatic" | "Hybrid";
   questions: PredefinedQuestion[];
   mockInterviewId?: string;
   proctoring?: ProctoringConfig;
