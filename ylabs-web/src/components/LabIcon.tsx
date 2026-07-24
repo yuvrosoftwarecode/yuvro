@@ -26,6 +26,10 @@ export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIco
     return <Network className={`${size} shrink-0 text-primary ${className}`} />;
   }
 
+  if (name === "Portfolio Lab" || name.toLowerCase().includes("portfolio")) {
+    return <Briefcase className={`${size} shrink-0 text-warning ${className}`} />;
+  }
+
   const display = icon && icon.trim().length > 0 ? icon : "💻";
   return (
     <span className={`leading-none select-none ${className}`} style={{ fontSize: "1.25em" }}>
