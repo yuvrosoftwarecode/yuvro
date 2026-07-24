@@ -1839,7 +1839,7 @@ export function TicketIDE({
   if (reviewMatch) return <Outlet />;
 
   return (
-    <div className="h-full flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {(!previewOverride && !isEvaluationMode) && (
