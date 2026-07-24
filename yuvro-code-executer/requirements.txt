@@ -22,3 +22,11 @@ prometheus-client==0.20.0
 deepface>=0.0.89
 opencv-python-headless>=4.9.0
 tf-keras
+
+# UI Diff (pixel comparison)
+scikit-image>=0.22.0
+Pillow>=10.0.0
+imagehash>=4.3.1
+scipy>=1.11.0
+colormath>=3.0.0
+matplotlib>=3.7.0
