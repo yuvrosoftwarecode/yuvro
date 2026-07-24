@@ -6,7 +6,9 @@ import { VitarkaInterviewScreen } from "../components/discussion/VitarkaIntervie
 import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "./student.lab.$slug.ticket.$ticketId";
-
+import ProctoringGate, { ProctoringData } from "../components/evaluation/ProctoringGate";
+import { useProctoring } from "../hooks/useProctoring";
+import { getGlobalProctoringData } from "../utils/proctoringStore";
 export const Route = createFileRoute("/evaluation/workspace")({
   head: () => ({ meta: [{ title: "Evaluation workspace — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
   component: Workspace,
@@ -26,9 +28,9 @@ interface KnowledgeQuestion {
 }
 
 type AppSection = 
-  | { type: "LAB", id: string, title: string, labs: RealLab[] }
-  | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[] }
-  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string };
+  | { type: "LAB", id: string, title: string, labs: RealLab[], proctoring: any }
+  | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[], proctoring: any }
+  | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string, proctoring: any };
 
 interface RealLab {
   id: string;
@@ -93,6 +95,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
 
     (res.sections || []).forEach((sec: any) => {
+          let pc: any = {};
+          try { pc = typeof sec.proctoring_config === 'string' ? JSON.parse(sec.proctoring_config) : (sec.proctoring_config || {}); } catch {}
+
           if (sec.type === "LAB") {
             (sec.questions || []).forEach((q: any) => {
               mappedLabs.push({
@@ -121,12 +126,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               });
               durationMinutes += (q.duration_minutes || 30);
             });
-            mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs });
+            mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs, proctoring: pc });
           } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
             mappedSections.push({
               type: "KNOWLEDGE_ASSESSMENT",
               id: sec.id,
               title: sec.title || "Knowledge Assessment",
+              proctoring: pc,
               questions: (sec.questions || []).map((q: any) => {
                 const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
                 let mappedOptions = q.options || [];
@@ -152,7 +158,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               })
             });
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
-            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description });
+            mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description, proctoring: pc });
             if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
               extractQuestions(sec.questions);
             } else {
@@ -205,10 +211,51 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" }>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
+  const tabSwitches = useRef(0);
+
+  const [proctoringData, setProctoringData] = useState<ProctoringData | null>(getGlobalProctoringData());
+  
+  const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
+  const proctoringConfig = activeSection?.proctoring || {};
+  
+  const anySectionNeedsProctoring = useMemo(() => appSections.some(s => s.proctoring?.enableProctoring), [appSections]);
+
+  const { logActivity } = useProctoring({
+    assessmentId: evaluationId,
+    assessmentType: "skill_evaluation",
+    enabled: !!proctoringConfig.enableProctoring,
+    questionId: activeQuestionId || openLab || section || undefined,
+    mediaStream: proctoringData?.cameraStream,
+    screenStream: proctoringData?.screenStream,
+    tabSwitchThreshold: proctoringConfig.tabSwitchLimit || 3,
+    enableCopyPaste: proctoringConfig.enableCopyPaste,
+    tabSwitchAllowed: proctoringConfig.tabSwitchAllowed,
+    onViolation: (type, data) => {
+      // Handle violation
+      console.warn("Proctoring violation:", type, data);
+      // We rely on our custom useEffect for tab switch and copy/paste modals & enforcement
+    },
+    onAutoSubmit: () => {
+      submitEvaluation();
+    }
+  });
+
+  const initialImagesLogged = useRef(false);
+  useEffect(() => {
+    if (proctoringData && !initialImagesLogged.current) {
+      initialImagesLogged.current = true;
+      if (proctoringData.photoBlob) {
+        logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
+      }
+      if (proctoringData.screenshotBlob) {
+        logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
+      }
+    }
+  }, [proctoringData, logActivity]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -236,14 +283,44 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     if (remaining === 0) submitEvaluation();
   }, [remaining]);
 
-  // Tab-switch warning
+  // Tab-switch warning & Copy/Paste prevention
   useEffect(() => {
     const onVis = () => {
-      if (document.hidden) setModal(m => m ?? { kind: "tab-warning" });
+      if (document.hidden) {
+        if (proctoringConfig?.enableProctoring && proctoringConfig?.tabSwitchAllowed === false) {
+          tabSwitches.current += 1;
+          const limit = proctoringConfig.tabSwitchLimit ?? 1;
+          if (tabSwitches.current > limit) {
+             setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
+             setTimeout(() => {
+               try { document.exitFullscreen?.(); } catch {}
+               nav({ to: "/evaluation/complete" });
+             }, 3000);
+          } else {
+             setModal({ kind: "tab-warning" });
+          }
+        }
+      }
     };
+
+    const onCopyPaste = (e: ClipboardEvent) => {
+      if (proctoringConfig?.enableProctoring && proctoringConfig?.enableCopyPaste === false) {
+        e.preventDefault();
+        setModal(m => m ?? { kind: "proctoring-violation", message: "Copying and pasting is disabled for this evaluation." });
+      }
+    };
+
     document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+    document.addEventListener("copy", onCopyPaste, { capture: true });
+    document.addEventListener("paste", onCopyPaste, { capture: true });
+    document.addEventListener("cut", onCopyPaste, { capture: true });
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      document.removeEventListener("copy", onCopyPaste, { capture: true });
+      document.removeEventListener("paste", onCopyPaste, { capture: true });
+      document.removeEventListener("cut", onCopyPaste, { capture: true });
+    };
+  }, [proctoringConfig, nav]);
 
   // Online status
   useEffect(() => {
@@ -263,7 +340,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   const locked = discussionTriggered.current;
 
-  const submitEvaluation = () => {
+  const submitEvaluation = async () => {
+    try {
+      await evaluationService.finishEvaluation?.(evaluationId);
+    } catch (e) {
+      console.error(e);
+    }
     try { document.exitFullscreen?.(); } catch {}
     nav({ to: "/evaluation/complete" });
   };
@@ -356,6 +438,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     setDiscussionDraft("");
     setDiscussionIndex(i => i + 1);
   };
+
+  useEffect(() => {
+    if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+      nav({ to: "/evaluation/proctoring", search: { e: evaluationId }, replace: true });
+    }
+  }, [anySectionNeedsProctoring, proctoringData, previewData, nav, evaluationId]);
+
+  if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+    return null;
+  }
 
   return (
     <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
@@ -540,6 +632,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           body="The remaining 15 minutes are reserved for your discussion. Labs, assessment and the coding challenge are now locked."
           confirm="Begin discussion"
           onConfirm={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "proctoring-violation" && (
+        <Confirm
+          title="Proctoring Warning"
+          body={modal.message}
+          confirm="I understand"
+          onConfirm={() => setModal(null)}
+          onCancel={() => setModal(null)}
         />
       )}
     </div>

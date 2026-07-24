@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Check } from "@/components/evaluation/EvalShell";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { evaluationService } from "../services/evaluationService";
+import { AlertCircle } from "lucide-react";
+import { setGlobalProctoringData } from "../utils/proctoringStore";
 
 export const Route = createFileRoute("/evaluation/proctoring")({
   head: () => ({ meta: [{ title: "Proctoring check — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
@@ -24,6 +27,28 @@ function ProctoringPage() {
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const evaluationId = searchParams.get('e') || '';
 
+  const [config, setConfig] = useState<{ enableProctoring: boolean, screenShareRequired: boolean } | null>(null);
+
+  useEffect(() => {
+    if (evaluationId) {
+      evaluationService.getWorkspaceData(evaluationId).then(res => {
+        let enableProctoring = false;
+        let screenShareRequired = false;
+        (res.sections || []).forEach((sec: any) => {
+          let pc: any = {};
+          try { pc = typeof sec.proctoring_config === 'string' ? JSON.parse(sec.proctoring_config) : (sec.proctoring_config || {}); } catch {}
+          if (pc.enableProctoring) enableProctoring = true;
+          if (pc.screenShareRequired) screenShareRequired = true;
+        });
+        setConfig({ enableProctoring, screenShareRequired });
+      }).catch(() => {
+        setConfig({ enableProctoring: false, screenShareRequired: false });
+      });
+    } else {
+      setConfig({ enableProctoring: false, screenShareRequired: false });
+    }
+  }, [evaluationId]);
+
   const [level, setLevel] = useState(0);
 
   const [micCheck, setMicCheck] = useState<CheckState>({ status: 'idle' });
@@ -34,14 +59,34 @@ function ProctoringPage() {
   const [fullscreenCheck, setFullscreenCheck] = useState<CheckState>({ status: 'idle' });
   const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
   const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
+  const [showTabWarning, setShowTabWarning] = useState(false);
+
+  const handleProceed = () => {
+    if (cameraStream || screenStream) {
+        setGlobalProctoringData({
+            cameraStream,
+            screenStream,
+            photoBlob,
+            screenshotBlob
+        });
+    }
+    nav({ to: "/evaluation/instructions", search: { e: evaluationId } });
+  };
+
+  const needsMic = config?.enableProctoring;
+  const needsCamera = config?.enableProctoring;
+  const needsFace = config?.enableProctoring;
+  const needsTabs = config?.enableProctoring;
+  const needsScreen = config?.enableProctoring;
+  const needsFullscreen = config?.enableProctoring; // Fullscreen usually goes with proctoring
 
   const currentStep =
-    micCheck.status !== 'passed' ? 1 :
-    cameraCheck.status !== 'passed' ? 2 :
-    faceEnrollCheck.status !== 'passed' ? 3 :
-    !tabsClosed ? 4 :
-    screenCheck.status !== 'passed' ? 5 :
-    fullscreenCheck.status !== 'passed' ? 6 : 7;
+    (needsMic && micCheck.status !== 'passed') ? 1 :
+    (needsCamera && cameraCheck.status !== 'passed') ? 2 :
+    (needsFace && faceEnrollCheck.status !== 'passed') ? 3 :
+    (needsTabs && !tabsClosed) ? 4 :
+    (needsScreen && screenCheck.status !== 'passed') ? 5 :
+    (needsFullscreen && fullscreenCheck.status !== 'passed') ? 6 : 7;
 
   useEffect(() => {
     let raf = 0;
@@ -140,7 +185,9 @@ function ProctoringPage() {
       const settings = videoTrack.getSettings() as any;
       if (settings.displaySurface && settings.displaySurface !== 'monitor') {
         stream.getTracks().forEach(t => t.stop());
-        setScreenCheck({ status: 'failed', message: 'Share entire screen' });
+        setScreenCheck({ status: 'failed', message: 'You must share your ENTIRE SCREEN, not a window or tab.' });
+        window.focus();
+        setTimeout(() => window.focus(), 100);
         return;
       }
       setScreenStream(stream);
@@ -191,13 +238,6 @@ function ProctoringPage() {
     streamsRef.current = { camera: cameraStream, screen: screenStream };
   }, [cameraStream, screenStream]);
 
-  useEffect(() => {
-    return () => {
-      streamsRef.current.camera?.getTracks().forEach(t => t.stop());
-      streamsRef.current.screen?.getTracks().forEach(t => t.stop());
-    };
-  }, []);
-
   const requestFullscreen = async () => {
     try {
       await document.documentElement.requestFullscreen();
@@ -206,51 +246,62 @@ function ProctoringPage() {
     }
   };
 
-  const steps = [
-    {
-      label: "1. Microphone",
-      done: micCheck.status === 'passed',
-      failed: micCheck.status === 'failed',
-      msg: micCheck.message,
-      action: <button onClick={requestMic} disabled={currentStep !== 1} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 1 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Allow Mic</button>,
-      extra: <MicLevel level={level} />
-    },
-    {
-      label: "2. Camera",
-      done: cameraCheck.status === 'passed',
-      failed: cameraCheck.status === 'failed',
-      msg: cameraCheck.message,
-      action: <button onClick={requestCamera} disabled={currentStep !== 2} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 2 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Allow Camera</button>
-    },
-    {
-      label: "3. Identity Photo",
-      done: faceEnrollCheck.status === 'passed',
-      failed: faceEnrollCheck.status === 'failed',
-      msg: faceEnrollCheck.message,
-      action: <button onClick={capturePhoto} disabled={currentStep !== 3 || faceEnrollCheck.status === 'checking'} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 3 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>{faceEnrollCheck.status === 'checking' ? 'Enrolling...' : 'Capture Photo'}</button>
-    },
-    {
-      label: "4. Close Other Tabs",
-      done: tabsClosed,
-      failed: false,
-      msg: "",
-      action: <button onClick={() => setTabsClosed(true)} disabled={currentStep !== 4} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 4 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Confirm closed</button>
-    },
-    {
-      label: "5. Share Screen",
-      done: screenCheck.status === 'passed',
-      failed: screenCheck.status === 'failed',
-      msg: screenCheck.message,
-      action: <button onClick={requestScreenShare} disabled={currentStep !== 5} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 5 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Share Screen</button>
-    },
-    {
-      label: "6. Fullscreen",
-      done: fullscreenCheck.status === 'passed',
-      failed: fullscreenCheck.status === 'failed',
-      msg: fullscreenCheck.message,
-      action: <button onClick={requestFullscreen} disabled={currentStep !== 6} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 6 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Enter Fullscreen</button>
-    }
-  ];
+  const steps = [];
+  if (needsMic) steps.push({
+    label: "Microphone",
+    stepIndex: 1,
+    done: micCheck.status === 'passed',
+    failed: micCheck.status === 'failed',
+    msg: micCheck.message,
+    action: <button onClick={requestMic} disabled={currentStep !== 1} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 1 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Allow Mic</button>,
+    extra: <MicLevel level={level} />
+  });
+  if (needsCamera) steps.push({
+    label: "Camera",
+    stepIndex: 2,
+    done: cameraCheck.status === 'passed',
+    failed: cameraCheck.status === 'failed',
+    msg: cameraCheck.message,
+    action: <button onClick={requestCamera} disabled={currentStep !== 2} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 2 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Allow Camera</button>
+  });
+  if (needsFace) steps.push({
+    label: "Identity Photo",
+    stepIndex: 3,
+    done: faceEnrollCheck.status === 'passed',
+    failed: faceEnrollCheck.status === 'failed',
+    msg: faceEnrollCheck.message,
+    action: <button onClick={capturePhoto} disabled={currentStep !== 3 || faceEnrollCheck.status === 'checking'} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 3 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>{faceEnrollCheck.status === 'checking' ? 'Enrolling...' : 'Capture Photo'}</button>
+  });
+  if (needsTabs) steps.push({
+    label: "Close Other Tabs",
+    stepIndex: 4,
+    done: tabsClosed,
+    failed: false,
+    msg: "",
+    action: <button onClick={() => setShowTabWarning(true)} disabled={currentStep !== 4} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 4 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Confirm closed</button>
+  });
+  if (needsScreen) steps.push({
+    label: "Share Screen",
+    stepIndex: 5,
+    done: screenCheck.status === 'passed',
+    failed: screenCheck.status === 'failed',
+    msg: screenCheck.message,
+    action: <button onClick={requestScreenShare} disabled={currentStep !== 5} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 5 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Share Screen</button>
+  });
+  if (needsFullscreen) steps.push({
+    label: "Fullscreen",
+    stepIndex: 6,
+    done: fullscreenCheck.status === 'passed',
+    failed: fullscreenCheck.status === 'failed',
+    msg: fullscreenCheck.message,
+    action: <button onClick={requestFullscreen} disabled={currentStep !== 6} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 6 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Enter Fullscreen</button>
+  });
+
+  if (!config) return <div className="flex h-screen items-center justify-center text-sm text-neutral-500">Loading proctoring config...</div>;
+  if (steps.length === 0) {
+    handleProceed();
+    return null;
+  }
 
   return (
     <EvalShell step={3} totalSteps={4} stepLabel="Proctoring">
@@ -289,10 +340,10 @@ function ProctoringPage() {
           </div>
 
           <div className="mt-6 space-y-3">
-            {steps.map(({ label, done, failed, msg, action, extra }, i) => (
-              <div key={label} className={`flex items-center justify-between rounded-lg border ${currentStep === i + 1 ? 'border-neutral-900' : 'border-neutral-200'} bg-white px-4 py-3 text-[13px] transition-colors`}>
+            {steps.map(({ label, done, failed, msg, action, extra, stepIndex }, i) => (
+              <div key={label} className={`flex items-center justify-between rounded-lg border ${currentStep === stepIndex ? 'border-neutral-900' : 'border-neutral-200'} bg-white px-4 py-3 text-[13px] transition-colors`}>
                 <div className="flex-1">
-                  <span className="text-neutral-900 block">{label}</span>
+                  <span className="text-neutral-900 block">{i + 1}. {label}</span>
                   {failed && <span className="text-red-500 text-[11px] block mt-0.5">{msg}</span>}
                 </div>
                 <div className="flex items-center gap-3">
@@ -309,11 +360,33 @@ function ProctoringPage() {
             ))}
           </div>
 
-          <PrimaryButton disabled={currentStep !== 7} type="button" className="mt-8 w-full" onClick={() => nav({ to: "/evaluation/instructions", search: { e: evaluationId } })}>
+          <PrimaryButton disabled={currentStep !== 7} type="button" className="mt-8 w-full" onClick={handleProceed}>
             {currentStep === 7 ? "Continue to instructions" : "Complete all steps"}
           </PrimaryButton>
         </div>
       </div>
+
+      {showTabWarning && (
+        <div className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200 text-center">
+                <div className="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-6 h-6 text-rose-500" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Final Warning</h2>
+                <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                    If any other tab or window is opened at this stage, your test will be <span className="text-rose-400 font-bold">automatically disqualified</span>.
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={() => setShowTabWarning(false)} className="flex-1 py-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        Cancel
+                    </button>
+                    <button onClick={() => { setShowTabWarning(false); setTabsClosed(true); }} className="flex-1 py-2 rounded-md bg-rose-600 hover:bg-rose-500 text-white font-bold transition-colors">
+                        I Understand
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
     </EvalShell>
   );
 }

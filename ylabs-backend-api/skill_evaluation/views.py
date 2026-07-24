@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils import timezone
+from core.storage import upload_image
 import logging
+import time
 
 from .models import (
     Evaluation,
@@ -127,6 +130,119 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
             return Response({"registered": True, "title": evaluation.title})
         return Response({"registered": False, "title": evaluation.title})
+
+    def _save_snapshot(self, file_obj, user, evaluation, prefix_override=None):
+        try:
+            attempt_count = 1
+            ts = str(int(time.time() * 1000))
+            prefix = prefix_override or "snapshot"
+            filename = f"{prefix}_{ts}.png"
+            
+            user_id = str(user.id)
+            object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
+            
+            return upload_image(key=object_key, file_obj=file_obj)
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error saving snapshot: {e}", exc_info=True)
+            return None
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def log_activity(self, request, pk=None):
+        evaluation = self.get_object()
+        user = request.user
+        
+        activity_type = request.data.get("activity_type")
+        meta_data = request.data.get("meta_data", {})
+        if isinstance(meta_data, str):
+            try:
+                import json
+                meta_data = json.loads(meta_data)
+            except Exception:
+                pass
+        timestamp = request.data.get("timestamp") or timezone.now().isoformat()
+        
+        if not activity_type:
+            return Response({"error": "activity_type is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        submission = UserEvaluationSubmission.objects.filter(user=user, evaluation=evaluation).first()
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        image_file = request.FILES.get("snapshot")
+        screen_file = request.FILES.get("screenshot")
+        
+        image_path = None
+        if image_file:
+            prefix = "passport" if activity_type == "passport_photo_captured" else "snapshot"
+            image_path = self._save_snapshot(image_file, user, evaluation, prefix_override=prefix)
+            
+        screen_path = None
+        if screen_file:
+            screen_path = self._save_snapshot(screen_file, user, evaluation, prefix_override="screenshot")
+            
+        event = {
+            "timestamp": timestamp,
+            "activity_type": activity_type,
+            "meta_data": meta_data,
+        }
+        if image_path:
+            event["image_path"] = image_path
+        if screen_path:
+            event["screen_path"] = screen_path
+            
+        non_violation_types = ["snapshot", "camera_enabled", "camera_disabled", "passport_photo_captured", "initial_screenshot_captured"]
+        
+        CRITICAL_VIOLATION_TYPES = ["new_tab_detected", "new_window_detected", "devtools_opened", "camera_disabled", "microphone_disabled", "face_not_detected", "multiple_faces_detected", "face_recognition_failed", "violation_critical"]
+        GENERAL_VIOLATION_TYPES = ["copy_detected", "paste_detected", "cut_detected", "select_all_detected", "right_click_detected", "keyboard_shortcut", "screenshot_detected", "suspicious_movement", "violation_warning", "tab_switched"]
+        
+        is_proctoring = (
+            activity_type in CRITICAL_VIOLATION_TYPES
+            or activity_type in GENERAL_VIOLATION_TYPES
+            or activity_type == "snapshot"
+            or bool(image_path)
+        )
+        is_violation = is_proctoring and (activity_type not in non_violation_types)
+        
+        if is_violation:
+            if not isinstance(submission.proctoring_events, list):
+                submission.proctoring_events = []
+            submission.proctoring_events.append(event)
+        else:
+            if not isinstance(submission.general_events, list):
+                submission.general_events = []
+            submission.general_events.append(event)
+            
+        submission.save()
+        
+        # Calculate violations (we can refine this later if section-based)
+        sub_violations = len(submission.proctoring_events) if isinstance(submission.proctoring_events, list) else 0
+        sub_tab_switches = sum(1 for e in (submission.proctoring_events if isinstance(submission.proctoring_events, list) else []) if e.get('activity_type') == 'tab_switched' and isinstance(e.get('meta_data'), dict) and e.get('meta_data').get('type') == 'hidden')
+        
+        return Response({
+            'status': 'logged',
+            'tab_switch_count': sub_tab_switches,
+            'total_violations': sub_violations,
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def finish(self, request, pk=None):
+        evaluation = self.get_object()
+        user = request.user
+        
+        submission = UserEvaluationSubmission.objects.filter(user=user, evaluation=evaluation).first()
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission.completed_at = timezone.now()
+        submission.save(update_fields=['completed_at'])
+        
+        has_proctoring = any(sec.proctoring_config for sec in evaluation.sections.all())
+        if has_proctoring:
+            from .face_verification_proxy import run_async_face_verification
+            run_async_face_verification(UserEvaluationSubmission, submission.id)
+            
+        return Response({"status": "finished"})
 
 class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LabQuestionBank.objects.all()

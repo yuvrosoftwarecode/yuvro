@@ -14,6 +14,7 @@ import {
 } from "@/lib/recruiter";
 import { Workspace } from "./evaluation.workspace";
 import { createPortal } from "react-dom";
+import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
 
 const search = z.object({ view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit") });
 
@@ -289,6 +290,13 @@ function LabsSectionBody({ section, onChange, onAddLab }: { section: LabsSection
         </ul>
       )}
       <button onClick={onAddLab} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"><Plus className="h-3.5 w-3.5" /> Add Lab</button>
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
+      </div>
     </div>
   );
 }
@@ -435,6 +443,13 @@ function AssessmentSectionBody({ section, onChange, onAddQuestions }: { section:
         </ul>
       )}
       <button onClick={onAddQuestions} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-violet-400/40 hover:text-white"><Plus className="h-3.5 w-3.5" /> Add Questions</button>
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
+      </div>
     </div>
   );
 }
@@ -465,6 +480,13 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
           <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
         </div>
       </div>
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
+      </div>
     </div>
   );
 }
@@ -493,7 +515,7 @@ function QuestionTreeBuilder({ questions, onChange, level = 0 }: { questions: Pr
 
   return (
     <div className="space-y-2">
-      {questions.map((q, i) => (
+      {(questions || []).map((q, i) => (
         <div key={i} className={`rounded-md border border-white/5 bg-white/[0.02] p-3 text-[12px] text-neutral-300`}>
           <div className="flex items-start gap-2">
             <span className="mt-1 text-[10px] text-neutral-500">{level === 0 ? "Q" : "↳"}{i + 1}</span>

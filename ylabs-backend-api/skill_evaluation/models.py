@@ -72,6 +72,11 @@ class EvaluationSection(BaseTimestampedAdminModel):
         blank=True,
         help_text="Ordered list of QuestionBank UUIDs assigned to this section",
     )
+    proctoring_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Proctoring rules for this section (e.g. webcam, screen_share, tab_switch_limit)",
+    )
 
     class Meta:
         ordering = ["order_index"]
@@ -95,6 +100,21 @@ class UserEvaluationSubmission(BaseTimestampedModel):
         choices=DiscussionMode.choices,
         default=DiscussionMode.AUTOMATIC,
     )
+    general_events = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="General submission events: session start/end, navigation, browser info, etc.",
+    )
+    proctoring_events = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Proctoring events: camera/mic status, face detection, violations, etc.",
+    )
+    browser_info = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    proctoring_passed = models.BooleanField(default=True)
+    anomalies_detected = models.JSONField(default=list, blank=True)
 
     class Meta:
         unique_together = ("user", "evaluation")

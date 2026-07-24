@@ -11,7 +11,7 @@ from .models import (
 class EvaluationSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvaluationSection
-        fields = ['id', 'title', 'description', 'order_index', 'type', 'questions']
+        fields = ['id', 'title', 'description', 'order_index', 'type', 'questions', 'proctoring_config']
 
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)

@@ -63,6 +63,16 @@ export interface TopicItem {
   course: string;
 }
 
+export interface ProctoringConfig {
+  enableProctoring?: boolean;
+  webcamRequired?: boolean;
+  screenShareRequired?: boolean;
+  tabSwitchLimit?: number;
+  disableCopyPaste?: boolean;
+  enableCopyPaste?: boolean;
+  tabSwitchAllowed?: boolean;
+}
+
 export type SectionType = "labs" | "assessment" | "discussion";
 
 export interface LabsSection {
@@ -70,6 +80,7 @@ export interface LabsSection {
   kind: "labs";
   title: string;
   labs: LabItem[];
+  proctoring?: ProctoringConfig;
 }
 export interface AssessmentSection {
   id: string;
@@ -78,6 +89,7 @@ export interface AssessmentSection {
   questions: QuestionItem[];
   randomize?: boolean;
   shuffle?: boolean;
+  proctoring?: ProctoringConfig;
 }
 export interface PredefinedQuestion {
   id?: string;
@@ -93,6 +105,7 @@ export interface DiscussionSection {
   mode: "Custom";
   questions: PredefinedQuestion[];
   mockInterviewId?: string;
+  proctoring?: ProctoringConfig;
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
@@ -136,14 +149,16 @@ function mapBackendToFrontend(be: any): Evaluation {
       attempts: "1"
     } : undefined,
     sections: (be.sections || []).map((s: any) => {
+      let proctoring = {};
+      try { proctoring = typeof s.proctoring_config === 'string' ? JSON.parse(s.proctoring_config) : (s.proctoring_config || {}); } catch {}
       if (s.type === "LAB") {
-        return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
+        return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [], proctoring };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
         let meta: any = { duration: 15, mode: "Custom" };
         try { meta = JSON.parse(s.description || "{}"); } catch {}
-        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId };
+        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId, proctoring };
       } else {
-        return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [] };
+        return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [], proctoring };
       }
     }),
   };
@@ -169,6 +184,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
         type: type,
         order_index: idx,
         questions: qs,
+        proctoring_config: s.proctoring || {},
       };
     }),
   };
