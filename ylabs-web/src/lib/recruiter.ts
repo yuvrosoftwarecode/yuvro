@@ -256,6 +256,16 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
   }
 }
 
+export async function getEvaluationSubmissions(id: string): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${id}/submissions/`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
 export async function saveEvaluation(e: Evaluation): Promise<Evaluation | undefined> {
   try {
     const payload = mapFrontendToBackend(e);

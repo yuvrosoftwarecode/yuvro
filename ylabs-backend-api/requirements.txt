@@ -16,3 +16,7 @@ flake8==7.1.1
 cryptography==42.0.5
 playwright==1.42.0
 beautifulsoup4==4.12.3
+
+# Object Storage
+boto3==1.35.36
+django-storages[s3]==1.14.4

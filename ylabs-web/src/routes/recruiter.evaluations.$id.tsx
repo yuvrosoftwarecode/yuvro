@@ -12,7 +12,7 @@ import {
   newUid, Evaluation, Section, LabsSection, AssessmentSection, DiscussionSection, LabItem, QuestionItem, CourseItem, TopicItem, PredefinedQuestion,
   fetchLabs, fetchQuestions, fetchCourses, fetchTopics, createEvaluation, saveDraftLocally, getDraftLocally, clearDraftLocally, syncMockInterviews,
 } from "@/lib/recruiter";
-import { Workspace } from "./evaluation.workspace";
+import { Workspace } from "@/components/evaluation/WorkspaceApp";
 import { createPortal } from "react-dom";
 import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
 

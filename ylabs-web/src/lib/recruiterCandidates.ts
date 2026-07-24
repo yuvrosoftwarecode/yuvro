@@ -27,6 +27,19 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  proctoringData?: {
+    totalViolations: number;
+    tabSwitches: number;
+    copyPastes: number;
+    windowBlurs: number;
+    snapshots: { time: number; type: string }[];
+    timelineEvents: { time: number; type: string; desc: string; severity: number }[];
+    sections: {
+      labs: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
+      assessment: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
+      vitarka: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
+    };
+  };
 }
 
 const FIRST = ["Aarav","Vivaan","Aditya","Vihaan","Arjun","Sai","Reyansh","Ayaan","Krishna","Ishaan","Rohan","Rahul","Ankit","Karthik","Siddharth","Nikhil","Manish","Pranav","Yash","Kabir","Devansh","Harsh","Aryan","Aniket","Aakash","Rehan","Kunal","Tanmay","Varun","Aditya","Priya","Ananya","Diya","Isha","Kavya","Anika","Riya","Meera","Sneha","Neha","Pooja","Aditi","Sanjana","Ritika","Shreya","Divya","Nisha","Radhika","Swati","Tanvi","Rhea","Aishwarya","Vaishnavi","Bhavana","Payal","Simran","Nandini"];
@@ -89,28 +102,61 @@ export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
     const tags: string[] = [];
     if (r() < 0.15) tags.push(pick(r, TAG_POOL));
     if (r() < 0.08) tags.push(pick(r, TAG_POOL));
-    out.push({
-      id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
-      name,
-      email: `${first.toLowerCase()}.${last.toLowerCase()}${Math.floor(r() * 900) + 100}@${["gmail.com","outlook.com","yahoo.in","proton.me"][Math.floor(r() * 4)]}`,
-      phone: `+91 ${Math.floor(6 + r() * 4)}${Math.floor(r() * 900000000 + 100000000)}`.slice(0, 15),
-      college,
-      company,
-      experience,
-      domain: pick(r, DOMAINS),
-      skills,
-      tags: Array.from(new Set(tags)),
-      labsScore: labs,
-      assessmentScore: assess,
-      vitarkaScore: vit,
-      eci,
-      recommendation: rec,
-      status,
-      hiringStatus: hiring,
-      submittedAt,
-      completionMinutes,
-      avatarHue: Math.floor(r() * 360),
-    });
+      const numViolations = Math.floor(r() * 8);
+      const hasViolations = numViolations > 0;
+      const tabSwitches = hasViolations ? Math.floor(r() * numViolations) : 0;
+      const copyPastes = hasViolations ? Math.floor(r() * (numViolations - tabSwitches)) : 0;
+      const windowBlurs = hasViolations ? (numViolations - tabSwitches - copyPastes) : 0;
+      
+      const timelineEvents = [];
+      const snapshots = [];
+      for (let j = 0; j < numViolations; j++) {
+        const timeOffset = Math.floor(r() * completionMinutes * 60 * 1000);
+        const tType = r() > 0.5 ? "tab_switched" : r() > 0.5 ? "copy_paste" : "window_blur";
+        const severity = tType === "copy_paste" ? 2 : 1;
+        timelineEvents.push({ time: submittedAt - timeOffset, type: tType, desc: `Detected ${tType.replace('_', ' ')}`, severity });
+        if (r() > 0.7) snapshots.push({ time: submittedAt - timeOffset, type: "screenshot" });
+      }
+      
+      const labsEvents = timelineEvents.filter(e => r() > 0.5);
+      const assessEvents = timelineEvents.filter(e => !labsEvents.includes(e) && r() > 0.5);
+      const vitarkaEvents = timelineEvents.filter(e => !labsEvents.includes(e) && !assessEvents.includes(e));
+
+      out.push({
+        id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
+        name,
+        email: `${first.toLowerCase()}.${last.toLowerCase()}${Math.floor(r() * 900) + 100}@${["gmail.com","outlook.com","yahoo.in","proton.me"][Math.floor(r() * 4)]}`,
+        phone: `+91 ${Math.floor(6 + r() * 4)}${Math.floor(r() * 900000000 + 100000000)}`.slice(0, 15),
+        college,
+        company,
+        experience,
+        domain: pick(r, DOMAINS),
+        skills,
+        tags: Array.from(new Set(tags)),
+        labsScore: labs,
+        assessmentScore: assess,
+        vitarkaScore: vit,
+        eci,
+        recommendation: rec,
+        status,
+        hiringStatus: hiring,
+        submittedAt,
+        completionMinutes,
+        avatarHue: Math.floor(r() * 360),
+        proctoringData: {
+          totalViolations: numViolations,
+          tabSwitches,
+          copyPastes,
+          windowBlurs,
+          snapshots: snapshots.sort((a, b) => a.time - b.time),
+          timelineEvents: timelineEvents.sort((a, b) => a.time - b.time),
+          sections: {
+            labs: { score: labs, timeSpent: Math.floor(completionMinutes * 0.5), events: labsEvents },
+            assessment: { score: assess, timeSpent: Math.floor(completionMinutes * 0.3), events: assessEvents },
+            vitarka: { score: vit, timeSpent: Math.floor(completionMinutes * 0.2), events: vitarkaEvents }
+          }
+        }
+      });
   }
   cache.set(evaluationId, out);
   return out;

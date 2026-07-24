@@ -17,7 +17,8 @@ from .models import (
 )
 from .serializers import (
     EvaluationSerializer,
-    LabQuestionBankSerializer
+    LabQuestionBankSerializer,
+    UserEvaluationSubmissionSerializer
 )
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
@@ -243,6 +244,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             run_async_face_verification(UserEvaluationSubmission, submission.id)
             
         return Response({"status": "finished"})
+
+    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
+    def submissions(self, request, pk=None):
+        evaluation = self.get_object()
+        submissions = UserEvaluationSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        serializer = UserEvaluationSubmissionSerializer(submissions, many=True)
+        return Response(serializer.data)
 
 class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LabQuestionBank.objects.all()
