@@ -18,6 +18,7 @@ import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
+import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
@@ -824,6 +825,7 @@ export function TicketIDE({
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
   const [wsLoaded, setWsLoaded] = useState(false);
+  const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
@@ -2889,7 +2891,13 @@ function ProgressTile({ icon: Icon, label, value, tone, pct }: { icon: typeof Za
 
 function parseDPMarkdown(text: string) {
   if (!text) return "";
-  
+
+  // Remove duplicate 'Examples' section at the bottom
+  const redundantExamplesIndex = text.search(/\n#{1,3}\s+Examples?\b/i);
+  if (redundantExamplesIndex !== -1) {
+    text = text.substring(0, redundantExamplesIndex);
+  }
+
   const codeBlocks: string[] = [];
   let processed = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
     codeBlocks.push(p1);

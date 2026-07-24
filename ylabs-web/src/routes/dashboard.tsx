@@ -393,19 +393,7 @@ function Hub() {
     }));
 
     const realNames = new Set(realLabs.map((l) => l.title.toLowerCase()));
-    const dummyEntries: CatalogLab[] = labs
-      .filter((l) => !realNames.has(l.name.toLowerCase()))
-      .map((l) => ({
-        id: l.slug,
-        name: l.name,
-        icon: l.icon,
-        description: l.description,
-        difficulty: l.difficulty,
-        total: l.total,
-        completed: l.completed,
-        isReal: false,
-        color: l.color,
-      }));
+    const dummyEntries: CatalogLab[] = [];
 
     return [...realEntries, ...dummyEntries];
   }, [realLabs, labTicketCounts]);

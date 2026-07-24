@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
-import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network } from "lucide-react";
+import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network, Briefcase } from "lucide-react";
 import { TIER_META } from "@/lib/labAccess";
 import { getLabIconUrl } from "@/lib/labIcons";
 import { useAuth } from "@/lib/auth";
@@ -199,18 +199,7 @@ function Hub() {
       }));
 
       // Integrate dummy labs from the codebase to ensure both real and dummy are present
-      const mappedDummy: CatalogLab[] = dummyLabs.map(dl => ({
-        id: dl.slug,
-        name: dl.name,
-        description: dl.description,
-        difficulty: dl.difficulty,
-        icon: dl.icon,
-        color: dl.color,
-        total: dl.total,
-        completed: dl.completed,
-        payment_tier: "free",
-        hoursLeft: dl.hoursLeft,
-      }));
+      const mappedDummy: CatalogLab[] = [];
 
       // Combine both arrays
       setAllCatalogLabs([...mapped, ...mappedDummy]);
@@ -487,6 +476,9 @@ function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: 
   }
   if (lab.name === "Data Structures Lab") {
     return <Network className={`${sizeClass} text-primary`} />;
+  }
+  if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
+    return <Briefcase className={`${sizeClass} text-warning`} />;
   }
   return <span className="text-inherit">{lab.icon}</span>;
 }
