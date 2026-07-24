@@ -999,6 +999,7 @@ export function TicketIDE({
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const creatingSubmissionRef = useRef(false);
   
   useEffect(() => {
     if (previewOverride) return;
@@ -1023,11 +1024,24 @@ export function TicketIDE({
       api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`)
         .then(async (subs) => {
           if (subs.length === 0) {
-            const created = await api.post<any>("/lab/submissions/", {
-              lab_sprint_ticket: ticket.id,
-              ticket_status: "in_progress",
-            });
-            setSubmissionId(created.id);
+            if (creatingSubmissionRef.current) return;
+            creatingSubmissionRef.current = true;
+            try {
+              const created = await api.post<any>("/lab/submissions/", {
+                lab_sprint_ticket: ticket.id,
+                ticket_status: "in_progress",
+              });
+              setSubmissionId(created.id);
+            } catch (err) {
+              console.error("Failed to create submission, it might already exist.", err);
+              // Fallback to fetch it again if it was created in a parallel request
+              const subsAgain = await api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`);
+              if (subsAgain.length > 0) {
+                setSubmissionId(subsAgain[0].id);
+              }
+            } finally {
+              creatingSubmissionRef.current = false;
+            }
           } else {
             const sub = subs[0];
             setSubmissionId(sub.id);
@@ -1402,17 +1416,24 @@ export function TicketIDE({
         api.post("/lab/frontend-validate/", {
           ticket_slug: ticket.ticket_slug ?? ticket.id,
           user_html: files["index.html"] ?? "",
-          user_css: files["styles.css"] ?? "",
+          user_css: files["style.css"] ?? files["styles.css"] ?? "",
+          user_js: files["script.js"] ?? "",
           lab_id: labId,   // lab UUID — lets executor resolve starter repo path
         }).then((res: any) => {
           setRunning(false);
           
           // Create a clean object to show in the console without flooding it with base64 images
-          const resultJson = {
+          // The user requested ui_score, js_score, and checks
+          const resultJson: any = {
             ui_score: res.ui_score ?? 0,
-            structural_score: res.structural_score ?? 0,
+            js_score: res.js_score ?? 0,
             checks: res.checks ?? []
           };
+          
+          // Only remove js_score for the first 2 sprints of the HTML/CSS/JS lab
+          if (ticket.ticket_slug?.startsWith("s1-") || ticket.ticket_slug?.startsWith("s2-")) {
+            delete resultJson.js_score;
+          }
           
           setOutput(JSON.stringify(resultJson, null, 2));
           
@@ -3765,15 +3786,23 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
 function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullHeight?: boolean }) {
   const srcDoc = useMemo(() => {
     const html = files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
-    const cssText = files["styles.css"] ?? "";
-    const jsText = files["app.js"] ?? "";
+    
+    // Dynamically find any CSS or JS file instead of hardcoding names
+    const cssFileName = Object.keys(files).find(f => f.endsWith('.css'));
+    const jsFileName = Object.keys(files).find(f => f.endsWith('.js'));
+    
+    const cssText = cssFileName ? files[cssFileName] : "";
+    const jsText = jsFileName ? files[jsFileName] : "";
+    
     const cssTag = `<style>${cssText}</style>`;
     const jsTag = `<script>\ntry { ${jsText} } catch (e) { document.body.insertAdjacentHTML('beforeend', '<pre style="color:#b00">'+(e && e.message || e)+'</pre>'); }\n<\/script>`;
-    // Strip external <link rel=stylesheet href="styles.css"> and <script src="app.js"> then inject inline.
+    
+    // Strip any external <link rel=stylesheet> and <script src="..."> then inject inline.
     let out = html
-      .replace(/<link[^>]*href=["']styles\.css["'][^>]*>/i, cssTag)
-      .replace(/<script[^>]*src=["']app\.js["'][^>]*><\/script>/i, jsTag);
-    if (!/<style>/i.test(out)) out = out.replace(/<\/head>/i, `${cssTag}</head>`);
+      .replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/i, cssTag)
+      .replace(/<script[^>]*src=[^>]*><\/script>/i, jsTag);
+      
+    if (!out.includes("<style>")) out = out.replace(/<\/head>/i, `${cssTag}</head>`);
     if (!out.includes("<script>")) out = out.replace(/<\/body>/i, `${jsTag}</body>`);
     return out;
   }, [files]);

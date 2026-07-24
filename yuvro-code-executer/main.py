@@ -23,6 +23,7 @@ import base64
 import io
 import tempfile
 from playwright.sync_api import sync_playwright
+import datetime as _dt
 def kill_process_tree(pid: int):
     try:
         parent = psutil.Process(pid)
@@ -2073,6 +2074,409 @@ async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
         return eval_res
     except Exception as e:
         return {"error": str(e)}
+
+
+class UiValidateRequest(BaseModel):
+    ticket_slug: str           # e.g. "ticket-01"
+    user_html: str             # student's index.html content
+    user_css: str = ""         # student's styles.css content
+    user_js: str = ""         
+    scoring_rules: dict = {}   
+    lab_name: str = "frontend-portfolio"  # legacy fallback sub-folder under /workspaces/labs/
+    lab_id: str = ""           # preferred: lab UUID → resolves labs/<lab_id>/<starter_repo>/tickets/<ticket_slug>/
+
+
+def _render_html_screenshot(html_content: str, css_content: str, width: int = 1280, height: int = 800) -> bytes:
+    css_tag = f"<style>{css_content}</style>"
+    if "<head>" in html_content:
+        rendered_html = html_content.replace("</head>", f"{css_tag}</head>", 1)
+    elif "<HEAD>" in html_content:
+        rendered_html = html_content.replace("</HEAD>", f"{css_tag}</HEAD>", 1)
+    else:
+        rendered_html = f"{css_tag}{html_content}"
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": width, "height": height})
+        page.set_content(rendered_html, wait_until="domcontentloaded")
+        page.wait_for_timeout(600)  # let fonts / CSS transitions settle
+        screenshot = page.screenshot(full_page=True)
+        browser.close()
+
+    return screenshot
+
+
+def _structural_score(base_html: str, user_html: str) -> dict:
+    """Check that the user's HTML contains the same tags and CSS classes as the base."""
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        return {"score": 100.0, "checks": [{"name": "bs4 not installed", "passed": True, "reason": "skipped"}]}
+
+    skip_tags = {"html", "head", "meta", "title", "body", "link", "style", "script"}
+    base_soup = BeautifulSoup(base_html, "html.parser")
+    user_soup = BeautifulSoup(user_html, "html.parser")
+
+    checks = []
+    passed = total = 0
+
+    # Tag checks
+    base_tags = {t.name for t in base_soup.find_all(True) if t.name not in skip_tags}
+    user_tags  = {t.name for t in user_soup.find_all(True)}
+    for tag in base_tags:
+        total += 1
+        ok = tag in user_tags
+        if ok:
+            passed += 1
+        checks.append({"name": f"<{tag}> element", "passed": ok, "reason": "Found" if ok else "Missing"})
+
+    # Class checks
+    base_cls = {c for t in base_soup.find_all(True) for c in (t.get("class") or [])}
+    user_cls  = {c for t in user_soup.find_all(True) for c in (t.get("class") or [])}
+    for cls in base_cls:
+        total += 1
+        ok = cls in user_cls
+        if ok:
+            passed += 1
+        checks.append({"name": f"class '{cls}'", "passed": ok, "reason": "Found" if ok else "Missing"})
+
+    score = (passed / total * 100) if total > 0 else 100.0
+    return {"score": score, "checks": checks}
+
+
+def _evaluate_js(html_content: str, css_content: str, js_content: str, ticket_slug: str, js_checks: list = None) -> dict:
+
+
+    if not js_content.strip():
+        return {"score": 0.0, "checks": [{"name": "JavaScript file", "passed": False, "reason": "script.js is empty — nothing to evaluate"}]}
+
+    # ── Resolve which checks to run ──────────────────────────────────────────
+    _checks_by_ticket = {
+        "ticket-01": ["year", "menu_toggle"],
+        "ticket-02": ["year", "menu_toggle", "typed_effect"],
+        "ticket-03": ["year", "menu_toggle", "typed_effect", "project_filter"],
+        "ticket-04": ["year", "menu_toggle", "typed_effect", "project_filter", "contact_form"],
+        "ticket-05": ["year", "menu_toggle", "typed_effect", "project_filter", "contact_form", "intersection_observer", "scroll_to_top"],
+    }
+    checks_to_run = js_checks if js_checks else _checks_by_ticket.get(ticket_slug, [])
+
+    if not checks_to_run:
+        return {"score": 100.0, "checks": [{"name": "No JS checks defined", "passed": True, "reason": "Ticket has no JS evaluation rules"}]}
+
+    # ── Build rendered HTML ─────────────────────────────────────────────────
+    css_tag = f"<style>{css_content}</style>"
+    js_tag  = f"<script>{js_content}</script>"
+    if "</head>" in html_content:
+        rendered = html_content.replace("</head>", f"{css_tag}</head>", 1)
+    elif "</HEAD>" in html_content:
+        rendered = html_content.replace("</HEAD>", f"{css_tag}</HEAD>", 1)
+    else:
+        rendered = f"{css_tag}{html_content}"
+    if "</body>" in rendered:
+        rendered = rendered.replace("</body>", f"{js_tag}</body>", 1)
+    elif "</BODY>" in rendered:
+        rendered = rendered.replace("</BODY>", f"{js_tag}</BODY>", 1)
+    else:
+        rendered = f"{rendered}{js_tag}"
+
+    checks = []
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1280, "height": 800})
+
+        # Capture any JS runtime errors
+        js_errors = []
+        page.on("pageerror", lambda e: js_errors.append(str(e)))
+
+        page.set_content(rendered, wait_until="domcontentloaded")
+        page.wait_for_timeout(500)  # settle animations
+
+        # ── Individual check functions ─────────────────────────────────────
+
+        def check_year():
+            try:
+                curr = str(_dt.datetime.now().year)
+                el_count = page.locator("#year").count()
+                if el_count == 0:
+                    return {"name": "Dynamic year (#year)", "passed": False, "reason": "No element with id='year' found in HTML"}
+                text = page.locator("#year").first.text_content(timeout=1500) or ""
+                ok = curr in text
+                return {"name": "Dynamic year (#year)", "passed": ok,
+                        "reason": f"Contains '{curr}'" if ok else f"#year shows '{text.strip()}' — expected current year {curr}"}
+            except Exception as exc:
+                return {"name": "Dynamic year (#year)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_menu_toggle():
+            try:
+                btn_count = page.locator("#menuBtn").count()
+                nav_count = page.locator(".nav-links").count()
+                if btn_count == 0:
+                    return {"name": "Mobile menu toggle (#menuBtn)", "passed": False, "reason": "No element with id='menuBtn' found"}
+                if nav_count == 0:
+                    return {"name": "Mobile menu toggle (#menuBtn)", "passed": False, "reason": "No element with class='nav-links' found"}
+                page.locator("#menuBtn").first.evaluate("el => el.click()")
+                page.wait_for_timeout(100)
+                has_open = page.locator(".nav-links").first.evaluate("el => el.classList.contains('open')")
+                if not has_open:
+                    return {"name": "Mobile menu toggle (#menuBtn)", "passed": False, "reason": "Clicking #menuBtn did not add 'open' class to .nav-links"}
+                # Toggle back
+                page.locator("#menuBtn").first.evaluate("el => el.click()")
+                page.wait_for_timeout(100)
+                has_open2 = page.locator(".nav-links").first.evaluate("el => el.classList.contains('open')")
+                ok = not has_open2  # should be removed after second click
+                return {"name": "Mobile menu toggle (#menuBtn)", "passed": ok,
+                        "reason": "Toggles 'open' class correctly" if ok else "Second click did not remove 'open' class"}
+            except Exception as exc:
+                return {"name": "Mobile menu toggle (#menuBtn)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_typed_effect():
+            try:
+                el_count = page.locator(".typed").count()
+                if el_count == 0:
+                    return {"name": "Typed animation (.typed)", "passed": False, "reason": "No element with class='typed' found"}
+                text_before = page.locator(".typed").first.text_content(timeout=1500) or ""
+                page.wait_for_timeout(700)
+                text_after = page.locator(".typed").first.text_content(timeout=1500) or ""
+                ok = text_before != text_after
+                return {"name": "Typed animation (.typed)", "passed": ok,
+                        "reason": "Text changes over time ✓" if ok else f"Text did not change — still '{text_after}'. Ensure typing loop is running."}
+            except Exception as exc:
+                return {"name": "Typed animation (.typed)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_project_filter():
+            try:
+                filter_count = page.locator(".filter").count()
+                project_count = page.locator(".project").count()
+                if filter_count == 0:
+                    return {"name": "Project filters (.filter)", "passed": False, "reason": "No elements with class='filter' found"}
+                if project_count == 0:
+                    return {"name": "Project filters (.filter)", "passed": False, "reason": "No elements with class='project' found — needed to test filtering"}
+                # Click a non-'all' filter
+                non_all = page.locator(".filter:not([data-filter='all'])").first
+                if non_all.count() == 0:
+                    return {"name": "Project filters (.filter)", "passed": False, "reason": "No filter button with a category (non-'all') found"}
+                non_all.click(timeout=1500)
+                page.wait_for_timeout(150)
+                hidden = page.locator(".project.hidden").count()
+                is_active = non_all.evaluate("el => el.classList.contains('active')")
+                ok = hidden > 0 and is_active
+                return {"name": "Project filters (.filter)", "passed": ok,
+                        "reason": f"Filter works: {hidden} projects hidden, button marked active ✓" if ok
+                        else f"Filter failed — hidden={hidden}, button active={is_active}. Toggle .hidden on .project by data-cat."}
+            except Exception as exc:
+                return {"name": "Project filters (.filter)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_contact_form():
+            try:
+                form_count = page.locator("#contactForm").count()
+                note_count = page.locator("#formNote").count()
+                if form_count == 0:
+                    return {"name": "Contact form (#contactForm)", "passed": False, "reason": "No element with id='contactForm' found"}
+                if note_count == 0:
+                    return {"name": "Contact form (#contactForm)", "passed": False, "reason": "No element with id='formNote' found — needed for success message"}
+                # Dispatch a real submit event (cancelable so preventDefault is meaningful)
+                page.locator("#contactForm").first.evaluate(
+                    "form => form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true}))"
+                )
+                page.wait_for_timeout(200)
+                note_text = (page.locator("#formNote").first.text_content(timeout=1500) or "").strip()
+                ok = len(note_text) > 5
+                return {"name": "Contact form (#contactForm)", "passed": ok,
+                        "reason": f"Shows success message: '{note_text}' ✓" if ok
+                        else "No success message appeared in #formNote after submit. Call event.preventDefault() and set formNote.textContent."}
+            except Exception as exc:
+                return {"name": "Contact form (#contactForm)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_intersection_observer():
+            """
+            After scrolling, .section/.stats elements should get the .visible class
+            (IntersectionObserver reveal pattern).
+            Elements must also have had .reveal added by JS first.
+            """
+            try:
+                # Force intersection by scrolling and checking
+                page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
+                page.wait_for_timeout(400)
+                visible_count = page.locator(".section.visible, .stats.visible, .hero-visual.visible").count()
+                reveal_count  = page.locator(".reveal").count()
+                if reveal_count == 0:
+                    return {"name": "Scroll reveal (IntersectionObserver)", "passed": False,
+                            "reason": "No elements have .reveal class. Add it to .section, .stats, .hero-visual in JS before observing."}
+                ok = visible_count > 0
+                return {"name": "Scroll reveal (IntersectionObserver)", "passed": ok,
+                        "reason": f"{visible_count} elements visible after scroll ✓" if ok
+                        else "No .visible class added. Ensure IntersectionObserver callback adds .visible to intersecting entries."}
+            except Exception as exc:
+                return {"name": "Scroll reveal (IntersectionObserver)", "passed": False, "reason": f"Error: {exc}"}
+
+        def check_scroll_to_top():
+            """
+            After scrolling > 500px, #toTop should have class 'show'.
+            Clicking it should scroll back to top.
+            """
+            try:
+                totop_count = page.locator("#toTop").count()
+                if totop_count == 0:
+                    return {"name": "Back-to-top (#toTop)", "passed": False, "reason": "No element with id='toTop' found"}
+                # Scroll down 600px
+                page.evaluate("window.scrollTo(0, 600)")
+                page.wait_for_timeout(300)
+                has_show = page.locator("#toTop").first.evaluate("el => el.classList.contains('show')")
+                if not has_show:
+                    return {"name": "Back-to-top (#toTop)", "passed": False,
+                            "reason": "After scrolling 600px, #toTop does not have class 'show'. Listen to window 'scroll' and toggle .show when scrollY > 500."}
+                return {"name": "Back-to-top (#toTop)", "passed": True, "reason": "Gets .show class when scrolled > 500px ✓"}
+            except Exception as exc:
+                return {"name": "Back-to-top (#toTop)", "passed": False, "reason": f"Error: {exc}"}
+
+        # ── Dispatch checks in order ─────────────────────────────────────────
+        _dispatch = {
+            "year":                 check_year,
+            "menu_toggle":          check_menu_toggle,
+            "typed_effect":         check_typed_effect,
+            "project_filter":       check_project_filter,
+            "contact_form":         check_contact_form,
+            "intersection_observer":check_intersection_observer,
+            "scroll_to_top":        check_scroll_to_top,
+        }
+        for check_id in checks_to_run:
+            fn = _dispatch.get(check_id)
+            if fn:
+                result = fn()
+                checks.append(result)
+                # Print each check result for easy debugging in container logs
+                status = "✓ PASS" if result["passed"] else "✗ FAIL"
+                print(f"  [js-check] {status} | {result['name']} — {result.get('reason','')}", flush=True)
+            else:
+                checks.append({"name": check_id, "passed": False, "reason": f"Unknown check '{check_id}'"})
+
+        # Report any uncaught JS errors
+        if js_errors:
+            checks.append({
+                "name": "JS runtime errors",
+                "passed": False,
+                "reason": "JS threw errors: " + "; ".join(js_errors[:3])
+            })
+
+        browser.close()
+
+    total  = len(checks)
+    passed = sum(1 for c in checks if c["passed"])
+    score  = (passed / total * 100) if total > 0 else 0.0
+    return {"score": score, "checks": checks}
+
+
+@workspace_router.post("/ui-validate")
+def ui_validate(body: UiValidateRequest):
+    base_html_path: Optional[Path] = None
+
+    # New canonical: labs/<lab_uuid>/<starter_repo_name>/tickets/<ticket_slug>/index.html
+    if body.lab_id:
+        lab_dir = WORKSPACES_ROOT / "labs" / body.lab_id
+        if lab_dir.exists():
+            for child in lab_dir.iterdir():
+                if child.is_dir() and child.name != "users":
+                    candidate = child / "tickets" / body.ticket_slug / "index.html"
+                    if candidate.exists():
+                        base_html_path = candidate
+                        break
+
+    # Legacy fallback: labs/<lab_name>/tickets/<ticket_slug>/index.html
+    if base_html_path is None:
+        legacy = WORKSPACES_ROOT / "labs" / body.lab_name / "tickets" / body.ticket_slug / "index.html"
+        if legacy.exists():
+            base_html_path = legacy
+
+    if base_html_path is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Base HTML not found for ticket '{body.ticket_slug}'. "
+                f"Checked labs/{body.lab_id or ''}/<starter>/ and labs/{body.lab_name}/tickets/. "
+                "Ensure the starter repo is cloned and contains a tickets/<ticket_slug>/index.html file."
+            )
+        )
+
+    base_dir = base_html_path.parent
+    base_html = base_html_path.read_text(errors="replace")
+    # Try both CSS filename conventions used across tickets (styles.css vs style.css)
+    base_css = ""
+    base_css_used = ""
+    for _css_name in ("styles.css", "style.css"):
+        _p = base_dir / _css_name
+        if _p.exists():
+            base_css = _p.read_text(errors="replace")
+            base_css_used = str(_p)
+            break
+            
+    print(f"[ui-validate] Base HTML: {base_html_path}", flush=True)
+    print(f"[ui-validate] Base CSS:  {base_css_used}", flush=True)
+
+    # ── 2. Render screenshots (sync Playwright) ─────────────
+    try:
+        base_img_bytes = _render_html_screenshot(base_html, base_css)
+        user_img_bytes = _render_html_screenshot(body.user_html, body.user_css)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Playwright screenshot failed: {e}")
+
+    # ── 3. ui-diff comparison ─────────────────────────────────────────────────
+    ui_score = 0.0
+    diff_b64 = ""
+    try:
+        import sys
+        ui_diff_path = str(Path(__file__).parent / "ui-diff")
+        if ui_diff_path not in sys.path:
+            sys.path.insert(0, ui_diff_path)
+        from ui_diff import compare
+        from PIL import Image
+
+        base_pil = Image.open(io.BytesIO(base_img_bytes)).convert("RGB")
+        user_pil = Image.open(io.BytesIO(user_img_bytes)).convert("RGB")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            diff_path = Path(tmpdir) / "diff.png"
+            result = compare(expected=base_pil, actual=user_pil, diff_image_path=str(diff_path))
+            ui_score = result.confidence_score
+            if diff_path.exists():
+                diff_b64 = base64.b64encode(diff_path.read_bytes()).decode()
+    except Exception as e:
+        print(f"[ui-validate] ui-diff error (using 0.0): {e}")
+
+    # ── 4. Structural checks ──────────────────────────────────────────────────
+    structural = _structural_score(base_html, body.user_html)
+    _js_tickets = {"ticket-01", "ticket-02", "ticket-03", "ticket-04", "ticket-05"}
+    js_score = 0.0
+    if body.user_js and body.ticket_slug in _js_tickets:
+        explicit_checks = (body.scoring_rules or {}).get("js_checks", None) if hasattr(body, "scoring_rules") else None
+        js_result = _evaluate_js(
+            body.user_html,
+            body.user_css,
+            body.user_js,
+            body.ticket_slug,
+            js_checks=explicit_checks,
+        )
+        js_score = js_result["score"]
+        structural["checks"].extend(js_result["checks"])
+        # Weight: structural HTML/CSS 30%, JS behavioral 70%
+        structural["score"] = (structural["score"] * 0.3) + (js_result["score"] * 0.7)
+        # NOTE: ui_score is ALWAYS the real Playwright pixel-diff result — NOT the JS score.
+        # js_score is kept as a completely separate independent field.
+
+    # ── 5. Return ─────────────────────────────────────────────────────────────
+    
+    print(f"ui-score: {ui_score}, js-score: {js_score}", flush=True)
+
+    return {
+        "ui_score":          ui_score,
+        "js_score":          js_score,
+        "structural_score":  structural["score"],
+        "checks":            structural["checks"],
+        "base_img_b64":      base64.b64encode(base_img_bytes).decode(),
+        "user_img_b64":      base64.b64encode(user_img_bytes).decode(),
+        "diff_img_b64":      diff_b64,
+    }
+
 
 async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
     """

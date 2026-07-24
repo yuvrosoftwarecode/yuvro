@@ -1,143 +1,115 @@
 {
-  "title": "Sprint 2 \u2014 CSS Fundamentals & Layout",
-  "description": "Bring your web pages to life with modern styling and responsive layouts, ensuring they look great on any device.",
-  "xp_pool": 500,
+  "title": "Sprint 2 — Style the Restaurant Page (HTML + CSS)",
+  "description": "Take the restaurant page you built in Sprint 1 and make it look stunning. You will style every section using modern CSS — custom properties, Flexbox, Grid, hover transitions, and a fully responsive mobile layout. By the end, your page will look like a real professional website.",
+  "xp_pool": 400,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 CSS Basics & Box Model",
-      "ticket_slug": "ticket-1",
-      "description": "Master the basics of visual design. You will learn how to target elements for styling, control spacing, and create a consistent system for colors and typography.",
-      "xp_reward": 120,
+      "title": "Ticket 1 — Design System: Variables, Reset & Typography",
+      "ticket_slug": "s2-ticket-1",
+      "description": "Before writing any visible styles, build the foundation. Create a CSS design system using custom properties so that every colour, font, spacing value, and shadow on the page can be changed from one place.",
+      "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 2.1.1 \u2014 Selectors & Specificity",
-          "task_slug": "task-2-1-1",
-          "description": "Apply specific visual styles to various elements on your page to create a cohesive look.",
-          "points": 35,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 1 — CSS Reset & Custom Properties",
+          "task_slug": "task-1",
+          "description": "In your `style.css`, do the following:\n1. Add a universal reset: `*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }`\n2. Define CSS custom properties in `:root` for at least:\n   - `--color-primary` (e.g. a warm red or terracotta)\n   - `--color-bg` (page background)\n   - `--color-text` (main text)\n   - `--color-accent` (a highlight color)\n   - `--font-main` (body font family)\n   - `--font-heading` (heading font family)\n   - `--spacing-sm`, `--spacing-md`, `--spacing-lg`\n3. Set `font-family`, `background-color`, and `color` on `body` using your variables.",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2.1.2 \u2014 The Box Model",
-          "task_slug": "task-2-1-2",
-          "description": "Design a polished card component by carefully managing its dimensions and inner spacing.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 2 — Typography & Heading Styles",
+          "task_slug": "task-2",
+          "description": "Style all headings and body text so the page has clear visual hierarchy:\n- `h1` should be large (at least 2.5rem) and use `var(--font-heading)`\n- `h2` should be clearly smaller than `h1`\n- `h3` should be smaller again with a different colour or weight\n- `p` should have comfortable `line-height` (at least 1.6) and use `var(--font-main)`\n- Add a Google Font import in `<head>` of your HTML and reference it in your variables",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
           "order_index": 2
-        },
-        {
-          "title": "Task 2.1.3 \u2014 Typography & Colors",
-          "task_slug": "task-2-1-3",
-          "description": "Establish a scalable typography and color system to keep your page designs consistent.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
         }
       ],
       "order_index": 1,
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY",
+      "accepted_programming_languages": ["html"]
     },
     {
-      "title": "Ticket 2 \u2014 Flexbox",
-      "ticket_slug": "ticket-2",
-      "description": "Create flexible and dynamic layouts. You will build responsive navigation bars, adaptable grids, and easily align content.",
-      "xp_reward": 130,
-      "tasks": [
-        {
-          "title": "Task 2.2.1 \u2014 Flex Navigation Bar",
-          "task_slug": "task-2-2-1",
-          "description": "Create a modern, adaptable navigation bar to help users seamlessly browse your site.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 1
-        },
-        {
-          "title": "Task 2.2.2 \u2014 Card Grid with Flexbox",
-          "task_slug": "task-2-2-2",
-          "description": "Construct a grid of content cards that automatically adjust to fit different screen sizes smoothly.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 2
-        },
-        {
-          "title": "Task 2.2.3 \u2014 Centering Challenge",
-          "task_slug": "task-2-2-3",
-          "description": "Learn robust techniques to perfectly center various elements across your designs.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
-        }
-      ],
-      "order_index": 2,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 3 \u2014 CSS Grid",
-      "ticket_slug": "ticket-3",
-      "description": "Take control of complex, two-dimensional page structures and responsive galleries for advanced page organization.",
-      "xp_reward": 130,
-      "tasks": [
-        {
-          "title": "Task 2.3.1 \u2014 Grid Basics & Template Areas",
-          "task_slug": "task-2-3-1",
-          "description": "Design a comprehensive, full-page layout featuring headers, sidebars, and main content areas.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 1
-        },
-        {
-          "title": "Task 2.3.2 \u2014 Responsive Grid Gallery",
-          "task_slug": "task-2-3-2",
-          "description": "Create a beautiful image gallery that intelligently reshapes itself based on the viewer's screen.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 2
-        },
-        {
-          "title": "Task 2.3.3 \u2014 Grid vs Flexbox Decision Task",
-          "task_slug": "task-2-3-3",
-          "description": "Apply the right layout strategies to tackle various everyday design challenges efficiently.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
-        }
-      ],
-      "order_index": 3,
-      "difficulty": "MEDIUM"
-    },
-    {
-      "title": "Ticket 4 \u2014 Responsive Design",
-      "ticket_slug": "ticket-4",
-      "description": "Ensure your applications provide an excellent experience on screens of all sizes, starting from mobile devices.",
+      "title": "Ticket 2 — Header, Nav & Hero Styling",
+      "ticket_slug": "s2-ticket-2",
+      "description": "Make the first impression count. Style the header with a sticky navigation bar and a visually impressive hero section with a background image and overlay.",
       "xp_reward": 120,
       "tasks": [
         {
-          "title": "Task 2.4.1 \u2014 Mobile-First Media Queries",
-          "task_slug": "task-2-4-1",
-          "description": "Optimize your page layout to gracefully adapt across mobile, tablet, and desktop views.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 1 — Sticky Nav with Flexbox",
+          "task_slug": "task-1",
+          "description": "Style the `<header>` and `<nav>` using Flexbox:\n- The header should stick to the top on scroll (`position: sticky; top: 0`)\n- Use Flexbox to place the restaurant name on the left and nav links on the right (`justify-content: space-between`)\n- Nav links should be horizontal (inline), have `text-decoration: none`, and show a colour change on `:hover` using `transition`\n- Add a subtle `box-shadow` to the header",
+          "points": 60,
+          "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2.4.2 \u2014 Responsive Typography",
-          "task_slug": "task-2-4-2",
-          "description": "Make your text smoothly scale in size to maintain optimal readability on any device.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 2 — Hero Section with Background & Overlay",
+          "task_slug": "task-2",
+          "description": "Style the `#hero` section to be visually striking:\n- Set a `background-image` (use a food/restaurant URL or `linear-gradient`)\n- Add a dark semi-transparent overlay using a `::before` pseudo-element or layered gradient\n- Center the text with Flexbox (`display: flex; align-items: center; justify-content: center`)\n- The hero should be at least `70vh` tall\n- The `h2` text should be white, large, and readable against the background",
+          "points": 60,
+          "method": "UI Visual & Structural Validation",
           "order_index": 2
+        }
+      ],
+      "order_index": 2,
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": ["html"]
+    },
+    {
+      "title": "Ticket 3 — Menu Grid, Table & Card Styles",
+      "ticket_slug": "s2-ticket-3",
+      "description": "Style the core menu section. Use CSS Grid to lay out the menu articles side by side, and style the mains table to look polished with alternating row colours and hover effects.",
+      "xp_reward": 100,
+      "tasks": [
+        {
+          "title": "Task 1 — Menu Articles Grid Layout",
+          "task_slug": "task-1",
+          "description": "Wrap the three menu `<article>` elements in a container and use CSS Grid:\n- Desktop: `grid-template-columns: 1fr 1fr 1fr` (3 columns side by side)\n- Add a `gap` between cards\n- Each article should look like a card — `background`, `border-radius`, `padding`, and a subtle `box-shadow`\n- List items should have bottom borders or spacing between them",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
         },
         {
-          "title": "Task 2.4.3 \u2014 Responsive Navigation (Hamburger Menu)",
-          "task_slug": "task-2-4-3",
-          "description": "Implement a space-saving, interactive mobile menu to keep your site easily navigable on smaller screens.",
+          "title": "Task 2 — Styled Table & Hover Row Effects",
+          "task_slug": "task-2",
+          "description": "Style the `<table>` in the mains article:\n- Full width (`width: 100%`)\n- `border-collapse: collapse` to remove double borders\n- Alternating row background colours using `tr:nth-child(even)`\n- `<th>` cells should have a coloured background (`var(--color-primary)`) with white text\n- Rows should change background on `tr:hover` using `transition`\n- All cells should have padding",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": ["html"]
+    },
+    {
+      "title": "Ticket 4 — Form Styles, Footer & Responsive Layout",
+      "ticket_slug": "s2-ticket-4",
+      "description": "Finish the full page styling. Make the contact form look professional, create a styled footer, and add a fully responsive mobile layout using media queries so the page works beautifully on any screen size.",
+      "xp_reward": 80,
+      "tasks": [
+        {
+          "title": "Task 1 — Form & Footer Styles",
+          "task_slug": "task-1",
+          "description": "Style the reservation form:\n- `display: flex; flex-direction: column; gap` for the form layout\n- All `input`, `textarea` should have: `border`, `border-radius`, `padding`, `width: 100%`, and a `:focus` outline using `var(--color-primary)`\n- `label` should appear above each input\n- The submit `<button>` should have a bold, coloured background, white text, `border: none`, `border-radius`, `padding`, and a hover effect that darkens or scales it\n\nAlso add a `<footer>` with `background`, centred text, and copyright info.",
           "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Responsive Mobile Layout",
+          "task_slug": "task-2",
+          "description": "Make the entire page responsive with media queries:\n- At `max-width: 768px`:\n  - The menu grid should become a single column (`grid-template-columns: 1fr`)\n  - The sticky nav links should wrap vertically or be hidden behind a hamburger structure in HTML\n  - The hero `h2` should be smaller\n  - Table should scroll horizontally (`overflow-x: auto` on a wrapper)\n- Test that no content overflows on mobile",
+          "points": 40,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
         }
       ],
       "order_index": 4,
-      "difficulty": "MEDIUM"
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": ["html"]
     }
   ],
   "order_index": 2,

@@ -3,10 +3,10 @@
 
 # ── Score fusion weights (must sum to 1.0) ────────────────────────────────────
 weights:
-  ssim: 0.05          # Layer A — structural sanity check (low weight)
-  phash: 0.05         # Layer B — perceptual hash gate (very low weight)
-  position: 0.65      # Layer C — element position matching (PRIMARY)
-  color: 0.25         # Layer D — Lab/Delta-E color comparison (PRIMARY)
+  ssim: 0.20         
+  phash: 0.10       
+  position: 0.35    
+  color: 0.35         
 
 # ── Preprocessing ─────────────────────────────────────────────────────────────
 preprocess:
@@ -29,10 +29,10 @@ element_detection:
 
 # ── Color comparison (Layer D) ────────────────────────────────────────────────
 color:
-  kmeans_k: 3                    # dominant color clusters per region
-  delta_e_threshold: 10.0        # Delta-E distance considered "fully different"
+  kmeans_k: 5                    
+  delta_e_threshold: 6.0         
   histogram_bins: 64             # bins per channel for global histogram comparison
-  histogram_weight: 0.3          # blend: per-element vs global histogram in color score
+  histogram_weight: 0.5          # blend: global histogram weight raised so overall palette shift is detected
 
 # ── Score penalties ───────────────────────────────────────────────────────────
 penalties:
