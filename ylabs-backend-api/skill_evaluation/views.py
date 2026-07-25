@@ -13,15 +13,19 @@ from .models import (
     Evaluation,
     LabQuestionBank,
     UserEvaluationSubmission,
-    DiscussionMode
+    DiscussionMode,
+    UserLabQuestionBankTaskSubmission
 )
 from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
-    UserEvaluationSubmissionSerializer
+    UserEvaluationSubmissionSerializer,
+    UserLabQuestionBankTaskSubmissionSerializer
 )
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
+import os
+from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.prefetch_related('sections').all()
@@ -251,6 +255,30 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submissions = UserEvaluationSubmission.objects.filter(evaluation=evaluation).select_related('user')
         serializer = UserEvaluationSubmissionSerializer(submissions, many=True)
         return Response(serializer.data)
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def start_lab(self, request, pk=None):
+        evaluation = self.get_object()
+        lab_id = request.data.get('lab_id')
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        if not lab.git_repo_starter_url:
+            return Response({"error": "Lab does not have a starter repository"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+        starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+        
+        try:
+            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+            return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
+        except Exception as e:
+            return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LabQuestionBank.objects.all()
@@ -258,3 +286,12 @@ class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     authentication_classes = []
 
+class UserLabQuestionBankTaskSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = UserLabQuestionBankTaskSubmissionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserLabQuestionBankTaskSubmission.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

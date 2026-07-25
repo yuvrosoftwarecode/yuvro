@@ -54,6 +54,7 @@ function ProctoringPage() {
   }, [evaluationId]);
 
   const [level, setLevel] = useState(0);
+  const hasProceededRef = useRef(false);
 
   const [micCheck, setMicCheck] = useState<CheckState>({ status: "idle" });
   const [cameraCheck, setCameraCheck] = useState<CheckState>({ status: "idle" });
@@ -325,11 +326,19 @@ function ProctoringPage() {
     action: <button onClick={requestFullscreen} disabled={currentStep !== 6} className={`text-[12px] font-medium underline underline-offset-4 ${currentStep === 6 ? 'text-neutral-900 hover:text-black' : 'text-neutral-300'}`}>Enter Fullscreen</button>
   });
 
+  // When proctoring is disabled (steps.length === 0), navigate away after render — never call
+  // handleProceed() synchronously during rendering because nav() triggers a setState inside
+  // TanStack Router's Transitioner, causing the "setState during render" React warning.
+  useEffect(() => {
+    if (config && steps.length === 0 && !hasProceededRef.current) {
+      hasProceededRef.current = true;
+      handleProceed();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config, steps.length]);
+
   if (!config) return <div className="flex h-screen items-center justify-center text-sm text-neutral-500">Loading proctoring config...</div>;
-  if (steps.length === 0) {
-    handleProceed();
-    return null;
-  }
+  if (config && steps.length === 0) return null;
 
   return (
     <EvalShell step={3} totalSteps={4} stepLabel="Proctoring">

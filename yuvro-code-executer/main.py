@@ -155,6 +155,8 @@ class DatabaseRunRequest(BaseModel):
     expected_output: Optional[str] = None
     scoring_rules: Optional[Dict[str, Any]] = None
     system_query: Optional[str] = None
+    evaluation_id: Optional[str] = None
+
     expected_result: Optional[str] = None
 
 class PlagiarismCheckRequest(BaseModel):
@@ -1708,10 +1710,11 @@ WORKSPACES_ROOT = Path(os.environ.get("WORKSPACES_ROOT", "/workspaces"))
 workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 
-def _workspace_dir(user_id: str, lab_id: str, sprint_id: str) -> Path:
+def _workspace_dir(user_id: str, lab_id: str, sprint_id: str, evaluation_id: Optional[str] = None) -> Path:
     """Return the per-student workspace directory."""
+    if evaluation_id:
+        return WORKSPACES_ROOT / "evaluation" / evaluation_id / "users" / user_id / "labs" / lab_id
     return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id
-
 
 def _safe_path(workspace: Path, relative: str) -> Path:
     """Resolve a relative path inside the workspace, raising 400 on path traversal."""
@@ -1755,6 +1758,7 @@ async def get_file_tree(
     sprint_id: str = Query(...),
     lab_type: Optional[str] = Query(None, description="Type of the lab (e.g. sqlite)"),
     starters: Optional[str] = Query(None, description="JSON map of filename->content to seed on first access"),
+    evaluation_id: Optional[str] = Query(None, description="ID of the evaluation if this is an evaluation lab"),
 ):
     """
     Return the file tree for a student's workspace.
@@ -1765,7 +1769,7 @@ async def get_file_tree(
       2. Fall back to inline starters JSON if provided
       3. Leave empty if nothing available (Git Lab — students work in terminal)
     """
-    ws = _workspace_dir(user_id, lab_id, sprint_id)
+    ws = _workspace_dir(user_id, lab_id, sprint_id, evaluation_id)
     seeded = False
     if not ws.exists():
         ws.mkdir(parents=True, exist_ok=True)
@@ -1786,8 +1790,8 @@ async def get_file_tree(
                 fpath.write_text(content)
             seeded = True
         else:
-            # No inline starters — try to copy from the lab's starter repo clone
-            seeded = _copy_from_starter(ws, lab_id)
+            # No inline starters (provisioning is handled by Django)
+            seeded = False
             # If no starter exists (Git Lab), leave workspace empty;
             # students work entirely through the terminal
     else:
@@ -1811,7 +1815,7 @@ async def get_file_tree(
                     fpath.write_text(content)
                 seeded = True
             else:
-                seeded = _copy_from_starter(ws, lab_id)
+                seeded = False
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1823,9 +1827,10 @@ async def get_file(
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
     path: str = Query(..., description="Relative file path inside workspace"),
+    evaluation_id: Optional[str] = Query(None, description="ID of the evaluation if this is an evaluation lab"),
 ):
     """Return the text content of a file in the student's workspace."""
-    ws = _workspace_dir(user_id, lab_id, sprint_id)
+    ws = _workspace_dir(user_id, lab_id, sprint_id, evaluation_id)
     fpath = _safe_path(ws, path)
     if not fpath.exists():
         raise HTTPException(status_code=404, detail=f"File not found: {path}")
@@ -1844,12 +1849,13 @@ class WriteFileRequest(BaseModel):
     sprint_id: str
     path: str
     content: str
+    evaluation_id: Optional[str] = None
 
 
 @workspace_router.post("/file")
 async def write_file(body: WriteFileRequest):
     """Create or overwrite a file in the student's workspace."""
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
     fpath = _safe_path(ws, body.path)
     fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -1862,12 +1868,13 @@ class DeleteFileRequest(BaseModel):
     lab_id: str
     sprint_id: str
     path: str
+    evaluation_id: Optional[str] = None
 
 
 @workspace_router.delete("/file")
 async def delete_file(body: DeleteFileRequest):
     """Delete a file or directory from the student's workspace."""
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     fpath = _safe_path(ws, body.path)
     if not fpath.exists():
         raise HTTPException(status_code=404, detail=f"Path not found: {body.path}")
@@ -1885,6 +1892,7 @@ class EvaluateRequest(BaseModel):
     required_command: str = ""
     task_slug: Optional[str] = None
     scoring_rules: dict = {} 
+    evaluation_id: Optional[str] = None
 
 @workspace_router.post("/evaluate")
 def evaluate_task(body: EvaluateRequest):
@@ -1915,7 +1923,7 @@ def evaluate_task(body: EvaluateRequest):
         "fail_hint": "What to run if this fails"
     }
     """
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     history_file = ws / ".bash_history"
     
     if not history_file.exists():
@@ -1997,10 +2005,11 @@ class RunCommandRequest(BaseModel):
     lab_id: str
     sprint_id: str
     command: str
+    evaluation_id: Optional[str] = None
 
 @workspace_router.post("/run_command")
 async def run_command_endpoint(body: RunCommandRequest):
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
     
     try:
@@ -2027,7 +2036,7 @@ async def run_command_endpoint(body: RunCommandRequest):
 
 @workspace_router.post("/database_run")
 async def database_run_endpoint(body: DatabaseRunRequest):
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, getattr(body, "evaluation_id", None))
     ws.mkdir(parents=True, exist_ok=True)
     
     try:
@@ -2052,6 +2061,7 @@ class DatabaseEvaluateRequest(BaseModel):
     scoring_rules: dict
     system_query: Optional[str] = None
     expected_result: Optional[str] = None
+    evaluation_id: Optional[str] = None
 
 @workspace_router.post("/database_evaluate")
 async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
@@ -2060,7 +2070,7 @@ async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
         
         actual_result = body.user_output
         if body.system_query and body.user_id and body.lab_id and body.sprint_id:
-            ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
+            ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
             if ws.exists():
                 actual_result = await evaluator.get_system_query_result(body, str(ws))
 
@@ -2084,6 +2094,7 @@ class UiValidateRequest(BaseModel):
     scoring_rules: dict = {}   
     lab_name: str = "frontend-portfolio"  # legacy fallback sub-folder under /workspaces/labs/
     lab_id: str = ""           # preferred: lab UUID → resolves labs/<lab_id>/<starter_repo>/tickets/<ticket_slug>/
+    evaluation_id: Optional[str] = None
 
 
 def _render_html_screenshot(html_content: str, css_content: str, width: int = 1280, height: int = 800) -> bytes:
@@ -2372,15 +2383,20 @@ def ui_validate(body: UiValidateRequest):
     base_html_path: Optional[Path] = None
 
     # New canonical: labs/<lab_uuid>/<starter_repo_name>/tickets/<ticket_slug>/index.html
-    if body.lab_id:
+    if body.evaluation_id and body.lab_id:
+        lab_dir = WORKSPACES_ROOT / "evaluation" / body.evaluation_id / "labs" / body.lab_id
+    elif body.lab_id:
         lab_dir = WORKSPACES_ROOT / "labs" / body.lab_id
-        if lab_dir.exists():
-            for child in lab_dir.iterdir():
-                if child.is_dir() and child.name != "users":
-                    candidate = child / "tickets" / body.ticket_slug / "index.html"
-                    if candidate.exists():
-                        base_html_path = candidate
-                        break
+    else:
+        lab_dir = None
+
+    if lab_dir and lab_dir.exists():
+        for child in lab_dir.iterdir():
+            if child.is_dir() and child.name != "users":
+                candidate = child / "tickets" / body.ticket_slug / "index.html"
+                if candidate.exists():
+                    base_html_path = candidate
+                    break
 
     # Legacy fallback: labs/<lab_name>/tickets/<ticket_slug>/index.html
     if base_html_path is None:
@@ -2547,6 +2563,7 @@ async def terminal_ws(
     lab_id: str = Query(...),
     sprint_id: str = Query(...),
     lab_type: Optional[str] = Query(None),
+    evaluation_id: Optional[str] = Query(None, description="ID of the evaluation if this is an evaluation lab"),
 ):
     """
     WebSocket PTY terminal.
@@ -2556,7 +2573,7 @@ async def terminal_ws(
     """
     await websocket.accept()
 
-    ws_dir = _workspace_dir(user_id, lab_id, sprint_id)
+    ws_dir = _workspace_dir(user_id, lab_id, sprint_id, evaluation_id)
     ws_dir.mkdir(parents=True, exist_ok=True)
 
     # --- Auto-configure git remote from GitHub integration (if any) ---

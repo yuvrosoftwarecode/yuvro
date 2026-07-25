@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Development stage — Vite dev server with HMR
 FROM base as development

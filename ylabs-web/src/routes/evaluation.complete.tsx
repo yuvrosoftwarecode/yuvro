@@ -67,7 +67,7 @@ function CompletePage() {
           </svg>
         </div>
         <h1 className="mt-8 font-serif text-[42px] leading-tight tracking-tight text-neutral-900">
-          Congratulations.
+          Thank You.
         </h1>
         <p className="mt-4 text-[15px] leading-relaxed text-neutral-600">
           You've completed your Yuvro Labs engineering evaluation. The hiring team will review your

@@ -36,10 +36,11 @@ interface RealLab {
   tag: string;
   minutes: number;
   problem: string;
-  tasks: { title: string; description: string }[];
+  tasks: { id: string; title: string; description: string }[];
   file: string;
   code: string;
   terminal: string[];
+  startup_command?: string;
 }
 
 
@@ -104,18 +105,21 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
+                startup_command: q.startup_command || undefined,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
+                      id: t.id || "",
                       title: t.title || "Task",
                       description: t.description || ""
                     }))
                   : typeof q.tasks === 'number'
                   ? Array.from({ length: q.tasks }).map((_, i) => ({
+                      id: "",
                       title: `Task ${i + 1}`,
                       description: "Fulfill the specified objective."
                     }))
                   : [
-                      { title: "Main Task", description: "Complete the scenario requirements." }
+                      { id: "", title: "Main Task", description: "Complete the scenario requirements." }
                     ],
                 file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
                 code: "// Code editor initialized.",
@@ -447,7 +451,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   }
 
   return (
-    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] text-neutral-900 antialiased">
+    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased">
       <TopBar
         remaining={remaining}
         online={online}
@@ -488,7 +492,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
-                  tasks: lab.tasks.map(t => ({ title: t.title, description: t.description })),
+                  tasks: lab.tasks.map(t => ({ id: t.id, title: t.title, description: t.description })),
                   difficulty: "Intermediate",
                   xp: 100,
                   estMin: lab.minutes,
@@ -496,6 +500,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   ticketOrder: 1,
                   learning_objectives: [],
                   common_mistakes: [],
+                  startup_command: lab.startup_command,
                 };
                 return (
                   <TicketIDE
@@ -504,6 +509,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                     ticket={mappedTicket}
                     previewOverride={null}
                     isEvaluationMode={true}
+                    evaluationId={evaluationId}
                   />
                 );
               })() : (
@@ -520,7 +526,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               );
             } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
               return (
-                <KnowledgeRunner
+                <KnowledgeRunner evaluationId={evaluationId}
                   key={sec.id}
                   subject={sec}
                   submitted={submittedSections.has(sec.id)}
@@ -658,35 +664,35 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
   const critical = remaining <= 15 * 60;
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 bg-white/80 px-5 backdrop-blur">
+    <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0c0c0e]/80 px-5 backdrop-blur text-neutral-900 dark:text-neutral-100">
       <div className="flex min-w-0 items-center gap-4">
-        <div className="grid h-6 w-6 place-items-center rounded-md bg-neutral-900 text-[10px] font-mono text-white">Y</div>
+        <div className="grid h-6 w-6 place-items-center rounded-md bg-neutral-900 dark:bg-neutral-800 text-[10px] font-mono text-white">Y</div>
         <div className="min-w-0">
-          <div className="truncate text-[12px] leading-none text-neutral-500">Yuvro Labs · Backend Engineer Evaluation</div>
-          <div className="mt-1 flex items-center gap-2 text-[11px] text-neutral-500">
+          <div className="truncate text-[12px] leading-none text-neutral-500 dark:text-neutral-400">Yuvro Labs · Backend Engineer Evaluation</div>
+          <div className="mt-1 flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
             <span>Section</span>
-            <span className="text-neutral-900">{sectionLabel(section, appSections)}</span>
+            <span className="text-neutral-900 dark:text-neutral-100">{sectionLabel(section, appSections)}</span>
           </div>
         </div>
       </div>
 
-      <div className={`font-mono text-[15px] tracking-wide ${critical ? "text-neutral-900" : "text-neutral-700"}`}>
+      <div className={`font-mono text-[15px] tracking-wide ${critical ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-700 dark:text-neutral-300"}`}>
         {fmt(remaining)}
       </div>
 
-      <div className="flex items-center gap-3 text-[11px] text-neutral-500">
+      <div className="flex items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
         <StatusDot label={online ? "Online" : "Reconnecting"} tone={online ? "ok" : "warn"} />
         <StatusDot label="Camera" tone="ok" />
         <StatusDot label="Fullscreen" tone="ok" />
         <span className="hidden md:inline">
           {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
         </span>
-        <span className="hidden text-neutral-300 md:inline">·</span>
-        <button onClick={onJumpToDiscussion} title="Demo: jump to 15:00 remaining" className="hidden rounded-md border border-dashed border-neutral-300 px-2 py-0.5 text-[10px] text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 md:inline">
+        <span className="hidden text-neutral-300 dark:text-neutral-700 md:inline">·</span>
+        <button onClick={onJumpToDiscussion} title="Demo: jump to 15:00 remaining" className="hidden rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 md:inline">
           demo · jump to 15:00
         </button>
-        <button className="text-neutral-500 hover:text-neutral-900">Help</button>
-        <button onClick={onExit} className="text-neutral-500 hover:text-neutral-900">Exit</button>
+        <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
+        <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
         <ThemeToggle />
       </div>
     </header>
@@ -701,7 +707,7 @@ function ThemeToggle() {
       onClick={toggle}
       aria-label="Toggle theme"
       title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900 ml-1"
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 transition hover:border-neutral-900 dark:hover:border-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 ml-1"
     >
       {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
     </button>
@@ -838,8 +844,8 @@ function Sidebar({
 
   if (collapsed) {
     return (
-      <aside className="hidden w-12 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col items-center py-4">
-        <button onClick={onToggleCollapse} className="text-neutral-500 hover:text-neutral-900 transition" title="Expand Sidebar">
+      <aside className="hidden w-12 shrink-0 border-r border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-[#0c0c0e]/60 md:flex flex-col items-center py-4">
+        <button onClick={onToggleCollapse} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition" title="Expand Sidebar">
           <PanelLeftOpen className="w-5 h-5" />
         </button>
       </aside>
@@ -847,13 +853,13 @@ function Sidebar({
   }
 
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 bg-white/60 md:flex flex-col h-full overflow-y-auto">
-      <div className="border-b border-neutral-200 px-5 py-4 flex items-center justify-between">
+    <aside className="hidden w-72 shrink-0 border-r border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-[#0c0c0e]/60 md:flex flex-col h-full overflow-y-auto">
+      <div className="border-b border-neutral-200 dark:border-neutral-800 px-5 py-4 flex items-center justify-between">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">Evaluation</div>
-          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900">{sectionCount} sections</div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">Evaluation</div>
+          <div className="mt-1 font-serif text-[16px] tracking-tight text-neutral-900 dark:text-neutral-100">{sectionCount} sections</div>
         </div>
-        <button onClick={onToggleCollapse} className="text-neutral-400 hover:text-neutral-800 transition" title="Collapse Sidebar">
+        <button onClick={onToggleCollapse} className="text-neutral-400 dark:text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition" title="Collapse Sidebar">
           <PanelLeftClose className="w-4 h-4" />
         </button>
       </div>
@@ -872,10 +878,10 @@ function Sidebar({
                   key={l.id}
                   disabled={locked && !submittedLabs.has(l.id)}
                   onClick={() => onSelectLab(l.id)}
-                  className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${openLab === l.id && section === sec.id ? "bg-neutral-100 text-neutral-900" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"} disabled:cursor-not-allowed disabled:text-neutral-300`}
+                  className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${openLab === l.id && section === sec.id ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100" : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-850 hover:text-neutral-900 dark:hover:text-neutral-100"} disabled:cursor-not-allowed disabled:text-neutral-300 dark:disabled:text-neutral-700`}
                 >
                   <span className="truncate text-[12px]">{l.title}</span>
-                  {submittedLabs.has(l.id) && <span className="text-[10px] text-emerald-600">Done</span>}
+                  {submittedLabs.has(l.id) && <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-medium">Done</span>}
                 </button>
               ))}
             </div>
@@ -982,15 +988,15 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
       <button
         disabled={disabled}
         onClick={onClick}
-        className={`group flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition ${status === "current" ? "bg-neutral-100" : "hover:bg-neutral-50"} disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`group flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition ${status === "current" ? "bg-neutral-100 dark:bg-neutral-850" : "hover:bg-neutral-50 dark:hover:bg-neutral-800/40"} disabled:cursor-not-allowed disabled:opacity-50`}
       >
-        <span className="mt-0.5 font-mono text-[10px] tracking-widest text-neutral-400">{n}</span>
+        <span className="mt-0.5 font-mono text-[10px] tracking-widest text-neutral-400 dark:text-neutral-500">{n}</span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className={`text-[13px] ${status === "current" ? "text-neutral-900" : "text-neutral-700"}`}>{label}</span>
+            <span className={`text-[13px] ${status === "current" ? "text-neutral-900 dark:text-neutral-100 font-medium" : "text-neutral-700 dark:text-neutral-300"}`}>{label}</span>
             <StatusChip status={status} />
           </span>
-          {hint && <span className="mt-0.5 block text-[11px] text-neutral-400">{hint}</span>}
+          {hint && <span className="mt-0.5 block text-[11px] text-neutral-400 dark:text-neutral-500">{hint}</span>}
         </span>
       </button>
       {children}
@@ -1001,10 +1007,10 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
 function StatusChip({ status }: { status: Status }) {
   const map: Record<Status, { label: string; cls: string }> = {
     "not-started": { label: "", cls: "" },
-    "current": { label: "Current", cls: "text-neutral-900" },
-    "in-progress": { label: "In progress", cls: "text-amber-600" },
-    "complete": { label: "Done", cls: "text-emerald-600" },
-    "locked": { label: "Locked", cls: "text-neutral-400" },
+    "current": { label: "Current", cls: "text-neutral-900 dark:text-neutral-100" },
+    "in-progress": { label: "In progress", cls: "text-amber-600 dark:text-amber-500" },
+    "complete": { label: "Done", cls: "text-emerald-600 dark:text-emerald-500" },
+    "locked": { label: "Locked", cls: "text-neutral-400 dark:text-neutral-600" },
   };
   const { label, cls } = map[status];
   if (!label) return null;
@@ -1227,14 +1233,14 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { secti
 function KnowledgeRunner({
   subject, submitted, index, setIndex, answers, marked,
   setAnswer, clearAnswer, onMark, onBack, onSubmit,
-  codingCode, setCodingCode, codingResults, runCode
+  codingCode, setCodingCode, codingResults, runCode, evaluationId
 }: {
   subject: any; submitted: boolean; index: number; setIndex: (i: number) => void;
   answers: Record<string, any>; marked: Set<string>;
   setAnswer: (qId: string, val: any) => void; clearAnswer: (qId: string) => void; onMark: (qId: string) => void;
   onBack: () => void; onSubmit: () => void;
   codingCode: Record<string, string>; setCodingCode: (qId: string, val: string) => void;
-  codingResults: Record<string, { name: string; pass: boolean }[] | null>; runCode: (qId: string) => void;
+  codingResults: Record<string, { name: string; pass: boolean }[] | null>; runCode: (qId: string) => void; evaluationId?: string;
 }) {
   const q = subject.questions[index];
   const disabled = submitted;
@@ -1273,7 +1279,8 @@ function KnowledgeRunner({
         </div>
 
         <div className="min-h-0 flex-1">
-          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true} />
+          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true}
+                    evaluationId={evaluationId} />
         </div>
       </div>
     );
