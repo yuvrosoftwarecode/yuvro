@@ -10,8 +10,8 @@ export const Route = createFileRoute("/recruiter/settings")({
 
 function SettingsPage() {
   const { user } = useAuth();
-  const [name, setName] = useState(user?.name ?? "Riya Recruiter");
-  const [email, setEmail] = useState(user?.email ?? "recruiter@yuvrolabs.com");
+  const [name, setName] = useState(user?.name ?? "Recruiter");
+  const [email, setEmail] = useState(user?.email ?? "recruiter@yuvro.com");
   const [org, setOrg] = useState("Yuvro Talent Co.");
   const [notif, setNotif] = useState({ candidate: true, weekly: true, ai: false });
   const [saved, setSaved] = useState(false);

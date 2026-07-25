@@ -59,7 +59,7 @@ function RecruiterLayout() {
               <div className="min-w-0 flex-1 leading-tight">
                 <div className="truncate text-[12px] text-white">{user?.name ?? "Recruiter"}</div>
                 <div className="truncate text-[10px] text-neutral-500">{user?.email ?? "recruiter@yuvro.com"}</div>
-                </div>
+              </div>
               <button onClick={toggle} className="rounded-md p-1.5 text-neutral-500 transition hover:bg-white/5 hover:text-white" title={theme === "dark" ? "Switch to light" : "Switch to dark"} aria-label="Toggle theme">
                 {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
               </button>
