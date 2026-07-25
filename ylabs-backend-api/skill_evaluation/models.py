@@ -115,6 +115,7 @@ class UserEvaluationSubmission(BaseTimestampedModel):
     user_agent = models.TextField(blank=True)
     proctoring_passed = models.BooleanField(default=True)
     anomalies_detected = models.JSONField(default=list, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ("user", "evaluation")

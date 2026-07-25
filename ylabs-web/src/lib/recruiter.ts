@@ -156,7 +156,7 @@ function mapBackendToFrontend(be: any): Evaluation {
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
         let meta: any = { duration: 15, mode: "Custom" };
         try { meta = JSON.parse(s.description || "{}"); } catch {}
-        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId, proctoring };
+        return { id: s.id || newUid(), kind: "discussion", title: s.title, duration: meta.duration || 15, mode: meta.mode || "Custom", questions: s.questions || [], mockInterviewId: meta.mockInterviewId, proctoring };
       } else {
         return { id: s.id || newUid(), kind: "assessment", title: s.title, questions: s.questions || [], proctoring };
       }
@@ -176,7 +176,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
       let desc = "";
       if (s.kind === "labs") { type = "LAB"; qs = s.labs || []; }
       else if (s.kind === "assessment") { type = "KNOWLEDGE_ASSESSMENT"; qs = s.questions || []; }
-      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: "Custom", mockInterviewId: s.mockInterviewId }); }
+      else if (s.kind === "discussion") { type = "VITARKA_AI_INTERVIEW"; qs = s.questions || []; desc = JSON.stringify({ duration: s.duration, mode: s.mode || "Custom", mockInterviewId: s.mockInterviewId }); }
       
       return {
         title: s.title,

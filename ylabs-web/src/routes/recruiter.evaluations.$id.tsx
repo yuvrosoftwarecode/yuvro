@@ -469,10 +469,23 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Question Mode</div>
           <div className="mt-1 flex items-center gap-2">
-            {(["Custom", "Automatic", "Hybrid"] as const).map(mode => (
+            {(["Custom", "Automatic"] as const).map(mode => (
               <button 
                 key={mode} 
-                onClick={() => onChange({ ...section, mode })} 
+                onClick={() => {
+                  let updatedQuestions = section.questions;
+                  if (mode === "Automatic") {
+                    updatedQuestions = [
+                      {
+                        text: "You've changed the views in the Orders app. What was the reason for making those changes?",
+                        follow_ups: [
+                          { text: "Did you consider any alternative approach instead of this implementation?", follow_ups: [] }
+                        ]
+                      }
+                    ];
+                  }
+                  onChange({ ...section, mode, questions: updatedQuestions });
+                }}
                 className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Custom') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
               >
                 {mode}
@@ -482,12 +495,14 @@ function DiscussionSectionBody({ section, onChange }: { section: DiscussionSecti
         </div>
       </div>
       
-      <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-        <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
-        <div className="mt-4">
-          <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
+      {section.mode !== "Automatic" && (
+        <div className="rounded-lg border border-white/5 bg-black/20 p-3">
+          <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
+          <div className="mt-4">
+            <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
+          </div>
         </div>
-      </div>
+      )}
       
       <div className="mt-6 border-t border-white/5 pt-4">
         <ProctoringSettingsCard 
