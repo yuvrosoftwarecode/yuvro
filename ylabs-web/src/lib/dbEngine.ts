@@ -10,7 +10,7 @@ let sqlInitialized = false;
 
 function initSqlDb() {
   if (sqlInitialized) return;
-  
+
   if (typeof window !== "undefined") {
     const saved = localStorage.getItem("alasql_dbs");
     if (saved) {
@@ -27,7 +27,12 @@ function initSqlDb() {
   sqlInitialized = true;
 }
 
-export function runDynamicSqlQuery(query: string): { columns: string[]; rows: SqlRow[]; note: string; ms: number } {
+export function runDynamicSqlQuery(query: string): {
+  columns: string[];
+  rows: SqlRow[];
+  note: string;
+  ms: number;
+} {
   try {
     initSqlDb();
     const start = performance.now();
@@ -37,10 +42,13 @@ export function runDynamicSqlQuery(query: string): { columns: string[]; rows: Sq
 
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("alasql_dbs", JSON.stringify({
-          databases: alasql.databases,
-          useid: alasql.useid
-        }));
+        localStorage.setItem(
+          "alasql_dbs",
+          JSON.stringify({
+            databases: alasql.databases,
+            useid: alasql.useid,
+          }),
+        );
       } catch (e) {
         console.warn("localStorage quota exceeded or error", e);
       }
@@ -60,7 +68,7 @@ export function runDynamicSqlQuery(query: string): { columns: string[]; rows: Sq
     }
 
     // if the result is just a number (e.g. from an UPDATE/DELETE/INSERT)
-    if (typeof data[0] === 'number') {
+    if (typeof data[0] === "number") {
       return { columns: [], rows: [], note: `Query executed. ${data[0]} row(s) affected.`, ms };
     }
 
@@ -85,7 +93,7 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
   }
 
   switch (method) {
-    case 'find': {
+    case "find": {
       const query = args[0] || {};
       const projection = args[1];
       let queryResult = new mingo.Query(query).find(collection).all();
@@ -94,20 +102,24 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
         queryResult = queryResult.map((doc: any) => {
           const res: any = {};
           const keys = Object.keys(projection);
-          const isInclude = keys.some(k => projection[k] === 1);
+          const isInclude = keys.some((k) => projection[k] === 1);
           if (isInclude) {
             if (projection._id !== 0) res._id = doc._id;
-            keys.forEach(k => { if (projection[k] === 1) res[k] = doc[k]; });
+            keys.forEach((k) => {
+              if (projection[k] === 1) res[k] = doc[k];
+            });
           } else {
             Object.assign(res, doc);
-            keys.forEach(k => { if (projection[k] === 0) delete res[k]; });
+            keys.forEach((k) => {
+              if (projection[k] === 0) delete res[k];
+            });
           }
           return res;
         });
       }
       // Add methods for chained operations like .sort().limit()
       const chainable = queryResult;
-      (chainable as any).sort = function(sortSpec: any) {
+      (chainable as any).sort = function (sortSpec: any) {
         // very basic sort
         const keys = Object.keys(sortSpec);
         this.sort((a: any, b: any) => {
@@ -120,25 +132,25 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
         });
         return this;
       };
-      (chainable as any).limit = function(n: number) {
+      (chainable as any).limit = function (n: number) {
         return this.slice(0, n);
       };
-      (chainable as any).toArray = function() {
+      (chainable as any).toArray = function () {
         return this;
       };
       return chainable;
     }
-    case 'aggregate': {
+    case "aggregate": {
       const pipeline = args[0] || [];
       return new mingo.Aggregator(pipeline).run(collection);
     }
-    case 'insertOne': {
+    case "insertOne": {
       const doc = args[0];
       if (!doc._id) doc._id = Date.now() + Math.random();
       collection.push(doc);
       return { acknowledged: true, insertedId: doc._id };
     }
-    case 'insertMany': {
+    case "insertMany": {
       const docs = args[0];
       docs.forEach((doc: any) => {
         if (!doc._id) doc._id = Date.now() + Math.random();
@@ -146,7 +158,7 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
       });
       return { acknowledged: true, insertedCount: docs.length };
     }
-    case 'updateOne': {
+    case "updateOne": {
       const filter = args[0];
       const update = args[1];
       const doc = new mingo.Query(filter).find(collection).next();
@@ -157,60 +169,75 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
       }
       return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
     }
-    case 'updateMany': {
+    case "updateMany": {
       const filter = args[0];
       const update = args[1];
       let modified = 0;
-      new mingo.Query(filter).find(collection).all().forEach((doc: any) => {
-        if (update.$set) Object.assign(doc, update.$set);
-        modified++;
-      });
+      new mingo.Query(filter)
+        .find(collection)
+        .all()
+        .forEach((doc: any) => {
+          if (update.$set) Object.assign(doc, update.$set);
+          modified++;
+        });
       return { acknowledged: true, matchedCount: modified, modifiedCount: modified };
     }
-    case 'deleteOne': {
+    case "deleteOne": {
       const filter = args[0];
-      const index = collection.findIndex(doc => new mingo.Query(filter).test(doc));
+      const index = collection.findIndex((doc) => new mingo.Query(filter).test(doc));
       if (index !== -1) {
         collection.splice(index, 1);
         return { acknowledged: true, deletedCount: 1 };
       }
       return { acknowledged: true, deletedCount: 0 };
     }
-    case 'deleteMany': {
+    case "deleteMany": {
       const filter = args[0];
       const initialLength = collection.length;
       const query = new mingo.Query(filter);
-      dbCollections[collectionName] = collection.filter(doc => !query.test(doc));
-      return { acknowledged: true, deletedCount: initialLength - dbCollections[collectionName].length };
+      dbCollections[collectionName] = collection.filter((doc) => !query.test(doc));
+      return {
+        acknowledged: true,
+        deletedCount: initialLength - dbCollections[collectionName].length,
+      };
     }
     default:
       throw new Error(`Unsupported method: ${method}`);
   }
 }
 
-export function runDynamicMongoQuery(queryStr: string): { rows: unknown[]; note: string; ms: number } {
+export function runDynamicMongoQuery(queryStr: string): {
+  rows: unknown[];
+  note: string;
+  ms: number;
+} {
   try {
     const start = performance.now();
     // Parse things like db.users.find({ ... }).sort({ ... }).limit(1)
-    
+
     // We will evaluate the code inside a Sandbox
     const sandboxDb: any = {};
     const collections = ["users", "orders"]; // allow dynamic collection names based on proxy
-    
+
     const dbProxy = new Proxy(sandboxDb, {
       get: (target, prop: string) => {
-        return new Proxy({}, {
-          get: (colTarget, method: string) => {
-            return (...args: any[]) => {
-              return executeMongoCommand(prop, method, args);
-            };
-          }
-        });
-      }
+        return new Proxy(
+          {},
+          {
+            get: (colTarget, method: string) => {
+              return (...args: any[]) => {
+                return executeMongoCommand(prop, method, args);
+              };
+            },
+          },
+        );
+      },
     });
 
     // Create a safe evaluation environment
-    const evalFunc = new Function('db', `
+    const evalFunc = new Function(
+      "db",
+      `
       try {
         const result = eval(${JSON.stringify(queryStr)});
         if (result && typeof result.toArray === 'function') {
@@ -220,7 +247,8 @@ export function runDynamicMongoQuery(queryStr: string): { rows: unknown[]; note:
       } catch (e) {
         throw e;
       }
-    `);
+    `,
+    );
 
     const result = evalFunc(dbProxy);
     const ms = Math.round(performance.now() - start);
@@ -241,22 +269,24 @@ export function getAlasqlSchema() {
     const schemas: any[] = [];
     for (const dbName of Object.keys(alasql.databases)) {
       if (dbName === "alasql") continue; // skip the internal engine db
-      
+
       const db = alasql.databases[dbName];
       const schema: any = { name: dbName, type: "SQLite", tables: [] };
       for (const tableName of Object.keys(db.tables)) {
-         const table = db.tables[tableName];
-         schema.tables.push({
-           name: tableName,
-           columns: table.columns ? table.columns.map((c: any) => ({
-             name: c.columnid,
-             type: c.dbtypeid || "VARCHAR",
-             nullable: "YES",
-             default: "-",
-             key: "-"
-           })) : [],
-           ddl: `-- Table created in ${dbName}\nCREATE TABLE ${tableName} (...);`
-         });
+        const table = db.tables[tableName];
+        schema.tables.push({
+          name: tableName,
+          columns: table.columns
+            ? table.columns.map((c: any) => ({
+                name: c.columnid,
+                type: c.dbtypeid || "VARCHAR",
+                nullable: "YES",
+                default: "-",
+                key: "-",
+              }))
+            : [],
+          ddl: `-- Table created in ${dbName}\nCREATE TABLE ${tableName} (...);`,
+        });
       }
       schemas.push(schema);
     }
@@ -271,14 +301,20 @@ export function getMongoSchema() {
   for (const [colName, docs] of Object.entries(dbCollections)) {
     let columns: any[] = [];
     if (docs.length > 0) {
-      columns = Object.keys(docs[0]).map(k => ({ name: k, type: typeof docs[0][k], nullable: "YES", default: "-", key: "-" }));
+      columns = Object.keys(docs[0]).map((k) => ({
+        name: k,
+        type: typeof docs[0][k],
+        nullable: "YES",
+        default: "-",
+        key: "-",
+      }));
     } else {
       columns = [{ name: "_id", type: "string", nullable: "NO", default: "-", key: "PK" }];
     }
     schema.tables.push({
       name: colName,
       columns,
-      ddl: `// Collection created dynamically\ndb.createCollection("${colName}")`
+      ddl: `// Collection created dynamically\ndb.createCollection("${colName}")`,
     });
   }
   return [schema];

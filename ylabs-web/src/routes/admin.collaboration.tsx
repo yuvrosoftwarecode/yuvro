@@ -6,7 +6,7 @@ export const Route = createFileRoute("/admin/collaboration")({ component: Collab
 
 function CollabAdmin() {
   return (
-    <AdminShell title="Collaboration Hub" breadcrumb={["Platform","Collaboration"]}>
+    <AdminShell title="Collaboration Hub" breadcrumb={["Platform", "Collaboration"]}>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         <KpiCard label="Active teams" value="417" color="primary" icon={Network} />
         <KpiCard label="Active sprints" value="612" color="ui" />
@@ -24,8 +24,11 @@ function CollabAdmin() {
               { n: "Build Cats", v: "94", t: "score" },
               { n: "DebugDuo", v: "93", t: "score" },
               { n: "Ship Daily", v: "91", t: "score" },
-            ].map(r => (
-              <div key={r.n} className="flex items-center justify-between border-b border-border/40 last:border-0 py-2">
+            ].map((r) => (
+              <div
+                key={r.n}
+                className="flex items-center justify-between border-b border-border/40 last:border-0 py-2"
+              >
                 <span className="font-medium">{r.n}</span>
                 <span className="font-mono text-xs">{r.v}</span>
               </div>
@@ -39,7 +42,7 @@ function CollabAdmin() {
               { c: "Best mentors", n: "Marcus K.", v: "298 mentees" },
               { c: "Highest reliability", n: "Priya S.", v: "99.2%" },
               { c: "Most helpful", n: "Diego R.", v: "841 thanks" },
-            ].map(x => (
+            ].map((x) => (
               <div key={x.c} className="rounded-md border border-border p-3">
                 <div className="text-[10px] uppercase text-muted-foreground">{x.c}</div>
                 <div className="font-semibold mt-1">{x.n}</div>
@@ -50,26 +53,36 @@ function CollabAdmin() {
         </Panel>
       </div>
 
-      <Panel title="Team management" >
+      <Panel title="Team management">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
-              <tr>{["Team","Owner","Members","Sprint","Status","Reports","Actions"].map(h => <th key={h} className="text-left font-medium px-3 py-2">{h}</th>)}</tr>
+              <tr>
+                {["Team", "Owner", "Members", "Sprint", "Status", "Reports", "Actions"].map((h) => (
+                  <th key={h} className="text-left font-medium px-3 py-2">
+                    {h}
+                  </th>
+                ))}
+              </tr>
             </thead>
             <tbody>
               {[
-                ["Velocity Squad","Priya S.",5,"Checkout","active",0],
-                ["Async Avengers","Marcus K.",4,"Banking","active",1],
-                ["Build Cats","Sana A.",6,"Healthcare","review",0],
-                ["DebugDuo","Diego R.",2,"Incident","active",0],
-                ["Ship Daily","Aarav P.",5,"Startup MVP","active",2],
-              ].map(r => (
+                ["Velocity Squad", "Priya S.", 5, "Checkout", "active", 0],
+                ["Async Avengers", "Marcus K.", 4, "Banking", "active", 1],
+                ["Build Cats", "Sana A.", 6, "Healthcare", "review", 0],
+                ["DebugDuo", "Diego R.", 2, "Incident", "active", 0],
+                ["Ship Daily", "Aarav P.", 5, "Startup MVP", "active", 2],
+              ].map((r) => (
                 <tr key={r[0] as string} className="border-t border-border/40 hover:bg-accent/30">
                   <td className="px-3 py-2.5 font-medium">{r[0]}</td>
                   <td className="px-3 py-2.5">{r[1]}</td>
                   <td className="px-3 py-2.5">{r[2]}</td>
-                  <td className="px-3 py-2.5"><Badge tone="primary">{r[3]}</Badge></td>
-                  <td className="px-3 py-2.5"><Badge tone={r[4] === "review" ? "warning" : "success"}>{r[4]}</Badge></td>
+                  <td className="px-3 py-2.5">
+                    <Badge tone="primary">{r[3]}</Badge>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <Badge tone={r[4] === "review" ? "warning" : "success"}>{r[4]}</Badge>
+                  </td>
                   <td className="px-3 py-2.5">{r[5]}</td>
                   <td className="px-3 py-2.5 text-xs space-x-2">
                     <button className="text-primary hover:underline">View</button>

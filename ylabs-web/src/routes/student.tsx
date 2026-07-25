@@ -4,9 +4,9 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 
-export const Route = createFileRoute("/student")({ 
+export const Route = createFileRoute("/student")({
   beforeLoad: ({ location }) => requireStudentAuth(location.href),
-  component: StudentLayout 
+  component: StudentLayout,
 });
 
 function StudentLayout() {

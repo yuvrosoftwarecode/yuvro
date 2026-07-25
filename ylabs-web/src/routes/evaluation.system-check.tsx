@@ -1,9 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { EvalShell, EvalStepHeader, PrimaryButton, Check, Spinner } from "@/components/evaluation/EvalShell";
+import {
+  EvalShell,
+  EvalStepHeader,
+  PrimaryButton,
+  Check,
+  Spinner,
+} from "@/components/evaluation/EvalShell";
 
 export const Route = createFileRoute("/evaluation/system-check")({
-  head: () => ({ meta: [{ title: "System check — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "System check — Yuvro Labs" }, { name: "robots", content: "noindex" }],
+  }),
   component: SystemCheckPage,
 });
 
@@ -19,20 +27,24 @@ const CHECKS = [
 
 function SystemCheckPage() {
   const nav = useNavigate();
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = searchParams.get('e') || '';
+  const searchParams = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
+  );
+  const evaluationId = searchParams.get("e") || "";
   const [done, setDone] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       for (const c of CHECKS) {
-        await new Promise(r => setTimeout(r, 550 + Math.random() * 400));
+        await new Promise((r) => setTimeout(r, 550 + Math.random() * 400));
         if (cancelled) return;
-        setDone(d => new Set(d).add(c.key));
+        setDone((d) => new Set(d).add(c.key));
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const allDone = done.size === CHECKS.length;
@@ -40,7 +52,11 @@ function SystemCheckPage() {
   return (
     <EvalShell step={3} totalSteps={5} stepLabel="System check">
       <div className="mx-auto max-w-2xl">
-        <EvalStepHeader eyebrow="Step 03" title={<>Getting your workspace ready.</>} body="A quick check of your environment. Nothing to do — this runs automatically." />
+        <EvalStepHeader
+          eyebrow="Step 03"
+          title={<>Getting your workspace ready.</>}
+          body="A quick check of your environment. Nothing to do — this runs automatically."
+        />
         <div className="mt-12 divide-y divide-neutral-200 border-y border-neutral-200">
           {CHECKS.map((c) => {
             const isDone = done.has(c.key);
@@ -48,7 +64,9 @@ function SystemCheckPage() {
               <div key={c.key} className="flex items-center justify-between gap-4 py-4">
                 <div className="min-w-0">
                   <div className="text-[14px] text-neutral-900">{c.label}</div>
-                  <div className={`mt-0.5 text-[12px] transition-colors ${isDone ? "text-neutral-500" : "text-neutral-400"}`}>
+                  <div
+                    className={`mt-0.5 text-[12px] transition-colors ${isDone ? "text-neutral-500" : "text-neutral-400"}`}
+                  >
                     {isDone ? c.detail : "Checking…"}
                   </div>
                 </div>
@@ -66,7 +84,12 @@ function SystemCheckPage() {
           })}
         </div>
         <div className="mt-10">
-          <PrimaryButton disabled={!allDone} type="button" className="mt-8 w-full" onClick={() => nav({ to: "/evaluation/proctoring", search: { e: evaluationId } })}>
+          <PrimaryButton
+            disabled={!allDone}
+            type="button"
+            className="mt-8 w-full"
+            onClick={() => nav({ to: "/evaluation/proctoring", search: { e: evaluationId } })}
+          >
             {allDone ? "Continue to proctoring" : "Running checks…"}
           </PrimaryButton>
         </div>

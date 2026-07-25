@@ -1,29 +1,41 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowRight, Sparkles, Code2, Users, Brain, ShieldCheck, BarChart3, Trophy,
-  GitBranch, Bug, Database, Server, Cpu, Layers, Zap, CheckCircle2, Play, Bot,
-  Star, Activity, Award, Briefcase, Rocket, Quote
-} from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  X,
+  Play,
+  GitBranch,
+  GitPullRequest,
+  GitCommit,
+  Bug,
+  Database,
+  Terminal,
+  FileCode2,
+  Download,
+  ChevronRight,
+  Circle,
+} from "lucide-react";
 
-export const Route = createFileRoute("/")({ 
+export const Route = createFileRoute("/")({
   beforeLoad: () => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem('access');
+      const token = localStorage.getItem("access");
       if (token) {
-        const userStr = localStorage.getItem('user');
+        const userStr = localStorage.getItem("user");
         if (userStr) {
           try {
             const user = JSON.parse(userStr);
             const role = user.roles?.ylabs || user.roles?.ycode || user.role;
             const r = role?.toLowerCase();
-            if (r === 'admin') {
-              throw redirect({ to: '/admin' });
-            } else if (r === 'recruiter') {
-              throw redirect({ to: '/recruiter/dashboard' });
+            if (r === "admin") {
+              throw redirect({ to: "/admin" });
+            } else if (r === "recruiter") {
+              throw redirect({ to: "/recruiter/dashboard" });
             } else {
-              throw redirect({ to: '/student/dashboard' });
+              throw redirect({ to: "/student/dashboard" });
             }
           } catch (e) {
             // ignore parsing error
@@ -32,8 +44,33 @@ export const Route = createFileRoute("/")({
       }
     }
   },
-  component: Landing 
+  head: () => ({
+    meta: [
+      { title: "Yuvro Labs — Verify Engineering Capability Before You Hire" },
+      {
+        name: "description",
+        content:
+          "Yuvro Labs is an Engineering Capability Verification Platform. Evaluate real engineering ability through Engineering Simulation Labs, Knowledge Assessments and Vitarka AI Interviews.",
+      },
+      {
+        property: "og:title",
+        content: "Yuvro Labs — Verify Engineering Capability Before You Hire",
+      },
+      {
+        property: "og:description",
+        content:
+          "Stop hiring developers. Start verifying engineers. Evidence-based hiring for modern engineering teams.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Landing,
 });
+
+/* Brand palette (inlined so we don't touch global tokens)
+   bg #FAFAF8 · ink #0A0A0A · muted #6B6B6B · border #E8E6E1
+   amber #F5A623 (rare signal) · amber-deep #E8871A · success #1A8F5C */
 
 function Landing() {
   const { user, isAuthenticated } = useAuth();
@@ -45,380 +82,386 @@ function Landing() {
       if (token && isAuthenticated && user) {
         const role = user.roles?.ylabs || user.roles?.ycode || user.role;
         const r = role?.toLowerCase();
-        nav({ to: r === "admin" ? "/admin" : r === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard" });
+        nav({
+          to:
+            r === "admin"
+              ? "/admin"
+              : r === "recruiter"
+                ? "/recruiter/dashboard"
+                : "/student/dashboard",
+        });
       }
     }
   }, [user, isAuthenticated, nav]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased">
+    <div
+      className="min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white"
+      style={{ background: "#FAFAF8" }}
+    >
+      <LandingStyles />
       <LandingNav />
       <Hero />
-      <Trust />
-      <HowItWorks />
-      <FeatureLabs />
-      <Collaboration />
-      <AIMentor />
-      <Reputation />
-      <Recruiter />
-      <Testimonials />
+      <VersusSection />
+      <ReportSplit />
+      <EvaluationFlow />
+      <SimulationLabs />
+      <CapabilityMetrics />
+      <ReportPreview />
+      <ProcessStrip />
       <FinalCTA />
       <Footer />
     </div>
   );
 }
 
+/* ---------- Global page-scoped styles (animations only) ---------- */
+function LandingStyles() {
+  return (
+    <style>{`
+      @keyframes yvr-reveal { from { opacity:0; transform: translateY(16px) } to { opacity:1; transform: translateY(0) } }
+      .yvr-reveal { opacity: 0; }
+      .yvr-reveal.is-in { animation: yvr-reveal 600ms cubic-bezier(0.16,1,0.3,1) forwards; }
+      @keyframes yvr-pulse-dot { 0%,100% { transform: scale(1); opacity:1 } 50% { transform: scale(1.4); opacity:.45 } }
+      .yvr-pulse { animation: yvr-pulse-dot 2s cubic-bezier(0.16,1,0.3,1) infinite; }
+      @keyframes yvr-caret { 0%,49% { opacity:1 } 50%,100% { opacity:0 } }
+      .yvr-caret { animation: yvr-caret 1s steps(1,end) infinite; }
+      @keyframes yvr-line { to { stroke-dashoffset: 0 } }
+      .yvr-line { stroke-dasharray: 1200; stroke-dashoffset: 1200; }
+      .yvr-line.is-in { animation: yvr-line 1400ms cubic-bezier(0.16,1,0.3,1) forwards; }
+      .yvr-row { transition: background 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 200ms cubic-bezier(0.16,1,0.3,1); box-shadow: inset 2px 0 0 transparent; }
+      .yvr-row:hover { background: #F5F3EE; box-shadow: inset 2px 0 0 #F5A623; }
+    `}</style>
+  );
+}
+
+/* ---------- Reveal + stagger helpers ---------- */
+function useInView<T extends Element>(opts: IntersectionObserverInit = { threshold: 0.15 }) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setInView(true); io.disconnect(); } }, opts);
+    io.observe(el); return () => io.disconnect();
+  }, []);
+  return { ref, inView };
+}
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  return <div ref={ref} className={`yvr-reveal ${inView ? "is-in" : ""} ${className}`} style={{ animationDelay: `${delay}ms` }}>{children}</div>;
+}
+function CountUp({ to, duration = 1200 }: { to: number; duration?: number }) {
+  const { ref, inView } = useInView<HTMLSpanElement>();
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const start = performance.now();
+    const ease = (t: number) => 1 - Math.pow(1 - t, 4);
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      setN(Math.round(ease(p) * to));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, to, duration]);
+  return <span ref={ref}>{n}</span>;
+}
+
+/* ---------- Section divider glyph (logo-inspired branch) ---------- */
+function SectionGlyph() {
+  return (
+    <svg width="44" height="14" viewBox="0 0 44 14" fill="none" className="mb-4 text-[#0A0A0A]">
+      <line x1="0" y1="7" x2="18" y2="7" stroke="currentColor" strokeWidth="1" />
+      <circle cx="20" cy="7" r="2" fill="#F5A623" />
+      <line x1="22" y1="7" x2="34" y2="7" stroke="currentColor" strokeWidth="1" />
+      <line x1="34" y1="7" x2="40" y2="2" stroke="currentColor" strokeWidth="1" />
+      <line x1="34" y1="7" x2="40" y2="12" stroke="currentColor" strokeWidth="1" />
+      <circle cx="40" cy="2" r="1.2" fill="currentColor" />
+      <circle cx="40" cy="12" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+/* ================================================================
+   HEADER — LOCKED. Do not modify.
+   ================================================================ */
 function LandingNav() {
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/50">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-neutral-200">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary via-ui to-primary text-primary-foreground font-mono text-sm shadow-lg shadow-primary/30">Y</div>
+          <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
+            <img src="/logo.png" alt="Yuvro" className="h-full w-full object-contain" />
+          </div>
           <span className="text-base">Yuvro Labs</span>
         </Link>
-        <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition">Labs</a>
-          <a href="#how" className="hover:text-foreground transition">How it works</a>
-          <a href="#mentor" className="hover:text-foreground transition">AI Mentor</a>
-          <a href="#recruiter" className="hover:text-foreground transition">For Recruiters</a>
+        <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-[#6B6B6B]">
+          <a href="#labs" className="hover:text-[#0A0A0A] transition">Labs</a>
+          <a href="#process" className="hover:text-[#0A0A0A] transition">How it works</a>
+          <a href="#report" className="hover:text-[#0A0A0A] transition">Report</a>
+          <Link to="/recruiter-login" className="hover:text-[#0A0A0A] transition">Recruiter Login</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <Link to="/auth" search={{ tab: "signin" }} className="text-sm text-muted-foreground hover:text-foreground transition">Sign In</Link>
-          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-r from-primary to-ui px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/40 transition">
+          <Link to="/auth" search={{ tab: "signin" }} className="text-sm text-[#6B6B6B] hover:text-[#0A0A0A] transition">Sign In</Link>
+          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium text-white transition hover:brightness-95" style={{ background: "#F5A623" }}>
             Get Started <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+
       </div>
     </header>
   );
 }
 
+/* ================================================================
+   1 — HERO
+   ================================================================ */
 function Hero() {
+  const logos = ["Acme", "Northwind", "Globex", "Initech", "Umbrella", "Hooli"];
   return (
-    <section className="relative overflow-hidden border-b border-border/50">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl animate-pulse" />
-        <div className="absolute top-20 right-1/4 h-[400px] w-[400px] rounded-full bg-ui/20 blur-3xl" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,oklch(0.5_0.2_260/0.06)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.5_0.2_260/0.06)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-      </div>
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Sparkles className="h-3 w-3" /> AI-powered engineering simulation
-          </span>
-          <h1 className="mt-5 text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
-            Build Real Engineering Experience.<br />
-            <span className="bg-gradient-to-r from-primary via-ui to-primary bg-clip-text text-transparent">Not Just Coding Skills.</span>
+    <section className="relative overflow-hidden border-b border-[#E8E6E1]">
+      <div className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:pt-16 lg:pb-24 text-center">
+        <Reveal>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E6E1] bg-white px-3 py-1 font-mono text-[11px] font-medium tracking-[0.08em] uppercase text-[#6B6B6B]">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#F5A623" }} />
+            Engineering Capability Verification Platform
+          </div>
+          <h1 className="mt-6 text-[52px] lg:text-[76px] leading-[1.02] tracking-[-0.025em] font-bold">
+            Hire engineers with<br />
+            <span className="inline-block">
+              verified capability.
+            </span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-            Solve real engineering tickets, work in simulated software teams, collaborate with developers, debug production issues, and prove your practical skills through AI-powered labs.
+          <p className="mx-auto mt-6 max-w-2xl text-[18px] leading-relaxed text-[#6B6B6B]">
+            Yuvro Labs replaces resumes and guesswork with evidence. Evaluate how candidates think, debug, collaborate and execute through Engineering Simulation Labs, Knowledge Assessments and Vitarka AI Interviews.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition">
-              Start Building <ArrowRight className="h-4 w-4" />
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md px-5 py-3 text-[14px] font-medium text-white transition hover:brightness-95" style={{ background: "#F5A623" }}>
+              Start Free Trial <ArrowRight className="h-4 w-4" />
             </Link>
-            <a href="#features" className="inline-flex items-center gap-2 rounded-md border border-border bg-card/50 px-5 py-3 text-sm hover:bg-accent transition">
-              Explore Labs
-            </a>
-            <a href="#how" className="inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm text-muted-foreground hover:text-foreground transition">
-              <Play className="h-4 w-4" /> Watch Demo
+            <a href="#process" className="inline-flex items-center gap-2 rounded-md border border-[#E8E6E1] bg-white px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:border-[#0A0A0A] transition">
+              <Play className="h-3.5 w-3.5" /> Book a Demo
             </a>
           </div>
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { v: "120K+", l: "Tickets Solved" },
-              { v: "15K+", l: "Active Engineers" },
-              { v: "500+", l: "Practical Labs" },
-              { v: "95%", l: "Skill Improvement" },
-            ].map((s) => (
-              <div key={s.l} className="rounded-lg border border-border/50 bg-card/30 backdrop-blur p-3">
-                <div className="text-2xl font-semibold bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">{s.v}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <WorkspaceMockup />
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function WorkspaceMockup() {
+
+
+/* ================================================================
+   2 — Traditional vs Yuvro Labs
+   ================================================================ */
+function VersusSection() {
+  const traditional = ["Resume", "MCQ", "Interview", "Guesswork", "Hire"];
+  const yuvro = ["Engineering Labs", "Knowledge Assessment", "Vitarka AI", "Engineering Capability Index", "Evidence Based Hiring"];
   return (
-    <div className="relative">
-      <div className="absolute -inset-4 bg-gradient-to-tr from-primary/30 via-ui/20 to-transparent rounded-3xl blur-2xl" />
-      <div className="relative rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/60 bg-card/60">
-          <div className="flex gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
-            <div className="h-2.5 w-2.5 rounded-full bg-warning/60" />
-            <div className="h-2.5 w-2.5 rounded-full bg-success/60" />
-          </div>
-          <div className="ml-3 text-xs text-muted-foreground font-mono">yuvro-labs / sprint-12 / TICKET-247</div>
+    <section className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-7xl px-6 py-[120px]">
+        <Reveal>
+          <SectionGlyph />
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">The Shift</div>
+          <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+            Recruiters don't hire resumes.<br />
+            <span className="text-[#6B6B6B]">They hire engineering capability.</span>
+          </h2>
+        </Reveal>
+
+        <div className="mt-16 grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-10 lg:gap-16">
+          <Reveal>
+            <FlowColumn eyebrow="Traditional Hiring" tone="muted" steps={traditional} trailingIcon={<X className="h-3.5 w-3.5" />} trailingLabel="Guesswork based" />
+          </Reveal>
+          <Reveal delay={120}>
+            <FlowColumn eyebrow="Yuvro Labs" tone="brand" steps={yuvro} trailingIcon={<Check className="h-3.5 w-3.5" />} trailingLabel="Evidence based" />
+          </Reveal>
         </div>
-        <div className="grid grid-cols-12 gap-0 h-[420px]">
-          <div className="col-span-3 border-r border-border/60 p-3 bg-card/40">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Sprint Board</div>
-            {[
-              { t: "Fix auth flow", s: "done", c: "success" },
-              { t: "Payment webhook", s: "doing", c: "primary" },
-              { t: "Refactor cache", s: "todo", c: "muted-foreground" },
-              { t: "DB indexes", s: "review", c: "ui" },
-            ].map((tk) => (
-              <div key={tk.t} className="mb-2 rounded-md border border-border/50 bg-card p-2 text-xs">
-                <div className="font-medium truncate">{tk.t}</div>
-                <div className="mt-1 flex items-center justify-between">
-                  <span className="text-[10px] capitalize" style={{ color: `var(--${tk.c})` }}>{tk.s}</span>
-                  <div className="h-4 w-4 rounded-full bg-primary/30" />
+      </div>
+    </section>
+  );
+}
+
+function FlowColumn({ eyebrow, tone, steps, trailingIcon, trailingLabel }: { eyebrow: string; tone: "muted" | "brand"; steps: string[]; trailingIcon: React.ReactNode; trailingLabel: string }) {
+  const brand = tone === "brand";
+  return (
+    <div className={`relative rounded-[12px] p-8 border ${brand ? "bg-white border-[#0A0A0A]" : "bg-transparent border-dashed border-[#E8E6E1]"}`} style={brand ? {} : { opacity: 0.85 }}>
+      <div className="flex items-center justify-between">
+        <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">{eyebrow}</div>
+        <div className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] ${brand ? "text-[#0A0A0A]" : "bg-transparent text-[#6B6B6B] border border-[#E8E6E1]"}`} style={brand ? { background: "#F5A623", color: "#0A0A0A" } : {}}>
+          {trailingIcon}
+          {trailingLabel}
+        </div>
+      </div>
+      <div className="mt-6 space-y-0">
+        {steps.map((s, i) => (
+          <Reveal key={s} delay={i * 60}>
+            <div className="flex items-center gap-4 py-3">
+              <span className={`grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] ${brand ? "bg-[#0A0A0A] text-white" : "border border-[#E8E6E1] bg-transparent text-[#6B6B6B]"}`}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className={`text-[16px] tracking-tight ${brand ? "text-[#0A0A0A] font-medium" : "text-[#6B6B6B] line-through decoration-[#E8E6E1]"}`} style={brand ? {} : { opacity: 0.75 }}>{s}</span>
+            </div>
+            {i < steps.length - 1 && <div className="ml-4 h-4 border-l border-dashed border-[#E8E6E1]" />}
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   3 — Report split
+   ================================================================ */
+function ReportSplit() {
+  const items = [
+    { t: "Engineering Labs", d: "Evaluate practical engineering capability through debugging, feature development, optimization and production-style tasks." },
+    { t: "Knowledge Assessment", d: "Measure conceptual understanding across programming languages, databases, frameworks and engineering fundamentals." },
+    { t: "Vitarka AI Interview", d: "Understand communication, reasoning, architecture decisions and technical depth through adaptive AI conversations." },
+    { t: "Engineering Capability Index", d: "One unified engineering score backed by practical evidence." },
+    { t: "Recruiter Report", d: "Everything available in one downloadable, shareable report." },
+  ];
+  return (
+    <section id="report" className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-7xl px-6 py-[120px] grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-16">
+        <Reveal><MiniReportPreview /></Reveal>
+        <Reveal delay={120}>
+          <SectionGlyph />
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">The Recruiter Report</div>
+          <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+            Everything recruiters<br />actually need.
+          </h2>
+          <p className="mt-5 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
+            One report. Four layers of evidence. Zero guesswork. Every claim traceable back to a real engineering artifact.
+          </p>
+          <div className="mt-10 divide-y divide-[#E8E6E1] border-y border-[#E8E6E1]">
+            {items.map((it, i) => (
+              <div key={it.t} className="grid grid-cols-[auto_1fr] gap-6 py-6">
+                <div className="font-mono text-[12px] text-[#6B6B6B] pt-1">0{i + 1}</div>
+                <div>
+                  <h3 className="text-[17px] font-semibold tracking-tight">{it.t}</h3>
+                  <p className="mt-1.5 text-[14px] text-[#6B6B6B] leading-relaxed">{it.d}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="col-span-6 border-r border-border/60 bg-[oklch(0.13_0.02_260)] p-4 font-mono text-[11px] leading-relaxed">
-            <div className="text-muted-foreground">// src/api/webhook.ts</div>
-            <div><span className="text-ui">export async function</span> <span className="text-primary">handlePayment</span>(req: <span className="text-ui">Request</span>) {'{'}</div>
-            <div className="pl-4"><span className="text-ui">const</span> sig = req.headers.get(<span className="text-success">'x-signature'</span>);</div>
-            <div className="pl-4"><span className="text-ui">if</span> (!verify(sig, body)) {'{'}</div>
-            <div className="pl-8"><span className="text-ui">throw new</span> <span className="text-warning">AuthError</span>();</div>
-            <div className="pl-4">{'}'}</div>
-            <div className="pl-4 bg-success/10 border-l-2 border-success">+ <span className="text-ui">await</span> db.transaction(<span className="text-ui">async</span> (tx) =&gt; {'{'} </div>
-            <div className="pl-8 bg-success/10">+   <span className="text-ui">await</span> processOrder(tx, body);</div>
-            <div className="pl-4 bg-success/10">+ {'}'});</div>
-            <div>{'}'}</div>
-            <div className="mt-4 rounded-md border border-success/40 bg-success/10 p-2 text-success">✓ All 24 tests passing · Coverage 94%</div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function MiniReportPreview() {
+  return (
+    <div className="relative">
+      <div className="rounded-[4px] border border-[#E8E6E1] bg-white overflow-hidden">
+        <div className="border-b border-[#E8E6E1] px-6 py-5 flex items-center justify-between">
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Candidate Report · CR-2847</div>
+            <div className="mt-1 text-[18px] font-semibold tracking-tight">Priya Nair — Senior Backend Engineer</div>
           </div>
-          <div className="col-span-3 p-3 bg-card/40">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1"><Bot className="h-3 w-3" /> AI Mentor</div>
-            <div className="rounded-lg bg-primary/10 border border-primary/30 p-2.5 text-[11px] leading-relaxed">
-              Wrap your DB calls in a transaction so partial failures rollback. Nice catch on signature verification!
-            </div>
-            <div className="mt-4 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Team</div>
-            <div className="space-y-1.5">
-              {["MR", "SK", "AJ"].map((u, i) => (
-                <div key={u} className="flex items-center gap-2 text-[11px]">
-                  <div className="h-5 w-5 rounded-full grid place-items-center bg-primary/20 text-primary text-[9px] font-semibold">{u}</div>
-                  <span className="text-muted-foreground">{["reviewing", "online", "coding"][i]}</span>
-                </div>
-              ))}
-            </div>
+          <div className="inline-flex items-center gap-1.5 rounded-[4px] border border-[#E8E6E1] px-2 py-1 font-mono text-[11px] text-[#6B6B6B]">
+            <Download className="h-3 w-3" /> PDF
           </div>
         </div>
-      </div>
-      <div className="absolute -bottom-4 -right-4 rounded-xl border border-border bg-card/90 backdrop-blur p-3 shadow-xl animate-pulse">
-        <div className="text-[10px] text-muted-foreground">XP earned</div>
-        <div className="text-lg font-semibold text-primary">+250 XP</div>
-      </div>
-      <div className="absolute -top-4 -left-4 rounded-xl border border-border bg-card/90 backdrop-blur p-3 shadow-xl">
-        <div className="flex items-center gap-2 text-xs">
-          <Activity className="h-3.5 w-3.5 text-success" /> <span className="text-success">Build passed</span>
+        <div className="grid grid-cols-3 divide-x divide-[#E8E6E1] border-b border-[#E8E6E1]">
+          {[
+            { k: "Labs", v: 92 },
+            { k: "Assessment", v: 84 },
+            { k: "Vitarka", v: 76 },
+          ].map(x => (
+            <div key={x.k} className="px-6 py-5">
+              <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">{x.k}</div>
+              <div className="mt-1 text-[28px] font-semibold tracking-tight font-mono"><CountUp to={x.v} /></div>
+              <div className="mt-2 h-[3px] rounded-full bg-[#E8E6E1] overflow-hidden">
+                <div className="h-full bg-[#0A0A0A]" style={{ width: `${x.v}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Engineering Capability Index</div>
+            <div className="font-mono text-[11px] text-[#6B6B6B]">weighted composite</div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-[56px] leading-none font-semibold tracking-tight"><CountUp to={84} /></span>
+            <span className="font-mono text-[12px] text-[#6B6B6B]">/ 100 · STRONG FIT</span>
+          </div>
+          <div className="mt-4 h-[6px] rounded-full bg-[#E8E6E1] overflow-hidden">
+            <div className="h-full" style={{ width: "84%", background: "#F5A623" }} />
+          </div>
+        </div>
+        <div className="border-t border-[#E8E6E1] px-6 py-4 grid grid-cols-2 gap-4">
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Strengths</div>
+            <ul className="mt-2 space-y-1.5 text-[12px] text-[#0A0A0A]">
+              {["Systems debugging under time pressure", "API design & idempotency reasoning", "Clear technical communication"].map(s => (
+                <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0" style={{ background: "#1A8F5C" }} /><span>{s}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Gaps</div>
+            <ul className="mt-2 space-y-1.5 text-[12px] text-[#0A0A0A]">
+              {["Distributed cache invalidation depth", "Cost/perf trade-off articulation"].map(s => (
+                <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0 border" style={{ borderColor: "#F5A623" }} /><span>{s}</span></li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function Trust() {
-  const items = [
-    { icon: Code2, t: "Real Engineering Experience", d: "Production-grade tickets from real engineering teams." },
-    { icon: Users, t: "Team Collaboration", d: "Pair, review and ship in simulated software squads." },
-    { icon: Brain, t: "AI Mentor Guidance", d: "Senior-engineer-style reviews on every PR." },
-    { icon: Server, t: "Production Simulations", d: "Incident rooms, on-call, and live debugging." },
-    { icon: ShieldCheck, t: "Skill Verification", d: "Proof-of-work badges recruiters can trust." },
-    { icon: BarChart3, t: "Recruiter Analytics", d: "Show what you can actually build, not just memorize." },
-  ];
+/* ================================================================
+   4 — Inside Every Evaluation (dark flow)
+   ================================================================ */
+function EvaluationFlow() {
+  const nodes = ["Invite Candidate", "Engineering Labs", "Knowledge Assessment", "Vitarka AI Interview", "AI Evaluation", "Engineering Capability Report", "Recruiter Decision"];
+  const { ref, inView } = useInView<SVGSVGElement>();
   return (
-    <section className="border-b border-border/50 py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Everything Recruiters Want To See.</h2>
-          <p className="mt-3 text-muted-foreground">Hard evidence of practical engineering skill — not certificates.</p>
-        </div>
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map(({ icon: Icon, t, d }) => (
-            <div key={t} className="group relative rounded-xl border border-border/60 bg-card/40 backdrop-blur p-6 hover:border-primary/40 transition">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-primary/20 to-ui/20 text-primary"><Icon className="h-5 w-5" /></div>
-              <h3 className="mt-4 font-semibold">{t}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HowItWorks() {
-  const steps = [
-    { t: "Choose Practical Lab", d: "Pick a stack: backend, frontend, SQL, DevOps, security, or system design." },
-    { t: "Solve Real Engineering Tickets", d: "Work production-style tickets in a full in-browser IDE." },
-    { t: "Collaborate With Teams", d: "Pair, review and merge with engineers across the world." },
-    { t: "Receive AI Reviews", d: "Get senior-engineer-quality feedback on every PR." },
-    { t: "Build Engineering Reputation", d: "Earn reliability, collaboration and leadership scores." },
-    { t: "Showcase Practical Skills", d: "Share a recruiter-ready portfolio of real engineering work." },
-  ];
-  return (
-    <section id="how" className="border-b border-border/50 py-20 bg-gradient-to-b from-transparent via-card/20 to-transparent">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="text-xs font-medium text-primary uppercase tracking-wider">How it works</span>
-          <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">From learner to shipped engineer in 6 steps.</h2>
-        </div>
-
-        <div className="relative">
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-
-          <div className="space-y-12 md:space-y-14">
-            {steps.map((s, i) => {
-              const left = i % 2 === 0;
-              const num = String(i + 1).padStart(2, "0");
-              return (
-                <div key={i} className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6">
-                  <div className={`${left ? "text-right pr-2 md:pr-6" : ""}`}>
-                    {left && (
-                      <>
-                        <div className="text-[10px] font-medium text-primary uppercase tracking-[0.2em]">Step {num}</div>
-                        <h3 className="mt-1.5 text-base md:text-lg font-semibold tracking-tight text-foreground">{s.t}</h3>
-                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{s.d}</p>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="relative grid place-items-center">
-                    <div className="absolute h-9 w-9 rounded-full bg-primary/20 blur-md" />
-                    <div className="relative h-7 w-7 rounded-full border border-primary/60 bg-background grid place-items-center text-[11px] font-mono text-primary shadow-[0_0_12px_rgba(99,102,241,0.35)]">
-                      {i + 1}
-                    </div>
-                  </div>
-
-                  <div className={`${!left ? "text-left pl-2 md:pl-6" : ""}`}>
-                    {!left && (
-                      <>
-                        <div className="text-[10px] font-medium text-primary uppercase tracking-[0.2em]">Step {num}</div>
-                        <h3 className="mt-1.5 text-base md:text-lg font-semibold tracking-tight text-foreground">{s.t}</h3>
-                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{s.d}</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+    <section className="border-t border-[#E8E6E1] text-white" style={{ background: "#0A0A0A" }}>
+      <div className="mx-auto max-w-7xl px-6 py-[120px]">
+        <Reveal>
+          <div className="mb-4">
+            <svg width="44" height="14" viewBox="0 0 44 14" fill="none" className="text-white/70">
+              <line x1="0" y1="7" x2="18" y2="7" stroke="currentColor" strokeWidth="1" />
+              <circle cx="20" cy="7" r="2" fill="#F5A623" />
+              <line x1="22" y1="7" x2="34" y2="7" stroke="currentColor" strokeWidth="1" />
+              <line x1="34" y1="7" x2="40" y2="2" stroke="currentColor" strokeWidth="1" />
+              <line x1="34" y1="7" x2="40" y2="12" stroke="currentColor" strokeWidth="1" />
+            </svg>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">Inside Every Evaluation</div>
+          <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold text-white">
+            A single connected flow.<br />
+            <span className="text-neutral-500">Every step produces evidence.</span>
+          </h2>
+        </Reveal>
 
-function FeatureLabs() {
-  const labs = [
-    { name: "Java Backend Labs", icon: Server, color: "primary", diff: "Mid → Senior", skills: ["Spring", "JPA", "Kafka"], xp: 2400, ind: "FinTech, E-commerce" },
-    { name: "Frontend Engineering Labs", icon: Code2, color: "ui", diff: "Junior → Mid", skills: ["React", "TS", "Perf"], xp: 1800, ind: "SaaS, Consumer" },
-    { name: "SQL & Database Labs", icon: Database, color: "warning", diff: "All levels", skills: ["Query plans", "Indexing"], xp: 1500, ind: "Data, Analytics" },
-    { name: "DevOps Labs", icon: GitBranch, color: "success", diff: "Mid → Senior", skills: ["K8s", "CI/CD", "IaC"], xp: 2200, ind: "Platform, Cloud" },
-    { name: "Security Labs", icon: ShieldCheck, color: "destructive", diff: "Senior", skills: ["OWASP", "Crypto"], xp: 2800, ind: "Security, FinTech" },
-    { name: "System Design Labs", icon: Cpu, color: "info", diff: "Senior", skills: ["Scale", "Tradeoffs"], xp: 3000, ind: "Big Tech" },
-  ];
-  return (
-    <section id="features" className="border-b border-border/50 py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Practical labs across the full stack.</h2>
-          <p className="mt-3 text-muted-foreground">Each lab is a curated set of real engineering challenges.</p>
-        </div>
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {labs.map((l) => (
-            <div key={l.name} className="group relative overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur p-6 hover:border-primary/50 transition">
-              <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${l.color})` }} />
-              <div className="flex items-start justify-between">
-                <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: `color-mix(in oklab, var(--${l.color}) 18%, transparent)`, color: `var(--${l.color})` }}>
-                  <l.icon className="h-5 w-5" />
+        <div className="mt-16 relative">
+          {/* Animated connecting line */}
+          <svg ref={ref} className={`absolute left-0 right-0 top-6 h-px hidden md:block yvr-line ${inView ? "is-in" : ""}`} viewBox="0 0 1200 1" preserveAspectRatio="none" style={{ width: "100%" }}>
+            <line x1="0" y1="0.5" x2="1200" y2="0.5" stroke="#3f3f3f" strokeWidth="1" />
+          </svg>
+          <div className="grid md:grid-cols-7 gap-6 md:gap-0">
+            {nodes.map((n, i) => (
+              <Reveal key={n} delay={i * 60}>
+                <div className="relative flex md:flex-col items-center md:items-start gap-4 md:gap-3">
+                  <div className={`relative z-10 grid h-12 w-12 shrink-0 place-items-center rounded-full border ${i === 3 ? "border-[#F5A623] bg-[#0A0A0A]" : "border-neutral-700 bg-[#0A0A0A]"}`}>
+                    {i === 3 ? <span className="h-2 w-2 rounded-full" style={{ background: "#F5A623" }} /> : <span className="font-mono text-[11px] text-neutral-400">{String(i + 1).padStart(2, "0")}</span>}
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-medium tracking-tight text-white leading-tight max-w-[130px]">{n}</div>
+                    <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">STAGE</div>
+                  </div>
                 </div>
-                <span className="text-xs text-muted-foreground">{l.diff}</span>
-              </div>
-              <h3 className="mt-4 font-semibold">{l.name}</h3>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {l.skills.map((s) => (<span key={s} className="rounded-md border border-border/60 bg-background/40 px-2 py-0.5 text-[10px] text-muted-foreground">{s}</span>))}
-              </div>
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="inline-flex items-center gap-1 text-primary"><Zap className="h-3.5 w-3.5" />{l.xp} XP</span>
-                <span className="text-xs text-muted-foreground">{l.ind}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Collaboration() {
-  const items = [
-    { icon: Layers, t: "Sprint Boards", d: "Jira-style sprints with real ticket lifecycles." },
-    { icon: GitBranch, t: "Team Tickets", d: "Cross-functional tickets across roles & dependencies." },
-    { icon: Code2, t: "Pull Requests", d: "Real diff reviews, inline comments, merge checks." },
-    { icon: CheckCircle2, t: "QA Validation", d: "Tests run against your code on every commit." },
-    { icon: Bug, t: "Incident Rooms", d: "Live war-rooms when production breaks." },
-    { icon: Bot, t: "AI Teammates", d: "Pair with AI engineers when humans aren't online." },
-  ];
-  return (
-    <section className="border-b border-border/50 py-20 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Work Like Real Software Engineers.</h2>
-          <p className="mt-3 text-muted-foreground">Every artifact you produce here mirrors a real engineering workflow.</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map(({ icon: I, t, d }) => (
-            <div key={t} className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-6 hover:border-ui/40 transition">
-              <I className="h-6 w-6 text-ui" />
-              <h3 className="mt-3 font-semibold">{t}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AIMentor() {
-  return (
-    <section id="mentor" className="border-b border-border/50 py-20">
-      <div className="mx-auto max-w-7xl px-6 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <span className="text-xs font-medium text-primary uppercase tracking-wider">AI Mentor</span>
-          <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">Your AI Senior Engineer.</h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed">Always-on, context-aware, and reviews your code like a real principal engineer would.</p>
-          <ul className="mt-6 space-y-2.5">
-            {["Debugging help", "Architecture guidance", "Code reviews", "Performance optimization", "Security analysis"].map((x) => (
-              <li key={x} className="flex items-center gap-2.5 text-sm"><CheckCircle2 className="h-4 w-4 text-success" />{x}</li>
+              </Reveal>
             ))}
-          </ul>
-        </div>
-        <div className="relative">
-          <div className="absolute -inset-6 bg-gradient-to-tr from-primary/20 via-ui/10 to-transparent rounded-3xl blur-2xl" />
-          <div className="relative rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 shadow-2xl">
-            <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-ui text-primary-foreground"><Bot className="h-4 w-4" /></div>
-              <div>
-                <div className="text-sm font-medium">Yuvro AI Mentor</div>
-                <div className="text-[10px] text-success">● online · senior tier</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-3 text-sm">
-              <div className="rounded-lg bg-muted/30 p-3 max-w-[85%]">My API endpoint times out on large payloads. Any ideas?</div>
-              <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 max-w-[90%] ml-auto">
-                Likely synchronous DB I/O. Three things to check:
-                <ol className="mt-1.5 list-decimal pl-4 text-xs space-y-0.5">
-                  <li>Add an index on <code className="text-primary">orders.user_id</code></li>
-                  <li>Stream the response instead of buffering</li>
-                  <li>Use a connection pool size matching CPU cores</li>
-                </ol>
-              </div>
-              <div className="rounded-lg bg-muted/30 p-3 max-w-[85%]">Can you draft the index migration?</div>
-              <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 max-w-[90%] ml-auto font-mono text-xs">CREATE INDEX CONCURRENTLY idx_orders_user_id<br/>ON orders(user_id);</div>
-            </div>
           </div>
         </div>
       </div>
@@ -426,106 +469,242 @@ function AIMentor() {
   );
 }
 
-function Reputation() {
-  const scores = [
-    { l: "Reliability", v: 94, c: "success" },
-    { l: "Collaboration", v: 88, c: "primary" },
-    { l: "Leadership", v: 76, c: "ui" },
-    { l: "Support", v: 82, c: "info" },
-    { l: "Practical Skill", v: 91, c: "warning" },
+/* ================================================================
+   5 — Engineering Simulation Labs (repo-style)
+   ================================================================ */
+function SimulationLabs() {
+  const tasks = [
+    { id: "PAY-142", t: "Broken Payment API", diff: "Hard", time: "45m", domain: "FinTech", skills: ["Debugging", "Idempotency", "Webhooks"] },
+    { id: "API-089", t: "REST API Development", diff: "Mid", time: "60m", domain: "SaaS", skills: ["Design", "REST", "Validation"] },
+    { id: "SQL-217", t: "SQL Query Optimization", diff: "Mid", time: "30m", domain: "Data", skills: ["Indexing", "Query plans"] },
+    { id: "BOOT-058", t: "Spring Boot Debugging", diff: "Hard", time: "50m", domain: "Enterprise", skills: ["JVM", "Spring", "Traces"] },
+    { id: "RCT-311", t: "React Performance Issue", diff: "Mid", time: "40m", domain: "Consumer", skills: ["Rendering", "Memoization"] },
+    { id: "MS-402", t: "Microservice Failure", diff: "Hard", time: "55m", domain: "Platform", skills: ["Retries", "Circuit breakers"] },
+    { id: "AUTH-076", t: "Authentication Flow", diff: "Mid", time: "35m", domain: "Security", skills: ["JWT", "OAuth", "Sessions"] },
+    { id: "CACHE-129", t: "Redis Cache Issue", diff: "Easy", time: "30m", domain: "Backend", skills: ["Caching", "TTL"] },
+    { id: "MQ-215", t: "Message Queue Processing", diff: "Hard", time: "50m", domain: "Distributed", skills: ["Kafka", "Ordering", "DLQ"] },
   ];
   return (
-    <section className="border-b border-border/50 py-20 bg-gradient-to-b from-transparent via-card/20 to-transparent">
-      <div className="mx-auto max-w-7xl px-6 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="relative">
-          <div className="absolute -inset-6 bg-gradient-to-br from-ui/20 to-primary/20 rounded-3xl blur-2xl" />
-          <div className="relative rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-6 shadow-2xl">
-            <div className="flex items-center gap-4 pb-4 border-b border-border/60">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-ui text-primary-foreground text-xl font-semibold shadow-lg">AR</div>
-              <div>
-                <div className="font-semibold">Aarav Reddy</div>
-                <div className="text-xs text-muted-foreground">Senior Full-Stack · Lv 24</div>
-              </div>
-              <div className="ml-auto text-right">
-                <div className="text-2xl font-semibold text-primary">86</div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Engineering Score</div>
-              </div>
+    <section id="labs" className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-7xl px-6 py-[120px]">
+        <Reveal>
+          <div className="flex items-end justify-between gap-8 flex-wrap">
+            <div className="max-w-2xl">
+              <SectionGlyph />
+              <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Engineering Simulation Labs</div>
+              <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+                Real engineering tickets.<br />
+                <span className="text-[#6B6B6B]">Not toy problems.</span>
+              </h2>
             </div>
-            <div className="mt-5 space-y-3">
-              {scores.map((s) => (
-                <div key={s.l}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">{s.l}</span>
-                    <span style={{ color: `var(--${s.c})` }} className="font-medium">{s.v}</span>
+            <div className="font-mono text-[12px] text-[#6B6B6B] flex items-center gap-2">
+              <GitBranch className="h-3.5 w-3.5" /> yuvro-labs/simulation-catalog · main
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="mt-12 rounded-[4px] border border-[#E8E6E1] overflow-hidden bg-white">
+          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 border-b border-[#E8E6E1] px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]" style={{ background: "#FAFAF8" }}>
+            <div className="w-20">ID</div>
+            <div>Task</div>
+            <div>Domain</div>
+            <div>Difficulty</div>
+            <div>Est. Time</div>
+          </div>
+          {tasks.map((task, i) => (
+            <Reveal key={task.id} delay={i * 40}>
+              <div className={`yvr-row grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6 px-5 py-4 ${i < tasks.length - 1 ? "border-b border-[#E8E6E1]" : ""}`}>
+                <div className="font-mono text-[11px] text-[#6B6B6B] w-20">{task.id}</div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <FileCode2 className="h-3.5 w-3.5 text-[#6B6B6B]" />
+                    <span className="text-[15px] font-medium tracking-tight">{task.t}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${s.v}%`, background: `var(--${s.c})` }} />
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {task.skills.map(s => (
+                      <span key={s} className="rounded-sm border border-[#E8E6E1] px-1.5 py-0.5 font-mono text-[10px] text-[#6B6B6B]">{s}</span>
+                    ))}
                   </div>
+                </div>
+                <div className="text-[12px] text-[#6B6B6B]">{task.domain}</div>
+                <div>
+                  {task.diff === "Hard" && (
+                    <span className="inline-flex items-center rounded-full bg-[#0A0A0A] text-white px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">Hard</span>
+                  )}
+                  {task.diff === "Mid" && (
+                    <span className="inline-flex items-center rounded-full border border-[#0A0A0A] text-[#0A0A0A] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]">Mid</span>
+                  )}
+                  {task.diff === "Easy" && (
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#6B6B6B]">Easy</span>
+                  )}
+                </div>
+                <div className="font-mono text-[11px] text-[#6B6B6B] w-12 text-right">{task.time}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================
+   6 — Capability metrics
+   ================================================================ */
+function CapabilityMetrics() {
+  const metrics = [
+    { t: "Debugging", v: 92 }, { t: "Problem Solving", v: 88 }, { t: "Architecture", v: 74 },
+    { t: "API Development", v: 90 }, { t: "Database Design", v: 71 }, { t: "Performance Optimization", v: 82 },
+    { t: "System Thinking", v: 78 }, { t: "Communication", v: 85 }, { t: "Collaboration", v: 80 },
+    { t: "Code Quality", v: 87 }, { t: "Learning Ability", v: 76 }, { t: "Engineering Ownership", v: 89 },
+  ];
+  return (
+    <section className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-7xl px-6 py-[120px]">
+        <Reveal>
+          <SectionGlyph />
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">What we measure</div>
+          <h2 className="mt-3 max-w-2xl text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+            Twelve engineering dimensions.<br />
+            <span className="text-[#6B6B6B]">Measured as evidence, not opinion.</span>
+          </h2>
+        </Reveal>
+
+        <div className="mt-14 grid md:grid-cols-2 gap-x-16 gap-y-3">
+          {metrics.map((m, i) => (
+            <Reveal key={m.t} delay={i * 40}>
+              <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 border-b border-[#E8E6E1]">
+                <div className="font-mono text-[11px] text-[#6B6B6B] w-6">{String(i + 1).padStart(2, "0")}</div>
+                <div className="text-[14px] tracking-tight font-medium">{m.t}</div>
+                <div className="w-40 h-[3px] rounded-full bg-[#E8E6E1] overflow-hidden">
+                  <div className="h-full bg-[#0A0A0A]" style={{ width: `${m.v}%` }} />
+                </div>
+                <div className="w-8 text-right font-mono text-[11px] text-[#0A0A0A]">{m.v}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================
+   7 — Full report preview
+   ================================================================ */
+function ReportPreview() {
+  return (
+    <section className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-6xl px-6 py-[120px]">
+        <Reveal>
+          <div className="max-w-2xl mb-14">
+            <SectionGlyph />
+            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Candidate Evaluation Report</div>
+            <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+              One report.<br />
+              <span className="text-[#6B6B6B]">Every piece of evidence.</span>
+            </h2>
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <div className="rounded-[4px] border border-[#E8E6E1] bg-white overflow-hidden">
+            <div className="border-b border-[#E8E6E1] px-8 py-6 flex items-start justify-between">
+              <div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">Report · CR-2847 · Confidential</div>
+                <div className="mt-2 text-[22px] font-semibold tracking-tight">Priya Nair</div>
+                <div className="text-[13px] text-[#6B6B6B]">Senior Backend Engineer · Evaluated for FinTech Platform Team</div>
+              </div>
+              <button className="inline-flex items-center gap-1.5 rounded-[4px] bg-[#0A0A0A] text-white px-3 py-1.5 text-[12px] hover:bg-black transition">
+                <Download className="h-3.5 w-3.5" /> Download PDF
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-4 divide-x divide-[#E8E6E1] border-b border-[#E8E6E1]">
+              {[
+                { k: "Engineering Labs", v: 92, sub: "8 of 9 tasks" },
+                { k: "Assessment", v: 84, sub: "42 of 50" },
+                { k: "Vitarka AI", v: 76, sub: "4 dimensions" },
+                { k: "ECI", v: 84, sub: "STRONG FIT" },
+              ].map(x => (
+                <div key={x.k} className="p-6">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">{x.k}</div>
+                  <div className="mt-2 text-[36px] font-semibold tracking-tight font-mono"><CountUp to={x.v} /></div>
+                  <div className="font-mono text-[11px] text-[#6B6B6B]">{x.sub}</div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-        <div>
-          <span className="text-xs font-medium text-ui uppercase tracking-wider">Engineering Reputation</span>
-          <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">Build Your Engineering Identity.</h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed">Every ticket, review, and collaboration shapes your verifiable engineering profile — the resume of the future.</p>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function Recruiter() {
-  const items = [
-    { i: Activity, t: "Sprint history" },
-    { i: CheckCircle2, t: "Ticket completion" },
-    { i: Star, t: "Review quality" },
-    { i: Users, t: "Team collaboration" },
-    { i: BarChart3, t: "Engineering analytics" },
-  ];
-  return (
-    <section id="recruiter" className="border-b border-border/50 py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Show What You Can Actually Build.</h2>
-          <p className="mt-3 text-muted-foreground">Recruiters see your engineering work the way teammates would.</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-5 gap-4">
-          {items.map(({ i: I, t }) => (
-            <div key={t} className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-6 text-center hover:border-primary/40 transition">
-              <I className="h-6 w-6 text-primary mx-auto" />
-              <div className="mt-3 text-sm font-medium">{t}</div>
+            <div className="border-b border-[#E8E6E1] px-8 py-6 flex items-center justify-between gap-6">
+              <div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B]">AI Recommendation</div>
+                <div className="mt-1 text-[17px] font-medium tracking-tight">Shortlist for onsite. Strong debugging, thoughtful trade-offs, clean communication.</div>
+              </div>
+              <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E8E6E1] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.08em]">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#1A8F5C" }} />
+                Strong Fit · 84 ECI
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function Testimonials() {
-  const t = [
-    { who: "Priya · CS Student", role: "Student", quote: "Got my first internship after 3 months on Yuvro. The recruiter literally walked through my sprint board in the interview.", c: "primary" },
-    { who: "Marcus · Job Seeker", role: "Job Seeker", quote: "Real tickets, real PRs, real reviews. My GitHub finally looks like a senior engineer's.", c: "ui" },
-    { who: "Sana · Dev @ Stripe", role: "Developer", quote: "I use Yuvro to stay sharp on system design. The incident simulations are brutal — in the best way.", c: "success" },
-  ];
-  return (
-    <section className="border-b border-border/50 py-20 bg-gradient-to-b from-transparent via-primary/[0.04] to-transparent">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Engineers who proved it on Yuvro.</h2>
-        </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-4">
-          {t.map((x) => (
-            <div key={x.who} className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-6">
-              <Quote className="h-6 w-6" style={{ color: `var(--${x.c})` }} />
-              <p className="mt-3 text-sm leading-relaxed">{x.quote}</p>
-              <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between">
-                <div className="text-sm font-medium">{x.who}</div>
-                <span className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground">{x.role}</span>
+            <div className="grid md:grid-cols-3 divide-x divide-[#E8E6E1]">
+              <div className="p-8">
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Strengths</div>
+                <ul className="space-y-3 text-[13px]">
+                  {["Debugged race condition in under 12 minutes", "Correctly identified missing idempotency key", "Explained JWT rotation trade-offs clearly", "Optimized N+1 query, cut latency by 340ms"].map(s => (
+                    <li key={s} className="flex gap-2 items-start"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0" style={{ background: "#1A8F5C" }} /><span className="text-[#0A0A0A]">{s}</span></li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-8">
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Gaps</div>
+                <ul className="space-y-3 text-[13px]">
+                  {["Distributed cache invalidation depth", "Cost/performance trade-off articulation", "Limited exposure to event sourcing"].map(s => (
+                    <li key={s} className="flex gap-2 items-start"><span className="mt-1.5 h-2 w-2 rounded-full shrink-0 border" style={{ borderColor: "#F5A623" }} /><span className="text-[#0A0A0A]">{s}</span></li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-8" style={{ background: "#FAFAF8" }}>
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#6B6B6B] mb-3">Recruiter Notes</div>
+                <div className="rounded-[4px] border border-[#E8E6E1] bg-white p-3 text-[12px] text-[#0A0A0A] leading-relaxed">
+                  Rare candidate — actually reasons about failure modes. Recommend routing to platform team round with distributed systems focus. Pair with senior on cache design in first sprint.
+                </div>
+                <div className="mt-3 font-mono text-[10px] text-[#6B6B6B]">— M. Rao · Head of Engineering</div>
               </div>
             </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================
+   8 — Process
+   ================================================================ */
+function ProcessStrip() {
+  const steps = ["Invite", "Evaluate", "Review", "Hire"];
+  return (
+    <section id="process" className="border-t border-[#E8E6E1]">
+      <div className="mx-auto max-w-5xl px-6 py-[120px]">
+        <Reveal>
+          <div className="text-center max-w-xl mx-auto">
+            <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">Evaluation Process</div>
+            <h2 className="mt-3 text-[40px] leading-[1.05] tracking-[-0.02em] font-bold">
+              Four steps. Zero guesswork.
+            </h2>
+          </div>
+        </Reveal>
+        <div className="mt-14 flex items-center justify-between gap-6">
+          {steps.map((s, i) => (
+            <Reveal key={s} delay={i * 80}>
+              <div className="flex items-center gap-6 flex-1">
+                <div className="flex-1 text-center">
+                  <div className="font-mono text-[11px] text-[#6B6B6B]">0{i + 1}</div>
+                  <div className="mt-2 text-[20px] tracking-tight font-medium">{s}</div>
+                </div>
+                {i < steps.length - 1 && <ChevronRight className="h-4 w-4 text-[#E8E6E1] shrink-0" />}
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -533,41 +712,52 @@ function Testimonials() {
   );
 }
 
+/* ================================================================
+   9 — Final CTA
+   ================================================================ */
 function FinalCTA() {
   return (
-    <section className="border-b border-border/50 py-24 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[800px] rounded-full bg-primary/20 blur-3xl" />
-      </div>
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <Rocket className="h-10 w-10 text-primary mx-auto" />
-        <h2 className="mt-5 text-4xl md:text-5xl font-semibold tracking-tight">Start Building Real Engineering Experience Today.</h2>
-        <p className="mt-4 text-lg text-muted-foreground">Join 15,000+ engineers proving their skill through real work.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/40 hover:shadow-primary/60 transition">
-            Create Account <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link to="/auth" search={{ tab: "signin" }} className="inline-flex items-center gap-2 rounded-md border border-border bg-card/50 px-6 py-3 text-sm hover:bg-accent transition">
-            Sign In
-          </Link>
-        </div>
+    <section className="border-t border-[#E8E6E1] text-white" style={{ background: "#0A0A0A" }}>
+      <div className="mx-auto max-w-6xl px-6 py-[120px] grid lg:grid-cols-[1.2fr_1fr] gap-12 items-end">
+        <Reveal>
+          <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-neutral-400">The bottom line</div>
+          <h2 className="mt-4 text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] font-bold">
+            Hire Engineers.<br />
+            <span className="text-neutral-500">Not Interview Performers.</span>
+          </h2>
+        </Reveal>
+        <Reveal delay={120}>
+          <p className="text-[16px] text-neutral-300 leading-relaxed max-w-md">
+            Verify engineering capability before making hiring decisions. Bring evidence into every hiring conversation.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#" className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-[14px] font-medium text-[#0A0A0A] hover:bg-neutral-100 transition">
+              Book Demo <ArrowUpRight className="h-4 w-4" />
+            </a>
+            <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-2 rounded-md border border-neutral-700 px-5 py-3 text-[14px] font-medium text-white hover:border-white transition">
+              Get Started
+            </Link>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
+/* ---------- Footer ---------- */
 function Footer() {
   return (
-    <footer className="py-10">
-      <div className="mx-auto max-w-7xl px-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">Y</div>
-          <span>© 2026 Yuvro Labs — Build real engineering experience.</span>
+    <footer className="border-t border-[#E8E6E1] bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-10 flex flex-wrap items-center justify-between gap-4 font-mono text-[12px] text-[#6B6B6B]">
+        <div className="flex items-center gap-2">
+          <GitCommit className="h-3.5 w-3.5" />
+          <span>© {new Date().getFullYear()} Yuvro Labs · Engineering Capability Verification</span>
         </div>
-        <div className="flex items-center gap-5 text-xs text-muted-foreground">
-          <a href="#" className="hover:text-foreground">Privacy</a>
-          <a href="#" className="hover:text-foreground">Terms</a>
-          <a href="#" className="hover:text-foreground">Contact</a>
+        <div className="flex items-center gap-6">
+          <a href="#" className="hover:text-[#0A0A0A]">Privacy</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Terms</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Security</a>
+          <a href="#" className="hover:text-[#0A0A0A]">Contact</a>
         </div>
       </div>
     </footer>
