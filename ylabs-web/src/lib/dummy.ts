@@ -30,23 +30,7 @@ export interface Lab {
 }
 
 export const labs: Lab[] = [
-  {
-    slug: "java",
-    name: "Java Lab",
-    icon: "☕",
-    color: "java",
-    difficulty: "Intermediate",
-    completed: 8,
-    total: 25,
-    hoursLeft: 14,
-    description: "Master Java fundamentals to advanced OOP.",
-    skills: [
-      { name: "Core Syntax", pct: 85 },
-      { name: "OOP Concepts", pct: 65 },
-      { name: "Exception Handling", pct: 45 },
-      { name: "Collections", pct: 30 },
-    ],
-  },
+
   {
     slug: "python",
     name: "Python Lab",
@@ -151,23 +135,7 @@ export const labs: Lab[] = [
       { name: "Auth", pct: 0 },
     ],
   },
-  {
-    slug: "javaspring",
-    name: "Java Spring Lab",
-    icon: "🌱",
-    color: "java",
-    difficulty: "Advanced",
-    completed: 0,
-    total: 14,
-    hoursLeft: 24,
-    description: "Spring Boot: DI, REST controllers, JPA, security and testing.",
-    skills: [
-      { name: "Spring Boot", pct: 0 },
-      { name: "JPA", pct: 0 },
-      { name: "REST", pct: 0 },
-      { name: "Security", pct: 0 },
-    ],
-  },
+
   {
     slug: "git",
     name: "Git Lab",
@@ -311,50 +279,7 @@ export const labs: Lab[] = [
   },
 ];
 
-const mk = (
-  i: number,
-  title: string,
-  diff: Difficulty,
-  st: Status,
-  tag: string,
-  mins = 45,
-  xp = 150,
-  progress?: number,
-  score?: number,
-): Ticket => ({
-  id: `JAVA-${100 + i}`,
-  title,
-  difficulty: diff,
-  estMin: mins,
-  xp,
-  tag,
-  status: st,
-  progress,
-  score,
-  description: `Implement and test ${title.toLowerCase()}. Focus on clean idiomatic code and edge cases.`,
-});
-
 export const tickets: Ticket[] = [
-  mk(1, "Variables & Types", "Beginner", "done", "Fundamentals", 30, 100, undefined, 95),
-  mk(2, "Control Flow", "Beginner", "done", "Fundamentals", 35, 120, undefined, 88),
-  mk(3, "Arrays & Loops", "Beginner", "done", "Fundamentals", 40, 130, undefined, 92),
-  mk(4, "Methods & Scope", "Beginner", "done", "Fundamentals", 40, 130, undefined, 80),
-  mk(5, "Strings Deep Dive", "Beginner", "done", "Fundamentals", 45, 150, undefined, 76),
-  mk(6, "Classes & Objects", "Intermediate", "done", "OOP", 60, 200, undefined, 84),
-  mk(7, "Inheritance", "Intermediate", "done", "OOP", 55, 200, undefined, 70),
-  mk(8, "Interfaces", "Intermediate", "done", "OOP", 60, 220, undefined, 65),
-  mk(9, "Generics 101", "Intermediate", "in_progress", "Generics", 70, 250, 60),
-  mk(10, "Exception Handling", "Intermediate", "in_progress", "Errors", 50, 200, 30),
-  mk(11, "File I/O Basics", "Intermediate", "in_progress", "I/O", 60, 220, 10),
-  mk(12, "Collections: List", "Intermediate", "backlog", "Collections", 50, 200),
-  mk(13, "Collections: Map", "Intermediate", "backlog", "Collections", 55, 220),
-  mk(14, "Streams API", "Advanced", "backlog", "Streams", 80, 300),
-  mk(15, "Lambdas", "Advanced", "backlog", "FP", 70, 280),
-  mk(16, "Concurrency Intro", "Advanced", "backlog", "Threads", 90, 350),
-  mk(17, "Executors", "Advanced", "backlog", "Threads", 90, 350),
-  mk(18, "JDBC Basics", "Advanced", "backlog", "DB", 80, 320),
-  mk(19, "JUnit Testing", "Intermediate", "backlog", "Testing", 60, 220),
-  mk(20, "Design Patterns I", "Advanced", "backlog", "Patterns", 100, 400),
   // ---- Python Django Lab ----
   {
     id: "PYDJ-201",
@@ -493,77 +418,7 @@ export const tickets: Ticket[] = [
     description: "Add JWT-based auth with Flask-JWT-Extended and protect routes.",
   },
 
-  // ---- Java Spring Lab ----
-  {
-    id: "SPR-101",
-    title: "Spring Boot project setup",
-    difficulty: "Beginner",
-    estMin: 35,
-    xp: 140,
-    tag: "Spring Intro",
-    status: "backlog",
-    description: "Bootstrap a Spring Boot app with start.spring.io and run the first endpoint.",
-  },
-  {
-    id: "SPR-102",
-    title: "Dependency Injection & Beans",
-    difficulty: "Intermediate",
-    estMin: 50,
-    xp: 200,
-    tag: "Spring DI",
-    status: "backlog",
-    description: "Use @Component, @Service and constructor injection. Understand bean scopes.",
-  },
-  {
-    id: "SPR-103",
-    title: "REST Controllers",
-    difficulty: "Intermediate",
-    estMin: 55,
-    xp: 220,
-    tag: "Spring REST",
-    status: "backlog",
-    description: "Build @RestController with @GetMapping/@PostMapping and request/response DTOs.",
-  },
-  {
-    id: "SPR-104",
-    title: "Validation & error handling",
-    difficulty: "Intermediate",
-    estMin: 50,
-    xp: 220,
-    tag: "Spring REST",
-    status: "backlog",
-    description: "Validate request bodies with @Valid and centralize errors via @ControllerAdvice.",
-  },
-  {
-    id: "SPR-105",
-    title: "Spring Data JPA",
-    difficulty: "Intermediate",
-    estMin: 65,
-    xp: 260,
-    tag: "Spring JPA",
-    status: "backlog",
-    description: "Define entities, repositories and derived queries with Spring Data JPA.",
-  },
-  {
-    id: "SPR-106",
-    title: "Spring Security basics",
-    difficulty: "Advanced",
-    estMin: 80,
-    xp: 320,
-    tag: "Spring Security",
-    status: "backlog",
-    description: "Secure REST endpoints with Spring Security and HTTP basic / JWT.",
-  },
-  {
-    id: "SPR-107",
-    title: "Testing with @SpringBootTest",
-    difficulty: "Advanced",
-    estMin: 60,
-    xp: 260,
-    tag: "Spring Testing",
-    status: "backlog",
-    description: "Write integration tests with @SpringBootTest and slice tests with @WebMvcTest.",
-  },
+
 
   // ---- PostgreSQL Lab ----
   {

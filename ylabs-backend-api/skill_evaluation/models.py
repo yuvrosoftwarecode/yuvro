@@ -150,6 +150,10 @@ class LabQuestionBank(QuestionBank):
         default=LabScenario.FEATURE_DEVELOPMENT,
     )
     git_repo_starter_url = models.URLField(blank=True)
+    startup_command = models.TextField(
+        blank=True, 
+        help_text="Command to run when the lab starts (e.g., 'cd project && npm run dev')"
+    )
 
     def __str__(self):
         return self.title
@@ -181,3 +185,26 @@ class LabQuestionBankTask(BaseTimestampedAdminModel):
 class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
+
+class UserLabQuestionBankTaskSubmission(BaseTimestampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="evaluation_task_submissions"
+    )
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="task_submissions"
+    )
+    task = models.ForeignKey(
+        LabQuestionBankTask, on_delete=models.CASCADE, related_name="submissions"
+    )
+    task_status = models.CharField(max_length=20, default="BACKLOG")
+    solution = models.TextField(blank=True)
+    solution_output = models.TextField(blank=True)
+    feedback = models.TextField(blank=True)
+    score = models.PositiveIntegerField(default=0)
+    minutes_solved = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("user", "evaluation", "task")
+
+    def __str__(self):
+        return f"{self.user} -> {self.task.title} ({self.evaluation.title})"

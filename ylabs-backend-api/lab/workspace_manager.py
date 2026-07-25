@@ -93,3 +93,62 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
     except Exception as e:
         logger.error(f"Error provisioning user lab repo: {e}")
         raise
+
+def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url):
+    try:
+        with open("/tmp/workspace.log", "a") as f:
+            f.write(f"Provisioning evaluation starter repo {repo_url} for {lab_uuid} in evaluation {evaluation_uuid}\n")
+        repo_name = get_repo_name_from_url(repo_url)
+        lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "labs", str(lab_uuid))
+        os.makedirs(lab_dir, exist_ok=True)
+        
+        target_path = os.path.join(lab_dir, repo_name)
+        
+        if os.path.exists(target_path):
+            logger.info(f"Starter repo already exists at {target_path}")
+            return target_path
+            
+        auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
+        
+        logger.info(f"Cloning {repo_url} into {target_path}")
+        subprocess.run(
+            ["git", "clone", auth_url, target_path],
+            check=True,
+            capture_output=True
+        )
+        return target_path
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to clone repo: {e.stderr.decode()}")
+        raise
+    except Exception as e:
+        logger.error(f"Error provisioning evaluation lab starter repo: {e}")
+        raise
+
+def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter_repo_path):
+    try:
+        # workspaces/evaluation/<evaluation_uuid>/users/<user_uuid>/labs/<lab_uuid>
+        user_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "users", str(user_uuid), "labs", str(lab_uuid))
+        
+        if os.path.exists(user_dir) and any(item for item in os.listdir(user_dir) if item != ".bash_history"):
+            logger.info(f"Evaluation user repo already provisioned at {user_dir}")
+            return user_dir
+
+        logger.info(f"Copying contents of {starter_repo_path} to {user_dir}")
+        os.makedirs(user_dir, exist_ok=True)
+        if starter_repo_path and os.path.exists(starter_repo_path):
+            ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules')
+            for item in os.listdir(starter_repo_path):
+                if item in ['.git', 'yuvro_scoring_rules']:
+                    continue
+                src = os.path.join(starter_repo_path, item)
+                dst = os.path.join(user_dir, item)
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, ignore=ignore, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
+        
+        logger.info(f"Successfully provisioned evaluation user repo at {user_dir}")
+        return user_dir
+    except Exception as e:
+        logger.error(f"Error provisioning evaluation user lab repo: {e}")
+        raise

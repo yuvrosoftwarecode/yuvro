@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { z } from "zod";
 import {
   ChevronLeft,
+  ArrowLeft,
   Copy as CopyIcon,
   Mail,
   Download,
@@ -42,6 +43,7 @@ import {
   duplicateEvaluation,
   deleteEvaluation,
   Evaluation,
+  getEvaluationSubmissions,
 } from "@/lib/recruiter";
 import {
   getCandidates,
@@ -68,6 +70,7 @@ import {
 import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
 import { SettingsTab } from "@/components/recruiter/SettingsTab";
 import { FollowUpsTab } from "@/components/recruiter/FollowUpsTab";
+import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 
 const searchSchema = z.object({
   tab: z
@@ -2539,9 +2542,6 @@ const getImageUrl = (imgUrl: string | undefined) => {
     const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
     return `${rootUrl}/media/${cleanPath}`;
 };
-
-function cap(s: string) { return s[0].toUpperCase() + s.slice(1); }
-function fmtDate(t: number) { return new Date(t).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); }
 function fmtRel(t: number) {
   const d = Date.now() - t;
   const m = Math.floor(d / 60000);
@@ -2802,6 +2802,7 @@ function AttentionTab({
       />
     </div>
   );
+}
 // ============================ ANALYTICS ============================
 
 function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, candidates: Candidate[] }) {

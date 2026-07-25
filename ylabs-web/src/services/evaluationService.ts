@@ -50,9 +50,9 @@ export const evaluationService = {
       (evalData as any).sections.forEach((sec: any) => {
         if (sec.type === "LAB" && sec.questions) {
           sec.questions.forEach((q: any) => {
-            const fullLab = (allLabs as any[]).find((l) => l.id === q.id);
-            if (fullLab && fullLab.tasks && fullLab.tasks.length > 0) {
-              q.tasks = fullLab.tasks;
+            const fullLab = (allLabs as any[]).find(l => l.id === q.id);
+            if (fullLab) {
+              Object.assign(q, fullLab);
             }
           });
         }
@@ -62,7 +62,7 @@ export const evaluationService = {
     return evalData;
   },
 
-  async finishEvaluation(evaluationId: string): Promise<any> {
-    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`);
+  async startLab(evaluationId: string, labId: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/start_lab/`, { lab_id: labId });
   }
 };
