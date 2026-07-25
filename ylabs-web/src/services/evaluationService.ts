@@ -61,4 +61,8 @@ export const evaluationService = {
 
     return evalData;
   },
+
+  async finishEvaluation(evaluationId: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`);
+  }
 };

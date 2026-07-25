@@ -62,8 +62,9 @@ import {
   clearDraftLocally,
   syncMockInterviews,
 } from "@/lib/recruiter";
-import { Workspace } from "./evaluation.workspace";
+import { Workspace } from "@/components/evaluation/WorkspaceApp";
 import { createPortal } from "react-dom";
+import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
 
 const search = z.object({
   view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit"),
@@ -571,12 +572,14 @@ function LabsSectionBody({
           ))}
         </ul>
       )}
-      <button
-        onClick={onAddLab}
-        className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"
-      >
-        <Plus className="h-3.5 w-3.5" /> Add Lab
-      </button>
+      <button onClick={onAddLab} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"><Plus className="h-3.5 w-3.5" /> Add Lab</button>
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
+      </div>
     </div>
   );
 }
@@ -774,12 +777,14 @@ function AssessmentSectionBody({
           ))}
         </ul>
       )}
-      <button
-        onClick={onAddQuestions}
-        className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-violet-400/40 hover:text-white"
-      >
-        <Plus className="h-3.5 w-3.5" /> Add Questions
-      </button>
+      <button onClick={onAddQuestions} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-violet-400/40 hover:text-white"><Plus className="h-3.5 w-3.5" /> Add Questions</button>
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
+      </div>
     </div>
   );
 }
@@ -813,21 +818,46 @@ function DiscussionSectionBody({
             Question Mode
           </div>
           <div className="mt-1 flex items-center gap-2">
-            <button className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[12px] text-amber-300">
-              Custom
-            </button>
+            {(["Custom", "Automatic"] as const).map(mode => (
+              <button 
+                key={mode} 
+                onClick={() => {
+                  let updatedQuestions = section.questions;
+                  if (mode === "Automatic") {
+                    updatedQuestions = [
+                      {
+                        text: "You've changed the views in the Orders app. What was the reason for making those changes?",
+                        follow_ups: [
+                          { text: "Did you consider any alternative approach instead of this implementation?", follow_ups: [] }
+                        ]
+                      }
+                    ];
+                  }
+                  onChange({ ...section, mode, questions: updatedQuestions });
+                }}
+                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Custom') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+              >
+                {mode}
+              </button>
+            ))}
           </div>
         </div>
       </div>
-
-      <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-        <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
-        <div className="mt-4">
-          <QuestionTreeBuilder
-            questions={section.questions}
-            onChange={(qs) => onChange({ ...section, questions: qs })}
-          />
+      
+      {section.mode !== "Automatic" && (
+        <div className="rounded-lg border border-white/5 bg-black/20 p-3">
+          <div className="text-[12px] text-neutral-300">Discussion Questions Tree</div>
+          <div className="mt-4">
+            <QuestionTreeBuilder questions={section.questions} onChange={(qs) => onChange({ ...section, questions: qs })} />
+          </div>
         </div>
+      )}
+      
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard 
+          proctoring={section.proctoring || {}} 
+          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        />
       </div>
     </div>
   );
@@ -865,11 +895,8 @@ function QuestionTreeBuilder({
 
   return (
     <div className="space-y-2">
-      {questions.map((q, i) => (
-        <div
-          key={i}
-          className={`rounded-md border border-white/5 bg-white/[0.02] p-3 text-[12px] text-neutral-300`}
-        >
+      {(questions || []).map((q, i) => (
+        <div key={i} className={`rounded-md border border-white/5 bg-white/[0.02] p-3 text-[12px] text-neutral-300`}>
           <div className="flex items-start gap-2">
             <span className="mt-1 text-[10px] text-neutral-500">
               {level === 0 ? "Q" : "↳"}

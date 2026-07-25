@@ -1,17 +1,53 @@
 from rest_framework import serializers
+from core.storage import build_public_url
 from .models import (
     Evaluation,
     EvaluationSection,
     LabQuestionBank,
     QuestionDomain,
     ExperienceLevel,
-    Difficulty
+    Difficulty,
+    UserEvaluationSubmission
 )
+
+class SubmissionUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
+
+class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
+    user = SubmissionUserSerializer(read_only=True)
+
+    class Meta:
+        model = UserEvaluationSubmission
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        
+        def process_events(events):
+            if not isinstance(events, list):
+                return events
+            for event in events:
+                if isinstance(event, dict):
+                    if event.get("image_path"):
+                        event["image_path"] = build_public_url(event["image_path"])
+                    if event.get("screen_path"):
+                        event["screen_path"] = build_public_url(event["screen_path"])
+            return events
+
+        if ret.get("proctoring_events"):
+            ret["proctoring_events"] = process_events(ret["proctoring_events"])
+        if ret.get("general_events"):
+            ret["general_events"] = process_events(ret["general_events"])
+            
+        return ret
 
 class EvaluationSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvaluationSection
-        fields = ['id', 'title', 'description', 'order_index', 'type', 'questions']
+        fields = ['id', 'title', 'description', 'order_index', 'type', 'questions', 'proctoring_config']
 
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)

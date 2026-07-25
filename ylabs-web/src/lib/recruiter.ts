@@ -110,6 +110,16 @@ export interface TopicItem {
   course: string;
 }
 
+export interface ProctoringConfig {
+  enableProctoring?: boolean;
+  webcamRequired?: boolean;
+  screenShareRequired?: boolean;
+  tabSwitchLimit?: number;
+  disableCopyPaste?: boolean;
+  enableCopyPaste?: boolean;
+  tabSwitchAllowed?: boolean;
+}
+
 export type SectionType = "labs" | "assessment" | "discussion";
 
 export interface LabsSection {
@@ -117,6 +127,7 @@ export interface LabsSection {
   kind: "labs";
   title: string;
   labs: LabItem[];
+  proctoring?: ProctoringConfig;
 }
 export interface AssessmentSection {
   id: string;
@@ -125,6 +136,7 @@ export interface AssessmentSection {
   questions: QuestionItem[];
   randomize?: boolean;
   shuffle?: boolean;
+  proctoring?: ProctoringConfig;
 }
 export interface PredefinedQuestion {
   id?: string;
@@ -137,9 +149,10 @@ export interface DiscussionSection {
   kind: "discussion";
   title: string;
   duration: number;
-  mode: "Custom";
+  mode: "Custom" | "Automatic" | "Hybrid";
   questions: PredefinedQuestion[];
   mockInterviewId?: string;
+  proctoring?: ProctoringConfig;
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
@@ -187,8 +200,10 @@ function mapBackendToFrontend(be: any): Evaluation {
         }
       : undefined,
     sections: (be.sections || []).map((s: any) => {
+      let proctoring = {};
+      try { proctoring = typeof s.proctoring_config === 'string' ? JSON.parse(s.proctoring_config) : (s.proctoring_config || {}); } catch {}
       if (s.type === "LAB") {
-        return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [] };
+        return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [], proctoring };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
         let meta: any = { duration: 15, mode: "Custom" };
         try {
@@ -248,6 +263,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
         type: type,
         order_index: idx,
         questions: qs,
+        proctoring_config: s.proctoring || {},
       };
     }),
   };
@@ -316,6 +332,16 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
     return await hydrateDiscussionQuestions(fe);
   } catch {
     return undefined;
+  }
+}
+
+export async function getEvaluationSubmissions(id: string): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${id}/submissions/`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
   }
 }
 

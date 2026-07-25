@@ -79,3 +79,4 @@ uploads/
 
 #Workspaces
 workspaces/
+patch_views.py

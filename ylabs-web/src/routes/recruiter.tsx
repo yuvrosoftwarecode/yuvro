@@ -82,9 +82,7 @@ function RecruiterLayout() {
               </div>
               <div className="min-w-0 flex-1 leading-tight">
                 <div className="truncate text-[12px] text-white">{user?.name ?? "Recruiter"}</div>
-                <div className="truncate text-[10px] text-neutral-500">
-                  {user?.email ?? "recruiter@yuvrolabs.com"}
-                </div>
+                <div className="truncate text-[10px] text-neutral-500">{user?.email ?? "recruiter@yuvro.com"}</div>
               </div>
               <button
                 onClick={toggle}

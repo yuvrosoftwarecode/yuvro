@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { z } from "zod";
 import {
   ChevronLeft,
@@ -371,6 +372,9 @@ function Workspace() {
         )}
         {tab === "attention" && <AttentionTab evId={ev.id} candidates={candidates} onGoto={goto} />}
         {tab === "settings" && <SettingsTab ev={ev} notify={notify} />}
+        {tab === "insights" && <SimplePane title="Insights" desc="Aggregate skill heatmaps, question difficulty analysis, and cohort comparisons will be published here." />}
+        {tab === "reports" && <SimplePane title="Reports" desc="Downloadable per-candidate reports, batch summaries and ATS-ready exports live in this tab." />}
+        {tab === "analytics" && <AnalyticsTab evId={ev.id} candidates={candidates} />}
       </main>
 
       {toast && (
@@ -2520,6 +2524,24 @@ function fmtDate(t: number) {
     year: "numeric",
   });
 }
+const getImageUrl = (imgUrl: string | undefined) => {
+    if (!imgUrl) return undefined;
+    let processedUrl = imgUrl;
+    if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/')) {
+        processedUrl = processedUrl.replace('minio:9000', 'localhost:9100').replace('http://minio/', 'http://localhost:9100/');
+    }
+    if (processedUrl.startsWith('http')) return processedUrl;
+    let cleanPath = processedUrl?.replace(/\\/g, '/');
+    if (cleanPath.startsWith('uploads/')) cleanPath = cleanPath.substring('uploads/'.length);
+    else if (cleanPath.startsWith('/uploads/')) cleanPath = cleanPath.substring('/uploads/'.length);
+    if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+    const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8002/api')?.replace(/\/$/, '');
+    const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
+    return `${rootUrl}/media/${cleanPath}`;
+};
+
+function cap(s: string) { return s[0].toUpperCase() + s.slice(1); }
+function fmtDate(t: number) { return new Date(t).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); }
 function fmtRel(t: number) {
   const d = Date.now() - t;
   const m = Math.floor(d / 60000);
@@ -2780,4 +2802,136 @@ function AttentionTab({
       />
     </div>
   );
+// ============================ ANALYTICS ============================
+
+function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, candidates: Candidate[] }) {
+  const [realSubmissions, setRealSubmissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    if (!evId) return;
+    setLoading(true);
+    getEvaluationSubmissions(evId).then(data => {
+      setRealSubmissions(data || []);
+      setLoading(false);
+    });
+  }, [evId]);
+
+  // Map real submissions to the Candidate type our UI expects
+  const mappedCandidates = useMemo(() => {
+    return realSubmissions.map((sub: any) => {
+      const proctoringEvents = sub.proctoring_events || [];
+      const generalEvents = sub.general_events || [];
+      
+      const totalViolations = proctoringEvents.length;
+      const tabSwitches = proctoringEvents.filter((e: any) => e.activity_type === "tab_switched").length;
+      const copyPastes = proctoringEvents.filter((e: any) => e.activity_type === "copy_detected" || e.activity_type === "paste_detected").length;
+      const windowBlurs = proctoringEvents.filter((e: any) => e.activity_type === "window_blur").length;
+
+      const timelineEvents = proctoringEvents.map((e: any) => ({
+        time: new Date(e.timestamp).getTime(),
+        type: e.activity_type,
+        desc: JSON.stringify(e.meta_data) || e.activity_type,
+        severity: (e.activity_type.includes("critical") || e.activity_type.includes("new_tab")) ? 3 : 2,
+        image_path: getImageUrl(e.image_path),
+        screen_path: getImageUrl(e.screen_path)
+      }));
+      
+      const generalTimelineEvents = generalEvents.map((e: any) => ({
+        time: new Date(e.timestamp).getTime(),
+        type: e.activity_type,
+        desc: JSON.stringify(e.meta_data) || e.activity_type,
+        severity: 0,
+        image_path: getImageUrl(e.image_path),
+        screen_path: getImageUrl(e.screen_path)
+      }));
+      
+      const allEvents = [...timelineEvents, ...generalTimelineEvents].sort((a, b) => a.time - b.time);
+
+      const durationMins = sub.duration || (sub.updated_at ? Math.round((new Date(sub.updated_at).getTime() - new Date(sub.created_at).getTime()) / 60000) : 0);
+      const subScore = sub.score || sub.total_score || 0;
+
+      return {
+        id: String(sub.id),
+        name: sub.user ? `${sub.user.first_name} ${sub.user.last_name}` : "Unknown Candidate",
+        email: sub.user ? sub.user.email : "",
+        phone: "", college: "", company: "", experience: 0, domain: "", skills: [], tags: [],
+        labsScore: subScore, assessmentScore: 0, vitarkaScore: 0, eci: subScore,
+        recommendation: "Hold" as Recommendation,
+        status: "Completed" as CandStatus,
+        hiringStatus: "Pending Review" as HiringStatus,
+        submittedAt: new Date(sub.completed_at || sub.created_at).getTime(),
+        completionMinutes: durationMins,
+        avatarHue: 0,
+        proctoringData: {
+          totalViolations,
+          tabSwitches,
+          copyPastes,
+          windowBlurs,
+          snapshots: [], // For now we rely on the timeline events
+          timelineEvents: allEvents,
+          sections: {
+            labs: { score: subScore, timeSpent: durationMins, events: allEvents.filter(e => e.severity > 0) },
+            assessment: { score: 0, timeSpent: 0, events: [] },
+            vitarka: { score: 0, timeSpent: 0, events: [] }
+          }
+        }
+      } as Candidate;
+    });
+  }, [realSubmissions]);
+
+  // Fallback to mock candidates if real backend returns none (for demo purposes)
+  const displayCandidates = loading ? [] : (mappedCandidates.length > 0 ? mappedCandidates : mockCandidates.filter(c => c.status === "Submitted" || c.status === "Completed"));
+
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+
+  if (selectedCandidate) {
+    return (
+      <div className="flex flex-col gap-4 min-h-[700px] h-full">
+        <button onClick={() => setSelectedCandidate(null)} className="self-start flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition group mb-2">
+           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to candidates
+        </button>
+        <div className="flex-1 min-w-0">
+          <CandidateAnalyticsViewer candidate={selectedCandidate} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 min-h-[700px] h-full">
+      <div className="mb-2">
+        <h2 className="text-sm font-medium text-white flex items-center gap-2 uppercase tracking-wider">
+          <Users className="h-4 w-4 text-emerald-400" /> Submitted Candidates
+        </h2>
+        <p className="text-xs text-neutral-500 mt-1">Select a candidate to view their detailed performance and proctoring analytics. {loading && "(Loading...)"}</p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {displayCandidates.map(c => {
+           const v = c.proctoringData?.totalViolations || 0;
+           return (
+             <button 
+               key={c.id} 
+               onClick={() => setSelectedCandidate(c)}
+               className="w-full text-left p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-emerald-500/30 transition flex items-center justify-between gap-4"
+             >
+               <div className="flex-1 min-w-0">
+                 <div className="text-sm text-white font-medium truncate">{c.name}</div>
+                 <div className="text-xs text-neutral-500 truncate">{c.email}</div>
+               </div>
+               <div className="flex items-center gap-6 shrink-0">
+                  <div className="text-[11px] text-neutral-400 text-right">
+                    <div>Score</div>
+                    <div className="text-white font-medium text-sm">{c.eci}</div>
+                  </div>
+                  <div className={`text-xs font-medium px-3 py-1.5 rounded-md ${v > 4 ? 'bg-red-500/10 text-red-400' : v > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                    {v} Violations
+                  </div>
+               </div>
+             </button>
+           )
+        })}
+      </div>
+    </div>
+  )
 }

@@ -14,7 +14,26 @@ export default defineConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ["recharts"],
+      include: ['recharts'],
+      exclude: [
+        '@uiw/react-codemirror',
+        '@codemirror/lang-python',
+        '@codemirror/lang-java',
+        '@codemirror/lang-html',
+        '@codemirror/lang-markdown',
+        '@codemirror/lang-sql',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-css',
+        '@codemirror/lang-json',
+        '@codemirror/lang-cpp',
+        '@uiw/codemirror-theme-vscode',
+        '@codemirror/view',
+        '@codemirror/state',
+        '@codemirror/language',
+      ],
+    },
+    ssr: {
+      noExternal: [],
     },
     build: {
       modulePreload: {

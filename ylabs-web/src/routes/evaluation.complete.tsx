@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { EvalShell, PrimaryButton, Spinner } from "@/components/evaluation/EvalShell";
+import { clearGlobalProctoringData } from "@/utils/proctoringStore";
 
 export const Route = createFileRoute("/evaluation/complete")({
   head: () => ({
@@ -14,6 +15,7 @@ function CompletePage() {
   const [phase, setPhase] = useState<"submitting" | "done">("submitting");
 
   useEffect(() => {
+    clearGlobalProctoringData();
     const t = setTimeout(() => setPhase("done"), 2400);
     return () => clearTimeout(t);
   }, []);

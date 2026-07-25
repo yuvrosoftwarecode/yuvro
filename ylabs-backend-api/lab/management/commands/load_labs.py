@@ -131,17 +131,22 @@ class Command(BaseCommand):
         for lab_data in data.get("labs", []):
             self.stdout.write(f'Loading lab: {lab_data["title"]}')
 
+            defaults = {
+                "type": lab_data.get("type", "BACKEND"),
+                "description": lab_data.get("description", ""),
+                "icon": lab_data.get("icon", ""),
+                "prerequisites": lab_data.get("prerequisites", ""),
+                "skills": lab_data.get("skills", []),
+                "git_repo_starter_url": lab_data.get("git_repo_starter_url", ""),
+                "difficulty": lab_data.get("difficulty", "MEDIUM"),
+                "created_by": admin_user,
+            }
+            if "id" in lab_data:
+                defaults["id"] = lab_data["id"]
+
             lab, created = Lab.objects.update_or_create(
                 title=lab_data["title"],
-                defaults={
-                    "type": lab_data.get("type", "BACKEND"),
-                    "description": lab_data.get("description", ""),
-                    "icon": lab_data.get("icon", ""),
-                    "prerequisites": lab_data.get("prerequisites", ""),
-                    "skills": lab_data.get("skills", []),
-                    "difficulty": lab_data.get("difficulty", "MEDIUM"),
-                    "created_by": admin_user,
-                },
+                defaults=defaults,
             )
             self.stdout.write(f"  {'✓ Created' if created else '→ Exists'}: {lab.title}")
 

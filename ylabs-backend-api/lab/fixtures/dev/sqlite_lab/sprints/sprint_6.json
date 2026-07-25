@@ -1,12 +1,12 @@
 {
-  "title": "Sprint 6 - Aggregation Basics",
+  "title": "Sprint 6 - Deleting & Aggregation Basics",
   "description": "Complete all SQL queries in this sprint.",
   "order_index": 6,
   "lab_title": "SQLite Lab",
   "tickets": [
     {
       "title": "Count Total Tasks",
-      "ticket_slug": "sqlite-601",
+      "ticket_slug": "sqlite-61",
       "description": "Find out exactly how many total tasks exist in the system.",
       "tasks": [
         "Find out exactly how many total tasks exist in the system."
@@ -14,20 +14,26 @@
       "learning_objectives": [
         "Using the COUNT() aggregate function."
       ],
-      "evaluation": "RESULT_SET",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting COUNT()."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT COUNT(*) FROM todos;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT COUNT(*) FROM todos;",
+        "expected_result": ""
       },
       "solution": {
         "query.sql": "SELECT COUNT(*) FROM todos;",
-        "database_identifier": "todo_management"
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -37,29 +43,35 @@
       "order_index": 1
     },
     {
-      "title": "SUM, MIN, MAX, AVG",
-      "ticket_slug": "sqlite-602",
-      "description": "Find the total sum, minimum, maximum, and average of the `priority` column for all tasks.",
+      "title": "Task Count by Status",
+      "ticket_slug": "sqlite-62",
+      "description": "Create a report showing each `status` and the total number of tasks in that status.",
       "tasks": [
-        "Find the total sum, minimum, maximum, and average of the `priority` column for all tasks."
+        "Create a report showing each `status` and the total number of tasks in that status."
       ],
       "learning_objectives": [
-        "Use multiple aggregation functions."
+        "Using GROUP BY."
       ],
-      "evaluation": "RESULT_SET",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Forgetting to wrap column names in parentheses."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
-        "You can use multiple aggregate functions in one SELECT."
+        "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT SUM(priority), MIN(priority), MAX(priority), AVG(priority) FROM todos;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT status, COUNT(*) FROM todos GROUP BY status;",
+        "expected_result": "completed"
       },
       "solution": {
-        "query.sql": "SELECT SUM(priority), MIN(priority), MAX(priority), AVG(priority) FROM todos;",
-        "database_identifier": "todo_management"
+        "query.sql": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;",
+        "database_identifier": "todo_management",
+        "expected_output": "completed"
       },
       "yuvro_points": 50,
       "minutes_max": 15,
@@ -69,40 +81,8 @@
       "order_index": 2
     },
     {
-      "title": "Task Count by Status",
-      "ticket_slug": "sqlite-603",
-      "description": "Create a report showing each `status` and the total number of tasks in that status.",
-      "tasks": [
-        "Create a report showing each `status` and the total number of tasks in that status."
-      ],
-      "learning_objectives": [
-        "Using GROUP BY."
-      ],
-      "evaluation": "RESULT_SET",
-      "difficulty": "EASY",
-      "common_mistakes": [
-        "Selecting non-aggregated columns without GROUP BY."
-      ],
-      "hints": [
-        "Read the SQLite documentation for the specific keyword."
-      ],
-      "scoring_rules": {
-        "system_query": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status ORDER BY status;"
-      },
-      "solution": {
-        "query.sql": "SELECT status, COUNT(*) AS task_count FROM todos GROUP BY status;",
-        "database_identifier": "todo_management"
-      },
-      "yuvro_points": 50,
-      "minutes_max": 15,
-      "accepted_programming_languages": [
-        "SQL"
-      ],
-      "order_index": 3
-    },
-    {
       "title": "Overloaded Users",
-      "ticket_slug": "sqlite-604",
+      "ticket_slug": "sqlite-63",
       "description": "Show the `user_id` and count of tasks only for users who have strictly more than 5 tasks.",
       "tasks": [
         "Show the `user_id` and count of tasks only for users who have strictly more than 5 tasks."
@@ -110,27 +90,33 @@
       "learning_objectives": [
         "Filtering aggregated data with HAVING."
       ],
-      "evaluation": "RESULT_SET",
+      "evaluation": "Runs your query and compares against the system solution.",
       "difficulty": "EASY",
       "common_mistakes": [
-        "Using WHERE instead of HAVING for aggregates."
+        "Forgetting the semicolon at the end of the query.",
+        "Using double quotes instead of single quotes for strings."
       ],
       "hints": [
         "Read the SQLite documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5 ORDER BY user_id;"
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "system_query": "SELECT COUNT(*) FROM todos GROUP BY user_id HAVING COUNT(*) > 5;",
+        "expected_result": ""
       },
       "solution": {
-        "query.sql": "SELECT user_id, COUNT(*) AS total_tasks FROM todos GROUP BY user_id HAVING COUNT(*) > 5;",
-        "database_identifier": "todo_management"
+        "query.sql": "SELECT user_id, COUNT(*) AS total_tasks \nFROM todos \nGROUP BY user_id \nHAVING COUNT(*) > 5;",
+        "database_identifier": "todo_management",
+        "expected_output": ""
       },
       "yuvro_points": 50,
       "minutes_max": 15,
       "accepted_programming_languages": [
         "SQL"
       ],
-      "order_index": 4
+      "order_index": 3
     }
   ]
 }

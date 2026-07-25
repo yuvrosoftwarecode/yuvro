@@ -15,6 +15,8 @@ import {
   writeFile as wsWriteFile,
   deleteWorkspaceFile,
   getTerminalWsUrl,
+  runCommand,
+  runDatabaseQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
 import { TopNav } from "@/components/TopNav";
@@ -95,6 +97,14 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({
   component: TicketEditorRoute,
@@ -842,17 +852,20 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
-            tasks: Array.isArray(t.tasks)
-              ? t.tasks.map((task: any) => {
-                  if (typeof task === "object" && task.title && !task.task_slug) {
-                    const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
-                    if (slugMatch) task.task_slug = `task-${slugMatch[1].replace(/\./g, "-")}`;
-                  }
-                  return task;
-                })
-              : [],
+            sprint_id: t.sprint ?? null,
+            sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
+            ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
+            tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
+              if (typeof task === "object" && task.title && !task.task_slug) {
+                const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
+                if (slugMatch) task.task_slug = `task-${slugMatch[1].replace(/\./g, "-")}`;
+              }
+              return task;
+            }) : [],
             learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
             common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
+            scoring_rules: t.scoring_rules || {},
+            solution: t.solution || {},
           });
           setLoading(false);
         })
@@ -988,39 +1001,35 @@ export function TicketIDE({
   }
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
-  const loadWorkspaceFiles = useCallback(
-    async (preserveActive = false) => {
-      if (!isReal) return;
-      setWsLoaded(false);
+  const loadWorkspaceFiles = useCallback(async (preserveActive = false) => {
+    if (!isReal) return;
+    setWsLoaded(false);
+    try {
+      let currentTitle = "";
       try {
-        const res = await fetchFileTree(userId, labId, sprintId, starters);
-        const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
-          if (node.name === ".bash_history") return acc;
-          if (node.type === "file") {
-            acc[node.path] = "";
-          } else node.children?.forEach((c) => flatten(c, acc));
-          return acc;
-        };
-        const paths = flatten(res.tree, {});
-        if (Object.keys(paths).length > 0) {
-          setFiles((prev) => {
-            // preserve contents of already loaded files if possible
-            const next = { ...paths };
-            for (const p of Object.keys(next)) {
-              if (prev[p]) next[p] = prev[p];
-            }
-            return next;
-          });
-          const firstPath = Object.keys(paths)[0];
-          if (!preserveActive && firstPath) {
-            setOpenTabs((prev) => (prev.includes(firstPath) ? prev : [...prev, firstPath]));
-            setActiveFile(firstPath);
-            try {
-              const content = await fetchFile(userId, labId, sprintId, firstPath);
-              setFiles((f) => ({ ...f, [firstPath]: content }));
-            } catch {
-              /* ignore */
-            }
+        const { default: api } = await import("@/utils/RestApiAuthUtil");
+        const realLab = await api.get<any>(`/lab/labs/${slug}/`);
+        currentTitle = realLab.title || realLab.name || "";
+      } catch (e) {
+        currentTitle = labs.find(l => l.slug === slug)?.name || "";
+      }
+      setLabTitle(currentTitle);
+      const isSqliteLab = currentTitle === "SQLite Lab";
+
+      const res = await fetchFileTree(userId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other");
+      const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
+        if (node.name === ".bash_history") return acc;
+        if (node.type === "file") { acc[node.path] = ""; }
+        else node.children?.forEach(c => flatten(c, acc));
+        return acc;
+      };
+      const paths = flatten(res.tree, {});
+      if (Object.keys(paths).length > 0) {
+        setFiles(prev => {
+          // preserve contents of already loaded files if possible
+          const next = { ...paths };
+          for (const p of Object.keys(next)) {
+            if (prev[p]) next[p] = prev[p];
           }
         }
         setWsLoaded(true);
@@ -1115,7 +1124,8 @@ export function TicketIDE({
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
-
+  const creatingSubmissionRef = useRef(false);
+  
   useEffect(() => {
     if (previewOverride) return;
     const isDummy = !isReal;
@@ -1125,10 +1135,7 @@ export function TicketIDE({
       api
         .get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
-          setLabTitle(realLab.title);
-          try {
-            localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title }));
-          } catch {}
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title || realLab.name })); } catch {}
         })
         .catch(() => {
           const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
@@ -1146,11 +1153,24 @@ export function TicketIDE({
         .get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`)
         .then(async (subs) => {
           if (subs.length === 0) {
-            const created = await api.post<any>("/lab/submissions/", {
-              lab_sprint_ticket: ticket.id,
-              ticket_status: "in_progress",
-            });
-            setSubmissionId(created.id);
+            if (creatingSubmissionRef.current) return;
+            creatingSubmissionRef.current = true;
+            try {
+              const created = await api.post<any>("/lab/submissions/", {
+                lab_sprint_ticket: ticket.id,
+                ticket_status: "in_progress",
+              });
+              setSubmissionId(created.id);
+            } catch (err) {
+              console.error("Failed to create submission, it might already exist.", err);
+              // Fallback to fetch it again if it was created in a parallel request
+              const subsAgain = await api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticket.id}`);
+              if (subsAgain.length > 0) {
+                setSubmissionId(subsAgain[0].id);
+              }
+            } finally {
+              creatingSubmissionRef.current = false;
+            }
           } else {
             const sub = subs[0];
             setSubmissionId(sub.id);
@@ -1303,6 +1323,17 @@ export function TicketIDE({
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [autoSave, setAutoSave] = useState<boolean>(true);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (!autoSave) return;
+    const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
+    if (dirtyPaths.length === 0) return;
+    
+    // Save immediately with no delay
+    handleSave(true);
+  }, [files, dirty, autoSave]);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1313,14 +1344,8 @@ export function TicketIDE({
   // Keyboard: Ctrl/Cmd+Enter to run
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        e.preventDefault();
-        handleRun();
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        handleSave();
-      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -1361,18 +1386,36 @@ export function TicketIDE({
     setTimeout(() => setToast(null), 2200);
   }
 
+  const evaluateSubmission = async (src: string, output: string) => {
+    if (!isReal || !ticket.tasks || ticket.tasks.length === 0) return;
+    let passedCount = 0;
+    const promises = ticket.tasks.map(async (task: any, idx: number) => {
+      const taskSlug = task.task_slug || `task-${idx}`;
+      const scoringRules: Record<string, any> = task.scoring_rules ?? {};
+      const reqCmd = "git";
+      setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
+      try {
+        const { evaluateTask } = await import("@/services/workspaceService");
+        const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules);
+        setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
+        if (result.passed) passedCount++;
+      } catch (err: any) {
+        setEvalResult(prev => ({ ...prev, [taskSlug]: { passed: false, reason: err.message } }));
+      } finally {
+        setEvaluating(prev => ({ ...prev, [taskSlug]: false }));
+      }
+    });
+    await Promise.all(promises);
+    setTicketScore({ passed: passedCount, total: ticket.tasks.length });
+  };
+
   async function handleRun() {
-    if (isReal) {
-      Promise.all(
-        Object.keys(files).map((p) => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "")),
-      ).catch(console.error);
-    }
     setRunning(true);
     setBottomTab("output");
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    if (isAnySql || isMongo) {
+    if (isMysql || isPostgres || isMongo) {
       setExecutedQuery(src);
       setRunId((prev) => prev + 1);
       setBottomTab("preview");
@@ -1421,7 +1464,9 @@ export function TicketIDE({
           let m;
           while ((m = re.exec(src))) out.push(m[1]);
         }
-        setOutput(`${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`);
+        const outText = `${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
@@ -1431,27 +1476,82 @@ export function TicketIDE({
       setTimeout(() => {
         const out: string[] = [];
         const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-        let m;
-        while ((m = re.exec(src))) out.push(m[1]);
-        setOutput(`$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`);
+        let m; while ((m = re.exec(src))) out.push(m[1]);
+        const outText = `$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
     }
-    if (isAnySql) {
-      setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
-      setTimeout(() => {
-        setOutput(
-          `-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`,
-        );
-        setRunning(false);
-      }, 500);
+    if (isSql) {
+      const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
+      const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
+      const targetDbFile = dbFile || "__none__";
+
+      const tTasks = ticket.tasks || [];
+      const task = tTasks.length > 0 ? tTasks[0] : null;
+      let sRules: any = undefined;
+      let sysQ: any = undefined;
+      let expR: any = undefined;
+      let expQ: any = ticket.solution?.["query.sql"];
+      let expOut: any = ticket.solution?.["expected_output"];
+      
+      if (task && typeof task === "object" && task.scoring_rules) {
+        sRules = task.scoring_rules;
+        sysQ = sRules?.system_query;
+        expR = sRules?.expected_result;
+      } else {
+        sRules = ticket.scoring_rules || {};
+        sysQ = sRules?.system_query;
+        expR = sRules?.expected_result;
+      }
+
+      setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
+      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOut, sRules, sysQ, expR)
+        .then((res) => {
+          let outText = `-- Executed Query\n\n`;
+          if (res.stdout) outText += `${res.stdout}\n`;
+          if (res.stderr) outText += `Error:\n${res.stderr}\n`;
+          outText += `\n✓ Process finished with exit code ${res.exit_code}`;
+          
+          if (res.evaluation) {
+            const finalPct = res.evaluation.final_score_pct || 0;
+            const points = finalPct * 10;
+            const passed = finalPct === 1.0;
+            outText += `\n\nEvaluation: ${passed ? "✓ Passed" : "✗ Failed"}`;
+            outText += `\nScore Breakdown:`;
+            outText += `\n- Query Match: ${res.evaluation.query_matches ? "2.5" : "0"} / 2.5`;
+            outText += `\n- Output Match: ${res.evaluation.output_matches ? "2.5" : "0"} / 2.5`;
+            if (sysQ) outText += `\n- System Validation: ${res.evaluation.system_matches ? "5.0" : "0"} / 5.0`;
+            outText += `\nTotal Points: ${points} / 10`;
+            
+            if (!passed && sysQ) outText += `\n\nCheck failed. Ensure you followed the instructions exactly.`;
+            setTicketScore({ passed: points, total: 10 });
+            setTestsRan(true);
+            setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
+            
+            const taskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : "task-0";
+            setEvalResult(prev => ({ 
+              ...prev, 
+              [taskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
+            }));
+          }
+          
+          setOutput(outText);
+        })
+        .catch((err) => {
+          setOutput(`Error running script: ${err.message}`);
+        })
+        .finally(() => setRunning(false));
       return;
     }
     if (isMongo) {
       setOutput(`> load("${file}")\n…running…`);
       setTimeout(() => {
-        setOutput(`> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`);
+        const outText = `> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`;
+        setOutput(outText);
+        evaluateSubmission(src, outText);
         setRunning(false);
       }, 500);
       return;
@@ -1462,43 +1562,45 @@ export function TicketIDE({
       setOutput("Running UI validation...");
 
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-        api
-          .post("/lab/frontend-validate/", {
-            ticket_slug: ticket.ticket_slug ?? ticket.id,
-            user_html: files["index.html"] ?? "",
-            user_css: files["styles.css"] ?? "",
-            lab_id: labId, // lab UUID — lets executor resolve starter repo path
-          })
-          .then((res: any) => {
-            setRunning(false);
-
-            // Create a clean object to show in the console without flooding it with base64 images
-            const resultJson = {
-              ui_score: res.ui_score ?? 0,
-              structural_score: res.structural_score ?? 0,
-              checks: res.checks ?? [],
-            };
-
-            setOutput(JSON.stringify(resultJson, null, 2));
-
-            if (isReal && submissionId) {
-              const uiScore = res.ui_score ?? 0;
-              const structScore = res.structural_score ?? 0;
-              const isPass = uiScore >= 75 && structScore >= 75;
-              api
-                .patch(`/lab/submissions/${submissionId}/`, {
-                  ticket_status: isPass ? "in_review" : "in_progress",
-                  solution: JSON.stringify(files),
-                })
-                .catch(console.error);
-            }
-          })
-          .catch((err: any) => {
-            console.error(err);
-            setOutput(`Error running validation: ${err.message}`);
-            setBottomTab("output");
-            setRunning(false);
-          });
+        api.post("/lab/frontend-validate/", {
+          ticket_slug: ticket.ticket_slug ?? ticket.id,
+          user_html: files["index.html"] ?? "",
+          user_css: files["style.css"] ?? files["styles.css"] ?? "",
+          user_js: files["script.js"] ?? "",
+          lab_id: labId,   // lab UUID — lets executor resolve starter repo path
+        }).then((res: any) => {
+          setRunning(false);
+          
+          // Create a clean object to show in the console without flooding it with base64 images
+          // The user requested ui_score, js_score, and checks
+          const resultJson: any = {
+            ui_score: res.ui_score ?? 0,
+            js_score: res.js_score ?? 0,
+            checks: res.checks ?? []
+          };
+          
+          // Only remove js_score for the first 2 sprints of the HTML/CSS/JS lab
+          if (ticket.ticket_slug?.startsWith("s1-") || ticket.ticket_slug?.startsWith("s2-")) {
+            delete resultJson.js_score;
+          }
+          
+          setOutput(JSON.stringify(resultJson, null, 2));
+          
+          if (isReal && submissionId) {
+             const uiScore = res.ui_score ?? 0;
+             const structScore = res.structural_score ?? 0;
+             const isPass = uiScore >= 75 && structScore >= 75;
+             api.patch(`/lab/submissions/${submissionId}/`, {
+               ticket_status: isPass ? "in_review" : "in_progress",
+               solution: JSON.stringify(files),
+             }).catch(console.error);
+          }
+        }).catch((err: any) => {
+          console.error(err);
+          setOutput(`Error running validation: ${err.message}`);
+          setBottomTab("output");
+          setRunning(false);
+        });
       });
       return;
     }
@@ -1582,9 +1684,9 @@ export function TicketIDE({
       return;
     }
     if (isDjango) {
-      setOutput(
-        `$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`,
-      );
+      const outText = `$ python manage.py runserver\n…starting Django dev server…\n✓ Running on http://127.0.0.1:8000/`;
+      setOutput(outText);
+      evaluateSubmission(src, outText);
       setRunning(false);
       return;
     }
@@ -1627,11 +1729,9 @@ export function TicketIDE({
           else val = ctx[val] ?? val;
           out.push(label + val);
         }
-        setOutput(
-          "$ javac Main.java\n$ java Main\n" +
-            out.join("\n") +
-            "\n\n✓ Program ran successfully (1.2s)",
-        );
+        const outText = "$ javac Main.java\n$ java Main\n" + out.join("\n") + "\n\n✓ Program ran successfully (1.2s)";
+        setOutput(outText);
+        evaluateSubmission(src, outText);
       }
       setRunning(false);
     }, 700);
@@ -1734,10 +1834,29 @@ export function TicketIDE({
             to: "/student/lab/$slug/ticket/$ticketId/review",
             params: { slug, ticketId: ticket.id },
           });
-        });
-      } else {
-        showToast("Fix failing UI validation before submitting");
+    if (isSql) {
+      if (!ticketScore || ticketScore.passed !== ticketScore.total) {
+        showToast("Fix failing tests before submitting (Click Run first)");
+        return;
       }
+      setSubmitting(true);
+      if (isReal && submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.patch(`/lab/submissions/${submissionId}/`, {
+            ticket_status: "in_review",
+            solution: files[Object.keys(files)[0]] ?? "",
+          }).catch(console.error).finally(() => setSubmitting(false));
+        });
+      } else if (isReal && !submissionId) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          api.post("/lab/submissions/", {
+            lab_sprint_ticket: ticket.id,
+            ticket_status: "in_review",
+            solution: files[Object.keys(files)[0]] ?? "",
+          }).catch(console.error).finally(() => setSubmitting(false));
+        });
+      }
+      navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
       return;
     }
 
@@ -1937,7 +2056,7 @@ export function TicketIDE({
   if (reviewMatch) return <Outlet />;
 
   return (
-    <div className="h-full flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
@@ -2023,8 +2142,11 @@ export function TicketIDE({
             {running ? "Running…" : "Run"}{" "}
             <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
-          <button
-            onClick={handleSubmit}
+          <button onClick={() => setIsCommitDialogOpen(true)}
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
+            <GitBranch className="h-3 w-3" />Commit
+          </button>
+          <button onClick={handleSubmit}
             disabled={submitting}
             className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
@@ -2138,7 +2260,7 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className="flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs">
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isSql || isMongo ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -2499,6 +2621,11 @@ export function TicketIDE({
                       {t.label}
                     </button>
                   ))}
+                  {ticketScore !== null && (
+                    <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
+                      SCORE: {ticketScore.passed} / {ticketScore.total}
+                    </div>
+                  )}
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
                   {bottomTab === "output" && <OutputView output={output} />}
@@ -2657,6 +2784,52 @@ export function TicketIDE({
           {toast}
         </div>
       )}
+
+      {/* Commit Dialog */}
+      <Dialog open={isCommitDialogOpen} onOpenChange={setIsCommitDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Commit Changes</DialogTitle>
+            <DialogDescription>
+              Enter a commit message. Your changes will be committed and pushed to the linked repository.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex w-full items-center rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
+              <span className="text-muted-foreground mr-1 whitespace-nowrap">feat(S{sprintNo}-T{ticketNo}) : </span>
+              <input
+                type="text"
+                placeholder="Added new feature..."
+                value={commitMessage}
+                onChange={(e) => setCommitMessage(e.target.value)}
+                className="flex-1 bg-transparent file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCommitSubmit();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setIsCommitDialogOpen(false)}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCommitSubmit}
+              disabled={!commitMessage.trim() || isCommitting}
+              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {isCommitting ? "Committing..." : "Commit"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -3348,6 +3521,9 @@ function TerminalView({
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(data);
       }
+      if (data === '\r' && onCommandRun) {
+        setTimeout(onCommandRun, 500);
+      }
     });
 
     ws.onclose = () => {
@@ -3566,15 +3742,7 @@ function ProblemPanel({
               <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
                 {ticketScore && (
                   <div className="mb-3 text-sm font-medium">
-                    Score:{" "}
-                    <span
-                      className={
-                        ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"
-                      }
-                    >
-                      {ticketScore.passed}/{ticketScore.total}
-                    </span>{" "}
-                    tasks completed
+                    Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> {ticketScore.total === 10 && ticket.tasks?.length !== 10 ? "points" : "tasks completed"}
                   </div>
                 )}
               </div>
@@ -4746,17 +4914,24 @@ function MongoResultsView({
 
 function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullHeight?: boolean }) {
   const srcDoc = useMemo(() => {
-    const html =
-      files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
-    const cssText = files["styles.css"] ?? "";
-    const jsText = files["app.js"] ?? "";
+    const html = files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
+    
+    // Dynamically find any CSS or JS file instead of hardcoding names
+    const cssFileName = Object.keys(files).find(f => f.endsWith('.css'));
+    const jsFileName = Object.keys(files).find(f => f.endsWith('.js'));
+    
+    const cssText = cssFileName ? files[cssFileName] : "";
+    const jsText = jsFileName ? files[jsFileName] : "";
+    
     const cssTag = `<style>${cssText}</style>`;
     const jsTag = `<script>\ntry { ${jsText} } catch (e) { document.body.insertAdjacentHTML('beforeend', '<pre style="color:#b00">'+(e && e.message || e)+'</pre>'); }\n<\/script>`;
-    // Strip external <link rel=stylesheet href="styles.css"> and <script src="app.js"> then inject inline.
+    
+    // Strip any external <link rel=stylesheet> and <script src="..."> then inject inline.
     let out = html
-      .replace(/<link[^>]*href=["']styles\.css["'][^>]*>/i, cssTag)
-      .replace(/<script[^>]*src=["']app\.js["'][^>]*><\/script>/i, jsTag);
-    if (!/<style>/i.test(out)) out = out.replace(/<\/head>/i, `${cssTag}</head>`);
+      .replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/i, cssTag)
+      .replace(/<script[^>]*src=[^>]*><\/script>/i, jsTag);
+      
+    if (!out.includes("<style>")) out = out.replace(/<\/head>/i, `${cssTag}</head>`);
     if (!out.includes("<script>")) out = out.replace(/<\/body>/i, `${jsTag}</body>`);
     return out;
   }, [files]);

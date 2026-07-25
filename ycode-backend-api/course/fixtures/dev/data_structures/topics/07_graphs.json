@@ -930,6 +930,102 @@
                 "time_limit": 10,
                 "memory_limit": 256
             }
+        },
+        {
+            "type": "coding",
+            "title": "Course Scheduling Module",
+            "content": "You are given a list of course names and their prerequisite relationships. Return any valid order in which all courses can be completed.\n\nEach prerequisite is represented as [advanced_course, prereq_course], meaning prereq_course must be completed before advanced_course.\n\nIf the prerequisite graph contains a cycle (making it impossible to complete all courses), return an empty list [].",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "{\"courses\":[\"Introduction to CS\",\"Data Structures\",\"Algorithms\"],\"prerequisites\":[[\"Data Structures\",\"Introduction to CS\"],[\"Algorithms\",\"Data Structures\"]]}",
+                    "expected_output": "[\"Introduction to CS\",\"Data Structures\",\"Algorithms\"]"
+                },
+                {
+                    "input": "{\"courses\":[\"Programming 101\",\"Web Development\",\"Database Systems\",\"Machine Learning\"],\"prerequisites\":[[\"Web Development\",\"Programming 101\"],[\"Database Systems\",\"Programming 101\"],[\"Machine Learning\",\"Programming 101\"]]}",
+                    "expected_output": "Any valid ordering where \"Programming 101\" appears before all dependent courses."
+                },
+                {
+                    "input": "{\"courses\":[\"Math\",\"Physics\"],\"prerequisites\":[]}",
+                    "expected_output": "Any ordering containing both courses."
+                },
+                {
+                    "input": "{\"courses\":[\"A\"],\"prerequisites\":[]}",
+                    "expected_output": "[\"A\"]"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "{\"courses\":[\"A\",\"B\"],\"prerequisites\":[[\"A\",\"B\"],[\"B\",\"A\"]]}",
+                    "expected_output": "[]"
+                },
+                {
+                    "input": "{\"courses\":[\"A\",\"B\",\"C\",\"D\"],\"prerequisites\":[[\"B\",\"A\"],[\"C\",\"A\"],[\"D\",\"B\"],[\"D\",\"C\"]]}",
+                    "expected_output": "Any valid topological ordering."
+                },
+                {
+                    "input": "{\"courses\":[\"A\",\"B\",\"C\",\"D\",\"E\"],\"prerequisites\":[[\"B\",\"A\"],[\"C\",\"B\"],[\"D\",\"C\"],[\"E\",\"D\"]]}",
+                    "expected_output": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
+                },
+                {
+                    "input": "{\"courses\":[\"Operating Systems\",\"Computer Networks\",\"Databases\",\"Distributed Systems\"],\"prerequisites\":[[\"Distributed Systems\",\"Operating Systems\"],[\"Distributed Systems\",\"Computer Networks\"],[\"Distributed Systems\",\"Databases\"]]}",
+                    "expected_output": "Any valid ordering where all prerequisites come before \"Distributed Systems\"."
+                }
+            ],
+            "examples": [
+                {
+                    "input": "{\"courses\":[\"Introduction to CS\",\"Data Structures\",\"Algorithms\"],\"prerequisites\":[[\"Data Structures\",\"Introduction to CS\"],[\"Algorithms\",\"Data Structures\"]]}",
+                    "expected_output": "[\"Introduction to CS\",\"Data Structures\",\"Algorithms\"]",
+                    "explanation": "\"Introduction to CS\" must be completed before \"Data Structures\", which in turn must be completed before \"Algorithms\"."
+                }
+            ],
+            "inputFormat": "A JSON object containing:\n- courses: an array of unique course names.\n- prerequisites: an array of pairs [advanced_course, prereq_course].",
+            "outputFormat": "Return a JSON array containing any valid order of courses. If no valid ordering exists due to a cycle, return an empty array [].",
+            "solutions": [
+                {
+                    "title": "Kahn's Algorithm (BFS Topological Sort)",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import defaultdict, deque\n\ninput_data = json.loads(sys.stdin.read())\ncourses = input_data['courses']\nprerequisites = input_data['prerequisites']\n\ngraph = defaultdict(list)\nindegree = {c: 0 for c in courses}\n\nfor course, prereq in prerequisites:\n    graph[prereq].append(course)\n    indegree[course] += 1\n\nqueue = deque([c for c in courses if indegree[c] == 0])\norder = []\n\nwhile queue:\n    node = queue.popleft()\n    order.append(node)\n    for nxt in graph[node]:\n        indegree[nxt] -= 1\n        if indegree[nxt] == 0:\n            queue.append(nxt)\n\nif len(order) == len(courses):\n    print(json.dumps(order))\nelse:\n    print(json.dumps([]))",
+                    "complexity_analysis": "Time: O(V + E), where V is the number of courses and E is the number of prerequisites. Space: O(V + E).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Kahn's Algorithm - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\nimport org.json.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        StringBuilder sb = new StringBuilder();\n        while(sc.hasNextLine()) sb.append(sc.nextLine());\n\n        JSONObject obj = new JSONObject(sb.toString());\n        JSONArray coursesArr = obj.getJSONArray(\"courses\");\n        JSONArray prereqArr = obj.getJSONArray(\"prerequisites\");\n\n        Map<String, List<String>> graph = new HashMap<>();\n        Map<String, Integer> indegree = new HashMap<>();\n\n        for(int i=0;i<coursesArr.length();i++){\n            String c = coursesArr.getString(i);\n            graph.put(c,new ArrayList<>());\n            indegree.put(c,0);\n        }\n\n        for(int i=0;i<prereqArr.length();i++){\n            JSONArray p = prereqArr.getJSONArray(i);\n            String course = p.getString(0);\n            String prereq = p.getString(1);\n            graph.get(prereq).add(course);\n            indegree.put(course, indegree.get(course)+1);\n        }\n\n        Queue<String> q = new LinkedList<>();\n        for(String c: indegree.keySet())\n            if(indegree.get(c)==0) q.offer(c);\n\n        List<String> ans = new ArrayList<>();\n\n        while(!q.isEmpty()){\n            String cur = q.poll();\n            ans.add(cur);\n            for(String nxt: graph.get(cur)){\n                indegree.put(nxt, indegree.get(nxt)-1);\n                if(indegree.get(nxt)==0) q.offer(nxt);\n            }\n        }\n\n        if(ans.size()!=coursesArr.length())\n            System.out.println(\"[]\");\n        else\n            System.out.println(new JSONArray(ans));\n    }\n}",
+                    "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Kahn's Algorithm - C",
+                    "language": "c",
+                    "code": "/* Implement using adjacency lists, indegree array, and queue for topological sorting. Parse JSON input, construct graph, process all zero-indegree nodes, and print the resulting order. If all nodes are not processed, print [] indicating a cycle. */",
+                    "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Model each course as a node in a directed graph.",
+                "An edge goes from a prerequisite course to the course that depends on it.",
+                "Compute the indegree of every course and repeatedly process courses with indegree 0.",
+                "If you cannot process all courses, the graph contains a cycle."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

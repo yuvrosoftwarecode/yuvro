@@ -1,83 +1,88 @@
 {
-  "title": "Sprint 3 \u2014 CSS Animations, Variables & Advanced CSS",
-  "description": "Add polish and interactivity to your projects with smooth animations, advanced styling techniques, and robust design systems.",
-  "xp_pool": 350,
+  "title": "Sprint 3 — Build a Task Manager App (HTML + CSS + JS + localStorage)",
+  "description": "Build a complete, fully interactive Task Manager web app from scratch. Users can add tasks, mark them as complete, delete them, and filter by status — and everything persists in localStorage so no data is lost on refresh. This sprint covers DOM manipulation, event handling, dynamic rendering, and browser storage.",
+  "xp_pool": 500,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Transitions & Animations",
-      "ticket_slug": "ticket-1",
-      "description": "Create engaging user experiences by incorporating smooth transitions, dynamic animations, and decorative elements.",
-      "xp_reward": 180,
+      "title": "Ticket 1 — HTML Structure & CSS Base Styles",
+      "ticket_slug": "s3-ticket-1",
+      "description": "Build the complete HTML skeleton and base CSS for the task manager. No JavaScript yet — focus on getting the structure and look right so the app feels polished before it becomes interactive.",
+      "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 3.1.1 \u2014 CSS Transitions",
-          "task_slug": "task-3-1-1",
-          "description": "Implement subtle hover effects on interactive elements to provide clear visual feedback to users.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 1 — App HTML Structure",
+          "task_slug": "task-1",
+          "description": "Create `index.html` with the following structure inside `<body>`:\n- A `<header>` with an `<h1>` (app name, e.g. 'TaskFlow')\n- A `<main>` containing:\n  - A `<form id=\"taskForm\">` with: an `<input type=\"text\" id=\"taskInput\" placeholder=\"Add a new task...\">` and a `<button type=\"submit\">Add Task</button>`\n  - A filter bar `<div class=\"filters\">` with 3 `<button>` elements: data-filter=\"all\", data-filter=\"active\", data-filter=\"completed\"\n  - An empty `<ul id=\"taskList\">` where tasks will be rendered\n  - A `<div class=\"task-stats\">` showing a `<span id=\"taskCount\">` and a 'Clear Completed' `<button id=\"clearCompleted\">`\n- A `<footer>` with a copyright line\n- Link `style.css` and `script.js`",
+          "points": 50,
+          "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 3.1.2 \u2014 @keyframes Animations",
-          "task_slug": "task-3-1-2",
-          "description": "Design engaging visual sequences like loading spinners and notification banners to capture user attention.",
+          "title": "Task 2 — Full App Styling",
+          "task_slug": "task-2",
+          "description": "Style the app completely in `style.css` so it looks like a real product:\n- Centred layout, max-width ~600px, card-style container with shadow and border-radius\n- Custom colour scheme using `:root` CSS variables\n- The form input and button side-by-side using Flexbox\n- Filter buttons: horizontal row, the active filter button should have a distinct `background` or `border` style (use a `.active` class)\n- Task list items (`<li>`) styled as rows with: checkbox on the left, task text in the middle, delete button on the right\n- Completed tasks should have `text-decoration: line-through` and muted text colour\n- Smooth `transition` on all hover and state changes",
           "points": 50,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "method": "UI Visual & Structural Validation",
           "order_index": 2
-        },
-        {
-          "title": "Task 3.1.3 \u2014 Animation Performance (transform vs top/left)",
-          "task_slug": "task-3-1-3",
-          "description": "Optimize your animations to run smoothly without slowing down the user's browser.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
-        },
-        {
-          "title": "Task 3.1.4 \u2014 Pseudo-elements: ::before & ::after",
-          "task_slug": "task-3-1-4",
-          "description": "Enhance your UI with elegant decorative elements without adding unnecessary clutter to your page structure.",
-          "points": 45,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 4
         }
       ],
       "order_index": 1,
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY",
+      "accepted_programming_languages": ["html", "javascript"]
     },
     {
-      "title": "Ticket 2 \u2014 CSS Variables & Theming",
-      "ticket_slug": "ticket-2",
-      "description": "Develop a reusable, scalable styling system that supports advanced features like dark mode and customizable themes.",
-      "xp_reward": 120,
+      "title": "Ticket 2 — Core Task Logic (Add, Complete, Delete)",
+      "ticket_slug": "s3-ticket-2",
+      "description": "Wire up the core interactivity of the task manager. Users can add new tasks, mark them as done by clicking a checkbox, and delete individual tasks. Each action must update the displayed task count.",
+      "xp_reward": 150,
       "tasks": [
         {
-          "title": "Task 3.2.1 \u2014 Design Token System with CSS Variables",
-          "task_slug": "task-3-2-1",
-          "description": "Establish a centralized design system to ensure visual consistency across your entire application.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 1 — Add Tasks & Render List",
+          "task_slug": "task-1",
+          "description": "It's time to bring the Task Manager to life in `script.js`. First, initialize an empty array called `tasks` to hold all your task objects. Next, set up an event listener on the form (`#taskForm`) for the `submit` event. Inside the listener, call `e.preventDefault()` so the page doesn't reload. Grab the value from the input field, and if it's not empty, create a new task object like `{ id: Date.now(), text: inputValue, completed: false }`. Push this object into your `tasks` array, clear the input field, and finally, call a new function named `renderTasks()`. In your `renderTasks()` function, clear the `#taskList` innerHTML, loop through the `tasks` array, and create a new `<li>` for each task containing a checkbox, a span for the text, and a delete button. Append each `<li>` to the `#taskList`. Lastly, write an `updateCount()` function to count how many tasks are not completed, and update the text inside `#taskCount`.",
+          "points": 75,
+          "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 3.2.2 \u2014 Dark Mode with CSS Variables & prefers-color-scheme",
-          "task_slug": "task-3-2-2",
-          "description": "Provide a comfortable viewing experience by supporting an automatic and toggleable dark mode.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
+          "title": "Task 2 — Toggle Complete & Delete",
+          "task_slug": "task-2",
+          "description": "Now add the ability to mark tasks as done and delete them. In your `renderTasks()` function, when you create the checkbox for a task, add a `change` event listener to it. When triggered, find that specific task by its `id` in the `tasks` array and flip its `completed` boolean. Then, call `renderTasks()` again to update the UI. To show a task is completed, conditionally add a `completed` CSS class to the `<li>` if `task.completed` is true. For the delete button, add a `click` event listener that filters the `tasks` array to remove the task with the matching `id`, and then calls `renderTasks()` again. Make sure your `updateCount()` runs at the end of `renderTasks()` so the remaining task count is always accurate.",
+          "points": 75,
+          "method": "UI Visual & Structural Validation",
           "order_index": 2
-        },
-        {
-          "title": "Task 3.2.3 \u2014 Component Theming with Scoped Variables",
-          "task_slug": "task-3-2-3",
-          "description": "Create adaptable UI components that easily change appearance based on their context or status.",
-          "points": 40,
-          "method": "In-Browser Combined - DOM Assertion + UI Snapshot Matcher (Method 3)",
-          "order_index": 3
         }
       ],
       "order_index": 2,
-      "difficulty": "MEDIUM"
+      "difficulty": "MEDIUM",
+      "accepted_programming_languages": ["html", "javascript"]
+    },
+    {
+      "title": "Ticket 3 — Filters, Clear Completed & localStorage",
+      "ticket_slug": "s3-ticket-3",
+      "description": "Complete the app with filter functionality (All / Active / Completed), a 'Clear Completed' button, and full localStorage persistence so the task list survives a page refresh.",
+      "xp_reward": 150,
+      "tasks": [
+        {
+          "title": "Task 1 — Filter Buttons",
+          "task_slug": "task-1",
+          "description": "Let's make the filter buttons work. Create a variable `currentFilter` initialized to `'all'`. Add click event listeners to all three `.filter-btn` buttons. When a button is clicked, set `currentFilter` to the button's `data-filter` value, remove the `active` class from all buttons, and add it to the clicked button. Then, call `renderTasks()`. Now, update your `renderTasks()` function: before looping over the `tasks` array, filter it based on `currentFilter`. If it's `'active'`, only render tasks where `completed` is false. If it's `'completed'`, only render tasks where `completed` is true. The task count at the bottom should still always show the number of active tasks, regardless of which filter is currently selected.",
+          "points": 60,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Clear Completed & localStorage Persistence",
+          "task_slug": "task-2",
+          "description": "Finally, add the clear completed button and local storage persistence so users don't lose their data when they refresh the page. Add a click event listener to the `#clearCompleted` button that filters out all completed tasks from the `tasks` array and then calls `renderTasks()`. For persistence, write a `saveTasks()` function that takes the `tasks` array, converts it to a string using `JSON.stringify()`, and saves it to `localStorage.setItem('taskflow_tasks', ...)`. Call `saveTasks()` every time the `tasks` array changes (on add, toggle, delete, and clear). Then, write a `loadTasks()` function that reads from `localStorage` when the page first loads, parses the string back into an array with `JSON.parse()`, and assigns it to `tasks`. Run `loadTasks()` and `renderTasks()` at the very bottom of your script so the app starts up with the saved data.",
+          "points": 90,
+          "method": "UI Visual & Structural Validation",
+          "order_index": 2
+        }
+      ],
+      "order_index": 3,
+      "difficulty": "HARD",
+      "accepted_programming_languages": ["html", "javascript"]
     }
   ],
   "order_index": 3,

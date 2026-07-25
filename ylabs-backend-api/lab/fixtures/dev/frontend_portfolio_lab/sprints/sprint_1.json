@@ -1,152 +1,172 @@
 {
-  "title": "Sprint 1 \u2014 HTML/CSS Portfolio",
-  "description": "Build a stunning developer portfolio from scratch using HTML and CSS. You will learn semantic markup, layout design, and modern CSS techniques.",
+  "title": "Sprint 1 — Full-Stack Student Portfolio",
+  "description": "Build a stunning developer portfolio from scratch using HTML, CSS, and JavaScript. You will learn semantic markup, layout design, responsive grids, and DOM manipulation. Follow the instructions and classes carefully to ensure your UI matches the reference exactly.",
   "xp_pool": 500,
   "tickets": [
     {
-      "title": "Ticket 1 \u2014 Page Structure & Navigation",
+      "title": "Ticket 1 — Core Structure, Navbar & Hero",
       "ticket_slug": "ticket-01",
-      "description": "Set up the core structure of your portfolio. You will create the semantic foundation, a sticky header with a logo, navigation links, and a footer.",
+      "description": "Set up the HTML skeleton, foundational CSS, and your first JavaScript. Build a sticky navigation bar, hero section, stats grid, and wire up the mobile menu.",
       "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 1 \u2014 Semantic Page Skeleton",
+          "title": "Task 1 — Navbar & Page Skeleton",
           "task_slug": "task-1",
-          "description": "Create the main structural layout for your webpage, establishing key sections like header, main content areas, and footer.",
+          "description": "Create the HTML structure with a `<header class=\"nav\">`. Inside, use `.nav-inner` to hold a `.logo` (with text `<AC/>`) and a `<ul class=\"nav-links\">` containing 7 anchor links (About, Skills, Projects, Experience, Education, Testimonials, Contact). Also add a basic `<footer class=\"footer\">` and a `<button id=\"toTop\">&#8593;</button>`. In your CSS, define root color variables (e.g., `--bg`, `--gradient`), apply a basic CSS reset, and style the sticky `.nav` with a blur effect.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2 \u2014 Sticky Navigation Bar",
+          "title": "Task 2 — Hero Section, Stats Grid & Dynamic Year",
           "task_slug": "task-2",
-          "description": "Build a sticky header with a logo and navigation links using flexbox and CSS positioning.",
+          "description": "Create `<section id=\"home\" class=\"hero\">` with `.hero-text` containing a `.typed` heading, `.hero-btns`, and a `.hero-visual` with floating tags. Add a `.stats` section with `.stat` items containing `data-target` attributes. In `script.js`: (1) Set `document.getElementById('year').textContent = new Date().getFullYear()`. (2) Add a click listener to `#menuBtn` that toggles the class `open` on `.nav-links`. (3) Close the menu when any nav link is clicked.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 2
+          "order_index": 2,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle"],
+            "pass_message": "✓ Dynamic year and mobile menu toggle work correctly.",
+            "fail_hint": "Make sure #year is set to the current year and #menuBtn toggles the 'open' class on .nav-links"
+          }
         }
       ],
       "order_index": 1,
       "difficulty": "EASY",
-      "accepted_programming_languages": [
-        "html"
-      ]
+      "accepted_programming_languages": ["html", "javascript"]
     },
     {
-      "title": "Ticket 2 \u2014 Hero Section",
+      "title": "Ticket 2 — About Me & Technical Skills",
       "ticket_slug": "ticket-02",
-      "description": "Design a captivating full-screen hero section. You'll add a vibrant gradient background, an introductory badge, and call-to-action buttons.",
+      "description": "Develop the 'About' and 'Skills' sections using CSS Grid and Flexbox, and implement the typing animation on the hero.",
       "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 1 \u2014 Hero Layout",
+          "title": "Task 1 — About Section",
           "task_slug": "task-1",
-          "description": "Structure the hero section using flexbox to center content vertically and horizontally.",
+          "description": "Create `<section id=\"about\" class=\"section\">`. Use a `.two-col` CSS grid layout. On the left, add `.section-label` ('About Me'), `.section-title` ('A student who ships.'), bio paragraphs, and a `.check-list` with 4 items. On the right, add an `.about-card` containing an `h3` ('Quick Facts') and a `.facts` list.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2 \u2014 Typography & Buttons",
+          "title": "Task 2 — Skills, Proficiency Bars & Typed Animation",
           "task_slug": "task-2",
-          "description": "Style the hero typography and create eye-catching primary and secondary call-to-action buttons.",
+          "description": "Create `<section id=\"skills\" class=\"section alt\">` with a `.skills-grid` of 4 `.skill-card` elements and a `.bars` container with `.bar` elements (each with `.bar-fill` and `data-value`). In `script.js`: Add to your previous JS a typing effect on `.typed` that cycles through an array of role strings — typing character by character, pausing, then deleting before moving to the next role.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 2
+          "order_index": 2,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle", "typed_effect"],
+            "pass_message": "✓ Year, menu toggle, and typed animation all work correctly.",
+            "fail_hint": "Make sure you have all JS from ticket-01 plus the typing animation on .typed"
+          }
         }
       ],
       "order_index": 2,
       "difficulty": "EASY",
-      "accepted_programming_languages": [
-        "html"
-      ]
+      "accepted_programming_languages": ["html", "javascript"]
     },
     {
-      "title": "Ticket 3 \u2014 About & Projects Grid",
+      "title": "Ticket 3 — Projects, Experience & Education",
       "ticket_slug": "ticket-03",
-      "description": "Build out your \"About\" section with statistics cards, and construct a responsive 3-column grid for your portfolio projects.",
+      "description": "Build a responsive 3-column projects grid, a custom vertical timeline for your experience, and wire up project filter buttons.",
       "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 1 \u2014 About Section & Stats",
+          "title": "Task 1 — Projects Grid",
           "task_slug": "task-1",
-          "description": "Use CSS Grid to lay out your about text and statistics cards.",
+          "description": "Create `<section id=\"projects\" class=\"section\">`. Add a `.filters` div with 4 `.filter` buttons (All, Web, App, AI) each with a `data-filter` attribute. Below it, build a `.projects-grid` containing 6 `<article class=\"project\" data-cat=\"...\">` elements with `.project-thumb`, `.project-body`, `h3`, description, `.chips.small`, and `.project-links`.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2 \u2014 Projects Grid",
+          "title": "Task 2 — Experience Timeline, Education & Project Filters",
           "task_slug": "task-2",
-          "description": "Create a 3-column responsive grid to showcase your project cards.",
+          "description": "Create `<section id=\"experience\" class=\"section alt\">` with a `.timeline` of 4 `.tl-item` elements, and `<section id=\"education\">` with 3 `.edu-card` items. In `script.js`: Add to your previous JS — wire up `.filter` buttons to filter `.project` elements by toggling the `.hidden` class based on `data-cat` vs the button's `data-filter`. Clicking a filter should also toggle the `active` class on filter buttons.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 2
+          "order_index": 2,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle", "typed_effect", "project_filter"],
+            "pass_message": "✓ Year, menu, typed animation, and project filters all work correctly.",
+            "fail_hint": "Make sure your JS includes all features from tickets 1 & 2, plus project filtering with .hidden class toggling"
+          }
         }
       ],
       "order_index": 3,
       "difficulty": "MEDIUM",
-      "accepted_programming_languages": [
-        "html"
-      ]
+      "accepted_programming_languages": ["html", "javascript"]
     },
     {
-      "title": "Ticket 4 \u2014 Skills + Contact Form",
+      "title": "Ticket 4 — Testimonials, Blog & Contact",
       "ticket_slug": "ticket-04",
-      "description": "Implement a tag-cloud layout for your skills and design a clean, accessible HTML contact form.",
+      "description": "Complete the page content with testimonials, a blog section, and a functional contact form with JS-powered submission handling.",
       "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 1 \u2014 Skills Tag Cloud",
+          "title": "Task 1 — Testimonials & Blog",
           "task_slug": "task-1",
-          "description": "Use flex-wrap and pill-shaped tags to display your technical skills.",
+          "description": "Create `<section id=\"testimonials\" class=\"section alt\">` with a `.testimonials` grid containing 3 `<blockquote>` elements. Then, create `<section id=\"blog\" class=\"section\">` with a `.blog-grid` containing 3 `.blog-card` anchor links.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
           "order_index": 1
         },
         {
-          "title": "Task 2 \u2014 Contact Form",
+          "title": "Task 2 — Contact Form & Footer JS",
           "task_slug": "task-2",
-          "description": "Build a semantic contact form with labels, inputs, textareas, and proper focus states.",
+          "description": "Create `<section id=\"contact\" class=\"section alt\">` with a `<form id=\"contactForm\">` containing name, email, textarea inputs and a `<p id=\"formNote\">` element. Style the `<footer>` with a `<span id=\"year\">`. In `script.js`: Add to your previous JS — listen for the `submit` event on `#contactForm`, call `event.preventDefault()`, show a success message in `#formNote`, reset the form, then clear the message after 4 seconds.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 2
+          "order_index": 2,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle", "typed_effect", "project_filter", "contact_form"],
+            "pass_message": "✓ All JS from tickets 1–3 plus contact form submission works correctly.",
+            "fail_hint": "Make sure #contactForm.submit prevents default, shows a message in #formNote, and clears it after 4 seconds"
+          }
         }
       ],
       "order_index": 4,
       "difficulty": "MEDIUM",
-      "accepted_programming_languages": [
-        "html"
-      ]
+      "accepted_programming_languages": ["html", "javascript"]
     },
     {
-      "title": "Ticket 5 \u2014 Polish & Animations",
+      "title": "Ticket 5 — JavaScript Interactivity & Polish",
       "ticket_slug": "ticket-05",
-      "description": "Take your portfolio to the next level with CSS animations, smooth transitions, glassmorphism, and a refined footer.",
+      "description": "Bring your portfolio to life! Add scroll-triggered reveal animations using IntersectionObserver, animated skill bars, counting stats, and a back-to-top button.",
       "xp_reward": 100,
       "tasks": [
         {
-          "title": "Task 1 \u2014 CSS Animations",
+          "title": "Task 1 — Scroll Reveal & Skill Bars",
           "task_slug": "task-1",
-          "description": "Add @keyframes animations to your hero section and hover transitions to all interactive elements.",
+          "description": "In `script.js`, add all your JS from previous tickets. Then, use `IntersectionObserver` to observe elements with the `.reveal` class (add this class to `.section`, `.stats`, `.hero-visual`). When an element intersects the viewport, add the `.visible` class to reveal it. Also animate `.bar-fill` widths by setting `style.width` to the element's `data-value` percentage.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 1
+          "order_index": 1,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle", "typed_effect", "project_filter", "contact_form", "intersection_observer"],
+            "pass_message": "✓ IntersectionObserver scroll reveal and skill bar animations work.",
+            "fail_hint": "Make sure you use IntersectionObserver with threshold 0.15, add .visible class, and animate .bar-fill widths"
+          }
         },
         {
-          "title": "Task 2 \u2014 Final Polish",
+          "title": "Task 2 — Counter Animation & Back to Top",
           "task_slug": "task-2",
-          "description": "Implement a multi-column footer and apply glassmorphism effects to your sticky header.",
+          "description": "Complete your `script.js` with all features: (1) When a `.stat` section is revealed, animate each `.stat h3` counting from 0 to its `data-target` value using `setInterval`. (2) Show `#toTop` button (add `.show` class) when `window.scrollY > 500`, hide it otherwise. (3) On `#toTop` click, `window.scrollTo({ top: 0, behavior: 'smooth' })`.",
           "points": 50,
           "method": "UI Visual & Structural Validation",
-          "order_index": 2
+          "order_index": 2,
+          "scoring_rules": {
+            "js_checks": ["year", "menu_toggle", "typed_effect", "project_filter", "contact_form", "intersection_observer", "scroll_to_top"],
+            "pass_message": "✓ Full portfolio JS working: all 7 features pass.",
+            "fail_hint": "Make sure stat counters count up to data-target, #toTop gets .show class on scroll, and clicks scroll smoothly to top"
+          }
         }
       ],
       "order_index": 5,
       "difficulty": "HARD",
-      "accepted_programming_languages": [
-        "html"
-      ]
+      "accepted_programming_languages": ["html", "javascript"]
     }
   ]
 }
