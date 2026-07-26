@@ -6,7 +6,9 @@ import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 import { authService } from "../services/authService";
 
 export const Route = createFileRoute("/evaluation/otp")({
-  head: () => ({ meta: [{ title: "Verify — Yuvro Labs" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Verify — Yuvro Labs" }, { name: "robots", content: "noindex" }],
+  }),
   component: OtpPage,
 });
 
@@ -18,19 +20,33 @@ function OtpPage() {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
   const searchParams = new URLSearchParams(window.location.search);
-  const evaluationId = searchParams.get('e') || '';
-  const email = (() => { try { return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").email; } catch { return ""; } })();
-  const title = (() => { try { return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").title || "Evaluation"; } catch { return "Evaluation"; } })();
+  const evaluationId = searchParams.get("e") || "";
+  const email = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").email;
+    } catch {
+      return "";
+    }
+  })();
+  const title = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}").title || "Evaluation";
+    } catch {
+      return "Evaluation";
+    }
+  })();
 
   useEffect(() => {
     refs.current[0]?.focus();
-    const t = setInterval(() => setCooldown(c => Math.max(0, c - 1)), 1000);
+    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
     return () => clearInterval(t);
   }, []);
 
   const setAt = (i: number, v: string) => {
     const clean = v.replace(/\D/g, "").slice(0, 1);
-    const next = [...digits]; next[i] = clean; setDigits(next);
+    const next = [...digits];
+    next[i] = clean;
+    setDigits(next);
     if (clean && i < 5) refs.current[i + 1]?.focus();
   };
 
@@ -55,16 +71,16 @@ function OtpPage() {
       setErr("Please enter the complete 6-digit code.");
       return;
     }
-    
+
     setLoading(true);
     setErr(null);
     try {
       const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp);
       if (verifyRes.access_token) {
         authService.setAuthToken(verifyRes.access_token);
-        
+
         await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token);
-        
+
         router.navigate({ to: "/evaluation/proctoring", search: { e: evaluationId } });
       } else {
         setErr("Verification failed: No access token received.");
@@ -100,7 +116,9 @@ function OtpPage() {
             {digits.map((d, i) => (
               <input
                 key={i}
-                ref={(el) => { refs.current[i] = el; }}
+                ref={(el) => {
+                  refs.current[i] = el;
+                }}
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 value={d}
@@ -111,11 +129,20 @@ function OtpPage() {
             ))}
           </div>
           <div className="mt-4 flex items-center justify-end text-[12px] text-neutral-500">
-            <button type="button" disabled={cooldown > 0} onClick={resendOtp} className="text-neutral-500 disabled:text-neutral-300 enabled:hover:text-neutral-900">
+            <button
+              type="button"
+              disabled={cooldown > 0}
+              onClick={resendOtp}
+              className="text-neutral-500 disabled:text-neutral-300 enabled:hover:text-neutral-900"
+            >
               {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
             </button>
           </div>
-          {err && <div className="mt-6 border-l-2 border-red-500 pl-3 text-[12px] text-red-600">{err}</div>}
+          {err && (
+            <div className="mt-6 border-l-2 border-red-500 pl-3 text-[12px] text-red-600">
+              {err}
+            </div>
+          )}
           <PrimaryButton disabled={loading} className="mt-10">
             {loading ? "Verifying..." : "Verify and continue"}
           </PrimaryButton>

@@ -1,10 +1,16 @@
 const DEVICON_BASE = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const ICON_MAP: { keywords: string[]; path: string }[] = [
-  { keywords: ["python", "django", "flask", "fastapi", "pytorch", "numpy", "pandas"], path: "python/python-original.svg" },
+  {
+    keywords: ["python", "django", "flask", "fastapi", "pytorch", "numpy", "pandas"],
+    path: "python/python-original.svg",
+  },
   { keywords: ["java", "spring", "kotlin"], path: "java/java-original.svg" },
   { keywords: ["kotlin"], path: "kotlin/kotlin-original.svg" },
-  { keywords: ["javascript", "js", "node", "express", "nestjs"], path: "javascript/javascript-original.svg" },
+  {
+    keywords: ["javascript", "js", "node", "express", "nestjs"],
+    path: "javascript/javascript-original.svg",
+  },
   { keywords: ["typescript", "ts"], path: "typescript/typescript-original.svg" },
   { keywords: ["react", "reactjs", "react native"], path: "react/react-original.svg" },
   { keywords: ["nextjs", "next.js", "next js"], path: "nextjs/nextjs-original.svg" },
@@ -32,10 +38,16 @@ const ICON_MAP: { keywords: string[]; path: string }[] = [
 
   { keywords: ["docker"], path: "docker/docker-original.svg" },
   { keywords: ["kubernetes", "k8s"], path: "kubernetes/kubernetes-plain.svg" },
-  { keywords: ["aws", "amazon web services", "ec2", "s3 bucket", "lambda"], path: "amazonwebservices/amazonwebservices-original.svg" },
+  {
+    keywords: ["aws", "amazon web services", "ec2", "s3 bucket", "lambda"],
+    path: "amazonwebservices/amazonwebservices-original.svg",
+  },
   { keywords: ["azure"], path: "azure/azure-original.svg" },
   { keywords: ["gcp", "google cloud"], path: "googlecloud/googlecloud-original.svg" },
-  { keywords: ["linux", "bash", "shell", "terminal", "unix", "ubuntu"], path: "linux/linux-original.svg" },
+  {
+    keywords: ["linux", "bash", "shell", "terminal", "unix", "ubuntu"],
+    path: "linux/linux-original.svg",
+  },
   { keywords: ["git", "github", "gitlab"], path: "git/git-original.svg" },
   { keywords: ["nginx", "web server"], path: "nginx/nginx-original.svg" },
   { keywords: ["ansible"], path: "ansible/ansible-original.svg" },
@@ -48,20 +60,36 @@ const ICON_MAP: { keywords: string[]; path: string }[] = [
   { keywords: ["webpack", "vite", "rollup"], path: "webpack/webpack-original.svg" },
   { keywords: ["flutter", "dart"], path: "flutter/flutter-original.svg" },
 
-  { keywords: ["selenium", "testing", "quality", "qa", "playwright", "jest", "pytest"], path: "selenium/selenium-original.svg" },
+  {
+    keywords: ["selenium", "testing", "quality", "qa", "playwright", "jest", "pytest"],
+    path: "selenium/selenium-original.svg",
+  },
 
-  { keywords: ["machine learning", "ai", "artificial intelligence", "deep learning", "tensorflow", "keras"], path: "tensorflow/tensorflow-original.svg" },
+  {
+    keywords: [
+      "machine learning",
+      "ai",
+      "artificial intelligence",
+      "deep learning",
+      "tensorflow",
+      "keras",
+    ],
+    path: "tensorflow/tensorflow-original.svg",
+  },
   { keywords: ["data science", "data analysis", "jupyter"], path: "jupyter/jupyter-original.svg" },
 
   { keywords: ["backend", "api", "rest", "graphql"], path: "nodejs/nodejs-original.svg" },
   { keywords: ["frontend", "ui", "interface"], path: "html5/html5-original.svg" },
-  { keywords: ["full stack", "fullstack", "full-stack"], path: "javascript/javascript-original.svg" },
+  {
+    keywords: ["full stack", "fullstack", "full-stack"],
+    path: "javascript/javascript-original.svg",
+  },
 ];
 
 export function getLabIconUrl(name: string): string | null {
   const lower = ` ${name.toLowerCase()} `;
   for (const { keywords, path } of ICON_MAP) {
-    if (keywords.some(k => lower.includes(k))) {
+    if (keywords.some((k) => lower.includes(k))) {
       return `${DEVICON_BASE}/${path}`;
     }
   }

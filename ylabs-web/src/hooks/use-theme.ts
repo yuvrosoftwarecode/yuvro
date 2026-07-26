@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 export type Theme = "light" | "dark";
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -16,7 +16,9 @@ export function useTheme() {
     if (!ready) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
-    try { localStorage.setItem("pl-theme", theme); } catch {}
+    try {
+      localStorage.setItem("pl-theme", theme);
+    } catch {}
   }, [theme, ready]);
 
   const toggle = () => {

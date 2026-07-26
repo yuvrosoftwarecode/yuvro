@@ -1,19 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
-  .handler(async ({ data }: { data: { uri: string; query: string } }) => {
+export const executeRemoteMongoQuery = createServerFn({ method: "POST" }).handler(
+  async ({ data }: { data: { uri: string; query: string } }) => {
     const { uri, query } = data;
-    
+
     if (!query.trim()) {
       return { rows: [], note: "No query provided.", ms: 0 };
     }
 
     // Split multiple commands, e.g. db.users.insert() \n db.users.find()
-    const commands = query.split(/(?=db\.)/).map(s => s.trim()).filter(Boolean);
-    
+    const commands = query
+      .split(/(?=db\.)/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
     // Dynamically import to ensure it strictly runs on server side and doesn't leak to client bundle
     const { MongoClient } = await import("mongodb");
-    
+
     let client;
     try {
       client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
@@ -28,13 +31,15 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
       for (const cmd of commands) {
         const match = cmd.match(/^db\.(\w+)\.(\w+)\((.*)\)\s*;?\s*$/s);
         if (!match) {
-          throw new Error(`Unsupported MongoDB query format. Use db.collection.method(...)\nQuery was: ${cmd}`);
+          throw new Error(
+            `Unsupported MongoDB query format. Use db.collection.method(...)\nQuery was: ${cmd}`,
+          );
         }
 
         const [, collectionName, method, argsStr] = match;
         finalCollection = collectionName;
         finalMethod = method;
-        
+
         let args: any[] = [];
         if (argsStr.trim()) {
           try {
@@ -74,23 +79,25 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" })
         } else if (method === "aggregate") {
           result = await col.aggregate(args[0]).toArray();
         } else {
-          throw new Error(`Method db.${collectionName}.${method}() is not currently supported by this proxy.`);
+          throw new Error(
+            `Method db.${collectionName}.${method}() is not currently supported by this proxy.`,
+          );
         }
         finalResult = result;
       }
 
       await client.close();
-      
+
       const ms = Date.now() - start;
       const safeResult = JSON.parse(JSON.stringify(finalResult));
-      return { 
-        rows: safeResult, 
+      return {
+        rows: safeResult,
         note: `Executed db.${finalCollection}.${finalMethod}() successfully on external DB`,
-        ms 
+        ms,
       };
-
     } catch (e: any) {
       if (client) await client.close();
       throw new Error(`MongoDB Error: ${e.message}`);
     }
-  });
+  },
+);

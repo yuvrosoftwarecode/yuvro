@@ -1,13 +1,7 @@
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 export type LabType =
-  | "DATABASE"
-  | "BACKEND"
-  | "FRONTEND"
-  | "FULL_STACK"
-  | "QUALITY_ASSURANCE"
-  | "DEVOPS"
-  | "AI";
+  "DATABASE" | "BACKEND" | "FRONTEND" | "FULL_STACK" | "QUALITY_ASSURANCE" | "DEVOPS" | "AI";
 
 export type LabDifficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -46,18 +40,16 @@ export const DIFFICULTIES: { value: LabDifficulty; label: string }[] = [
   { value: "HARD", label: "Hard" },
 ];
 
-export const labTypeLabel = (t: LabType) =>
-  LAB_TYPES.find(x => x.value === t)?.label ?? t;
+export const labTypeLabel = (t: LabType) => LAB_TYPES.find((x) => x.value === t)?.label ?? t;
 export const difficultyLabel = (d: LabDifficulty) =>
-  DIFFICULTIES.find(x => x.value === d)?.label ?? d;
-
+  DIFFICULTIES.find((x) => x.value === d)?.label ?? d;
 
 export async function loadLabs(): Promise<AdminLab[]> {
-  return await restApiAuthUtil.get<AdminLab[]>('/lab/labs/');
+  return await restApiAuthUtil.get<AdminLab[]>("/lab/labs/");
 }
 
 export async function createLab(input: Partial<AdminLab>): Promise<AdminLab> {
-  return await restApiAuthUtil.post<AdminLab>('/lab/labs/', input);
+  return await restApiAuthUtil.post<AdminLab>("/lab/labs/", input);
 }
 
 export async function updateLab(id: string, patch: Partial<AdminLab>): Promise<AdminLab> {

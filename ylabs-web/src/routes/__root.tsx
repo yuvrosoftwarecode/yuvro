@@ -43,9 +43,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold tracking-tight text-foreground text-red-500">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong on our end.</p>
 
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
@@ -75,19 +73,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Practical Labs — Master Skills Through Real Projects" },
-      { name: "description", content: "Jira-style coding lab platform for Java, Python, UI and SQL." },
+      {
+        name: "description",
+        content: "Jira-style coding lab platform for Java, Python, UI and SQL.",
+      },
       { name: "author", content: "Practical Labs" },
       { property: "og:title", content: "Practical Labs" },
-      { property: "og:description", content: "Ticket-based coding labs with an integrated editor, hints, and analytics." },
+      {
+        property: "og:description",
+        content: "Ticket-based coding labs with an integrated editor, hints, and analytics.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "icon", href: "/logo.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -96,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const themeInit = `(function(){try{var t=localStorage.getItem('pl-theme');if(!t){t='dark';}if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){document.documentElement.classList.add('dark');}})();`;
+const themeInit = `(function(){try{var t=localStorage.getItem('pl-theme');if(!t){t='light';}if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){document.documentElement.classList.remove('dark');}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (

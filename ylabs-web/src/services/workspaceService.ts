@@ -3,7 +3,9 @@
  * Calls the yuvro-code-executer Workspace & Terminal APIs.
  */
 
-const EXECUTOR_BASE = (import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009").replace(/\/$/, "");
+const EXECUTOR_BASE = (
+  import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009"
+).replace(/\/$/, "");
 
 export interface FileTreeNode {
   name: string;
@@ -24,11 +26,13 @@ export async function fetchFileTree(
   labId: string,
   sprintId: string,
   starters?: Record<string, string>,
-  labType?: string
+  labType?: string,
+  evaluationId?: string
 ): Promise<FileTreeResponse> {
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
   if (starters) params.set("starters", JSON.stringify(starters));
   if (labType) params.set("lab_type", labType);
+  if (evaluationId) params.set("evaluation_id", evaluationId);
   const res = await fetch(`${EXECUTOR_BASE}/workspace/filetree?${params}`);
   if (!res.ok) throw new Error(`File tree fetch failed: ${res.statusText}`);
   return res.json();
@@ -39,9 +43,11 @@ export async function fetchFile(
   userId: string,
   labId: string,
   sprintId: string,
-  path: string
+  path: string,
+  evaluationId?: string
 ): Promise<string> {
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId, path });
+  if (evaluationId) params.set("evaluation_id", evaluationId);
   const res = await fetch(`${EXECUTOR_BASE}/workspace/file?${params}`);
   if (!res.ok) throw new Error(`File fetch failed (${path}): ${res.statusText}`);
   const data = await res.json();
@@ -54,12 +60,13 @@ export async function writeFile(
   labId: string,
   sprintId: string,
   path: string,
-  content: string
+  content: string,
+  evaluationId?: string
 ): Promise<void> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/file`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, lab_id: labId, sprint_id: sprintId, path, content }),
+    body: JSON.stringify({ user_id: userId, lab_id: labId, sprint_id: sprintId, path, content, evaluation_id: evaluationId }),
   });
   if (!res.ok) throw new Error(`File write failed (${path}): ${res.statusText}`);
 }
@@ -69,21 +76,23 @@ export async function deleteWorkspaceFile(
   userId: string,
   labId: string,
   sprintId: string,
-  path: string
+  path: string,
+  evaluationId?: string
 ): Promise<void> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/file`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, lab_id: labId, sprint_id: sprintId, path }),
+    body: JSON.stringify({ user_id: userId, lab_id: labId, sprint_id: sprintId, path, evaluation_id: evaluationId }),
   });
   if (!res.ok) throw new Error(`File delete failed (${path}): ${res.statusText}`);
 }
 
 /** Returns the WebSocket URL for the terminal. */
-export function getTerminalWsUrl(userId: string, labId: string, sprintId: string, labType?: string): string {
+export function getTerminalWsUrl(userId: string, labId: string, sprintId: string, labType?: string, evaluationId?: string): string {
   const wsBase = EXECUTOR_BASE.replace(/^http/, "ws");
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
   if (labType) params.set("lab_type", labType);
+  if (evaluationId) params.set("evaluation_id", evaluationId);
   return `${wsBase}/workspace/terminal?${params}`;
 }
 
@@ -93,7 +102,8 @@ export async function evaluateTask(
   sprintId: string,
   requiredCommand: string,
   taskSlug?: string,
-  scoringRules?: Record<string, any>
+  scoringRules?: Record<string, any>,
+  evaluationId?: string
 ): Promise<{ passed: boolean; reason: string }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/evaluate`, {
     method: "POST",
@@ -105,6 +115,7 @@ export async function evaluateTask(
       required_command: requiredCommand,
       task_slug: taskSlug,
       scoring_rules: scoringRules ?? {},
+      evaluation_id: evaluationId
     }),
   });
   if (!res.ok) throw new Error(`Evaluation failed: ${res.statusText}`);
@@ -116,7 +127,8 @@ export async function runCommand(
   userId: string,
   labId: string,
   sprintId: string,
-  command: string
+  command: string,
+  evaluationId?: string
 ): Promise<{ stdout: string; stderr: string; exit_code: number }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/run_command`, {
     method: "POST",
@@ -126,6 +138,7 @@ export async function runCommand(
       lab_id: labId,
       sprint_id: sprintId,
       command: command,
+      evaluation_id: evaluationId
     }),
   });
   if (!res.ok) throw new Error(`Run command failed: ${res.statusText}`);
@@ -144,7 +157,8 @@ export async function runDatabaseQuery(
   expectedOutput?: string,
   scoringRules?: any,
   systemQuery?: string,
-  expectedResult?: string
+  expectedResult?: string,
+  evaluationId?: string
 ): Promise<{ stdout: string; stderr: string; exit_code: number; evaluation?: any }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/database_run`, {
     method: "POST",
@@ -160,10 +174,10 @@ export async function runDatabaseQuery(
       expected_output: expectedOutput,
       scoring_rules: scoringRules,
       system_query: systemQuery,
-      expected_result: expectedResult
+      expected_result: expectedResult,
+      evaluation_id: evaluationId
     }),
   });
   if (!res.ok) throw new Error(`Run Database query failed: ${res.statusText}`);
   return res.json();
 }
-

@@ -15,19 +15,25 @@ export function CollabSidebar() {
 
   return (
     <aside
-      className={`hidden md:flex flex-col border-r bg-card transition-[width] duration-300 ${collapsed ? "w-[60px]" : "w-[220px]"}`}>
+      className={`hidden md:flex flex-col border-r bg-card transition-[width] duration-300 ${collapsed ? "w-[60px]" : "w-[220px]"}`}
+    >
       <div className="flex items-center justify-end p-2">
         <button
           onClick={() => setCollapsed((v) => !v)}
           className="grid h-6 w-6 place-items-center rounded hover:bg-accent text-muted-foreground"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
         </button>
       </div>
       <nav className="flex-1 px-2 space-y-1">
         {navItems.map((item) => {
-          const active = path === item.to || (item.to !== "/student/collaboration" && path.startsWith(item.to));
+          const active =
+            path === item.to || (item.to !== "/student/collaboration" && path.startsWith(item.to));
           const Icon = item.icon;
           return (
             <Link

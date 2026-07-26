@@ -1,14 +1,26 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, ChevronDown, ChevronRight, FileCode, Layers, Eye } from "lucide-react";
 import {
-  newSprint, newTask, EDITORS, LANGUAGES,
-  type LabSprint, type LabTask, type EditorKind, type Language,
+  newSprint,
+  newTask,
+  EDITORS,
+  LANGUAGES,
+  type LabSprint,
+  type LabTask,
+  type EditorKind,
+  type Language,
 } from "@/lib/labSprints";
 import { TaskPreview } from "./TaskPreview";
 
 type Selection = { sprintId: string; taskId?: string } | null;
 
-export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug, labTier = "free" }: {
+export function SprintBuilder({
+  sprints,
+  setSprints,
+  labName = "Lab",
+  labSlug,
+  labTier = "free",
+}: {
   sprints: LabSprint[];
   setSprints: (s: LabSprint[]) => void;
   labName?: string;
@@ -20,55 +32,71 @@ export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug, l
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    setOpenMap(m => {
+    setOpenMap((m) => {
       const next = { ...m };
-      sprints.forEach(s => { if (next[s.id] === undefined) next[s.id] = true; });
+      sprints.forEach((s) => {
+        if (next[s.id] === undefined) next[s.id] = true;
+      });
       return next;
     });
   }, [sprints]);
 
   const updateSprint = (id: string, patch: Partial<LabSprint>) =>
-    setSprints(sprints.map(sp => sp.id === id ? { ...sp, ...patch } : sp));
+    setSprints(sprints.map((sp) => (sp.id === id ? { ...sp, ...patch } : sp)));
   const removeSprint = (id: string) => {
-    setSprints(sprints.filter(sp => sp.id !== id));
+    setSprints(sprints.filter((sp) => sp.id !== id));
     if (selection?.sprintId === id) setSelection(null);
   };
   const addSprint = () => {
     const s = newSprint();
     setSprints([...sprints, s]);
-    setOpenMap(m => ({ ...m, [s.id]: true }));
+    setOpenMap((m) => ({ ...m, [s.id]: true }));
     setSelection({ sprintId: s.id });
   };
 
   const addTask = (sprintId: string) => {
     const t = newTask();
-    setSprints(sprints.map(sp => sp.id === sprintId ? { ...sp, tasks: [...sp.tasks, t] } : sp));
-    setOpenMap(m => ({ ...m, [sprintId]: true }));
+    setSprints(sprints.map((sp) => (sp.id === sprintId ? { ...sp, tasks: [...sp.tasks, t] } : sp)));
+    setOpenMap((m) => ({ ...m, [sprintId]: true }));
     setSelection({ sprintId, taskId: t.id });
   };
   const updateTask = (sprintId: string, taskId: string, patch: Partial<LabTask>) =>
-    setSprints(sprints.map(sp => sp.id === sprintId
-      ? { ...sp, tasks: sp.tasks.map(t => t.id === taskId ? { ...t, ...patch } : t) }
-      : sp));
+    setSprints(
+      sprints.map((sp) =>
+        sp.id === sprintId
+          ? { ...sp, tasks: sp.tasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t)) }
+          : sp,
+      ),
+    );
   const removeTask = (sprintId: string, taskId: string) => {
-    setSprints(sprints.map(sp => sp.id === sprintId
-      ? { ...sp, tasks: sp.tasks.filter(t => t.id !== taskId) }
-      : sp));
+    setSprints(
+      sprints.map((sp) =>
+        sp.id === sprintId ? { ...sp, tasks: sp.tasks.filter((t) => t.id !== taskId) } : sp,
+      ),
+    );
     if (selection?.taskId === taskId) setSelection({ sprintId });
   };
 
-  const activeSprint = selection ? sprints.find(s => s.id === selection.sprintId) ?? null : null;
-  const activeTask = activeSprint && selection?.taskId
-    ? activeSprint.tasks.find(t => t.id === selection.taskId) ?? null
+  const activeSprint = selection
+    ? (sprints.find((s) => s.id === selection.sprintId) ?? null)
     : null;
+  const activeTask =
+    activeSprint && selection?.taskId
+      ? (activeSprint.tasks.find((t) => t.id === selection.taskId) ?? null)
+      : null;
 
   return (
     <div className="grid lg:grid-cols-[320px_1fr] gap-4">
       {/* LEFT — sprints + tasks tree */}
       <div className="rounded-lg border border-border bg-card/40">
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-          <div className="flex items-center gap-2 text-xs font-semibold"><Layers className="h-3.5 w-3.5" /> Sprints</div>
-          <button onClick={addSprint} className="text-[11px] px-2 py-1 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <Layers className="h-3.5 w-3.5" /> Sprints
+          </div>
+          <button
+            onClick={addSprint}
+            className="text-[11px] px-2 py-1 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1"
+          >
             <Plus className="h-3 w-3" /> Add sprint
           </button>
         </div>
@@ -85,32 +113,68 @@ export function SprintBuilder({ sprints, setSprints, labName = "Lab", labSlug, l
                 const sprintActive = selection?.sprintId === sp.id && !selection.taskId;
                 return (
                   <li key={sp.id} className="rounded-md">
-                    <div className={`group flex items-center gap-1 px-1.5 py-1 rounded-md ${sprintActive ? "bg-primary/10 border border-primary/40" : "hover:bg-accent border border-transparent"}`}>
-                      <button onClick={() => setOpenMap(m => ({ ...m, [sp.id]: !open }))} className="text-muted-foreground p-0.5">
-                        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                    <div
+                      className={`group flex items-center gap-1 px-1.5 py-1 rounded-md ${sprintActive ? "bg-primary/10 border border-primary/40" : "hover:bg-accent border border-transparent"}`}
+                    >
+                      <button
+                        onClick={() => setOpenMap((m) => ({ ...m, [sp.id]: !open }))}
+                        className="text-muted-foreground p-0.5"
+                      >
+                        {open ? (
+                          <ChevronDown className="h-3 w-3" />
+                        ) : (
+                          <ChevronRight className="h-3 w-3" />
+                        )}
                       </button>
-                      <button onClick={() => setSelection({ sprintId: sp.id })} className="flex-1 text-left text-xs truncate">
-                        <span className="text-muted-foreground font-mono mr-1">{i + 1}.</span>{sp.name || "Untitled sprint"}
+                      <button
+                        onClick={() => setSelection({ sprintId: sp.id })}
+                        className="flex-1 text-left text-xs truncate"
+                      >
+                        <span className="text-muted-foreground font-mono mr-1">{i + 1}.</span>
+                        {sp.name || "Untitled sprint"}
                       </button>
                       <span className="text-[10px] text-muted-foreground">{sp.tasks.length}</span>
-                      <button onClick={() => removeSprint(sp.id)} className="opacity-0 group-hover:opacity-100 p-1 text-destructive hover:bg-destructive/10 rounded" title="Delete sprint"><Trash2 className="h-3 w-3" /></button>
+                      <button
+                        onClick={() => removeSprint(sp.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-destructive hover:bg-destructive/10 rounded"
+                        title="Delete sprint"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
                     {open && (
                       <ul className="ml-5 mt-1 space-y-0.5 border-l border-border/60 pl-2">
-                        {sp.tasks.map(t => {
+                        {sp.tasks.map((t) => {
                           const taskActive = selection?.taskId === t.id;
                           return (
-                            <li key={t.id} className={`group flex items-center gap-1 px-1.5 py-1 rounded-md ${taskActive ? "bg-primary/10 border border-primary/40" : "hover:bg-accent border border-transparent"}`}>
+                            <li
+                              key={t.id}
+                              className={`group flex items-center gap-1 px-1.5 py-1 rounded-md ${taskActive ? "bg-primary/10 border border-primary/40" : "hover:bg-accent border border-transparent"}`}
+                            >
                               <FileCode className="h-3 w-3 text-muted-foreground" />
-                              <button onClick={() => setSelection({ sprintId: sp.id, taskId: t.id })} className="flex-1 text-left text-[11px] truncate">
+                              <button
+                                onClick={() => setSelection({ sprintId: sp.id, taskId: t.id })}
+                                className="flex-1 text-left text-[11px] truncate"
+                              >
                                 {t.title || "Untitled ticket"}
                               </button>
-                              <button onClick={() => removeTask(sp.id, t.id)} className="opacity-0 group-hover:opacity-100 p-0.5 text-destructive hover:bg-destructive/10 rounded" title="Delete ticket"><Trash2 className="h-3 w-3" /></button>
+                              <button
+                                onClick={() => removeTask(sp.id, t.id)}
+                                className="opacity-0 group-hover:opacity-100 p-0.5 text-destructive hover:bg-destructive/10 rounded"
+                                title="Delete ticket"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
                             </li>
                           );
                         })}
                         <li>
-                          <button onClick={() => addTask(sp.id)} className="text-[11px] text-primary hover:underline inline-flex items-center gap-1 px-1.5 py-1"><Plus className="h-3 w-3" /> Add ticket</button>
+                          <button
+                            onClick={() => addTask(sp.id)}
+                            className="text-[11px] text-primary hover:underline inline-flex items-center gap-1 px-1.5 py-1"
+                          >
+                            <Plus className="h-3 w-3" /> Add ticket
+                          </button>
                         </li>
                       </ul>
                     )}
@@ -155,7 +219,11 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function SprintConfig({ sprint, labTier = "free", onChange }: {
+function SprintConfig({
+  sprint,
+  labTier = "free",
+  onChange,
+}: {
   sprint: LabSprint;
   labTier?: "free" | "freemium" | "premium";
   onChange: (p: Partial<LabSprint>) => void;
@@ -183,21 +251,40 @@ function SprintConfig({ sprint, labTier = "free", onChange }: {
             onClick={() => onChange({ is_locked: !lockedValue })}
             className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${lockedValue ? "bg-primary" : "bg-input"}`}
           >
-            <span aria-hidden="true" className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-background shadow-lg ring-0 transition-transform ${lockedValue ? "translate-x-2" : "-translate-x-2"}`} />
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-background shadow-lg ring-0 transition-transform ${lockedValue ? "translate-x-2" : "-translate-x-2"}`}
+            />
           </button>
         </div>
       </div>
       <Field label="Sprint title">
-        <input value={sprint.name} onChange={e => onChange({ name: e.target.value })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+        <input
+          value={sprint.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+        />
       </Field>
       <Field label="Description / goal">
-        <textarea rows={4} value={sprint.description} onChange={e => onChange({ description: e.target.value })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+        <textarea
+          rows={4}
+          value={sprint.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+          className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+        />
       </Field>
     </div>
   );
 }
 
-function TaskConfig({ task, sprintName, labName, labSlug, onChange, onDelete }: {
+function TaskConfig({
+  task,
+  sprintName,
+  labName,
+  labSlug,
+  onChange,
+  onDelete,
+}: {
   task: LabTask;
   sprintName: string;
   labName: string;
@@ -211,46 +298,93 @@ function TaskConfig({ task, sprintName, labName, labSlug, onChange, onDelete }: 
       <div className="p-5 space-y-4">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{sprintName} · Ticket</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {sprintName} · Ticket
+            </div>
             <h3 className="text-lg font-semibold mt-0.5">Configure ticket</h3>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setPreviewOpen(true)} className="text-[11px] px-2 py-1 rounded-md border border-primary/40 text-primary hover:bg-primary/10 inline-flex items-center gap-1">
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className="text-[11px] px-2 py-1 rounded-md border border-primary/40 text-primary hover:bg-primary/10 inline-flex items-center gap-1"
+            >
               <Eye className="h-3 w-3" /> Preview
             </button>
-            <button onClick={onDelete} className="text-[11px] px-2 py-1 rounded-md border border-destructive/40 text-destructive hover:bg-destructive/10 inline-flex items-center gap-1"><Trash2 className="h-3 w-3" /> Delete</button>
+            <button
+              onClick={onDelete}
+              className="text-[11px] px-2 py-1 rounded-md border border-destructive/40 text-destructive hover:bg-destructive/10 inline-flex items-center gap-1"
+            >
+              <Trash2 className="h-3 w-3" /> Delete
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Title" full>
-            <input value={task.title} onChange={e => onChange({ title: e.target.value })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+            <input
+              value={task.title}
+              onChange={(e) => onChange({ title: e.target.value })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            />
           </Field>
           <Field label="Editor">
-            <select value={task.editor} onChange={e => onChange({ editor: e.target.value as EditorKind })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm">
-              {EDITORS.map(ed => <option key={ed.value} value={ed.value}>{ed.label}</option>)}
+            <select
+              value={task.editor}
+              onChange={(e) => onChange({ editor: e.target.value as EditorKind })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            >
+              {EDITORS.map((ed) => (
+                <option key={ed.value} value={ed.value}>
+                  {ed.label}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Default language">
-            <select value={task.language} onChange={e => onChange({ language: e.target.value as Language })} disabled={task.editor === "none"} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm disabled:opacity-50">
-              {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
+            <select
+              value={task.language}
+              onChange={(e) => onChange({ language: e.target.value as Language })}
+              disabled={task.editor === "none"}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm disabled:opacity-50"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Difficulty">
-            <select value={task.difficulty} onChange={e => onChange({ difficulty: e.target.value as LabTask["difficulty"] })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm">
-              <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+            <select
+              value={task.difficulty}
+              onChange={(e) => onChange({ difficulty: e.target.value as LabTask["difficulty"] })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            >
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
             </select>
           </Field>
           <Field label="XP">
-            <input type="number" value={task.xp} onChange={e => onChange({ xp: Number(e.target.value) })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+            <input
+              type="number"
+              value={task.xp}
+              onChange={(e) => onChange({ xp: Number(e.target.value) })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            />
           </Field>
           <Field label="Est. minutes">
-            <input type="number" value={task.estMin} onChange={e => onChange({ estMin: Number(e.target.value) })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+            <input
+              type="number"
+              value={task.estMin}
+              onChange={(e) => onChange({ estMin: Number(e.target.value) })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            />
           </Field>
           {task.editor !== "none" && (
             <Field label="Allowed languages (learners can switch)" full>
               <div className="flex flex-wrap gap-1.5 rounded-md border border-border p-2">
-                {LANGUAGES.map(l => {
+                {LANGUAGES.map((l) => {
                   const selected = (task.allowedLanguages ?? []).includes(l);
                   return (
                     <button
@@ -268,41 +402,84 @@ function TaskConfig({ task, sprintName, labName, labSlug, onChange, onDelete }: 
                   );
                 })}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1">Leave empty to lock to the default language.</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Leave empty to lock to the default language.
+              </p>
             </Field>
           )}
           <Field label="Starter path in repo (optional)" full>
-            <input value={task.starterPath ?? ""} onChange={e => onChange({ starterPath: e.target.value })} placeholder="e.g. sprints/01-foundations/ticket-01" className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs" />
+            <input
+              value={task.starterPath ?? ""}
+              onChange={(e) => onChange({ starterPath: e.target.value })}
+              placeholder="e.g. sprints/01-foundations/ticket-01"
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 font-mono text-xs"
+            />
           </Field>
           <Field label="Problem description / brief" full>
-            <textarea rows={3} value={task.description} onChange={e => onChange({ description: e.target.value })} className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+            <textarea
+              rows={3}
+              value={task.description}
+              onChange={(e) => onChange({ description: e.target.value })}
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            />
           </Field>
           <Field label="Hints (shown in preview under the Hints tab)" full>
-            <textarea rows={3} value={task.hints ?? ""} onChange={e => onChange({ hints: e.target.value })} placeholder="Nudges that unblock learners without spoiling the answer." className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm" />
+            <textarea
+              rows={3}
+              value={task.hints ?? ""}
+              onChange={(e) => onChange({ hints: e.target.value })}
+              placeholder="Nudges that unblock learners without spoiling the answer."
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm"
+            />
           </Field>
           {task.editor !== "none" && (
             <Field label="Starter code" full>
-              <textarea rows={10} value={task.starterCode} onChange={e => onChange({ starterCode: e.target.value })} spellCheck={false} className="w-full bg-background border border-border rounded-md px-3 py-2 font-mono text-xs leading-5" />
+              <textarea
+                rows={10}
+                value={task.starterCode}
+                onChange={(e) => onChange({ starterCode: e.target.value })}
+                spellCheck={false}
+                className="w-full bg-background border border-border rounded-md px-3 py-2 font-mono text-xs leading-5"
+              />
             </Field>
           )}
           {task.editor !== "none" && (
             <Field label="Reference solution" full>
-              <textarea rows={8} value={task.solution ?? ""} onChange={e => onChange({ solution: e.target.value })} spellCheck={false} placeholder="Model solution shown in the preview's Solution tab." className="w-full bg-background border border-border rounded-md px-3 py-2 font-mono text-xs leading-5" />
+              <textarea
+                rows={8}
+                value={task.solution ?? ""}
+                onChange={(e) => onChange({ solution: e.target.value })}
+                spellCheck={false}
+                placeholder="Model solution shown in the preview's Solution tab."
+                className="w-full bg-background border border-border rounded-md px-3 py-2 font-mono text-xs leading-5"
+              />
             </Field>
           )}
         </div>
       </div>
 
       {previewOpen && (
-        <TaskPreview task={task} sprintName={sprintName} labName={labName} labSlug={labSlug} onClose={() => setPreviewOpen(false)} />
+        <TaskPreview
+          task={task}
+          sprintName={sprintName}
+          labName={labName}
+          labSlug={labSlug}
+          onClose={() => setPreviewOpen(false)}
+        />
       )}
     </>
   );
 }
 
-
-
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function Field({
+  label,
+  children,
+  full,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
   return (
     <label className={`block ${full ? "col-span-2" : ""}`}>
       <span className="block text-xs text-muted-foreground mb-1">{label}</span>

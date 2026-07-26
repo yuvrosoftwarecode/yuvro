@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
@@ -77,6 +78,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecruiterLoginRoute = RecruiterLoginRouteImport.update({
+  id: '/recruiter-login',
+  path: '/recruiter-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecruiterRoute = RecruiterRouteImport.update({
@@ -419,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/recruiter': typeof RecruiterRouteWithChildren
+  '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -482,6 +489,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -547,6 +555,7 @@ export interface FileRoutesById {
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/recruiter': typeof RecruiterRouteWithChildren
+  '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
   '/admin/collaboration': typeof AdminCollaborationRoute
@@ -615,6 +624,7 @@ export interface FileRouteTypes {
     | '/evaluation'
     | '/forgot-password'
     | '/recruiter'
+    | '/recruiter-login'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -678,6 +688,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/forgot-password'
+    | '/recruiter-login'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -742,6 +753,7 @@ export interface FileRouteTypes {
     | '/evaluation'
     | '/forgot-password'
     | '/recruiter'
+    | '/recruiter-login'
     | '/student'
     | '/admin/ai-mentor'
     | '/admin/collaboration'
@@ -809,6 +821,7 @@ export interface RootRouteChildren {
   EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
+  RecruiterLoginRoute: typeof RecruiterLoginRoute
   StudentRoute: typeof StudentRouteWithChildren
   GithubCallbackRoute: typeof GithubCallbackRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
@@ -821,6 +834,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recruiter-login': {
+      id: '/recruiter-login'
+      path: '/recruiter-login'
+      fullPath: '/recruiter-login'
+      preLoaderRoute: typeof RecruiterLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recruiter': {
@@ -1512,6 +1532,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
+  RecruiterLoginRoute: RecruiterLoginRoute,
   StudentRoute: StudentRouteWithChildren,
   GithubCallbackRoute: GithubCallbackRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,

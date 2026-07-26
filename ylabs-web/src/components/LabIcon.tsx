@@ -11,13 +11,7 @@ interface LabIconProps {
 export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIconProps) {
   const url = getLabIconUrl(name);
   if (url) {
-    return (
-      <img
-        src={url}
-        alt={name}
-        className={`${size} object-contain shrink-0 ${className}`}
-      />
-    );
+    return <img src={url} alt={name} className={`${size} object-contain shrink-0 ${className}`} />;
   }
 
   if (name === "Data Structures Lab") {

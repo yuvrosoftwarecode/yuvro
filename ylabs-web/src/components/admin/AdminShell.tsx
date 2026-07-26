@@ -2,10 +2,30 @@ import { Link, useNavigate, useRouterState, Outlet } from "@tanstack/react-route
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import {
-  LayoutDashboard, Users, FlaskConical, Ticket, Network, BarChart3, Briefcase,
-  Bot, Bell, Search, LogOut, GitBranch, Database, Building2, GraduationCap,
-  Brain, Cpu, AlertTriangle, ListChecks, Activity, Sparkles, ChevronRight,
-  PanelLeftClose, PanelLeftOpen,
+  LayoutDashboard,
+  Users,
+  FlaskConical,
+  Ticket,
+  Network,
+  BarChart3,
+  Briefcase,
+  Bot,
+  Bell,
+  Search,
+  LogOut,
+  GitBranch,
+  Database,
+  Building2,
+  GraduationCap,
+  Brain,
+  Cpu,
+  AlertTriangle,
+  ListChecks,
+  Activity,
+  Sparkles,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
@@ -46,7 +66,12 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
   },
 ];
 
-export function AdminShell({ title, breadcrumb, right, children }: {
+export function AdminShell({
+  title,
+  breadcrumb,
+  right,
+  children,
+}: {
   title: string;
   breadcrumb?: string[];
   right?: ReactNode;
@@ -60,13 +85,16 @@ export function AdminShell({ title, breadcrumb, right, children }: {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("yuvro-admin-sidebar-collapsed") === "1";
   });
-  const toggleCollapsed = () => setCollapsed(c => {
-    const next = !c;
-    try { localStorage.setItem("yuvro-admin-sidebar-collapsed", next ? "1" : "0"); } catch {}
-    return next;
-  });
+  const toggleCollapsed = () =>
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem("yuvro-admin-sidebar-collapsed", next ? "1" : "0");
+      } catch {}
+      return next;
+    });
 
-// Role check is now handled in the parent admin layout (admin.tsx)
+  // Role check is now handled in the parent admin layout (admin.tsx)
   useEffect(() => {
     if (user) {
       const role = user.roles?.ylabs || user.role;
@@ -91,28 +119,49 @@ export function AdminShell({ title, breadcrumb, right, children }: {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      <aside className={`hidden md:flex shrink-0 flex-col border-r border-border bg-card/30 backdrop-blur transition-[width] duration-200 ${collapsed ? "w-14" : "w-60"}`}>
+      <aside
+        className={`hidden md:flex shrink-0 flex-col border-r border-border bg-card/30 backdrop-blur transition-[width] duration-200 ${collapsed ? "w-14" : "w-60"}`}
+      >
         <div className="h-14 flex items-center gap-2 px-3 border-b border-border">
-          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">Y</div>
+          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">
+            Y
+          </div>
           {!collapsed && (
             <div className="min-w-0">
               <div className="text-sm font-semibold leading-tight truncate">Yuvro Labs</div>
               <div className="text-[10px] text-muted-foreground truncate">Operations Console</div>
             </div>
           )}
-          <button onClick={toggleCollapsed} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} className="ml-auto grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
-            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          <button
+            onClick={toggleCollapsed}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="ml-auto grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto p-2 space-y-4 text-sm">
           {NAV.map((g) => (
             <div key={g.group}>
-              {!collapsed && <div className="px-2 mb-1 text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{g.group}</div>}
+              {!collapsed && (
+                <div className="px-2 mb-1 text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                  {g.group}
+                </div>
+              )}
               <div className="space-y-0.5">
                 {g.items.map((n) => {
                   const active = isActive(n.to);
                   return (
-                    <Link key={n.to} to={n.to as any} title={collapsed ? n.label : undefined} className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+                    <Link
+                      key={n.to}
+                      to={n.to as any}
+                      title={collapsed ? n.label : undefined}
+                      className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                    >
                       <n.icon className="h-4 w-4 shrink-0" /> {!collapsed && n.label}
                     </Link>
                   );
@@ -127,7 +176,14 @@ export function AdminShell({ title, breadcrumb, right, children }: {
               <Activity className="h-3.5 w-3.5 text-success" /> All systems operational
             </div>
           )}
-          <button onClick={() => { logout(); nav({ to: "/" }); }} title="Sign out" className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}>
+          <button
+            onClick={() => {
+              logout();
+              nav({ to: "/" });
+            }}
+            title="Sign out"
+            className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}
+          >
             <LogOut className="h-4 w-4 shrink-0" /> {!collapsed && "Sign out"}
           </button>
         </div>
@@ -135,11 +191,24 @@ export function AdminShell({ title, breadcrumb, right, children }: {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b border-border bg-background/60 backdrop-blur sticky top-0 z-30 flex items-center gap-4 px-6">
-          <button onClick={toggleCollapsed} className="md:hidden grid h-8 w-8 place-items-center rounded-md border text-muted-foreground hover:bg-accent" title="Toggle sidebar">
-            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          <button
+            onClick={toggleCollapsed}
+            className="md:hidden grid h-8 w-8 place-items-center rounded-md border text-muted-foreground hover:bg-accent"
+            title="Toggle sidebar"
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
           </button>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <button onClick={() => nav({ to: "/admin" as any })} className="hover:text-foreground hover:underline transition-colors cursor-pointer">Admin</button>
+            <button
+              onClick={() => nav({ to: "/admin" as any })}
+              className="hover:text-foreground hover:underline transition-colors cursor-pointer"
+            >
+              Admin
+            </button>
             {(breadcrumb ?? [title]).map((b, i) => {
               const to = getBreadcrumbLink(b);
               const isLast = i === (breadcrumb ?? [title]).length - 1;
@@ -147,11 +216,16 @@ export function AdminShell({ title, breadcrumb, right, children }: {
                 <span key={i} className="flex items-center gap-1.5">
                   <ChevronRight className="h-3 w-3" />
                   {to ? (
-                    <button onClick={() => nav({ to: to as any })} className={`hover:text-foreground transition-colors cursor-pointer ${isLast ? "text-foreground font-medium" : "hover:underline"}`}>
+                    <button
+                      onClick={() => nav({ to: to as any })}
+                      className={`hover:text-foreground transition-colors cursor-pointer ${isLast ? "text-foreground font-medium" : "hover:underline"}`}
+                    >
                       {b}
                     </button>
                   ) : (
-                    <span className={isLast ? "text-foreground font-medium" : "hover:text-foreground"}>
+                    <span
+                      className={isLast ? "text-foreground font-medium" : "hover:text-foreground"}
+                    >
                       {b}
                     </span>
                   )}
@@ -162,16 +236,33 @@ export function AdminShell({ title, breadcrumb, right, children }: {
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden md:flex items-center gap-2 rounded-md border border-border bg-card/40 px-3 py-1.5 text-xs text-muted-foreground w-80">
               <Search className="h-3.5 w-3.5" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users, labs, tickets, sprints…" className="bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search users, labs, tickets, sprints…"
+                className="bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground"
+              />
               <kbd className="text-[9px] border border-border px-1 rounded">⌘K</kbd>
             </div>
-            <button className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground" title="AI insights"><Sparkles className="h-4 w-4" /></button>
-            <Link to="/admin/notifications" className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground">
+            <button
+              className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground"
+              title="AI insights"
+            >
+              <Sparkles className="h-4 w-4" />
+            </button>
+            <Link
+              to="/admin/notifications"
+              className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground"
+            >
               <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 grid place-items-center rounded-full bg-destructive text-[9px] text-destructive-foreground font-bold">3</span>
+              <span className="absolute -top-1 -right-1 h-4 w-4 grid place-items-center rounded-full bg-destructive text-[9px] text-destructive-foreground font-bold">
+                3
+              </span>
             </Link>
             <div className="flex items-center gap-2 text-sm">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-ui text-primary-foreground text-xs font-semibold">{user?.name?.[0] ?? "A"}</div>
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-ui text-primary-foreground text-xs font-semibold">
+                {user?.name?.[0] ?? "A"}
+              </div>
               <div className="hidden sm:block">
                 <div className="text-xs font-medium leading-tight">{user?.name ?? "Admin"}</div>
                 <div className="text-[10px] text-muted-foreground">Platform Admin</div>
@@ -201,7 +292,19 @@ export function AdminLayout() {
 }
 
 // Reusable building blocks
-export function KpiCard({ label, value, delta, color = "primary", icon: Icon }: { label: string; value: string | number; delta?: string; color?: string; icon?: any }) {
+export function KpiCard({
+  label,
+  value,
+  delta,
+  color = "primary",
+  icon: Icon,
+}: {
+  label: string;
+  value: string | number;
+  delta?: string;
+  color?: string;
+  icon?: any;
+}) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4">
       <div className="flex items-center justify-between">
@@ -209,12 +312,24 @@ export function KpiCard({ label, value, delta, color = "primary", icon: Icon }: 
         {Icon && <Icon className="h-4 w-4" style={{ color: `var(--${color})` }} />}
       </div>
       <div className="mt-2 text-xl font-semibold">{value}</div>
-      {delta && <div className="mt-0.5 text-[10px]" style={{ color: `var(--${color})` }}>{delta}</div>}
+      {delta && (
+        <div className="mt-0.5 text-[10px]" style={{ color: `var(--${color})` }}>
+          {delta}
+        </div>
+      )}
     </div>
   );
 }
 
-export function Panel({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+export function Panel({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-5">
       <div className="flex items-center justify-between mb-4">
@@ -226,7 +341,13 @@ export function Panel({ title, children, action }: { title: string; children: Re
   );
 }
 
-export function Badge({ children, tone = "muted" }: { children: ReactNode; tone?: "muted" | "success" | "warning" | "destructive" | "primary" | "ui" }) {
+export function Badge({
+  children,
+  tone = "muted",
+}: {
+  children: ReactNode;
+  tone?: "muted" | "success" | "warning" | "destructive" | "primary" | "ui";
+}) {
   const map: Record<string, string> = {
     muted: "bg-muted/40 text-muted-foreground",
     success: "bg-success/15 text-success",
@@ -235,7 +356,13 @@ export function Badge({ children, tone = "muted" }: { children: ReactNode; tone?
     primary: "bg-primary/15 text-primary",
     ui: "bg-ui/15 text-ui",
   };
-  return <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${map[tone]}`}>{children}</span>;
+  return (
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${map[tone]}`}
+    >
+      {children}
+    </span>
+  );
 }
 
 export { ListChecks };

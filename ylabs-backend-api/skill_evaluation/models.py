@@ -72,6 +72,11 @@ class EvaluationSection(BaseTimestampedAdminModel):
         blank=True,
         help_text="Ordered list of QuestionBank UUIDs assigned to this section",
     )
+    proctoring_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Proctoring rules for this section (e.g. webcam, screen_share, tab_switch_limit)",
+    )
 
     class Meta:
         ordering = ["order_index"]
@@ -95,6 +100,22 @@ class UserEvaluationSubmission(BaseTimestampedModel):
         choices=DiscussionMode.choices,
         default=DiscussionMode.AUTOMATIC,
     )
+    general_events = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="General submission events: session start/end, navigation, browser info, etc.",
+    )
+    proctoring_events = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Proctoring events: camera/mic status, face detection, violations, etc.",
+    )
+    browser_info = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    proctoring_passed = models.BooleanField(default=True)
+    anomalies_detected = models.JSONField(default=list, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ("user", "evaluation")
@@ -129,6 +150,10 @@ class LabQuestionBank(QuestionBank):
         default=LabScenario.FEATURE_DEVELOPMENT,
     )
     git_repo_starter_url = models.URLField(blank=True)
+    startup_command = models.TextField(
+        blank=True, 
+        help_text="Command to run when the lab starts (e.g., 'cd project && npm run dev')"
+    )
 
     def __str__(self):
         return self.title
@@ -160,3 +185,26 @@ class LabQuestionBankTask(BaseTimestampedAdminModel):
 class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
+
+class UserLabQuestionBankTaskSubmission(BaseTimestampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="evaluation_task_submissions"
+    )
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="task_submissions"
+    )
+    task = models.ForeignKey(
+        LabQuestionBankTask, on_delete=models.CASCADE, related_name="submissions"
+    )
+    task_status = models.CharField(max_length=20, default="BACKLOG")
+    solution = models.TextField(blank=True)
+    solution_output = models.TextField(blank=True)
+    feedback = models.TextField(blank=True)
+    score = models.PositiveIntegerField(default=0)
+    minutes_solved = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("user", "evaluation", "task")
+
+    def __str__(self):
+        return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
