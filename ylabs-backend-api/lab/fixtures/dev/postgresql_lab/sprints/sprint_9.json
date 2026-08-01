@@ -87,7 +87,8 @@
         "Read the PostgreSQL documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='index' AND name='idx_todos_status';"
+        "system_query": "SELECT indexname FROM pg_indexes WHERE indexname='idx_todos_status';",
+        "expected_result": "idx_todos_status"
       },
       "solution": {
         "query.sql": "CREATE INDEX idx_todos_status ON todos(status);",
@@ -215,7 +216,8 @@
         "ALTER TABLE table_name ADD COLUMN column_name datatype;"
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='todos';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='todos';",
+        "expected_result": "id"
       },
       "solution": {
         "query.sql": "ALTER TABLE todos ADD COLUMN updated_at DATE;",

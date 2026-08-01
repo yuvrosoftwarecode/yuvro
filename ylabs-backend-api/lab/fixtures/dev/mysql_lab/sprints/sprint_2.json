@@ -26,7 +26,7 @@
         "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='users';"
       },
       "solution": {
-        "query.sql": "CREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
+        "query.sql": "CREATE TABLE users (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -58,7 +58,7 @@
         "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='todos';"
       },
       "solution": {
-        "query.sql": "CREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
+        "query.sql": "CREATE TABLE todos (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status VARCHAR(255) DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -90,7 +90,7 @@
         "system_query": "SELECT sql FROM mysql_master WHERE type='table' AND name='categories';"
       },
       "solution": {
-        "query.sql": "CREATE TABLE categories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",
+        "query.sql": "CREATE TABLE categories (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,

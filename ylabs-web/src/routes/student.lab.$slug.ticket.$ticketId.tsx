@@ -827,12 +827,8 @@ function TicketIDE({
   const navigate = useNavigate();
   const reviewMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-<<<<<<< HEAD
 
   const kit = useMemo(() => getKit((ticket.ticket_slug || slug || "").toLowerCase(), ticket.tag), [slug, ticket.ticket_slug, ticket.tag]);
-=======
-  const kit = useMemo(() => getKit(slug, ticket.tag), [slug, ticket.tag]);
->>>>>>> origin/main
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -1065,11 +1061,7 @@ function TicketIDE({
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(`/lab/labs/${slug}/`)
         .then((realLab) => {
-<<<<<<< HEAD
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title })); } catch { }
-=======
           try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title || realLab.name })); } catch {}
->>>>>>> origin/main
         })
         .catch(() => {
           const labName = labs.find(l => l.slug === slug)?.name ?? slug;
@@ -1419,12 +1411,9 @@ function TicketIDE({
 
     if (isAnySql || isMongo) {
       setExecutedQuery(src);
-      setBottomTab("preview");
       if (isSql || isPostgres || isMysql || isMongo) {
         setTimeout(() => refreshSchema(), 1000);
       }
-      setRunning(false);
-      return;
     }
 
     if (isMultiLang) {
@@ -1474,25 +1463,31 @@ function TicketIDE({
       }, 500);
       return;
     }
-<<<<<<< HEAD
-    if (isAnySql) {
-      setOutput(`-- Executing ${file} on PostgreSQL 16\n…running…`);
-      setTimeout(() => {
-        setOutput(`-- Executed ${file}\n✓ Query ran successfully. See Results tab in the preview panel.`);
-        setRunning(false);
-      }, 500);
-=======
-    if (isSql) {
-      const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
-      const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
-      const targetDbFile = dbFile || "__none__";
+    if (isDbEditor) {
+      let targetDbFile = "lab.db";
+      let engine = "sqlite";
+      
+      if (isSql) {
+        const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
+        const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
+        targetDbFile = dbFile || "lab.db";
+      } else if (isPostgres) {
+        targetDbFile = remoteDbUri || "";
+        engine = "postgresql";
+      } else if (isMysql) {
+        targetDbFile = remoteDbUri || "";
+        engine = "mysql";
+      } else if (isMongo) {
+        targetDbFile = remoteDbUri || "";
+        engine = "mongodb";
+      }
 
       const tTasks = ticket.tasks || [];
       const task = tTasks.length > 0 ? tTasks[0] : null;
       let sRules: any = undefined;
       let sysQ: any = undefined;
       let expR: any = undefined;
-      let expQ: any = ticket.solution?.["query.sql"];
+      let expQ: any = ticket.solution?.["query.sql"] || ticket.solution?.["query.js"];
       let expOut: any = ticket.solution?.["expected_output"];
       
       if (task && typeof task === "object" && task.scoring_rules) {
@@ -1505,8 +1500,8 @@ function TicketIDE({
         expR = sRules?.expected_result;
       }
 
-      setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
-      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOut, sRules, sysQ, expR)
+      setOutput(`-- Executing query on ${targetDbFile || "none"}\n…running…`);
+      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, engine, expQ, expOut, sRules, sysQ, expR)
         .then((res) => {
           let outText = `-- Executed Query\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
@@ -1542,19 +1537,9 @@ function TicketIDE({
           setOutput(`Error running script: ${err.message}`);
         })
         .finally(() => setRunning(false));
->>>>>>> origin/main
       return;
     }
-    if (isMongo) {
-      setOutput(`> load("${file}")\n…running…`);
-      setTimeout(() => {
-        const outText = `> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`;
-        setOutput(outText);
-        evaluateSubmission(src, outText);
-        setRunning(false);
-      }, 500);
-      return;
-    }
+
     if (isUi) {
       const outText = `▶ Served ${file} in preview iframe.\n✓ Hot reload OK.`;
       setOutput(outText);
@@ -1649,7 +1634,7 @@ function TicketIDE({
   };
 
   async function handleSubmit() {
-    if (isSql) {
+    if (isDbEditor) {
       if (!ticketScore || ticketScore.passed !== ticketScore.total) {
         showToast("Fix failing tests before submitting (Click Run first)");
         return;

@@ -1964,6 +1964,9 @@ async def run_command_endpoint(body: RunCommandRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id)
     ws.mkdir(parents=True, exist_ok=True)
     
+    # Ensure git remote is configured so git commands work
+    await _setup_github_remote(ws, body.user_id, body.lab_id)
+    
     try:
         proc = await asyncio.create_subprocess_shell(
             body.command,
@@ -2036,7 +2039,7 @@ async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
     except Exception as e:
         return {"error": str(e)}
 
-async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
+async def _setup_github_remote(ws_dir: Path, user_id: str, lab_id: str) -> None:
     """
     Fetch the student's GitHub integration from ylabs-backend-api and configure
     the workspace git remote so that `git push` goes to their GitHub repo.
@@ -2047,7 +2050,7 @@ async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
         import httpx
         async with httpx.AsyncClient(timeout=5) as client:
             resp = await client.get(
-                f"{backend_url}/api/lab/github-integration/",
+                f"{backend_url}/api/lab/github-integration/?lab_id={lab_id}",
                 headers={"X-Internal-User-Id": user_id},
             )
             if resp.status_code != 200:
@@ -2064,34 +2067,46 @@ async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
             remote_url = f"https://{pat}@github.com/{username}/{repo}.git"
 
             # Ensure git is initialised in the workspace
-            await asyncio.create_subprocess_exec(
+            proc1 = await asyncio.create_subprocess_exec(
                 "git", "init",
                 cwd=str(ws_dir),
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            await proc1.wait()
 
             # Set or update the origin remote
-            await asyncio.create_subprocess_exec(
-                "git", "remote", "set-url", "origin", remote_url,
+            proc2 = await asyncio.create_subprocess_exec(
+                "git", "remote", "add", "origin", remote_url,
                 cwd=str(ws_dir),
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            await proc2.wait()
+            if proc2.returncode != 0:
+                proc3 = await asyncio.create_subprocess_exec(
+                    "git", "remote", "set-url", "origin", remote_url,
+                    cwd=str(ws_dir),
+                    stdout=asyncio.subprocess.DEVNULL,
+                    stderr=asyncio.subprocess.DEVNULL,
+                )
+                await proc3.wait()
             
             # Configure git author
-            await asyncio.create_subprocess_exec(
+            proc4 = await asyncio.create_subprocess_exec(
                 "git", "config", "user.name", username,
                 cwd=str(ws_dir),
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
-            await asyncio.create_subprocess_exec(
+            await proc4.wait()
+            proc5 = await asyncio.create_subprocess_exec(
                 "git", "config", "user.email", f"{username}@users.noreply.github.com",
                 cwd=str(ws_dir),
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            await proc5.wait()
     except Exception:
         pass  # Always fail silently — terminal should still open
 

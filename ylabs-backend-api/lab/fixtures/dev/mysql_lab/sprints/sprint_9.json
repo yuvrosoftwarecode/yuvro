@@ -119,10 +119,10 @@
         "PRAGMA index_list('table_name');"
       ],
       "scoring_rules": {
-        "system_query": "PRAGMA index_list('todos');"
+        "system_query": "SHOW INDEX FROM todos;"
       },
       "solution": {
-        "query.sql": "PRAGMA index_list('todos');",
+        "query.sql": "SHOW INDEX FROM todos;",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -151,10 +151,10 @@
         "PRAGMA index_info('index_name');"
       ],
       "scoring_rules": {
-        "system_query": "PRAGMA index_info('idx_todos_status');"
+        "system_query": "SHOW INDEX FROM todos WHERE Key_name = 'idx_todos_status';"
       },
       "solution": {
-        "query.sql": "PRAGMA index_info('idx_todos_status');",
+        "query.sql": "SHOW INDEX FROM todos WHERE Key_name = 'idx_todos_status';",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -183,7 +183,7 @@
         "DROP INDEX index_name;"
       ],
       "scoring_rules": {
-        "system_query": "PRAGMA index_list('todos');"
+        "system_query": "SHOW INDEX FROM todos;"
       },
       "solution": {
         "query.sql": "DROP INDEX idx_todos_status;",

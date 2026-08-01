@@ -7,9 +7,9 @@
     {
       "title": "Create the Users Table",
       "ticket_slug": "postgresql-201",
-      "description": "We need a place to store our users. Create a table named `users` with `id` (auto-incrementing primary key), `username` (text, not null), and `email` (text, not null).",
+      "description": "We need a place to store our users. Create a table named `users` with `id` (serial primary key), `username` (text, not null), and `email` (text, not null).",
       "tasks": [
-        "We need a place to store our users. Create a table named `users` with `id` (auto-incrementing primary key), `username` (text, not null), and `email` (text, not null)."
+        "We need a place to store our users. Create a table named `users` with `id` (serial primary key), `username` (text, not null), and `email` (text, not null)."
       ],
       "learning_objectives": [
         "Master the CREATE TABLE statement and basic data types."
@@ -23,10 +23,11 @@
         "Read the PostgreSQL documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='users';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='users';",
+        "expected_result": "id"
       },
       "solution": {
-        "query.sql": "CREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
+        "query.sql": "CREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    username TEXT NOT NULL,\n    email TEXT NOT NULL\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -55,10 +56,11 @@
         "Read the PostgreSQL documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='todos';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='todos';",
+        "expected_result": "id"
       },
       "solution": {
-        "query.sql": "CREATE TABLE todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
+        "query.sql": "CREATE TABLE todos (\n    id SERIAL PRIMARY KEY,\n    user_id INTEGER NOT NULL,\n    title TEXT NOT NULL,\n    priority INTEGER DEFAULT 3,\n    due_date DATE,\n    status TEXT DEFAULT 'pending',\n    FOREIGN KEY(user_id) REFERENCES users(id)\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,
@@ -87,10 +89,11 @@
         "Use the CHECK constraint for custom validation."
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='categories';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='categories';",
+        "expected_result": "id"
       },
       "solution": {
-        "query.sql": "CREATE TABLE categories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",
+        "query.sql": "CREATE TABLE categories (\n    id SERIAL PRIMARY KEY,\n    name TEXT NOT NULL UNIQUE,\n    color_code TEXT CHECK(color_code LIKE '#%')\n);",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,

@@ -110,12 +110,22 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
             score_pct += 0.25
             
         system_is_valid = False
-        if system_query and expected_result:
-            if actual_result and expected_result.strip() in actual_result.strip():
-                system_is_valid = True
-                score_pct += 0.50
-        elif not system_query:
-            pass
+        if system_query:
+            if expected_result:
+                if actual_result is not None and expected_result.strip() in actual_result.strip():
+                    system_is_valid = True
+                    score_pct += 0.50
+            else:
+                is_error = False
+                if not actual_result or actual_result.strip() == "":
+                    is_error = True
+                elif actual_result:
+                    act_up = actual_result.upper()
+                    if act_up.startswith("ERROR") or "PSQL: ERROR" in act_up:
+                        is_error = True
+                if not is_error:
+                    system_is_valid = True
+                    score_pct += 0.50
             
         output_is_valid = output_matches
         if expected_output is not None and output_is_valid:

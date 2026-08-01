@@ -124,20 +124,6 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
 
-        if lab.type in ["BACKEND", "DATABASE"]:
-            # Bypass GitHub entirely for Backend and Database labs
-            enrollment = serializer.save(
-                user=self.request.user,
-                github_repo_name=requested_repo_name,
-                github_repo_url="",
-                default_branch="main"
-            )
-            # Create an empty workspace folder so the IDE can mount it
-            import os
-            user_workspace = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), "users", str(self.request.user.id))
-            os.makedirs(user_workspace, exist_ok=True)
-            return
-
         client = GithubClient(self.request.user.id)
         if not client._fetch_token():
             raise ValidationError("Please connect your GitHub account before starting a lab.")
@@ -250,3 +236,33 @@ def student_stats_view(request):
         'day_streak': streak,
         'total_yp': total_yp
     })
+
+@api_view(['GET'])
+@permission_classes([])
+def github_integration_view(request):
+    user_id = request.headers.get("X-Internal-User-Id")
+    if not user_id and request.user.is_authenticated:
+        user_id = request.user.id
+    if not user_id:
+        return Response({"connected": False})
+        
+    client = GithubClient(user_id)
+    if not client._fetch_token():
+        return Response({"connected": False})
+        
+    data = {
+        "connected": True,
+        "github_username": client.github_username,
+        "pat": client.access_token,
+        "is_connected": True,
+    }
+    
+    lab_id = request.query_params.get("lab_id")
+    if lab_id:
+        try:
+            enrollment = UserLabEnrollment.objects.get(user_id=user_id, lab_id=lab_id)
+            data["github_repo"] = enrollment.github_repo_name
+        except UserLabEnrollment.DoesNotExist:
+            pass
+            
+    return Response(data)

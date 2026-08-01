@@ -23,7 +23,14 @@ RUN apt-get update \
         libglib2.0-0 \
         sqlite3 \
         git \
+        postgresql-client \
+        default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
+
+# Install mongosh
+RUN curl -sS https://downloads.mongodb.com/compass/mongosh-2.2.12-linux-x64.tgz | tar -zxv -C /tmp \
+    && cp /tmp/mongosh-2.2.12-linux-x64/bin/* /usr/local/bin/ \
+    && rm -rf /tmp/mongosh-2.2.12-linux-x64
 
 # Install Python dependencies
 COPY requirements.txt .

@@ -23,10 +23,10 @@
         "Read the MySQL documentation for the specific keyword."
       ],
       "scoring_rules": {
-        "system_query": "SELECT * FROM todos WHERE due_date < date('now') ORDER BY id;"
+        "system_query": "SELECT * FROM todos WHERE due_date < CURDATE() ORDER BY id;"
       },
       "solution": {
-        "query.sql": "SELECT * FROM todos WHERE due_date < date('now');",
+        "query.sql": "SELECT * FROM todos WHERE due_date < CURDATE();",
         "database_identifier": "todo_management"
       },
       "yuvro_points": 50,

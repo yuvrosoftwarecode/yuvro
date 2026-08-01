@@ -183,7 +183,8 @@
         "ALTER TABLE table_name DROP COLUMN column_name;"
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='todos';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='todos';",
+        "expected_result": "id"
       },
       "solution": {
         "query.sql": "ALTER TABLE todos DROP COLUMN due_date;",
@@ -215,7 +216,8 @@
         "ALTER TABLE table_name RENAME COLUMN old_name TO new_name;"
       ],
       "scoring_rules": {
-        "system_query": "SELECT sql FROM postgresql_master WHERE type='table' AND name='todos';"
+        "system_query": "SELECT column_name FROM information_schema.columns WHERE table_name='todos';",
+        "expected_result": "id"
       },
       "solution": {
         "query.sql": "ALTER TABLE todos RENAME COLUMN title TO task_name;",
