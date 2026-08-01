@@ -3,20 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
-import {
-  ArrowRight,
-  Sparkles,
-  Flame,
-  Zap,
-  Trophy,
-  Check,
-  Plus,
-  Star,
-  Search,
-  Github,
-  Lock,
-  Loader2,
-} from "lucide-react";
+import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network, Briefcase } from "lucide-react";
 import { TIER_META } from "@/lib/labAccess";
 import { getLabIconUrl } from "@/lib/labIcons";
 import { useAuth } from "@/lib/auth";
@@ -35,28 +22,10 @@ export const Route = createFileRoute("/student/dashboard")({
   component: Hub,
 });
 
-// Original Dummy Data mappings
-const FEATURED_SLUGS = [
-  "javaspring",
-  "systemdesign",
-  "cybersecurity",
-  "pydjango",
-  "postgres",
-  "datastructures",
-  "qa",
-];
+const FEATURED_SLUGS = ["javaspring", "systemdesign", "cybersecurity", "pydjango", "postgres", "datastructures", "qa"];
 
-type Category =
-  "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "AI" | "Security" | "Design";
-const CATEGORIES: Category[] = [
-  "Backend",
-  "Frontend",
-  "Database",
-  "DevOps",
-  "QA",
-  "Security",
-  "Design",
-];
+type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "AI" | "Security" | "Design";
+const CATEGORIES: Category[] = ["Backend", "Frontend", "Database", "DevOps", "QA", "Security", "Design"];
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"] as const;
 
 const LAB_CATEGORY: Record<string, Category> = {
@@ -99,7 +68,6 @@ const LAB_LANGUAGES: Record<string, string[]> = {
 
 const ALL_LANGUAGES = Array.from(new Set(Object.values(LAB_LANGUAGES).flat())).sort();
 
-// Extended interface to map backend data to frontend UI expectations
 export interface CatalogLab {
   id: string;
   name: string;
@@ -113,7 +81,6 @@ export interface CatalogLab {
   hoursLeft?: number;
 }
 
-// Fallback logic for labs missing categories
 const getLabCategory = (id: string, name: string): Category => {
   const match = Object.keys(LAB_CATEGORY).find(
     (k) => id.toLowerCase().includes(k) || name.toLowerCase().includes(k),
@@ -166,10 +133,7 @@ function Hub() {
 
   const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
 
-  // GitHub state
-  const [ghState, setGhState] = useState<{ connected: boolean; username?: string }>({
-    connected: false,
-  });
+  const [ghState, setGhState] = useState<{ connected: boolean; username?: string }>({ connected: false });
   const [modalOpen, setModalOpen] = useState(false);
 
   const [q, setQ] = useState("");
@@ -181,22 +145,22 @@ function Hub() {
   useEffect(() => {
     loadStudentStats().then(setStudentStats).catch(console.error);
 
-    restApiAuthUtil
-      .get("/lab/github-integration/")
-      .then((res) => {
-        if (res.data)
-          setGhState({ connected: res.data.is_connected, username: res.data.github_username });
-      })
-      .catch(() => setGhState({ connected: false }));
+    restApiAuthUtil.get("/lab/github-integration/").then((res) => {
+      if (res.data) setGhState({ connected: res.data.is_connected, username: res.data.github_username });
+    }).catch(() => setGhState({ connected: false }));
 
-    loadLabs()
-      .then(async (data) => {
-        let enrSet = new Set<string>();
-        try {
-          const enrollRes = await restApiAuthUtil.get("/lab/enrollments/");
-          enrollRes.data?.forEach((e: any) => enrSet.add(String(e.lab)));
-        } catch (e) {
-          console.warn("Failed to fetch enrollments from API, falling back to mock");
+    loadLabs().then(async data => {
+      let enrSet = new Set<string>();
+      try {
+        const enrollRes = await restApiAuthUtil.get("/lab/enrollments/");
+        enrollRes.data?.forEach((e: any) => enrSet.add(String(e.lab)));
+      } catch (e) {
+        console.warn("Failed to fetch enrollments from API, falling back to mock");
+      }
+      try {
+        const saved = localStorage.getItem("mock_enrollments");
+        if (saved) {
+          JSON.parse(saved).forEach((id: string) => enrSet.add(id));
         }
         // Always merge mock enrollments so UI interactions persist across refresh
         try {
@@ -209,137 +173,58 @@ function Hub() {
 
         let statsMap: Record<string, any> = {};
         try {
-          const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
-          statsMap = statsRes.data || {};
-        } catch (e) {}
+           const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
+           if (saved) {
+             resolved_tickets = Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
+           }
+        } catch {}
+        
+        if (statsMap[sid]) {
+           total_tickets = statsMap[sid].total_tickets || total_tickets;
+           resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
+        }
+        
+        let color = "ui";
+        if (dbLab.title?.toLowerCase().includes("java") || dbLab.name?.toLowerCase().includes("java")) color = "java";
+        if (dbLab.title?.toLowerCase().includes("python") || dbLab.name?.toLowerCase().includes("python")) color = "python";
+        if (dbLab.title?.toLowerCase().includes("sql") || dbLab.title?.toLowerCase().includes("postgres") || dbLab.name?.toLowerCase().includes("sql") || dbLab.name?.toLowerCase().includes("postgres")) color = "sql";
+        if (dbLab.title?.toLowerCase().includes("mongo") || dbLab.name?.toLowerCase().includes("mongo")) color = "mongo";
+        
+        let iconStr = dbLab.icon?.toLowerCase() || "";
+        let icon = (dbLab.icon && iconStr !== "linux" && iconStr !== "linux lab") ? dbLab.icon : "💻";
+        if (dbLab.title?.toLowerCase().includes("linux") || dbLab.name?.toLowerCase().includes("linux")) icon = "🐧";
+        if (dbLab.title?.toLowerCase().includes("java") || dbLab.name?.toLowerCase().includes("java")) icon = "☕";
+        if (dbLab.title?.toLowerCase().includes("python") || dbLab.name?.toLowerCase().includes("python")) icon = "🐍";
+        if (dbLab.title?.toLowerCase().includes("sql") || dbLab.title?.toLowerCase().includes("postgres") || dbLab.name?.toLowerCase().includes("sql") || dbLab.name?.toLowerCase().includes("postgres")) icon = "🐘";
+        if (dbLab.title?.toLowerCase().includes("mongo") || dbLab.name?.toLowerCase().includes("mongo")) icon = "🍃";
+        if (dbLab.title?.toLowerCase().includes("cloud") || dbLab.name?.toLowerCase().includes("cloud")) icon = "☁️";
 
-        const { loadSprints } = await import("@/lib/labSprints");
+        let mappedDifficulty: "Beginner" | "Intermediate" | "Advanced" = "Intermediate";
+        if (dbLab.difficulty === "EASY") mappedDifficulty = "Beginner";
+        else if (dbLab.difficulty === "MEDIUM") mappedDifficulty = "Intermediate";
+        else if (dbLab.difficulty === "HARD") mappedDifficulty = "Advanced";
 
-        const mapped: CatalogLab[] = await Promise.all(
-          data.map(async (dbLab) => {
-            const sid = String(dbLab.id);
+        return {
+          id: sid,
+          name: dbLab.title || dbLab.name,
+          description: dbLab.description || "Learn and master concepts hands-on.",
+          difficulty: mappedDifficulty,
+          icon,
+          color,
+          total: total_tickets,
+          completed: resolved_tickets,
+          payment_tier: dbLab.payment_tier || "free",
+          hoursLeft: 24, // Static for UI mock
+        };
+      }));
 
-            let total_tickets = 10;
-            let resolved_tickets = 0;
+      // Integrate dummy labs from the codebase to ensure both real and dummy are present
+      const mappedDummy: CatalogLab[] = [];
 
-            try {
-              const sprints = await loadSprints(sid);
-              total_tickets = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
-            } catch {}
-
-            try {
-              const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
-              if (saved) {
-                resolved_tickets = Object.values(JSON.parse(saved)).filter(
-                  (v) => v === "Completed",
-                ).length;
-              }
-            } catch {}
-
-            if (statsMap[sid]) {
-              total_tickets = statsMap[sid].total_tickets || total_tickets;
-              resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
-            }
-
-            let color = "ui";
-            if (
-              dbLab.title?.toLowerCase().includes("java") ||
-              dbLab.name?.toLowerCase().includes("java")
-            )
-              color = "java";
-            if (
-              dbLab.title?.toLowerCase().includes("python") ||
-              dbLab.name?.toLowerCase().includes("python")
-            )
-              color = "python";
-            if (
-              dbLab.title?.toLowerCase().includes("sql") ||
-              dbLab.title?.toLowerCase().includes("postgres") ||
-              dbLab.name?.toLowerCase().includes("sql") ||
-              dbLab.name?.toLowerCase().includes("postgres")
-            )
-              color = "sql";
-            if (
-              dbLab.title?.toLowerCase().includes("mongo") ||
-              dbLab.name?.toLowerCase().includes("mongo")
-            )
-              color = "mongo";
-
-            let iconStr = dbLab.icon?.toLowerCase() || "";
-            let icon =
-              dbLab.icon && iconStr !== "linux" && iconStr !== "linux lab" ? dbLab.icon : "💻";
-            if (
-              dbLab.title?.toLowerCase().includes("linux") ||
-              dbLab.name?.toLowerCase().includes("linux")
-            )
-              icon = "🐧";
-            if (
-              dbLab.title?.toLowerCase().includes("java") ||
-              dbLab.name?.toLowerCase().includes("java")
-            )
-              icon = "☕";
-            if (
-              dbLab.title?.toLowerCase().includes("python") ||
-              dbLab.name?.toLowerCase().includes("python")
-            )
-              icon = "🐍";
-            if (
-              dbLab.title?.toLowerCase().includes("sql") ||
-              dbLab.title?.toLowerCase().includes("postgres") ||
-              dbLab.name?.toLowerCase().includes("sql") ||
-              dbLab.name?.toLowerCase().includes("postgres")
-            )
-              icon = "🐘";
-            if (
-              dbLab.title?.toLowerCase().includes("mongo") ||
-              dbLab.name?.toLowerCase().includes("mongo")
-            )
-              icon = "🍃";
-            if (
-              dbLab.title?.toLowerCase().includes("cloud") ||
-              dbLab.name?.toLowerCase().includes("cloud")
-            )
-              icon = "☁️";
-
-            let mappedDifficulty: "Beginner" | "Intermediate" | "Advanced" = "Intermediate";
-            if (dbLab.difficulty === "EASY") mappedDifficulty = "Beginner";
-            else if (dbLab.difficulty === "MEDIUM") mappedDifficulty = "Intermediate";
-            else if (dbLab.difficulty === "HARD") mappedDifficulty = "Advanced";
-
-            return {
-              id: sid,
-              name: dbLab.title || dbLab.name,
-              description: dbLab.description || "Learn and master concepts hands-on.",
-              difficulty: mappedDifficulty,
-              icon,
-              color,
-              total: total_tickets,
-              completed: resolved_tickets,
-              payment_tier: dbLab.payment_tier || "free",
-              hoursLeft: 24, // Static for UI mock
-            };
-          }),
-        );
-
-        // Integrate dummy labs from the codebase to ensure both real and dummy are present
-        const mappedDummy: CatalogLab[] = dummyLabs.map((dl) => ({
-          id: dl.slug,
-          name: dl.name,
-          description: dl.description,
-          difficulty: dl.difficulty,
-          icon: dl.icon,
-          color: dl.color,
-          total: dl.total,
-          completed: dl.completed,
-          payment_tier: "free",
-          hoursLeft: dl.hoursLeft,
-        }));
-
-        // Combine both arrays
-        setAllCatalogLabs([...mapped, ...mappedDummy]);
-        setLabsLoading(false);
-      })
-      .catch(console.error);
+      // Combine both arrays
+      setAllCatalogLabs([...mapped, ...mappedDummy]);
+      setLabsLoading(false);
+    }).catch(console.error);
   }, []);
 
   const enrolledLabs = useMemo(
@@ -730,18 +615,21 @@ function CheckRow({
   );
 }
 
-function FeaturedCard({
-  lab,
-  isEnrolled,
-  isLoading,
-  onToggle,
-}: {
-  lab: CatalogLab;
-  isEnrolled: boolean;
-  isLoading: boolean;
-  onToggle: () => void;
-}) {
+function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: string }) {
   const devIconUrl = getLabIconUrl(lab.name);
+  if (devIconUrl) {
+    return <img src={devIconUrl} alt={lab.name} className={`${sizeClass} object-contain`} />;
+  }
+  if (lab.name === "Data Structures Lab") {
+    return <Network className={`${sizeClass} text-primary`} />;
+  }
+  if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
+    return <Briefcase className={`${sizeClass} text-warning`} />;
+  }
+  return <span className="text-inherit">{lab.icon}</span>;
+}
+
+function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 hover:border-primary/50 transition">
       <div
@@ -753,11 +641,7 @@ function FeaturedCard({
       </span>
       <div className="mt-3 flex items-start gap-3 flex-1">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center text-3xl">
-          {devIconUrl ? (
-            <img src={devIconUrl} alt={lab.name} className="h-8 w-8 object-contain" />
-          ) : (
-            lab.icon
-          )}
+          <LabIcon lab={lab} />
         </div>
         <div className="min-w-0">
           <h3 className="font-semibold truncate">{lab.name}</h3>
@@ -803,18 +687,13 @@ function FeaturedCard({
 
 function EnrolledCard({ lab }: { lab: CatalogLab }) {
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
-  const devIconUrl = getLabIconUrl(lab.name);
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 hover:ring-glow transition">
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
       <div className="flex items-start justify-between flex-1">
         <div className="min-w-0">
           <div className="flex h-10 w-10 items-center text-3xl">
-            {devIconUrl ? (
-              <img src={devIconUrl} alt={lab.name} className="h-8 w-8 object-contain" />
-            ) : (
-              lab.icon
-            )}
+            <LabIcon lab={lab} />
           </div>
           <h3 className="mt-2 font-semibold truncate">{lab.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{lab.description}</p>
@@ -843,28 +722,13 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
   );
 }
 
-function CatalogCard({
-  lab,
-  isEnrolled,
-  isLoading,
-  onToggle,
-}: {
-  lab: CatalogLab;
-  isEnrolled: boolean;
-  isLoading: boolean;
-  onToggle: () => void;
-}) {
-  const devIconUrl = getLabIconUrl(lab.name);
+function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
   return (
     <div className="flex flex-col h-full rounded-xl border bg-card p-4 hover:border-primary/40 transition">
       <div className="flex items-start justify-between gap-3 flex-1">
         <div className="flex items-start gap-2.5 min-w-0">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center text-xl">
-            {devIconUrl ? (
-              <img src={devIconUrl} alt={lab.name} className="h-6 w-6 object-contain" />
-            ) : (
-              lab.icon
-            )}
+            <LabIcon lab={lab} sizeClass="h-6 w-6" />
           </div>
           <div className="min-w-0">
             <div className="font-medium text-sm truncate">{lab.name}</div>

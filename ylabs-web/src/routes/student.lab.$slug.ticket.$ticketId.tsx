@@ -19,65 +19,26 @@ import {
   runDatabaseQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
+import codeExecutorService from "@/services/codeExecutorService";
+import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
+import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
-import {
-  runDynamicSqlQuery,
-  runDynamicMongoQuery,
-  getAlasqlSchema,
-  getMongoSchema,
-} from "@/lib/dbEngine";
+import ExamplesPanel from "@/components/ExamplesPanel";
+import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
 import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
 import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
-  Play,
-  Save,
-  Send,
-  Lightbulb,
-  AlertTriangle,
-  ChevronRight,
-  ChevronDown,
-  ChevronLeft,
-  FileCode2,
-  Folder,
-  FolderOpen,
-  Search,
-  GitBranch,
-  Bug,
-  Package,
-  Settings,
-  CircleDot,
-  Terminal as TerminalIcon,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Zap,
-  MessageSquare,
-  Lock,
-  Unlock,
-  RotateCcw,
-  Copy,
-  Share2,
-  Flag,
-  HelpCircle,
-  Sparkles,
-  Gauge,
-  Wand2,
-  Globe,
-  Check,
-  ArrowLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
-  BookOpen,
-  FilePlus,
-  FolderPlus,
-  Pencil,
-  Trash2,
-  X,
+  Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
+  FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
+  CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
+  MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
+  Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
+  FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -744,19 +705,7 @@ const LINUX_KIT_DEFAULT: Kit = {
   },
 };
 
-const GIT_KIT_DEFAULT: Kit = {
-  name: "git",
-  rootLabel: "git-lab",
-  primary: "README.md",
-  runtime: "Git 2.x · Bash",
-  fileList: ["README.md"],
-  files: {
-    "README.md": `# Git Lab\n\nUse the terminal below to practice Git commands.\n`,
-  },
-};
-
-function getKit(slug: string, tag: string, labTitle?: string): Kit {
-  if (labTitle && labTitle.toLowerCase().includes("git")) return GIT_KIT_DEFAULT;
+function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   if (tag === "Django Todo") {
     return {
       name: "django",
@@ -767,7 +716,7 @@ function getKit(slug: string, tag: string, labTitle?: string): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
-  if (slug === "python" || slug === "programming" || slug === "datastructures")
+  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
   if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
   if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
@@ -929,14 +878,8 @@ export function TicketIDE({
     shouldThrow: false,
   });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-
-  
-  const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
-  const submissionsIdField = isEvaluationMode ? "task" : "lab_sprint_ticket";
-  const submissionsStatusField = isEvaluationMode ? "task_status" : "ticket_status";
-  const labEndpoint = isEvaluationMode ? `/skill_evaluation/lab-questions/${slug}/` : `/lab/labs/${slug}/`;
-const [labTitle, setLabTitle] = useState("");
-  const kit = useMemo(() => getKit(slug, ticket.tag, labTitle), [slug, ticket.tag, labTitle]);
+  const isAlgo = slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined));
+  const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
   const isSql = kit.name === "sql";
@@ -965,16 +908,13 @@ const [labTitle, setLabTitle] = useState("");
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
   const [wsLoaded, setWsLoaded] = useState(false);
-  const isMultiLang = slug === "programming" || slug === "datastructures";
-  type ProgLang = "python" | "c" | "cpp" | "js";
-  const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js" };
-  const PROG_LABEL: Record<ProgLang, string> = {
-    python: "Python 3",
-    c: "C (gcc)",
-    cpp: "C++ (g++)",
-    js: "Node.js",
-  };
+  const [labTitle, setLabTitle] = useState("");
+  const isMultiLang = isAlgo;
+  type ProgLang = "python" | "c" | "cpp" | "js" | "java";
+  const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
+  const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
   const [progLang, setProgLang] = useState<ProgLang>("python");
+  const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
     if (isReal) return {};
@@ -1162,7 +1102,11 @@ const [labTitle, setLabTitle] = useState("");
     setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
-    if (isMultiLang) setProgLang("python");
+    if (isMultiLang) {
+      const valid: ProgLang[] = ["python", "c", "cpp", "js", "java"];
+      if (valid.includes(ticket.tag as ProgLang)) setProgLang(ticket.tag as ProgLang);
+      else setProgLang("python");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.id]);
 
@@ -1256,6 +1200,8 @@ const [labTitle, setLabTitle] = useState("");
         return `// ${banner}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++" << endl;\n    return 0;\n}\n`;
       case "js":
         return `// ${banner}\nfunction solve() {\n  // TODO: implement\n}\n\nconsole.log("Hello from JavaScript");\nsolve();\n`;
+      case "java":
+        return `// ${banner}\nimport java.util.*;\n\nclass main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java");\n    }\n}\n`;
     }
   }
 
@@ -1360,13 +1306,41 @@ const [labTitle, setLabTitle] = useState("");
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
-  const [tests, setTests] = useState<TestResult[]>([
-    { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
-    { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
-    { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
-    { name: "Test 4 · String Operations", pass: false, time: "—" },
-    { name: "Test 5 · Output Format", pass: false, time: "—" },
-  ]);
+  const [tests, setTests] = useState<TestResult[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [supportedLanguages, setSupportedLanguages] = useState<Record<string, any>>({});
+  const [customTestCases, setCustomTestCases] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<any>(null);
+  const [executionMetrics, setExecutionMetrics] = useState<any>(null);
+  const [executionOutput, setExecutionOutput] = useState<string>("");
+
+  useEffect(() => {
+    codeExecutorService.getSupportedLanguagesAndTemplates()
+      .then(res => {
+        if (res && res.details) {
+          setSupportedLanguages(res.details);
+        }
+      })
+      .catch(err => console.warn("Failed to fetch executor languages", err));
+  }, []);
+  
+  useEffect(() => {
+    if (isReal && ticket.tasks?.length) {
+      setTests(ticket.tasks.map((t: any, i: number) => ({
+        name: `Test ${i+1} · ${t.title || 'Validation'}`,
+        pass: false,
+        time: "—"
+      })));
+    } else if (!isReal) {
+      setTests([
+        { name: "Test 1 · Variables Declaration", pass: false, time: "—" },
+        { name: "Test 2 · Type Casting (implicit)", pass: false, time: "—" },
+        { name: "Test 3 · Type Casting (explicit)", pass: false, time: "—" },
+        { name: "Test 4 · String Operations", pass: false, time: "—" },
+        { name: "Test 5 · Output Format", pass: false, time: "—" },
+      ]);
+    }
+  }, [ticket.tasks, isReal]);
   const [testsRan, setTestsRan] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -1467,73 +1441,54 @@ const [labTitle, setLabTitle] = useState("");
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    if ((isAnySql && !isSql) || isMongo) {
-      setExecutedQuery(src);
-      setRunId((prev) => prev + 1);
-      setBottomTab("preview");
-      setRunning(false);
-      // Wait for child components (SqlResultsView/MongoResultsView) to finish execution
-      // before refreshing schema, or they can trigger the refresh via a prop.
-      if (!isExternalDb) {
-        // We let the child trigger refreshSchema
-      }
-      return;
-    }
+    if (isMultiLang || isPython) {
+      let extLang = 'python';
+      if (file.endsWith(".c")) extLang = "c";
+      else if (file.endsWith(".cpp") || file.endsWith(".cc")) extLang = "cpp";
+      else if (file.endsWith(".js") || file.endsWith(".ts")) extLang = "javascript";
+      else if (file.endsWith(".java")) extLang = "java";
 
-    if (isMultiLang) {
-      const lang: ProgLang = file.endsWith(".c")
-        ? "c"
-        : file.endsWith(".cpp") || file.endsWith(".cc")
-          ? "cpp"
-          : file.endsWith(".js") || file.endsWith(".ts")
-            ? "js"
-            : "python";
-      const cmd =
-        lang === "python"
-          ? `$ python ${file}`
-          : lang === "c"
-            ? `$ gcc ${file} -o a.out && ./a.out`
-            : lang === "cpp"
-              ? `$ g++ ${file} -std=c++17 -o a.out && ./a.out`
-              : `$ node ${file}`;
-      setOutput(`${cmd}\n…running…\n`);
-      setTimeout(() => {
-        const out: string[] = [];
-        if (lang === "python") {
-          const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-          let m;
-          while ((m = re.exec(src))) out.push(m[1]);
-        } else if (lang === "js") {
-          const re = /console\.log\(\s*["'`]([^"'`]*)["'`]\s*\)/g;
-          let m;
-          while ((m = re.exec(src))) out.push(m[1]);
-        } else if (lang === "c") {
-          const re = /printf\(\s*"([^"]*)"/g;
-          let m;
-          while ((m = re.exec(src))) out.push(m[1].replace(/\\n/g, ""));
+      const execLang = selectedLanguage || extLang;
+
+      try {
+        const res = await codeExecutorService.executeCode({
+          code: src,
+          language: execLang,
+          test_cases: ticket.tasks || [],
+          test_cases_custom: customTestCases || []
+        });
+
+        setExecutionOutput(res.output);
+        setExecutionMetrics({
+          execution_time: res.execution_time,
+          memory_usage: res.memory_usage,
+          status: res.status
+        });
+        setTestResults(res.test_results);
+
+        if (res.status === 'completed') {
+          showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+          if (res.test_cases_passed > 0 && res.test_cases_passed === res.total_test_cases) {
+             setTicketScore({ passed: res.test_cases_passed, total: res.total_test_cases });
+             setTestsRan(true);
+             setTests([{ name: "All Tests", pass: true, time: `${res.execution_time}s` }]);
+             const taskSlug = ticket.tasks?.[0]?.task_slug || "task-0";
+             setEvalResult(prev => ({ 
+               ...prev, 
+               [taskSlug]: { passed: true, reason: "" } 
+             }));
+          }
+        } else if (res.status === 'timeout') {
+          showToast('Time Limit Exceeded');
         } else {
-          const re = /cout\s*<<\s*"([^"]*)"/g;
-          let m;
-          while ((m = re.exec(src))) out.push(m[1]);
+          showToast(`Execution failed: ${res.reason || res.error_message || "Check output"}`);
         }
-        const outText = `${cmd}\n${out.join("\n")}\n\n✓ Process finished (0.3s) · ${PROG_LABEL[lang]}`;
-        setOutput(outText);
-        evaluateSubmission(src, outText);
+      } catch (err: any) {
+        setExecutionOutput(err.message || 'Error executing code');
+        showToast('Code execution failed');
+      } finally {
         setRunning(false);
-      }, 500);
-      return;
-    }
-    if (isPython) {
-      setOutput(`$ python ${file}\n…running…\n`);
-      setTimeout(() => {
-        const out: string[] = [];
-        const re = /print\(\s*(?:f?["'])([^"']*)["']\s*\)/g;
-        let m; while ((m = re.exec(src))) out.push(m[1]);
-        const outText = `$ python ${file}\n${out.join("\n")}\n\n✓ Process finished (0.3s)`;
-        setOutput(outText);
-        evaluateSubmission(src, outText);
-        setRunning(false);
-      }, 500);
+      }
       return;
     }
     if (isSql) {
@@ -2237,14 +2192,23 @@ const [labTitle, setLabTitle] = useState("");
             <Sparkles className="h-3 w-3" />
             AI Mentor
           </button>
-          <button
-            onClick={handleRun}
-            disabled={running}
-            className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60"
-          >
-            <Play className="h-3 w-3" />
-            {running ? "Running…" : "Run"}{" "}
-            <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
+          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="h-7 rounded-md border bg-background px-2 text-xs text-foreground focus:ring-1"
+              title="Execution Language"
+            >
+              <option value="">Auto-detect</option>
+              {Object.keys(supportedLanguages).map((lang) => (
+                <option key={lang} value={lang}>
+                  {supportedLanguages[lang].name || lang.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          )}
+          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
+            <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
           <button onClick={() => setIsCommitDialogOpen(true)}
             className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
@@ -2336,10 +2300,11 @@ const [labTitle, setLabTitle] = useState("");
             </div>
             <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
               {tab === "problem" && (
-                <ProblemPanel
-                  ticket={ticket}
-                  slug={slug}
-                  isReal={!tickets.some((t) => t.id === ticket.id)}
+                <ProblemPanel 
+                  ticket={ticket} 
+                  slug={slug} 
+                  labName={labTitle}
+                  isReal={!tickets.some(t => t.id === ticket.id)} 
                   evaluating={evaluating}
                   evalResult={evalResult}
                   ticketScore={ticketScore}
@@ -2626,6 +2591,15 @@ const [labTitle, setLabTitle] = useState("");
                   </button>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
+                  {labTitle === "Data Structures Lab" && (
+                    <button
+                      onClick={() => setIsExamplesPanelOpen(true)}
+                      className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
+                    >
+                      <BookOpen className="h-3 w-3 text-primary" />
+                      Examples
+                    </button>
+                  )}
                   {isMultiLang && (
                     <label className="flex items-center gap-1">
                       <span className="opacity-70">Lang</span>
@@ -2638,6 +2612,7 @@ const [labTitle, setLabTitle] = useState("");
                         <option value="c">C</option>
                         <option value="cpp">C++</option>
                         <option value="js">JavaScript</option>
+                        <option value="java">Java</option>
                       </select>
                     </label>
                   )}
@@ -2702,18 +2677,9 @@ const [labTitle, setLabTitle] = useState("");
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    ...(!labTitle.toLowerCase().includes("git")
-                      ? [{ k: "errors", label: "Errors", icon: AlertTriangle }]
-                      : []),
-                    ...((!labTitle.toLowerCase().includes("git")) && (isSql || isMongo)
-                      ? [
-                          {
-                            k: "preview",
-                            label: "Results",
-                            icon: Globe,
-                          },
-                        ]
-                      : []),
+                    { k: "errors", label: "Errors", icon: AlertTriangle },
+                    { k: "testcases", label: "Test Cases", icon: FlaskConical },
+                    { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button
@@ -2725,15 +2691,16 @@ const [labTitle, setLabTitle] = useState("");
                       {t.label}
                     </button>
                   ))}
-                  {ticketScore !== null && (
+                  {ticketScore !== null && ticketScore.total > 0 && (
                     <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
-                      SCORE: {ticketScore.passed} / {ticketScore.total}
+                      SCORE: {labTitle === "Data Structures Lab" ? `${Math.round((ticketScore.passed / ticketScore.total) * 100)}%` : `${ticketScore.passed} / ${ticketScore.total}`}
                     </div>
                   )}
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
-                  {bottomTab === "output" && <OutputView output={output} />}
+                  {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
+                  {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "preview" && (
                     isDjango ? <WebPreview port={previewPort} /> :
                       isSql ? (
@@ -2912,6 +2879,13 @@ const [labTitle, setLabTitle] = useState("");
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Modals */}
+      {isExamplesPanelOpen && (
+        <ExamplesPanel
+          onClose={() => setIsExamplesPanelOpen(false)}
+          currentLanguage={selectedLanguage || progLang}
+        />
+      )}
     </div>
   );
 }
@@ -3737,6 +3711,39 @@ function ProgressTile({
   );
 }
 
+function parseDPMarkdown(text: string) {
+  if (!text) return "";
+
+  // Remove duplicate 'Examples' section at the bottom
+  const redundantExamplesIndex = text.search(/\n#{1,3}\s+Examples?\b/i);
+  if (redundantExamplesIndex !== -1) {
+    text = text.substring(0, redundantExamplesIndex);
+  }
+
+  const codeBlocks: string[] = [];
+  let processed = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
+    codeBlocks.push(p1);
+    return `___CODE_BLOCK_${codeBlocks.length - 1}___`;
+  });
+
+  processed = processed
+    .replace(/###\s+([^\n]+)/g, '<h3 class="text-base font-bold mt-5 mb-2 text-foreground">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="bg-accent px-1.5 py-0.5 rounded text-[11px] font-mono text-foreground">$1</code>')
+    .replace(/\n/g, '<br/>');
+
+  processed = processed.replace(/___CODE_BLOCK_(\d+)___/g, (match, idx) => {
+    let block = codeBlocks[Number(idx)].trim();
+    block = block.replace(/Input:\s*/gi, 'Input:\n')
+                 .replace(/Output:\s*/gi, '\nOutput:\n')
+                 .replace(/\n{2,}/g, '\n')
+                 .trim();
+    return `<div class="bg-editor-bg border border-border rounded-md p-3 my-3 font-mono text-xs overflow-x-auto text-foreground"><div class="whitespace-pre-wrap">${block}</div></div>`;
+  });
+
+  return processed;
+}
+
 function Minimap({ code }: { code: string }) {
   const lines = code.split("\n");
   return (
@@ -3755,18 +3762,20 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({
-  ticket,
-  isReal,
-  slug,
-  evaluating,
-  evalResult,
-  ticketScore,
-  onEvaluate,
-}: {
-  ticket: any;
-  isReal?: boolean;
+function ProblemPanel({ 
+  ticket, 
+  isReal, 
+  slug, 
+  labName,
+  evaluating, 
+  evalResult, 
+  ticketScore, 
+  onEvaluate 
+}: { 
+  ticket: any; 
+  isReal?: boolean; 
   slug: string;
+  labName?: string;
   evaluating: Record<string, boolean>;
   evalResult: Record<string, { passed: boolean; reason: string }>;
   ticketScore: { passed: number; total: number } | null;
@@ -3785,24 +3794,30 @@ function ProblemPanel({
           {ticket.id} · {ticket.tag}
         </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        <p className="mt-2 text-muted-foreground">
-          {isReal
-            ? ticket.description
-            : "📋 Create a program demonstrating Java variables and data types."}
-        </p>
+        {labName === "Data Structures Lab" && isReal ? (
+          <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
+               dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
+        ) : (
+          <p className="mt-2 text-muted-foreground">
+            {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
+          </p>
+        )}
       </div>
 
       {isReal ? (
         <>
           {/* Tasks from DB */}
           {tasks.length > 0 && (
-            <Section title="✅ Tasks">
+            <Section title={labName === "Data Structures Lab" ? "✅ Test Cases" : "✅ Tasks"}>
               <div className="space-y-2 text-muted-foreground">
                 {tasks.map((task: any, idx: number) => {
                   const taskTitle =
                     typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
+                  const isDS = labName === "Data Structures Lab";
+                  const isHidden = typeof task === "object" && (taskTitle.toLowerCase().includes("hidden") || task.is_hidden === true);
+                  
                   return (
                     <div
                       key={idx}
@@ -3814,10 +3829,21 @@ function ProblemPanel({
                         </span>
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                          {taskDesc && (
-                            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                              {taskDesc}
-                            </p>
+                          {isDS ? (
+                            isHidden ? (
+                              <div className="mt-2 text-[11px] text-muted-foreground/70 italic">
+                                This test case is hidden and will be used during final evaluation.
+                              </div>
+                            ) : (
+                              <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
+                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
+                                <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
+                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
+                                <div className="whitespace-pre-wrap font-mono text-foreground">{task.expected_output || "No output"}</div>
+                              </div>
+                            )
+                          ) : (
+                            taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>
                           )}
                           {taskMethod && (
                             <div className="mt-3 flex items-center flex-wrap gap-2">
@@ -3826,17 +3852,13 @@ function ProblemPanel({
                               </span>
                             </div>
                           )}
-                          {evalResult[task.task_slug || `task-${idx}`] && (
-                            <div
-                              className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                                evalResult[task.task_slug || `task-${idx}`].passed
-                                  ? "border-success/20 bg-success/10 text-success"
-                                  : "border-destructive/20 bg-destructive/10 text-destructive"
-                              }`}
-                            >
-                              {evalResult[task.task_slug || `task-${idx}`].passed
-                                ? "✅ Passed: "
-                                : "❌ Failed: "}
+                          {!isDS && evalResult[task.task_slug || `task-${idx}`] && (
+                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                              evalResult[task.task_slug || `task-${idx}`].passed 
+                                ? "border-success/20 bg-success/10 text-success" 
+                                : "border-destructive/20 bg-destructive/10 text-destructive"
+                            }`}>
+                              {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
                               {evalResult[task.task_slug || `task-${idx}`].reason}
                             </div>
                           )}

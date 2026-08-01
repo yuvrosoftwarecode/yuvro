@@ -1,4 +1,3 @@
-// Per-lab sprints & tasks store (localStorage).
 export type EditorKind = "code" | "sql" | "none";
 export const EDITORS: { value: EditorKind; label: string }[] = [
   { value: "code", label: "Code Editor" },
@@ -41,7 +40,6 @@ export interface LabTask {
   starterPath?: string;
   hints?: string;
   solution?: string;
-  /** When set with 2+ entries, the ticket editor lets learners switch language. */
   allowedLanguages?: Language[];
 }
 
@@ -60,47 +58,42 @@ import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 export async function loadSprints(labId: string): Promise<LabSprint[]> {
   try {
     const sprints = await restApiAuthUtil.get<any[]>(`/lab/sprints/?lab=${labId}`);
-
-    const fullSprints = await Promise.all(
-      sprints.map(async (sprint: any) => {
-        const tickets = await restApiAuthUtil.get<any[]>(`/lab/tickets/?sprint=${sprint.id}`);
-        return {
-          id: sprint.id,
-          name: sprint.title,
-          description: sprint.description,
-          order_index: sprint.order_index || 0,
-          is_locked: sprint.is_locked,
-          tasks: tickets
-            .map((t: any) => ({
-              id: t.id,
-              title: t.title,
-              description: t.description,
-              difficulty:
-                t.difficulty === "HARD"
-                  ? "Advanced"
-                  : t.difficulty === "MEDIUM"
-                    ? "Intermediate"
-                    : "Beginner",
-              xp: t.yuvro_points,
-              estMin: t.minutes_max,
-              editor: "code",
-              language: t.accepted_programming_languages?.[0] || "python",
-              starterCode: "",
-              hints: typeof t.hints === "string" ? t.hints : JSON.stringify(t.hints),
-              solution: typeof t.solution === "string" ? t.solution : JSON.stringify(t.solution),
-              allowedLanguages: t.accepted_programming_languages,
-              order_index: t.order_index || 0,
-              // Preserve rich content fields from DB
-              tasks: Array.isArray(t.tasks) ? t.tasks : [],
-              learning_objectives: Array.isArray(t.learning_objectives)
-                ? t.learning_objectives
-                : [],
-              common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
-            }))
-            .sort((a: any, b: any) => a.order_index - b.order_index),
-        };
-      }),
-    );
+    
+    const fullSprints = await Promise.all(sprints.map(async (sprint: any) => {
+      const tickets = await restApiAuthUtil.get<any[]>(`/lab/tickets/?sprint=${sprint.id}`);
+      return {
+        id: sprint.id,
+        name: sprint.title,
+        description: sprint.description,
+        order_index: sprint.order_index || 0,
+        is_locked: sprint.is_locked,
+        tasks: tickets.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          difficulty: t.difficulty === "HARD" ? "Advanced" : t.difficulty === "MEDIUM" ? "Intermediate" : "Beginner",
+          xp: t.yuvro_points,
+          estMin: t.minutes_max,
+          editor: "code",
+          language: t.accepted_programming_languages?.[0] || "python",
+          starterCode: "",
+          hints: typeof t.hints === 'string' ? t.hints : JSON.stringify(t.hints),
+          solution: typeof t.solution === 'string' ? t.solution : JSON.stringify(t.solution),
+          allowedLanguages: t.accepted_programming_languages,
+          order_index: t.order_index || 0,
+          // Preserve rich content fields from DB
+          tasks: Array.isArray(t.tasks) ? t.tasks : [],
+          learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
+          common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
+        })).sort((a: any, b: any) => {
+          const diffRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3 };
+          const rankA = diffRank[a.difficulty] || 99;
+          const rankB = diffRank[b.difficulty] || 99;
+          if (rankA !== rankB) return rankA - rankB;
+          return a.order_index - b.order_index;
+        })
+      };
+    }));
     return fullSprints.sort((a: any, b: any) => a.order_index - b.order_index);
   } catch (err) {
     console.error("Failed to load sprints from API", err);
@@ -140,7 +133,6 @@ export function newTask(): LabTask {
   };
 }
 
-// ---- Seed sprints/tasks from the student-side catalog ----
 import { tickets as catalogTickets, type Ticket } from "@/lib/dummy";
 
 const SPRINT_GROUPS: Record<string, { id: string; name: string; goal: string; tags: string[] }[]> =

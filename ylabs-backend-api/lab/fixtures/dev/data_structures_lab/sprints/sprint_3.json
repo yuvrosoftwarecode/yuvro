@@ -1,0 +1,4010 @@
+{
+  "title": "Sprint 3 — Stacks",
+  "description": "Master Stacks through hand-picked algorithmic challenges.",
+  "xp_pool": 8200,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Valid Parentheses",
+      "ticket_slug": "ticket-valid-parentheses",
+      "description": "You are given a string s consisting only of the characters '(', ')', '{', '}', '[' and ']'. Determine whether the brackets in the string are properly balanced.\n\nA string is considered valid if:\n1. Every opening bracket has a corresponding closing bracket of the same type.\n2. Brackets are closed in the correct order.\n3. Each closing bracket matches the most recent unmatched opening bracket.\n\nReturn true if the string is valid, otherwise return false.\n\n**Example 1:**\nInput: ()\nOutput: true\n\n**Example 2:**\nInput: ()[]{}\nOutput: true\n\n**Example 3:**\nInput: (]\nOutput: false\n\n**Example 4:**\nInput: ([])\nOutput: true\n\n**Example 5:**\nInput: ([)]\nOutput: false\n\n**Constraints:**\n- 1 <= s.length <= 10^4\n- s contains only the characters '(', ')', '{', '}', '[' and ']'.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n()\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n()[]{}\n\nOutput:\ntrue\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-valid-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "()",
+          "expected_output": "true",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-valid-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "()[]{}",
+          "expected_output": "true",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-valid-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "(]",
+          "expected_output": "false",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-valid-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "([)]",
+          "expected_output": "false",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-valid-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "([])",
+          "expected_output": "true",
+          "order_index": 5
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Baseball Game Score Calculation",
+      "ticket_slug": "ticket-baseball-game-score-calcu",
+      "description": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 → score list: [5]\n2 → score list: [5,2]\nC → remove last score → [5]\nD → double previous score → [5,10]\n+ → sum of last two scores → [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] → remove 4 → [5,-2]\nDouble previous → [5,-2,-4]\nAdd 9 → [5,-2,-4,9]\nSum last two → [5,-2,-4,9,5]\nSum last two → [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\n\nOutput:\n30\n```\n\n**Example 2:**\n```\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\n\nOutput:\n27\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-baseball-game-score-calculation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"5\",\"2\",\"C\",\"D\",\"+\"]",
+          "expected_output": "30",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-baseball-game-score-calculation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]",
+          "expected_output": "27",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"1\",\"2\",\"+\",\"D\"]",
+          "expected_output": "12",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"10\",\"D\",\"D\",\"+\"]",
+          "expected_output": "100",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[\"3\",\"C\",\"5\",\"D\"]",
+          "expected_output": "15",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[\"7\",\"8\",\"+\",\"C\",\"D\"]",
+          "expected_output": "30",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[\"1\",\"2\",\"3\",\"+\",\"+\",\"D\"]",
+          "expected_output": "33",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[\"5\",\"C\",\"6\",\"C\",\"7\",\"D\"]",
+          "expected_output": "21",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-baseball-game-score-calculation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[\"4\",\"-2\",\"D\",\"+\",\"C\",\"9\",\"+\"]",
+          "expected_output": "15",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Backspace String Comparision",
+      "ticket_slug": "ticket-backspace-string-comparis",
+      "description": "You are given two strings s and t. Both strings may contain lowercase letters and the special character '#'.\n\nThe '#' character represents a backspace operation, meaning the previous character should be removed if it exists.\n\nYour task is to process both strings after applying all backspace operations and determine whether the final strings are equal.\n\nReturn true if both processed strings are equal; otherwise return false.\n\n**Example 1:**\nInput:\nab#c\nad#c\nOutput:\ntrue\n\nExplanation:\nBoth strings become \"ac\" after processing the backspaces.\n\n**Example 2:**\nInput:\nab##\nc#d#\nOutput:\ntrue\n\nExplanation:\nBoth strings become empty strings after processing.\n\n**Example 3:**\nInput:\na#c\nb\nOutput:\nfalse\n\nExplanation:\nThe first string becomes \"c\" while the second string remains \"b\".\n\n**Constraints:**\n- 1 <= s.length, t.length <= 200\n- s and t consist of lowercase letters and '#' characters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nab#c\nad#c\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\nab##\nc#d#\n\nOutput:\ntrue\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-backspace-string-comparision-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "ab#c\nad#c",
+          "expected_output": "true",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-backspace-string-comparision-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "ab##\nc#d#",
+          "expected_output": "true",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "a#c\nb",
+          "expected_output": "false",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "xy#z\nxzz#",
+          "expected_output": "true",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "a###b\nb",
+          "expected_output": "true",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "bxj##tw\nbxo#j##tw",
+          "expected_output": "true",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nzp#o#g\nb#nzp#o#g",
+          "expected_output": "true",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "abc###\n",
+          "expected_output": "true",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-backspace-string-comparision-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "abcd#\nabce#",
+          "expected_output": "false",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Remove All Adjacent Duplicates in a given String",
+      "ticket_slug": "ticket-remove-all-adjacent-dupli",
+      "description": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" → remove \"bb\" → \"aaca\" → remove \"aa\" → \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" → remove \"xx\" → \"azzy\" → remove \"zz\" → \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nabbaca\n\nOutput:\nca\n```\n\n**Example 2:**\n```\nInput:\nazxxzy\n\nOutput:\nay\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "abbaca",
+          "expected_output": "ca",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "azxxzy",
+          "expected_output": "ay",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "aaaa",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "aababaab",
+          "expected_output": "ba",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "abcddcba",
+          "expected_output": "",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "mississippi",
+          "expected_output": "m",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "aabbccddeeff",
+          "expected_output": "",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "abcd",
+          "expected_output": "abcd",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-remove-all-adjacent-duplicates-in-a-given-string-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "abbaac",
+          "expected_output": "ac",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Validate Stack Sequences",
+      "ticket_slug": "ticket-validate-stack-sequences",
+      "description": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 → Push 2 → Push 3 → Push 4 → Pop 4 → Push 5 → Pop 5 → Pop 3 → Pop 2 → Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\n\nOutput:\nfalse\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-validate-stack-sequences-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3,4,5]\n[4,5,3,2,1]",
+          "expected_output": "true",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-validate-stack-sequences-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3,4,5]\n[4,3,5,1,2]",
+          "expected_output": "false",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]\n[3,2,1]",
+          "expected_output": "true",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]\n[2,1,3]",
+          "expected_output": "true",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]\n[3,1,2]",
+          "expected_output": "false",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[2,1,0]\n[1,2,0]",
+          "expected_output": "true",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1]\n[1]",
+          "expected_output": "true",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2]\n[2,1]",
+          "expected_output": "true",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-validate-stack-sequences-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[1,2]\n[1,2]",
+          "expected_output": "true",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Asteroid Collision Simulation",
+      "ticket_slug": "ticket-asteroid-collision-simula",
+      "description": "You are given an integer array asteroids representing asteroids moving in a straight line.\n\nEach value represents the size and direction of an asteroid:\n- A positive value means the asteroid is moving to the right.\n- A negative value means the asteroid is moving to the left.\n\nWhen two asteroids moving in opposite directions collide, the smaller asteroid explodes. If both asteroids have the same size, both explode. Asteroids moving in the same direction will never collide.\n\nYour task is to determine the state of the asteroids after all collisions have occurred.\n\nReturn the final list of asteroids.\n\n**Example 1:**\nInput:\n[5,10,-5]\nOutput:\n[5,10]\n\nExplanation:\nThe asteroid -5 collides with 10. Since 10 is larger, -5 explodes.\n\n**Example 2:**\nInput:\n[8,-8]\nOutput:\n[]\n\nExplanation:\nBoth asteroids have the same size and explode.\n\n**Constraints:**\n- 2 <= asteroids.length <= 10^4\n- -1000 <= asteroids[i] <= 1000\n- asteroids[i] != 0\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[5,10,-5]\n\nOutput:\n[5,10]\n```\n\n**Example 2:**\n```\nInput:\n[8,-8]\n\nOutput:\n[]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-asteroid-collision-simulation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[5,10,-5]",
+          "expected_output": "[5,10]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-asteroid-collision-simulation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[8,-8]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[10,2,-5]",
+          "expected_output": "[10]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[-2,-1,1,2]",
+          "expected_output": "[-2,-1,1,2]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,-1,-2,-2]",
+          "expected_output": "[-2,-2]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[3,5,-2,-4]",
+          "expected_output": "[3,5]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[4,3,-5]",
+          "expected_output": "[-5]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3,-3,-2]",
+          "expected_output": "[1]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-asteroid-collision-simulation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[7,-3,-4,6,-2]",
+          "expected_output": "[7,6]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Build Target Array Using Stack Operations",
+      "ticket_slug": "ticket-build-target-array-using-",
+      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 → Push → stack = [1]\nRead 2 → Push then Pop → stack = [1]\nRead 3 → Push → stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-build-target-array-using-stack-operations-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,3]\n3",
+          "expected_output": "[\"Push\",\"Push\",\"Pop\",\"Push\"]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-build-target-array-using-stack-operations-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]\n3",
+          "expected_output": "[\"Push\",\"Push\",\"Push\"]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[2,3]\n4",
+          "expected_output": "[\"Push\",\"Pop\",\"Push\",\"Push\"]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[2]\n3",
+          "expected_output": "[\"Push\",\"Pop\",\"Push\"]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,3,4]\n4",
+          "expected_output": "[\"Push\",\"Push\",\"Pop\",\"Push\",\"Push\"]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[3]\n3",
+          "expected_output": "[\"Push\",\"Pop\",\"Push\",\"Pop\",\"Push\"]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,4]\n4",
+          "expected_output": "[\"Push\",\"Push\",\"Pop\",\"Push\",\"Pop\",\"Push\"]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[2,4]\n4",
+          "expected_output": "[\"Push\",\"Pop\",\"Push\",\"Push\",\"Pop\",\"Push\"]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-build-target-array-using-stack-operations-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[1]\n1",
+          "expected_output": "[\"Push\"]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Text Editor with Undo Operation",
+      "ticket_slug": "ticket-text-editor-with-undo-ope",
+      "description": "Design a simple text editor that supports the following operations:\n\n1. append W → Append string W to the end of the current text.\n2. delete k → Delete the last k characters from the text.\n3. print k → Print the k-th character of the text.\n4. undo → Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n\n### Examples\n\n**Example 1:**\n```\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n```\n\n**Example 2:**\n```\nInput:\n5\n1 hello\n1 world\n3 5\n2 5\n3 5\n\nOutput:\no\no\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-text-editor-with-undo-operation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "4\n1 abc\n3 3\n2 3\n1 xy",
+          "expected_output": "c",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-text-editor-with-undo-operation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n1 hello\n1 world\n3 5\n2 5\n3 5",
+          "expected_output": "o\no",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n1 abcdef\n3 4\n3 6",
+          "expected_output": "d\nf",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 abc\n1 xyz\n2 3\n3 2\n4\n3 2",
+          "expected_output": "b\ny",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 a\n1 b\n1 c\n3 3\n4",
+          "expected_output": "c",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "4\n1 stack\n2 2\n1 up\n3 4",
+          "expected_output": "c",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n1 abcdef\n2 2\n4\n3 6",
+          "expected_output": "f",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n1 abc\n2 1\n1 d\n3 3\n4",
+          "expected_output": "d",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-text-editor-with-undo-operation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n1 abc\n3 2\n2 1\n1 x\n3 3\n4",
+          "expected_output": "b\nx",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Stack of Plates with Capacity Limit",
+      "ticket_slug": "ticket-stack-of-plates-with-capa",
+      "description": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) → Push value into the leftmost stack that is not full.\npop() → Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) → Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[popAtStack,0]]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[pop]]\n\nOutput:\n3\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[push,2],[push,3],[popAtStack,0]]",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[push,2],[push,3],[pop]]",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "capacity=3 operations=[[push,1],[push,2],[push,3],[push,4],[pop]]",
+          "expected_output": "4",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[push,2],[push,3],[push,4],[popAtStack,1]]",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "capacity=1 operations=[[push,5],[push,6],[pop]]",
+          "expected_output": "6",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[push,2],[pop],[pop]]",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[pop],[pop]]",
+          "expected_output": "-1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "capacity=2 operations=[[push,1],[push,2],[push,3],[popAtStack,0],[pop]]",
+          "expected_output": "3",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-of-plates-with-capacity-limit-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "capacity=3 operations=[[push,1],[push,2],[push,3],[popAtStack,0]]",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Stack that Pops Most Frequent Element",
+      "ticket_slug": "ticket-stack-that-pops-most-freq",
+      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Add element x.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5, push 7, push 5, pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5, push 7, push 5, push 7, pop\n\nOutput:\n7\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-that-pops-most-frequent-element-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 5, push 7, push 5, pop",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-that-pops-most-frequent-element-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 5, push 7, push 5, push 7, pop",
+          "expected_output": "7",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 1 push 1 push 2 pop",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 4 push 4 push 4 pop",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 pop",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 1 push 2 push 2 push 1 pop",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 push 7 push 4 pop",
+          "expected_output": "7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 9 push 9 push 9 pop",
+          "expected_output": "9",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-pops-most-frequent-element-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 push 3 pop",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Implementing a Stack Using Queues",
+      "ticket_slug": "ticket-implementing-a-stack-usin",
+      "description": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element of the stack.\ntop() → Return the top element without removing it.\nempty() → Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1\npush 2\ntop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1\npush 2\npop\n\nOutput:\n2\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-implementing-a-stack-using-queues-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 1\npush 2\ntop",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-implementing-a-stack-using-queues-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 1\npush 2\npop",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 5\npush 7\npop",
+          "expected_output": "7",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 10\npush 20\npush 30\ntop",
+          "expected_output": "30",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1\npush 2\npush 3\npop",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 4\npop",
+          "expected_output": "4",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 9\npush 8\ntop",
+          "expected_output": "8",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 6\npush 7\npush 8\npop",
+          "expected_output": "8",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-implementing-a-stack-using-queues-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 100\npop",
+          "expected_output": "100",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — Building a Target Array Using Stack Operations",
+      "ticket_slug": "ticket-building-a-target-array-u",
+      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush → Push the number into the stack.\nPop → Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\nPush Push Pop Push\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\nPush Push Push\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-building-a-target-array-using-stack-operations-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,3]\n3",
+          "expected_output": "Push Push Pop Push",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-building-a-target-array-using-stack-operations-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]\n3",
+          "expected_output": "Push Push Push",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[2]\n3",
+          "expected_output": "Push Pop Push",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,4]\n4",
+          "expected_output": "Push Push Pop Push Pop Push",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[3]\n3",
+          "expected_output": "Push Pop Push Pop Push",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1]\n1",
+          "expected_output": "Push",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[2,3]\n4",
+          "expected_output": "Push Pop Push Push",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,3,4]\n4",
+          "expected_output": "Push Push Pop Push Push",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-building-a-target-array-using-stack-operations-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[2,4]\n4",
+          "expected_output": "Push Pop Push Push Pop Push",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — Simulating Folder Navigation Logs",
+      "ticket_slug": "ticket-simulating-folder-navigat",
+      "description": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" → Move to parent folder.\n\"./\" → Stay in current folder.\n\"x/\" → Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\n[\"d1/\",\"../\",\"../\",\"../\"]\n\nOutput:\n0\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-simulating-folder-navigation-logs-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-simulating-folder-navigation-logs-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"d1/\",\"../\",\"../\",\"../\"]",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"d1/\",\"d2/\",\"d3/\"]",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"d1/\",\"./\",\"d2/\"]",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[\"d1/\",\"d2/\",\"../\"]",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[\"d1/\",\"../\",\"d2/\"]",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[\"./\",\"./\"]",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[\"d1/\",\"d2/\",\"d3/\",\"../\"]",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-simulating-folder-navigation-logs-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[\"d1/\",\"d2/\",\"../\",\"../\"]",
+          "expected_output": "0",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Removing Adjacent Duplicate Characters Using Stack",
+      "ticket_slug": "ticket-removing-adjacent-duplica",
+      "description": "Given a string consisting of lowercase letters, repeatedly remove adjacent duplicate characters.\n\nContinue removing duplicates until no more adjacent duplicates remain.\n\nReturn the final string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nabbaca\n\nOutput:\nca\n```\n\n**Example 2:**\n```\nInput:\nazxxzy\n\nOutput:\nay\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "abbaca",
+          "expected_output": "ca",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "azxxzy",
+          "expected_output": "ay",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "aaaa",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "aabbcc",
+          "expected_output": "",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "abc",
+          "expected_output": "abc",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "abba",
+          "expected_output": "",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "aababaab",
+          "expected_output": "ba",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "mississippi",
+          "expected_output": "m",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-removing-adjacent-duplicate-characters-using-stack-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "abbaac",
+          "expected_output": "ac",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Designing a Stack with Minimum Retrieval",
+      "ticket_slug": "ticket-designing-a-stack-with-mi",
+      "description": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove the top element.\ntop() → Return the top element.\ngetMin() → Return the minimum element in the stack.\n\nAll operations must run in O(1) time.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush -2\npush 0\npush -3\ngetMin\n\nOutput:\n-3\n```\n\n**Example 2:**\n```\nInput:\npush 2\npush 3\npush 1\ngetMin\n\nOutput:\n1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push -2\npush 0\npush -3\ngetMin",
+          "expected_output": "-3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 2\npush 3\npush 1\ngetMin",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 5\npush 3\npush 7\ngetMin",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 10\npush 20\npush 30\ngetMin",
+          "expected_output": "10",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 2\npush 1\npop\ngetMin",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push -1\npush -2\npush -3\ngetMin",
+          "expected_output": "-3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 5\npush 4\npush 3\npop\ngetMin",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 1\npush 2\npush 3\ngetMin",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-designing-a-stack-with-minimum-retrieval-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 7\npush 6\npush 5\ngetMin",
+          "expected_output": "5",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 16 — Stack with Increment Operation",
+      "ticket_slug": "ticket-stack-with-increment-oper",
+      "description": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) → Push element x.\npop() → Remove the top element.\nincrement(k,val) → Increment bottom k elements by val.\n\nReturn values for pop operations.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1 push 2 pop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1 push 2 increment 2 3 pop\n\nOutput:\n5\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 16,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-with-increment-operation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 1 push 2 pop",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-with-increment-operation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 1 push 2 increment 2 3 pop",
+          "expected_output": "5",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 5 push 2 increment 2 1 pop",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 10 push 20 increment 1 5 pop",
+          "expected_output": "20",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 increment 3 1 pop",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 2 push 4 increment 2 2 pop",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 7 push 8 push 9 increment 2 3 pop",
+          "expected_output": "9",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 3 push 6 increment 2 4 pop",
+          "expected_output": "10",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-with-increment-operation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 1 push 1 increment 2 5 pop",
+          "expected_output": "6",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 17 — Stack Supporting Maximum Element Retrieval",
+      "ticket_slug": "ticket-stack-supporting-maximum-",
+      "description": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element.\ntop() → Return the top element without removing it.\npeekMax() → Return the maximum element in the stack.\npopMax() → Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 1 push 5 peekMax\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 1 push 5 popMax\n\nOutput:\n5\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 17,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 5 push 1 push 5 peekMax",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 5 push 1 push 5 popMax",
+          "expected_output": "5",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 3 push 2 push 1 peekMax",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 7 push 6 push 9 popMax",
+          "expected_output": "9",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 pop",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 8 push 5 push 8 popMax",
+          "expected_output": "8",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 4 push 6 peekMax",
+          "expected_output": "6",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 10 push 2 push 10 popMax",
+          "expected_output": "10",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-supporting-maximum-element-retrieval-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 9 push 1 push 2 peekMax",
+          "expected_output": "9",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 18 — Stack that Removes Most Frequent Element",
+      "ticket_slug": "ticket-stack-that-removes-most-f",
+      "description": "Design a stack that supports push and pop operations.\n\npush(x) → Push element x.\npop() → Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 18,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-that-removes-most-frequent-element-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 pop",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-that-removes-most-frequent-element-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 push 7 pop",
+          "expected_output": "7",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 1 push 1 push 2 pop",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 4 push 4 push 4 pop",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 pop",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 1 push 2 push 2 push 1 pop",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 push 7 push 4 pop",
+          "expected_output": "7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 9 push 9 push 9 pop",
+          "expected_output": "9",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-most-frequent-element-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 3 push 3 push 2 pop",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 19 — Making a String Good by Removing Case Conflicts",
+      "ticket_slug": "ticket-making-a-string-good-by-r",
+      "description": "You are given a string s consisting of lowercase and uppercase English letters.\n\nA string is considered \"good\" if it does not contain two adjacent characters where one is the lowercase version of the other. For example, 'aA' or 'Bb' are considered bad pairs.\n\nYour task is to repeatedly remove such adjacent pairs until the string becomes good.\n\nReturn the final string after all possible removals.\n\n**Example 1:**\nInput:\nleEeetcode\nOutput:\nleetcode\n\nExplanation:\nThe pair 'eE' is removed first, resulting in 'leetcode'.\n\n**Example 2:**\nInput:\nabBAcC\nOutput:\n\nExplanation:\nAll characters cancel each other.\n\n**Constraints:**\n- 1 <= s.length <= 100\n- s contains only uppercase and lowercase English letters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nleEeetcode\n\nOutput:\nleetcode\n```\n\n**Example 2:**\n```\nInput:\nabBAcC\n\nOutput:\n\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 19,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "leEeetcode",
+          "expected_output": "leetcode",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "abBAcC",
+          "expected_output": "",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "aA",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "abBA",
+          "expected_output": "",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "s",
+          "expected_output": "s",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "Pp",
+          "expected_output": "",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "mMnNoO",
+          "expected_output": "",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "aAbBcC",
+          "expected_output": "",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-making-a-string-good-by-removing-case-conflicts-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "aBbA",
+          "expected_output": "",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 20 — Removing Outermost Parentheses",
+      "ticket_slug": "ticket-removing-outermost-parent",
+      "description": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing outer parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s contains only '(' and ')'\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(()())(())\n\nOutput:\n()()()\n```\n\n**Example 2:**\n```\nInput:\n(()())(())(()(()))\n\nOutput:\n()()()()(())\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 20,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-removing-outermost-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "(()())(())",
+          "expected_output": "()()()",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-removing-outermost-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "(()())(())(()(()))",
+          "expected_output": "()()()()(())",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "()()",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "((()))",
+          "expected_output": "(())",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "((())())",
+          "expected_output": "(())()",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "(()(()))",
+          "expected_output": "()(())",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "((()()))",
+          "expected_output": "(()())",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "()(())",
+          "expected_output": "()",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-removing-outermost-parentheses-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "(((())))",
+          "expected_output": "((()))",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 21 — Maximum Element in a Stack",
+      "ticket_slug": "ticket-maximum-element-in-a-stac",
+      "description": "You are given a stack that supports the following operations:\n\n1 x → Push element x onto the stack.\n2 → Pop the top element.\n3 → Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 ≤ number of queries ≤ 10^5\n- -10^9 ≤ x ≤ 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 5\n1 7\n3\n\nOutput:\n7\n```\n\n**Example 2:**\n```\nInput:\n1 10\n1 20\n2\n3\n\nOutput:\n10\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 21,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-element-in-a-stack-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 5\n1 7\n3",
+          "expected_output": "7",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-element-in-a-stack-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "1 10\n1 20\n2\n3",
+          "expected_output": "10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "1 3\n1 5\n1 7\n3",
+          "expected_output": "7",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 10\n2\n1 5\n3",
+          "expected_output": "5",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1 4\n1 8\n2\n3",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1 1\n1 2\n1 3\n2\n3",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "1 100\n3",
+          "expected_output": "100",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "1 6\n1 2\n1 9\n3",
+          "expected_output": "9",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-maximum-element-in-a-stack-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "1 7\n1 8\n2\n3",
+          "expected_output": "7",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 22 — Online Stock Span Calculator",
+      "ticket_slug": "ticket-online-stock-span-calcula",
+      "description": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) → Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 ≤ price ≤ 10^5\n- At most 10^4 calls will be made.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[100,80,60,70,60,75,85]\n\nOutput:\n[1,1,1,2,1,4,6]\n```\n\n**Example 2:**\n```\nInput:\n[30,40,50,60]\n\nOutput:\n[1,2,3,4]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 22,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-online-stock-span-calculator-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[100,80,60,70,60,75,85]",
+          "expected_output": "[1,1,1,2,1,4,6]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-online-stock-span-calculator-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[30,40,50,60]",
+          "expected_output": "[1,2,3,4]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[100]",
+          "expected_output": "[1]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[50,40,30]",
+          "expected_output": "[1,1,1]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[70,70,70]",
+          "expected_output": "[1,2,3]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[10,20,30,10]",
+          "expected_output": "[1,2,3,1]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[31,41,48,59,79]",
+          "expected_output": "[1,2,3,4,5]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[60,50,40,30,20,10]",
+          "expected_output": "[1,1,1,1,1,1]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-online-stock-span-calculator-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[10,4,5,90,120,80]",
+          "expected_output": "[1,1,2,4,5,1]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 23 — Evaluate Reverse Polish Notation",
+      "ticket_slug": "ticket-evaluate-reverse-polish-n",
+      "description": "Evaluate the value of an arithmetic expression in Reverse Polish Notation.\n\nValid operators are +, -, *, /. Each operand may be an integer.\n\n**Example 1:**\nInput:\n[\"2\",\"1\",\"+\",\"3\",\"*\"]\nOutput:\n9\n\nExplanation:\n((2 + 1) * 3) = 9.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"2\",\"1\",\"+\",\"3\",\"*\"]\n\nOutput:\n9\n```\n\n**Example 2:**\n```\nInput:\n[\"4\",\"13\",\"5\",\"/\",\"+\"]\n\nOutput:\n6\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 23,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-evaluate-reverse-polish-notation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"2\",\"1\",\"+\",\"3\",\"*\"]",
+          "expected_output": "9",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-evaluate-reverse-polish-notation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"4\",\"13\",\"5\",\"/\",\"+\"]",
+          "expected_output": "6",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"3\",\"4\",\"+\",\"2\",\"*\"]",
+          "expected_output": "14",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"5\",\"1\",\"2\",\"+\",\"4\",\"*\",\"+\",\"3\",\"-\"]",
+          "expected_output": "14",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[\"10\",\"6\",\"9\",\"3\",\"+\",\"-11\",\"*\",\"/\",\"*\",\"17\",\"+\",\"5\",\"+\"]",
+          "expected_output": "22",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[\"2\",\"3\",\"*\"]",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[\"4\",\"2\",\"/\"]",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[\"7\",\"3\",\"-\"]",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-evaluate-reverse-polish-notation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[\"6\",\"2\",\"*\"]",
+          "expected_output": "12",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 24 — Decode Nested Encoded Strings",
+      "ticket_slug": "ticket-decode-nested-encoded-str",
+      "description": "You are given an encoded string that follows the pattern k[encoded_string], where the encoded_string inside the square brackets is repeated exactly k times.\n\nNote that k is guaranteed to be a positive integer. The input string does not contain any spaces and is always valid.\n\nYour task is to decode the string and return the final expanded result.\n\n**Example 1:**\nInput:\n3[a]2[bc]\nOutput:\naaabcbc\n\nExplanation:\nThe substring 'a' is repeated 3 times and 'bc' is repeated 2 times.\n\n**Example 2:**\nInput:\n3[a2[c]]\nOutput:\naccaccacc\n\nExplanation:\nThe inner encoded string '2[c]' becomes 'cc', and then the outer expression repeats 'acc' three times.\n\n**Constraints:**\n- 1 <= s.length <= 30\n- s consists of digits, lowercase English letters, and square brackets.\n- The input string is guaranteed to be valid.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n3[a]2[bc]\n\nOutput:\naaabcbc\n```\n\n**Example 2:**\n```\nInput:\n3[a2[c]]\n\nOutput:\naccaccacc\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 24,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-decode-nested-encoded-strings-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "3[a]2[bc]",
+          "expected_output": "aaabcbc",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-decode-nested-encoded-strings-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3[a2[c]]",
+          "expected_output": "accaccacc",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "2[abc]3[cd]ef",
+          "expected_output": "abcabccdcdcdef",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "10[a]",
+          "expected_output": "aaaaaaaaaa",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1[a]",
+          "expected_output": "a",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "2[a2[b]]",
+          "expected_output": "abbabb",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "3[z]2[2[y]pq4[2[jk]e1[f]]]ef",
+          "expected_output": "zzzyypqjkjkefjkjkefjkjkefjkjkefyypqjkjkefjkjkefjkjkefjkjkefef",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "2[3[a]b]",
+          "expected_output": "aaabaaab",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-decode-nested-encoded-strings-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4[x]",
+          "expected_output": "xxxx",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 25 — Stack that Removes the Most Frequent Element",
+      "ticket_slug": "ticket-stack-that-removes-the-mo",
+      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 25,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 pop",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 push 7 pop",
+          "expected_output": "7",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push 1 push 1 push 2 pop",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push 4 push 4 push 4 pop",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push 1 push 2 push 3 pop",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push 1 push 2 push 2 push 1 pop",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push 5 push 7 push 5 push 7 push 4 pop",
+          "expected_output": "7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push 9 push 9 push 9 pop",
+          "expected_output": "9",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-that-removes-the-most-frequent-element-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push 3 push 3 push 2 pop",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 26 — Arithmetic Expression Calculator II",
+      "ticket_slug": "ticket-arithmetic-expression-cal",
+      "description": "Given a string s representing a valid arithmetic expression, evaluate it and return the result.\n\nThe expression contains non-negative integers and operators '+', '-', '*', '/'. Integer division truncates toward zero.\n\n**Example 1:**\nInput:\n3+2*2\nOutput:\n7\n\n**Example 2:**\nInput:\n3/2\nOutput:\n1\n\n**Example 3:**\nInput:\n3+5/2\nOutput:\n5\n\n**Constraints:**\n- 1 <= s.length <= 3*10^5\n- s consists of digits and operators.\n- s is a valid expression.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n3+2*2\n\nOutput:\n7\n```\n\n**Example 2:**\n```\nInput:\n3/2\n\nOutput:\n1\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 26,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-arithmetic-expression-calculator-ii-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "3+2*2",
+          "expected_output": "7",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-arithmetic-expression-calculator-ii-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3/2",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3+5/2",
+          "expected_output": "5",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "10+2*6",
+          "expected_output": "22",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "100*2+12",
+          "expected_output": "212",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "100*(2+12)",
+          "expected_output": "1400",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "14-3/2",
+          "expected_output": "13",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "8+4/2",
+          "expected_output": "10",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-arithmetic-expression-calculator-ii-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "18/3+2",
+          "expected_output": "8",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 27 — Minimum Insertions to Make Parentheses Valid",
+      "ticket_slug": "ticket-minimum-insertions-to-mak",
+      "description": "You are given a string s consisting only of '(' and ')'. Your task is to determine the minimum number of parentheses that must be inserted so that the string becomes a valid parentheses string.\n\nA parentheses string is valid if every opening bracket has a corresponding closing bracket and they are correctly ordered.\n\nYou may insert parentheses at any position in the string.\n\n**Example 1:**\nInput:\n())\nOutput:\n1\n\nExplanation:\nOne '(' must be added at the beginning to make the string valid.\n\n**Example 2:**\nInput:\n((\nOutput:\n2\n\nExplanation:\nTwo ')' characters must be added to balance the string.\n\n**Constraints:**\n- 1 <= s.length <= 1000\n- s consists only of '(' and ')'.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n())\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\n((\n\nOutput:\n2\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 27,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "())",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "((",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "()",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "()))((",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "((()))",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "(()",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "))((",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "(()))(",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-minimum-insertions-to-make-parentheses-valid-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "",
+          "expected_output": "0",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 28 — Maximum Nesting Depth of Parentheses",
+      "ticket_slug": "ticket-maximum-nesting-depth-of-",
+      "description": "Given a valid parentheses string s, return the maximum nesting depth of the parentheses.\n\nThe nesting depth is defined as the maximum number of nested parentheses at any point in the string.\n\nA parentheses string is valid if every opening bracket has a corresponding closing bracket and the order is correct.\n\n**Example 1:**\nInput:\n\"(1+(2*3)+((8)/4))+1\"\nOutput:\n3\n\nExplanation:\nThe deepest nested parentheses is \"((8)/4)\" which has a depth of 3.\n\n**Example 2:**\nInput:\n\"(1)+((2))+(((3)))\"\nOutput:\n3\n\n**Constraints:**\n- 1 <= s.length <= 100\n- s consists of digits 0-9, '+', '-', '*', '/', '(', and ')'.\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(1+(2*3)+((8)/4))+1\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\n(1)+((2))+(((3)))\n\nOutput:\n3\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 28,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "(1+(2*3)+((8)/4))+1",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "(1)+((2))+(((3)))",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "()",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "((()))",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "(())",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "()()()",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "((()()))",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "(((())))",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-maximum-nesting-depth-of-parentheses-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "(())(())",
+          "expected_output": "2",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 29 — Remove Outermost Parentheses",
+      "ticket_slug": "ticket-remove-outermost-parenthe",
+      "description": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing their outermost parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists of '(' and ')'.\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(()())(())\n\nOutput:\n()()()\n```\n\n**Example 2:**\n```\nInput:\n(()())(())(()(()))\n\nOutput:\n()()()()(())\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 29,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-remove-outermost-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "(()())(())",
+          "expected_output": "()()()",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-remove-outermost-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "(()())(())(()(()))",
+          "expected_output": "()()()()(())",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "()()",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "((()))",
+          "expected_output": "(())",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "(()(()))",
+          "expected_output": "()(())",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "((()()))",
+          "expected_output": "(()())",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "(())(())",
+          "expected_output": "()()",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "(((())))",
+          "expected_output": "((()))",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-remove-outermost-parentheses-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "(()())",
+          "expected_output": "()()",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 30 — Reverse Substrings Between Each Pair of Parentheses",
+      "ticket_slug": "ticket-reverse-substrings-betwee",
+      "description": "You are given a string s that consists of lowercase English letters and parentheses. Reverse the strings in each pair of matching parentheses starting from the innermost one.\n\nReturn the final string after removing all parentheses.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(abcd)\n\nOutput:\ndcba\n```\n\n**Example 2:**\n```\nInput:\n(u(love)i)\n\nOutput:\niloveu\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 30,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "(abcd)",
+          "expected_output": "dcba",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "(u(love)i)",
+          "expected_output": "iloveu",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "(ed(et(oc))el)",
+          "expected_output": "leetcode",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "a(bcdefghijkl(mno)p)q",
+          "expected_output": "apmnolkjihgfedcbq",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "(a)",
+          "expected_output": "a",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "((abc))",
+          "expected_output": "abc",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "(ab(cd))",
+          "expected_output": "cdba",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "(xy(z))",
+          "expected_output": "zyx",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-reverse-substrings-between-each-pair-of-parentheses-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "((a)(b))",
+          "expected_output": "ab",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 31 — Score of Parentheses",
+      "ticket_slug": "ticket-score-of-parentheses",
+      "description": "Given a balanced parentheses string s, compute its score using the following rules:\n\n() has score 1\nAB has score A + B\n(A) has score 2 * A\n\n### Examples\n\n**Example 1:**\n```\nInput:\n()\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\n(())\n\nOutput:\n2\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 31,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-score-of-parentheses-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "()",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-score-of-parentheses-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "(())",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "()()",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "(()(()))",
+          "expected_output": "6",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "((()))",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "()(())",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "((())())",
+          "expected_output": "6",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "((()()))",
+          "expected_output": "8",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-score-of-parentheses-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "(()())",
+          "expected_output": "4",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 32 — Basic Calculator",
+      "ticket_slug": "ticket-basic-calculator",
+      "description": "Evaluate a simple expression string containing non-negative integers, '+', '-', and parentheses.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 + 1\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\n2-1 + 2\n\nOutput:\n3\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 32,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-basic-calculator-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 + 1",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-basic-calculator-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "2-1 + 2",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "(1+(4+5+2)-3)+(6+8)",
+          "expected_output": "23",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "10+(2+3)",
+          "expected_output": "15",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "(7)-(0)+(4)",
+          "expected_output": "11",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "(5+(6-2))",
+          "expected_output": "9",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "((1+2)+3)",
+          "expected_output": "6",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "20-(5+5)",
+          "expected_output": "10",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-basic-calculator-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "(8+(3))",
+          "expected_output": "11",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 33 — XML Tag Validator",
+      "ticket_slug": "ticket-xml-tag-validator",
+      "description": "Given a string representing code with XML-like tags, determine whether it is valid.\n\nA valid code snippet must satisfy the following rules:\n\n1. The code must be wrapped inside a single valid closed tag.\n2. A tag name must contain only uppercase letters and have length between 1 and 9.\n3. Tags must be properly nested.\n4. The code may contain CDATA sections which should be ignored when validating tags.\n\nReturn true if the code is valid, otherwise return false.\n\n**Example 1:**\nInput:\n<DIV>This is the first line <![CDATA[<div>]]></DIV>\nOutput:\ntrue\n\n**Example 2:**\nInput:\n<A> <B> </A> </B>\nOutput:\nfalse\n\n### Examples\n\n**Example 1:**\n```\nInput:\n<A></A>\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n<A><B></B></A>\n\nOutput:\ntrue\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 33,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-xml-tag-validator-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "<A></A>",
+          "expected_output": "true",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-xml-tag-validator-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "<A><B></B></A>",
+          "expected_output": "true",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "<DIV>This is the first line <![CDATA[<div>]]></DIV>",
+          "expected_output": "true",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "<A></B>",
+          "expected_output": "false",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "<A><B></A></B>",
+          "expected_output": "false",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "<LONGTAG></LONGTAG>",
+          "expected_output": "true",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "<A>text</A>",
+          "expected_output": "true",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "<A><B></B>",
+          "expected_output": "false",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-xml-tag-validator-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "<A><B></B></C>",
+          "expected_output": "false",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 34 — Next Greater Element Lookup",
+      "ticket_slug": "ticket-next-greater-element-look",
+      "description": "You are given two arrays nums1 and nums2. All elements of nums1 are present in nums2.\n\nFor each element in nums1, find the next greater element in nums2. The next greater element of a number x in nums2 is the first greater number to the right of x in nums2.\n\nIf it does not exist, return -1 for that element.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums1=[4,1,2], nums2=[1,3,4,2]\n\nOutput:\n[-1,3,-1]\n```\n\n**Example 2:**\n```\nInput:\nnums1=[2,4], nums2=[1,2,3,4]\n\nOutput:\n[3,-1]\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 34,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-next-greater-element-lookup-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums1=[4,1,2], nums2=[1,3,4,2]",
+          "expected_output": "[-1,3,-1]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-next-greater-element-lookup-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums1=[2,4], nums2=[1,2,3,4]",
+          "expected_output": "[3,-1]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums1=[1], nums2=[1,2]",
+          "expected_output": "[2]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums1=[2], nums2=[2,1]",
+          "expected_output": "[-1]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums1=[1,3], nums2=[1,2,3,4]",
+          "expected_output": "[2,4]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums1=[3], nums2=[3,2,1]",
+          "expected_output": "[-1]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums1=[1,2], nums2=[2,1,3]",
+          "expected_output": "[3,3]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums1=[5], nums2=[1,3,4,5]",
+          "expected_output": "[-1]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-lookup-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums1=[1,4], nums2=[1,2,3,4,5]",
+          "expected_output": "[2,5]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 35 — Final Prices With Special Discount",
+      "ticket_slug": "ticket-final-prices-with-special",
+      "description": "You are given an array prices where prices[i] is the price of the ith item.\n\nFor each item, find the first item to its right whose price is less than or equal to it. If such an item exists, subtract that price as a discount.\n\nReturn the final prices after applying discounts.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[8,4,6,2,3]\n\nOutput:\n[4,2,4,2,3]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,5]\n\nOutput:\n[1,2,3,4,5]\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 35,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-final-prices-with-special-discount-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[8,4,6,2,3]",
+          "expected_output": "[4,2,4,2,3]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-final-prices-with-special-discount-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3,4,5]",
+          "expected_output": "[1,2,3,4,5]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[10,1,1,6]",
+          "expected_output": "[9,0,1,6]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[5,5,5]",
+          "expected_output": "[0,0,5]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[7,3,5]",
+          "expected_output": "[4,3,5]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[9,8,7,6]",
+          "expected_output": "[1,1,1,6]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[2,3,1]",
+          "expected_output": "[1,2,1]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[4,3,2,1]",
+          "expected_output": "[1,1,1,1]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-final-prices-with-special-discount-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[6,5,4,3,2,1]",
+          "expected_output": "[1,1,1,1,1,1]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 36 — Buildings With Ocean View",
+      "ticket_slug": "ticket-buildings-with-ocean-view",
+      "description": "You are given an integer array heights where heights[i] represents the height of the ith building.\n\nA building has an ocean view if all the buildings to its right have a smaller height.\n\nReturn the indices of the buildings that have an ocean view. The returned indices should be sorted in increasing order.\n\n**Example 1:**\nInput:\n[4,2,3,1]\nOutput:\n[0,2,3]\n\nExplanation:\nBuilding 1 does not have an ocean view because building 2 is taller.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[4,2,3,1]\n\nOutput:\n[0,2,3]\n```\n\n**Example 2:**\n```\nInput:\n[4,3,2,1]\n\nOutput:\n[0,1,2,3]\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 36,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-buildings-with-ocean-view-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[4,2,3,1]",
+          "expected_output": "[0,2,3]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-buildings-with-ocean-view-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[4,3,2,1]",
+          "expected_output": "[0,1,2,3]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,3,2,4]",
+          "expected_output": "[3]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[2,2,2,2]",
+          "expected_output": "[3]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "[0]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[10,9,8,7,6]",
+          "expected_output": "[0,1,2,3,4]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3,4,5]",
+          "expected_output": "[4]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[5,1,2,3,4]",
+          "expected_output": "[0,4]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-buildings-with-ocean-view-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[3,5,4,2,1]",
+          "expected_output": "[1,2,3,4]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 37 — Steps to Make Array Non-decreasing",
+      "ticket_slug": "ticket-steps-to-make-array-non-d",
+      "description": "You are given an integer array nums. In one step, remove all elements nums[i] such that nums[i-1] > nums[i].\n\nReturn the number of steps required to make the array non-decreasing.\n\n**Example 1:**\nInput:\n[5,3,4,4,7,3,6,11,8,5,11]\nOutput:\n3\n\nExplanation:\nAfter removing decreasing elements step by step, the array becomes non-decreasing in 3 steps.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[5,3,4,4,7,3,6,11,8,5,11]\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\n[4,5,7,7,13]\n\nOutput:\n0\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 37,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-steps-to-make-array-non-decreasing-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[5,3,4,4,7,3,6,11,8,5,11]",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-steps-to-make-array-non-decreasing-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[4,5,7,7,13]",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[10,1,2,3,4]",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[3,2,1]",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3,4]",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[7,14,4,14,13,2,6,13]",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[5,4,3,2,1]",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "0",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-steps-to-make-array-non-decreasing-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[2,2,2,2]",
+          "expected_output": "0",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 38 — Daily Temperatures",
+      "ticket_slug": "ticket-daily-temperatures",
+      "description": "You are given an array of integers temperatures representing the daily temperatures. Return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.\n\nIf there is no future day for which this is possible, keep answer[i] == 0.\n\n**Example 1:**\nInput:\n[73,74,75,71,69,72,76,73]\nOutput:\n[1,1,4,2,1,1,0,0]\n\n**Constraints:**\n- 1 <= temperatures.length <= 10^5\n- 30 <= temperatures[i] <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[73,74,75,71,69,72,76,73]\n\nOutput:\n[1,1,4,2,1,1,0,0]\n```\n\n**Example 2:**\n```\nInput:\n[30,40,50,60]\n\nOutput:\n[1,1,1,0]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 38,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-daily-temperatures-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[73,74,75,71,69,72,76,73]",
+          "expected_output": "[1,1,4,2,1,1,0,0]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-daily-temperatures-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[30,40,50,60]",
+          "expected_output": "[1,1,1,0]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[30]",
+          "expected_output": "[0]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[60,50,40,30]",
+          "expected_output": "[0,0,0,0]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[70,70,70]",
+          "expected_output": "[0,0,0]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[30,60,90]",
+          "expected_output": "[1,1,0]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[90,80,70,60,50]",
+          "expected_output": "[0,0,0,0,0]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[50,55,53,54,60]",
+          "expected_output": "[1,3,1,1,0]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-daily-temperatures-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[65,70,75,80,60,85]",
+          "expected_output": "[1,1,1,2,1,0]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 39 — Next Greater Element II (Circular Array)",
+      "ticket_slug": "ticket-next-greater-element-ii-c",
+      "description": "Given a circular integer array nums, return the next greater element for every element in nums.\n\nThe next greater element of a number x is the first greater number to its right while traversing the array circularly. If no such element exists, return -1.\n\n**Example 1:**\nInput:\n[1,2,1]\nOutput:\n[2,-1,2]\n\n**Constraints:**\n- 1 <= nums.length <= 10^4\n- -10^9 <= nums[i] <= 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,1]\n\nOutput:\n[2,-1,2]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,3]\n\nOutput:\n[2,3,4,-1,4]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 39,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-next-greater-element-ii-circular-array-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,1]",
+          "expected_output": "[2,-1,2]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-next-greater-element-ii-circular-array-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3,4,3]",
+          "expected_output": "[2,3,4,-1,4]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[5,4,3,2,1]",
+          "expected_output": "[-1,5,5,5,5]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,1,1]",
+          "expected_output": "[-1,-1,-1]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[2,1,2,4,3]",
+          "expected_output": "[4,2,4,-1,4]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[10]",
+          "expected_output": "[-1]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[3,8,4,1,2]",
+          "expected_output": "[8,-1,8,2,3]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[6,5,4,3,2,1]",
+          "expected_output": "[-1,6,6,6,6,6]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-next-greater-element-ii-circular-array-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[1,3,2,4]",
+          "expected_output": "[3,4,4,-1]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 40 — Sum of Subarray Ranges",
+      "ticket_slug": "ticket-sum-of-subarray-ranges",
+      "description": "You are given an integer array nums. The range of a subarray is the difference between the maximum and minimum elements in that subarray.\n\nReturn the sum of all subarray ranges.\n\n**Example 1:**\nInput:\n[1,2,3]\nOutput:\n4\n\nExplanation:\nThe subarrays are:\n[1] range=0\n[2] range=0\n[3] range=0\n[1,2] range=1\n[2,3] range=1\n[1,2,3] range=2\nTotal = 4\n\n**Constraints:**\n- 1 <= nums.length <= 1000\n- -10^9 <= nums[i] <= 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3]\n\nOutput:\n4\n```\n\n**Example 2:**\n```\nInput:\n[1,3,3]\n\nOutput:\n4\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 40,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sum-of-subarray-ranges-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sum-of-subarray-ranges-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,3,3]",
+          "expected_output": "4",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[4,-2,-3,4,1]",
+          "expected_output": "59",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,1,1]",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[2,1,3]",
+          "expected_output": "5",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[3,1,2,4]",
+          "expected_output": "13",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[5,4,3,2,1]",
+          "expected_output": "20",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-ranges-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[1,5,2,4,6]",
+          "expected_output": "43",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 41 — Largest Rectangle in Histogram",
+      "ticket_slug": "ticket-largest-rectangle-in-hist",
+      "description": "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.\n\n**Example 1:**\nInput:\n[2,1,5,6,2,3]\nOutput:\n10\n\nExplanation:\nThe largest rectangle has area 10 (height 5 and width 2).\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[2,1,5,6,2,3]\n\nOutput:\n10\n```\n\n**Example 2:**\n```\nInput:\n[2,4]\n\nOutput:\n4\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 41,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-largest-rectangle-in-histogram-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[2,1,5,6,2,3]",
+          "expected_output": "10",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-largest-rectangle-in-histogram-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[2,4]",
+          "expected_output": "4",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[6,2,5,4,5,1,6]",
+          "expected_output": "12",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,1,1,1]",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[4,3,2,1]",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3,4,5]",
+          "expected_output": "9",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[5,4,3,2,1]",
+          "expected_output": "9",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-largest-rectangle-in-histogram-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[2,1,2]",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 42 — Trapping Rain Water",
+      "ticket_slug": "ticket-trapping-rain-water",
+      "description": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.\n\n**Example 1:**\nInput:\n[0,1,0,2,1,0,1,3,2,1,2,1]\nOutput:\n6\n\nExplanation:\nThe elevation map traps a total of 6 units of rain water.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[0,1,0,2,1,0,1,3,2,1,2,1]\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\n[4,2,0,3,2,5]\n\nOutput:\n9\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 42,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-trapping-rain-water-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[0,1,0,2,1,0,1,3,2,1,2,1]",
+          "expected_output": "6",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-trapping-rain-water-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[4,2,0,3,2,5]",
+          "expected_output": "9",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[2,1,2]",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[3,0,2,0,4]",
+          "expected_output": "7",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[5,4,1,2]",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[2,0,2]",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[0,0,0]",
+          "expected_output": "0",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-trapping-rain-water-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[5,2,1,2,1,5]",
+          "expected_output": "14",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 43 — Sum of Subarray Minimums",
+      "ticket_slug": "ticket-sum-of-subarray-minimums",
+      "description": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] → 3\n[1] → 1\n[2] → 2\n[4] → 4\n[3,1] → 1\n[1,2] → 1\n[2,4] → 2\n[3,1,2] → 1\n[1,2,4] → 1\n[3,1,2,4] → 1\nTotal = 17\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,1,2,4]\n\nOutput:\n17\n```\n\n**Example 2:**\n```\nInput:\n[11,81,94,43,3]\n\nOutput:\n444\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 43,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sum-of-subarray-minimums-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,1,2,4]",
+          "expected_output": "17",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sum-of-subarray-minimums-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[11,81,94,43,3]",
+          "expected_output": "444",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,1,1]",
+          "expected_output": "6",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[2,3,4]",
+          "expected_output": "14",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[4,3,2,1]",
+          "expected_output": "20",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[5,5,5,5]",
+          "expected_output": "50",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3,4,5]",
+          "expected_output": "35",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-sum-of-subarray-minimums-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[2,9,7,8,3,4,6,1]",
+          "expected_output": "117",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 44 — Maximum of Minimums for Every Window Size",
+      "ticket_slug": "ticket-maximum-of-minimums-for-e",
+      "description": "Given an array of n integers, for every window size w from 1 to n, find the maximum of the minimum values across all windows of that size.\n\nFormally, for each w, find: max over all i of (min(arr[i..i+w-1]))\n\n**Constraints:**\n- 1 <= n <= 10^5\n- 1 <= arr[i] <= 10^6\n\n### Examples\n\n**Example 1:**\n```\nInput:\n7\n10 20 30 50 10 70 30\n\nOutput:\n70 30 20 10 10 10 10\n```\n\n**Example 2:**\n```\nInput:\n4\n10 20 30 50\n\nOutput:\n50 30 20 10\n```\n\n**Example 3:**\n```\nInput:\n3\n3 1 2\n\nOutput:\n3 1 1\n```\n\n**Example 4:**\n```\nInput:\n1\n5\n\nOutput:\n5\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 44,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "7\n10 20 30 50 10 70 30",
+          "expected_output": "70 30 20 10 10 10 10",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n10 20 30 50",
+          "expected_output": "50 30 20 10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n3 1 2",
+          "expected_output": "3 1 1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n5",
+          "expected_output": "5",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "5 4 3 2 1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "5 4 3 2 1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n1 3 2 4 5 2",
+          "expected_output": "5 4 2 2 2 1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-of-minimums-for-every-window-size-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "4\n4 4 4 4",
+          "expected_output": "4 4 4 4",
+          "order_index": 8
+        }
+      ]
+    }
+  ]
+}

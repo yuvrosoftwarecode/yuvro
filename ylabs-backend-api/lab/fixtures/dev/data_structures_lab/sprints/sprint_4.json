@@ -1,0 +1,2767 @@
+{
+  "title": "Sprint 4 — Queues",
+  "description": "Master Queues through hand-picked algorithmic challenges.",
+  "xp_pool": 6400,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Ticket Buying Simulation",
+      "ticket_slug": "ticket-ticket-buying-simulation",
+      "description": "There are n people standing in a queue where the ith person wants to buy tickets[i] tickets.\n\nEach person can buy only one ticket at a time. After buying a ticket, they move to the end of the queue if they still need more tickets.\n\nReturn the time taken for the person at index k to finish buying tickets.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ntickets=[2,3,2], k=2\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\ntickets=[5,1,1,1], k=0\n\nOutput:\n8\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-ticket-buying-simulation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "tickets=[2,3,2], k=2",
+          "expected_output": "6",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-ticket-buying-simulation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "tickets=[5,1,1,1], k=0",
+          "expected_output": "8",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "tickets=[1,1,1], k=1",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "tickets=[2,2,2], k=0",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "tickets=[3,3,3], k=2",
+          "expected_output": "9",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "tickets=[4,2,1], k=1",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "tickets=[1,2,3], k=2",
+          "expected_output": "6",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "tickets=[2,1,2], k=0",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-ticket-buying-simulation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "tickets=[3,1,1,1], k=0",
+          "expected_output": "6",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Students Unable to Eat Lunch",
+      "ticket_slug": "ticket-students-unable-to-eat-lu",
+      "description": "A group of students stand in a queue to receive lunch. Each student prefers either circular (0) or square (1) sandwiches. The sandwiches are placed in a stack.\n\nAt each step:\n- If the student at the front prefers the sandwich on top of the stack, they take it and leave.\n- Otherwise, they move to the end of the queue.\n\nThis continues until no student wants the top sandwich.\n\nReturn the number of students unable to eat.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nstudents=[1,1,0,0], sandwiches=[0,1,0,1]\n\nOutput:\n0\n```\n\n**Example 2:**\n```\nInput:\nstudents=[1,1,1,0,0,1], sandwiches=[1,0,0,0,1,1]\n\nOutput:\n3\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-students-unable-to-eat-lunch-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "students=[1,1,0,0], sandwiches=[0,1,0,1]",
+          "expected_output": "0",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-students-unable-to-eat-lunch-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "students=[1,1,1,0,0,1], sandwiches=[1,0,0,0,1,1]",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "students=[0,0,0], sandwiches=[1,1,1]",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "students=[1,1,1], sandwiches=[1,1,1]",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "students=[0,1,0,1], sandwiches=[1,0,1,0]",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "students=[1,0,1], sandwiches=[0,0,0]",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "students=[0,1,1,0], sandwiches=[0,1,1,0]",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "students=[1,1,0], sandwiches=[0,0,0]",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-students-unable-to-eat-lunch-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "students=[0,0,1,1], sandwiches=[1,1,1,1]",
+          "expected_output": "2",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Reveal Cards in Increasing Order",
+      "ticket_slug": "ticket-reveal-cards-in-increasin",
+      "description": "You are given an integer array deck representing a deck of unique cards.\n\nYou must arrange the deck so that when you repeatedly reveal the top card and move the next card to the bottom, the revealed cards appear in increasing order.\n\nReturn the ordering of the deck that achieves this.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ndeck=[17,13,11,2,3,5,7]\n\nOutput:\n[2,13,3,11,5,17,7]\n```\n\n**Example 2:**\n```\nInput:\ndeck=[1,100]\n\nOutput:\n[1,100]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-reveal-cards-in-increasing-order-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "deck=[17,13,11,2,3,5,7]",
+          "expected_output": "[2,13,3,11,5,17,7]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-reveal-cards-in-increasing-order-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "deck=[1,100]",
+          "expected_output": "[1,100]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "deck=[1,2,3,4,5]",
+          "expected_output": "[1,5,2,4,3]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "deck=[10,20,30]",
+          "expected_output": "[10,30,20]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "deck=[5,3,1,2,4]",
+          "expected_output": "[1,5,2,4,3]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "deck=[7,6,5,4,3,2,1]",
+          "expected_output": "[1,6,2,5,3,7,4]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "deck=[100]",
+          "expected_output": "[100]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "deck=[9,8,7,6]",
+          "expected_output": "[6,9,7,8]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-reveal-cards-in-increasing-order-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "deck=[11,12,13,14]",
+          "expected_output": "[11,14,12,13]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Winner of the Circular Game",
+      "ticket_slug": "ticket-winner-of-the-circular-ga",
+      "description": "There are n friends standing in a circle. Starting from the first friend, count k people clockwise including the current one. The kth friend leaves the circle.\n\nThe process continues until only one person remains.\n\nReturn the winner.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nn=5, k=2\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\nn=6, k=5\n\nOutput:\n1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-winner-of-the-circular-game-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "n=5, k=2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-winner-of-the-circular-game-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "n=6, k=5",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "n=1, k=1",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "n=10, k=3",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "n=7, k=2",
+          "expected_output": "7",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "n=8, k=4",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "n=9, k=5",
+          "expected_output": "8",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "n=4, k=3",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-winner-of-the-circular-game-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "n=12, k=6",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Dota2 Senate Simulation",
+      "ticket_slug": "ticket-dota2-senate-simulation",
+      "description": "In the Dota2 Senate, there are two parties: Radiant (R) and Dire (D). Each senator can ban a senator from the opposing party.\n\nThe senators vote in rounds. Each senator can ban one opponent who appears later in the voting order. If a senator is banned, they cannot vote in future rounds.\n\nGiven a string senate representing the parties of senators, determine which party will win the game.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nsenate=\"RD\"\n\nOutput:\nRadiant\n```\n\n**Example 2:**\n```\nInput:\nsenate=\"RDD\"\n\nOutput:\nDire\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-dota2-senate-simulation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "senate=\"RD\"",
+          "expected_output": "Radiant",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-dota2-senate-simulation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "senate=\"RDD\"",
+          "expected_output": "Dire",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "senate=\"RRD\"",
+          "expected_output": "Radiant",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "senate=\"DDR\"",
+          "expected_output": "Dire",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "senate=\"RDRD\"",
+          "expected_output": "Radiant",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "senate=\"DDRRR\"",
+          "expected_output": "Radiant",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "senate=\"RRDDD\"",
+          "expected_output": "Dire",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "senate=\"R\"",
+          "expected_output": "Radiant",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-dota2-senate-simulation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "senate=\"D\"",
+          "expected_output": "Dire",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Circular Petrol Pump Tour",
+      "ticket_slug": "ticket-circular-petrol-pump-tour",
+      "description": "There are N petrol pumps arranged in a circle. Each pump provides a certain amount of petrol and the truck requires a certain amount of petrol to reach the next pump.\n\nFind the index of the first petrol pump from which the truck can complete the circular tour without running out of petrol.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[[1,5],[10,3],[3,4]]\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\n[[2,3],[3,4],[4,3]]\n\nOutput:\n2\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-circular-petrol-pump-tour-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[1,5],[10,3],[3,4]]",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-circular-petrol-pump-tour-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[2,3],[3,4],[4,3]]",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[4,6],[6,5],[7,3],[4,5]]",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[6,4],[3,6],[7,3]]",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[1,2],[2,2],[3,2]]",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[2,2],[3,2],[4,3]]",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[5,6],[7,3],[4,5]]",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[3,4],[4,5],[5,1]]",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-circular-petrol-pump-tour-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "[[6,3],[3,4],[4,2]]",
+          "expected_output": "0",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Castle on the Grid",
+      "ticket_slug": "ticket-castle-on-the-grid",
+      "description": "You are given a square grid where each cell is either open '.' or blocked 'X'. You can move like a rook in chess (any number of steps horizontally or vertically until blocked).\n\nFind the minimum number of moves required to go from the start cell to the goal cell.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ngrid=[\"...\",\".X.\",\"...\"], start=(0,0), goal=(0,2)\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\ngrid=[\"...\",\".X.\",\"...\"], start=(0,0), goal=(2,2)\n\nOutput:\n2\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-castle-on-the-grid-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "grid=[\"...\",\".X.\",\"...\"], start=(0,0), goal=(0,2)",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-castle-on-the-grid-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "grid=[\"...\",\".X.\",\"...\"], start=(0,0), goal=(2,2)",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "grid=[\"....\",\".XX.\",\"....\",\"....\"], start=(0,0), goal=(3,3)",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "grid=[\"...X\",\"....\",\"X...\",\"....\"], start=(0,0), goal=(3,3)",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "grid=[\"....\",\"....\",\"....\",\"....\"], start=(0,0), goal=(3,3)",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "grid=[\"X..\",\"...\",\"..X\"], start=(1,0), goal=(1,2)",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "grid=[\"...\",\"...\",\"...\"], start=(0,1), goal=(2,1)",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "grid=[\"....\",\"X..X\",\"....\",\"....\"], start=(0,0), goal=(3,3)",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-castle-on-the-grid-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "grid=[\"..X.\",\"....\",\"....\",\".X..\"], start=(0,0), goal=(3,3)",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Queue Using Two Stacks",
+      "ticket_slug": "ticket-queue-using-two-stacks",
+      "description": "Implement a queue using two stacks. The queue should support standard operations: push, pop, peek, and empty.\n\nImplement the MyQueue class:\n- push(x): Push element x to the back of the queue.\n- pop(): Remove the element from the front of the queue.\n- peek(): Get the front element.\n- empty(): Return true if the queue is empty.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush(1), push(2), peek(), pop(), empty()\n\nOutput:\n1,1,false\n```\n\n**Example 2:**\n```\nInput:\npush(5), push(10), pop(), peek()\n\nOutput:\n5,10\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-queue-using-two-stacks-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push(1), push(2), peek(), pop(), empty()",
+          "expected_output": "1,1,false",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-queue-using-two-stacks-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push(5), push(10), pop(), peek()",
+          "expected_output": "5,10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push(1), push(2), push(3), pop(), pop()",
+          "expected_output": "1,2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push(10), pop(), empty()",
+          "expected_output": "10,true",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push(7), push(8), push(9), peek()",
+          "expected_output": "7",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push(1), push(2), pop(), push(3), pop()",
+          "expected_output": "1,2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push(5), peek(), pop()",
+          "expected_output": "5,5",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push(100), push(200), push(300), pop()",
+          "expected_output": "100",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push(1), push(2), push(3), pop(), peek()",
+          "expected_output": "1,2",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Queue Using Two Stacks Operations",
+      "ticket_slug": "ticket-queue-using-two-stacks-op",
+      "description": "Implement a queue using two stacks. You will be given a sequence of queries:\n1 x : Enqueue element x\n2 : Dequeue the front element\n3 : Print the front element\n\nMaintain the correct FIFO order.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 42, 2, 1 14, 3\n\nOutput:\n14\n```\n\n**Example 2:**\n```\nInput:\n1 10, 1 20, 3\n\nOutput:\n10\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-queue-using-two-stacks-operations-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "1 42, 2, 1 14, 3",
+          "expected_output": "14",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-queue-using-two-stacks-operations-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "1 10, 1 20, 3",
+          "expected_output": "10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "1 1,1 2,1 3,3",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 5,2,1 7,3",
+          "expected_output": "7",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1 10,1 20,2,3",
+          "expected_output": "20",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1 100,1 200,1 300,2,3",
+          "expected_output": "200",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "1 9,3",
+          "expected_output": "9",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "1 2,1 4,1 6,2,3",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-queue-using-two-stacks-operations-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "1 7,1 8,1 9,3",
+          "expected_output": "7",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Stack Using Queues",
+      "ticket_slug": "ticket-stack-using-queues",
+      "description": "Implement a stack using queues. The stack should support push, pop, top, and empty operations.\n\nImplement class MyStack:\n- push(x)\n- pop()\n- top()\n- empty()\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush(1), push(2), top(), pop()\n\nOutput:\n2,2\n```\n\n**Example 2:**\n```\nInput:\npush(10), push(20), pop(), top()\n\nOutput:\n20,10\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-stack-using-queues-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "push(1), push(2), top(), pop()",
+          "expected_output": "2,2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-stack-using-queues-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "push(10), push(20), pop(), top()",
+          "expected_output": "20,10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "push(1),push(2),push(3),top()",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "push(5),push(6),pop()",
+          "expected_output": "6",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "push(7),push(8),push(9),pop(),top()",
+          "expected_output": "9,8",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "push(10),pop(),empty()",
+          "expected_output": "10,true",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "push(2),push(4),push(6),pop()",
+          "expected_output": "6",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "push(3),push(5),top()",
+          "expected_output": "5",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-stack-using-queues-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "push(9),push(11),pop(),top()",
+          "expected_output": "11,9",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Design Circular Queue",
+      "ticket_slug": "ticket-design-circular-queue",
+      "description": "Design a circular queue data structure. The circular queue should support the following operations:\n\n- enQueue(value): Insert an element into the circular queue. Return true if successful.\n- deQueue(): Delete an element from the circular queue. Return true if successful.\n- Front(): Get the front item from the queue.\n- Rear(): Get the last item from the queue.\n- isEmpty(): Check whether the circular queue is empty.\n- isFull(): Check whether the circular queue is full.\n\nImplement the MyCircularQueue class.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nk=3, enQueue(1), enQueue(2), enQueue(3), isFull()\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\nk=2, enQueue(5), deQueue(), isEmpty()\n\nOutput:\ntrue\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-design-circular-queue-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "k=3, enQueue(1), enQueue(2), enQueue(3), isFull()",
+          "expected_output": "true",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-design-circular-queue-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "k=2, enQueue(5), deQueue(), isEmpty()",
+          "expected_output": "true",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "k=3, enQueue(1), enQueue(2), enQueue(3), enQueue(4)",
+          "expected_output": "false",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "k=3, enQueue(1), deQueue(), enQueue(2)",
+          "expected_output": "true",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "k=4, enQueue(1), enQueue(2), enQueue(3), Front()",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "k=4, enQueue(1), enQueue(2), enQueue(3), Rear()",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "k=2, enQueue(10), enQueue(20), isFull()",
+          "expected_output": "true",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "k=2, enQueue(10), deQueue(), isEmpty()",
+          "expected_output": "true",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-design-circular-queue-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "k=5, enQueue(1), enQueue(2), enQueue(3), enQueue(4), enQueue(5)",
+          "expected_output": "true",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — First Unique Number in Stream",
+      "ticket_slug": "ticket-first-unique-number-in-st",
+      "description": "Design a data structure that supports:\n- Show the first unique number in a queue.\n- Add numbers to the queue.\n\nImplement the FirstUnique class:\n- FirstUnique(nums)\n- showFirstUnique()\n- add(value)\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[2,3,5], showFirstUnique()\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\nnums=[7,7,7], showFirstUnique()\n\nOutput:\n-1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-first-unique-number-in-stream-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[2,3,5], showFirstUnique()",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-first-unique-number-in-stream-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[7,7,7], showFirstUnique()",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[1,2,3], add(1), showFirstUnique()",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[5,6,5], showFirstUnique()",
+          "expected_output": "6",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[2,3,2,4], showFirstUnique()",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[10,20,10], add(30), showFirstUnique()",
+          "expected_output": "20",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[1,1,2,2], showFirstUnique()",
+          "expected_output": "-1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[9,8,7], add(9), showFirstUnique()",
+          "expected_output": "8",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-number-in-stream-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[5,4,3], add(5), add(4), showFirstUnique()",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — MK Average Data Structure",
+      "ticket_slug": "ticket-mk-average-data-structure",
+      "description": "Design a data structure that calculates the MKAverage of the last m elements in a stream.\n\nWhen calculating MKAverage:\n- Remove the smallest k elements.\n- Remove the largest k elements.\n- Return the average of the remaining elements.\n\nImplement the MKAverage class with:\n- addElement(num)\n- calculateMKAverage()\n\n### Examples\n\n**Example 1:**\n```\nInput:\nm=3,k=1 addElement(3),addElement(1),addElement(10),calculateMKAverage()\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\nm=5,k=1 addElement(1),addElement(2),addElement(3),addElement(4),addElement(5)\n\nOutput:\n3\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-mk-average-data-structure-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "m=3,k=1 addElement(3),addElement(1),addElement(10),calculateMKAverage()",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-mk-average-data-structure-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "m=5,k=1 addElement(1),addElement(2),addElement(3),addElement(4),addElement(5)",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "m=6,k=1 addElement(1..6)",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "m=4,k=1 addElement(10,20,30,40)",
+          "expected_output": "25",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "m=5,k=2 addElement(1,2,3,4,5)",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "m=6,k=2 addElement(6,5,4,3,2,1)",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "m=7,k=2 addElement(1..7)",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "m=5,k=1 addElement(5,5,5,5,5)",
+          "expected_output": "5",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-mk-average-data-structure-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "m=8,k=2 addElement(1..8)",
+          "expected_output": "4",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Maximum Robots Within Budget",
+      "ticket_slug": "ticket-maximum-robots-within-bud",
+      "description": "You are given arrays chargeTimes and runningCosts and an integer budget.\n\nThe cost of running k robots is:\nmax(chargeTimes) + k * sum(runningCosts)\n\nFind the maximum number of robots that can run simultaneously without exceeding the budget.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ncharge=[3,6,1], run=[2,1,3], budget=25\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\ncharge=[5,4,3], run=[1,1,1], budget=10\n\nOutput:\n2\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-robots-within-budget-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "charge=[3,6,1], run=[2,1,3], budget=25",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-robots-within-budget-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "charge=[5,4,3], run=[1,1,1], budget=10",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "charge=[1,2,3], run=[1,1,1], budget=10",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "charge=[10,20,30], run=[1,1,1], budget=25",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "charge=[5,1,3], run=[2,2,2], budget=20",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "charge=[8,6,4,2], run=[1,2,3,4], budget=30",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "charge=[7,7,7], run=[1,1,1], budget=15",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "charge=[2,2,2,2], run=[1,1,1,1], budget=12",
+          "expected_output": "3",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-maximum-robots-within-budget-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "charge=[9,8,7,6], run=[1,1,1,1], budget=20",
+          "expected_output": "2",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Maximum Sum Circular Subarray",
+      "ticket_slug": "ticket-maximum-sum-circular-suba",
+      "description": "Given a circular integer array nums, return the maximum possible sum of a non-empty subarray.\n\nA circular array means the end connects to the beginning.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[1,-2,3,-2]\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\nnums=[5,-3,5]\n\nOutput:\n10\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-sum-circular-subarray-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[1,-2,3,-2]",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-sum-circular-subarray-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[5,-3,5]",
+          "expected_output": "10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[3,-1,2,-1]",
+          "expected_output": "4",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[3,-2,2,-3]",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[-2,-3,-1]",
+          "expected_output": "-1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[1,2,3]",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[5,-2,3,4]",
+          "expected_output": "12",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[8,-1,3,4]",
+          "expected_output": "15",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-maximum-sum-circular-subarray-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[2,-2,2,7,8,0]",
+          "expected_output": "19",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 16 — K Empty Slots Problem",
+      "ticket_slug": "ticket-k-empty-slots-problem",
+      "description": "You are given an array bulbs where bulbs[i] is the position of the bulb turned on at day i+1.\n\nReturn the earliest day when there exist two turned-on bulbs with exactly k bulbs between them that are off.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nbulbs=[1,3,2], k=1\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\nbulbs=[1,2,3], k=1\n\nOutput:\n-1\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 16,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-k-empty-slots-problem-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "bulbs=[1,3,2], k=1",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-k-empty-slots-problem-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "bulbs=[1,2,3], k=1",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "bulbs=[2,1,3], k=1",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "bulbs=[1,3,5,2,4], k=1",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "bulbs=[3,1,5,4,2], k=1",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "bulbs=[1,4,2,3], k=2",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "bulbs=[2,4,1,3], k=1",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "bulbs=[5,4,3,2,1], k=1",
+          "expected_output": "-1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-k-empty-slots-problem-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "bulbs=[1,5,2,4,3], k=2",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 17 — Rotting Oranges Simulation",
+      "ticket_slug": "ticket-rotting-oranges-simulatio",
+      "description": "You are given a grid where:\n- 0 represents an empty cell\n- 1 represents a fresh orange\n- 2 represents a rotten orange\n\nEvery minute, any fresh orange adjacent (up, down, left, right) to a rotten orange becomes rotten.\n\nReturn the minimum number of minutes required so that no fresh orange remains. If this is impossible, return -1.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ngrid=[[2,1,1],[1,1,0],[0,1,1]]\n\nOutput:\n4\n```\n\n**Example 2:**\n```\nInput:\ngrid=[[2,1,1],[0,1,1],[1,0,1]]\n\nOutput:\n-1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 17,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-rotting-oranges-simulation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "grid=[[2,1,1],[1,1,0],[0,1,1]]",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-rotting-oranges-simulation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "grid=[[2,1,1],[0,1,1],[1,0,1]]",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "grid=[[0,2]]",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "grid=[[2,2],[2,2]]",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "grid=[[1,2]]",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "grid=[[2,1,1],[1,1,1],[0,1,2]]",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "grid=[[1,1,1],[1,2,1],[1,1,1]]",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "grid=[[2,1,0],[0,1,1]]",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-simulation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "grid=[[1]]",
+          "expected_output": "-1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 18 — Open the Lock Puzzle",
+      "ticket_slug": "ticket-open-the-lock-puzzle",
+      "description": "You have a lock with four circular wheels. Each wheel has digits from 0 to 9. You can turn one wheel at a time.\n\nGiven a list of deadends and a target combination, return the minimum number of moves required to reach the target from \"0000\". If impossible, return -1.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ndeadends=[\"0201\",\"0101\",\"0102\",\"1212\",\"2002\"], target=\"0202\"\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\ndeadends=[\"8888\"], target=\"0009\"\n\nOutput:\n1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 18,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-open-the-lock-puzzle-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "deadends=[\"0201\",\"0101\",\"0102\",\"1212\",\"2002\"], target=\"0202\"",
+          "expected_output": "6",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-open-the-lock-puzzle-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "deadends=[\"8888\"], target=\"0009\"",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "deadends=[\"0000\"], target=\"8888\"",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "deadends=[], target=\"9999\"",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "deadends=[\"1111\",\"2222\"], target=\"0001\"",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "deadends=[\"8887\",\"8889\",\"8878\",\"8898\"], target=\"8888\"",
+          "expected_output": "-1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "deadends=[], target=\"0101\"",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "deadends=[\"0001\"], target=\"0002\"",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-open-the-lock-puzzle-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "deadends=[], target=\"1000\"",
+          "expected_output": "1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 19 — Snakes and Ladders Minimum Moves",
+      "ticket_slug": "ticket-snakes-and-ladders-minimu",
+      "description": "You are given an n x n board representing a Snakes and Ladders game.\n\nEach square has a number. If a square contains a snake or ladder, you must move to its destination square.\n\nReturn the minimum number of moves required to reach the last square starting from square 1.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nboard=[[-1,-1],[-1,-1]]\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\nboard=[[-1,-1,-1],[-1,9,8],[-1,8,9]]\n\nOutput:\n1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 19,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "board=[[-1,-1],[-1,-1]]",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "board=[[-1,-1,-1],[-1,9,8],[-1,8,9]]",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "board=[[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]]",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "board=[[-1,-1,19,10,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1]]",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "board=[[-1,-1,-1,-1],[-1,15,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]]",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "board=[[-1,4,-1],[-1,-1,-1],[-1,-1,-1]]",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "board=[[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]]",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "board=[[-1,-1,5],[-1,-1,-1],[-1,-1,-1]]",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-snakes-and-ladders-minimum-moves-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "board=[[-1,3],[-1,-1]]",
+          "expected_output": "1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 20 — Circular Elimination Game",
+      "ticket_slug": "ticket-circular-elimination-game",
+      "description": "There are n friends standing in a circle. Starting from friend 1, count k friends clockwise including the current friend.\n\nThe kth friend leaves the circle.\n\nRepeat until only one friend remains.\n\nReturn the winner.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nn=5, k=2\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\nn=6, k=5\n\nOutput:\n1\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 20,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-circular-elimination-game-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "n=5, k=2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-circular-elimination-game-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "n=6, k=5",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "n=1, k=1",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "n=10, k=3",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "n=7, k=2",
+          "expected_output": "7",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "n=8, k=4",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "n=9, k=5",
+          "expected_output": "8",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "n=4, k=3",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-circular-elimination-game-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "n=12, k=6",
+          "expected_output": "3",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 21 — Walls and Gates Distance Fill",
+      "ticket_slug": "ticket-walls-and-gates-distance-",
+      "description": "You are given a grid representing rooms:\n- -1 represents a wall\n- 0 represents a gate\n- INF represents an empty room\n\nFill each empty room with the distance to its nearest gate.\n\nIf it is impossible to reach a gate, leave it as INF.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nrooms=[[INF,-1,0,INF]]\n\nOutput:\n[[INF,-1,0,1]]\n```\n\n**Example 2:**\n```\nInput:\nrooms=[[0,INF],[INF,INF]]\n\nOutput:\n[[0,1],[1,2]]\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 21,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-walls-and-gates-distance-fill-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "rooms=[[INF,-1,0,INF]]",
+          "expected_output": "[[INF,-1,0,1]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-walls-and-gates-distance-fill-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "rooms=[[0,INF],[INF,INF]]",
+          "expected_output": "[[0,1],[1,2]]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "rooms=[[INF,INF,0],[INF,-1,INF],[INF,INF,INF]]",
+          "expected_output": "[[2,1,0],[3,-1,1],[4,3,2]]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "rooms=[[0]]",
+          "expected_output": "[[0]]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "rooms=[[INF]]",
+          "expected_output": "[[INF]]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "rooms=[[0,INF,INF]]",
+          "expected_output": "[[0,1,2]]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "rooms=[[INF,INF],[INF,0]]",
+          "expected_output": "[[2,1],[1,0]]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "rooms=[[INF,-1,INF],[0,INF,INF]]",
+          "expected_output": "[[1,-1,3],[0,1,2]]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-walls-and-gates-distance-fill-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "rooms=[[INF,INF,INF],[INF,0,INF]]",
+          "expected_output": "[[2,1,2],[1,0,1]]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 22 — First Unique Character Finder",
+      "ticket_slug": "ticket-first-unique-character-fi",
+      "description": "Given a string s, return the index of the first non-repeating character in the string. If no such character exists, return -1.\n\nA character is considered unique if it appears exactly once in the string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ns=\"leetcode\"\n\nOutput:\n0\n```\n\n**Example 2:**\n```\nInput:\ns=\"loveleetcode\"\n\nOutput:\n2\n```\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 22,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-first-unique-character-finder-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "s=\"leetcode\"",
+          "expected_output": "0",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-first-unique-character-finder-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "s=\"loveleetcode\"",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "s=\"aabb\"",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "s=\"abcabc\"",
+          "expected_output": "-1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "s=\"z\"",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "s=\"aabcc\"",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "s=\"abcdef\"",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "s=\"xxyz\"",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-first-unique-character-finder-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "s=\"aabbccd\"",
+          "expected_output": "6",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 23 — Advanced Double End Queue Design",
+      "ticket_slug": "ticket-advanced-double-end-queue",
+      "description": "Design a data structure that supports insertion and deletion at the front, middle, and back of a queue.\n\nOperations:\n- pushFront(val)\n- pushMiddle(val)\n- pushBack(val)\n- popFront()\n- popMiddle()\n- popBack()\n\nReturn -1 when attempting to pop from an empty structure.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npushFront(1), pushBack(2), popFront()\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\npushFront(1), pushMiddle(2), pushBack(3), popMiddle()\n\nOutput:\n2\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 23,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-advanced-double-end-queue-design-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "pushFront(1), pushBack(2), popFront()",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-advanced-double-end-queue-design-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "pushFront(1), pushMiddle(2), pushBack(3), popMiddle()",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "pushFront(10), pushBack(20), pushMiddle(15), popMiddle()",
+          "expected_output": "15",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "pushFront(1), pushFront(2), popBack()",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "pushBack(3), pushBack(4), popFront()",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "pushFront(7), pushMiddle(8), pushBack(9), popBack()",
+          "expected_output": "9",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "pushBack(1), pushBack(2), pushBack(3), popMiddle()",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "pushFront(5), popMiddle()",
+          "expected_output": "5",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-advanced-double-end-queue-design-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "pushBack(6), pushMiddle(7), popFront()",
+          "expected_output": "6",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 24 — Packet Router Simulation",
+      "ticket_slug": "ticket-packet-router-simulation",
+      "description": "Design a router that stores incoming packets in a queue and processes them in FIFO order.\n\nImplement the Router class:\n- addPacket(packetId)\n- processPacket()\n- pendingPackets()\n\nPackets should be processed in the same order they arrive.\n\n### Examples\n\n**Example 1:**\n```\nInput:\naddPacket(1), addPacket(2), processPacket()\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\naddPacket(10), addPacket(20), pendingPackets()\n\nOutput:\n2\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 24,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-packet-router-simulation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "addPacket(1), addPacket(2), processPacket()",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-packet-router-simulation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "addPacket(10), addPacket(20), pendingPackets()",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "addPacket(5), processPacket(), pendingPackets()",
+          "expected_output": "5,0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "addPacket(7), addPacket(8), processPacket()",
+          "expected_output": "7",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "addPacket(9), addPacket(10), addPacket(11), pendingPackets()",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "addPacket(100), processPacket()",
+          "expected_output": "100",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "addPacket(200), addPacket(300), processPacket()",
+          "expected_output": "200",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "addPacket(400), addPacket(500), pendingPackets()",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-packet-router-simulation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "addPacket(600), processPacket(), pendingPackets()",
+          "expected_output": "600,0",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 25 — Array Statistics Tracker",
+      "ticket_slug": "ticket-array-statistics-tracker",
+      "description": "Design a data structure that stores integers and allows the following operations:\n\n- add(value): add a value to the data structure\n- remove(): remove the oldest value\n- getAverage(): return the average of the stored values\n\nAll operations must work efficiently.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nadd(5), add(10), getAverage()\n\nOutput:\n7.5\n```\n\n**Example 2:**\n```\nInput:\nadd(2), add(4), remove(), getAverage()\n\nOutput:\n4\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 25,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-array-statistics-tracker-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "add(5), add(10), getAverage()",
+          "expected_output": "7.5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-array-statistics-tracker-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "add(2), add(4), remove(), getAverage()",
+          "expected_output": "4",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "add(1),add(2),add(3),getAverage()",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "add(10),add(20),remove(),getAverage()",
+          "expected_output": "20",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "add(5),add(5),add(5),getAverage()",
+          "expected_output": "5",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "add(7),remove(),add(3),getAverage()",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "add(100),add(200),add(300),remove(),getAverage()",
+          "expected_output": "250",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "add(8),add(12),add(16),getAverage()",
+          "expected_output": "12",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-array-statistics-tracker-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "add(9),remove(),add(11),getAverage()",
+          "expected_output": "11",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 26 — Longest Continuous Subarray Within Limit",
+      "ticket_slug": "ticket-longest-continuous-subarr",
+      "description": "Given an integer array nums and an integer limit, return the length of the longest continuous subarray such that the absolute difference between the maximum and minimum elements is less than or equal to limit.\n\nUse an efficient approach to maintain the max and min values in the sliding window.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[8,2,4,7], limit=4\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\nnums=[10,1,2,4,7,2], limit=5\n\nOutput:\n4\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 26,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-longest-continuous-subarray-within-limit-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[8,2,4,7], limit=4",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-longest-continuous-subarray-within-limit-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[10,1,2,4,7,2], limit=5",
+          "expected_output": "4",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[4,2,2,2,4,4,2,2], limit=0",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[1,5,6,7,8,10,6,5,6], limit=4",
+          "expected_output": "5",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[1,2,3,4], limit=3",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[1,10,1,10,1], limit=0",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[2,2,2,2], limit=0",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[5,6,7,8,9], limit=3",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-longest-continuous-subarray-within-limit-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[1], limit=10",
+          "expected_output": "1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 27 — Count Continuous Subarrays",
+      "ticket_slug": "ticket-count-continuous-subarray",
+      "description": "Given an integer array nums, return the number of continuous subarrays where the difference between the maximum and minimum elements is less than or equal to 2.\n\nEfficient solutions use a sliding window with a monotonic deque.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[5,4,2,4]\n\nOutput:\n8\n```\n\n**Example 2:**\n```\nInput:\nnums=[1,2,3]\n\nOutput:\n6\n```\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 27,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-count-continuous-subarrays-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[5,4,2,4]",
+          "expected_output": "8",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-count-continuous-subarrays-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[1,2,3]",
+          "expected_output": "6",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[1,1,1]",
+          "expected_output": "6",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[1,3,5]",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[2,2,2,2]",
+          "expected_output": "10",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[1,2,1,2]",
+          "expected_output": "10",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[3,4,5,6]",
+          "expected_output": "7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[1,4,7]",
+          "expected_output": "3",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-count-continuous-subarrays-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[10]",
+          "expected_output": "1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 28 — Sliding Window Maximum",
+      "ticket_slug": "ticket-sliding-window-maximum",
+      "description": "Given an integer array nums and an integer k, return an array containing the maximum value in each sliding window of size k.\n\nUse an efficient deque-based approach with O(n) complexity.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[1,3,-1,-3,5,3,6,7], k=3\n\nOutput:\n[3,3,5,5,6,7]\n```\n\n**Example 2:**\n```\nInput:\nnums=[1], k=1\n\nOutput:\n[1]\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 28,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sliding-window-maximum-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[1,3,-1,-3,5,3,6,7], k=3",
+          "expected_output": "[3,3,5,5,6,7]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sliding-window-maximum-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[1], k=1",
+          "expected_output": "[1]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[9,8,7,6,5], k=2",
+          "expected_output": "[9,8,7,6]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[4,2,12,3], k=2",
+          "expected_output": "[4,12,12]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[1,3,1,2,0,5], k=3",
+          "expected_output": "[3,3,2,5]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[7,2,4], k=2",
+          "expected_output": "[7,4]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[5,5,5,5], k=2",
+          "expected_output": "[5,5,5]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[1,2,3,4,5], k=3",
+          "expected_output": "[3,4,5]",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-sliding-window-maximum-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[10,6,9,8], k=2",
+          "expected_output": "[10,9,9]",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 29 — Minimum K Consecutive Bit Flips",
+      "ticket_slug": "ticket-minimum-k-consecutive-bit",
+      "description": "You are given a binary array nums and an integer k. In one operation, you can flip a subarray of length k (change 0 to 1 and 1 to 0).\n\nReturn the minimum number of flips required so that there are no 0s in the array. If it is impossible, return -1.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[0,1,0], k=1\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\nnums=[1,1,0], k=2\n\nOutput:\n-1\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 29,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[0,1,0], k=1",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[1,1,0], k=2",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[0,0,0,1,0,1,1,0], k=3",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[1,1,1,1], k=2",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[0,0,0], k=2",
+          "expected_output": "-1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[0,1,1,0], k=2",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[1,0,1,0,1], k=1",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[0,0,1,1], k=2",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-minimum-k-consecutive-bit-flips-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[0], k=1",
+          "expected_output": "1",
+          "order_index": 9
+        }
+      ]
+    },
+    {
+      "title": "Ticket 30 — Shortest Subarray With Sum At Least K",
+      "ticket_slug": "ticket-shortest-subarray-with-su",
+      "description": "Given an integer array nums and an integer k, return the length of the shortest non-empty subarray with sum at least k.\n\nIf no such subarray exists, return -1.\n\nEfficient solutions use prefix sums and a monotonic deque.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums=[1], k=1\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\nnums=[1,2], k=4\n\nOutput:\n-1\n```\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 30,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "nums=[1], k=1",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "nums=[1,2], k=4",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "nums=[2,-1,2], k=3",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "nums=[1,2,3,4], k=6",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "nums=[5,1,3], k=5",
+          "expected_output": "1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "nums=[-1,-2,-3,10], k=10",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "nums=[1,1,1,1,1], k=3",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "nums=[10,-5,5], k=10",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-shortest-subarray-with-sum-at-least-k-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "nums=[3,1,4,1,5], k=7",
+          "expected_output": "2",
+          "order_index": 9
+        }
+      ]
+    }
+  ]
+}
