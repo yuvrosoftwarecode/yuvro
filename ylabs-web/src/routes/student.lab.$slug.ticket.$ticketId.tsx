@@ -908,6 +908,9 @@ export function TicketIDE({
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
   const [wsLoaded, setWsLoaded] = useState(false);
+  const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
+  const submissionsIdField = isEvaluationMode ? "task" : "lab_sprint_ticket";
+  const submissionsStatusField = isEvaluationMode ? "task_status" : "ticket_status";
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -1815,10 +1818,6 @@ export function TicketIDE({
     }
 
     if (isSql) {
-      if (!ticketScore || ticketScore.passed !== ticketScore.total) {
-        showToast("Fix failing tests before submitting (Click Run first)");
-        return;
-      }
       setSubmitting(true);
       if (isReal) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -1844,31 +1843,26 @@ export function TicketIDE({
     }
 
     if (isUi && uiDiffResult) {
-      const isPass = uiDiffResult.ui_score >= 75 && uiDiffResult.structural_score >= 75;
-      if (isPass) {
-        setSubmitting(true);
-        if (isReal) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            if (submissionId) {
-              api.patch(`${submissionsEndpoint}${submissionId}/`, {
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error).finally(() => setSubmitting(false));
-            } else {
-              api.post(submissionsEndpoint, {
-                [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
-                ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error).finally(() => setSubmitting(false));
-            }
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-          });
-        } else {
+      setSubmitting(true);
+      if (isReal) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          if (submissionId) {
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error).finally(() => setSubmitting(false));
+          } else {
+            api.post(submissionsEndpoint, {
+              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error).finally(() => setSubmitting(false));
+          }
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-        }
+        });
       } else {
-        showToast("Fix failing UI validation before submitting");
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       }
       return;
     }
@@ -1901,30 +1895,25 @@ export function TicketIDE({
       setTicketScore({ passed: passedCount, total: ticket.tasks.length });
       setSubmitting(false);
       
-      const allPassed = passedCount === ticket.tasks.length;
-      if (allPassed) {
-        if (isReal) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            if (submissionId) {
-              api.patch(`${submissionsEndpoint}${submissionId}/`, {
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error);
-            } else {
-              api.post(submissionsEndpoint, {
-                [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
-                ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error);
-            }
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-          });
-        } else {
+      if (isReal) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          if (submissionId) {
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          } else {
+            api.post(submissionsEndpoint, {
+              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          }
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-        }
+        });
       } else {
-        showToast("Fix failing tests before submitting");
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       }
       return;
     }
@@ -1962,28 +1951,24 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error);
           }
         });
       }
 
-      if (next.every((t) => t.pass)) {
-        navigate({
-          to: "/student/lab/$slug/ticket/$ticketId/review",
-          params: { slug, ticketId: ticket.id },
-        });
-      } else {
-        showToast("Fix failing tests before submitting");
-      }
+      navigate({
+        to: "/student/lab/$slug/ticket/$ticketId/review",
+        params: { slug, ticketId: ticket.id },
+      });
     }, 600);
   }
 

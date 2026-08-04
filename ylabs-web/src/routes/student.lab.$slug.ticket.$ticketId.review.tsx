@@ -24,6 +24,7 @@ import {
   Users,
   Rocket,
   Flag,
+  ArrowLeft,
 } from "lucide-react";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({
@@ -32,15 +33,81 @@ export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review
 
 function Review() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId/review" });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const ticket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
-  const next = tickets.find((t) => t.status === "Not Started");
+  const [lab, setLab] = useState<any>(null);
+  const [ticket, setTicket] = useState<any>(null);
+  const [submission, setSubmission] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const score = 92;
-  const grade = "A";
-  const baseXp = ticket.xp;
-  const bonusXp = 25;
-  const totalXp = baseXp + bonusXp;
+  useEffect(() => {
+    let active = true;
+    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+      Promise.all([
+        api.get<any>(`/lab/tickets/${ticketId}/`).catch(() => null as any),
+        api.get<any>(`/lab/labs/${slug}/`).catch(() => null as any),
+        api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticketId}`).catch(() => [] as any)
+      ]).then(([ticketRes, labRes, subsRes]) => {
+        if (!active) return;
+        setTicket(ticketRes ?? { id: ticketId, title: "Ticket" });
+        setLab((labRes as any)?.data ?? (labRes as any) ?? { name: slug });
+        
+        const subsList = Array.isArray(subsRes) ? subsRes : (subsRes as any)?.data ?? [];
+        const sub = subsList.find((s: any) => String(s.lab_sprint_ticket) === String(ticketId)) || subsList[0];
+        setSubmission(sub);
+        setLoading(false);
+      }).catch((e) => {
+        console.error(e);
+        if (active) setLoading(false);
+      });
+    });
+    return () => { active = false; };
+  }, [ticketId, slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
+        <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
+        <span className="text-sm">Loading review...</span>
+      </div>
+    );
+  }
+
+  const score = submission?.yuvro_points ?? 0;
+  const grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : score >= 60 ? "D" : "F";
+  const baseXp = ticket?.xp ?? 100;
+  const totalXp = Math.floor(baseXp * (score / 100));
+  
+  // Parse solution output
+  let parsedOutput: any = null;
+  if (submission?.solution_output) {
+    try {
+      parsedOutput = JSON.parse(submission.solution_output);
+    } catch(e) {
+      // not json
+    }
+  }
+
+  // Parse your solution
+  let parsedSolution: any = null;
+  let parsedDiffFiles: { filename: string, content: string }[] = [];
+  if (submission?.solution) {
+    try {
+      parsedSolution = JSON.parse(submission.solution);
+    } catch(e) {
+      // not json, check if it's a git diff
+      if (typeof submission.solution === 'string' && submission.solution.includes('diff --git ')) {
+        const parts = submission.solution.split(/^diff --git /m).filter(Boolean);
+        for (const part of parts) {
+          const lines = part.split('\n');
+          const headerLine = lines[0]; // e.g. "a/file.txt b/file.txt"
+          const match = headerLine.match(/^a\/(.+?) b\/(.+)$/);
+          const filename = match ? match[2] : headerLine;
+          if (filename === '__none__' || filename.trim() === '') continue;
+          
+          parsedDiffFiles.push({ filename, content: 'diff --git ' + part.trim() });
+        }
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -57,24 +124,16 @@ function Review() {
             </div>
             <div className="min-w-0">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                {ticket.id} · {lab.name} · ✅ Completed
+                {ticket?.id} · {lab?.name} · {submission?.ticket_status === 'done' ? '✅ Completed' : '🔄 In Review'}
               </div>
-              <h1 className="text-2xl sm:text-3xl font-semibold mt-0.5">{ticket.title}</h1>
+              <h1 className="text-2xl sm:text-3xl font-semibold mt-0.5">{ticket?.title}</h1>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  Solved in 24m
+                  Solved in {submission?.minutes_solved ?? 0}m
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <Zap className="h-4 w-4 text-primary" />+{totalXp} XP
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Award className="h-4 w-4 text-warning" />
-                  Speed badge unlocked
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Flame className="h-4 w-4 text-warning" />
-                  Streak +1
                 </span>
               </div>
             </div>
@@ -97,246 +156,92 @@ function Review() {
         <div className="rounded-2xl border bg-card p-6">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-warning" />
-            <h2 className="text-lg font-semibold">🎉 Excellent work!</h2>
+            <h2 className="text-lg font-semibold">🎉 Review Results</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               icon={CheckCircle2}
               label="Tests passed"
-              value="4/4"
-              sub="100%"
-              tone="success"
-              pct={100}
+              value={score >= 100 ? "Pass" : score + "%"}
+              sub="Correctness"
+              tone={score >= 75 ? "success" : "warning"}
+              pct={score}
             />
             <Stat
               icon={Gauge}
               label="Code quality"
-              value="8/10"
-              sub="A− grade"
+              value={grade}
+              sub="Overall grade"
               tone="info"
-              pct={80}
+              pct={score}
             />
             <Stat
               icon={Clock}
               label="Time efficiency"
-              value="95%"
-              sub="24m of 45m"
+              value={`${submission?.minutes_solved ?? 0}m`}
+              sub="Time spent"
               tone="success"
-              pct={95}
+              pct={100}
             />
             <Stat
               icon={Zap}
               label="XP earned"
               value={`+${totalXp}`}
-              sub={`${baseXp} base · +${bonusXp} speed bonus`}
+              sub={`Base XP awarded`}
               tone="primary"
-              pct={100}
+              pct={(totalXp / Math.max(baseXp, 1)) * 100}
             />
           </div>
-          <AnimatedBar label={`Total XP awarded: ${totalXp}`} pct={100} />
+          <AnimatedBar label={`Total XP awarded: ${totalXp}`} pct={(totalXp / Math.max(baseXp, 1)) * 100} />
         </div>
 
-        {/* Detailed test results */}
-        <Card title="Detailed Test Results (4/4 Passed)" icon={CheckCircle2}>
-          <div className="space-y-2">
-            {DETAILED_TESTS.map((t) => (
-              <details key={t.name} className="rounded-md border bg-editor-bg/60 group">
-                <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  <span className="font-medium">{t.name}</span>
-                  <span className="ml-auto text-xs text-muted-foreground">{t.time}</span>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="px-3 pb-3 text-xs font-mono space-y-1 border-t">
-                  <div className="pt-2">
-                    <span className="text-muted-foreground">Input:</span> {t.input}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Expected:</span>{" "}
-                    <span className="text-success">{t.expected}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Your output:</span>{" "}
-                    <span className="text-success">✓ Correct</span>
-                  </div>
-                </div>
-              </details>
-            ))}
-          </div>
+        {/* Output or Errors */}
+        <Card title="Evaluation Output" icon={Code2}>
+          <pre className="rounded-md bg-editor-bg border p-3 text-xs font-mono overflow-auto max-h-72 scrollbar-thin text-muted-foreground whitespace-pre-wrap">
+            {submission?.solution_output ? (
+              typeof parsedOutput === 'object' && parsedOutput !== null ? (
+                JSON.stringify(parsedOutput, null, 2)
+              ) : (
+                submission.solution_output
+              )
+            ) : (
+              "No evaluation output recorded."
+            )}
+          </pre>
         </Card>
 
-        {/* AI code review */}
-        <Card title="Reviewer's Comments" icon={Sparkles}>
-          <div className="grid gap-4 md:grid-cols-3">
-            <Block title="What you did well" tone="success">
-              <ul className="space-y-1">
-                <li>✓ Clean code structure</li>
-                <li>✓ Proper variable naming</li>
-                <li>✓ Correct type casting</li>
-                <li>✓ All edge cases handled</li>
-              </ul>
-            </Block>
-            <Block title="Areas to improve" tone="warning">
-              <ul className="space-y-1">
-                <li>→ Add JavaDoc comments</li>
-                <li>→ Extract repeated code into helper method</li>
-                <li>→ Format output with printf</li>
-              </ul>
-            </Block>
-            <Block title="Best practices" tone="info">
-              <ul className="space-y-1">
-                <li>💡 Use StringBuilder for concatenation</li>
-                <li>
-                  💡 Cast as <code>(int) doubleValue</code>
-                </li>
-                <li>
-                  💡 Prefer <code>final</code> for constants
-                </li>
-              </ul>
-            </Block>
-          </div>
-        </Card>
-
-        {/* Your code vs reference */}
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card title="Your solution" icon={Code2}>
-            <pre className="rounded-md bg-editor-bg border p-3 text-xs font-mono overflow-auto max-h-72 scrollbar-thin text-muted-foreground">
-              <code>{`public class Main {
-  public static void main(String[] args) {
-    int integerValue = 42;
-    double pi = 3.14;
-    String greeting = "Hello Java";
-    System.out.println("Integer: " + integerValue);
-    System.out.println("Double: " + pi);
-    System.out.println("String: " + greeting);
-    System.out.println("Length: " + greeting.length());
-  }
-}`}</code>
-            </pre>
-          </Card>
-          <Card title="Reference solution" icon={Sparkles}>
-            <pre className="rounded-md bg-editor-bg border p-3 text-xs font-mono overflow-auto max-h-72 scrollbar-thin text-muted-foreground">
-              <code>{`public class Main {
-  public static void main(String[] args) {
-    int a = 42; double b = 3.14; boolean c = true;
-    String s = "Hello Java";
-    System.out.printf("Integer: %d%nDouble: %.2f%n", a, b);
-    System.out.println("Boolean: " + c);
-    System.out.printf("Length: %d%nChar[0]: %s%n",
-      s.length(), s.charAt(0));
-    int narrowed = (int) b;
-    double widened = a;
-    System.out.println(narrowed + " " + widened);
-  }
-}`}</code>
-            </pre>
-          </Card>
-        </div>
-
-        {/* Alternative approaches */}
-        <Card title="Alternative approaches" icon={BookOpen} collapsible>
-          <div className="space-y-3">
-            {ALTS.map((a) => (
-              <div key={a.title} className="rounded-md border bg-editor-bg/60 p-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm">{a.title}</span>
-                  <span className="text-[10px] uppercase tracking-wide rounded bg-accent px-1.5 py-0.5 text-muted-foreground">
-                    {a.tag}
-                  </span>
-                  {a.community && (
-                    <span className="ml-auto text-[11px] text-warning inline-flex items-center gap-1">
-                      <Trophy className="h-3 w-3" />
-                      Community favorite
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{a.desc}</p>
-                <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
-                  <span>
-                    Perf <span className="text-foreground font-mono">{a.perf}</span>
-                  </span>
-                  <span>
-                    Readability <span className="text-foreground font-mono">{a.read}</span>
-                  </span>
-                  <span>
-                    LOC <span className="text-foreground font-mono">{a.loc}</span>
-                  </span>
-                </div>
+        {/* Your solution */}
+        <Card title="Your Solution" icon={Code2}>
+          <div className="rounded-md bg-editor-bg border overflow-hidden flex flex-col">
+            {typeof parsedSolution === 'object' && parsedSolution !== null ? (
+              <div className="flex flex-col">
+                {Object.entries(parsedSolution)
+                  .filter(([k]) => k !== "__none__" && k.trim() !== "")
+                  .map(([filename, content], index) => (
+                    <div key={filename} className="border-b last:border-b-0 border-border/50">
+                      <div className="bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border/50">{filename}</div>
+                      <pre className="p-3 text-xs font-mono overflow-x-auto max-h-[300px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
+                        {String(content) || "(empty file)"}
+                      </pre>
+                    </div>
+                  ))}
               </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Learning insights */}
-        <Card title="Your performance in context" icon={TrendingUp}>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Insight
-              icon={Target}
-              label="Skill level change"
-              main="75% → 85%"
-              detail="Java Syntax +10%"
-              tone="success"
-            />
-            <Insight
-              icon={Users}
-              label="vs Lab average"
-              main="175 XP"
-              detail="Lab avg 160 · Ahead ✓"
-              tone="info"
-            />
-            <Insight
-              icon={Clock}
-              label="Time efficiency"
-              main="47% faster"
-              detail="You 24m · Benchmark 45m"
-              tone="warning"
-            />
-            <Insight
-              icon={Sparkles}
-              label="Accuracy"
-              main="First try ✓"
-              detail="No retries needed"
-              tone="primary"
-            />
-          </div>
-          <div className="mt-4 rounded-md border bg-editor-bg/60 p-3">
-            <div className="text-xs text-muted-foreground mb-2">Skill growth</div>
-            <SkillBar label="Java Syntax" from={75} to={85} />
-            <SkillBar label="Type Casting" from={60} to={80} />
-            <SkillBar label="String Ops" from={70} to={78} />
-          </div>
-        </Card>
-
-        {/* Recommended next */}
-        <Card title="Recommended next steps" icon={Rocket}>
-          <div className="grid gap-3 md:grid-cols-3">
-            <NextCard
-              tag="Ready for advanced"
-              id={next?.id ?? "JAVA-150"}
-              title={next?.title ?? "Advanced OOP Concepts"}
-              cta="Start next challenge"
-              tone="primary"
-              to="/student/lab/$slug/ticket/$ticketId"
-              params={{ slug: lab.slug, ticketId: next?.id ?? tickets[0].id }}
-              highlight
-            />
-            <NextCard
-              tag="Master related skills"
-              id="JAVA-102"
-              title="Control Flow & Loops"
-              cta="View details"
-              tone="info"
-              to="/student/lab/$slug"
-              params={{ slug: lab.slug }}
-            />
-            <NextCard
-              tag="Speed challenge"
-              id="CHL-005"
-              title="Complete 5 beginner tickets in 2h"
-              cta="Join challenge +100 XP"
-              tone="warning"
-              to="/student/leaderboard"
-            />
+            ) : parsedDiffFiles.length > 0 ? (
+              <div className="flex flex-col">
+                {parsedDiffFiles.map(({ filename, content }) => (
+                  <div key={filename} className="border-b last:border-b-0 border-border/50">
+                    <div className="bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border/50">{filename}</div>
+                    <pre className="p-3 text-xs font-mono overflow-x-auto max-h-[300px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
+                      {content || "(empty file)"}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <pre className="p-3 text-xs font-mono overflow-auto max-h-[500px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
+                {submission?.solution ? submission.solution : "No solution recorded."}
+              </pre>
+            )}
           </div>
         </Card>
 
@@ -347,116 +252,21 @@ function Review() {
             params={{ slug, ticketId }}
             className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
           >
-            <Code2 className="h-4 w-4" />
-            View your solution
+            <ArrowLeft className="h-4 w-4" />
+            Back to Ticket
           </Link>
-          <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1">
-            <Trophy className="h-4 w-4 text-warning" />
-            View best solution
-          </button>
-          <Link
-            to="/student/forum"
-            className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Discuss on forum
-          </Link>
-          <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1">
-            <Share2 className="h-4 w-4" />
-            Share achievement
-          </button>
-          <button
-            onClick={() => alert("Issue reported · #4821")}
-            className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
-          >
-            <Flag className="h-4 w-4" />
-            Report
-          </button>
-          <button
-            onClick={() => {
-              const f = prompt("Share your feedback on this ticket:");
-              if (f) alert("Thanks for the feedback!");
-            }}
-            className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Feedback
-          </button>
           <Link
             to="/student/lab/$slug"
-            params={{ slug: lab.slug }}
+            params={{ slug: lab?.slug ?? slug }}
             className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto"
           >
             ← Lab dashboard
           </Link>
-          {next && (
-            <Link
-              to="/student/lab/$slug/ticket/$ticketId"
-              params={{ slug: lab.slug, ticketId: next.id }}
-              className="inline-flex items-center gap-1 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-            >
-              Next ticket <ArrowRight className="h-4 w-4" />
-            </Link>
-          )}
         </div>
       </main>
     </div>
   );
 }
-
-/* ---------- Data ---------- */
-
-const DETAILED_TESTS = [
-  {
-    name: "Test 1 · Variable Declaration",
-    input: "—",
-    expected: "All 8 primitive types declared",
-    time: "< 0.001s",
-  },
-  {
-    name: "Test 2 · Type Casting",
-    input: "int x = 100;",
-    expected: '"Implicit: 100.0\\nExplicit: 100"',
-    time: "0.002s",
-  },
-  {
-    name: "Test 3 · String Operations",
-    input: '"Hello Java"',
-    expected: "Length 10, charAt(0)='H'",
-    time: "0.001s",
-  },
-  { name: "Test 4 · Output Format", input: "—", expected: 'Matches "Result: 42"', time: "0.003s" },
-];
-
-const ALTS = [
-  {
-    title: "Using printf for formatted output",
-    tag: "Idiomatic",
-    desc: "Cleaner formatting with type specifiers — slightly slower but most readable.",
-    perf: "92%",
-    read: "98%",
-    loc: "14",
-    community: true,
-  },
-  {
-    title: "StringBuilder concatenation",
-    tag: "Performance",
-    desc: "Best for large loops — avoids creating intermediate String objects.",
-    perf: "99%",
-    read: "85%",
-    loc: "18",
-    community: false,
-  },
-  {
-    title: "Records (Java 16+)",
-    tag: "Modern",
-    desc: "Wrap primitives in a record for type-safe grouping and immutability.",
-    perf: "94%",
-    read: "92%",
-    loc: "12",
-    community: false,
-  },
-];
 
 /* ---------- Components ---------- */
 
