@@ -157,11 +157,6 @@ function Hub() {
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
-      try {
-        const saved = localStorage.getItem("mock_enrollments");
-        if (saved) {
-          JSON.parse(saved).forEach((id: string) => enrSet.add(id));
-        }
         // Always merge mock enrollments so UI interactions persist across refresh
         try {
           const saved = localStorage.getItem("mock_enrollments");
@@ -173,16 +168,37 @@ function Hub() {
 
         let statsMap: Record<string, any> = {};
         try {
-           const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
-           if (saved) {
-             resolved_tickets = Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
-           }
-        } catch {}
-        
-        if (statsMap[sid]) {
-           total_tickets = statsMap[sid].total_tickets || total_tickets;
-           resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
-        }
+          const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
+          statsMap = statsRes.data || {};
+        } catch (e) {}
+
+        const { loadSprints } = await import("@/lib/labSprints");
+
+        const mapped: CatalogLab[] = await Promise.all(
+          data.map(async (dbLab: any) => {
+            const sid = String(dbLab.id);
+
+            let total_tickets = 10;
+            let resolved_tickets = 0;
+
+            try {
+              const sprints = await loadSprints(sid);
+              total_tickets = sprints.reduce((acc: number, s: any) => acc + s.tasks.length, 0);
+            } catch {}
+
+            try {
+              const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
+              if (saved) {
+                resolved_tickets = Object.values(JSON.parse(saved)).filter(
+                  (v) => v === "Completed",
+                ).length;
+              }
+            } catch {}
+
+            if (statsMap[sid]) {
+              total_tickets = statsMap[sid].total_tickets || total_tickets;
+              resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
+            }
         
         let color = "ui";
         if (dbLab.title?.toLowerCase().includes("java") || dbLab.name?.toLowerCase().includes("java")) color = "java";

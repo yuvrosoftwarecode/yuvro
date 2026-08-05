@@ -154,7 +154,7 @@ class LabSprint(BaseTimestampedAdminModel):
 
 class LabSprintTicket(BaseTimestampedAdminModel):
     sprint = models.ForeignKey(LabSprint, on_delete=models.CASCADE, related_name="tasks")
-    ticket_slug = models.CharField(max_length=32)
+    ticket_slug = models.CharField(max_length=100)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     difficulty = models.CharField(max_length=10, choices=Difficulty.choices, default=Difficulty.EASY)

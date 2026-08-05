@@ -3810,7 +3810,10 @@ function ProblemPanel({
           {tasks.length > 0 && (
             <Section title={labName === "Data Structures Lab" ? "✅ Test Cases" : "✅ Tasks"}>
               <div className="space-y-2 text-muted-foreground">
-                {tasks.map((task: any, idx: number) => {
+                {tasks.map((task: any, originalIdx: number) => ({ task, originalIdx })).filter(({ task }) => {
+                  const title = typeof task === "string" ? task : (task.title ?? "");
+                  return !(typeof task === "object" && (title.toLowerCase().includes("hidden") || title.toLowerCase().includes("advanced") || task.is_hidden === true));
+                }).map(({ task, originalIdx }: { task: any, originalIdx: number }, idx: number) => {
                   const taskTitle =
                     typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
                   const taskDesc = typeof task === "object" ? task.description : null;
@@ -3829,21 +3832,14 @@ function ProblemPanel({
                         </span>
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                          {isDS ? (
-                            isHidden ? (
-                              <div className="mt-2 text-[11px] text-muted-foreground/70 italic">
-                                This test case is hidden and will be used during final evaluation.
-                              </div>
-                            ) : (
-                              <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
-                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
-                                <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
-                                <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
-                                <div className="whitespace-pre-wrap font-mono text-foreground">{task.expected_output || "No output"}</div>
-                              </div>
-                            )
-                          ) : (
-                            taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>
+                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
+                          {(task.input !== undefined || task.expected_output !== undefined) && (
+                            <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
+                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
+                              <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
+                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
+                              <div className="whitespace-pre-wrap font-mono text-foreground">{task.expected_output || "No output"}</div>
+                            </div>
                           )}
                           {taskMethod && (
                             <div className="mt-3 flex items-center flex-wrap gap-2">
@@ -3852,14 +3848,14 @@ function ProblemPanel({
                               </span>
                             </div>
                           )}
-                          {!isDS && evalResult[task.task_slug || `task-${idx}`] && (
+                          {!isDS && evalResult[task.task_slug || `task-${originalIdx}`] && (
                             <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                              evalResult[task.task_slug || `task-${idx}`].passed 
+                              evalResult[task.task_slug || `task-${originalIdx}`].passed 
                                 ? "border-success/20 bg-success/10 text-success" 
                                 : "border-destructive/20 bg-destructive/10 text-destructive"
                             }`}>
-                              {evalResult[task.task_slug || `task-${idx}`].passed ? "✅ Passed: " : "❌ Failed: "}
-                              {evalResult[task.task_slug || `task-${idx}`].reason}
+                              {evalResult[task.task_slug || `task-${originalIdx}`].passed ? "✅ Passed: " : "❌ Failed: "}
+                              {evalResult[task.task_slug || `task-${originalIdx}`].reason}
                             </div>
                           )}
                         </div>
