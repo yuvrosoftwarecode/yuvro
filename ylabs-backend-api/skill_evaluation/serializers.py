@@ -140,3 +140,15 @@ class UserLabQuestionBankTaskSubmissionSerializer(serializers.ModelSerializer):
         model = UserLabQuestionBankTaskSubmission
         fields = '__all__'
         read_only_fields = ('user',)
+
+from .models import FollowUpConfig, FollowUpCandidate
+
+class FollowUpConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpConfig
+        fields = '__all__'
+
+class FollowUpCandidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpCandidate
+        fields = '__all__'

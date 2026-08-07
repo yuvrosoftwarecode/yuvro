@@ -26,6 +26,22 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
 from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
+import json
+
+def get_emails_list(emails):
+    if not emails:
+        return []
+    if isinstance(emails, str):
+        try:
+            parsed = json.loads(emails)
+            if isinstance(parsed, list):
+                return parsed
+            return [emails]
+        except Exception:
+            return [emails]
+    if isinstance(emails, list):
+        return emails
+    return []
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.prefetch_related('sections').all()
@@ -43,51 +59,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         old_instance = self.get_object()
-        old_emails = set(old_instance.candidate_invited_emails or [])
+        old_emails = set(get_emails_list(old_instance.candidate_invited_emails))
         instance = serializer.save()
         
         if instance.is_published and instance.candidate_invited_emails:
-            new_emails = set(instance.candidate_invited_emails) - old_emails
+            new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
             if new_emails:
                 self.send_invitation_emails(instance, new_emails)
 
     def send_invitation_emails(self, evaluation, emails):
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3002')
-        eval_link = f"{frontend_url}/evaluation?e={evaluation.id}"
-        
-        subject = f"Yuvro Evaluation Test – {evaluation.title}"
-        
-        logger = logging.getLogger(__name__)
-        
-        for email in emails:
-            message = f"Hello,\n\nYou have been invited to complete a Yuvro Evaluation.\n\nEvaluation: {evaluation.title}\n\nPlease complete the assessment before it expires.\nYour unique evaluation link: {eval_link}\n\nBest,\nYuvro Team"
-            html_message = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                <h2 style="color: #059669;">Yuvro Evaluation Invitation</h2>
-                <p>Hello,</p>
-                <p>You have been invited to complete a Yuvro Evaluation: <strong>{evaluation.title}</strong>.</p>
-                <p>Please click the button below to start your assessment:</p>
-                <p style="text-align: center; margin: 30px 0;">
-                    <a href="{eval_link}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Start Evaluation</a>
-                </p>
-                <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-                <p><a href="{eval_link}">{eval_link}</a></p>
-                <p>Best regards,<br>Yuvro Team</p>
-            </div>
-            """
-            
-            try:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=False,
-                    html_message=html_message
-                )
-                logger.info(f"Successfully sent invite email to {email}")
-            except Exception as e:
-                logger.error(f"Failed to send invite email to {email}: {e}")
+        from .email_utils import send_evaluation_email
+        send_evaluation_email(evaluation, emails, is_reminder=False)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
@@ -279,6 +261,132 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
+    def follow_ups(self, request, pk=None):
+        evaluation = self.get_object()
+        from .models import FollowUpConfig, FollowUpCandidate
+        from .serializers import FollowUpConfigSerializer, FollowUpCandidateSerializer
+        
+        if request.method == 'GET':
+            config = FollowUpConfig.objects.filter(evaluation=evaluation).first()
+            candidates = FollowUpCandidate.objects.filter(evaluation=evaluation)
+            return Response({
+                "config": FollowUpConfigSerializer(config).data if config else None,
+                "candidates": FollowUpCandidateSerializer(candidates, many=True).data
+            })
+            
+        elif request.method == 'POST':
+            data = request.data
+            config_data = data.get('config', {})
+            candidates_data = data.get('candidates', [])
+            
+            config, _ = FollowUpConfig.objects.update_or_create(
+                evaluation=evaluation,
+                defaults={
+                    'start_date': config_data.get('startDate') or None,
+                    'deadline': config_data.get('deadline') or None,
+                    'timezone': config_data.get('timezone', 'UTC'),
+                    'smart_followups': config_data.get('smart', True),
+                    'reminder1': config_data.get('reminder1', ''),
+                    'reminder1_custom_time': config_data.get('reminder1CustomDate') or None,
+                    'reminder2': config_data.get('reminder2', ''),
+                    'reminder2_custom_time': config_data.get('reminder2CustomDate') or None,
+                    'created_by': evaluation.created_by
+                }
+            )
+            
+            # Upsert candidates
+            processed_emails = set()
+            newly_added_emails = set()
+            for cand in candidates_data:
+                email = cand.get('email')
+                if not email:
+                    continue
+                processed_emails.add(email)
+                obj, created = FollowUpCandidate.objects.update_or_create(
+                    evaluation=evaluation,
+                    email=email,
+                    defaults={
+                        'name': cand.get('name', ''),
+                        'phone': cand.get('phone', ''),
+                        'created_by': evaluation.created_by
+                    }
+                )
+                if created:
+                    newly_added_emails.add(email)
+                    
+            if newly_added_emails:
+                current_invited = set(get_emails_list(evaluation.candidate_invited_emails))
+                current_invited.update(newly_added_emails)
+                evaluation.candidate_invited_emails = list(current_invited)
+                evaluation.save(update_fields=['candidate_invited_emails'])
+            
+            if processed_emails:
+                from .email_utils import send_evaluation_email
+                send_evaluation_email(evaluation, list(processed_emails), is_reminder=True)
+            
+            return Response({"status": "success"})
+
+    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
+    def records(self, request, pk=None):
+        evaluation = self.get_object()
+        
+        invited_emails = set(get_emails_list(evaluation.candidate_invited_emails))
+                
+        followup_cands = {c.email: c for c in evaluation.followup_candidates.all()}
+        submissions = {s.user.email: s for s in evaluation.submissions.select_related('user').all()}
+        
+        all_emails = invited_emails.union(followup_cands.keys()).union(submissions.keys())
+        
+        records_list = []
+        for email in all_emails:
+            fc = followup_cands.get(email)
+            sub = submissions.get(email)
+            
+            if email in followup_cands:
+                source = "Follow-up Setup"
+            elif email in invited_emails:
+                source = "Yuvro Invite"
+            else:
+                source = "Shared Link"
+                
+            name = fc.name if fc else (f"{sub.user.first_name} {sub.user.last_name}".strip() if sub else "")
+            if not name:
+                name = email.split('@')[0]
+                
+            phone = fc.phone if fc else ""
+            
+            submitted_at = int(sub.completed_at.timestamp() * 1000) if sub and sub.completed_at else None
+            status_val = "Submitted" if sub and sub.completed_at else ("In Progress" if sub else "Not Submitted")
+            
+            records_list.append({
+                "id": email,
+                "candidateId": email,
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "source": source,
+                "sentAt": None,
+                "accessedAt": None,
+                "status": status_val,
+                "submittedAt": submitted_at,
+                "score": None,
+                "result": "Not Evaluated",
+                "followUp": fc.followups_enabled if fc else False,
+                "labsScore": None,
+                "assessmentScore": None,
+                "vitarkaScore": None,
+                "eci": None,
+                "deadline": None,
+                "emailsSent": fc.emails_sent_count if fc else 0,
+                "aiCall": False,
+                "lastActivity": submitted_at or int(time.time() * 1000),
+                "activity": fc.timeline if fc else []
+            })
+            
+        records_list.sort(key=lambda x: x['lastActivity'] or 0, reverse=True)
+        return Response(records_list)
 
 class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LabQuestionBank.objects.all()

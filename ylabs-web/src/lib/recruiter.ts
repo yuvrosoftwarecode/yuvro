@@ -559,3 +559,35 @@ export function evaluationTotals(e: Evaluation) {
   }
   return { minutes, marks, labs, questions, discussion, sections: e.sections.length };
 }
+
+export async function fetchFollowUps(evaluationId: string): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
+      headers: { "Content-Type": "application/json" }
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error("fetchFollowUps error:", err);
+    return null;
+  }
+}
+
+export async function saveFollowUps(evaluationId: string, data: any): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("saveFollowUps error:", errText);
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.error("saveFollowUps error:", err);
+    return null;
+  }
+}
