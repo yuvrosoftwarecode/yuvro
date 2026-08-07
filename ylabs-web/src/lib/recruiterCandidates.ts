@@ -28,6 +28,7 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
     tabSwitches: number;
@@ -43,103 +44,16 @@ export interface Candidate {
   };
 }
 
-const FIRST = [
-  "Aarav",
-  "Vivaan",
-  "Aditya",
-  "Vihaan",
-  "Arjun",
-  "Sai",
-  "Reyansh",
-  "Ayaan",
-  "Krishna",
-  "Ishaan",
-  "Rohan",
-  "Rahul",
-  "Ankit",
-  "Karthik",
-  "Siddharth",
-  "Nikhil",
-  "Manish",
-  "Pranav",
-  "Yash",
-  "Kabir",
-  "Devansh",
-  "Harsh",
-  "Aryan",
-  "Aniket",
-  "Aakash",
-  "Rehan",
-  "Kunal",
-  "Tanmay",
-  "Varun",
-  "Aditya",
-  "Priya",
-  "Ananya",
-  "Diya",
-  "Isha",
-  "Kavya",
-  "Anika",
-  "Riya",
-  "Meera",
-  "Sneha",
-  "Neha",
-  "Pooja",
-  "Aditi",
-  "Sanjana",
-  "Ritika",
-  "Shreya",
-  "Divya",
-  "Nisha",
-  "Radhika",
-  "Swati",
-  "Tanvi",
-  "Rhea",
-  "Aishwarya",
-  "Vaishnavi",
-  "Bhavana",
-  "Payal",
-  "Simran",
-  "Nandini",
+const REAL_NAMES = [
+  "Kadali Harshavardhan",
+  "Medishetty Manikanta Gandhi",
+  "Mrinal Guptha",
+  "Mucharla Sreelekha",
+  "Rohith Godugu",
+  "Devendra Dora",
+  "Shilpa dora"
 ];
-const LAST = [
-  "Sharma",
-  "Verma",
-  "Gupta",
-  "Iyer",
-  "Reddy",
-  "Nair",
-  "Patel",
-  "Menon",
-  "Rao",
-  "Singh",
-  "Kumar",
-  "Bose",
-  "Chatterjee",
-  "Mukherjee",
-  "Das",
-  "Ghosh",
-  "Malhotra",
-  "Kapoor",
-  "Chopra",
-  "Aggarwal",
-  "Jain",
-  "Bansal",
-  "Mehta",
-  "Shah",
-  "Desai",
-  "Trivedi",
-  "Pandey",
-  "Mishra",
-  "Yadav",
-  "Chauhan",
-  "Bhat",
-  "Pillai",
-  "Naidu",
-  "Krishnan",
-  "Subramanian",
-  "Balakrishnan",
-];
+
 const COLLEGES = [
   "IIT Bombay",
   "IIT Delhi",
@@ -274,16 +188,19 @@ const pick = <T>(r: () => number, arr: T[]) => arr[Math.floor(r() * arr.length)]
 
 const cache = new Map<string, Candidate[]>();
 
-export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
+export function getCandidates(evaluationId: string, submissions: any[] = []): Candidate[] {
   const cached = cache.get(evaluationId);
   if (cached) return cached;
   const r = rng(hash(evaluationId));
   const out: Candidate[] = [];
   const now = Date.now();
-  for (let i = 0; i < count; i++) {
-    const first = pick(r, FIRST);
-    const last = pick(r, LAST);
-    const name = `${first} ${last}`;
+  for (let i = 0; i < submissions.length; i++) {
+    const sub = submissions[i];
+    const user = sub.user || {};
+    const firstName = user.first_name || pick(r, REAL_NAMES).split(' ')[0];
+    const lastName = user.last_name || '';
+    const name = `${firstName} ${lastName}`.trim();
+    const email = user.email || `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(r() * 900) + 100}@example.com`;
     const experience = Math.floor(r() * 12); // 0..11
     const college = pick(r, COLLEGES);
     const company =
@@ -345,7 +262,7 @@ export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
       out.push({
         id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
         name,
-        email: `${first.toLowerCase()}.${last.toLowerCase()}${Math.floor(r() * 900) + 100}@${["gmail.com","outlook.com","yahoo.in","proton.me"][Math.floor(r() * 4)]}`,
+        email: email,
         phone: `+91 ${Math.floor(6 + r() * 4)}${Math.floor(r() * 900000000 + 100000000)}`.slice(0, 15),
         college,
         company,
@@ -538,3 +455,4 @@ export function activeFilterCount(f: CandidateFilters): number {
 export function uniqueValues<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
+

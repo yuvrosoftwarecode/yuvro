@@ -235,6 +235,8 @@ def public_verify_otp(request):
     resource_id = request.data.get('resource_id') or contest_id
     resource_type = request.data.get('resource_type', 'contest')
     otp = request.data.get('otp')
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
     
     if not email or not otp or not resource_id:
         return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -257,10 +259,17 @@ def public_verify_otp(request):
                 username=username,
                 email=email,
                 password=password,
+                first_name=first_name,
+                last_name=last_name,
             )
             user.is_otp_login = True
             user.roles = {"ycode": "student", "ylabs": "student"}
             user.save()
+        else:
+            if first_name or last_name:
+                user.first_name = first_name or user.first_name
+                user.last_name = last_name or user.last_name
+                user.save()
             
         token_serializer = CustomTokenObtainPairSerializer()
         refresh = token_serializer.get_token(user)
