@@ -68,6 +68,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         if category:
             queryset = queryset.filter(category=category)
 
+        if self.request.query_params.get("basic") == "true":
+            return queryset
+
         practice_questions_filter = Q(type='coding') & Q(categories__contains=['practice'])
         
         queryset = queryset.annotate(
@@ -217,6 +220,9 @@ class TopicViewSet(viewsets.ModelViewSet):
             qs = qs.filter(course_id=course_id)
         if self.action == "retrieve":
             qs = qs.prefetch_related("subtopics")
+
+        if self.request.query_params.get("basic") == "true":
+            return qs
 
         qs = qs.annotate(
             total_problems=Count(
@@ -567,12 +573,20 @@ class QuestionSolutionViewSet(viewsets.ModelViewSet):
             raise permissions.PermissionDenied("You do not have permission for this course.")
 
 
+from rest_framework.pagination import PageNumberPagination
+
+class QuestionPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related(
         "course", "topic", "subtopic", "created_by"
     )
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticatedUser]
+    pagination_class = QuestionPagination
 
     def get_serializer_class(self):
         if self.action == 'list':

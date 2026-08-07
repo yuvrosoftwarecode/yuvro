@@ -446,7 +446,7 @@ export async function fetchLabs(): Promise<LabItem[]> {
 
 export async function fetchCourses(): Promise<CourseItem[]> {
   try {
-    const data = await ycodeApiAuthUtil.get<any>("/course/courses/");
+    const data = await ycodeApiAuthUtil.get<any>("/course/courses/?basic=true");
     return Array.isArray(data) ? data : data.results || [];
   } catch {
     return [];
@@ -455,7 +455,7 @@ export async function fetchCourses(): Promise<CourseItem[]> {
 
 export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
   try {
-    const url = courseId ? `/course/topics/?course=${courseId}` : `/course/topics/`;
+    const url = courseId ? `/course/topics/?course=${courseId}&basic=true` : `/course/topics/?basic=true`;
     const data = await ycodeApiAuthUtil.get<any>(url);
     return Array.isArray(data) ? data : data.results || [];
   } catch {
@@ -463,9 +463,25 @@ export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
   }
 }
 
-export async function fetchQuestions(): Promise<QuestionItem[]> {
+export async function fetchQuestions(
+  courseId?: string, 
+  topicId?: string,
+  search?: string,
+  difficulty?: string,
+  format?: string
+): Promise<QuestionItem[]> {
   try {
-    const data = await ycodeApiAuthUtil.get<any[]>("/course/questions/");
+    let url = "/course/questions/";
+    const params = new URLSearchParams();
+    if (courseId && courseId !== "All") params.append("course", courseId);
+    if (topicId && topicId !== "All") params.append("topic", topicId);
+    if (search) params.append("search", search);
+    if (difficulty && difficulty !== "All") params.append("difficulty", difficulty.toLowerCase());
+    if (format && format !== "All") params.append("type", format.toLowerCase().replace(" ", "_"));
+    
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const data = await ycodeApiAuthUtil.get<any[]>(url);
     // Handle paginated response if backend returns { results: [...] }
     const results = Array.isArray(data) ? data : (data as any).results || [];
     return results.map((q: any) => ({

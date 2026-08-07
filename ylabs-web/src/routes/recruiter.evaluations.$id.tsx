@@ -1376,6 +1376,7 @@ function QuestionDrawer({
   onAdd: (q: QuestionItem) => void;
 }) {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [lang, setLang] = useState("All");
   const [db, setDb] = useState("All");
   const [diff, setDiff] = useState("All");
@@ -1384,7 +1385,6 @@ function QuestionDrawer({
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
-  const [allTopics, setAllTopics] = useState<TopicItem[]>([]);
   const [course, setCourse] = useState("All");
   const [topic, setTopic] = useState("All");
 
@@ -1413,7 +1413,7 @@ function QuestionDrawer({
     }
 
     const c = courses.find((c: any) => c.id === finalQ.course);
-    const t = allTopics.find((t: any) => t.id === finalQ.topic);
+    const t = topics.find((t: any) => t.id === finalQ.topic);
 
     onAdd({
       ...finalQ,
@@ -1424,17 +1424,33 @@ function QuestionDrawer({
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      fetchQuestions().then(setQuestions),
-      fetchCourses().then(setCourses),
-      fetchTopics().then(setAllTopics),
-    ]).finally(() => setLoading(false));
+    fetchCourses().then(setCourses).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     setTopics([]);
-    fetchTopics(course !== "All" ? course : undefined).then(setTopics);
+    if (course !== "All") {
+      fetchTopics(course).then(setTopics);
+    } else {
+      setTopic("All");
+    }
   }, [course]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(handler);
+  }, [q]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchQuestions(
+      course !== "All" ? course : undefined, 
+      topic !== "All" ? topic : undefined, 
+      debouncedQ, diff, format
+    )
+      .then(setQuestions)
+      .finally(() => setLoading(false));
+  }, [course, topic, debouncedQ, diff, format]);
 
   const filtered = useMemo(
     () =>
