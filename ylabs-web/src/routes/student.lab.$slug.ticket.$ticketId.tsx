@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { EditorView } from "@codemirror/view";
+import ReactDiffViewer from 'react-diff-viewer-continued';
 import { useTheme } from "@/hooks/use-theme";
 import {
   fetchFileTree,
@@ -34,7 +35,7 @@ import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
-  FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
+  FileCode2, Folder, FolderOpen, Search, RefreshCw, GitBranch, Bug, Package, Settings,
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
@@ -1062,7 +1063,95 @@ export function TicketIDE({
   const [elapsed, setElapsed] = useState(0);
   const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
-  const [fileTreeOpen, setFileTreeOpen] = useState(true);
+  const [activeSidebar, setActiveSidebar] = useState<"explorer" | "source_control" | "search" | null>("explorer");
+  const [diffContents, setDiffContents] = useState<Record<string, { oldCode: string, newCode: string }>>({});
+  const [diffSplitView, setDiffSplitView] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{file: string, line: number, text: string}[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+
+  // Fetch diff contents when active file changes to a diff tab
+  useEffect(() => {
+    if (!activeFile.startsWith("diff:")) return;
+    const filepath = activeFile.replace("diff:", "");
+    if (diffContents[filepath]) return; // already fetched
+
+    const fetchDiff = async () => {
+      try {
+        const resOld = await runCommand(userId!, labId!, sprintId!, `git show HEAD:${filepath}`, isEvaluationMode ? evaluationId : undefined);
+        const oldCode = resOld.exit_code === 0 ? resOld.stdout : "";
+        const resNew = await runCommand(userId!, labId!, sprintId!, `cat ${filepath}`, isEvaluationMode ? evaluationId : undefined);
+        const newCode = resNew.exit_code === 0 ? resNew.stdout : "";
+        setDiffContents(prev => ({ ...prev, [filepath]: { oldCode, newCode } }));
+      } catch (err) {
+        console.error("Failed to fetch diff", err);
+      }
+    };
+    fetchDiff();
+  }, [activeFile, userId, labId, sprintId, isEvaluationMode, evaluationId, diffContents]);
+
+  const [gitStatusList, setGitStatusList] = useState<{status: string, path: string}[]>([]);
+  const [isFetchingGitStatus, setIsFetchingGitStatus] = useState(false);
+
+  const performSearch = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const cmd = `grep -rn "${searchQuery.replace(/"/g, '\\"')}" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=venv || true`;
+      const res = await runCommand(userId!, labId!, sprintId!, cmd, isEvaluationMode ? evaluationId : undefined);
+      if (res.exit_code === 0 && res.stdout) {
+        const lines = res.stdout.split("\n").filter(Boolean);
+        const results = lines.map(line => {
+          const match = line.match(/^([^:]+):(\d+):(.*)$/);
+          if (match) {
+            let file = match[1];
+            if (file.startsWith("./")) file = file.substring(2);
+            return { file, line: parseInt(match[2]), text: match[3] };
+          }
+          return null;
+        }).filter(Boolean) as {file: string, line: number, text: string}[];
+        setSearchResults(results);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (e) {
+      console.error(e);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+
+  const fetchGitStatus = async () => {
+    if (!userId || !labId || !sprintId) return;
+    setIsFetchingGitStatus(true);
+    try {
+      const res = await runCommand(userId, labId, sprintId, "git status --porcelain", isEvaluationMode ? evaluationId : undefined);
+      if (res.exit_code === 0) {
+        const lines = res.stdout.split("\n").filter(Boolean);
+        const parsed = lines.map(l => {
+          const status = l.substring(0, 2);
+          const path = l.substring(3);
+          return { status, path };
+        });
+        setGitStatusList(parsed);
+      }
+    } catch (e) {
+      console.error("Failed to fetch git status", e);
+    } finally {
+      setIsFetchingGitStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGitStatus();
+  }, [activeSidebar, userId, labId, sprintId]);
+
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const toggleFolder = (k: string) => setOpenFolders((o) => ({ ...o, [k]: !(o[k] ?? true) }));
   const isFolderOpen = (k: string) => openFolders[k] ?? true;
@@ -2217,26 +2306,6 @@ export function TicketIDE({
 
       {/* MAIN IDE */}
       <div className="flex flex-1 min-h-0">
-        {/* Activity bar */}
-        <div className="flex w-11 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-          <button
-            onClick={() => setFileTreeOpen((v) => !v)}
-            title={fileTreeOpen ? "Hide Explorer" : "Show Explorer"}
-            className={`grid h-9 w-9 place-items-center rounded ${fileTreeOpen ? "text-foreground bg-accent" : "hover:text-foreground"}`}
-          >
-            <FileCode2 className="h-4 w-4" />
-          </button>
-          {[Search, GitBranch, Bug, Package].map((I, i) => (
-            <button
-              key={i}
-              className="grid h-9 w-9 place-items-center rounded hover:text-foreground"
-            >
-              <I className="h-4 w-4" />
-            </button>
-          ))}
-          <Settings className="mt-auto h-4 w-4" />
-        </div>
-
         {/* Left panel (collapsible) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
@@ -2316,11 +2385,50 @@ export function TicketIDE({
           </aside>
         )}
 
+
+        {/* Activity bar */}
+        <div className="flex w-11 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
+          <button
+            onClick={() => setActiveSidebar(activeSidebar === "explorer" ? null : "explorer")}
+            title={activeSidebar === "explorer" ? "Hide Explorer" : "Show Explorer"}
+            className={`grid h-9 w-9 place-items-center rounded ${activeSidebar === "explorer" ? "text-foreground bg-accent" : "hover:text-foreground"}`}
+          >
+            <FileCode2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setActiveSidebar(activeSidebar === "source_control" ? null : "source_control")}
+            title="Source Control"
+            className={`grid h-9 w-9 place-items-center rounded relative ${activeSidebar === "source_control" ? "text-foreground bg-accent" : "hover:text-foreground"}`}
+          >
+            <GitBranch className="h-4 w-4" />
+            {gitStatusList.length > 0 && (
+              <span className="absolute top-1 right-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">
+                {gitStatusList.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveSidebar(activeSidebar === "search" ? null : "search")}
+            title="Search"
+            className={`grid h-9 w-9 place-items-center rounded ${activeSidebar === "search" ? "text-foreground bg-accent" : "hover:text-foreground"}`}
+          >
+            <Search className="h-4 w-4" />
+          </button>
+          {[Bug, Package].map((I, i) => (
+            <button
+              key={i}
+              className="grid h-9 w-9 place-items-center rounded hover:text-foreground"
+            >
+              <I className="h-4 w-4" />
+            </button>
+          ))}
+          <Settings className="mt-auto h-4 w-4" />
+        </div>
         {/* Center editor */}
         <section className="flex flex-1 min-w-0 flex-col relative">
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
-            {fileTreeOpen && (
+            {activeSidebar === "explorer" && (
               <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isSql || isMongo ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
@@ -2562,6 +2670,114 @@ export function TicketIDE({
               </div>
             )}
 
+            {/* Search Sidebar */}
+            {activeSidebar === "search" && (
+              <div className="flex h-full flex-col border-r bg-editor-panel w-64 shrink-0">
+                <div className="flex items-center justify-between p-3 border-b">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Search</span>
+                </div>
+                <div className="p-3">
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="Search in files..."
+                      className="w-full rounded border bg-editor-bg px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') performSearch(); }}
+                    />
+                    <button
+                      onClick={performSearch}
+                      disabled={isSearching}
+                      className="w-full rounded bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      {isSearching ? "Searching..." : "Search"}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto min-h-0 p-2">
+                  {searchResults.length === 0 && !isSearching && searchQuery && (
+                    <div className="p-2 text-xs text-muted-foreground text-center">No results found or hit Enter to search.</div>
+                  )}
+                  {searchResults.map((res, i) => (
+                    <div 
+                      key={i} 
+                      className="group flex flex-col gap-1 p-2 hover:bg-accent/50 cursor-pointer rounded mb-1"
+                      onClick={() => {
+                        setOpenTabs(prev => prev.includes(res.file) ? prev : [...prev, res.file]);
+                        setActiveFile(res.file);
+                      }}
+                    >
+                      <div className="flex items-center gap-1 text-xs font-medium text-foreground">
+                        <FileCode2 className="h-3 w-3" />
+                        <span className="truncate" title={res.file}>{res.file}</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-mono truncate px-4" title={res.text.trim()}>
+                        <span className="text-primary/70 mr-2">{res.line}:</span>
+                        {res.text.trim()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Source Control */}
+            {activeSidebar === "source_control" && (
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs`}>
+                <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <span>Source Control</span>
+                  <button
+                    title="Refresh"
+                    onClick={fetchGitStatus}
+                    disabled={isFetchingGitStatus}
+                    className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${isFetchingGitStatus ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+                  {gitStatusList.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-muted-foreground">
+                      No changes found.
+                    </div>
+                  ) : (
+                    <div className="flex flex-col py-1">
+                      {gitStatusList.map((item, idx) => {
+                        const isModified = item.status.includes('M');
+                        const isAdded = item.status.includes('A');
+                        const isDeleted = item.status.includes('D');
+                        const isUntracked = item.status.includes('?');
+                        
+                        let colorClass = "text-muted-foreground";
+                        let badge = "";
+                        if (isModified) { colorClass = "text-yellow-500"; badge = "M"; }
+                        else if (isAdded || isUntracked) { colorClass = "text-green-500"; badge = "U"; }
+                        else if (isDeleted) { colorClass = "text-red-500"; badge = "D"; }
+
+                        return (
+                          <div key={idx} 
+                            onClick={() => {
+                              const tabName = `diff:${item.path}`;
+                              setOpenTabs(prev => prev.includes(tabName) ? prev : [...prev, tabName]);
+                              setActiveFile(tabName);
+                            }}
+                            className="flex items-center justify-between px-3 py-1 hover:bg-accent/50 cursor-pointer group">
+                            <span className={`truncate mr-2 ${isDeleted ? 'line-through opacity-50' : ''}`} title={item.path}>
+                              {item.path}
+                            </span>
+                            <span className={`font-mono font-bold text-[10px] ${colorClass}`}>
+                              {badge}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
@@ -2609,6 +2825,14 @@ export function TicketIDE({
                     </label>
                   )}
                   {isJava && <CompileBadge state={compileState} />}
+                  {activeFile.startsWith("diff:") && (
+                    <button
+                      onClick={() => setDiffSplitView(v => !v)}
+                      className="rounded border px-2 py-0.5 hover:bg-accent"
+                    >
+                      {diffSplitView ? "Show Unified" : "Show Split"}
+                    </button>
+                  )}
                   {!isEvaluationMode && (
                     <button
                       onClick={toggleTheme}
@@ -2648,12 +2872,22 @@ export function TicketIDE({
               </div>
 
               {/* Editor */}
-              <div className="flex flex-1 min-h-0">
+              <div className="flex flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden">
                 {activeFile.startsWith("schema:") ? (
                   <SchemaViewer
                     tablePath={activeFile.replace("schema:", "")}
                     dbSchemas={dbSchemas}
                   />
+                ) : activeFile.startsWith("diff:") ? (
+                  <div className="w-full text-[13px]">
+                    <ReactDiffViewer 
+                      oldValue={diffContents[activeFile.replace("diff:", "")]?.oldCode ?? ""} 
+                      newValue={diffContents[activeFile.replace("diff:", "")]?.newCode ?? ""} 
+                      splitView={diffSplitView} 
+                      useDarkTheme={theme === 'dark'}
+                      hideLineNumbers={false}
+                    />
+                  </div>
                 ) : (
                   <CodeEditor
                     code={code}

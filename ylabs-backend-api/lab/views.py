@@ -112,6 +112,110 @@ class LabViewSet(viewsets.ModelViewSet):
         unlocked_lab_ids = list(enrollments.values_list('lab_id', flat=True))
         return Response({"unlocked_lab_ids": [str(lid) for lid in unlocked_lab_ids]})
 
+    @action(detail=True, methods=['get'], permission_classes=[IsAdminUser])
+    def attempts(self, request, pk=None):
+        lab = self.get_object()
+        
+        enrollments = UserLabEnrollment.objects.filter(lab=lab).select_related('user')
+        sprints = lab.sprints.all().prefetch_related('tasks')
+        
+        submissions = UserLabSprintTicketSubmission.objects.filter(
+            lab_sprint_ticket__sprint__lab=lab
+        ).select_related('lab_sprint_ticket')
+        
+        sub_map = {}
+        for sub in submissions:
+            sub_map[(sub.user_id, sub.lab_sprint_ticket_id)] = sub
+            
+        users_data = []
+        for e in enrollments:
+            user = e.user
+            user_sprints = []
+            
+            total_tickets = 0
+            done_tickets = 0
+            total_xp = 0
+            last_active = e.updated_at
+            
+            for sprint in sprints:
+                sprint_tickets = []
+                for ticket in sprint.tasks.all():
+                    sub = sub_map.get((user.id, ticket.id))
+                    total_tickets += 1
+                    
+                    if sub:
+                        status_map = {
+                            'done': 'Completed',
+                            'in_progress': 'In Progress',
+                            'in_review': 'In Progress',
+                            'backlog': 'Failed'
+                        }
+                        t_status = status_map.get(sub.ticket_status, 'In Progress')
+                        
+                        if t_status == 'Completed':
+                            done_tickets += 1
+                        total_xp += sub.yuvro_points
+                        
+                        if sub.updated_at > last_active:
+                            last_active = sub.updated_at
+                            
+                        sprint_tickets.append({
+                            'id': str(ticket.id)[:8],
+                            'title': ticket.title,
+                            'status': t_status,
+                            'score': 100 if t_status == 'Completed' else (50 if t_status == 'In Progress' else 0),
+                            'xp': sub.yuvro_points,
+                            'timeMin': sub.minutes_solved,
+                            'submittedAt': sub.updated_at.strftime('%d %b %Y, %H:%M'),
+                            'raw_diff': sub.solution,
+                            'files': []
+                        })
+                    else:
+                        sprint_tickets.append({
+                            'id': str(ticket.id)[:8],
+                            'title': ticket.title,
+                            'status': 'Failed',
+                            'score': 0,
+                            'xp': 0,
+                            'timeMin': 0,
+                            'submittedAt': 'N/A',
+                            'raw_diff': None,
+                            'files': []
+                        })
+                
+                sp_done = sum(1 for t in sprint_tickets if t['status'] == 'Completed')
+                progress_pct = round((sp_done / len(sprint_tickets)) * 100) if sprint_tickets else 0
+                
+                user_sprints.append({
+                    'id': str(sprint.id),
+                    'name': sprint.title,
+                    'progressPct': progress_pct,
+                    'tickets': sprint_tickets
+                })
+                
+            overall_pct = round((done_tickets / total_tickets) * 100) if total_tickets else 0
+            
+            # Get full name safely
+            full_name = ''
+            if hasattr(user, 'get_full_name'):
+                full_name = user.get_full_name()
+            if not full_name:
+                full_name = user.email
+                
+            users_data.append({
+                'id': str(user.id),
+                'name': full_name,
+                'email': user.email,
+                'cohort': 'Open enrollment',
+                'status': 'Completed' if overall_pct == 100 else ('In Progress' if overall_pct > 0 else 'Dropped'),
+                'progressPct': overall_pct,
+                'xp': total_xp,
+                'lastActive': last_active.strftime('%d %b %Y'),
+                'sprints': user_sprints
+            })
+            
+        return Response(users_data)
+
 class LabSprintViewSet(viewsets.ModelViewSet):
     queryset = LabSprint.objects.all()
     serializer_class = LabSprintSerializer
