@@ -22,6 +22,7 @@ import threading
 from .github_client import GithubClient
 from .workspace_manager import provision_user_lab_repo, get_repo_name_from_url, provision_lab_starter_repo
 import os
+import subprocess
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from .services import evaluate_and_score_submission
@@ -219,6 +220,53 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         submission = serializer.save()
+        
+        user_dir = None
+        # If the user is submitting (status changed to in_review or done), extract diff
+        if self.request.method == 'PATCH' and self.request.data.get('ticket_status') in ['in_review', 'done']:
+            lab_uuid = submission.lab_sprint_ticket.sprint.lab_id
+            user_uuid = submission.user_id
+            user_dir = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab_uuid), "users", str(user_uuid))
+            
+            if os.path.exists(user_dir):
+                try:
+                    # Intend to add all files so untracked files show up in diff
+                    subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                    
+                    sprint_no = submission.lab_sprint_ticket.sprint.order_index + 1
+                    ticket_no = submission.lab_sprint_ticket.order_index + 1
+                    prefix = f"feat(S{sprint_no}-T{ticket_no})"
+                    
+                    base_commit = "HEAD"
+                    try:
+                        log_output = subprocess.check_output(
+                            ["git", "log", "--format=%H %s"], 
+                            cwd=user_dir, 
+                            stderr=subprocess.DEVNULL
+                        ).decode().strip().split('\n')
+                        
+                        for line in log_output:
+                            if not line.strip(): continue
+                            parts = line.strip().split(' ', 1)
+                            if len(parts) == 2:
+                                commit_hash, subject = parts
+                                if not subject.startswith(prefix):
+                                    base_commit = commit_hash
+                                    break
+                    except Exception:
+                        pass
+                        
+                    # Generate the diff patch against the base_commit
+                    diff_output = subprocess.check_output(
+                        ["git", "diff", base_commit], 
+                        cwd=user_dir,
+                        stderr=subprocess.DEVNULL
+                    ).decode()
+                    
+                    submission.solution = diff_output
+                except Exception as e:
+                    pass
+
         evaluate_and_score_submission(submission)
         submission.save()
 
