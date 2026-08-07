@@ -908,6 +908,9 @@ export function TicketIDE({
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
   const [wsLoaded, setWsLoaded] = useState(false);
+  const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
+  const submissionsIdField = isEvaluationMode ? "task" : "lab_sprint_ticket";
+  const submissionsStatusField = isEvaluationMode ? "task_status" : "ticket_status";
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -958,9 +961,12 @@ export function TicketIDE({
     try {
       let currentTitle = "";
       try {
+        const labEndpoint = isEvaluationMode && evaluationId 
+          ? `/lab/evaluations/${evaluationId}/` 
+          : `/lab/labs/${labId}/`;
         const { default: api } = await import("@/utils/RestApiAuthUtil");
         const realLab = await api.get<any>(labEndpoint);
-        currentTitle = realLab.title || realLab.name || "";
+        currentTitle = realLab.data?.title || realLab.data?.name || "";
       } catch (e) {
         currentTitle = labs.find(l => l.slug === slug)?.name || "";
       }
@@ -1118,10 +1124,13 @@ export function TicketIDE({
     const isDummy = !isReal;
 
     const RECENT_LAB_KEY = "ylabs-recent-lab";
+    const labEndpoint = isEvaluationMode && evaluationId 
+          ? `/lab/evaluations/${evaluationId}/` 
+          : `/lab/labs/${labId}/`;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(labEndpoint)
         .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.title || realLab.name })); } catch {}
+          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
         })
         .catch(() => {
           const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
@@ -1809,10 +1818,6 @@ export function TicketIDE({
     }
 
     if (isSql) {
-      if (!ticketScore || ticketScore.passed !== ticketScore.total) {
-        showToast("Fix failing tests before submitting (Click Run first)");
-        return;
-      }
       setSubmitting(true);
       if (isReal) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -1838,31 +1843,26 @@ export function TicketIDE({
     }
 
     if (isUi && uiDiffResult) {
-      const isPass = uiDiffResult.ui_score >= 75 && uiDiffResult.structural_score >= 75;
-      if (isPass) {
-        setSubmitting(true);
-        if (isReal) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            if (submissionId) {
-              api.patch(`${submissionsEndpoint}${submissionId}/`, {
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error).finally(() => setSubmitting(false));
-            } else {
-              api.post(submissionsEndpoint, {
-                [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
-                ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error).finally(() => setSubmitting(false));
-            }
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-          });
-        } else {
+      setSubmitting(true);
+      if (isReal) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          if (submissionId) {
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error).finally(() => setSubmitting(false));
+          } else {
+            api.post(submissionsEndpoint, {
+              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error).finally(() => setSubmitting(false));
+          }
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-        }
+        });
       } else {
-        showToast("Fix failing UI validation before submitting");
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       }
       return;
     }
@@ -1895,30 +1895,25 @@ export function TicketIDE({
       setTicketScore({ passed: passedCount, total: ticket.tasks.length });
       setSubmitting(false);
       
-      const allPassed = passedCount === ticket.tasks.length;
-      if (allPassed) {
-        if (isReal) {
-          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            if (submissionId) {
-              api.patch(`${submissionsEndpoint}${submissionId}/`, {
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error);
-            } else {
-              api.post(submissionsEndpoint, {
-                [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
-                ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-                [submissionsStatusField]: "in_review",
-                solution: JSON.stringify(files),
-              }).catch(console.error);
-            }
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-          });
-        } else {
+      if (isReal) {
+        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          if (submissionId) {
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          } else {
+            api.post(submissionsEndpoint, {
+              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
+              [submissionsStatusField]: "in_review",
+              solution: JSON.stringify(files),
+            }).catch(console.error);
+          }
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
-        }
+        });
       } else {
-        showToast("Fix failing tests before submitting");
+        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
       }
       return;
     }
@@ -1956,28 +1951,24 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: next.every((t) => t.pass) ? "in_review" : "in_progress",
+              [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error);
           }
         });
       }
 
-      if (next.every((t) => t.pass)) {
-        navigate({
-          to: "/student/lab/$slug/ticket/$ticketId/review",
-          params: { slug, ticketId: ticket.id },
-        });
-      } else {
-        showToast("Fix failing tests before submitting");
-      }
+      navigate({
+        to: "/student/lab/$slug/ticket/$ticketId/review",
+        params: { slug, ticketId: ticket.id },
+      });
     }, 600);
   }
 
@@ -2304,6 +2295,7 @@ export function TicketIDE({
                   ticket={ticket} 
                   slug={slug} 
                   labName={labTitle}
+                  isAlgo={isMultiLang}
                   isReal={!tickets.some(t => t.id === ticket.id)} 
                   evaluating={evaluating}
                   evalResult={evalResult}
@@ -2591,7 +2583,7 @@ export function TicketIDE({
                   </button>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
-                  {labTitle === "Data Structures Lab" && (
+                  {isMultiLang && (
                     <button
                       onClick={() => setIsExamplesPanelOpen(true)}
                       className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
@@ -2693,7 +2685,7 @@ export function TicketIDE({
                   ))}
                   {ticketScore !== null && ticketScore.total > 0 && (
                     <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
-                      SCORE: {labTitle === "Data Structures Lab" ? `${Math.round((ticketScore.passed / ticketScore.total) * 100)}%` : `${ticketScore.passed} / ${ticketScore.total}`}
+                      SCORE: {isMultiLang ? `${Math.round((ticketScore.passed / ticketScore.total) * 100)}%` : `${ticketScore.passed} / ${ticketScore.total}`}
                     </div>
                   )}
                 </div>
@@ -3767,6 +3759,7 @@ function ProblemPanel({
   isReal, 
   slug, 
   labName,
+  isAlgo,
   evaluating, 
   evalResult, 
   ticketScore, 
@@ -3776,6 +3769,7 @@ function ProblemPanel({
   isReal?: boolean; 
   slug: string;
   labName?: string;
+  isAlgo?: boolean;
   evaluating: Record<string, boolean>;
   evalResult: Record<string, { passed: boolean; reason: string }>;
   ticketScore: { passed: number; total: number } | null;
@@ -3794,7 +3788,7 @@ function ProblemPanel({
           {ticket.id} · {ticket.tag}
         </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        {labName === "Data Structures Lab" && isReal ? (
+        {isAlgo && isReal ? (
           <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
                dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
         ) : (
@@ -3808,7 +3802,7 @@ function ProblemPanel({
         <>
           {/* Tasks from DB */}
           {tasks.length > 0 && (
-            <Section title={labName === "Data Structures Lab" ? "✅ Test Cases" : "✅ Tasks"}>
+            <Section title={isAlgo ? "✅ Test Cases" : "✅ Tasks"}>
               <div className="space-y-2 text-muted-foreground">
                 {tasks.map((task: any, originalIdx: number) => ({ task, originalIdx })).filter(({ task }) => {
                   const title = typeof task === "string" ? task : (task.title ?? "");
@@ -3818,7 +3812,7 @@ function ProblemPanel({
                     typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
-                  const isDS = labName === "Data Structures Lab";
+                  const isDS = isAlgo;
                   const isHidden = typeof task === "object" && (taskTitle.toLowerCase().includes("hidden") || task.is_hidden === true);
                   
                   return (

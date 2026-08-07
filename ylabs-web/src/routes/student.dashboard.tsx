@@ -151,6 +151,12 @@ function Hub() {
 
     loadLabs().then(async data => {
       let enrSet = new Set<string>();
+      let statsMap: Record<string, any> = {};
+      try {
+        const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
+        statsMap = statsRes.data || {};
+      } catch (e) {}
+
       try {
         const enrollRes = await restApiAuthUtil.get("/lab/enrollments/");
         enrollRes.data?.forEach((e: any) => enrSet.add(String(e.lab)));
@@ -166,38 +172,29 @@ function Hub() {
         } catch {}
         setEnrolledIds(enrSet);
 
-        let statsMap: Record<string, any> = {};
-        try {
-          const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
-          statsMap = statsRes.data || {};
-        } catch (e) {}
-
         const { loadSprints } = await import("@/lib/labSprints");
 
-        const mapped: CatalogLab[] = await Promise.all(
+        const mapped = await Promise.all(
           data.map(async (dbLab: any) => {
             const sid = String(dbLab.id);
-
-            let total_tickets = 10;
-            let resolved_tickets = 0;
-
+            let total_tickets = dbLab.total_tickets || 10;
+            let resolved_tickets = dbLab.resolved_tickets || 0;
+            
             try {
               const sprints = await loadSprints(sid);
-              total_tickets = sprints.reduce((acc: number, s: any) => acc + s.tasks.length, 0);
+              total_tickets = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
             } catch {}
-
+            
             try {
-              const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
-              if (saved) {
-                resolved_tickets = Object.values(JSON.parse(saved)).filter(
-                  (v) => v === "Completed",
-                ).length;
-              }
+               const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
+               if (saved) {
+                 resolved_tickets = Object.values(JSON.parse(saved)).filter(v => v === "Completed").length;
+               }
             } catch {}
-
+            
             if (statsMap[sid]) {
-              total_tickets = statsMap[sid].total_tickets || total_tickets;
-              resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
+               total_tickets = statsMap[sid].total_tickets || total_tickets;
+               resolved_tickets = statsMap[sid].resolved_tickets || resolved_tickets;
             }
         
         let color = "ui";
