@@ -65,8 +65,12 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
         logic_score_weight = scoring_rules.get("logic_score", 100) / 100.0
         
         expected_query = getattr(body, 'expected_query', None)
+        if not expected_query:
+            expected_query = getattr(body, 'system_query', None)
+        if not expected_query:
+            expected_query = scoring_rules.get("system_query")
         expected_query = (expected_query or "").strip()
-        user_query = getattr(body, 'query', None)
+        user_query = getattr(body, 'user_query', getattr(body, 'query', None))
         user_query = (user_query or "").strip()
         
         def normalize_str(s):
