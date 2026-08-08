@@ -84,7 +84,11 @@ def build_public_url(object_name):
 
     bucket = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "") or ""
     if not bucket:
-        return None
+        # Fallback to local media URL
+        media_url = getattr(settings, "MEDIA_URL", "/media/")
+        if not media_url.endswith("/"):
+            media_url += "/"
+        return f"{media_url}{obj}"
 
     if getattr(settings, "AWS_QUERYSTRING_AUTH", True):
         signed = _build_signed_url(obj, bucket)

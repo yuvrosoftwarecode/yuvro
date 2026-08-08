@@ -285,7 +285,7 @@ function CandidateWorkspace() {
           </div>
         </div>
       </header>
-      <nav className="mt-6 flex flex-wrap items-center gap-1 overflow-x-auto">
+      <nav className="mt-6 flex flex-wrap items-center gap-1 px-8 max-w-[1440px] mx-auto">
         {(
           [
             "overview",
@@ -309,7 +309,7 @@ function CandidateWorkspace() {
           </button>
         ))}
       </nav>
-      <hr />
+      <hr className="border-neutral-200" />
       <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-8 py-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
           {tab === "overview" && (
@@ -331,7 +331,7 @@ function CandidateWorkspace() {
               }}
             />
           )}
-          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} />}
+          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} />}
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
