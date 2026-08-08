@@ -8,7 +8,9 @@ from .models import (
     ExperienceLevel,
     Difficulty,
     UserEvaluationSubmission,
-    EvaluationSectionType
+    EvaluationSectionType,
+    FollowUpConfig,
+    FollowUpCandidate
 )
 import logging
 from lab.workspace_manager import provision_evaluation_lab_starter_repo
@@ -140,8 +142,6 @@ class UserLabQuestionBankTaskSubmissionSerializer(serializers.ModelSerializer):
         model = UserLabQuestionBankTaskSubmission
         fields = '__all__'
         read_only_fields = ('user',)
-
-from .models import FollowUpConfig, FollowUpCandidate
 
 class FollowUpConfigSerializer(serializers.ModelSerializer):
     class Meta:

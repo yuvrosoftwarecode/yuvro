@@ -14,14 +14,19 @@ from .models import (
     LabQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
-    UserLabQuestionBankTaskSubmission
+    UserLabQuestionBankTaskSubmission,
+    FollowUpConfig, 
+    FollowUpCandidate
 )
 from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
     UserEvaluationSubmissionSerializer,
-    UserLabQuestionBankTaskSubmissionSerializer
+    UserLabQuestionBankTaskSubmissionSerializer,
+    FollowUpConfigSerializer, 
+    FollowUpCandidateSerializer
 )
+from .email_utils import send_evaluation_email
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
@@ -68,7 +73,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 self.send_invitation_emails(instance, new_emails)
 
     def send_invitation_emails(self, evaluation, emails):
-        from .email_utils import send_evaluation_email
         send_evaluation_email(evaluation, emails, is_reminder=False)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
@@ -265,8 +269,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
     def follow_ups(self, request, pk=None):
         evaluation = self.get_object()
-        from .models import FollowUpConfig, FollowUpCandidate
-        from .serializers import FollowUpConfigSerializer, FollowUpCandidateSerializer
         
         if request.method == 'GET':
             config = FollowUpConfig.objects.filter(evaluation=evaluation).first()
