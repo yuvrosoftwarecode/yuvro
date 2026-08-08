@@ -1,0 +1,22 @@
+{
+  "labs": [
+    {
+      "title": "Python Lab",
+      "type": "BACKEND",
+      "description": "Master Python programming fundamentals through practical, real-world coding tasks and progressively challenging projects.",
+      "difficulty": "EASY",
+      "icon": "code",
+      "prerequisites": "None",
+      "skills": [
+        "Python",
+        "Programming Fundamentals",
+        "Object-Oriented Programming",
+        "File Handling",
+        "Error Handling",
+        "Data Processing"
+      ],
+      "git_repo_starter_url": "",
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,542 @@
+{
+  "title": "Sprint 2 - Functions and Modular Python",
+  "description": "Learn how to organize Python programs into reusable functions and modules. Build a Developer Utility Toolkit by working with function parameters, return values, default arguments, reusable logic, imports, and basic module organization.",
+  "order_index": 2,
+  "lab_title": "Python Lab",
+  "tickets": [
+    {
+      "title": "Create Your First Function",
+      "ticket_slug": "python-21",
+      "description": "The Developer Utility currently contains repeated print statements. Create a function named `show_welcome()` that displays the application's welcome message and call the function when the program starts.",
+      "tasks": [
+        "Create a function named `show_welcome()`.",
+        "Print `Welcome to Developer Utility` from inside the function.",
+        "Call `show_welcome()` when the program runs."
+      ],
+      "learning_objectives": [
+        "Understand what a Python function is.",
+        "Learn how to define a function using `def`.",
+        "Learn how to call a function."
+      ],
+      "evaluation": "Runs the Python program and verifies that the function produces the required output.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Defining the function but never calling it.",
+        "Using incorrect indentation inside the function.",
+        "Calling a different function name than the one defined."
+      ],
+      "hints": [
+        "Functions are defined using the `def` keyword.",
+        "A function does not execute until it is called."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Welcome to Developer Utility"
+      },
+      "solution": {
+        "main.py": "def show_welcome():\n    print(\"Welcome to Developer Utility\")\n\nshow_welcome()",
+        "expected_output": "Welcome to Developer Utility"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Create a Developer Greeting Function",
+      "ticket_slug": "python-22",
+      "description": "The Developer Utility should greet different developers dynamically. Create a function named `greet_developer()` that accepts a developer name and prints a personalized greeting.",
+      "tasks": [
+        "Create a function named `greet_developer()`.",
+        "Make the function accept a parameter named `name`.",
+        "Print `Hello, <name>! Welcome to Developer Utility.`.",
+        "Call the function with at least two different developer names."
+      ],
+      "learning_objectives": [
+        "Understand function parameters.",
+        "Learn how arguments are passed to functions.",
+        "Understand how functions can work with different input values."
+      ],
+      "evaluation": "Runs the program with the implemented function and verifies that the provided names are used correctly in the generated greetings.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Hardcoding the developer name inside the function.",
+        "Forgetting to define the parameter.",
+        "Calling the function without passing the required argument."
+      ],
+      "hints": [
+        "Put the parameter inside the function's parentheses.",
+        "Use the parameter when creating the greeting."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "Rahul",
+            "expected_output": "Hello, Rahul! Welcome to Developer Utility."
+          },
+          {
+            "input": "Priya",
+            "expected_output": "Hello, Priya! Welcome to Developer Utility."
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def greet_developer(name):\n    print(f\"Hello, {name}! Welcome to Developer Utility.\")\n\ngreet_developer(\"Rahul\")\ngreet_developer(\"Priya\")"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Return Project Statistics",
+      "ticket_slug": "python-23",
+      "description": "The project statistics calculation is currently mixed with the program's output logic. Create a function named `calculate_total_files()` that accepts the number of Python, JavaScript, and configuration files and returns the total instead of printing it.",
+      "tasks": [
+        "Create a function named `calculate_total_files()`.",
+        "Accept `python_files`, `javascript_files`, and `config_files` as parameters.",
+        "Calculate the total number of files.",
+        "Return the calculated value.",
+        "Call the function and print the returned result."
+      ],
+      "learning_objectives": [
+        "Understand the difference between printing and returning a value.",
+        "Learn how to use the `return` statement.",
+        "Build reusable functions that produce results."
+      ],
+      "evaluation": "Calls the function with multiple sets of values and verifies that it returns the correct total.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Printing the result instead of returning it.",
+        "Returning only one of the input values.",
+        "Using hardcoded values inside the function."
+      ],
+      "hints": [
+        "A function can send a value back to the caller using `return`.",
+        "The caller can store the returned value in another variable."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "12,8,5",
+            "expected_result": 25
+          },
+          {
+            "input": "10,0,3",
+            "expected_result": 13
+          },
+          {
+            "input": "0,0,0",
+            "expected_result": 0
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def calculate_total_files(python_files, javascript_files, config_files):\n    return python_files + javascript_files + config_files\n\ntotal = calculate_total_files(12, 8, 5)\nprint(total)"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Build a Username Validator Function",
+      "ticket_slug": "python-24",
+      "description": "The username validation logic from Sprint 1 is currently embedded inside the application flow. Extract it into a reusable function named `is_valid_username()` that accepts a username and returns `True` or `False`.",
+      "tasks": [
+        "Create a function named `is_valid_username()`.",
+        "Accept a username as a parameter.",
+        "Return `True` when the username contains at least 3 characters and does not contain spaces.",
+        "Return `False` for invalid usernames.",
+        "Use the function to validate multiple usernames."
+      ],
+      "learning_objectives": [
+        "Create reusable validation functions.",
+        "Return boolean values from functions.",
+        "Separate business logic from program output."
+      ],
+      "evaluation": "Calls the function with valid and invalid usernames and verifies the returned boolean value.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Returning strings such as `Valid` and `Invalid` instead of booleans.",
+        "Printing the result inside the function.",
+        "Forgetting to handle usernames containing spaces."
+      ],
+      "hints": [
+        "The function should answer a yes/no question, so return a boolean.",
+        "The caller should decide what to display based on the returned value."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "Rahul",
+            "expected_result": true
+          },
+          {
+            "input": "A",
+            "expected_result": false
+          },
+          {
+            "input": "Rahul Kumar",
+            "expected_result": false
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def is_valid_username(username):\n    return len(username) >= 3 and \" \" not in username"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Calculate Test Coverage",
+      "ticket_slug": "python-25",
+      "description": "The project health calculation should be reusable across different projects. Create a function named `calculate_coverage()` that accepts the total number of files and test files and returns the test coverage percentage.",
+      "tasks": [
+        "Create a function named `calculate_coverage()`.",
+        "Accept `total_files` and `test_files` as parameters.",
+        "Return the test coverage percentage.",
+        "Handle a project with zero files without causing a division-by-zero error."
+      ],
+      "learning_objectives": [
+        "Use functions for reusable calculations.",
+        "Understand edge cases when designing functions.",
+        "Learn how a function can safely handle invalid or boundary input."
+      ],
+      "evaluation": "Calls the function with normal and boundary values and verifies the returned percentage.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Dividing by zero when there are no files.",
+        "Returning a formatted string instead of a numeric percentage.",
+        "Using incorrect percentage calculation."
+      ],
+      "hints": [
+        "The percentage is `(test_files / total_files) * 100`.",
+        "Check whether `total_files` is zero before dividing."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "20,8",
+            "expected_result": 40.0
+          },
+          {
+            "input": "10,3",
+            "expected_result": 30.0
+          },
+          {
+            "input": "0,0",
+            "expected_result": 0
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def calculate_coverage(total_files, test_files):\n    if total_files == 0:\n        return 0\n    return (test_files / total_files) * 100"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Add Default Configuration",
+      "ticket_slug": "python-26",
+      "description": "The Developer Utility needs a reusable function for displaying project information. Some projects may not provide a programming language, so the function should use Python as the default language.",
+      "tasks": [
+        "Create a function named `show_project_info()`.",
+        "Accept `project_name` as a required parameter.",
+        "Accept `language` as an optional parameter with `Python` as its default value.",
+        "Print the project name and programming language.",
+        "Verify that the default value is used when no language is provided."
+      ],
+      "learning_objectives": [
+        "Understand default function arguments.",
+        "Learn how optional parameters work.",
+        "Understand how default values make functions easier to reuse."
+      ],
+      "evaluation": "Calls the function with and without the optional language argument and verifies the generated output.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Making the language parameter required.",
+        "Putting the default value on the wrong parameter.",
+        "Overwriting the provided language with the default value."
+      ],
+      "hints": [
+        "A default argument is assigned in the function definition.",
+        "The default value is only used when the caller does not provide that argument."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "YCode",
+            "expected_output": "Project: YCode\nLanguage: Python"
+          },
+          {
+            "input": "YLabs,JavaScript",
+            "expected_output": "Project: YLabs\nLanguage: JavaScript"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def show_project_info(project_name, language=\"Python\"):\n    print(f\"Project: {project_name}\")\n    print(f\"Language: {language}\")"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Create a Utility Module",
+      "ticket_slug": "python-27",
+      "description": "The Developer Utility is growing and the main program is becoming difficult to maintain. Move reusable utility functions into a separate Python module and import them into `main.py`.",
+      "tasks": [
+        "Create a file named `utils.py`.",
+        "Move `is_valid_username()` into `utils.py`.",
+        "Move `calculate_coverage()` into `utils.py`.",
+        "Import the required functions into `main.py`.",
+        "Use the imported functions from `main.py`."
+      ],
+      "learning_objectives": [
+        "Understand Python modules.",
+        "Learn how to import functions from another file.",
+        "Understand how modules help organize larger programs."
+      ],
+      "evaluation": "Inspects the project structure and runs `main.py` to verify that functions are imported and work correctly from the utility module.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Leaving the required functions duplicated in `main.py`.",
+        "Using an incorrect import statement.",
+        "Naming the module incorrectly.",
+        "Importing the module but not using the functions from it."
+      ],
+      "hints": [
+        "A Python file can be imported as a module.",
+        "Use `from utils import ...` when importing specific functions."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_files": [
+          "main.py",
+          "utils.py"
+        ]
+      },
+      "solution": {
+        "utils.py": "def is_valid_username(username):\n    return len(username) >= 3 and \" \" not in username\n\n\ndef calculate_coverage(total_files, test_files):\n    if total_files == 0:\n        return 0\n    return (test_files / total_files) * 100",
+        "main.py": "from utils import is_valid_username, calculate_coverage\n\nprint(is_valid_username(\"Rahul\"))\nprint(calculate_coverage(20, 8))"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Build a Report Utility Module",
+      "ticket_slug": "python-28",
+      "description": "The Developer Utility needs reusable functions for generating reports. Create a separate `report.py` module containing functions that generate a developer summary and display a list of supported languages.",
+      "tasks": [
+        "Create a file named `report.py`.",
+        "Create a function named `developer_summary()` that accepts a developer name, language, and experience.",
+        "Create a function named `show_languages()` that accepts a list of languages.",
+        "Import both functions into `main.py`.",
+        "Use the functions to generate the required output."
+      ],
+      "learning_objectives": [
+        "Organize related functions into a dedicated module.",
+        "Understand how multiple modules can work together.",
+        "Practice passing lists and values into functions."
+      ],
+      "evaluation": "Inspects the module structure and executes the application to verify that both imported functions behave correctly.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Putting the report functions in `main.py` instead of `report.py`.",
+        "Hardcoding the list of languages inside `show_languages()`.",
+        "Failing to import the functions correctly."
+      ],
+      "hints": [
+        "Keep report-related functions inside `report.py`.",
+        "Pass the language list into the function rather than creating it inside the function."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_files": [
+          "main.py",
+          "utils.py",
+          "report.py"
+        ]
+      },
+      "solution": {
+        "report.py": "def developer_summary(name, language, experience):\n    return f\"Developer: {name}\\nLanguage: {language}\\nExperience: {experience} year\"\n\n\ndef show_languages(languages):\n    for language in languages:\n        print(language)",
+        "main.py": "from report import developer_summary, show_languages\n\nsummary = developer_summary(\"Rahul\", \"Python\", 1)\nprint(summary)\n\nlanguages = [\"Python\", \"JavaScript\", \"Java\"]\nshow_languages(languages)"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Separate Menu Logic",
+      "ticket_slug": "python-29",
+      "description": "The command-line menu from Sprint 1 currently contains all of its logic inside the main program loop. Refactor the menu so that displaying the menu and processing a choice are handled by separate functions.",
+      "tasks": [
+        "Create a function named `show_menu()` that displays the application menu.",
+        "Create a function named `process_choice()` that accepts the user's choice.",
+        "Move the appropriate menu handling logic into these functions.",
+        "Keep the main application loop responsible only for reading input and controlling the application flow.",
+        "Ensure the application continues to work exactly as before."
+      ],
+      "learning_objectives": [
+        "Use functions to separate responsibilities.",
+        "Understand how functions improve code organization.",
+        "Learn how multiple functions can work together to implement application flow."
+      ],
+      "evaluation": "Runs the application using multiple menu choices and verifies that the same behavior is preserved after refactoring.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Keeping all menu logic inside the main loop.",
+        "Making `process_choice()` responsible for reading input instead of accepting it as an argument.",
+        "Breaking existing menu behavior during the refactoring."
+      ],
+      "hints": [
+        "Each function should have one clear responsibility.",
+        "Pass information into a function instead of relying on global variables whenever possible."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_functions": [
+          "show_menu",
+          "process_choice"
+        ]
+      },
+      "solution": {
+        "main.py": "def show_menu():\n    print(\"1. Show developer information\")\n    print(\"2. Show supported languages\")\n    print(\"3. Check username\")\n    print(\"4. Show project health\")\n    print(\"5. Exit\")\n\n\ndef process_choice(choice):\n    if choice == \"1\":\n        print(\"Developer: Rahul\")\n        print(\"Language: Python\")\n        print(\"Experience: 1 year\")\n    elif choice == \"2\":\n        print(\"Python\")\n        print(\"JavaScript\")\n        print(\"Java\")\n        print(\"Go\")\n    elif choice == \"3\":\n        username = input()\n        if len(username) >= 3 and \" \" not in username:\n            print(\"Valid username\")\n        else:\n            print(\"Invalid username\")\n    elif choice == \"4\":\n        total_files = 20\n        test_files = 8\n        coverage = (test_files / total_files) * 100\n        if coverage >= 30:\n            print(\"Good test coverage\")\n        else:\n            print(\"Test coverage needs improvement\")\n    elif choice == \"5\":\n        return False\n    else:\n        print(\"Invalid choice\")\n\n    return True\n\n\nwhile True:\n    show_menu()\n    choice = input()\n    if not process_choice(choice):\n        break"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Build the Modular Developer Utility",
+      "ticket_slug": "python-210",
+      "description": "The Developer Utility has now grown into multiple reusable components. Refactor the application into separate modules and use functions to keep the application organized and maintainable.",
+      "tasks": [
+        "Create `main.py` as the application entry point.",
+        "Create `utils.py` for reusable validation and calculation functions.",
+        "Create `report.py` for report-related functions.",
+        "Create `menu.py` for menu display and menu processing.",
+        "Import functions between modules where required.",
+        "Ensure the application can still display developer information, supported languages, username validation, and project health.",
+        "Ensure the application continues running until the user selects Exit."
+      ],
+      "learning_objectives": [
+        "Combine functions, parameters, return values, default arguments, and modules.",
+        "Understand basic Python project organization.",
+        "Separate application responsibilities into reusable components.",
+        "Build a maintainable multi-file Python application."
+      ],
+      "evaluation": "Runs the complete application through automated test scenarios and verifies both functionality and the required modular project structure.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Keeping all application logic inside `main.py`.",
+        "Duplicating functions across multiple modules.",
+        "Using circular imports.",
+        "Breaking imports because of incorrect module names.",
+        "Creating modules without actually using them."
+      ],
+      "hints": [
+        "Keep `main.py` focused on starting the application.",
+        "Place reusable calculations and validation logic in `utils.py`.",
+        "Place output and report-related functions in `report.py`.",
+        "Keep menu-related functionality inside `menu.py`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_files": [
+          "main.py",
+          "utils.py",
+          "report.py",
+          "menu.py"
+        ],
+        "test_cases": [
+          {
+            "input": "1\n5",
+            "expected_output_contains": "Developer: Rahul"
+          },
+          {
+            "input": "2\n5",
+            "expected_output_contains": "Python"
+          },
+          {
+            "input": "3\nRahul\n5",
+            "expected_output_contains": "Valid username"
+          },
+          {
+            "input": "4\n5",
+            "expected_output_contains": "Good test coverage"
+          },
+          {
+            "input": "9\n5",
+            "expected_output_contains": "Invalid choice"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "from menu import run_menu\n\nif __name__ == \"__main__\":\n    run_menu()",
+        "utils.py": "def is_valid_username(username):\n    return len(username) >= 3 and \" \" not in username\n\n\ndef calculate_coverage(total_files, test_files):\n    if total_files == 0:\n        return 0\n    return (test_files / total_files) * 100",
+        "report.py": "def developer_summary(name, language, experience):\n    return f\"Developer: {name}\\nLanguage: {language}\\nExperience: {experience} year\"\n\n\ndef show_languages(languages):\n    for language in languages:\n        print(language)",
+        "menu.py": "from utils import is_valid_username, calculate_coverage\nfrom report import developer_summary, show_languages\n\n\ndef show_menu():\n    print(\"1. Show developer information\")\n    print(\"2. Show supported languages\")\n    print(\"3. Check username\")\n    print(\"4. Show project health\")\n    print(\"5. Exit\")\n\n\ndef process_choice(choice):\n    if choice == \"1\":\n        print(developer_summary(\"Rahul\", \"Python\", 1))\n    elif choice == \"2\":\n        show_languages([\"Python\", \"JavaScript\", \"Java\", \"Go\"])\n    elif choice == \"3\":\n        username = input()\n        if is_valid_username(username):\n            print(\"Valid username\")\n        else:\n            print(\"Invalid username\")\n    elif choice == \"4\":\n        coverage = calculate_coverage(20, 8)\n        if coverage >= 30:\n            print(\"Good test coverage\")\n        else:\n            print(\"Test coverage needs improvement\")\n    elif choice == \"5\":\n        return False\n    else:\n        print(\"Invalid choice\")\n\n    return True\n\n\ndef run_menu():\n    while True:\n        show_menu()\n        choice = input()\n        if not process_choice(choice):\n            break"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 10
+    }
+  ]
+}
