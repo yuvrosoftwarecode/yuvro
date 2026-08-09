@@ -390,11 +390,20 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         records_list.sort(key=lambda x: x['lastActivity'] or 0, reverse=True)
         return Response(records_list)
 
-class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
+class LabQuestionBankViewSet(viewsets.ModelViewSet):
     queryset = LabQuestionBank.objects.all()
     serializer_class = LabQuestionBankSerializer
     permission_classes = [AllowAny]
     authentication_classes = []
+
+    def perform_create(self, serializer):
+        user = self.request.user if self.request.user and self.request.user.is_authenticated else None
+        if not user:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            user = User.objects.first() # fallback
+        
+        serializer.save(created_by=user)
 
 class UserLabQuestionBankTaskSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabQuestionBankTaskSubmissionSerializer
