@@ -152,3 +152,24 @@ class FollowUpCandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = FollowUpCandidate
         fields = '__all__'
+
+from .models import CandidateNote, CandidateTimelineEvent
+
+class CandidateNoteSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CandidateNote
+        fields = '__all__'
+        read_only_fields = ('author',)
+
+    def get_author_name(self, obj):
+        if obj.author:
+            return f"{obj.author.first_name} {obj.author.last_name}".strip() or obj.author.email
+        return None
+
+class CandidateTimelineEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CandidateTimelineEvent
+        fields = '__all__'
+

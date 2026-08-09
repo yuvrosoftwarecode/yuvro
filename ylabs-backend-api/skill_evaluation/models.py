@@ -238,10 +238,82 @@ class FollowUpCandidate(BaseTimestampedAdminModel):
     emails_sent_count = models.PositiveIntegerField(default=0)
     has_submitted = models.BooleanField(default=False)
     activity = models.CharField(max_length=100, default="No Action")
-    timeline = models.JSONField(default=list, blank=True)
 
     class Meta:
         unique_together = ("evaluation", "email")
 
     def __str__(self):
         return f"{self.name} - {self.evaluation.title}"
+
+class CandidateNotePriority(models.TextChoices):
+    LOW = "LOW", "Low"
+    MEDIUM = "MEDIUM", "Medium"
+    HIGH = "HIGH", "High"
+
+class CandidateNote(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="candidate_notes")
+    candidate_email = models.EmailField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="authored_candidate_notes")
+    text = models.TextField()
+    priority = models.CharField(
+        max_length=10, 
+        choices=CandidateNotePriority.choices, 
+        default=CandidateNotePriority.LOW
+    )
+    is_internal = models.BooleanField(default=True)
+    tags = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"Note by {self.author} on {self.candidate_email}"
+
+
+class CandidateTimelineEventStatus(models.TextChoices):
+    SUCCESS = "SUCCESS", "Success"
+    PENDING = "PENDING", "Pending"
+    WARNING = "WARNING", "Warning"
+    ERROR = "ERROR", "Error"
+    NEUTRAL = "NEUTRAL", "Neutral"
+
+class CandidateTimelineEventType(models.TextChoices):
+    INVITATION_SENT = "Evaluation invitation sent", "Evaluation invitation sent"
+    STARTED = "Candidate started evaluation", "Candidate started evaluation"
+    LABS_SUBMITTED = "Engineering Labs submitted", "Engineering Labs submitted"
+    ASSESSMENT_SUBMITTED = "Knowledge Assessment submitted", "Knowledge Assessment submitted"
+    VITARKA_COMPLETED = "Vitarka discussion completed", "Vitarka discussion completed"
+    EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
+    RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"
+    SHORTLISTED = "Shortlisted", "Shortlisted"
+    INTERVIEW_SCHEDULED = "Interview scheduled", "Interview scheduled"
+    OFFER_SENT = "Offer sent", "Offer sent"
+
+class CandidateTimelineEvent(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="candidate_timeline_events")
+    candidate_email = models.EmailField()
+    title = models.CharField(
+        max_length=255,
+        choices=CandidateTimelineEventType.choices,
+        default=CandidateTimelineEventType.INVITATION_SENT
+    )
+    description = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=15, 
+        choices=CandidateTimelineEventStatus.choices, 
+        default=CandidateTimelineEventStatus.NEUTRAL
+    )
+    occurred_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-occurred_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.candidate_email}"
+
