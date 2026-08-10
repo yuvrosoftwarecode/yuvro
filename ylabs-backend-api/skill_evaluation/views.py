@@ -405,3 +405,42 @@ class UserLabQuestionBankTaskSubmissionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+from .models import CandidateNote, CandidateTimelineEvent
+from .serializers import CandidateNoteSerializer, CandidateTimelineEventSerializer
+
+class CandidateNoteViewSet(viewsets.ModelViewSet):
+    serializer_class = CandidateNoteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = CandidateNote.objects.all()
+        evaluation_id = self.request.query_params.get('evaluation_id')
+        candidate_email = self.request.query_params.get('candidate_email')
+        
+        if evaluation_id:
+            queryset = queryset.filter(evaluation_id=evaluation_id)
+        if candidate_email:
+            queryset = queryset.filter(candidate_email=candidate_email)
+            
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
+    serializer_class = CandidateTimelineEventSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = CandidateTimelineEvent.objects.all()
+        evaluation_id = self.request.query_params.get('evaluation_id')
+        candidate_email = self.request.query_params.get('candidate_email')
+        
+        if evaluation_id:
+            queryset = queryset.filter(evaluation_id=evaluation_id)
+        if candidate_email:
+            queryset = queryset.filter(candidate_email=candidate_email)
+            
+        return queryset
+
