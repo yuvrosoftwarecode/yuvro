@@ -186,25 +186,96 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
 
-class UserLabQuestionBankTaskSubmission(BaseTimestampedModel):
+class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="evaluation_task_submissions"
+        User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"
     )
     evaluation = models.ForeignKey(
-        Evaluation, on_delete=models.CASCADE, related_name="task_submissions"
+        Evaluation, on_delete=models.CASCADE, related_name="lab_submissions"
     )
-    task = models.ForeignKey(
-        LabQuestionBankTask, on_delete=models.CASCADE, related_name="submissions"
+    lab_question = models.ForeignKey(
+        LabQuestionBank, on_delete=models.CASCADE, related_name="submissions"
     )
-    task_status = models.CharField(max_length=20, default="BACKLOG")
-    solution = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default="BACKLOG")
+    solution = models.TextField(blank=True) # Stores the git diff patch
     solution_output = models.TextField(blank=True)
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(default=0)
     minutes_solved = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ("user", "evaluation", "task")
+        unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
         return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
+
+
+class FollowUpConfig(BaseTimestampedAdminModel):
+    evaluation = models.OneToOneField(Evaluation, on_delete=models.CASCADE, related_name="followup_config")
+    start_date = models.DateTimeField(null=True, blank=True)
+    deadline = models.DateTimeField(null=True, blank=True)
+    timezone = models.CharField(max_length=100, default="UTC")
+    smart_followups = models.BooleanField(default=True)
+    reminder1 = models.CharField(max_length=100, blank=True)
+    reminder1_custom_time = models.DateTimeField(null=True, blank=True)
+    reminder2 = models.CharField(max_length=100, blank=True)
+    reminder2_custom_time = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"FollowUpConfig for {self.evaluation.title}"
+
+
+class FollowUpCandidate(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="followup_candidates")
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True)
+    
+    reminder1_sent = models.BooleanField(default=False)
+    reminder2_sent = models.BooleanField(default=False)
+    
+    followups_enabled = models.BooleanField(default=True)
+    emails_sent_count = models.PositiveIntegerField(default=0)
+    has_submitted = models.BooleanField(default=False)
+    activity = models.CharField(max_length=100, default="No Action")
+    timeline = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        unique_together = ("evaluation", "email")
+
+    def __str__(self):
+        return f"{self.name} - {self.evaluation.title}"
+        return f"{self.user} -> {self.lab_question.title} ({self.evaluation.title})"
+
+class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="knowledge_assessment_submissions"
+    )
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="knowledge_submissions"
+    )
+    section = models.ForeignKey(
+        EvaluationSection, on_delete=models.CASCADE, related_name="knowledge_submissions"
+    )
+    
+    # JSON schema for answers:
+    # [
+    #   {
+    #     "question_text": "...",
+    #     "candidate_answer": "...",
+    #     "correct_answer": "...",
+    #     "explanation": "...",
+    #     "is_correct": true,
+    #     "time_taken_seconds": 36,
+    #     "difficulty": "EASY"
+    #   }, ...
+    # ]
+    answers = models.JSONField(default=list, blank=True)
+    score = models.PositiveIntegerField(default=0)
+    total_questions = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("user", "evaluation", "section")
+
+    def __str__(self):
+        return f"{self.user} -> {self.section.title} ({self.evaluation.title})"

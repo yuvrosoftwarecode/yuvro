@@ -144,8 +144,15 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                 dst = os.path.join(user_dir, item)
                 if os.path.isdir(src):
                     shutil.copytree(src, dst, ignore=ignore, dirs_exist_ok=True)
-                else:
                     shutil.copy2(src, dst)
+
+        import subprocess
+        subprocess.run(["git", "init"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "add", "."], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "bot@yuvro.ai"], cwd=user_dir, check=True)
+        subprocess.run(["git", "config", "user.name", "Yuvro Bot"], cwd=user_dir, check=True)
+        subprocess.run(["git", "commit", "--allow-empty", "-m", "Initial commit for evaluation lab workspace"], cwd=user_dir, check=True, capture_output=True)
+
         
         logger.info(f"Successfully provisioned evaluation user repo at {user_dir}")
         return user_dir

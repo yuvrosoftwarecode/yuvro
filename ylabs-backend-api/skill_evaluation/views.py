@@ -14,13 +14,19 @@ from .models import (
     LabQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
-    UserLabQuestionBankTaskSubmission
+    FollowUpConfig, 
+    FollowUpCandidate,
+    UserLabQuestionBankSubmission,
+    UserKnowledgeAssessmentSubmission,
+    EvaluationSection
 )
 from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
     UserEvaluationSubmissionSerializer,
-    UserLabQuestionBankTaskSubmissionSerializer
+    FollowUpConfigSerializer, 
+    FollowUpCandidateSerializer,
+    UserLabQuestionBankSubmissionSerializer
 )
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
@@ -247,7 +253,78 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             from .face_verification_proxy import run_async_face_verification
             run_async_face_verification(UserEvaluationSubmission, submission.id)
             
-        return Response({"status": "finished"})
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def submit_lab(self, request, pk=None):
+        evaluation = self.get_object()
+        lab_id = request.data.get('lab_id')
+        status_val = request.data.get('status', 'in_review')
+        solution = request.data.get('solution', '')
+        minutes_solved = request.data.get('minutes_solved', 0)
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission, created = UserLabQuestionBankSubmission.objects.update_or_create(
+            user=request.user,
+            evaluation=evaluation,
+            lab_question=lab,
+            defaults={
+                'status': status_val,
+                'solution': solution,
+                'minutes_solved': minutes_solved
+            }
+        )
+        
+        if status_val in ['in_review', 'done']:
+            user_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "users", str(request.user.id), "labs", str(lab.id))
+            if os.path.exists(user_dir):
+                import subprocess
+                try:
+                    subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                    diff_output = subprocess.check_output(
+                        ["git", "diff", "HEAD"], 
+                        cwd=user_dir,
+                        stderr=subprocess.DEVNULL
+                    ).decode()
+                    submission.solution = diff_output
+                    submission.save(update_fields=['solution'])
+                except Exception:
+                    pass
+        
+        return Response({"status": "success"})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def submit_knowledge_answers(self, request, pk=None):
+        evaluation = self.get_object()
+        section_id = request.data.get('section_id')
+        answers = request.data.get('answers', [])
+        
+        if not section_id:
+            return Response({"error": "section_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            section = EvaluationSection.objects.get(id=section_id, evaluation=evaluation)
+        except EvaluationSection.DoesNotExist:
+            return Response({"error": "Section not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission, created = UserKnowledgeAssessmentSubmission.objects.update_or_create(
+            user=request.user,
+            evaluation=evaluation,
+            section=section,
+            defaults={
+                'answers': answers,
+                'total_questions': len(answers),
+                # Calculate score if 'is_correct' is provided in answers JSON
+                'score': sum(1 for a in answers if a.get('is_correct'))
+            }
+        )
+        
+        return Response({"status": "success"})
 
     @action(detail=True, methods=['get'], permission_classes=[AllowAny])
     def submissions(self, request, pk=None):
@@ -286,12 +363,40 @@ class LabQuestionBankViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     authentication_classes = []
 
-class UserLabQuestionBankTaskSubmissionViewSet(viewsets.ModelViewSet):
-    serializer_class = UserLabQuestionBankTaskSubmissionSerializer
+class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = UserLabQuestionBankSubmissionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return UserLabQuestionBankTaskSubmission.objects.filter(user=self.request.user)
+        return UserLabQuestionBankSubmission.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        submission = serializer.save()
+        
+        # If the user is submitting (status changed to in_review or done), extract diff
+        if self.request.method == 'PATCH' and self.request.data.get('status') in ['in_review', 'done']:
+            evaluation_uuid = submission.evaluation_id
+            lab_uuid = submission.lab_question_id
+            user_uuid = submission.user_id
+            
+            user_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "users", str(user_uuid), "labs", str(lab_uuid))
+            
+            if os.path.exists(user_dir):
+                import subprocess
+                try:
+                    subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                    
+                    diff_output = subprocess.check_output(
+                        ["git", "diff", "HEAD"], 
+                        cwd=user_dir,
+                        stderr=subprocess.DEVNULL
+                    ).decode()
+                    
+                    submission.solution = diff_output
+                except Exception as e:
+                    pass
+
+        submission.save()

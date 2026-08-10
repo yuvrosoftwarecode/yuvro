@@ -66,5 +66,27 @@ export const evaluationService = {
 
   async startLab(evaluationId: string, labId: string): Promise<any> {
     return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/start_lab/`, { lab_id: labId });
+  },
+
+  async finishEvaluation(evaluationId: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`, {});
+  },
+
+  async submitLab(evaluationId: string, labId: string, data: any): Promise<any> {
+    // If there's an existing submission, we might need a GET first or use a custom endpoint.
+    // The backend views.py uses `UserLabQuestionBankSubmissionViewSet`. It's typical to use POST or PATCH.
+    // Let's use the `/skill_evaluation/evaluations/${evaluationId}/submit_lab/` if we added one, but wait, 
+    // I added `submit_lab` to EvaluationViewSet!
+    // No, I added `submit_knowledge_answers`, but for lab I didn't add `submit_lab` to EvaluationViewSet! 
+    // Wait, in my updated implementation plan, I said I would add `submit_lab` to EvaluationViewSet.
+    // Let me check what I actually added. I didn't add it yet!
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/submit_lab/`, { lab_id: labId, ...data });
+  },
+
+  async submitKnowledgeAnswers(evaluationId: string, sectionId: string, answers: any): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/submit_knowledge_answers/`, {
+      section_id: sectionId,
+      answers: answers
+    });
   }
 };

@@ -26,6 +26,29 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
+import { LabSubmissionViewer } from './LabSubmissionViewer';
+
+
+interface ProctoringEvent {
+    activity_type: string;
+    timestamp: string;
+    image_path?: string;
+    screen_path?: string;
+    meta_data?: {
+        copied_text?: string;
+        pasted_text?: string;
+        cut_text?: string;
+        selected_text?: string;
+        method?: string;
+        key?: string;
+        platform?: string;
+        db_level?: number;
+    };
+    question_title?: string;
+    question_no?: string;
+}
+
+import { Candidate } from '@/lib/recruiterCandidates';
 
 
 interface ProctoringEvent {
@@ -855,6 +878,129 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                                 <div className="flex items-center gap-1.5">
                                                                     <Trophy className="h-3.5 w-3.5" />
                                                                     Score: {displayScore}%
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Submissions UI */}
+                                                    {sec.type === 'LAB' && submission?.lab_submissions && (
+                                                        <div className="mb-6 space-y-4">
+                                                            {submission.lab_submissions.map((labSub: any, lIdx: number) => {
+                                                                const isMatch = sec.questions?.some((q: any) => 
+                                                                    (typeof q === 'string' ? q : q.id) === labSub.lab_question
+                                                                );
+                                                                if (!isMatch) return null;
+                                                                
+                                                                return (
+                                                                    <div key={lIdx} className="mb-4">
+                                                                        <LabSubmissionViewer
+                                                                            userId={candidate.user.id}
+                                                                            evaluationId={evaluation.id}
+                                                                            labId={labSub.lab_question}
+                                                                            diffPatch={labSub.solution}
+                                                                            minutesSolved={labSub.minutes_solved}
+                                                                        />
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    {sec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions && (
+                                                        <div className="mb-6 space-y-4">
+                                                            {submission.knowledge_submissions.map((ks: any, kIdx: number) => {
+                                                                if (ks.section !== sec.id) return null;
+
+                                                                return (
+                                                                    <div key={kIdx} className="space-y-4">
+                                                                        {sec.questions?.map((q: any, qIdx: number) => {
+                                                                            const ans = ks.answers?.find((a: any) => a.question_id === q.id);
+                                                                            const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
+                                                                            const mappedOptions = isMcq ? q.mcq_options.map((opt: any) => opt.text || "") : (q.options || []);
+                                                                            
+                                                                            const correctAnsIdx = isMcq 
+                                                                                ? q.mcq_options.findIndex((opt: any) => opt.is_correct === true)
+                                                                                : (q.correct_answer ?? 0);
+                                                                            
+                                                                            return (
+                                                                                <div key={qIdx} className="bg-white border border-neutral-200 rounded-lg p-4 shadow-sm">
+                                                                                    <div className="flex justify-between items-start mb-3">
+                                                                                        <h6 className="font-medium text-slate-800 text-sm pr-4 leading-relaxed">{qIdx + 1}. {q.title || q.text || q.content}</h6>
+                                                                                        {ans ? (
+                                                                                            <Badge variant={ans.is_correct ? "default" : "destructive"} className={ans.is_correct ? "bg-emerald-500 hover:bg-emerald-600 border-none" : ""}>
+                                                                                                {ans.is_correct ? 'Correct' : 'Incorrect'}
+                                                                                            </Badge>
+                                                                                        ) : (
+                                                                                            <Badge variant="outline" className="text-slate-500 bg-slate-50">Not Attempted</Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="space-y-2 mt-4">
+                                                                                        {mappedOptions.map((opt: string, oIdx: number) => {
+                                                                                            const isSelected = ans?.selected_option === oIdx;
+                                                                                            const isCorrect = correctAnsIdx === oIdx;
+                                                                                            let bgClass = "bg-slate-50 text-slate-700 border-neutral-200 hover:bg-slate-100 transition-colors";
+                                                                                            if (isCorrect && isSelected) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-800 shadow-sm";
+                                                                                            else if (isCorrect && !isSelected) bgClass = "bg-emerald-50/40 border-emerald-200/50 text-emerald-700/80";
+                                                                                            else if (!isCorrect && isSelected) bgClass = "bg-rose-50 border-rose-200 text-rose-800 shadow-sm";
+                                                                                            
+                                                                                            return (
+                                                                                                <div key={oIdx} className={`text-sm p-3.5 rounded-lg border ${bgClass} flex items-center gap-3 transition-all`}>
+                                                                                                    <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${isSelected ? (isCorrect ? 'border-emerald-500 bg-emerald-500' : 'border-rose-500 bg-rose-500') : (isCorrect ? 'border-emerald-400/50' : 'border-slate-300')}`}>
+                                                                                                        {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                                                                                    </div>
+                                                                                                    <span className="leading-snug">{opt}</span>
+                                                                                                </div>
+                                                                                            );
+                                                                                        })}
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <h5 className="font-semibold text-slate-900 flex items-center gap-2">
+                                                                <Activity className="h-4 w-4 text-slate-500" /> Section Event Timeline
+                                                            </h5>
+                                                        </div>
+                                                        {index > 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">Candidate did not attempt this section.</div>
+                                                        ) : sectionEvents.length === 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">No anomalies recorded for this section.</div>
+                                                        ) : (
+                                                            <div className="space-y-3">
+                                                                {sectionEvents.map((evt: any, i: number) => (
+                                                                    <div key={i} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-2 last:border-0 last:pb-0">
+                                                                        <div className={`w-2 h-2 rounded-full ${evt.severity === 2 ? 'bg-rose-500' : evt.severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                                                                        <span className="font-medium min-w-[60px] text-slate-500">{formatEventTime(evt.time)}</span>
+                                                                        <Badge variant="outline" className="text-slate-900 border-neutral-200 text-[10px] capitalize">{evt.type.replace(/_/g, ' ')}</Badge>
+                                                                        <span className="text-slate-500 truncate">{evt.desc}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-medium mb-3 text-neutral-500">Violations in this section</h4>
+                                                {sectionData.events.filter(ev => ev.type !== 'snapshot').length === 0 ? (
+                                                    <p className="text-sm text-emerald-500">No violations occurred during this section.</p>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {sectionData.events.filter(ev => ev.type !== 'snapshot').map((ev, i) => (
+                                                            <div key={i} className="flex items-start gap-3 bg-white/[0.02] p-3 rounded-md border border-white/5">
+                                                                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${ev.severity === 2 ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                                                                <span className="text-sm font-mono text-neutral-500 mt-0.5 shrink-0">{formatEventTime(ev.time)}</span>
+                                                                <div className="text-neutral-300 w-full overflow-hidden">
+                                                                    <div className="text-xs font-semibold mb-0.5 text-white capitalize">{ev.type.replace('_', ' ')}</div>
+                                                                    <ViolationDescription text={ev.desc} />
                                                                 </div>
                                                             </div>
                                                         </div>

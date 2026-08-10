@@ -909,8 +909,8 @@ export function TicketIDE({
   const sprintId = ticket.id?.toString() ?? "0";
   const [wsLoaded, setWsLoaded] = useState(false);
   const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
-  const submissionsIdField = isEvaluationMode ? "task" : "lab_sprint_ticket";
-  const submissionsStatusField = isEvaluationMode ? "task_status" : "ticket_status";
+  const submissionsIdField = isEvaluationMode ? "lab_question" : "lab_sprint_ticket";
+  const submissionsStatusField = isEvaluationMode ? "status" : "ticket_status";
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -1148,7 +1148,7 @@ export function TicketIDE({
     if (isEvaluationMode && !evaluationId) return;
 
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      const taskId = isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id;
+      const taskId = ticket.id;
       const evalQuery = isEvaluationMode && evaluationId ? `&evaluation=${evaluationId}` : "";
       api.get<any[]>(`${submissionsEndpoint}?${submissionsIdField}=${taskId}${evalQuery}`)
         .then(async (subs) => {
@@ -1685,7 +1685,7 @@ export function TicketIDE({
       } else if (isReal && !submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.post(submissionsEndpoint, {
-            [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+            [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
             [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
             solution: JSON.stringify(files),
@@ -1828,16 +1828,16 @@ export function TicketIDE({
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
-              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1853,16 +1853,16 @@ export function TicketIDE({
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
-              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1904,16 +1904,16 @@ export function TicketIDE({
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
-              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
             }).catch(console.error);
           }
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1956,7 +1956,7 @@ export function TicketIDE({
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
-              [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+              [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(files),
@@ -2022,7 +2022,7 @@ export function TicketIDE({
       } else {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.post(submissionsEndpoint, {
-            [submissionsIdField]: isEvaluationMode && ticket.tasks?.length ? ticket.tasks[0].id : ticket.id,
+            [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
             [submissionsStatusField]: "in_progress",
             solution: JSON.stringify(files),
