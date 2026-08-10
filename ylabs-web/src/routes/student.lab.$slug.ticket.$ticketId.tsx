@@ -38,7 +38,7 @@ import {
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
-  FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical,
+  FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical, Key, Shield, Download,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -815,6 +815,7 @@ export function StudentTicketView({
             }) : [],
             learning_objectives: Array.isArray(t.learning_objectives) ? t.learning_objectives : [],
             common_mistakes: Array.isArray(t.common_mistakes) ? t.common_mistakes : [],
+            hints: Array.isArray(t.hints) ? t.hints : [],
             scoring_rules: t.scoring_rules || {},
             solution: t.solution || {},
           });
@@ -1054,7 +1055,7 @@ export function TicketIDE({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile, isReal, wsLoaded]);
 
-  const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
+  const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
@@ -2244,6 +2245,7 @@ export function TicketIDE({
               { k: "problem", I: BookOpen, label: "Problem" },
               { k: "hints", I: Lightbulb, label: "Hints" },
               { k: "discuss", I: MessageSquare, label: "Discuss" },
+              { k: "solution", I: Key, label: "Solution" },
             ].map(({ k, I, label }) => (
               <button
                 key={k}
@@ -2272,6 +2274,7 @@ export function TicketIDE({
                 { k: "problem", label: "Problem" },
                 { k: "hints", label: "Hints" },
                 { k: "discuss", label: "Discuss" },
+                { k: "solution", label: "Solution" },
               ].map((t) => (
                 <button
                   key={t.k}
@@ -2303,12 +2306,19 @@ export function TicketIDE({
                   onEvaluate={handleEvaluate}
                 />
               )}
+              {tab === "solution" && (
+                <SolutionPanel
+                  ticket={ticket}
+                  onLoadIntoEditor={(code, language) => {
+                    setFiles(prev => ({ ...prev, [activeFile]: code }));
+                  }}
+                />
+              )}
               {tab === "hints" && (
                 <HintsPanel
-                  level={hintLevel}
-                  setLevel={setHintLevel}
+                  ticket={ticket}
                   elapsed={elapsed}
-                  onUnlock={(n, c) => showToast(`Hint ${n} unlocked${c ? ` (${c})` : ""}`)}
+                  onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
                 />
               )}
               {tab === "discuss" && <DiscussPanel />}
@@ -3990,102 +4000,81 @@ Character at index 0: H`}</pre>
 }
 
 function HintsPanel({
-  level,
-  setLevel,
+  ticket,
   elapsed,
   onUnlock,
 }: {
-  level: number;
-  setLevel: (n: number) => void;
+  ticket: any;
   elapsed: number;
   onUnlock: (n: number, cost: string) => void;
 }) {
-  const mins = elapsed / 60;
-  const hints = [
-    {
-      n: 1,
-      cost: "Free",
-      title: "Think about it",
-      body: "Think about what data type each variable needs. List the 8 Java primitives.",
-      unlockMin: 0,
-    },
-    {
-      n: 2,
-      cost: mins >= 5 ? "Free" : `Free in ${Math.ceil(5 - mins)}m`,
-      title: "Approach",
-      body: "First declare all 8 primitive types with sensible defaults. Then print each, then attempt one cast in each direction.",
-      unlockMin: 5,
-    },
-    {
-      n: 3,
-      cost: mins >= 15 ? "Free" : "10 XP",
-      title: "Code template",
-      body: "int a = 42;\ndouble b = a;        // implicit\nint c = (int) 3.99;  // explicit",
-      unlockMin: 15,
-    },
-    {
-      n: 4,
-      cost: mins >= 25 ? "Free" : "20 XP",
-      title: "Partial solution (50%)",
-      body: "Use greeting.length() + greeting.charAt(0). Now complete the casting part…",
-      unlockMin: 25,
-    },
-  ];
+  const [revealedHints, setRevealedHints] = useState<number[]>([]);
+
+  const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
+
+  if (hints.length === 0) {
+    return (
+      <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
+        <Lightbulb className="w-8 h-8 text-amber-500 mx-auto mb-3" />
+        <h4 className="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">No Hints Available</h4>
+        <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
+          There are no hints provided for this problem. Try your best to solve it on your own!
+        </p>
+      </div>
+    );
+  }
+
+  const handleReveal = (index: number) => {
+    if (!revealedHints.includes(index)) {
+      setRevealedHints([...revealedHints, index]);
+      onUnlock(index + 1, "Free");
+    }
+  };
+
   return (
     <div className="space-y-3">
-      <div className="rounded-md border border-warning/40 bg-warning/10 p-2 text-xs text-warning">
-        <Lightbulb className="inline h-3 w-3 mr-1" /> Progressive hints — unlocking deeper hints
-        costs XP unless you wait.
+      <div className="rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 p-2 text-xs text-amber-700 dark:text-amber-400">
+        <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Currently, revealing hints does not affect your score.
       </div>
-      {hints.map((h) => {
-        const unlocked = level >= h.n || mins >= h.unlockMin;
+      
+      {hints.map((hint: string, index: number) => {
+        const isRevealed = revealedHints.includes(index);
+        
         return (
-          <div key={h.n} className="rounded-md border bg-editor-bg p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">
-                Level {h.n} · {h.title}
+          <div key={index} className="rounded-md border bg-editor-bg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-amber-800 dark:text-amber-400 inline-flex items-center gap-2">
+                <Lightbulb className="h-3.5 w-3.5" />
+                Hint {index + 1}
               </div>
               <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                {unlocked ? (
+                {isRevealed ? (
                   <Unlock className="h-3 w-3 text-success" />
                 ) : (
                   <Lock className="h-3 w-3" />
                 )}
-                {h.cost}
+                {isRevealed ? "Revealed" : "Locked"}
               </span>
             </div>
-            {unlocked ? (
-              <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground font-mono">
-                {h.body}
+            
+            {isRevealed ? (
+              <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground font-mono bg-background/50 p-3 rounded border border-border/50">
+                {hint}
               </pre>
             ) : (
-              <div className="mt-2 space-y-1">
-                <div className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  Auto-unlocks at {h.unlockMin}m elapsed
-                </div>
+              <div className="mt-2">
                 <button
-                  onClick={() => {
-                    setLevel(h.n);
-                    onUnlock(h.n, h.cost);
-                  }}
-                  className="w-full rounded border border-dashed py-1.5 text-xs hover:bg-accent"
+                  onClick={() => handleReveal(index)}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/40 py-2 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
                 >
-                  Unlock now for {h.cost}
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Reveal Hint
                 </button>
               </div>
             )}
           </div>
         );
       })}
-      <div className="rounded-md border bg-editor-bg p-3 text-xs">
-        <div className="font-medium inline-flex items-center gap-1">
-          <Sparkles className="h-3 w-3 text-primary" /> Full solution review
-        </div>
-        <div className="mt-1 text-muted-foreground">
-          Unlocked after submission — includes annotated solution, alternatives, and best practices.
-        </div>
-      </div>
     </div>
   );
 }
@@ -5183,6 +5172,170 @@ function UiDiffView({ result }: { result: any }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+
+export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void }) {
+  const [revealedSolution, setRevealedSolution] = useState(false);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedApproach, setSelectedApproach] = useState<string>('optimal');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
+
+  const handleRevealSolution = async () => {
+    setLoading(true);
+    try {
+      const { default: api } = await import("@/utils/RestApiAuthUtil");
+      const data = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
+      const sols = data?.solutions || [];
+      setFetchedSolutions(sols);
+      
+      const firstApproach = sols.length > 0 ? (sols[0].approach || 'optimal') : '';
+      setSelectedApproach(firstApproach);
+      const firstLangForApproach = sols.find((s: any) => (s.approach || 'optimal') === firstApproach)?.language || '';
+      setSelectedLanguage(firstLangForApproach);
+      
+      setRevealedSolution(true);
+    } catch (err) {
+      console.error("Failed to reveal solution", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!revealedSolution) {
+    return (
+      <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
+        <Shield className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+        <h4 className="text-sm font-medium text-emerald-800 dark:text-emerald-400 mb-1">Need the answer?</h4>
+        <p className="text-xs text-muted-foreground max-w-[250px] mx-auto mb-4">
+          Viewing the solution will set your score for this ticket to 0.
+        </p>
+        <button 
+          onClick={() => setShowWarningDialog(true)} 
+          disabled={loading}
+          className="inline-flex items-center justify-center rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-4 py-2 disabled:opacity-50"
+        >
+          <Key className="w-3.5 h-3.5 mr-1.5" />
+          {loading ? "Revealing..." : "Reveal Solution"}
+        </button>
+
+        <Dialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-emerald-600">
+                <AlertTriangle className="w-5 h-5" />
+                Score Penalty Warning
+              </DialogTitle>
+            </DialogHeader>
+            <DialogDescription className="text-gray-700 py-4 text-base">
+              Are you sure you want to reveal the official solution?<br /><br />
+              Viewing the solution will permanently result in a <strong>score of 0</strong> for this problem.
+            </DialogDescription>
+            <DialogFooter>
+              <button 
+                className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent" 
+                onClick={() => setShowWarningDialog(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium" 
+                onClick={() => { setShowWarningDialog(false); handleRevealSolution(); }}
+              >
+                Acknowledge & Reveal
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  if (fetchedSolutions.length === 0) {
+    return <div className="text-sm text-muted-foreground mt-4">No predefined solutions available for this question.</div>;
+  }
+
+  const approaches = Array.from(new Set(fetchedSolutions.map((s: any) => s.approach || 'optimal')));
+
+  const getApproachLabel = (a: string) => {
+    return a.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
+  const solutionsForApproach = fetchedSolutions.filter((s: any) => (s.approach || 'optimal') === selectedApproach);
+
+  if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => s.language === selectedLanguage)) {
+    setSelectedLanguage(solutionsForApproach[0].language);
+  }
+
+  const sol = solutionsForApproach.find((s: any) => s.language === selectedLanguage);
+
+  return (
+    <div className="w-full space-y-4 text-xs">
+      <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
+        {approaches.map((approach: any) => (
+          <button
+            key={approach}
+            onClick={() => setSelectedApproach(approach)}
+            className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
+              selectedApproach === approach
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {getApproachLabel(approach)}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {solutionsForApproach.map((s: any) => (
+          <button
+            key={s.language}
+            onClick={() => setSelectedLanguage(s.language)}
+            className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
+              selectedLanguage === s.language
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
+            }`}
+          >
+            {s.language.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {sol && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-muted-foreground">{sol.title}</span>
+            {onLoadIntoEditor && (
+              <button
+                onClick={() => onLoadIntoEditor(sol.code, sol.language)}
+                className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+              >
+                <Download className="w-3 h-3 mr-1.5" />
+                Load into Editor
+              </button>
+            )}
+          </div>
+          
+          <div className="rounded-lg border border-border overflow-hidden bg-editor-bg">
+            <div className="p-3 overflow-auto max-h-80 custom-scrollbar">
+              <pre className="font-mono text-[11px] text-foreground whitespace-pre-wrap"><code>{sol.code}</code></pre>
+            </div>
+          </div>
+          
+          {sol.complexity_analysis && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 px-4 py-3">
+              <p className="font-bold text-amber-700 dark:text-amber-400 mb-1.5">Complexity Analysis</p>
+              <p className="text-amber-900 dark:text-amber-300 leading-relaxed">{sol.complexity_analysis}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
