@@ -1684,8 +1684,6 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         submission = StudentCodePractice.objects.filter(
             user=request.user, question=question, context=context
         ).order_by('-created_at').first()
-        if not submission:
-            return Response({"error": "No submission found for this question"}, status=status.HTTP_404_NOT_FOUND)
 
         hint_index = request.data.get("hint_index", 0)
         hints = question.hints
@@ -1693,9 +1691,21 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         if not hints or hint_index >= len(hints):
             return Response({"error": "Hint not available"}, status=status.HTTP_404_NOT_FOUND)
 
-        submission.used_hint = True
-        submission.marks_obtained = 0
-        submission.save(update_fields=['used_hint', 'marks_obtained'])
+        if not submission:
+            submission = StudentCodePractice.objects.create(
+                user=request.user,
+                question=question,
+                context=context,
+                status=StudentCodePractice.STATUS_STARTED,
+                course=question.course,
+                topic=question.topic,
+                used_hint=True,
+                marks_obtained=0
+            )
+        else:
+            submission.used_hint = True
+            submission.marks_obtained = 0
+            submission.save(update_fields=['used_hint', 'marks_obtained'])
 
         return Response({"hint": hints[hint_index]})
 
@@ -1714,16 +1724,26 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         submission = StudentCodePractice.objects.filter(
             user=request.user, question=question, context=context
         ).order_by('-created_at').first()
-        if not submission:
-            return Response({"error": "No submission found for this question"}, status=status.HTTP_404_NOT_FOUND)
 
         solutions = question.solutions.all()
         if not solutions.exists():
             return Response({"error": "No predefined solutions available for this question"}, status=status.HTTP_404_NOT_FOUND)
 
-        submission.viewed_solution = True
-        submission.marks_obtained = 0
-        submission.save(update_fields=['viewed_solution', 'marks_obtained'])
+        if not submission:
+            submission = StudentCodePractice.objects.create(
+                user=request.user,
+                question=question,
+                context=context,
+                status=StudentCodePractice.STATUS_STARTED,
+                course=question.course,
+                topic=question.topic,
+                viewed_solution=True,
+                marks_obtained=0
+            )
+        else:
+            submission.viewed_solution = True
+            submission.marks_obtained = 0
+            submission.save(update_fields=['viewed_solution', 'marks_obtained'])
 
         from .serializers import QuestionSolutionSerializer
         serializer = QuestionSolutionSerializer(solutions, many=True)
