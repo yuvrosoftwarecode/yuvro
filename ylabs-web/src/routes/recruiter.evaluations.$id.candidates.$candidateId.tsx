@@ -44,7 +44,8 @@ import {
   Maximize2,
 } from "lucide-react";
 import { getCandidates } from "@/lib/recruiterCandidates";
-import { getEvaluation } from "@/lib/recruiter";
+import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
+import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
   loadNotes,
@@ -67,13 +68,35 @@ export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$can
 });
 
 type Tab =
-  "overview" | "labs" | "assessment" | "vitarka" | "resume" | "timeline" | "notes" | "activity";
+  "overview" | "labs" | "assessment" | "vitarka" | "resume" | "timeline" | "notes" | "activity" | "proctoring";
 
 function CandidateWorkspace() {
   const { id, candidateId } = Route.useParams();
   const nav = useNavigate();
-  const ev = getEvaluation(id);
-  const candidate = getCandidates(id).find((x) => x.id === candidateId);
+  
+  const [ev, setEv] = useState<any>(null);
+  const [candidate, setCandidate] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      getEvaluation(id),
+      getEvaluationSubmissions(id)
+    ]).then(([e, subs]) => {
+      if (!e) {
+        nav({ to: "/recruiter/evaluations" });
+        return;
+      }
+      setEv(e);
+      const cands = getCandidates(e.id, subs || []);
+      const cand = cands.find((x) => x.id === candidateId);
+      setCandidate(cand || null);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, [id, candidateId, nav]);
+
   const [tab, setTab] = useState<Tab>("overview");
   const [toast, setToast] = useState<string | null>(null);
   const [decision, setDecision] = useState<HiringDecision>(() =>
@@ -88,11 +111,14 @@ function CandidateWorkspace() {
     pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
     setActivity(loadActivity(id, candidateId));
   }, [id, candidateId]);
+  
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  if (loading) return <div className="p-16 text-center text-neutral-400">Loading...</div>;
 
   if (!candidate || !ev) {
     return (
@@ -259,7 +285,7 @@ function CandidateWorkspace() {
           </div>
         </div>
       </header>
-      <nav className="mt-6 flex flex-wrap items-center gap-1 overflow-x-auto">
+      <nav className="mt-6 flex flex-wrap items-center gap-1 px-8 max-w-[1440px] mx-auto">
         {(
           [
             "overview",
@@ -270,6 +296,7 @@ function CandidateWorkspace() {
             "timeline",
             "notes",
             "activity",
+            "proctoring",
           ] as Tab[]
         ).map((t) => (
           <button
@@ -282,7 +309,7 @@ function CandidateWorkspace() {
           </button>
         ))}
       </nav>
-      <hr />
+      <hr className="border-neutral-200" />
       <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-8 py-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
           {tab === "overview" && (
@@ -304,6 +331,7 @@ function CandidateWorkspace() {
               }}
             />
           )}
+          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} />}
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
@@ -1707,7 +1735,9 @@ function tabLabel(t: Tab) {
       ? "Knowledge Assessment"
       : t === "vitarka"
         ? "Vitarka Discussion"
-        : t[0].toUpperCase() + t.slice(1);
+        : t === "proctoring"
+          ? "Proctoring Analytics"
+          : t[0].toUpperCase() + t.slice(1);
 }
 function eciColor(v: number) {
   return v >= 70 ? "text-emerald-300" : v >= 55 ? "text-amber-300" : "text-red-300";

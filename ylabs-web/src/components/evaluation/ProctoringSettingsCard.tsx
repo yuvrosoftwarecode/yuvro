@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Info } from 'lucide-react';
+import { Shield, Info, Minus, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -19,26 +19,27 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
     const enableProctoring = proctoring.enableProctoring || false;
 
     return (
-        <div className={`rounded-xl border border-border bg-card p-5 ${className}`}>
+        <div className={`rounded-xl border border-neutral-200 bg-white p-5 ${className}`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30">
-                        <Shield className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100">
+                        <Shield className="h-4 w-4 text-slate-700" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-foreground">Proctoring</h3>
-                        <p className="text-xs text-muted-foreground">Exam integrity monitoring</p>
+                        <h3 className="text-sm font-semibold text-slate-900">Proctoring</h3>
+                        <p className="text-xs text-slate-500">Exam integrity monitoring</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Label htmlFor="enable-proctoring-toggle" className="text-xs text-muted-foreground">
+                    <Label htmlFor="enable-proctoring-toggle" className="text-xs text-slate-500">
                         {enableProctoring ? 'Enabled' : 'Disabled'}
                     </Label>
                     <Switch
                         id="enable-proctoring-toggle"
                         checked={enableProctoring}
+                        className="data-[state=checked]:bg-slate-900 data-[state=unchecked]:bg-white data-[state=unchecked]:border-slate-900 [&_span[data-state=unchecked]]:!bg-slate-900 [&_span[data-state=checked]]:!bg-white"
                         onCheckedChange={(v) => onChange({ 
                             ...proctoring, 
                             enableProctoring: v,
@@ -52,34 +53,36 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
             {/* Active monitoring info */}
             {enableProctoring && (
                 <>
-                    <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-200 dark:border-violet-800/40 rounded-lg p-3 mb-4">
+                    <div className="bg-slate-50 border border-neutral-200 rounded-lg p-3 mb-4">
                         <div className="flex items-start gap-2">
-                            <Info className="h-3.5 w-3.5 text-violet-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-xs text-violet-700 dark:text-violet-300 leading-relaxed">
+                            <Info className="h-3.5 w-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+                            <p className="text-xs text-slate-700 leading-relaxed">
                                 When enabled, standard monitoring (tab switches, webcam, full screen, AI face detection) applies. Customize further rules below.
                             </p>
                         </div>
                     </div>
 
-                    <div className="space-y-4 pt-2 border-t">
+                    <div className="space-y-4 pt-2 border-t border-neutral-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <Label className="text-sm font-medium">Enable Copy & Paste</Label>
-                                <p className="text-xs text-muted-foreground">Allow copying text into or out of the editor</p>
+                                <Label className="text-sm font-medium text-slate-900">Enable Copy & Paste</Label>
+                                <p className="text-xs text-slate-500">Allow copying text into or out of the editor</p>
                             </div>
                             <Switch
                                 checked={proctoring.enableCopyPaste ?? false}
+                                className="data-[state=checked]:bg-slate-900 data-[state=unchecked]:bg-white data-[state=unchecked]:border-slate-900 [&_span[data-state=unchecked]]:!bg-slate-900 [&_span[data-state=checked]]:!bg-white"
                                 onCheckedChange={(v) => onChange({ ...proctoring, enableCopyPaste: v })}
                             />
                         </div>
 
                         <div className="flex items-center justify-between">
                             <div>
-                                <Label className="text-sm font-medium">Tab Switch Allowed</Label>
-                                <p className="text-xs text-muted-foreground">Allow candidates to switch browser tabs freely</p>
+                                <Label className="text-sm font-medium text-slate-900">Tab Switch Allowed</Label>
+                                <p className="text-xs text-slate-500">Allow candidates to switch browser tabs freely</p>
                             </div>
                             <Switch
                                 checked={proctoring.tabSwitchAllowed ?? false}
+                                className="data-[state=checked]:bg-slate-900 data-[state=unchecked]:bg-white data-[state=unchecked]:border-slate-900 [&_span[data-state=unchecked]]:!bg-slate-900 [&_span[data-state=checked]]:!bg-white"
                                 onCheckedChange={(v) => onChange({ ...proctoring, tabSwitchAllowed: v })}
                             />
                         </div>
@@ -87,16 +90,34 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
                         {!proctoring.tabSwitchAllowed && (
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <Label className="text-sm font-medium">Tab Switch Limit</Label>
-                                    <p className="text-xs text-muted-foreground">Max allowed tab switches before auto-submit</p>
+                                    <Label className="text-sm font-medium text-slate-900">Tab Switch Limit</Label>
+                                    <p className="text-xs text-slate-500">Max allowed tab switches before auto-submit</p>
                                 </div>
-                                <Input 
-                                    type="number" 
-                                    min={0} 
-                                    className="w-24 h-8 text-sm"
-                                    value={proctoring.tabSwitchLimit ?? 3}
-                                    onChange={(e) => onChange({ ...proctoring, tabSwitchLimit: parseInt(e.target.value) || 0 })}
-                                />
+                                <div className="relative w-24">
+                                    <Input 
+                                        type="number" 
+                                        min={0} 
+                                        className="w-full h-8 text-sm bg-white text-slate-900 border-neutral-200 pr-6 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-1 focus-visible:ring-slate-300 focus-visible:ring-offset-0"
+                                        value={proctoring.tabSwitchLimit ?? 3}
+                                        onChange={(e) => onChange({ ...proctoring, tabSwitchLimit: parseInt(e.target.value) || 0 })}
+                                    />
+                                    <div className="absolute right-[1px] top-[1px] bottom-[1px] flex flex-col w-5 border-l border-neutral-200 bg-slate-50/80 rounded-r-md overflow-hidden">
+                                        <button 
+                                            type="button"
+                                            className="flex-1 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 border-b border-neutral-200 transition-colors"
+                                            onClick={() => onChange({ ...proctoring, tabSwitchLimit: (proctoring.tabSwitchLimit ?? 3) + 1 })}
+                                        >
+                                            <ChevronUp className="h-3 w-3" />
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className="flex-1 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+                                            onClick={() => onChange({ ...proctoring, tabSwitchLimit: Math.max(0, (proctoring.tabSwitchLimit ?? 3) - 1) })}
+                                        >
+                                            <ChevronDown className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -104,7 +125,7 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
             )}
 
             {!enableProctoring && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-500">
                     Enable proctoring to activate monitoring for this section.
                 </p>
             )}

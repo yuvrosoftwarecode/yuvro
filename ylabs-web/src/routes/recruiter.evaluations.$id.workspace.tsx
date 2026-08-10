@@ -106,13 +106,17 @@ function Workspace() {
   const { tab } = Route.useSearch();
   const nav = useNavigate();
   const [ev, setEv] = useState<Evaluation | null>(null);
+  const [submissions, setSubmissions] = useState<any[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     getEvaluation(id).then((e) => {
       if (!e) nav({ to: "/recruiter/evaluations" });
-      else setEv(e);
+      else {
+        setEv(e);
+        getEvaluationSubmissions(e.id).then(setSubmissions).catch(() => setSubmissions([]));
+      }
     });
   }, [id, nav]);
 
@@ -122,9 +126,9 @@ function Workspace() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  if (!ev) return null;
+  if (!ev || submissions === null) return null;
 
-  const candidates = getCandidates(ev.id);
+  const candidates = getCandidates(ev.id, submissions);
   const totals = evaluationTotals(ev);
   const goto = (t: typeof tab) =>
     nav({ to: "/recruiter/evaluations/$id/workspace", params: { id }, search: { tab: t } });
@@ -2866,6 +2870,7 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
         hiringStatus: "Pending Review" as HiringStatus,
         submittedAt: new Date(sub.completed_at || sub.created_at).getTime(),
         completionMinutes: durationMins,
+        rawSubmission: sub,
         avatarHue: 0,
         proctoringData: {
           totalViolations,
@@ -2939,3 +2944,4 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
     </div>
   )
 }
+

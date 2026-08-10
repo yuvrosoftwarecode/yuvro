@@ -1,0 +1,483 @@
+{
+  "title": "Sprint 1 - Python Fundamentals",
+  "description": "Learn Python fundamentals by completing practical programming tasks. Start with basic output and variables, then progressively work with conditions, strings, lists, loops, dictionaries, and user interaction.",
+  "order_index": 1,
+  "lab_title": "Python Lab",
+  "tickets": [
+    {
+      "title": "Write Your First Python Program",
+      "ticket_slug": "python-11",
+      "description": "Create your first Python program for the Developer Utility application. The program should display a welcome message when executed.",
+      "tasks": [
+        "Create a Python file named `main.py`.",
+        "Print `Welcome to Developer Utility` when the program is executed."
+      ],
+      "learning_objectives": [
+        "Understand how to create and run a Python program.",
+        "Learn how to use the `print()` function to display output."
+      ],
+      "evaluation": "Runs your Python program and compares the output against the expected result.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using incorrect capitalization in the output.",
+        "Forgetting to call the `print()` function.",
+        "Printing additional text that is not required."
+      ],
+      "hints": [
+        "Python uses the `print()` function to display text.",
+        "Place the message you want to display inside the parentheses."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Welcome to Developer Utility"
+      },
+      "solution": {
+        "main.py": "print(\"Welcome to Developer Utility\")",
+        "expected_output": "Welcome to Developer Utility"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 10,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Store Developer Information",
+      "ticket_slug": "python-12",
+      "description": "The Developer Utility needs to display information about the developer using it. Store the developer's name, programming language, and years of experience in variables and display them in the required format.",
+      "tasks": [
+        "Create a variable named `developer_name` and store `Rahul` in it.",
+        "Create a variable named `language` and store `Python` in it.",
+        "Create a variable named `experience` and store `1` in it.",
+        "Print the developer information using the required format."
+      ],
+      "learning_objectives": [
+        "Understand how variables store values in Python.",
+        "Learn how to work with strings and numbers.",
+        "Learn how to use variables when generating output."
+      ],
+      "evaluation": "Runs your Python program and verifies that the required variables and output are produced correctly.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using the variable name incorrectly.",
+        "Storing the experience as text instead of a number.",
+        "Hardcoding the final output instead of using variables."
+      ],
+      "hints": [
+        "Use `=` to assign a value to a variable.",
+        "Use an f-string to include variables inside a message."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Developer: Rahul\nLanguage: Python\nExperience: 1 year"
+      },
+      "solution": {
+        "main.py": "developer_name = \"Rahul\"\nlanguage = \"Python\"\nexperience = 1\n\nprint(f\"Developer: {developer_name}\")\nprint(f\"Language: {language}\")\nprint(f\"Experience: {experience} year\")",
+        "expected_output": "Developer: Rahul\nLanguage: Python\nExperience: 1 year"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Calculate Project Statistics",
+      "ticket_slug": "python-13",
+      "description": "The Developer Utility needs to calculate the total number of files in a project. Given the number of Python, JavaScript, and configuration files, calculate and display the total.",
+      "tasks": [
+        "Create a variable named `python_files` with the value `12`.",
+        "Create a variable named `javascript_files` with the value `8`.",
+        "Create a variable named `config_files` with the value `5`.",
+        "Calculate the total number of files.",
+        "Print the total using the format `Total files: <value>`."
+      ],
+      "learning_objectives": [
+        "Understand numeric variables.",
+        "Learn how to perform arithmetic operations in Python.",
+        "Understand how calculated values can be stored in variables."
+      ],
+      "evaluation": "Runs your program and verifies that the total is calculated rather than incorrectly hardcoded.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Adding the values incorrectly.",
+        "Hardcoding the final result instead of calculating it.",
+        "Using strings instead of numbers."
+      ],
+      "hints": [
+        "Use the `+` operator to add numbers.",
+        "Store the calculated result in a variable before printing it."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Total files: 25"
+      },
+      "solution": {
+        "main.py": "python_files = 12\njavascript_files = 8\nconfig_files = 5\n\ntotal_files = python_files + javascript_files + config_files\n\nprint(f\"Total files: {total_files}\")",
+        "expected_output": "Total files: 25"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Check Project Health",
+      "ticket_slug": "python-14",
+      "description": "The Developer Utility needs to determine whether a project has enough test coverage. Calculate the percentage of test files and display whether the project has good test coverage.",
+      "tasks": [
+        "Create a variable named `total_files` with the value `20`.",
+        "Create a variable named `test_files` with the value `8`.",
+        "Calculate the test coverage percentage.",
+        "Print `Good test coverage` when the coverage is at least 30%.",
+        "Otherwise print `Test coverage needs improvement`."
+      ],
+      "learning_objectives": [
+        "Understand comparison operators.",
+        "Learn how to use `if` and `else` statements.",
+        "Learn how to perform percentage calculations."
+      ],
+      "evaluation": "Runs your Python program and verifies that the coverage is calculated and the correct condition is selected.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using the wrong comparison operator.",
+        "Comparing the number of test files directly instead of calculating the percentage.",
+        "Forgetting the `else` branch."
+      ],
+      "hints": [
+        "Calculate coverage using `(test_files / total_files) * 100`.",
+        "Use `>=` when checking whether a value is at least 30."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Good test coverage"
+      },
+      "solution": {
+        "main.py": "total_files = 20\ntest_files = 8\n\ncoverage = (test_files / total_files) * 100\n\nif coverage >= 30:\n    print(\"Good test coverage\")\nelse:\n    print(\"Test coverage needs improvement\")",
+        "expected_output": "Good test coverage"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Validate a Username",
+      "ticket_slug": "python-15",
+      "description": "The Developer Utility receives a username from the user. A username is valid when it contains at least 3 characters and does not contain spaces.",
+      "tasks": [
+        "Read a username using `input()`.",
+        "Check whether the username contains at least 3 characters.",
+        "Check whether the username contains a space.",
+        "Print `Valid username` when both conditions are satisfied.",
+        "Otherwise print `Invalid username`."
+      ],
+      "learning_objectives": [
+        "Learn how to receive user input.",
+        "Understand string length using `len()`.",
+        "Learn how to check whether a string contains a specific character.",
+        "Combine multiple conditions."
+      ],
+      "evaluation": "Runs the program with multiple usernames and verifies that valid and invalid inputs are handled correctly.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting that `input()` returns a string.",
+        "Checking only the username length.",
+        "Checking only for spaces.",
+        "Using `or` when both conditions must be satisfied."
+      ],
+      "hints": [
+        "Use `len(username)` to determine the number of characters.",
+        "Use the `in` operator to check whether a space exists.",
+        "Both validation rules must pass."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "Rahul",
+            "expected_output": "Valid username"
+          },
+          {
+            "input": "A",
+            "expected_output": "Invalid username"
+          },
+          {
+            "input": "Rahul Kumar",
+            "expected_output": "Invalid username"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "username = input()\n\nif len(username) >= 3 and \" \" not in username:\n    print(\"Valid username\")\nelse:\n    print(\"Invalid username\")"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Manage Supported Languages",
+      "ticket_slug": "python-16",
+      "description": "The Developer Utility maintains a list of programming languages supported by the platform. Create the list, access specific elements, and add a new language.",
+      "tasks": [
+        "Create a list named `languages` containing `Python`, `JavaScript`, and `Java`.",
+        "Print the first language in the list.",
+        "Print the last language in the list.",
+        "Add `Go` to the list.",
+        "Print the complete updated list."
+      ],
+      "learning_objectives": [
+        "Understand Python lists.",
+        "Learn how to access list elements using indexes.",
+        "Learn how to add elements using `append()`."
+      ],
+      "evaluation": "Runs the program and verifies the list contents, element access, and newly added language.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using an incorrect list index.",
+        "Forgetting that Python indexes start at zero.",
+        "Creating a new list instead of adding the language to the existing list."
+      ],
+      "hints": [
+        "The first list element has index `0`.",
+        "Use `-1` to access the last element.",
+        "Use `append()` to add an item to a list."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Python\nJava\n['Python', 'JavaScript', 'Java', 'Go']"
+      },
+      "solution": {
+        "main.py": "languages = [\"Python\", \"JavaScript\", \"Java\"]\n\nprint(languages[0])\nprint(languages[-1])\n\nlanguages.append(\"Go\")\n\nprint(languages)",
+        "expected_output": "Python\nJava\n['Python', 'JavaScript', 'Java', 'Go']"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Process Multiple Developers",
+      "ticket_slug": "python-17",
+      "description": "The Developer Utility now needs to display information for multiple developers. Given a list of developer names, print each name on a separate line.",
+      "tasks": [
+        "Create a list named `developers` containing `Rahul`, `Priya`, `Arun`, and `Sneha`.",
+        "Use a loop to process every developer in the list.",
+        "Print each developer name on a separate line."
+      ],
+      "learning_objectives": [
+        "Understand the purpose of loops.",
+        "Learn how to iterate through a list using a `for` loop.",
+        "Understand how the same operation can be applied to multiple values."
+      ],
+      "evaluation": "Runs the program and verifies that every developer is printed exactly once and in the correct order.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Printing only one developer.",
+        "Using an incorrect loop syntax.",
+        "Hardcoding each developer in separate print statements."
+      ],
+      "hints": [
+        "Use a `for` loop to iterate over the list.",
+        "The loop variable represents the current developer."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Rahul\nPriya\nArun\nSneha"
+      },
+      "solution": {
+        "main.py": "developers = [\"Rahul\", \"Priya\", \"Arun\", \"Sneha\"]\n\nfor developer in developers:\n    print(developer)",
+        "expected_output": "Rahul\nPriya\nArun\nSneha"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Count Active Developers",
+      "ticket_slug": "python-18",
+      "description": "The Developer Utility stores information about developers and whether they are currently active. Count the number of active developers from the provided data.",
+      "tasks": [
+        "Create a list named `developers` containing dictionaries with `name` and `active` fields.",
+        "Use the provided developer data: Rahul is active, Priya is inactive, Arun is active, and Sneha is active.",
+        "Loop through the developers.",
+        "Count only developers whose `active` value is `True`.",
+        "Print the total using the format `Active developers: <value>`."
+      ],
+      "learning_objectives": [
+        "Understand Python dictionaries.",
+        "Learn how to access dictionary values.",
+        "Combine dictionaries, lists, loops, and conditions."
+      ],
+      "evaluation": "Runs the program and verifies that only developers with an active status of `True` are counted.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Counting every developer instead of only active developers.",
+        "Checking the developer name instead of the active status.",
+        "Using the string `True` instead of the boolean `True`."
+      ],
+      "hints": [
+        "Access the status using `developer[\"active\"]`.",
+        "Start a counter at zero and increase it when an active developer is found."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "Active developers: 3"
+      },
+      "solution": {
+        "main.py": "developers = [\n    {\"name\": \"Rahul\", \"active\": True},\n    {\"name\": \"Priya\", \"active\": False},\n    {\"name\": \"Arun\", \"active\": True},\n    {\"name\": \"Sneha\", \"active\": True}\n]\n\nactive_count = 0\n\nfor developer in developers:\n    if developer[\"active\"]:\n        active_count += 1\n\nprint(f\"Active developers: {active_count}\")",
+        "expected_output": "Active developers: 3"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Generate a Developer Summary",
+      "ticket_slug": "python-19",
+      "description": "The Developer Utility needs a summary containing developer information, supported languages, and the number of active developers. Combine the concepts learned in the previous tickets to generate the summary dynamically.",
+      "tasks": [
+        "Store the developer's name, language, and experience in variables.",
+        "Store the supported programming languages in a list.",
+        "Store developer information with active status in a list of dictionaries.",
+        "Calculate the number of active developers using a loop.",
+        "Print the complete developer summary in the required format."
+      ],
+      "learning_objectives": [
+        "Combine variables, lists, dictionaries, loops, and conditions.",
+        "Generate dynamic output from stored data.",
+        "Understand how multiple Python fundamentals work together."
+      ],
+      "evaluation": "Runs the program and verifies that all summary information is generated from the underlying Python data.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Hardcoding calculated values.",
+        "Incorrectly counting active developers.",
+        "Printing the wrong list contents.",
+        "Using incorrect variable values."
+      ],
+      "hints": [
+        "Reuse the concepts from the previous tickets.",
+        "Calculate the active developer count before generating the final output.",
+        "Use loops when displaying multiple values."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "expected_output": "===== Developer Summary =====\nDeveloper: Rahul\nLanguage: Python\nExperience: 1 year\nSupported Languages:\nPython\nJavaScript\nJava\nGo\nActive Developers: 3"
+      },
+      "solution": {
+        "main.py": "developer_name = \"Rahul\"\nlanguage = \"Python\"\nexperience = 1\n\nlanguages = [\"Python\", \"JavaScript\", \"Java\", \"Go\"]\n\ndevelopers = [\n    {\"name\": \"Rahul\", \"active\": True},\n    {\"name\": \"Priya\", \"active\": False},\n    {\"name\": \"Arun\", \"active\": True},\n    {\"name\": \"Sneha\", \"active\": True}\n]\n\nactive_count = 0\nfor developer in developers:\n    if developer[\"active\"]:\n        active_count += 1\n\nprint(\"===== Developer Summary =====\")\nprint(f\"Developer: {developer_name}\")\nprint(f\"Language: {language}\")\nprint(f\"Experience: {experience} year\")\nprint(\"Supported Languages:\")\n\nfor item in languages:\n    print(item)\n\nprint(f\"Active Developers: {active_count}\")",
+        "expected_output": "===== Developer Summary =====\nDeveloper: Rahul\nLanguage: Python\nExperience: 1 year\nSupported Languages:\nPython\nJavaScript\nJava\nGo\nActive Developers: 3"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Build the Developer Utility Menu",
+      "ticket_slug": "python-110",
+      "description": "The Developer Utility is now ready to become an interactive command-line program. Create a menu that allows the user to select different operations and continue using the application until they choose to exit.",
+      "tasks": [
+        "Display the following menu: `1. Show developer information`, `2. Show supported languages`, `3. Check username`, `4. Show project health`, `5. Exit`.",
+        "Read the user's menu choice using `input()`.",
+        "Display the appropriate result for options 1 through 4.",
+        "Keep displaying the menu until the user selects option 5.",
+        "Display `Invalid choice` when the user enters an unsupported option."
+      ],
+      "learning_objectives": [
+        "Combine variables, conditions, lists, loops, and user input.",
+        "Understand how a command-line application's control flow works.",
+        "Build a small interactive Python program."
+      ],
+      "evaluation": "Runs the program with predefined sequences of menu choices and verifies that the correct operation is executed and the application exits only when option 5 is selected.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Displaying the menu only once.",
+        "Using the wrong condition for the exit option.",
+        "Forgetting to handle invalid choices.",
+        "Creating an infinite loop that cannot exit.",
+        "Comparing integer input with strings without handling the difference."
+      ],
+      "hints": [
+        "Use a `while` loop to repeatedly display the menu.",
+        "Use `break` when the user selects option 5.",
+        "Remember that `input()` returns text.",
+        "Use `if`, `elif`, and `else` to handle the menu choices."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "1\n5",
+            "expected_output_contains": "Developer: Rahul"
+          },
+          {
+            "input": "2\n5",
+            "expected_output_contains": "Python"
+          },
+          {
+            "input": "3\nRahul\n5",
+            "expected_output_contains": "Valid username"
+          },
+          {
+            "input": "4\n5",
+            "expected_output_contains": "Good test coverage"
+          },
+          {
+            "input": "9\n5",
+            "expected_output_contains": "Invalid choice"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "developer_name = \"Rahul\"\nlanguage = \"Python\"\nexperience = 1\nlanguages = [\"Python\", \"JavaScript\", \"Java\", \"Go\"]\n\ndef show_menu():\n    print(\"1. Show developer information\")\n    print(\"2. Show supported languages\")\n    print(\"3. Check username\")\n    print(\"4. Show project health\")\n    print(\"5. Exit\")\n\nwhile True:\n    show_menu()\n    choice = input()\n\n    if choice == \"1\":\n        print(f\"Developer: {developer_name}\")\n        print(f\"Language: {language}\")\n        print(f\"Experience: {experience} year\")\n    elif choice == \"2\":\n        for item in languages:\n            print(item)\n    elif choice == \"3\":\n        username = input()\n        if len(username) >= 3 and \" \" not in username:\n            print(\"Valid username\")\n        else:\n            print(\"Invalid username\")\n    elif choice == \"4\":\n        total_files = 20\n        test_files = 8\n        coverage = (test_files / total_files) * 100\n\n        if coverage >= 30:\n            print(\"Good test coverage\")\n        else:\n            print(\"Test coverage needs improvement\")\n    elif choice == \"5\":\n        break\n    else:\n        print(\"Invalid choice\")"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 40,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 10
+    }
+  ]
+}

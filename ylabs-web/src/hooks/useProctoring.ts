@@ -630,10 +630,12 @@ export const useProctoring = ({
 
                     video.onloadedmetadata = startCapture;
                     video.srcObject = streamToUse;
+                    video.play().catch(console.warn);
 
                     if (screenStream) {
                         screenVideo.autoplay = true;
                         screenVideo.srcObject = screenStream;
+                        screenVideo.play().catch(console.warn);
                         // Let autoplay handle playback. We don't strictly need to wait for loadedmetadata for screenVideo to initialize the camera capture loop.
                     }
 

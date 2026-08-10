@@ -36,6 +36,15 @@ function OtpPage() {
     }
   })();
 
+  const [firstName, lastName] = (() => {
+    try {
+      const data = JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}");
+      return [data.firstName || "", data.lastName || ""];
+    } catch {
+      return ["", ""];
+    }
+  })();
+
   useEffect(() => {
     refs.current[0]?.focus();
     const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
@@ -75,7 +84,7 @@ function OtpPage() {
     setLoading(true);
     setErr(null);
     try {
-      const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp);
+      const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp, firstName, lastName);
       if (verifyRes.access_token) {
         authService.setAuthToken(verifyRes.access_token);
 

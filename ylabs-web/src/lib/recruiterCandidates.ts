@@ -28,6 +28,7 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
     tabSwitches: number;
@@ -43,103 +44,16 @@ export interface Candidate {
   };
 }
 
-const FIRST = [
-  "Aarav",
-  "Vivaan",
-  "Aditya",
-  "Vihaan",
-  "Arjun",
-  "Sai",
-  "Reyansh",
-  "Ayaan",
-  "Krishna",
-  "Ishaan",
-  "Rohan",
-  "Rahul",
-  "Ankit",
-  "Karthik",
-  "Siddharth",
-  "Nikhil",
-  "Manish",
-  "Pranav",
-  "Yash",
-  "Kabir",
-  "Devansh",
-  "Harsh",
-  "Aryan",
-  "Aniket",
-  "Aakash",
-  "Rehan",
-  "Kunal",
-  "Tanmay",
-  "Varun",
-  "Aditya",
-  "Priya",
-  "Ananya",
-  "Diya",
-  "Isha",
-  "Kavya",
-  "Anika",
-  "Riya",
-  "Meera",
-  "Sneha",
-  "Neha",
-  "Pooja",
-  "Aditi",
-  "Sanjana",
-  "Ritika",
-  "Shreya",
-  "Divya",
-  "Nisha",
-  "Radhika",
-  "Swati",
-  "Tanvi",
-  "Rhea",
-  "Aishwarya",
-  "Vaishnavi",
-  "Bhavana",
-  "Payal",
-  "Simran",
-  "Nandini",
+const REAL_NAMES = [
+  "Kadali Harshavardhan",
+  "Medishetty Manikanta Gandhi",
+  "Mrinal Guptha",
+  "Mucharla Sreelekha",
+  "Rohith Godugu",
+  "Devendra Dora",
+  "Shilpa dora"
 ];
-const LAST = [
-  "Sharma",
-  "Verma",
-  "Gupta",
-  "Iyer",
-  "Reddy",
-  "Nair",
-  "Patel",
-  "Menon",
-  "Rao",
-  "Singh",
-  "Kumar",
-  "Bose",
-  "Chatterjee",
-  "Mukherjee",
-  "Das",
-  "Ghosh",
-  "Malhotra",
-  "Kapoor",
-  "Chopra",
-  "Aggarwal",
-  "Jain",
-  "Bansal",
-  "Mehta",
-  "Shah",
-  "Desai",
-  "Trivedi",
-  "Pandey",
-  "Mishra",
-  "Yadav",
-  "Chauhan",
-  "Bhat",
-  "Pillai",
-  "Naidu",
-  "Krishnan",
-  "Subramanian",
-  "Balakrishnan",
-];
+
 const COLLEGES = [
   "IIT Bombay",
   "IIT Delhi",
@@ -274,16 +188,19 @@ const pick = <T>(r: () => number, arr: T[]) => arr[Math.floor(r() * arr.length)]
 
 const cache = new Map<string, Candidate[]>();
 
-export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
+export function getCandidates(evaluationId: string, submissions: any[] = []): Candidate[] {
   const cached = cache.get(evaluationId);
   if (cached) return cached;
   const r = rng(hash(evaluationId));
   const out: Candidate[] = [];
   const now = Date.now();
-  for (let i = 0; i < count; i++) {
-    const first = pick(r, FIRST);
-    const last = pick(r, LAST);
-    const name = `${first} ${last}`;
+  for (let i = 0; i < submissions.length; i++) {
+    const sub = submissions[i];
+    const user = sub.user || {};
+    const firstName = user.first_name || pick(r, REAL_NAMES).split(' ')[0];
+    const lastName = user.last_name || '';
+    const name = `${firstName} ${lastName}`.trim();
+    const email = user.email || `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(r() * 900) + 100}@example.com`;
     const experience = Math.floor(r() * 12); // 0..11
     const college = pick(r, COLLEGES);
     const company =
@@ -314,55 +231,106 @@ export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
       status === "Submitted" || status === "Completed"
         ? HIRING[Math.floor(r() * HIRING.length)]
         : "Pending Review";
-    const submittedAt = now - Math.floor(r() * 1000 * 60 * 60 * 24 * 45);
-    const completionMinutes = 25 + Math.floor(r() * 110);
+    const submittedAt = sub.completed_at ? new Date(sub.completed_at).getTime() : new Date(sub.created_at || now).getTime();
+    const completionMinutes = sub.duration ? Math.round(sub.duration / 60) : 25 + Math.floor(r() * 110);
     const skills = Array.from(
       new Set(Array.from({ length: 3 + Math.floor(r() * 4) }, () => pick(r, SKILL_POOL))),
     );
     const tags: string[] = [];
     if (r() < 0.15) tags.push(pick(r, TAG_POOL));
     if (r() < 0.08) tags.push(pick(r, TAG_POOL));
-      const numViolations = Math.floor(r() * 8);
-      const hasViolations = numViolations > 0;
-      const tabSwitches = hasViolations ? Math.floor(r() * numViolations) : 0;
-      const copyPastes = hasViolations ? Math.floor(r() * (numViolations - tabSwitches)) : 0;
-      const windowBlurs = hasViolations ? (numViolations - tabSwitches - copyPastes) : 0;
+      const realProctoringEvents = Array.isArray(sub.proctoring_events) ? sub.proctoring_events : [];
+      const realGeneralEvents = Array.isArray(sub.general_events) ? sub.general_events : [];
+      const allRealEvents = [...realProctoringEvents, ...realGeneralEvents];
       
-      const timelineEvents = [];
-      const snapshots = [];
-      for (let j = 0; j < numViolations; j++) {
-        const timeOffset = Math.floor(r() * completionMinutes * 60 * 1000);
-        const tType = r() > 0.5 ? "tab_switched" : r() > 0.5 ? "copy_paste" : "window_blur";
-        const severity = tType === "copy_paste" ? 2 : 1;
-        timelineEvents.push({ time: submittedAt - timeOffset, type: tType, desc: `Detected ${tType.replace('_', ' ')}`, severity });
-        if (r() > 0.7) snapshots.push({ time: submittedAt - timeOffset, type: "screenshot" });
+      const violationTypes = [
+          'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
+          'new_tab_detected', 'new_window_detected', 'face_not_detected', 
+          'multiple_faces_detected', 'face_recognition_failed', 'violation_critical',
+          'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected',
+          'copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected',
+          'right_click_detected', 'screenshot_detected', 'keyboard_shortcut',
+          'suspicious_movement', 'audio_anomaly', 'audio_anomaly_detected',
+          'network_disconnected', 'network_connected', 'violation_warning', 'violation'
+      ];
+      const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+
+      let tabSwitches = 0;
+      let copyPastes = 0;
+      let windowBlurs = 0;
+      
+      const timelineEvents: any[] = [];
+      const snapshots: any[] = [];
+      
+      allRealEvents.forEach(e => {
+        const type = e.activity_type || '';
+        if (type === 'tab_switched') tabSwitches++;
+        if (type === 'copy_detected' || type === 'paste_detected') copyPastes++;
+        if (type === 'window_blur' || type === 'focus_lost') windowBlurs++;
+        
+        if (e.image_path || e.screen_path) {
+          snapshots.push({
+             time: new Date(e.timestamp).getTime(),
+             type: e.image_path ? 'camera' : 'screen'
+          });
+        }
+        
+        const isC = criticalTypes.some(vt => type.includes(vt));
+        const isV = violationTypes.some(vt => type.includes(vt));
+        if (isV && type !== 'snapshot') {
+          timelineEvents.push({
+            time: new Date(e.timestamp).getTime(),
+            type: type,
+            desc: e.meta_data ? JSON.stringify(e.meta_data) : `Detected ${type.replace(/_/g, ' ')}`,
+            severity: isC ? 2 : 1
+          });
+        }
+      });
+      
+      const numViolations = timelineEvents.length;
+
+      const labsEvents = timelineEvents;
+      const assessEvents: any[] = [];
+      const vitarkaEvents: any[] = [];
+      
+      const sectionsMap: Record<string, any> = {};
+      if (sub.evaluation?.sections) {
+          const sectionCount = sub.evaluation.sections.length;
+          sub.evaluation.sections.forEach((sec: any) => {
+              const secKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+              sectionsMap[secKey] = {
+                  score: secKey === 'labs' ? labs : secKey === 'assessment' ? assess : vit,
+                  timeSpent: Math.floor(completionMinutes / sectionCount),
+                  events: secKey === 'labs' ? labsEvents : secKey === 'assessment' ? assessEvents : vitarkaEvents
+              };
+          });
+      } else {
+          sectionsMap.labs = { score: labs, timeSpent: Math.floor(completionMinutes * 0.5), events: labsEvents };
+          sectionsMap.assessment = { score: assess, timeSpent: Math.floor(completionMinutes * 0.3), events: assessEvents };
+          sectionsMap.vitarka = { score: vit, timeSpent: Math.floor(completionMinutes * 0.2), events: vitarkaEvents };
       }
-      
-      const labsEvents = timelineEvents.filter(e => r() > 0.5);
-      const assessEvents = timelineEvents.filter(e => !labsEvents.includes(e) && r() > 0.5);
-      const vitarkaEvents = timelineEvents.filter(e => !labsEvents.includes(e) && !assessEvents.includes(e));
 
       out.push({
         id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
         name,
-        email: `${first.toLowerCase()}.${last.toLowerCase()}${Math.floor(r() * 900) + 100}@${["gmail.com","outlook.com","yahoo.in","proton.me"][Math.floor(r() * 4)]}`,
-        phone: `+91 ${Math.floor(6 + r() * 4)}${Math.floor(r() * 900000000 + 100000000)}`.slice(0, 15),
+        email,
+        phone: `+91 ${Math.floor(r() * 9000000000) + 1000000000}`,
+        experience,
         college,
         company,
-        experience,
-        domain: pick(r, DOMAINS),
-        skills,
-        tags: Array.from(new Set(tags)),
-        labsScore: labs,
-        assessmentScore: assess,
-        vitarkaScore: vit,
-        eci,
-        recommendation: rec,
         status,
         hiringStatus: hiring,
         submittedAt,
         completionMinutes,
         avatarHue: Math.floor(r() * 360),
+        eci,
+        labsScore: labs,
+        assessmentScore: assess,
+        vitarkaScore: vit,
+        recommendation: rec,
+        skills,
+        tags,
+        domain: pick(r, DOMAINS),
         proctoringData: {
           totalViolations: numViolations,
           tabSwitches,
@@ -370,12 +338,10 @@ export function getCandidates(evaluationId: string, count = 1000): Candidate[] {
           windowBlurs,
           snapshots: snapshots.sort((a, b) => a.time - b.time),
           timelineEvents: timelineEvents.sort((a, b) => a.time - b.time),
-          sections: {
-            labs: { score: labs, timeSpent: Math.floor(completionMinutes * 0.5), events: labsEvents },
-            assessment: { score: assess, timeSpent: Math.floor(completionMinutes * 0.3), events: assessEvents },
-            vitarka: { score: vit, timeSpent: Math.floor(completionMinutes * 0.2), events: vitarkaEvents }
-          }
-        }
+          events: timelineEvents,
+          sections: sectionsMap,
+        },
+        rawSubmission: sub
       });
   }
   cache.set(evaluationId, out);
@@ -538,3 +504,4 @@ export function activeFilterCount(f: CandidateFilters): number {
 export function uniqueValues<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
+

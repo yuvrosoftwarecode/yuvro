@@ -15,12 +15,14 @@ export const evaluationService = {
     });
   },
 
-  async verifyRegistrationOtp(evaluationId: string, email: string, otp: string): Promise<any> {
+  async verifyRegistrationOtp(evaluationId: string, email: string, otp: string, firstName?: string, lastName?: string): Promise<any> {
     return yhubApiUtil.post(`/auth/public_verify_otp/`, {
       resource_id: evaluationId,
       resource_type: "evaluation",
       email,
       otp,
+      first_name: firstName,
+      last_name: lastName,
     });
   },
 

@@ -15,6 +15,8 @@ export const Route = createFileRoute("/evaluation/")({
 });
 
 function EvaluationInvite() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -34,8 +36,8 @@ function EvaluationInvite() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !phone || !evaluationId) {
-      setErr("Email, phone number, and valid evaluation link are required.");
+    if (!firstName || !lastName || !email || !phone || !evaluationId) {
+      setErr("First name, last name, email, phone number, and valid evaluation link are required.");
       return;
     }
     if (phone.length !== 10) {
@@ -55,7 +57,7 @@ function EvaluationInvite() {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       localStorage.setItem(
         "yuvro-eval-candidate",
-        JSON.stringify({ email, phone: `+91 ${phone}`, resume: file?.name, title }),
+        JSON.stringify({ firstName, lastName, email, phone: `+91 ${phone}`, resume: file?.name, title }),
       );
       router.navigate({ to: "/evaluation/otp", search: { e: evaluationId } });
     } catch (error: any) {
@@ -122,6 +124,28 @@ function EvaluationInvite() {
             )}
 
             <div className="mt-8 space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="First name" hint="Required">
+                  <input
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Jane"
+                    className="eval-input"
+                  />
+                </Field>
+                <Field label="Last name" hint="Required">
+                  <input
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Doe"
+                    className="eval-input"
+                  />
+                </Field>
+              </div>
               <Field label="Email address" hint="We'll send a one-time verification code.">
                 <input
                   type="email"
