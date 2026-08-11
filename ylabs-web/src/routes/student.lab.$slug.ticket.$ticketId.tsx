@@ -2244,7 +2244,7 @@ export function TicketIDE({
             {[
               { k: "problem", I: BookOpen, label: "Problem" },
               { k: "hints", I: Lightbulb, label: "Hints" },
-              { k: "discuss", I: MessageSquare, label: "Discuss" },
+              // { k: "discuss", I: MessageSquare, label: "Discuss" },
               { k: "solution", I: Key, label: "Solution" },
             ].map(({ k, I, label }) => (
               <button
@@ -2273,7 +2273,7 @@ export function TicketIDE({
               {[
                 { k: "problem", label: "Problem" },
                 { k: "hints", label: "Hints" },
-                { k: "discuss", label: "Discuss" },
+                // { k: "discuss", label: "Discuss" },
                 { k: "solution", label: "Solution" },
               ].map((t) => (
                 <button
@@ -2321,7 +2321,7 @@ export function TicketIDE({
                   onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
                 />
               )}
-              {tab === "discuss" && <DiscussPanel />}
+              {/* {tab === "discuss" && <DiscussPanel />} */}
             </div>
           </aside>
         )}
@@ -4075,28 +4075,28 @@ function HintsPanel({
   );
 }
 
-function DiscussPanel() {
-  return (
-    <div className="space-y-3 text-xs">
-      {[
-        { u: "Priya M.", t: "Why does (int)3.99 give 3 and not 4?", r: 12 },
-        { u: "Liam K.", t: "Tip: use Integer.MIN_VALUE for edge testing.", r: 4 },
-        { u: "Sofia R.", t: "Got 100% — used String.format for clean output.", r: 7 },
-      ].map((d, i) => (
-        <div key={i} className="rounded-md border p-2 bg-editor-bg">
-          <div className="flex items-center gap-2">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-accent text-[10px]">
-              {d.u[0]}
-            </span>
-            <span className="font-medium">{d.u}</span>
-          </div>
-          <div className="mt-1 text-muted-foreground">{d.t}</div>
-          <div className="mt-1 text-[10px] text-muted-foreground">{d.r} replies</div>
-        </div>
-      ))}
-    </div>
-  );
-}
+// function DiscussPanel() {
+//   return (
+//     <div className="space-y-3 text-xs">
+//       {[
+//         { u: "Priya M.", t: "Why does (int)3.99 give 3 and not 4?", r: 12 },
+//         { u: "Liam K.", t: "Tip: use Integer.MIN_VALUE for edge testing.", r: 4 },
+//         { u: "Sofia R.", t: "Got 100% — used String.format for clean output.", r: 7 },
+//       ].map((d, i) => (
+//         <div key={i} className="rounded-md border p-2 bg-editor-bg">
+//           <div className="flex items-center gap-2">
+//             <span className="grid h-5 w-5 place-items-center rounded-full bg-accent text-[10px]">
+//               {d.u[0]}
+//             </span>
+//             <span className="font-medium">{d.u}</span>
+//           </div>
+//           <div className="mt-1 text-muted-foreground">{d.t}</div>
+//           <div className="mt-1 text-[10px] text-muted-foreground">{d.r} replies</div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
