@@ -200,6 +200,9 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
     feedback = models.TextField(blank=True, help_text="Manual feedback from an instructor or system hints")
     yuvro_points = models.PositiveIntegerField(default=0)
     minutes_solved = models.PositiveIntegerField(default=0)
+    hint_penalty_applied = models.BooleanField(default=False)
+    solution_revealed = models.BooleanField(default=False)
+    revealed_hints = models.JSONField(default=list, blank=True)
 
     class Meta:
         unique_together = ("user", "lab_sprint_ticket")

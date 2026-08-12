@@ -1118,6 +1118,7 @@ export function TicketIDE({
   }, [ticket.id]);
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [initialRevealedHints, setInitialRevealedHints] = useState<number[]>([]);
   const creatingSubmissionRef = useRef(false);
   
   useEffect(() => {
@@ -1176,6 +1177,9 @@ export function TicketIDE({
           } else {
             const sub = subs[0];
             setSubmissionId(sub.id);
+            if (sub.revealed_hints) {
+              setInitialRevealedHints(sub.revealed_hints);
+            }
             if (sub.ticket_status === "backlog") {
               await api.patch(`${submissionsEndpoint}${ sub.id }/`, {
                 [submissionsStatusField]: "in_progress",
@@ -2310,7 +2314,11 @@ export function TicketIDE({
                 <SolutionPanel
                   ticket={ticket}
                   onLoadIntoEditor={(code, language) => {
-                    setFiles(prev => ({ ...prev, [activeFile]: code }));
+                    const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
+                    const ext = langMap[language.toLowerCase()] || "txt";
+                    const targetFile = `solution.${ext}`;
+                    setFiles(prev => ({ ...prev, [targetFile]: code }));
+                    setActiveFile(targetFile);
                   }}
                 />
               )}
@@ -2318,6 +2326,7 @@ export function TicketIDE({
                 <HintsPanel
                   ticket={ticket}
                   elapsed={elapsed}
+                  initialRevealedHints={initialRevealedHints}
                   onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
                 />
               )}
@@ -3975,36 +3984,76 @@ Character at index 0: H`}</pre>
               <li>→ Docs: Primitive vs reference types</li>
             </ul>
           </Section>
-
-          <Section title="⚠️ Common mistakes">
-            <ul className="space-y-1 text-muted-foreground">
-              <li>
-                • Type mismatch: <code>double → int</code> requires explicit cast
-              </li>
-              <li>
-                • Forgetting <code>(int)</code> when narrowing
-              </li>
-              <li>
-                • <code>charAt</code> out-of-bounds on empty strings
-              </li>
-            </ul>
-          </Section>
         </>
       )}
     </>
   );
 }
 
+function ScorePenaltyWarningDialog({
+  open,
+  onOpenChange,
+  title = "Score Penalty Warning",
+  description,
+  onAcknowledge,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title?: string;
+  description: React.ReactNode;
+  onAcknowledge: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-emerald-600">
+            <AlertTriangle className="w-5 h-5" />
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+        <DialogDescription className="text-gray-700 py-4 text-base">
+          {description}
+        </DialogDescription>
+        <DialogFooter>
+          <button 
+            className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent" 
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </button>
+          <button 
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium" 
+            onClick={() => { onOpenChange(false); onAcknowledge(); }}
+          >
+            Acknowledge & Reveal
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 function HintsPanel({
   ticket,
   elapsed,
+  initialRevealedHints = [],
   onUnlock,
 }: {
   ticket: any;
   elapsed: number;
+  initialRevealedHints?: number[];
   onUnlock: (n: number, cost: string) => void;
 }) {
-  const [revealedHints, setRevealedHints] = useState<number[]>([]);
+  const [revealedHints, setRevealedHints] = useState<number[]>(initialRevealedHints);
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const [targetHintIndex, setTargetHintIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setRevealedHints(initialRevealedHints);
+  }, [initialRevealedHints]);
 
   const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
 
@@ -4020,18 +4069,57 @@ function HintsPanel({
     );
   }
 
-  const handleReveal = (index: number) => {
+  const handleReveal = async (index: number) => {
     if (!revealedHints.includes(index)) {
-      setRevealedHints([...revealedHints, index]);
-      onUnlock(index + 1, "Free");
+      setLoading(true);
+      try {
+        const { default: api } = await import("@/utils/RestApiAuthUtil");
+        const res = await api.post(`/lab/submissions/reveal-hint/`, {
+          ticket_id: ticket.id,
+          hint_index: index,
+        });
+        if (res?.revealed_hints) {
+          setRevealedHints(res.revealed_hints);
+        } else {
+          // fallback
+          setRevealedHints([...revealedHints, index]);
+        }
+        onUnlock(index + 1, "50% Penalty");
+      } catch (err) {
+        console.error("Failed to reveal hint", err);
+      } finally {
+        setLoading(false);
+      }
     }
+  };
+
+  const attemptReveal = (index: number) => {
+    setTargetHintIndex(index);
+    setShowWarningDialog(true);
   };
 
   return (
     <div className="space-y-3">
       <div className="rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 p-2 text-xs text-amber-700 dark:text-amber-400">
-        <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Currently, revealing hints does not affect your score.
+        <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
       </div>
+
+      <ScorePenaltyWarningDialog
+        open={showWarningDialog}
+        onOpenChange={setShowWarningDialog}
+        title="Hint Penalty Warning"
+        description={
+          <>
+            Are you sure you want to reveal this hint?<br /><br />
+            Revealing hints will result in a <strong>50% score penalty</strong> for this problem. This penalty applies once, no matter how many hints you reveal.
+          </>
+        }
+        onAcknowledge={() => {
+          if (targetHintIndex !== null) {
+            handleReveal(targetHintIndex);
+          }
+        }}
+      />
       
       {hints.map((hint: string, index: number) => {
         const isRevealed = revealedHints.includes(index);
@@ -4060,11 +4148,12 @@ function HintsPanel({
             ) : (
               <div className="mt-2">
                 <button
-                  onClick={() => handleReveal(index)}
-                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/40 py-2 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
+                  onClick={() => attemptReveal(index)}
+                  disabled={loading}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/40 py-2 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors disabled:opacity-50"
                 >
                   <AlertTriangle className="h-3.5 w-3.5" />
-                  Reveal Hint
+                  {loading && targetHintIndex === index ? "Revealing..." : "Reveal Hint"}
                 </button>
               </div>
             )}
@@ -5219,34 +5308,17 @@ export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoa
           {loading ? "Revealing..." : "Reveal Solution"}
         </button>
 
-        <Dialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-emerald-600">
-                <AlertTriangle className="w-5 h-5" />
-                Score Penalty Warning
-              </DialogTitle>
-            </DialogHeader>
-            <DialogDescription className="text-gray-700 py-4 text-base">
+        <ScorePenaltyWarningDialog
+          open={showWarningDialog}
+          onOpenChange={setShowWarningDialog}
+          description={
+            <>
               Are you sure you want to reveal the official solution?<br /><br />
               Viewing the solution will permanently result in a <strong>score of 0</strong> for this problem.
-            </DialogDescription>
-            <DialogFooter>
-              <button 
-                className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent" 
-                onClick={() => setShowWarningDialog(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium" 
-                onClick={() => { setShowWarningDialog(false); handleRevealSolution(); }}
-              >
-                Acknowledge & Reveal
-              </button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </>
+          }
+          onAcknowledge={handleRevealSolution}
+        />
       </div>
     );
   }
