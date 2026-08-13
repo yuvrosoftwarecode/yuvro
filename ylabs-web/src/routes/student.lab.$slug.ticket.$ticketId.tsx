@@ -2136,9 +2136,7 @@ export function TicketIDE({
           )}
           <span className="hidden md:inline">{leftCollapsed ? "Show" : "Hide"} panel</span>
         </button>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="text-foreground font-mono">{ticket.id}</span>
-        </div>
+
         <StatusBadge value={ticket.status} />
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
