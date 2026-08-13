@@ -1,0 +1,2757 @@
+{
+  "title": "Sprint 1 — Arrays",
+  "description": "Master Arrays through hand-picked algorithmic challenges.",
+  "xp_pool": 15300,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Calculate Total Daily Sales",
+      "ticket_slug": "ticket-calculate-total-daily-sales",
+      "description": "A retail store records the value of every purchase made during the day. At the end of business hours, the store manager needs to calculate the total sales amount.\n\nYour task is to read the number of transactions followed by the transaction values and calculate the total sales for the day.\n\nSome transactions may represent refunds, which are recorded as negative values and should be included in the final total.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-calculate-total-daily-sales-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n100 200 300 400 500",
+          "expected_output": "1500",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-calculate-total-daily-sales-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3\n500 1000 1500",
+          "expected_output": "3000",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-calculate-total-daily-sales-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n250 250 250 250",
+          "expected_output": "1000",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "4\n-100 -200 -300 -400",
+          "expected_output": "-1000",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "6\n0 0 0 0 0 0",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1\n999",
+          "expected_output": "999",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n1000 2000 3000 4000 5000",
+          "expected_output": "15000",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n100 -100 200 -200 300 -300 400",
+          "expected_output": "400",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "8\n50 100 150 200 250 300 350 400",
+          "expected_output": "1800",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "2\n-500 500",
+          "expected_output": "0",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-calculate-total-daily-sales-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n900 800 700 600 500",
+          "expected_output": "3500",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Find the Highest Temperature Recorded",
+      "ticket_slug": "ticket-find-highest-temperature-recorded",
+      "description": "A weather monitoring station records the temperature at different times throughout the day. At the end of the day, the meteorologist needs to determine the highest temperature that was recorded.\n\nYour task is to read the number of temperature readings followed by the recorded temperatures and find the highest temperature.\n\nTemperatures can be positive or negative depending on the weather conditions.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-highest-temperature-recorded-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n22 29 21 26 24",
+          "expected_output": "29",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-highest-temperature-recorded-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3\n18 18 18",
+          "expected_output": "18",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-highest-temperature-recorded-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n11 23 19 27",
+          "expected_output": "27",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "4\n-5 -2 -9 -1",
+          "expected_output": "-1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1\n50",
+          "expected_output": "50",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n10 20 30 40 50 60",
+          "expected_output": "60",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n0 0 0 0 0",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n3 9 1 12 4 8 6",
+          "expected_output": "12",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "2\n-100 -50",
+          "expected_output": "-50",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "5",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-temperature-recorded-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "8\n11 45 23 67 89 2 10 34",
+          "expected_output": "89",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Find the Fastest Delivery Time",
+      "ticket_slug": "ticket-find-fastest-delivery-time",
+      "description": "A logistics company tracks the delivery time (in minutes) taken by different delivery partners to complete the same type of order. The operations manager wants to identify the fastest delivery completed during the day.\n\nYour task is to read the number of delivery records followed by their delivery times and determine the shortest delivery time.\n\nA smaller delivery time indicates a faster delivery.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-fastest-delivery-time-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n40 25 60 18 35",
+          "expected_output": "18",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-fastest-delivery-time-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3\n55 65 75",
+          "expected_output": "55",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-fastest-delivery-time-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n90 30 60 20",
+          "expected_output": "20",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "4\n-3 -7 -1 -5",
+          "expected_output": "-7",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1\n99",
+          "expected_output": "99",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n0 0 0 0 0",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n10 20 30 40 5 60",
+          "expected_output": "5",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n3 2 1 4 5 6 7",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "2\n-10 10",
+          "expected_output": "-10",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n100 200 300 400 50",
+          "expected_output": "50",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-fastest-delivery-time-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "8\n11 45 23 67 89 2 10 34",
+          "expected_output": "2",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Analyze Successful and Failed Server Requests",
+      "ticket_slug": "ticket-analyze-server-request-status",
+      "description": "A cloud monitoring system records the Request ID of every API request processed by a server. For analysis purposes, requests with an even Request ID are considered successfully processed, while requests with an odd Request ID are considered failed.\n\nYour task is to read the number of request IDs followed by the request IDs themselves and determine how many requests were successful (even) and how many failed (odd).\n\nOutput the number of successful requests first, followed by the number of failed requests.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-analyze-server-request-status-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n101 102 103 104 105",
+          "expected_output": "2 3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-analyze-server-request-status-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n200 202 204 206",
+          "expected_output": "4 0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-analyze-server-request-status-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n501 503 505",
+          "expected_output": "0 3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n0 1 2 3 4 5",
+          "expected_output": "3 3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1\n7",
+          "expected_output": "0 1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1\n8",
+          "expected_output": "1 0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n10 11 12 13 14",
+          "expected_output": "3 2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n2 3 4 5 6 7 8",
+          "expected_output": "4 3",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n-2 -3 -4 -5",
+          "expected_output": "2 2",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n0 0 0 0 0",
+          "expected_output": "5 0",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-request-status-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "8\n1 2 3 4 5 6 7 8",
+          "expected_output": "4 4",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Display Application Logs from Latest to Oldest",
+      "ticket_slug": "ticket-display-application-logs-reverse-order",
+      "description": "A backend application stores log entries in the order they are generated. During debugging, developers usually inspect the most recent logs first to identify the latest errors or events.\n\nYour task is to read the number of log IDs followed by the log IDs in the order they were generated and display them from the latest log to the oldest log.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-display-application-logs-reverse-order-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n101 102 103 104 105",
+          "expected_output": "105 104 103 102 101",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-display-application-logs-reverse-order-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3\n210 220 230",
+          "expected_output": "230 220 210",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-display-application-logs-reverse-order-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n501 502 503 504",
+          "expected_output": "504 503 502 501",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n99",
+          "expected_output": "99",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n0 0 0 0 0",
+          "expected_output": "0 0 0 0 0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 11",
+          "expected_output": "11 9 7 5 3 1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n9 8 7 6 5",
+          "expected_output": "5 6 7 8 9",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n2 4 6 8 10 12 14",
+          "expected_output": "14 12 10 8 6 4 2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n-1 -2 -3 -4",
+          "expected_output": "-4 -3 -2 -1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n100 200 300 400 500",
+          "expected_output": "500 400 300 200 100",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-display-application-logs-reverse-order-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "8\n1 2 3 4 5 6 7 8",
+          "expected_output": "8 7 6 5 4 3 2 1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Identify the Backup Server with the Second Highest Capacity",
+      "ticket_slug": "ticket-identify-backup-server-second-highest-capacity",
+      "description": "A cloud infrastructure team monitors the processing capacity (in requests per second) of multiple application servers. The server with the highest capacity is selected as the primary server, while the server with the second-highest unique capacity is selected as the backup server.\n\nYour task is to read the number of servers followed by their processing capacities and determine the second-highest unique capacity.\n\nIf all servers have the same capacity or there is only one server, no backup server can be selected. In that case, output **-1**.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n100 200 300 400 500",
+          "expected_output": "400",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n1000 2000 3000 4000",
+          "expected_output": "3000",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n700 700 500",
+          "expected_output": "500",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "5\n5 5 5 5 5",
+          "expected_output": "-1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "2\n10 20",
+          "expected_output": "10",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "1\n100",
+          "expected_output": "-1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n1 9 3 9 7 5",
+          "expected_output": "7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n-1 -2 -3 -4 -5",
+          "expected_output": "-2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "7\n4 8 6 2 10 12 9",
+          "expected_output": "10",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n100 200 300 400 500",
+          "expected_output": "400",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-identify-backup-server-second-highest-capacity-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "4\n0 0 1 2",
+          "expected_output": "1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Validate Database Record Order Before Migration",
+      "ticket_slug": "ticket-validate-database-record-order-before-migration",
+      "description": "A database migration tool exports record IDs from a legacy system before importing them into a new database. For the migration to run efficiently, the record IDs must already be arranged in ascending order.\n\nYour task is to read the number of record IDs followed by the IDs themselves and determine whether they are sorted in ascending order.\n\nIf every record ID is greater than or equal to the previous one, print **YES**. Otherwise, print **NO**.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-validate-database-record-order-before-migration-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "YES",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-validate-database-record-order-before-migration-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n1 3 2 4",
+          "expected_output": "NO",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-validate-database-record-order-before-migration-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n5 6 7",
+          "expected_output": "YES",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n10",
+          "expected_output": "YES",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 1 2 2 3",
+          "expected_output": "YES",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "4\n9 7 5 3",
+          "expected_output": "NO",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n2 4 6 8 10 12",
+          "expected_output": "YES",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n3 3 3 3 3",
+          "expected_output": "YES",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "5\n1 5 2 6 3",
+          "expected_output": "NO",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "7\n1 2 3 4 6 5 7",
+          "expected_output": "NO",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-validate-database-record-order-before-migration-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n0 1 2 3 4 5",
+          "expected_output": "YES",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Generate Website Page Visit Report",
+      "ticket_slug": "ticket-generate-website-page-visit-report",
+      "description": "A web analytics system records the Page ID every time a user visits a page on a website. At the end of the day, the analytics team needs to know how many times each distinct page was visited.\n\nYour task is to read the number of page visits followed by the Page IDs and print the number of visits for each distinct Page ID in the order of their first appearance.\n\nPrint the output in the format:\n`PageID:Count`\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-generate-website-page-visit-report-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n101 102 102 103 103",
+          "expected_output": "101:1 102:2 103:2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-generate-website-page-visit-report-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n404 404 404 404",
+          "expected_output": "404:4",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-generate-website-page-visit-report-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n201 202 203",
+          "expected_output": "201:1 202:1 203:1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 1 2 2 3 3",
+          "expected_output": "1:2 2:2 3:2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "5:1 4:1 3:1 2:1 1:1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "7\n2 2 2 3 3 4 4",
+          "expected_output": "2:3 3:2 4:2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n0 0 1 1",
+          "expected_output": "0:2 1:2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n10 20 10 20 10",
+          "expected_output": "10:3 20:2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3\n-1 -1 -2",
+          "expected_output": "-1:2 -2:1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 1",
+          "expected_output": "1:2 3:1 5:1 7:1 9:1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-generate-website-page-visit-report-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n8 8 8 7 7",
+          "expected_output": "8:3 7:2",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Remove Duplicate API Requests",
+      "ticket_slug": "ticket-remove-duplicate-api-requests",
+      "description": "A backend service receives API Request IDs from clients. Due to network retries, the same request may be received multiple times. To prevent processing the same request more than once, the system must keep only the first occurrence of each Request ID while preserving the original arrival order.\n\nYour task is to read the number of Request IDs followed by the Request IDs themselves and print the unique Request IDs in the order they first appeared.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-remove-duplicate-api-requests-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n101 102 102 103 103",
+          "expected_output": "101 102 103",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-remove-duplicate-api-requests-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n404 404 404 404",
+          "expected_output": "404",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-remove-duplicate-api-requests-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n201 202 203",
+          "expected_output": "201 202 203",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 1 2 2 3 3",
+          "expected_output": "1 2 3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "5 4 3 2 1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "7\n2 2 2 3 3 4 4",
+          "expected_output": "2 3 4",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n0 0 1 1",
+          "expected_output": "0 1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n10 20 10 20 10",
+          "expected_output": "10 20",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3\n-1 -1 -2",
+          "expected_output": "-1 -2",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 1",
+          "expected_output": "1 3 5 7 9",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-remove-duplicate-api-requests-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n8 8 8 7 7",
+          "expected_output": "8 7",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Analyze Server Response Time Variation",
+      "ticket_slug": "ticket-analyze-server-response-time-variation",
+      "description": "A DevOps team monitors the response times (in milliseconds) of a web server throughout the day. To measure performance consistency, they need to calculate the difference between the highest and lowest response time recorded.\n\nYour task is to read the number of response time measurements followed by the response times and print the difference between the maximum and minimum response time.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-analyze-server-response-time-variation-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-analyze-server-response-time-variation-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n10 20 30 40",
+          "expected_output": "30",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-analyze-server-response-time-variation-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n7 7 7",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "6\n100 200 300 400 500 600",
+          "expected_output": "500",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "4\n-1 -2 -3 -4",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n0 0 0 0 0",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n3 9 1 12 4 8 6",
+          "expected_output": "11",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "2\n-100 100",
+          "expected_output": "200",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n10 15 20 25 30",
+          "expected_output": "20",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-analyze-server-response-time-variation-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n5 10 5 10 5 10",
+          "expected_output": "5",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Identify the Third Best Performing Server",
+      "ticket_slug": "ticket-identify-third-best-performing-server",
+      "description": "A cloud monitoring system collects performance scores for multiple servers. The operations team wants to identify the server with the third highest performance score without sorting the entire list, allowing the report to be generated efficiently even for very large datasets.\n\nYour task is to read the number of server performance scores followed by the scores and print the third highest score.\n\n**Note:** If fewer than three distinct scores exist, return the third highest value according to the input constraints.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-identify-third-best-performing-server-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "6\n10 4 3 50 23 90",
+          "expected_output": "23",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-identify-third-best-performing-server-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-identify-third-best-performing-server-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "7\n12 35 1 10 34 1 40",
+          "expected_output": "34",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "3\n3 2 1",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "6\n1 2 3 4 5 6",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n9 9 8 7 6",
+          "expected_output": "7",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n100 200 300 400",
+          "expected_output": "200",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50",
+          "expected_output": "30",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "5\n7 7 7 7 7",
+          "expected_output": "7",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "6\n-1 -2 -3 -4 -5 -6",
+          "expected_output": "-3",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-identify-third-best-performing-server-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n2 8 1 9 6",
+          "expected_output": "6",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — Prioritize High-Priority Jobs in Processing Queue",
+      "ticket_slug": "ticket-prioritize-high-priority-jobs-processing-queue",
+      "description": "A job scheduling system receives a queue of job IDs. In this system, jobs with even IDs are classified as High Priority, while jobs with odd IDs are Normal Priority. Before execution begins, the scheduler must rearrange the queue so that all High Priority jobs appear before Normal Priority jobs while preserving the original relative order within each group.\n\nYour task is to read the number of jobs followed by their IDs and output the rearranged processing queue.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "2 4 1 3 5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n10 21 32 43",
+          "expected_output": "10 32 21 43",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "6\n1 3 5 2 4 6",
+          "expected_output": "2 4 6 1 3 5",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "3\n2 4 6",
+          "expected_output": "2 4 6",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "3\n1 3 5",
+          "expected_output": "1 3 5",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n7 8 5 6 3",
+          "expected_output": "8 6 7 5 3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n11 14 17 20 23 26",
+          "expected_output": "14 20 26 11 17 23",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 3 4 5 6",
+          "expected_output": "2 4 6 3 5",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n9 7 5 3",
+          "expected_output": "9 7 5 3",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "4\n8 6 4 2",
+          "expected_output": "8 6 4 2",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-prioritize-high-priority-jobs-processing-queue-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "7\n1 2 3 4 5 6 7",
+          "expected_output": "2 4 6 1 3 5 7",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — Identify Product Bundles That Match a Customer's Budget",
+      "ticket_slug": "ticket-find-all-pairs-with-given",
+      "description": "An online shopping platform wants to recommend product bundles that exactly match a customer's gift card value.\n\nYou are given the prices of available products and a target budget. Find and print all unique pairs of product prices whose total equals the target budget.\n\nIf no such pair exists, print nothing.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-all-pairs-with-given-sum-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n5",
+          "expected_output": "1 4\n2 3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-all-pairs-with-given-sum-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n2 4 6 8\n10",
+          "expected_output": "2 8\n4 6",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-all-pairs-with-given-sum-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "5\n1 1 1 1 1\n2",
+          "expected_output": "1 1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n10 20 30 40 50 60\n70",
+          "expected_output": "10 60\n20 50\n30 40",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "4\n1 2 3 4\n8",
+          "expected_output": "",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n5 5 5 5 5\n10",
+          "expected_output": "5 5",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 11\n12",
+          "expected_output": "1 11\n3 9\n5 7",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n12",
+          "expected_output": "2 10\n4 8",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n-1 1 2 -2\n0",
+          "expected_output": "-1 1\n2 -2",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n3 3 3 3 3\n6",
+          "expected_output": "3 3",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-all-pairs-with-given-sum-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n1 2 3 4 5 6\n7",
+          "expected_output": "1 6\n2 5\n3 4",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Minimum Shelf Rearrangements Required in a Warehouse",
+      "ticket_slug": "ticket-minimum-number-of-swaps-r",
+      "description": "A warehouse stores products on a shelf where each product has a unique ID. Due to a stocking mistake, the products are no longer arranged in ascending order of their IDs.\n\nA warehouse worker can swap the positions of any two products in a single operation. Your task is to determine the minimum number of swaps required to arrange all products in ascending order.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "4\n4 3 2 1",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n1 5 4 3 2",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n3 2 1",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "5\n2 8 5 4 3",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "4\n1 2 3 4",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n6 5 4 3 2 1",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n10 19 6 3 5",
+          "expected_output": "2",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "7\n7 1 3 2 4 5 6",
+          "expected_output": "5",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n2 1 4 3",
+          "expected_output": "2",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "3\n1 3 2",
+          "expected_output": "1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-minimum-number-of-swaps-required-to-sort-an-array-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n5 4 3 2 1",
+          "expected_output": "2",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Find a Package in the Warehouse",
+      "ticket_slug": "ticket-find-package-in-warehouse",
+      "description": "A warehouse management system stores package IDs in the exact order they are placed on a storage rack. A warehouse employee receives a package ID from a customer and must locate it by checking each package one by one from the beginning of the rack.\n\nSince the packages are not sorted, the employee cannot skip any positions and must perform a sequential search.\n\nYour task is to find the index (0-based) of the requested package ID. If the package does not exist in the rack, print **-1**.\n\n**Scenario:**\nA warehouse contains package IDs stored in a single row. Given the list of package IDs and the package ID requested by a customer, determine the position of the package.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-package-in-warehouse-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50\n30",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-package-in-warehouse-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n5 15 25 35\n15",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-package-in-warehouse-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n7 8 9\n10",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n100\n100",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n1",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n5",
+          "expected_output": "4",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n3 6 9 12 15 18\n12",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n7",
+          "expected_output": "-1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "4\n9 9 9 9\n9",
+          "expected_output": "0",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "3\n-1 -2 -3\n-2",
+          "expected_output": "1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-package-in-warehouse-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50\n60",
+          "expected_output": "-1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 16 — Verify Customer ID in the Database",
+      "ticket_slug": "ticket-verify-customer-id-in-database",
+      "description": "A customer support system maintains a list of registered Customer IDs. Before processing a service request, the system must verify whether the provided Customer ID exists in the database.\n\nSince the Customer IDs are stored in the order they were registered and are not sorted, the system must check each ID one by one.\n\nYour task is to determine whether the given Customer ID exists in the database.\n\nPrint **YES** if the Customer ID is found, otherwise print **NO**.\n\n**Scenario:**\nA support executive receives a Customer ID from a user requesting assistance. Before continuing, the system must validate whether that Customer ID is registered.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 16,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-verify-customer-id-in-database-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n3",
+          "expected_output": "YES",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-verify-customer-id-in-database-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n10 20 30 40\n25",
+          "expected_output": "NO",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-verify-customer-id-in-database-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n7 8 9\n8",
+          "expected_output": "YES",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n100\n100",
+          "expected_output": "YES",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 1 1 1 1\n1",
+          "expected_output": "YES",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n5",
+          "expected_output": "NO",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n9 8 7 6\n6",
+          "expected_output": "YES",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "3\n-1 -2 -3\n-4",
+          "expected_output": "NO",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n5 10 15 20 25 30\n30",
+          "expected_output": "YES",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "4\n0 0 0 0\n1",
+          "expected_output": "NO",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-verify-customer-id-in-database-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n100 200 300 400 500\n200",
+          "expected_output": "YES",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 17 — Count Product Orders",
+      "ticket_slug": "ticket-count-product-orders",
+      "description": "An e-commerce platform stores the Product ID for every order placed during the day. The same product can be ordered multiple times by different customers.\n\nAt the end of the day, the inventory team needs to determine how many times a particular Product ID was ordered so they can plan restocking.\n\nSince the orders are recorded in the sequence they were placed, your task is to count how many times the given Product ID appears in the order list.\n\nPrint the total number of occurrences.\n\n**Scenario:**\nThe warehouse manager wants to know how many times a specific product was purchased today. Given the list of ordered Product IDs and the target Product ID, determine how many orders contain that product.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 17,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-count-product-orders-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 2 2\n2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-count-product-orders-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n10 20 30 40\n20",
+          "expected_output": "1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-count-product-orders-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n5 5 5\n5",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n100\n100",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n6",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n2 2 2 2 2 2\n2",
+          "expected_output": "6",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n7 8 9 10 11\n9",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "4\n0 0 0 0\n0",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3\n-1 -2 -3\n-2",
+          "expected_output": "1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n3 3 3 4 5\n3",
+          "expected_output": "3",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-count-product-orders-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n9 8 7 6 5\n1",
+          "expected_output": "0",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 18 — Locate the First Customer Complaint",
+      "ticket_slug": "ticket-locate-first-customer-complaint",
+      "description": "A customer support system stores complaint categories in the exact order they are received throughout the day. Multiple customers may report the same issue, resulting in duplicate complaint categories.\n\nThe support manager wants to know when a particular type of complaint first appeared so the team can investigate the root cause.\n\nYour task is to find the **index (0-based)** of the **first occurrence** of the given complaint category. If the complaint category does not exist, print **-1**.\n\n**Scenario:**\nA support center records complaint codes sequentially as customers contact the help desk. Given the list of complaint codes and a target complaint code, determine the position where that complaint was reported for the first time.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 18,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-locate-first-customer-complaint-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 2 4\n2",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-locate-first-customer-complaint-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n5 6 7 8\n7",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-locate-first-customer-complaint-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n1 2 3\n4",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "5\n9 9 9 9 9\n9",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "4\n10 20 30 40\n40",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n2 3 4 5 6\n2",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n1 2 3 4 5 6\n6",
+          "expected_output": "5",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "4\n7 8 9 10\n11",
+          "expected_output": "-1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3\n-1 -2 -3\n-2",
+          "expected_output": "1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n3 3 3 3 3\n3",
+          "expected_output": "0",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-locate-first-customer-complaint-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n4 5 6 7 8\n4",
+          "expected_output": "0",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 19 — Locate the Most Recent Customer Complaint",
+      "ticket_slug": "ticket-locate-most-recent-customer-complaint",
+      "description": "A customer support system records complaint categories in the order they are received throughout the day. Since multiple customers can report the same issue, the same complaint category may appear multiple times in the log.\n\nAt the end of the day, the support manager wants to identify **when a particular complaint was reported most recently** so the team can verify whether the issue is still occurring.\n\nYour task is to find the **index (0-based)** of the **last occurrence** of the given complaint category. If the complaint category does not exist in the log, print **-1**.\n\n**Scenario:**\nA support center maintains a chronological log of customer complaint codes. Given the complaint log and a target complaint code, determine the position where that complaint was reported **most recently**.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 19,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-locate-most-recent-customer-complaint-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 3 2 4\n2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-locate-most-recent-customer-complaint-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n5 6 7 8\n7",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-locate-most-recent-customer-complaint-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n1 2 3\n4",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "5\n9 9 9 9 9\n9",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "4\n10 20 30 40\n40",
+          "expected_output": "3",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n2 3 4 5 6\n2",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n1 2 3 4 5 6\n6",
+          "expected_output": "5",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "4\n7 8 9 10\n11",
+          "expected_output": "-1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "3\n-1 -2 -3\n-2",
+          "expected_output": "1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n3 3 3 3 3\n3",
+          "expected_output": "4",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-locate-most-recent-customer-complaint-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n4 5 6 7 8\n4",
+          "expected_output": "0",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 20 — Locate a Product in the Warehouse Catalog",
+      "ticket_slug": "ticket-locate-product-in-warehouse-catalog",
+      "description": "A warehouse maintains its product catalog in **ascending order of Product IDs** so that items can be located quickly. When a customer places an order, the warehouse management system must efficiently determine whether the requested Product ID exists and identify its storage position.\n\nSince the Product IDs are already sorted, checking every product one by one would be inefficient. Instead, implement an efficient search that repeatedly divides the search space in half.\n\nYour task is to find the **index (0-based)** of the requested Product ID. If the Product ID is not present in the catalog, print **-1**.\n\n**Scenario:**\nAn e-commerce warehouse stores all Product IDs in sorted order. Given the sorted catalog and a Product ID requested by a customer, determine the position of that product as quickly as possible.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 20,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-locate-product-in-warehouse-catalog-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50\n30",
+          "expected_output": "2",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-locate-product-in-warehouse-catalog-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 11\n7",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-locate-product-in-warehouse-catalog-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n2 4 6 8\n5",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1\n100\n100",
+          "expected_output": "0",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n1",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n5",
+          "expected_output": "4",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "6\n10 20 30 40 50 60\n40",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n3 6 9 12 15\n9",
+          "expected_output": "2",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n7",
+          "expected_output": "-1",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "6\n11 22 33 44 55 66\n66",
+          "expected_output": "5",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-locate-product-in-warehouse-catalog-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "4\n5 10 15 20\n25",
+          "expected_output": "-1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 21 — Identify the First Batch Containing a Defective Product",
+      "ticket_slug": "ticket-identify-first-defective-product-batch",
+      "description": "A manufacturing company maintains a **sorted list of product inspection records**. Each record contains a defect code, and multiple consecutive products may share the same defect because they were produced in the same manufacturing batch.\n\nWhen a quality issue is reported, engineers need to determine **the first product** that exhibited the defect so they can identify the earliest affected production batch.\n\nSince the inspection records are sorted by defect code, the engineering team wants an efficient solution instead of scanning every record.\n\nYour task is to find the **index (0-based)** of the **first occurrence** of the given defect code using **binary search**. If the defect code is not present, print **-1**.\n\n**Scenario:**\nA quality assurance system stores inspection records in sorted order. Given the sorted defect codes and a target defect code, determine the position where that defect first appeared.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 21,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-identify-first-defective-product-batch-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "7\n1 2 2 2 3 4 5\n2",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-identify-first-defective-product-batch-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n1 1 1 2 3\n1",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-identify-first-defective-product-batch-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n2 3 4 5\n6",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 2 3 3 3 4\n3",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n5 5 5 5 5\n5",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n10 20 20 20 30 40\n20",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n2",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n10",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n3 3 3 3 3 3\n3",
+          "expected_output": "0",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n1 3 5 7 9\n4",
+          "expected_output": "-1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-identify-first-defective-product-batch-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n0 1 1 1 2 3\n1",
+          "expected_output": "1",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 22 — Identify the Last Batch Containing a Defective Product",
+      "ticket_slug": "ticket-identify-last-defective-product-batch",
+      "description": "A manufacturing company maintains a **sorted list of product inspection records**. Each record contains a defect code, and multiple consecutive products may share the same defect because they were produced in the same manufacturing batch.\n\nAfter identifying when a defect first appeared, the quality assurance team now needs to determine **the last product that contains the same defect**. This helps engineers understand the complete range of affected products before the manufacturing process returned to normal.\n\nSince the inspection records are sorted by defect code, the engineering team wants an efficient solution instead of scanning every record.\n\nYour task is to find the **index (0-based)** of the **last occurrence** of the given defect code using **binary search**. If the defect code is not present, print **-1**.\n\n**Scenario:**\nA quality assurance system stores inspection records in sorted order. Given the sorted defect codes and a target defect code, determine the position where that defect was reported **for the last time**.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 22,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-identify-last-defective-product-batch-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "7\n1 2 2 2 3 4 5\n2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-identify-last-defective-product-batch-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n1 1 1 2 3\n1",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-identify-last-defective-product-batch-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n2 3 4 5\n6",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 2 3 3 3 4\n3",
+          "expected_output": "4",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n5 5 5 5 5\n5",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n10 20 20 20 30 40\n20",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n2",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n10",
+          "expected_output": "4",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n3 3 3 3 3 3\n3",
+          "expected_output": "5",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n1 3 5 7 9\n4",
+          "expected_output": "-1",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-identify-last-defective-product-batch-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n0 1 1 1 2 3\n1",
+          "expected_output": "3",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 23 — Count Total Defective Products in Inspection Records",
+      "ticket_slug": "ticket-count-total-defective-products",
+      "description": "A manufacturing company maintains a **sorted list of product inspection records**, where each record contains a defect code assigned during quality inspection. Since products are inspected in batches, the same defect code may appear multiple consecutive times.\n\nAfter identifying the **first** and **last** occurrence of a defect, the quality assurance team now needs to determine **how many products are affected by that defect**. This information is used to estimate recall size, replacement costs, and production impact.\n\nSince the inspection records are sorted, the engineering team wants an efficient solution instead of scanning every record.\n\nYour task is to determine the **total number of occurrences** of the given defect code in the inspection records. If the defect code does not exist, print **0**.\n\n**Scenario:**\nA quality assurance system stores inspection records in sorted order. Given the sorted defect codes and a target defect code, determine how many products were found with that defect.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 23,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-count-total-defective-products-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "7\n1 2 2 2 3 4 5\n2",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-count-total-defective-products-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "5\n1 1 1 2 3\n1",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-count-total-defective-products-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "4\n2 3 4 5\n6",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 2 3 3 3 4\n3",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n5 5 5 5 5\n5",
+          "expected_output": "5",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "6\n10 20 20 20 30 40\n20",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n2",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n10",
+          "expected_output": "1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n3 3 3 3 3 3\n3",
+          "expected_output": "6",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n1 3 5 7 9\n4",
+          "expected_output": "0",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-count-total-defective-products-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "6\n0 1 1 1 2 3\n1",
+          "expected_output": "3",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 24 — Find the Highest Affordable Product Price",
+      "ticket_slug": "ticket-find-highest-affordable-product-price",
+      "description": "An e-commerce platform maintains a **sorted list of product prices** in ascending order. Customers often specify a maximum budget when searching for products. If there isn't a product priced exactly at the customer's budget, the platform should recommend the **most expensive product that does not exceed the budget**.\n\nSince the product prices are already sorted, the recommendation engine must find the answer efficiently instead of checking every product.\n\nYour task is to determine the **highest product price that is less than or equal to the customer's budget**. If every product costs more than the customer's budget, print **-1**.\n\n**Scenario:**\nA shopping website stores product prices in sorted order. Given the sorted prices and a customer's maximum budget, recommend the most expensive product the customer can afford.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 24,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-highest-affordable-product-price-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "5\n1 2 4 6 10\n5",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-highest-affordable-product-price-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "4\n2 4 6 8\n6",
+          "expected_output": "6",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-highest-affordable-product-price-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n5 10 15\n2",
+          "expected_output": "-1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "6\n1 3 5 7 9 11\n8",
+          "expected_output": "7",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50\n25",
+          "expected_output": "20",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n1 2 3 4 5\n5",
+          "expected_output": "5",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n4 6 8 10\n9",
+          "expected_output": "8",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n2 4 6 8 10\n1",
+          "expected_output": "-1",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-9",
+          "description": "Validate your code against test case 9.",
+          "points": 10,
+          "input": "6\n3 6 9 12 15 18\n17",
+          "expected_output": "15",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-10",
+          "description": "Validate your code against test case 10.",
+          "points": 10,
+          "input": "5\n5 10 15 20 25\n24",
+          "expected_output": "20",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-highest-affordable-product-price-11",
+          "description": "Validate your code against test case 11.",
+          "points": 10,
+          "input": "5\n1 5 10 15 20\n13",
+          "expected_output": "10",
+          "order_index": 11
+        }
+      ]
+    },
+    {
+      "title": "Ticket 25 — Find the First Warehouse to Restock",
+      "ticket_slug": "ticket-find-first-warehouse-to-restock",
+      "description": "A logistics company stores products across multiple warehouses. Every morning, the warehouse stock levels are sorted in ascending order based on the number of remaining items. However, due to an automated scheduling system, the warehouse list may start from any warehouse instead of the one with the lowest stock.\n\nYour task is to identify the warehouse that has the **lowest inventory**, as it should be restocked first.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 25,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-first-warehouse-to-restock-1",
+          "description": "Validate your solution against test case 1.",
+          "points": 10,
+          "input": "5\n40 50 10 20 30",
+          "expected_output": "10",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-first-warehouse-to-restock-2",
+          "description": "Validate your solution against test case 2.",
+          "points": 10,
+          "input": "6\n70 80 90 10 20 30",
+          "expected_output": "10",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-first-warehouse-to-restock-3",
+          "description": "Validate your solution against test case 3.",
+          "points": 10,
+          "input": "4\n30 40 50 10",
+          "expected_output": "10",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-4",
+          "description": "Validate your solution against test case 4.",
+          "points": 10,
+          "input": "5\n10 20 30 40 50",
+          "expected_output": "10",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-5",
+          "description": "Validate your solution against test case 5.",
+          "points": 10,
+          "input": "6\n100 200 300 400 50 70",
+          "expected_output": "50",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-6",
+          "description": "Validate your solution against test case 6.",
+          "points": 10,
+          "input": "7\n150 180 20 30 60 120 140",
+          "expected_output": "20",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-7",
+          "description": "Validate your solution against test case 7.",
+          "points": 10,
+          "input": "4\n20 30 40 10",
+          "expected_output": "10",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-8",
+          "description": "Validate your solution against test case 8.",
+          "points": 10,
+          "input": "5\n50 60 70 80 10",
+          "expected_output": "10",
+          "order_index": 8
+        },
+        {
+          "title": "Test Case 9 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-9",
+          "description": "Validate your solution against test case 9.",
+          "points": 10,
+          "input": "6\n30 40 50 60 10 20",
+          "expected_output": "10",
+          "order_index": 9
+        },
+        {
+          "title": "Test Case 10 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-10",
+          "description": "Validate your solution against test case 10.",
+          "points": 10,
+          "input": "5\n90 100 20 30 40",
+          "expected_output": "20",
+          "order_index": 10
+        },
+        {
+          "title": "Test Case 11 (Hidden/Advanced)",
+          "task_slug": "task-find-first-warehouse-to-restock-11",
+          "description": "Validate your solution against test case 11.",
+          "points": 10,
+          "input": "3\n20 30 10",
+          "expected_output": "10",
+          "order_index": 11
+        }
+      ]
+    }
+  ]
+}

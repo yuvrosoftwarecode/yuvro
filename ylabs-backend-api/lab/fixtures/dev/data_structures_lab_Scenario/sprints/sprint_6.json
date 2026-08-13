@@ -1,0 +1,1722 @@
+{
+  "title": "Sprint 6 — Trees",
+  "description": "Master Trees through hand-picked algorithmic challenges.",
+  "xp_pool": 3300,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Hierarchy Depth Analysis",
+      "ticket_slug": "ticket-maximum-depth-of-binary-t",
+      "description": "An HR platform models an organization chart as a binary tree. To understand the reporting overhead, find the maximum depth of the chain of command.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-depth-of-binary-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,9,20,null,null,15,7]",
+          "expected_output": "3",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-maximum-depth-of-binary-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,null,2]",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-maximum-depth-of-binary-tree-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3,4,null,null,5]",
+          "expected_output": "3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-maximum-depth-of-binary-tree-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3,4,5,6,7]",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-maximum-depth-of-binary-tree-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[]",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-maximum-depth-of-binary-tree-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[0]",
+          "expected_output": "1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-maximum-depth-of-binary-tree-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,null,3,null,4,null,5]",
+          "expected_output": "5",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-maximum-depth-of-binary-tree-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,null,2,null,3,null,4]",
+          "expected_output": "4",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Check Network Routing Rules",
+      "ticket_slug": "ticket-validate-binary-search-tr",
+      "description": "A router stores IP subnets as a binary tree. Ensure that the routing rules follow a strict left/right sorting order (Valid BST).\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-validate-binary-search-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[2,1,3]",
+          "expected_output": "True",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-validate-binary-search-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,1]",
+          "expected_output": "False",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-validate-binary-search-tree-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,null,1]",
+          "expected_output": "False",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-validate-binary-search-tree-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "True",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-validate-binary-search-tree-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[5,1,4,null,null,3,6]",
+          "expected_output": "False",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-validate-binary-search-tree-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[2,2,2]",
+          "expected_output": "False",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-validate-binary-search-tree-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[10,5,15,null,null,6,20]",
+          "expected_output": "False",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-validate-binary-search-tree-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[2147483647]",
+          "expected_output": "True",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Broadcast Message Propagation",
+      "ticket_slug": "ticket-binary-tree-level-order-t",
+      "description": "A server cluster propagates updates in waves. Traverse the network hierarchy layer by layer to log how the broadcast reaches each level.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-binary-tree-level-order-traversal-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,9,20,null,null,15,7]",
+          "expected_output": "[[3], [9, 20], [15, 7]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-binary-tree-level-order-traversal-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "[[1]]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-binary-tree-level-order-traversal-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,null,3,null,4,null,5]",
+          "expected_output": "[[1], [2], [3], [4], [5]]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-binary-tree-level-order-traversal-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3,4,5,6,7]",
+          "expected_output": "[[1], [2, 3], [4, 5, 6, 7]]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-level-order-traversal-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-level-order-traversal-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3,null,null,4,5]",
+          "expected_output": "[[1], [2, 3], [4, 5]]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-level-order-traversal-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,null,2,null,3,null,4]",
+          "expected_output": "[[1], [2], [3], [4]]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-level-order-traversal-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,2,3,4,4,3]",
+          "expected_output": "[[1], [2, 2], [3, 4, 4, 3]]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Find Shared Manager",
+      "ticket_slug": "ticket-lowest-common-ancestor-of",
+      "description": "In a company org chart, two employees are having a dispute. You need to find their lowest common manager in the hierarchy to mediate.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n8",
+          "expected_output": "6",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n4",
+          "expected_output": "2",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[2,1]\n2\n1",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2]\n1\n2",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[6,2,8,0,4,7,9,null,null,3,5]\n3\n5",
+          "expected_output": "4",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[6,2,8,0,4,7,9,null,null,3,5]\n0\n5",
+          "expected_output": "2",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[5,3,6,2,4,null,null,1]\n1\n4",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-lowest-common-ancestor-of-a-bst-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[2,1,3]\n1\n3",
+          "expected_output": "2",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Optimize Pipeline Throughput",
+      "ticket_slug": "ticket-binary-tree-maximum-path-",
+      "description": "A network of fluid pipes forms a tree structure. Each segment has a flow rating. Find the path that yields the absolute maximum continuous flow sum.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-binary-tree-maximum-path-sum-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "6",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-binary-tree-maximum-path-sum-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[-10,9,20,null,null,15,7]",
+          "expected_output": "42",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-binary-tree-maximum-path-sum-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[-3]",
+          "expected_output": "-3",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-binary-tree-maximum-path-sum-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[2,-1]",
+          "expected_output": "2",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-maximum-path-sum-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[5,4,8,11,null,13,4,7,2,null,null,null,1]",
+          "expected_output": "48",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-maximum-path-sum-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[-2,-1]",
+          "expected_output": "-1",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-maximum-path-sum-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,-2,3]",
+          "expected_output": "4",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-maximum-path-sum-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[9,6,-3,null,null,-6,2,null,null,2,null,-6,-6,-6]",
+          "expected_output": "16",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Compress Directory Structure",
+      "ticket_slug": "ticket-serialize-and-deserialize",
+      "description": "A backup tool needs to store an entire folder hierarchy as a single flat string, and later unpack it back into the exact same tree structure.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3,null,null,4,5]",
+          "expected_output": "[1, 2, 3, null, null, 4, 5]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1]",
+          "expected_output": "[1]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2]",
+          "expected_output": "[1, 2]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3,null,null,4,5,6,7]",
+          "expected_output": "[1, 2, 3, null, null, 4, 5, 6, 7]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,null,2,null,3,null,4,null,5]",
+          "expected_output": "[1, null, 2, null, 3, null, 4, null, 5]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[5,4,7,3,null,2,null,-1,null,9]",
+          "expected_output": "[5, 4, 7, 3, null, 2, null, -1, null, 9]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-serialize-and-deserialize-binary-tree-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3,4,null,null,5,null,6]",
+          "expected_output": "[1, 2, 3, 4, null, null, 5, null, 6]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Rebuild Corrupted File System",
+      "ticket_slug": "ticket-construct-binary-tree-fro",
+      "description": "A hard drive failed, leaving only the preorder and inorder traversal logs of the file system. Use them to rebuild the original directory tree.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,9,20,15,7]\n[9,3,15,20,7]",
+          "expected_output": "[3, 9, 20, null, null, 15, 7]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[-1]\n[-1]",
+          "expected_output": "[-1]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2]\n[2,1]",
+          "expected_output": "[1, 2]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2]\n[1,2]",
+          "expected_output": "[1, null, 2]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]\n[3,2,1]",
+          "expected_output": "[1, 2, null, 3]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]\n[1,2,3]",
+          "expected_output": "[1, null, 2, null, 3]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[3,1,2,4,5]\n[1,2,3,4,5]",
+          "expected_output": "[3, 1, 4, null, 2, null, 5]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-construct-binary-tree-from-preorder-and-inorder-traversal-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,4,5,3,6,7]\n[4,2,5,1,6,3,7]",
+          "expected_output": "[1, 2, 3, 4, 5, 6, 7]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Spell Checker Dictionary",
+      "ticket_slug": "ticket-add-and-search-word-data-",
+      "description": "A word processor needs a fast data structure to add new dictionary words and search for words, including fuzzy searches with wildcard characters.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-add-and-search-word-data-structure-design-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"addWord\",\"addWord\",\"search\",\"search\",\"search\",\"search\"]\n[[],[\"bad\"],[\"dad\"],[\"mad\"],[\"pad\"],[\"bad\"],[\".ad\"],[\"b..\"]]",
+          "expected_output": "[null, null, null, null, false, true, true, true]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-add-and-search-word-data-structure-design-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"search\"]\n[[],[\"a\"],[\".\"]]",
+          "expected_output": "[null, null, true]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-add-and-search-word-data-structure-design-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"WordDictionary\",\"addWord\",\"addWord\",\"addWord\",\"addWord\",\"search\",\"search\",\"addWord\",\"search\"]\n[[],[\"at\"],[\"and\"],[\"an\"],[\"add\"],[\"a\"],[\".at\"],[\"bat\"],[\".at\"]]",
+          "expected_output": "[null, null, null, null, null, false, false, null, true]",
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Auto-Complete Suggestions",
+      "ticket_slug": "ticket-shortest-unique-prefix",
+      "description": "A search engine needs to determine the shortest unique prefix for a list of trending search terms to power its auto-complete dropdown.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-shortest-unique-prefix-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"zebra\", \"dog\", \"duck\", \"dove\"]",
+          "expected_output": "[\"z\", \"dog\", \"du\", \"dov\"]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"apple\", \"apricot\", \"banana\"]",
+          "expected_output": "[\"app\", \"apr\", \"b\"]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"a\", \"b\", \"c\"]",
+          "expected_output": "[\"a\", \"b\", \"c\"]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-shortest-unique-prefix-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"abc\", \"ab\", \"a\"]",
+          "expected_output": "[\"abc\", \"ab\", \"a\"]",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Network Encryption Keys",
+      "ticket_slug": "ticket-maximum-xor-of-two-number",
+      "description": "To establish a secure connection, two devices must pick a pair of keys from an array that maximizes their XOR combination value.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,10,5,25,2,8]",
+          "expected_output": "28",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[0]",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[8,1,2,12,7,6]",
+          "expected_output": "15",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-maximum-xor-of-two-numbers-in-an-array-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[14,70,53,83,49,91,36,80,92,51,66,70]",
+          "expected_output": "127",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Analytics Dashboard Prefix Sums",
+      "ticket_slug": "ticket-map-sum-pairs",
+      "description": "An analytics dashboard tracks page views. Calculate the total sum of views for all URL routes that share a specific common prefix.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-map-sum-pairs-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"sum\", \"insert\", \"sum\"]\n[[], [\"apple\", 3], [\"ap\"], [\"app\", 2], [\"ap\"]]",
+          "expected_output": "[null, null, 3, null, 5]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-map-sum-pairs-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"insert\", \"sum\", \"sum\"]\n[[], [\"a\", 3], [\"b\", 2], [\"a\"], [\"b\"]]",
+          "expected_output": "[null, null, null, 3, 2]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-map-sum-pairs-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"MapSum\", \"insert\", \"sum\", \"insert\", \"sum\", \"insert\", \"sum\"]\n[[], [\"aa\", 3], [\"a\"], [\"aa\", 2], [\"a\"], [\"ab\", 1], [\"a\"]]",
+          "expected_output": "[null, null, 3, null, 2, null, 3]",
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — Mirror Image Rendering",
+      "ticket_slug": "ticket-invert-binary-tree",
+      "description": "A 3D rendering engine needs to create a reflection in a virtual mirror. Invert the binary scene graph to render the exact mirror image.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-invert-binary-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[4,2,7,1,3,6,9]",
+          "expected_output": "[4, 7, 2, 9, 6, 3, 1]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-invert-binary-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[2,1,3]",
+          "expected_output": "[2, 3, 1]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-invert-binary-tree-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "task_slug": "task-invert-binary-tree-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2]",
+          "expected_output": "[1, null, 2]",
+          "order_index": 4
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — Serpentine Seating Arrangement",
+      "ticket_slug": "ticket-binary-tree-zigzag-level-",
+      "description": "A theater processing system assigns seats row by row, but alternates direction (left-to-right, then right-to-left) to optimize walking distance.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-binary-tree-zigzag-level-order-traversal-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[3,9,20,null,null,15,7]",
+          "expected_output": "[[3], [20, 9], [15, 7]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-binary-tree-zigzag-level-order-traversal-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3,4,null,null,5]",
+          "expected_output": "[[1], [3, 2], [4, 5]]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Domain Name Router",
+      "ticket_slug": "ticket-implement-trie-prefix-tre",
+      "description": "An ISP needs to efficiently store and look up thousands of web domains. Implement a Prefix Tree (Trie) to manage these domain routes.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-implement-trie-prefix-tree-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\", \"insert\", \"search\"]\n[[], [\"apple\"], [\"apple\"], [\"app\"], [\"app\"], [\"app\"], [\"app\"]]",
+          "expected_output": "[null, null, true, false, true, null, true]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-implement-trie-prefix-tree-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"Trie\", \"insert\", \"startsWith\"]\n[[], [\"a\"], [\"a\"]]",
+          "expected_output": "[null, null, true]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Boggle Board Solver",
+      "ticket_slug": "ticket-word-search-ii",
+      "description": "A word game app presents a grid of letters. Given a dictionary, find all the valid words hidden in the grid by traversing adjacent cells.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-word-search-ii-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]]\n[\"oath\",\"pea\",\"eat\",\"rain\"]",
+          "expected_output": "[\"eat\", \"oath\"]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-word-search-ii-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[\"a\",\"b\"],[\"c\",\"d\"]]\n[\"abcb\"]",
+          "expected_output": "[]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 16 — Plagiarism Detection",
+      "ticket_slug": "ticket-sprint6-generated-16",
+      "description": "An automated grader checks if one student's code dependency tree is entirely copied and pasted inside another student's project tree.\n\n### Problem Statement\nAn automated grader checks if one student's code dependency tree is entirely copied and pasted inside another student's project tree.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 16,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-16-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-16-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-16-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-16-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-16-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-16-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-16-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-16-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 17 — Aerospace Component Symmetry",
+      "ticket_slug": "ticket-sprint6-generated-17",
+      "description": "A drone modeling software must verify that the left and right aerodynamic wings are perfectly mirrored in structure.\n\n### Problem Statement\nA drone modeling software must verify that the left and right aerodynamic wings are perfectly mirrored in structure.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 17,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-17-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-17-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-17-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-17-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-17-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-17-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-17-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-17-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 18 — Budget Allocation Paths",
+      "ticket_slug": "ticket-sprint6-generated-18",
+      "description": "A financial app checks if any sequence of departmental budget allocations from the CEO down to an intern exactly matches a target spending amount.\n\n### Problem Statement\nA financial app checks if any sequence of departmental budget allocations from the CEO down to an intern exactly matches a target spending amount.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 18,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-18-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-18-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-18-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-18-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-18-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-18-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-18-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-18-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 19 — Census of Sensor Network",
+      "ticket_slug": "ticket-sprint6-generated-19",
+      "description": "A perfectly balanced grid of environmental sensors acts as a complete tree. Count the exact number of active nodes efficiently.\n\n### Problem Statement\nA perfectly balanced grid of environmental sensors acts as a complete tree. Count the exact number of active nodes efficiently.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 19,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-19-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-19-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-19-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-19-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-19-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-19-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-19-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-19-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 20 — City Skyline Analysis",
+      "ticket_slug": "ticket-sprint6-generated-20",
+      "description": "A drone flies on the right side of a branching tree-like building complex. Record only the nodes (rooms) visible from the right side.\n\n### Problem Statement\nA drone flies on the right side of a branching tree-like building complex. Record only the nodes (rooms) visible from the right side.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 20,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-20-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-20-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-20-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-20-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-20-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-20-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-20-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-20-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 21 — Inventory Rank Lookup",
+      "ticket_slug": "ticket-sprint6-generated-21",
+      "description": "A warehouse database is sorted as a BST. An auditor needs to find the 'k'-th cheapest product in the inventory.\n\n### Problem Statement\nA warehouse database is sorted as a BST. An auditor needs to find the 'k'-th cheapest product in the inventory.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 21,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-21-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-21-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-21-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-21-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-21-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-21-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-21-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-21-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 22 — State Snapshots for Games",
+      "ticket_slug": "ticket-sprint6-generated-22",
+      "description": "A video game saves player choices as a binary search tree. Serialize this tree into a save file, and deserialize it on game load.\n\n### Problem Statement\nA video game saves player choices as a binary search tree. Serialize this tree into a save file, and deserialize it on game load.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 22,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-22-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-22-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-22-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-22-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-22-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-22-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-22-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-22-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 23 — Document Export to PDF",
+      "ticket_slug": "ticket-sprint6-generated-23",
+      "description": "A hierarchical document tree (chapters, sections, subsections) needs to be flattened into a linear linked list of pages for PDF export.\n\n### Problem Statement\nA hierarchical document tree (chapters, sections, subsections) needs to be flattened into a linear linked list of pages for PDF export.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 23,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-23-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-23-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-23-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-23-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-23-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-23-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-23-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-23-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 24 — Trim Network Edge Nodes",
+      "ticket_slug": "ticket-sprint6-generated-24",
+      "description": "To conserve power, a data center must identify and temporarily shut down all the outermost edge nodes (leaves) of its server network.\n\n### Problem Statement\nTo conserve power, a data center must identify and temporarily shut down all the outermost edge nodes (leaves) of its server network.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 24,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-24-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-24-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-24-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-24-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-24-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-24-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-24-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-24-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 25 — Maximum Fiber Optic Cable Length",
+      "ticket_slug": "ticket-sprint6-generated-25",
+      "description": "An ISP is laying cables. Find the diameter of the network tree to determine the longest possible continuous fiber optic connection between any two endpoints.\n\n### Problem Statement\nAn ISP is laying cables. Find the diameter of the network tree to determine the longest possible continuous fiber optic connection between any two endpoints.\n\nImplement the solution based on standard tree operations.",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 25,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint6-generated-25-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint6-generated-25-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint6-generated-25-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint6-generated-25-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint6-generated-25-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint6-generated-25-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint6-generated-25-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint6-generated-25-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[1,2,3]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    }
+  ]
+}

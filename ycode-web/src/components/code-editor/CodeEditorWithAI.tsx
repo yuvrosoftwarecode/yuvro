@@ -318,9 +318,9 @@ ${codeEditorRef.current?.getCode() || ''}
       setRevealedHints(prev => [...prev, hintToReveal]);
       setHintToReveal(null);
       toast.success('Hint revealed');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to reveal hint:', err);
-      toast.error('Failed to reveal hint');
+      toast.error(`Failed to reveal hint: ${err?.message || 'An unexpected error occurred'}`);
       setHintToReveal(null);
     }
   };
@@ -339,12 +339,12 @@ ${codeEditorRef.current?.getCode() || ''}
       setShowSolutionDialog(false);
       toast.success('Solution revealed');
     } catch (err: any) {
-      console.error('Failed to reveal solution:', err);
+      console.error('Failed to reveal solution. Full error:', err, 'Status:', err?.status);
       const message = err?.message || '';
       if (message.includes('No predefined solutions') || message.includes('404')) {
         toast.info('Solution not available yet for this problem');
       } else {
-        toast.error('Failed to reveal solution');
+        toast.error(`Failed to reveal solution: ${message || 'Network or server error'}`);
       }
       setShowSolutionDialog(false);
     }

@@ -6,6 +6,7 @@ import {
   MailOpen, MousePointerClick, FileCheck2,
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
+import { fetchFollowUps, saveFollowUps } from "@/lib/recruiter";
 
 const KEY = (id: string) => `yuvro-followups-v2-${id}`;
 
@@ -22,7 +23,9 @@ interface BulkSetup {
   timezone: string;
   smart: boolean;
   reminder1: string;
+  reminder1CustomDate?: string;
   reminder2: string;
+  reminder2CustomDate?: string;
   aiCall: boolean;
   aiTiming: string;
   language: Lang;
@@ -32,7 +35,8 @@ interface BulkSetup {
 interface IndividualSetup {
   name: string; email: string; phone: string;
   startDate: string; deadline: string;
-  reminder1: string; reminder2: string;
+  reminder1: string; reminder1CustomDate?: string;
+  reminder2: string; reminder2CustomDate?: string;
   aiCall: boolean; aiTiming: string;
   language: Lang; voice: Voice;
 }
@@ -134,19 +138,219 @@ const SEED_RECORDS: RecordRow[] = [
 
 export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: string) => void }) {
   const [page, setPage] = useState<Page>("bulk");
-  const [data, setData] = useState<Persisted>(DEFAULTS);
   const [records, setRecords] = useState<RecordRow[]>(SEED_RECORDS);
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Load initial state from localStorage (instant, survives refresh)
+  const [data, setData] = useState<Persisted>(() => {
+    try {
+      const saved = localStorage.getItem(KEY(ev.id));
+      if (saved) {
+        const parsed = JSON.parse(saved) as Persisted;
+        // Restore but always clear candidates (those live in Records)
+        return {
+          bulk: { ...BULK_DEFAULT, ...parsed.bulk, candidates: [] },
+          individual: { ...IND_DEFAULT, ...parsed.individual },
+        };
+      }
+    } catch {}
+    return DEFAULTS;
+  });
+
+  // Save to localStorage whenever data changes
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(KEY(ev.id));
-      if (raw) setData({ ...DEFAULTS, ...JSON.parse(raw) });
+      localStorage.setItem(KEY(ev.id), JSON.stringify(data));
     } catch {}
+  }, [data, ev.id]);
+
+  // Fetch records from backend API. Only override form data if localStorage is empty.
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await fetchFollowUps(ev.id);
+        if (res) {
+          const config = res.config;
+          const candidates = res.candidates || [];
+          
+          // Populate records (these are always loaded from backend)
+          const recs = candidates.map((c: any) => ({
+            id: c.id?.toString() || Math.random().toString(36).slice(2, 10),
+            name: c.name || "",
+            email: c.email || "",
+            phone: c.phone || "",
+            deadline: config?.deadline ? new Date(config.deadline).toLocaleString() : "-",
+            followups: c.followups_enabled ?? true,
+            aiCall: c.ai_call_enabled ?? false,
+            emailsSent: c.emails_sent_count || 0,
+            aiCalls: c.ai_calls_count || 0,
+            submitted: c.has_submitted || false,
+            activity: c.activity || "No Action",
+            timeline: c.timeline || []
+          }));
+          setRecords(recs);
+
+          // Only seed form data from backend if we don't have local drafts
+          const hasLocal = !!localStorage.getItem(KEY(ev.id));
+          if (config && !hasLocal) {
+            const bulk: BulkSetup = {
+              ...BULK_DEFAULT,
+              startDate: config.start_date || "",
+              deadline: config.deadline || "",
+              timezone: config.timezone || "UTC",
+              smart: config.smart_followups ?? true,
+              reminder1: config.reminder1 || "1 Day Before Deadline",
+              reminder1CustomDate: config.reminder1_custom_time || undefined,
+              reminder2: config.reminder2 || "6 Hours Before Deadline",
+              reminder2CustomDate: config.reminder2_custom_time || undefined,
+              aiCall: config.ai_call || false,
+              aiTiming: config.ai_timing || "4 Hours Before Deadline",
+              language: config.language || "English",
+              voice: config.voice || "Aria (Female)",
+              candidates: []
+            };
+            
+            setData({
+              bulk,
+              individual: {
+                ...IND_DEFAULT,
+                startDate: config.start_date || "",
+                deadline: config.deadline || "",
+                reminder1: config.reminder1 || "1 Day Before Deadline",
+                reminder1CustomDate: config.reminder1_custom_time || undefined,
+                reminder2: config.reminder2 || "6 Hours Before Deadline",
+                reminder2CustomDate: config.reminder2_custom_time || undefined,
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load followups", err);
+      }
+    };
+    loadData();
   }, [ev.id]);
 
-  const persist = (next: Persisted) => {
-    setData(next);
-    try { localStorage.setItem(KEY(ev.id), JSON.stringify(next)); } catch {}
+  const validateCustomDates = (startDate: string, deadline: string, r1: string, r1Custom?: string, r2: string, r2Custom?: string) => {
+    const start = new Date(startDate).getTime();
+    const end = new Date(deadline).getTime();
+    const now = Date.now();
+    
+    if (r1 === "Custom" && r1Custom) {
+      const t1 = new Date(r1Custom).getTime();
+      if (t1 < now) return "Reminder 1 custom time cannot be in the past.";
+      if (end && t1 > end) return "Reminder 1 custom time must be before the deadline.";
+      if (start && t1 < start) return "Reminder 1 custom time should be after the start time.";
+    }
+    if (r2 === "Custom" && r2Custom) {
+      const t2 = new Date(r2Custom).getTime();
+      if (t2 < now) return "Reminder 2 custom time cannot be in the past.";
+      if (end && t2 > end) return "Reminder 2 custom time must be before the deadline.";
+      if (start && t2 < start) return "Reminder 2 custom time should be after the start time.";
+    }
+    return null;
+  };
+
+  const handleSaveBulk = async (b: BulkSetup) => {
+    if (b.smart) {
+      const err = validateCustomDates(b.startDate, b.deadline, b.reminder1, b.reminder1CustomDate, b.reminder2, b.reminder2CustomDate);
+      if (err) { notify(err); return; }
+    }
+    setIsSaving(true);
+    try {
+      setData((prev) => ({ ...prev, bulk: b }));
+      const payload = {
+        config: {
+          startDate: b.startDate,
+          deadline: b.deadline,
+          timezone: b.timezone,
+          smart: b.smart,
+          reminder1: b.reminder1,
+          reminder1CustomDate: b.reminder1 === "Custom" ? b.reminder1CustomDate : undefined,
+          reminder2: b.reminder2,
+          reminder2CustomDate: b.reminder2 === "Custom" ? b.reminder2CustomDate : undefined,
+          aiCall: b.aiCall,
+          aiTiming: b.aiTiming,
+          language: b.language,
+          voice: b.voice
+        },
+        candidates: b.candidates
+      };
+      await saveFollowUps(ev.id, payload);
+      // Clear candidates from the form after sending — they now appear in Records
+      setData((prev) => ({
+        ...prev,
+        bulk: { ...prev.bulk, candidates: [] }
+      }));
+      notify("Follow-ups activated — candidates moved to Records");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveIndividual = async (ind: IndividualSetup) => {
+    const err = validateCustomDates(ind.startDate, ind.deadline, ind.reminder1, ind.reminder1CustomDate, ind.reminder2, ind.reminder2CustomDate);
+    if (err) { notify(err); return; }
+    
+    setIsSaving(true);
+    try {
+      setData((prev) => ({ ...prev, individual: ind }));
+      const payload = {
+        config: {
+          startDate: ind.startDate,
+          deadline: ind.deadline,
+          timezone: "UTC", // Individual setup doesn't expose timezone in UI currently
+          smart: true,
+          reminder1: ind.reminder1,
+          reminder1CustomDate: ind.reminder1 === "Custom" ? ind.reminder1CustomDate : undefined,
+          reminder2: ind.reminder2,
+          reminder2CustomDate: ind.reminder2 === "Custom" ? ind.reminder2CustomDate : undefined,
+          aiCall: ind.aiCall,
+          aiTiming: ind.aiTiming,
+          language: ind.language,
+          voice: ind.voice
+        },
+        candidates: [{ name: ind.name, email: ind.email, phone: ind.phone }]
+      };
+      await saveFollowUps(ev.id, payload);
+      // Clear candidate fields after sending — they now appear in Records
+      setData((prev) => ({
+        ...prev,
+        individual: { ...prev.individual, name: "", email: "", phone: "" }
+      }));
+      notify("Candidate added — moved to Records");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Shared schedule fields that sync between Bulk and Individual
+  const SHARED_KEYS = ["startDate", "deadline", "timezone", "reminder1", "reminder1CustomDate", "reminder2", "reminder2CustomDate"] as const;
+
+  const handleBulkChange = (b: BulkSetup) => {
+    setData((prev) => {
+      // Sync shared fields to individual
+      const syncedInd = { ...prev.individual };
+      for (const k of SHARED_KEYS) {
+        if (k in b && k in syncedInd) {
+          (syncedInd as any)[k] = (b as any)[k];
+        }
+      }
+      return { bulk: b, individual: syncedInd };
+    });
+  };
+
+  const handleIndChange = (ind: IndividualSetup) => {
+    setData((prev) => {
+      // Sync shared fields to bulk
+      const syncedBulk = { ...prev.bulk };
+      for (const k of SHARED_KEYS) {
+        if (k in ind && k in syncedBulk) {
+          (syncedBulk as any)[k] = (ind as any)[k];
+        }
+      }
+      return { bulk: syncedBulk, individual: ind };
+    });
   };
 
   const nav: { id: Page; label: string; icon: React.ReactNode; desc: string }[] = [
@@ -184,8 +388,8 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
       </aside>
 
       <div>
-        {page === "bulk" && <BulkPage bulk={data.bulk} onChange={(b) => persist({ ...data, bulk: b })} notify={notify} />}
-        {page === "individual" && <IndividualPage ind={data.individual} onChange={(i) => persist({ ...data, individual: i })} notify={notify} />}
+        {page === "bulk" && <BulkPage bulk={data.bulk} onChange={handleBulkChange} onSave={handleSaveBulk} isSaving={isSaving} notify={notify} />}
+        {page === "individual" && <IndividualPage ind={data.individual} onChange={handleIndChange} onSave={handleSaveIndividual} isSaving={isSaving} notify={notify} />}
         {page === "records" && <RecordsPage records={records} setRecords={setRecords} notify={notify} />}
       </div>
     </div>
@@ -194,7 +398,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
 /* ────────────────────────── BULK PAGE ────────────────────────── */
 
-function BulkPage({ bulk, onChange, notify }: { bulk: BulkSetup; onChange: (b: BulkSetup) => void; notify: (m: string) => void }) {
+function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetup; onChange: (b: BulkSetup) => void; onSave: (b: BulkSetup) => Promise<void>; isSaving: boolean; notify: (m: string) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dirty, setDirty] = useState(false);
 
@@ -302,11 +506,17 @@ function BulkPage({ bulk, onChange, notify }: { bulk: BulkSetup; onChange: (b: B
             <select value={bulk.reminder1} onChange={(e) => set("reminder1", e.target.value)} className={inp} disabled={!bulk.smart}>
               {R1_OPTS.map((o) => <option key={o}>{o}</option>)}
             </select>
+            {bulk.smart && bulk.reminder1 === "Custom" && (
+              <input type="datetime-local" value={bulk.reminder1CustomDate || ""} onChange={(e) => set("reminder1CustomDate", e.target.value)} className={`${inp} mt-2`} />
+            )}
           </Field>
           <Field label="Reminder Email 2">
             <select value={bulk.reminder2} onChange={(e) => set("reminder2", e.target.value)} className={inp} disabled={!bulk.smart}>
               {R2_OPTS.map((o) => <option key={o}>{o}</option>)}
             </select>
+            {bulk.smart && bulk.reminder2 === "Custom" && (
+              <input type="datetime-local" value={bulk.reminder2CustomDate || ""} onChange={(e) => set("reminder2CustomDate", e.target.value)} className={`${inp} mt-2`} />
+            )}
           </Field>
         </div>
       </Section>
@@ -341,8 +551,8 @@ function BulkPage({ bulk, onChange, notify }: { bulk: BulkSetup; onChange: (b: B
 
       <div className="flex items-center justify-between border-t border-white/10 pt-6">
         <div className="text-[12px] text-neutral-500">{dirty ? "Unsaved changes" : "All changes saved"}</div>
-        <button onClick={() => { setDirty(false); notify("Follow-ups activated for bulk candidates"); }} className={btnPrimary}>
-          <Send className="h-3.5 w-3.5" /> Save & Activate Follow-ups
+        <button onClick={async () => { await onSave(bulk); setDirty(false); }} disabled={isSaving} className={btnPrimary}>
+          <Send className="h-3.5 w-3.5" /> {isSaving ? "Saving..." : "Save & Activate Follow-ups"}
         </button>
       </div>
     </div>
@@ -351,7 +561,7 @@ function BulkPage({ bulk, onChange, notify }: { bulk: BulkSetup; onChange: (b: B
 
 /* ─────────────────────── INDIVIDUAL PAGE ─────────────────────── */
 
-function IndividualPage({ ind, onChange, notify }: { ind: IndividualSetup; onChange: (i: IndividualSetup) => void; notify: (m: string) => void }) {
+function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: IndividualSetup; onChange: (i: IndividualSetup) => void; onSave: (i: IndividualSetup) => Promise<void>; isSaving: boolean; notify: (m: string) => void }) {
   const set = <K extends keyof IndividualSetup>(k: K, v: IndividualSetup[K]) => onChange({ ...ind, [k]: v });
 
   return (
@@ -379,11 +589,17 @@ function IndividualPage({ ind, onChange, notify }: { ind: IndividualSetup; onCha
             <select value={ind.reminder1} onChange={(e) => set("reminder1", e.target.value)} className={inp}>
               {R1_OPTS.map((o) => <option key={o}>{o}</option>)}
             </select>
+            {ind.reminder1 === "Custom" && (
+              <input type="datetime-local" value={ind.reminder1CustomDate || ""} onChange={(e) => set("reminder1CustomDate", e.target.value)} className={`${inp} mt-2`} />
+            )}
           </Field>
           <Field label="Reminder Email 2">
             <select value={ind.reminder2} onChange={(e) => set("reminder2", e.target.value)} className={inp}>
               {R2_OPTS.map((o) => <option key={o}>{o}</option>)}
             </select>
+            {ind.reminder2 === "Custom" && (
+              <input type="datetime-local" value={ind.reminder2CustomDate || ""} onChange={(e) => set("reminder2CustomDate", e.target.value)} className={`${inp} mt-2`} />
+            )}
           </Field>
         </div>
       </Section>
@@ -417,8 +633,8 @@ function IndividualPage({ ind, onChange, notify }: { ind: IndividualSetup; onCha
       </Section>
 
       <div className="flex items-center justify-end border-t border-white/10 pt-6">
-        <button onClick={() => notify("Candidate added and follow-ups activated")} className={btnPrimary}>
-          <User className="h-3.5 w-3.5" /> Add Candidate & Activate Follow-ups
+        <button onClick={async () => await onSave(ind)} disabled={isSaving} className={btnPrimary}>
+          <User className="h-3.5 w-3.5" /> {isSaving ? "Saving..." : "Add Candidate & Activate Follow-ups"}
         </button>
       </div>
     </div>
@@ -509,7 +725,7 @@ function RecordsPage({ records, setRecords, notify }: {
         ]} />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/10">
+      <div className="rounded-xl border border-white/10">
         <table className="w-full text-[12.5px]">
           <thead>
             <tr className="bg-white/[0.03] text-left text-[11px] uppercase tracking-widest text-neutral-500">
@@ -614,7 +830,7 @@ function HistoryDrawer({ row, onClose }: { row: RecordRow; onClose: () => void }
 const inp = "w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-[13px] text-white outline-none focus:border-white/25 disabled:opacity-50";
 const cellInp = "w-full rounded-md border border-transparent bg-transparent px-2 py-1.5 text-[12.5px] text-white outline-none hover:border-white/10 focus:border-white/25 focus:bg-black/30";
 const btnOutline = "inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-transparent px-3 py-1.5 text-[12px] text-neutral-100 hover:bg-white/5";
-const btnPrimary = "inline-flex items-center gap-1.5 rounded-md bg-white px-4 py-2 text-[12.5px] font-medium text-black transition hover:bg-white/90";
+const btnPrimary = "inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-2 text-[12.5px] font-medium text-white transition hover:bg-neutral-800";
 
 function PageHeader({ title, description }: { title: string; description: string }) {
   return (
@@ -708,3 +924,4 @@ function activityMeta(a: Activity): { icon: React.ReactNode; tone: string } {
   }
   return { icon: <CheckCircle2 className="h-3 w-3" />, tone: "border-white/15 bg-white/[0.03] text-neutral-200" };
 }
+

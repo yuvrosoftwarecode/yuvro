@@ -7,6 +7,8 @@ from .models import (
     LabQuestionBankTask,
     UserEvaluationSubmission,
     VitarkaAIInterviewQuestionBank,
+    CandidateNote,
+    CandidateTimelineEvent,
 )
 
 
@@ -56,3 +58,20 @@ class VitarkaAIInterviewQuestionBankAdmin(admin.ModelAdmin):
     list_filter = ("domain", "experience", "difficulty")
     search_fields = ("title", "description")
     ordering = ("-created_at",)
+
+
+@admin.register(CandidateNote)
+class CandidateNoteAdmin(admin.ModelAdmin):
+    list_display = ("candidate_email", "evaluation", "author", "priority", "is_internal", "created_at")
+    list_filter = ("priority", "is_internal", "evaluation")
+    search_fields = ("candidate_email", "evaluation__title", "author__email", "text")
+    ordering = ("-created_at",)
+
+
+@admin.register(CandidateTimelineEvent)
+class CandidateTimelineEventAdmin(admin.ModelAdmin):
+    list_display = ("title", "candidate_email", "evaluation", "status", "occurred_at")
+    list_filter = ("status", "evaluation")
+    search_fields = ("title", "candidate_email", "evaluation__title")
+    ordering = ("-occurred_at",)
+

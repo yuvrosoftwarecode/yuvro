@@ -84,6 +84,79 @@
           "expected_output": "4",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Brute Force - Sorting",
+            "language": "python",
+            "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nnums.sort(reverse=True)\nprint(nums[k-1])",
+            "complexity_analysis": "Time: O(N log N) for sorting. Space: O(1). Logic: Sorting the entire array and picking the Kth element is the simplest approach.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Optimized - Min Heap of Size K",
+            "language": "python",
+            "code": "import sys, heapq\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nheap = []\nfor num in nums:\n    heapq.heappush(heap, num)\n    if len(heap) > k:\n        heapq.heappop(heap)\nprint(heap[0])",
+            "complexity_analysis": "Time: O(N log K). Space: O(K). Logic: A Min-Heap of size K maintains the K largest elements. The smallest among these K is the Kth largest element overall.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sorting - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Arrays.sort(nums);\n        System.out.println(nums[nums.length - k]);\n    }\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(1). Simple sorting approach picking the Kth element from the end.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Min Heap - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        PriorityQueue<Integer> heap = new PriorityQueue<>();\n        for (String p : parts) {\n            heap.offer(Integer.parseInt(p.trim()));\n            if (heap.size() > k) heap.poll();\n        }\n        System.out.println(heap.peek());\n    }\n}",
+            "complexity_analysis": "Time: O(N log K). Space: O(K).",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sorting - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    sort(nums.begin(), nums.end(), greater<int>());\n    cout << nums[k-1] << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(1).",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Min Heap - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    priority_queue<int, vector<int>, greater<int>> heap;\n    for (int num : nums) {\n        heap.push(num);\n        if ((int)heap.size() > k) heap.pop();\n    }\n    cout << heap.top() << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log K). Space: O(K).",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sorting - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint compare(const void *a, const void *b) {\n    return (*(int*)b - *(int*)a);\n}\n\nint main() {\n    char input[100000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n    int nums[10000];\n    int count = 0;\n    char *ptr = input;\n    while (*ptr) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) {\n            nums[count++] = strtol(ptr, &ptr, 10);\n        } else {\n            ptr++;\n        }\n    }\n    qsort(nums, count, sizeof(int), compare);\n    printf(\"%d\\n\", nums[k-1]);\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Min Heap - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nvoid swap(int *a, int *b) { int temp = *a; *a = *b; *b = temp; }\n\nvoid heapify(int heap[], int size, int i) {\n    int smallest = i;\n    int l = 2 * i + 1, r = 2 * i + 2;\n    if (l < size && heap[l] < heap[smallest]) smallest = l;\n    if (r < size && heap[r] < heap[smallest]) smallest = r;\n    if (smallest != i) { swap(&heap[i], &heap[smallest]); heapify(heap, size, smallest); }\n}\n\nint main() {\n    char input[100000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n    int heap[k];\n    int heapSize = 0;\n    char *ptr = input;\n    while (*ptr) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) {\n            int val = strtol(ptr, &ptr, 10);\n            if (heapSize < k) {\n                heap[heapSize++] = val;\n                if (heapSize == k) for (int i = k / 2 - 1; i >= 0; i--) heapify(heap, k, i);\n            } else if (val > heap[0]) {\n                heap[0] = val;\n                heapify(heap, k, 0);\n            }\n        } else { ptr++; }\n    }\n    printf(\"%d\\n\", heap[0]);\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log K). Space: O(K).",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "Sorting the array would place the Kth largest element at index N-K. Can we do better than O(N log N)?",
+        "A Min-Heap of size K can track the K largest elements seen so far. The smallest among these is the Kth largest.",
+        "Iterate through the array, pushing elements into the heap. If the heap size exceeds K, pop the smallest element. The final top of the heap is your answer."
       ]
     },
     {
@@ -167,6 +240,79 @@
           "expected_output": "[1, 2, 3]",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Brute Force - Sort by Frequency",
+            "language": "python",
+            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nsorted_items = sorted(count.keys(), key=lambda x: count[x], reverse=True)\nprint(sorted(sorted_items[:k]))",
+            "complexity_analysis": "Time: O(N log N) for sorting unique elements. Space: O(N). Logic: Counting frequencies and then sorting all unique elements based on those frequencies.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Optimized - Bucket Sort",
+            "language": "python",
+            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nbuckets = [[] for _ in range(len(nums) + 1)]\nfor num, freq in count.items():\n    buckets[freq].append(num)\nresult = []\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in buckets[i]:\n        result.append(num)\n        if len(result) == k:\n            print(sorted(result))\n            exit()\nprint(sorted(result))",
+            "complexity_analysis": "Time: O(N). Space: O(N). Logic: Using frequencies as indices in a bucket array allows us to retrieve top elements in linear time.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sort by Frequency - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        Map<Integer,Integer> count = new HashMap<>();\n        for (String p : parts) {\n            int n = Integer.parseInt(p.trim());\n            count.put(n, count.getOrDefault(n, 0) + 1);\n        }\n        List<Integer> keys = new ArrayList<>(count.keySet());\n        keys.sort((a, b) -> count.get(b) - count.get(a));\n        List<Integer> result = keys.subList(0, k);\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Counting frequencies in a HashMap and then sorting the keys results in a clean O(N log N) solution.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Bucket Sort - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Map<Integer,Integer> count = new HashMap<>();\n        for (int n : nums) count.put(n, count.getOrDefault(n, 0) + 1);\n        List<List<Integer>> buckets = new ArrayList<>();\n        for (int i = 0; i <= nums.length; i++) buckets.add(new ArrayList<>());\n        for (var e : count.entrySet()) buckets.get(e.getValue()).add(e.getKey());\n        List<Integer> result = new ArrayList<>();\n        for (int i = buckets.size()-1; i > 0 && result.size() < k; i--)\n            for (int n : buckets.get(i)) { result.add(n); if (result.size() == k) break; }\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+            "complexity_analysis": "Time: O(N). Space: O(N). Logic: Bucket sort allows linear time frequency tracking by using counts as array indices.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sort by Frequency - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<pair<int,int>> freq(count.begin(), count.end());\n    sort(freq.begin(), freq.end(), [](auto& a, auto& b){ \n        if (a.second != b.second) return a.second > b.second;\n        return a.first < b.first;  // tiebreak by value ascending\n    });\n    vector<int> result;\n    for (int i = 0; i < k; i++) result.push_back(freq[i].first);\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: C++ implementation using a map for counting and a vector for sorting by frequency.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Bucket Sort - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<vector<int>> buckets(nums.size()+1);\n    for (auto& [num, freq] : count) buckets[freq].push_back(num);\n    // Sort within each bucket for deterministic output\n    for (auto& b : buckets) sort(b.begin(), b.end());\n    vector<int> result;\n    for (int i = buckets.size()-1; i > 0 && (int)result.size() < k; i--)\n        for (int n : buckets[i]) { result.push_back(n); if ((int)result.size() == k) break; }\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N). Space: O(N). Logic: Using bucket sort in C++ to achieve O(N) complexity for frequency-based retrieval.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sort by Frequency - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int val;\n    int freq;\n} Item;\n\nint cmpFreq(const void* a, const void* b) {\n    if (((Item*)b)->freq != ((Item*)a)->freq)\n        return ((Item*)b)->freq - ((Item*)a)->freq;\n    return ((Item*)a)->val - ((Item*)b)->val; // tiebreak by value ascending\n}\n\nint cmpInt(const void* a, const void* b) {\n    return *(int*)a - *(int*)b;\n}\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) k = 1;\n\n    int nums[5000], n = 0;\n    char *p = line;\n    while (*p) {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            nums[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n\n    if (n == 0) { printf(\"[]\\n\"); return 0; }\n\n    Item items[5000];\n    int itemCount = 0;\n    for (int i = 0; i < n; i++) {\n        int found = 0;\n        for (int j = 0; j < itemCount; j++) {\n            if (items[j].val == nums[i]) {\n                items[j].freq++;\n                found = 1;\n                break;\n            }\n        }\n        if (!found) {\n            items[itemCount].val = nums[i];\n            items[itemCount].freq = 1;\n            itemCount++;\n        }\n    }\n\n    qsort(items, itemCount, sizeof(Item), cmpFreq);\n\n    int result[5000];\n    int rk = k < itemCount ? k : itemCount;\n    for (int i = 0; i < rk; i++) result[i] = items[i].val;\n    qsort(result, rk, sizeof(int), cmpInt);\n\n    printf(\"[\");\n    for (int i = 0; i < rk; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"%d\", result[i]);\n    }\n    printf(\"]\\n\");\n\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N^2) for counting + O(N log N) for sorting. Space: O(N). Logic: Manual frequency counting and sorting in C.",
+            "is_primary": false,
+            "approach": "brute_force"
+          },
+          {
+            "title": "Min Heap - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct { int val; int freq; } Element;\n\nvoid swapE(Element *a, Element *b) { Element temp = *a; *a = *b; *b = temp; }\n\nvoid minHeapify(Element heap[], int size, int i) {\n    int smallest = i;\n    int left = 2 * i + 1, right = 2 * i + 2;\n    if (left < size && heap[left].freq < heap[smallest].freq) smallest = left;\n    if (right < size && heap[right].freq < heap[smallest].freq) smallest = right;\n    if (smallest != i) { swapE(&heap[i], &heap[smallest]); minHeapify(heap, size, smallest); }\n}\n\nint cmpInt(const void* a, const void* b) { return *(int*)a - *(int*)b; }\n\nint main() {\n    char input[100000]; fgets(input, sizeof(input), stdin);\n    int k; scanf(\"%d\", &k);\n    int nums[5000], count = 0, distinct = 0;\n    char *ptr = input;\n    while (*ptr) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) nums[count++] = strtol(ptr, &ptr, 10);\n        else ptr++;\n    }\n    Element freq[5000];\n    for (int i = 0; i < count; i++) {\n        int found = 0;\n        for (int j = 0; j < distinct; j++) {\n            if (freq[j].val == nums[i]) { freq[j].freq++; found = 1; break; }\n        }\n        if (!found) { freq[distinct].val = nums[i]; freq[distinct++].freq = 1; }\n    }\n    if (k > distinct) k = distinct;\n    Element heap[k];\n    for (int i = 0; i < k; i++) heap[i] = freq[i];\n    for (int i = k / 2 - 1; i >= 0; i--) minHeapify(heap, k, i);\n    for (int i = k; i < distinct; i++) {\n        if (freq[i].freq > heap[0].freq) {\n            heap[0] = freq[i];\n            minHeapify(heap, k, 0);\n        }\n    }\n    int res[k];\n    for (int i = 0; i < k; i++) res[i] = heap[i].val;\n    qsort(res, k, sizeof(int), cmpInt);\n    printf(\"[\");\n    for (int i = 0; i < k; i++) { if (i > 0) printf(\", \"); printf(\"%d\", res[i]); }\n    printf(\"]\\n\");\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log K) using a Min-Heap of size K. Space: O(N). Logic: Efficient frequency tracking using a heap.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "First, you need to count the frequency of each element. A HashMap or Counter would be perfect for this.",
+        "How can you use the frequencies to find the top K elements? Sorting the unique elements by frequency would take O(N log N).",
+        "Can we use a Min-Heap of size K to maintain the top frequencies? Or perhaps Bucket Sort for an O(N) solution?"
       ]
     },
     {
@@ -250,6 +396,47 @@
           "expected_output": "3",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Max Heap - Python",
+            "language": "python",
+            "code": "import sys, heapq\nstones = eval(sys.stdin.read().strip())\nheap = [-s for s in stones]\nheapq.heapify(heap)\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n    if y != x:\n        heapq.heappush(heap, -(y - x))\nprint(-heap[0] if heap else 0)",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: A Max-Heap allows us to always extract the two heaviest stones in log(N) time.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Max Heap - Java",
+            "language": "java",
+            "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNext()) return;\n        String line = sc.next().trim();\n        // Handle input like [2,7,4,1,8,1]\n        line = line.substring(1, line.length() - 1);\n        if (line.isEmpty()) { System.out.println(0); return; }\n        \n        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\n        for (String s : line.split(\",\")) {\n            if (!s.trim().isEmpty()) pq.offer(Integer.parseInt(s.trim()));\n        }\n        \n        while (pq.size() > 1) {\n            int y = pq.poll();\n            int x = pq.poll();\n            if (y != x) pq.offer(y - x);\n        }\n        System.out.println(pq.isEmpty() ? 0 : pq.peek());\n    }\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: PriorityQueue in Java acts as a Max-Heap (when reversed) to track the heaviest stones.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Max Heap - C++",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <queue>\n#include <sstream>\n\nusing namespace std;\n\nint main() {\n    string line;\n    if (!getline(cin, line)) return 0;\n    \n    priority_queue<int> pq;\n    for (int i = 0; i < line.length(); i++) {\n        if (isdigit(line[i]) || line[i] == '-') {\n            string num;\n            while (i < line.length() && (isdigit(line[i]) || line[i] == '-')) {\n                num += line[i++];\n            }\n            pq.push(stoi(num));\n        }\n    }\n    \n    while (pq.size() > 1) {\n        int y = pq.top(); pq.pop();\n        int x = pq.top(); pq.pop();\n        if (y != x) pq.push(y - x);\n    }\n    cout << (pq.empty() ? 0 : pq.top()) << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Using std::priority_queue to simulate the stone smashing game.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Max Heap - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nvoid swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }\nvoid heapify(int h[], int s, int i) {\n    int largest = i, l = 2*i+1, r = 2*i+2;\n    if (l < s && h[l] > h[largest]) largest = l;\n    if (r < s && h[r] > h[largest]) largest = r;\n    if (largest != i) { swap(&h[i], &h[largest]); heapify(h, s, largest); }\n}\n\nint main() {\n    char input[1000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n    \n    int st[100], n = 0;\n    char *p = input;\n    while (*p) {\n        if ((*p >= '0' && *p <= '9') || *p == '-') {\n            st[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n    \n    if (n == 0) { printf(\"0\\n\"); return 0; }\n    \n    for (int i = n/2-1; i >= 0; i--) heapify(st, n, i);\n    \n    while (n > 1) {\n        int y = st[0]; st[0] = st[--n]; heapify(st, n, 0);\n        int x = st[0]; st[0] = st[--n]; heapify(st, n, 0);\n        if (y != x) {\n            st[n++] = y - x;\n            // Bubble up\n            int i = n - 1;\n            while (i > 0 && st[(i-1)/2] < st[i]) {\n                swap(&st[i], &st[(i-1)/2]);\n                i = (i-1)/2;\n            }\n        }\n    }\n    printf(\"%d\\n\", n == 1 ? st[0] : 0);\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Manual Max-Heap implementation in C for efficient extraction and re-insertion.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "The problem asks you to repeatedly pick the TWO heaviest stones. Which data structure helps you find the max elements efficiently?",
+        "A Max-Heap is perfect here. You can insert all weights, then pop the two largest.",
+        "After smashing them, if there's a remainder, push it back into the heap. Continue until one or zero stones remain."
       ]
     },
     {
@@ -333,6 +520,47 @@
           "expected_output": "5",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Greedy Formula - Python",
+            "language": "python",
+            "code": "import sys\nfrom collections import Counter\nlines = sys.stdin.read().strip().split('\\n')\ntasks = eval(lines[0])\nn = int(lines[1])\ncount = Counter(tasks)\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\nresult = max(len(tasks), (max_freq - 1) * (n + 1) + max_count)\nprint(result)",
+            "complexity_analysis": "Time: O(N). Space: O(1). Logic: The total time is dictated by the highest frequency task and the cooling period. The formula calculates the minimum 'slots' needed, accounting for tasks with the same max frequency.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Greedy Formula - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <string.h>\n#define MAX(a,b) ((a)>(b)?(a):(b))\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int count[26] = {0};\n    int len = 0;\n    for (int i = 0; line[i]; i++) {\n        if (line[i] >= 'A' && line[i] <= 'Z') {\n            count[line[i] - 'A']++;\n            len++;\n        }\n    }\n    int max_freq = 0;\n    for (int i = 0; i < 26; i++) if (count[i] > max_freq) max_freq = count[i];\n    int max_count = 0;\n    for (int i = 0; i < 26; i++) if (count[i] == max_freq) max_count++;\n    int res = MAX(len, (max_freq - 1) * (n + 1) + max_count);\n    printf(\"%d\\n\", res);\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N). Space: O(1). Logic: Greedy approach using a frequency array to determine cooling slots.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Greedy Formula - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine();\n        int n = sc.nextInt();\n        int[] count = new int[26];\n        int len = 0;\n        for (char c : line.toCharArray()) {\n            if (c >= 'A' && c <= 'Z') {\n                count[c - 'A']++;\n                len++;\n            }\n        }\n        int maxFreq = 0;\n        for (int f : count) maxFreq = Math.max(maxFreq, f);\n        int maxCount = 0;\n        for (int f : count) if (f == maxFreq) maxCount++;\n        System.out.println(Math.max(len, (maxFreq - 1) * (n + 1) + maxCount));\n    }\n}",
+            "complexity_analysis": "Time: O(N). Space: O(1). Logic: Standard Java implementation of the greedy math formula for task scheduling.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Greedy Formula - C++",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s; getline(cin, s);\n    int n; cin >> n;\n    vector<int> count(26, 0);\n    int len = 0;\n    for (char c : s) if (c >= 'A' && c <= 'Z') { count[c - 'A']++; len++; }\n    int max_f = *max_element(count.begin(), count.end());\n    int max_c = 0;\n    for (int f : count) if (f == max_f) max_c++;\n    cout << max((int)len, (max_f - 1) * (n + 1) + max_c) << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N). Space: O(1). Logic: Efficient greedy scheduling using frequency counting in C++.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "The cooling period 'n' implies that if you have multiple tasks of the same type, you must wait 'n' intervals between them.",
+        "Prioritize the tasks with the highest frequency. Why? Because they are the most likely to cause idle time.",
+        "The formula (max_freq - 1) * (n + 1) + max_count gives the total time. Compare this with the total number of tasks."
       ]
     },
     {
@@ -416,6 +644,39 @@
           "expected_output": "[0, 1, 1, 1, 2, 3, 4, 4, 5, 6]",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Min Heap - Python",
+            "language": "python",
+            "code": "import sys, heapq, json\nlists = json.loads(sys.stdin.read().strip())\nheap = []\nfor i, lst in enumerate(lists):\n    if lst:\n        heapq.heappush(heap, (lst[0], i, 0))\nresult = []\nwhile heap:\n    val, i, j = heapq.heappop(heap)\n    result.append(val)\n    if j + 1 < len(lists[i]):\n        heapq.heappush(heap, (lists[i][j+1], i, j+1))\nprint(result)",
+            "complexity_analysis": "Time: O(N log K) where N is total elements, K is number of lists. Space: O(K). Logic: A Min-Heap of size K tracks the smallest current element from each list, allowing us to merge them in optimal time.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Min Heap - C",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct { int val; int listIdx; int elemIdx; } Node;\nvoid swap(Node *a, Node *b) { Node t = *a; *a = *b; *b = t; }\nvoid heapify(Node h[], int s, int i) {\n    int smallest = i, l = 2*i+1, r = 2*i+2;\n    if (l < s && h[l].val < h[smallest].val) smallest = l;\n    if (r < s && h[r].val < h[smallest].val) smallest = r;\n    if (smallest != i) { swap(&h[i], &h[smallest]); heapify(h, s, smallest); }\n}\n\nint main() {\n    char *input = malloc(1000000); \n    if (!fgets(input, 1000000, stdin)) return 0;\n    \n    int lists[100][1000];\n    int sizes[100] = {0};\n    int k = 0;\n    \n    char *p = input;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            if (*p == '[') continue; // Outer\n            while (*p && *p != ']') {\n                if ((*p >= '0' && *p <= '9') || *p == '-') {\n                    lists[k][sizes[k]++] = strtol(p, &p, 10);\n                } else p++;\n            }\n            if (*p == ']') k++;\n        } else p++;\n    }\n    \n    Node heap[100]; int heapSize = 0;\n    for (int i = 0; i < k; i++) {\n        if (sizes[i] > 0) {\n            heap[heapSize].val = lists[i][0];\n            heap[heapSize].listIdx = i;\n            heap[heapSize++].elemIdx = 0;\n        }\n    }\n    for (int i = heapSize/2-1; i >= 0; i--) heapify(heap, heapSize, i);\n    \n    printf(\"[\"); int first = 1;\n    while (heapSize > 0) {\n        Node top = heap[0];\n        if (!first) printf(\", \");\n        printf(\"%d\", top.val);\n        first = 0;\n        \n        if (top.elemIdx + 1 < sizes[top.listIdx]) {\n            heap[0].val = lists[top.listIdx][top.elemIdx + 1];\n            heap[0].elemIdx = top.elemIdx + 1;\n        } else {\n            heap[0] = heap[--heapSize];\n        }\n        heapify(heap, heapSize, 0);\n    }\n    printf(\"]\\n\");\n    free(input);\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log K). Space: O(N) to store lists + O(K) for heap. Logic: Manual Min-Heap implementation in C for multi-way merge.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Min Heap - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    static class Node { int val, l, e; Node(int v, int l, int e){this.val=v;this.l=l;this.e=e;} }\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        String line = sc.nextLine().trim();\n        if (line.equals(\"[]\") || line.equals(\"[[]]\")) { System.out.println(\"[]\"); return; }\n        line = line.substring(2, line.length()-2);\n        String[] groups = line.split(\"\\\\],\\\\[\");\n        List<int[]> lists = new ArrayList<>();\n        for (String g : groups) {\n            if (g.isEmpty()) continue;\n            String[] parts = g.split(\",\");\n            int[] arr = new int[parts.length];\n            for (int i=0; i<parts.length; i++) arr[i] = Integer.parseInt(parts[i].trim());\n            lists.add(arr);\n        }\n        PriorityQueue<Node> pq = new PriorityQueue<>((a,b)->a.val-b.val);\n        for (int i=0; i<lists.size(); i++) if (lists.get(i).length > 0) pq.offer(new Node(lists.get(i)[0], i, 0));\n        List<Integer> res = new ArrayList<>();\n        while (!pq.isEmpty()) {\n            Node top = pq.poll(); res.add(top.val);\n            if (top.e + 1 < lists.get(top.l).length) pq.offer(new Node(lists.get(top.l)[top.e+1], top.l, top.e+1));\n        }\n        System.out.println(res);\n    }\n}",
+            "complexity_analysis": "Time: O(N log K). Space: O(N). Logic: Using PriorityQueue in Java to efficiently merge K sorted streams.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "Imagine you have just two sorted lists. You could use two pointers. How does this scale to K lists?",
+        "At any moment, you only care about the smallest element among the current heads of the K lists.",
+        "A Min-Heap of size K can efficiently give you the minimum among K heads. Repeatedly pop the minimum and push the next element from the same list."
       ]
     },
     {
@@ -499,6 +760,31 @@
           "expected_output": "[null, null, null, 20.0]",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Two Heaps - Python",
+            "language": "python",
+            "code": "import sys, heapq, json\nlines = sys.stdin.read().strip().split('\\n')\nops = json.loads(lines[0])\nargs = json.loads(lines[1])\nsmall, large = [], []  # max-heap (neg), min-heap\nresult = []\nfor op, arg in zip(ops, args):\n    if op == 'addNum':\n        heapq.heappush(small, -arg[0])\n        heapq.heappush(large, -heapq.heappop(small))\n        if len(large) > len(small):\n            heapq.heappush(small, -heapq.heappop(large))\n        result.append(None)\n    else:\n        if len(small) > len(large):\n            result.append(float(-small[0]))\n        else:\n            result.append((-small[0] + large[0]) / 2)\nprint(json.dumps(result))",
+            "complexity_analysis": "Time: O(log N) per add. O(1) for median. Space: O(N). Logic: Two heaps maintain the split point of the data. Small half is in Max-Heap, large half in Min-Heap.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Two Heaps - Java",
+            "language": "java",
+            "code": "import java.util.*;\nimport java.util.stream.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String opsLine = sc.nextLine();\n        String argsLine = sc.nextLine();\n        String[] ops = opsLine.substring(1, opsLine.length()-1).split(\",\");\n        PriorityQueue<Integer> small = new PriorityQueue<>(Collections.reverseOrder());\n        PriorityQueue<Integer> large = new PriorityQueue<>();\n        List<Object> res = new ArrayList<>();\n        // Simplified arg parsing for mock loader\n        String[] argStrs = argsLine.substring(1, argsLine.length()-1).split(\"\\\\],\\\\[\");\n        for (int i=0; i<ops.length; i++) {\n            String op = ops[i].trim().replace(\"\\\"\", \"\");\n            if (op.equals(\"addNum\")) {\n                int num = Integer.parseInt(argStrs[i].replace(\"[\", \"\").replace(\"]\", \"\").trim());\n                small.offer(num);\n                large.offer(small.poll());\n                if (large.size() > small.size()) small.offer(large.poll());\n                res.add(null);\n            } else {\n                if (small.size() > large.size()) res.add((double)small.peek());\n                else res.add((small.peek() + large.peek()) / 2.0);\n            }\n        }\n        System.out.println(res.toString().replace(\"null\", \"null\"));\n    }\n}",
+            "complexity_analysis": "Time: O(log N) per add. Space: O(N). Logic: Using PriorityQueue in Java to implement the two-heap median finding algorithm.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "Tracking the median in a sorted list is easy, but inserting into a sorted list takes O(N). Can we do better?",
+        "The median divides the data into two halves. Can we use two heaps to store these halves?",
+        "Use a Max-Heap for the smaller half and a Min-Heap for the larger half. Keep their sizes balanced (difference <= 1)."
       ]
     },
     {
@@ -582,6 +868,39 @@
           "expected_output": "[10, 9, 8, 7, 6, 5, 4, 3]",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Monotonic Deque - Python",
+            "language": "python",
+            "code": "import sys, json\nfrom collections import deque\nlines = sys.stdin.read().strip().split('\\n')\nnums = json.loads(lines[0])\nk = int(lines[1])\ndq = deque()\nresult = []\nfor i, n in enumerate(nums):\n    while dq and dq[0] < i - k + 1:\n        dq.popleft()\n    while dq and nums[dq[-1]] < n:\n        dq.pop()\n    dq.append(i)\n    if i >= k - 1:\n        result.append(nums[dq[0]])\nprint(result)",
+            "complexity_analysis": "Time: O(N). Space: O(K). Logic: A monotonic deque stores indices of potentials maximums. Each element is pushed and popped at most once, leading to linear time complexity.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Monotonic Deque - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = sc.nextInt();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i=0; i<parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Deque<Integer> dq = new ArrayDeque<>();\n        List<Integer> res = new ArrayList<>();\n        for (int i=0; i<nums.length; i++) {\n            if (!dq.isEmpty() && dq.peekFirst() < i - k + 1) dq.pollFirst();\n            while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i]) dq.pollLast();\n            dq.offerLast(i);\n            if (i >= k - 1) res.add(nums[dq.peekFirst()]);\n        }\n        System.out.println(res);\n    }\n}",
+            "complexity_analysis": "Time: O(N). Space: O(K). Logic: Java implementation using ArrayDeque to maintain maximums in O(1) amortized time per slide.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Monotonic Deque - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line; getline(cin, line);\n    int k; cin >> k;\n    vector<int> nums; \n    stringstream ss(line.substr(1, line.length()-2));\n    string t; while(getline(ss,t,',')) nums.push_back(stoi(t));\n    deque<int> dq;\n    vector<int> res;\n    for(int i=0; i<nums.size(); i++) {\n        if(!dq.empty() && dq.front() < i - k + 1) dq.pop_front();\n        while(!dq.empty() && nums[dq.back()] < nums[i]) dq.pop_back();\n        dq.push_back(i);\n        if(i >= k - 1) res.push_back(nums[dq.front()]);\n    }\n    cout << \"[\";\n    for(int i=0; i<res.size(); i++) cout << res[i] << (i==res.size()-1?\"\":\", \");\n    cout << \"]\" << endl;\n}",
+            "complexity_analysis": "Time: O(N). Space: O(K). Logic: Using std::deque in C++ for an efficient monotonic sliding window maximum solver.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "A brute-force solution checking each window takes O(N * K). Can we optimize this with a deque or heap?",
+        "We need to quickly find the maximum in the window. A monotonic deque can store indices of elements in decreasing order.",
+        "As the window slides, remove indices that are out of bounds and elements smaller than the current one from the back of the deque. The front will always be the max."
       ]
     },
     {
@@ -665,6 +984,39 @@
           "expected_output": "[[-4, -7], [-4, -8], [-2, 10]]",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Max Heap - Python",
+            "language": "python",
+            "code": "import sys, heapq, json\ninput_data = sys.stdin.read().split('\\n')\npoints = json.loads(input_data[0])\nk = int(input_data[1])\nheap = []\nfor x, y in points:\n    dist = -(x*x + y*y)\n    if len(heap) == k:\n        heapq.heappushpop(heap, (dist, x, y))\n    else:\n        heapq.heappush(heap, (dist, x, y))\nres = [[x, y] for d, x, y in heap]\n# Sort by distance (descending heap was used, but res is now distance squared)\n# To match test cases, we sort by distance squared, then by x, then by y\nprint(json.dumps(sorted(res, key=lambda p: (p[0]**2 + p[1]**2, p[0], p[1]))))",
+            "complexity_analysis": "Time: O(N log K). Space: O(K). Logic: A Max-Heap of size K stores the closest points. Using squared distance (x^2 + y^2) avoids expensive square root calculations.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Sorting - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        List<int[]> points = new ArrayList<>();\n        int i = 0;\n        while (i < line.length()) {\n            if (line.charAt(i) == '[' && i > 0) {\n                int j = line.indexOf(']', i);\n                String pair = line.substring(i + 1, j);\n                String[] parts = pair.split(\",\");\n                points.add(new int[]{Integer.parseInt(parts[0].trim()), Integer.parseInt(parts[1].trim())});\n                i = j + 1;\n            } else {\n                i++;\n            }\n        }\n        points.sort((a, b) -> (a[0]*a[0]+a[1]*a[1]) - (b[0]*b[0]+b[1]*b[1]));\n        StringBuilder sb = new StringBuilder(\"[\");\n        for (int idx = 0; idx < k && idx < points.size(); idx++) {\n            if (idx > 0) sb.append(\", \");\n            sb.append(\"[\").append(points.get(idx)[0]).append(\", \").append(points.get(idx)[1]).append(\"]\");\n        }\n        sb.append(\"]\");\n        System.out.println(sb.toString());\n    }\n}",
+            "complexity_analysis": "Time: O(N log N) for full sort, though O(N log K) is possible with a heap. Space: O(N). Logic: Sorting all points by distance and taking the first K.",
+            "is_primary": false,
+            "approach": "better"
+          },
+          {
+            "title": "Sorting - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<pair<int,int>> points;\n    int i = 0;\n    while (i < (int)line.size()) {\n        if (line[i] == '[' && i > 0) {\n            int j = line.find(']', i);\n            string pair = line.substr(i + 1, j - i - 1);\n            stringstream ss(pair);\n            int x, y; char c;\n            ss >> x >> c >> y;\n            points.push_back({x, y});\n            i = j + 1;\n        } else {\n            i++;\n        }\n    }\n    sort(points.begin(), points.end(), [](auto& a, auto& b) {\n        return (a.first*a.first + a.second*a.second) < (b.first*b.first + b.second*b.second);\n    });\n    cout << \"[\";\n    for (int idx = 0; idx < k && idx < (int)points.size(); idx++) {\n        if (idx > 0) cout << \", \";\n        cout << \"[\" << points[idx].first << \", \" << points[idx].second << \"]\";\n    }\n    cout << \"]\" << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: C++ implementation using sorting based on Euclidean distance squared.",
+            "is_primary": false,
+            "approach": "better"
+          }
+        ]
+      },
+      "hints": [
+        "The distance to the origin is sqrt(x^2 + y^2). For comparison, x^2 + y^2 is sufficient and more efficient.",
+        "Sorting all points by distance takes O(N log N). Can we use a heap to maintain only the K closest ones in O(N log K)?",
+        "A Max-Heap of size K can store the closest points seen so far. If a new point is closer than the current farthest in the heap, replace it."
       ]
     },
     {
@@ -748,6 +1100,39 @@
           "expected_output": "500",
           "order_index": 8
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Min Heap - Python",
+            "language": "python",
+            "code": "import sys, heapq, json\nsticks = json.loads(sys.stdin.read().strip())\nif len(sticks) < 2: print(0); exit()\nheapq.heapify(sticks)\ncost = 0\nwhile len(sticks) > 1:\n    a = heapq.heappop(sticks)\n    b = heapq.heappop(sticks)\n    cost += a + b\n    heapq.heappush(sticks, a + b)\nprint(cost)",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: This is a greedy problem where we always connect the two shortest sticks. A Min-Heap allows us to find and combine the shortest sticks efficiently.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Min Heap - Java",
+            "language": "java",
+            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length()-1);\n        if (line.isEmpty()) { System.out.println(0); return; }\n        String[] parts = line.split(\",\");\n        PriorityQueue<Integer> pq = new PriorityQueue<>();\n        for (String p : parts) pq.offer(Integer.parseInt(p.trim()));\n        long cost = 0;\n        while (pq.size() > 1) {\n            int sum = pq.poll() + pq.poll();\n            cost += sum;\n            pq.offer(sum);\n        }\n        System.out.println(cost);\n    }\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Java PriorityQueue used as a Min-Heap to find the smallest lengths at each step.",
+            "is_primary": false,
+            "approach": "optimal"
+          },
+          {
+            "title": "Min Heap - C++",
+            "language": "cpp",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line; getline(cin, line);\n    if (line == \"[]\") { cout << 0 << endl; return 0; }\n    priority_queue<int, vector<int>, greater<int>> pq;\n    stringstream ss(line.substr(1, line.size()-2));\n    string t; while(getline(ss,t,',')) pq.push(stoi(t));\n    long long cost = 0;\n    while (pq.size() > 1) {\n        int sum = pq.top(); pq.pop();\n        sum += pq.top(); pq.pop();\n        cost += sum;\n        pq.push(sum);\n    }\n    cout << cost << endl;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Greedy stick connection strategy implemented in C++ with priority_queue.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "This problem is about combining elements to minimize total cost. Which pair should you combine at each step?",
+        "Combining the two shortest sticks is always greedy-optimal. Their sum will be part of future connection costs.",
+        "A Min-Heap can keep the stick lengths sorted. Pop the two smallest, push their sum, and repeat until one stick remains."
       ]
     },
     {
@@ -777,6 +1162,31 @@
           "expected_output": "[null, 1, null, 1]",
           "order_index": 2
         }
+      ],
+      "solution": {
+        "solutions": [
+          {
+            "title": "Min Heap + Set - Python",
+            "language": "python",
+            "code": "import sys, heapq, json\ninput_data = sys.stdin.read().split('\\n')\nops = json.loads(input_data[0])\nargs = json.loads(input_data[1])\ncurr = 1\nadded = []\nadded_set = set()\nres = []\nfor op, arg in zip(ops, args):\n    if op == \"SmallestInfiniteSet\": res.append(None)\n    elif op == \"popSmallest\":\n        if added:\n            val = heapq.heappop(added)\n            added_set.remove(val)\n            res.append(val)\n        else:\n            res.append(curr)\n            curr += 1\n    elif op == \"addBack\":\n        num = arg[0]\n        if num < curr and num not in added_set:\n            heapq.heappush(added, num)\n            added_set.add(num)\n        res.append(None)\nprint(json.dumps(res).replace(\"null\", \"null\"))",
+            "complexity_analysis": "Time: O(log N) per operation. Space: O(N). Logic: We use a counter for the 'infinite' part and a Min-Heap + Set for numbers that are added back. This keeps operations efficient.",
+            "is_primary": true,
+            "approach": "optimal"
+          },
+          {
+            "title": "Min Heap - Java",
+            "language": "java",
+            "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] cmdArgs) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        String opsStr = sc.nextLine().trim();\n        if (!sc.hasNextLine()) return;\n        String argsStr = sc.nextLine().trim();\n        \n        List<String> ops = parseList(opsStr);\n        List<List<Integer>> argsList = parseNestedIntList(argsStr);\n        \n        PriorityQueue<Integer> pq = new PriorityQueue<>();\n        Set<Integer> set = new HashSet<>();\n        int curr = 1;\n        List<Object> res = new ArrayList<>();\n        \n        for (int i = 0; i < ops.size(); i++) {\n            String op = ops.get(i).replace(\"\\\"\", \"\");\n            if (op.equals(\"SmallestInfiniteSet\")) {\n                res.add(null);\n            } else if (op.equals(\"popSmallest\")) {\n                if (!pq.isEmpty()) {\n                    int val = pq.poll();\n                    set.remove(val);\n                    res.add(val);\n                } else {\n                    res.add(curr++);\n                }\n            } else if (op.equals(\"addBack\")) {\n                int num = argsList.get(i).get(0);\n                if (num < curr && set.add(num)) {\n                    pq.offer(num);\n                }\n                res.add(null);\n            }\n        }\n        System.out.println(res.toString().replace(\"null\", \"null\"));\n    }\n\n    private static List<String> parseList(String s) {\n        List<String> res = new ArrayList<>();\n        s = s.substring(1, s.length() - 1);\n        if (s.isEmpty()) return res;\n        boolean inQuotes = false;\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (c == '\"') inQuotes = !inQuotes;\n            else if (c == ',' && !inQuotes) {\n                res.add(sb.toString().trim().replace(\"\\\"\", \"\"));\n                sb.setLength(0);\n            } else {\n                sb.append(c);\n            }\n        }\n        res.add(sb.toString().trim().replace(\"\\\"\", \"\"));\n        return res;\n    }\n\n    private static List<List<Integer>> parseNestedIntList(String s) {\n        List<List<Integer>> res = new ArrayList<>();\n        s = s.substring(1, s.length() - 1);\n        int depth = 0;\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (c == '[') {\n                depth++;\n                if (depth > 1) sb.append(c);\n            } else if (c == ']') {\n                depth--;\n                if (depth > 0) sb.append(c);\n                else {\n                    List<Integer> sub = new ArrayList<>();\n                    String val = sb.toString().trim();\n                    if (!val.isEmpty()) {\n                        for (String part : val.split(\",\")) {\n                            sub.add(Integer.parseInt(part.trim()));\n                        }\n                    }\n                    res.add(sub);\n                    sb.setLength(0);\n                }\n            } else if (c == ',' && depth == 0) {\n                // skip\n            } else if (depth > 0) {\n                sb.append(c);\n            }\n        }\n        return res;\n    }\n}",
+            "complexity_analysis": "Time: O(log N). Space: O(N). Logic: Java implementation using PriorityQueue and HashSet to track the smallest available numbers.",
+            "is_primary": false,
+            "approach": "optimal"
+          }
+        ]
+      },
+      "hints": [
+        "The 'infinite' part suggests we shouldn't actually store all positive integers. We only need to track the ones removed or added back.",
+        "Use a counter to track the smallest integer that hasn't been 'touched' yet.",
+        "A Min-Heap combined with a set can track 'added back' integers that are smaller than our current counter."
       ]
     }
   ]

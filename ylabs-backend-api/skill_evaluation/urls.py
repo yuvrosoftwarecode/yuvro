@@ -5,12 +5,16 @@ from .views import (
     EvaluationViewSet,
     LabQuestionBankViewSet,
     UserLabQuestionBankSubmissionViewSet
+    CandidateNoteViewSet,
+    CandidateTimelineEventViewSet
 )
 
 router = DefaultRouter()
 router.register(r'evaluations', EvaluationViewSet, basename='evaluation')
 router.register(r'lab-questions', LabQuestionBankViewSet, basename='labquestionbank')
 router.register(r'lab-submissions', UserLabQuestionBankSubmissionViewSet, basename='labsubmission')
+router.register(r'notes', CandidateNoteViewSet, basename='candidatenote')
+router.register(r'timeline-events', CandidateTimelineEventViewSet, basename='candidatetimelineevent')
 
 urlpatterns = [
     path('', include(router.urls)),

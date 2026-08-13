@@ -6,6 +6,7 @@ from authentication.permissions import IsAdminUser
 from .models import (
     Lab, LabSprint, LabSprintTicket,
     UserLabEnrollment, UserLabSprintTicketSubmission,
+    TicketProgressStatus,
 )
 from .serializers import (
     LabSerializer,
@@ -269,6 +270,29 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
 
         evaluate_and_score_submission(submission)
         submission.save()
+
+    @action(detail=False, methods=['post'], url_path="reveal-solution")
+    def reveal_solution(self, request):
+        ticket_id = request.data.get("ticket_id")
+        if not ticket_id:
+            return Response({"error": "ticket_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            ticket = LabSprintTicket.objects.get(id=ticket_id)
+        except LabSprintTicket.DoesNotExist:
+            return Response({"error": "Ticket not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, created = UserLabSprintTicketSubmission.objects.get_or_create(
+            user=request.user,
+            lab_sprint_ticket=ticket,
+            defaults={"ticket_status": TicketProgressStatus.BACKLOG}
+        )
+
+        submission.yuvro_points = 0
+        submission.save(update_fields=['yuvro_points'])
+
+        return Response(ticket.solution)
+
 
 
 
