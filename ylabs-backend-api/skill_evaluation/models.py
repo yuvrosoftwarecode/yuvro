@@ -186,25 +186,25 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
 
-class UserLabQuestionBankTaskSubmission(BaseTimestampedModel):
+class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="evaluation_task_submissions"
+        User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"
     )
     evaluation = models.ForeignKey(
-        Evaluation, on_delete=models.CASCADE, related_name="task_submissions"
+        Evaluation, on_delete=models.CASCADE, related_name="lab_submissions"
     )
-    task = models.ForeignKey(
-        LabQuestionBankTask, on_delete=models.CASCADE, related_name="submissions"
+    lab_question = models.ForeignKey(
+        LabQuestionBank, on_delete=models.CASCADE, related_name="submissions"
     )
-    task_status = models.CharField(max_length=20, default="BACKLOG")
-    solution = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default="BACKLOG")
+    solution = models.TextField(blank=True) # Stores the git diff patch
     solution_output = models.TextField(blank=True)
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(default=0)
     minutes_solved = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ("user", "evaluation", "task")
+        unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
         return f"{self.user} -> {self.task.title} ({self.evaluation.title})"

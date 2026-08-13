@@ -57,9 +57,24 @@ class SubmissionUserSerializer(serializers.Serializer):
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
     user = SubmissionUserSerializer(read_only=True)
 
+    lab_submissions = serializers.SerializerMethodField()
+    knowledge_submissions = serializers.SerializerMethodField()
+
     class Meta:
         model = UserEvaluationSubmission
         fields = '__all__'
+
+    def get_lab_submissions(self, obj):
+        from .models import UserLabQuestionBankSubmission
+        from .serializers import UserLabQuestionBankSubmissionSerializer
+        subs = UserLabQuestionBankSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
+        return UserLabQuestionBankSubmissionSerializer(subs, many=True).data
+
+    def get_knowledge_submissions(self, obj):
+        from .models import UserKnowledgeAssessmentSubmission
+        from .serializers import UserKnowledgeAssessmentSubmissionSerializer
+        subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
+        return UserKnowledgeAssessmentSubmissionSerializer(subs, many=True).data
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -169,11 +184,17 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
                 
         return instance
 
-from .models import UserLabQuestionBankTaskSubmission
+from .models import UserLabQuestionBankSubmission, UserKnowledgeAssessmentSubmission
 
-class UserLabQuestionBankTaskSubmissionSerializer(serializers.ModelSerializer):
+class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserLabQuestionBankTaskSubmission
+        model = UserLabQuestionBankSubmission
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserKnowledgeAssessmentSubmission
         fields = '__all__'
         read_only_fields = ('user',)
 

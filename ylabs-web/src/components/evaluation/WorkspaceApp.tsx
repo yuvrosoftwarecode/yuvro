@@ -332,6 +332,19 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
   }, []);
 
+  // Listen for lab submission from iframe
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
+        setSubmittedLabs(prev => new Set(prev).add(e.data.labId));
+        setOpenLab(null);
+        setModal(null);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   // Autosave feel
   const touchAutosave = () => {
     setAutosave("saving");
@@ -392,7 +405,20 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
   const confirmSubmitSection = async (secId: string) => {
     try {
-      await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, answers);
+      const sec = appSections.find(s => s.id === secId);
+      const richAnswers: any[] = [];
+      if (sec && sec.type === "KNOWLEDGE_ASSESSMENT" && sec.questions) {
+        sec.questions.forEach((q: any) => {
+          if (answers[q.id] !== undefined) {
+            richAnswers.push({
+              question_id: q.id,
+              selected_option: answers[q.id],
+              is_correct: answers[q.id] === q.correct
+            });
+          }
+        });
+      }
+      await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, richAnswers);
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
