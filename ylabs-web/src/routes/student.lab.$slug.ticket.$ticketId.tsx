@@ -4058,8 +4058,8 @@ function HintsPanel({
   if (hints.length === 0) {
     return (
       <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
-        <Lightbulb className="w-8 h-8 text-amber-500 mx-auto mb-3" />
-        <h4 className="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">No Hints Available</h4>
+        <Lightbulb className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <h4 className="text-sm font-medium text-foreground mb-1">No Hints Available</h4>
         <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
           There are no hints provided for this problem. Try your best to solve it on your own!
         </p>
@@ -4098,7 +4098,7 @@ function HintsPanel({
 
   return (
     <div className="space-y-3">
-      <div className="rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 p-2 text-xs text-amber-700 dark:text-amber-400">
+      <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
         <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
       </div>
 
@@ -4125,8 +4125,8 @@ function HintsPanel({
         return (
           <div key={index} className="rounded-md border bg-editor-bg p-3">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-amber-800 dark:text-amber-400 inline-flex items-center gap-2">
-                <Lightbulb className="h-3.5 w-3.5" />
+              <div className="text-sm font-medium text-foreground inline-flex items-center gap-2">
+                <Lightbulb className="h-3.5 w-3.5 text-muted-foreground" />
                 Hint {index + 1}
               </div>
               <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
@@ -4148,7 +4148,7 @@ function HintsPanel({
                 <button
                   onClick={() => attemptReveal(index)}
                   disabled={loading}
-                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/40 py-2 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors disabled:opacity-50"
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-50"
                 >
                   <AlertTriangle className="h-3.5 w-3.5" />
                   {loading && targetHintIndex === index ? "Revealing..." : "Reveal Hint"}
