@@ -1035,7 +1035,7 @@ ${codeEditorRef.current?.getCode() || ''}
           </DialogDescription>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSolutionDialog(false)}>Cancel</Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleRevealSolution}>Acknowledge & Reveal</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleRevealSolution}>Acknowledge & Reveal</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

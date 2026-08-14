@@ -210,6 +210,27 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
         return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
 
 
+class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="evaluation_knowledge_submissions"
+    )
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="knowledge_submissions"
+    )
+    section = models.ForeignKey(
+        EvaluationSection, on_delete=models.CASCADE, related_name="knowledge_submissions"
+    )
+    answers = models.JSONField(default=list, blank=True)
+    total_questions = models.PositiveIntegerField(default=0)
+    score = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("user", "evaluation", "section")
+
+    def __str__(self):
+        return f"{self.user} -> {self.section.title} ({self.evaluation.title})"
+
+
 class FollowUpConfig(BaseTimestampedAdminModel):
     evaluation = models.OneToOneField(Evaluation, on_delete=models.CASCADE, related_name="followup_config")
     start_date = models.DateTimeField(null=True, blank=True)

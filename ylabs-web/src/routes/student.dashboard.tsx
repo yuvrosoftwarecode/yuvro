@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
-import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network, Briefcase } from "lucide-react";
+import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network, Briefcase, Boxes } from "lucide-react";
 import { TIER_META } from "@/lib/labAccess";
 import { getLabIconUrl } from "@/lib/labIcons";
 import { useAuth } from "@/lib/auth";
@@ -633,7 +633,10 @@ function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: 
   if (devIconUrl) {
     return <img src={devIconUrl} alt={lab.name} className={`${sizeClass} object-contain`} />;
   }
-  if (lab.name === "Data Structures Lab") {
+  if (lab.name.toLowerCase().includes("data structure") && lab.name.toLowerCase().includes("scenario")) {
+    return <Boxes className={`${sizeClass} text-primary`} />;
+  }
+  if (lab.name.toLowerCase().includes("data structure")) {
     return <Network className={`${sizeClass} text-primary`} />;
   }
   if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
