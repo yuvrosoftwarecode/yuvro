@@ -40,6 +40,12 @@ def evaluate_and_score_submission(submission):
         final_score_pct = 0.0
         
     total_points = int(ticket.yuvro_points * final_score_pct)
+    
+    if submission.solution_revealed:
+        total_points = 0
+    elif submission.hint_penalty_applied:
+        total_points = total_points // 2
+        
     submission.yuvro_points = total_points
     
     if total_points >= ticket.yuvro_points and ticket.yuvro_points > 0:

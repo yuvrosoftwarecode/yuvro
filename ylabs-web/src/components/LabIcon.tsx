@@ -1,5 +1,5 @@
 import { getLabIconUrl } from "@/lib/labIcons";
-import { Network, Briefcase } from "lucide-react";
+import { Network, Briefcase, Boxes } from "lucide-react";
 
 interface LabIconProps {
   name: string;
@@ -14,7 +14,11 @@ export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIco
     return <img src={url} alt={name} className={`${size} object-contain shrink-0 ${className}`} />;
   }
 
-  if (name === "Data Structures Lab") {
+  if (name.toLowerCase().includes("data structure") && name.toLowerCase().includes("scenario")) {
+    return <Boxes className={`${size} shrink-0 text-primary ${className}`} />;
+  }
+
+  if (name.toLowerCase().includes("data structure")) {
     return <Network className={`${size} shrink-0 text-primary ${className}`} />;
   }
 

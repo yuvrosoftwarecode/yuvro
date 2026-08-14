@@ -289,9 +289,41 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         )
 
         submission.yuvro_points = 0
-        submission.save(update_fields=['yuvro_points'])
+        submission.solution_revealed = True
+        submission.save(update_fields=['yuvro_points', 'solution_revealed'])
 
         return Response(ticket.solution)
+
+    @action(detail=False, methods=['post'], url_path="reveal-hint")
+    def reveal_hint(self, request):
+        ticket_id = request.data.get("ticket_id")
+        hint_index = request.data.get("hint_index")
+        
+        if not ticket_id or hint_index is None:
+            return Response({"error": "ticket_id and hint_index are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            ticket = LabSprintTicket.objects.get(id=ticket_id)
+        except LabSprintTicket.DoesNotExist:
+            return Response({"error": "Ticket not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, created = UserLabSprintTicketSubmission.objects.get_or_create(
+            user=request.user,
+            lab_sprint_ticket=ticket,
+            defaults={"ticket_status": TicketProgressStatus.BACKLOG}
+        )
+
+        if hint_index not in submission.revealed_hints:
+            submission.revealed_hints.append(hint_index)
+            
+        if not submission.hint_penalty_applied:
+            submission.hint_penalty_applied = True
+            # Halve current score if it has one
+            submission.yuvro_points = submission.yuvro_points // 2
+            
+        submission.save(update_fields=['revealed_hints', 'hint_penalty_applied', 'yuvro_points'])
+
+        return Response({"status": "success", "revealed_hints": submission.revealed_hints})
 
 
 
