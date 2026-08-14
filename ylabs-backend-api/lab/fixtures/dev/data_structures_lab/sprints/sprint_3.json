@@ -1,10 +1,10 @@
 {
-  "title": "Sprint 3 — Stacks",
+  "title": "Sprint 3 \u2014 Stacks",
   "description": "Master Stacks through hand-picked algorithmic challenges.",
   "xp_pool": 8200,
   "tickets": [
     {
-      "title": "Ticket 1 — Valid Parentheses",
+      "title": "Ticket 1 \u2014 Valid Parentheses",
       "ticket_slug": "ticket-valid-parentheses",
       "description": "You are given a string s consisting only of the characters '(', ')', '{', '}', '[' and ']'. Determine whether the brackets in the string are properly balanced.\n\nA string is considered valid if:\n1. Every opening bracket has a corresponding closing bracket of the same type.\n2. Brackets are closed in the correct order.\n3. Each closing bracket matches the most recent unmatched opening bracket.\n\nReturn true if the string is valid, otherwise return false.\n\n**Example 1:**\nInput: ()\nOutput: true\n\n**Example 2:**\nInput: ()[]{}\nOutput: true\n\n**Example 3:**\nInput: (]\nOutput: false\n\n**Example 4:**\nInput: ([])\nOutput: true\n\n**Example 5:**\nInput: ([)]\nOutput: false\n\n**Constraints:**\n- 1 <= s.length <= 10^4\n- s contains only the characters '(', ')', '{', '}', '[' and ']'.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n()\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n()[]{}\n\nOutput:\ntrue\n```\n",
       "xp_reward": 100,
@@ -104,9 +104,9 @@
       ]
     },
     {
-      "title": "Ticket 2 — Baseball Game Score Calculation",
+      "title": "Ticket 2 \u2014 Baseball Game Score Calculation",
       "ticket_slug": "ticket-baseball-game-score-calcu",
-      "description": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 → score list: [5]\n2 → score list: [5,2]\nC → remove last score → [5]\nD → double previous score → [5,10]\n+ → sum of last two scores → [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] → remove 4 → [5,-2]\nDouble previous → [5,-2,-4]\nAdd 9 → [5,-2,-4,9]\nSum last two → [5,-2,-4,9,5]\nSum last two → [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\n\nOutput:\n30\n```\n\n**Example 2:**\n```\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\n\nOutput:\n27\n```\n",
+      "description": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 \u2192 score list: [5]\n2 \u2192 score list: [5,2]\nC \u2192 remove last score \u2192 [5]\nD \u2192 double previous score \u2192 [5,10]\n+ \u2192 sum of last two scores \u2192 [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] \u2192 remove 4 \u2192 [5,-2]\nDouble previous \u2192 [5,-2,-4]\nAdd 9 \u2192 [5,-2,-4,9]\nSum last two \u2192 [5,-2,-4,9,5]\nSum last two \u2192 [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\n\nOutput:\n30\n```\n\n**Example 2:**\n```\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\n\nOutput:\n27\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -145,7 +145,7 @@
           "description": "Validate your code against test case 4.",
           "points": 10,
           "input": "[\"10\",\"D\",\"D\",\"+\"]",
-          "expected_output": "100",
+          "expected_output": "130",
           "order_index": 4
         },
         {
@@ -163,7 +163,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "[\"7\",\"8\",\"+\",\"C\",\"D\"]",
-          "expected_output": "30",
+          "expected_output": "31",
           "order_index": 6
         },
         {
@@ -172,7 +172,7 @@
           "description": "Validate your code against test case 7.",
           "points": 10,
           "input": "[\"1\",\"2\",\"3\",\"+\",\"+\",\"D\"]",
-          "expected_output": "33",
+          "expected_output": "35",
           "order_index": 7
         },
         {
@@ -190,7 +190,7 @@
           "description": "Validate your code against test case 9.",
           "points": 10,
           "input": "[\"4\",\"-2\",\"D\",\"+\",\"C\",\"9\",\"+\"]",
-          "expected_output": "15",
+          "expected_output": "12",
           "order_index": 9
         }
       ],
@@ -199,7 +199,7 @@
           {
             "title": "Stack Simulation - Python",
             "language": "python",
-            "code": "import sys\nops = eval(sys.stdin.read().strip())\nstack = []\nfor op in ops:\n    if op == 'C':\n        stack.pop()\n    elif op == 'D':\n        stack.append(2 * stack[-1])\n    elif op == '+':\n        stack.append(stack[-1] + stack[-2])\n    else:\n        stack.append(int(op))\nprint(sum(stack))",
+            "code": "import sys, json\nops = json.loads(sys.stdin.read().strip())\nstack = []\nfor op in ops:\n    if op == 'C':\n        stack.pop()\n    elif op == 'D':\n        stack.append(2 * stack[-1])\n    elif op == '+':\n        stack.append(stack[-1] + stack[-2])\n    else:\n        stack.append(int(op))\nprint(sum(stack))",
             "complexity_analysis": "Time: O(N) since each operation is processed once. Space: O(N) for storing scores in the stack.",
             "is_primary": true
           },
@@ -233,7 +233,7 @@
       ]
     },
     {
-      "title": "Ticket 3 — Backspace String Comparision",
+      "title": "Ticket 3 \u2014 Backspace String Comparision",
       "ticket_slug": "ticket-backspace-string-comparis",
       "description": "You are given two strings s and t. Both strings may contain lowercase letters and the special character '#'.\n\nThe '#' character represents a backspace operation, meaning the previous character should be removed if it exists.\n\nYour task is to process both strings after applying all backspace operations and determine whether the final strings are equal.\n\nReturn true if both processed strings are equal; otherwise return false.\n\n**Example 1:**\nInput:\nab#c\nad#c\nOutput:\ntrue\n\nExplanation:\nBoth strings become \"ac\" after processing the backspaces.\n\n**Example 2:**\nInput:\nab##\nc#d#\nOutput:\ntrue\n\nExplanation:\nBoth strings become empty strings after processing.\n\n**Example 3:**\nInput:\na#c\nb\nOutput:\nfalse\n\nExplanation:\nThe first string becomes \"c\" while the second string remains \"b\".\n\n**Constraints:**\n- 1 <= s.length, t.length <= 200\n- s and t consist of lowercase letters and '#' characters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nab#c\nad#c\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\nab##\nc#d#\n\nOutput:\ntrue\n```\n",
       "xp_reward": 100,
@@ -362,9 +362,9 @@
       ]
     },
     {
-      "title": "Ticket 4 — Remove All Adjacent Duplicates in a given String",
+      "title": "Ticket 4 \u2014 Remove All Adjacent Duplicates in a given String",
       "ticket_slug": "ticket-remove-all-adjacent-dupli",
-      "description": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" → remove \"bb\" → \"aaca\" → remove \"aa\" → \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" → remove \"xx\" → \"azzy\" → remove \"zz\" → \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nabbaca\n\nOutput:\nca\n```\n\n**Example 2:**\n```\nInput:\nazxxzy\n\nOutput:\nay\n```\n",
+      "description": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" \u2192 remove \"bb\" \u2192 \"aaca\" \u2192 remove \"aa\" \u2192 \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" \u2192 remove \"xx\" \u2192 \"azzy\" \u2192 remove \"zz\" \u2192 \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nabbaca\n\nOutput:\nca\n```\n\n**Example 2:**\n```\nInput:\nazxxzy\n\nOutput:\nay\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -491,9 +491,9 @@
       ]
     },
     {
-      "title": "Ticket 5 — Validate Stack Sequences",
+      "title": "Ticket 5 \u2014 Validate Stack Sequences",
       "ticket_slug": "ticket-validate-stack-sequences",
-      "description": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 → Push 2 → Push 3 → Push 4 → Pop 4 → Push 5 → Pop 5 → Pop 3 → Pop 2 → Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\n\nOutput:\nfalse\n```\n",
+      "description": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 \u2192 Push 2 \u2192 Push 3 \u2192 Push 4 \u2192 Pop 4 \u2192 Push 5 \u2192 Pop 5 \u2192 Pop 3 \u2192 Pop 2 \u2192 Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\n\nOutput:\nfalse\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -586,7 +586,7 @@
           {
             "title": "Stack Simulation - Python",
             "language": "python",
-            "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\npushed = eval(input_data[0])\npopped = eval(input_data[1])\n\nstack = []\nj = 0\n\nfor x in pushed:\n    stack.append(x)\n    while stack and j < len(popped) and stack[-1] == popped[j]:\n        stack.pop()\n        j += 1\n\nprint(str(len(stack) == 0).lower())",
+            "code": "import sys\nimport ast\n\ninput_data = sys.stdin.read().splitlines()\npushed = ast.literal_eval(input_data[0])\npopped = ast.literal_eval(input_data[1])\n\nstack = []\nj = 0\n\nfor x in pushed:\n    stack.append(x)\n    while stack and j < len(popped) and stack[-1] == popped[j]:\n        stack.pop()\n        j += 1\n\nprint(str(len(stack) == 0).lower())",
             "complexity_analysis": "Time: O(N) since each element is pushed and popped at most once. Space: O(N) for the stack.",
             "is_primary": true
           },
@@ -620,7 +620,7 @@
       ]
     },
     {
-      "title": "Ticket 6 — Asteroid Collision Simulation",
+      "title": "Ticket 6 \u2014 Asteroid Collision Simulation",
       "ticket_slug": "ticket-asteroid-collision-simula",
       "description": "You are given an integer array asteroids representing asteroids moving in a straight line.\n\nEach value represents the size and direction of an asteroid:\n- A positive value means the asteroid is moving to the right.\n- A negative value means the asteroid is moving to the left.\n\nWhen two asteroids moving in opposite directions collide, the smaller asteroid explodes. If both asteroids have the same size, both explode. Asteroids moving in the same direction will never collide.\n\nYour task is to determine the state of the asteroids after all collisions have occurred.\n\nReturn the final list of asteroids.\n\n**Example 1:**\nInput:\n[5,10,-5]\nOutput:\n[5,10]\n\nExplanation:\nThe asteroid -5 collides with 10. Since 10 is larger, -5 explodes.\n\n**Example 2:**\nInput:\n[8,-8]\nOutput:\n[]\n\nExplanation:\nBoth asteroids have the same size and explode.\n\n**Constraints:**\n- 2 <= asteroids.length <= 10^4\n- -1000 <= asteroids[i] <= 1000\n- asteroids[i] != 0\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[5,10,-5]\n\nOutput:\n[5,10]\n```\n\n**Example 2:**\n```\nInput:\n[8,-8]\n\nOutput:\n[]\n```\n",
       "xp_reward": 200,
@@ -749,9 +749,9 @@
       ]
     },
     {
-      "title": "Ticket 7 — Build Target Array Using Stack Operations",
+      "title": "Ticket 7 \u2014 Build Target Array Using Stack Operations",
       "ticket_slug": "ticket-build-target-array-using-",
-      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 → Push → stack = [1]\nRead 2 → Push then Pop → stack = [1]\nRead 3 → Push → stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n```\n",
+      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 \u2192 Push \u2192 stack = [1]\nRead 2 \u2192 Push then Pop \u2192 stack = [1]\nRead 3 \u2192 Push \u2192 stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -878,9 +878,9 @@
       ]
     },
     {
-      "title": "Ticket 8 — Text Editor with Undo Operation",
+      "title": "Ticket 8 \u2014 Text Editor with Undo Operation",
       "ticket_slug": "ticket-text-editor-with-undo-ope",
-      "description": "Design a simple text editor that supports the following operations:\n\n1. append W → Append string W to the end of the current text.\n2. delete k → Delete the last k characters from the text.\n3. print k → Print the k-th character of the text.\n4. undo → Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n\n### Examples\n\n**Example 1:**\n```\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n```\n\n**Example 2:**\n```\nInput:\n5\n1 hello\n1 world\n3 5\n2 5\n3 5\n\nOutput:\no\no\n```\n",
+      "description": "Design a simple text editor that supports the following operations:\n\n1. append W \u2192 Append string W to the end of the current text.\n2. delete k \u2192 Delete the last k characters from the text.\n3. print k \u2192 Print the k-th character of the text.\n4. undo \u2192 Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n\n### Examples\n\n**Example 1:**\n```\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc\n```\n\n**Example 2:**\n```\nInput:\n5\n1 hello\n1 world\n3 5\n2 5\n3 5\n\nOutput:\no\no\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -1007,9 +1007,9 @@
       ]
     },
     {
-      "title": "Ticket 9 — Stack of Plates with Capacity Limit",
+      "title": "Ticket 9 \u2014 Stack of Plates with Capacity Limit",
       "ticket_slug": "ticket-stack-of-plates-with-capa",
-      "description": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) → Push value into the leftmost stack that is not full.\npop() → Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) → Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[popAtStack,0]]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[pop]]\n\nOutput:\n3\n```\n",
+      "description": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) \u2192 Push value into the leftmost stack that is not full.\npop() \u2192 Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) \u2192 Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[popAtStack,0]]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\ncapacity=2 operations=[[push,1],[push,2],[push,3],[pop]]\n\nOutput:\n3\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -1129,9 +1129,9 @@
       ]
     },
     {
-      "title": "Ticket 10 — Stack that Pops Most Frequent Element",
+      "title": "Ticket 10 \u2014 Stack that Pops Most Frequent Element",
       "ticket_slug": "ticket-stack-that-pops-most-freq",
-      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Add element x.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5, push 7, push 5, pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5, push 7, push 5, push 7, pop\n\nOutput:\n7\n```\n",
+      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Add element x.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5, push 7, push 5, pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5, push 7, push 5, push 7, pop\n\nOutput:\n7\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -1258,9 +1258,9 @@
       ]
     },
     {
-      "title": "Ticket 11 — Implementing a Stack Using Queues",
+      "title": "Ticket 11 \u2014 Implementing a Stack Using Queues",
       "ticket_slug": "ticket-implementing-a-stack-usin",
-      "description": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element of the stack.\ntop() → Return the top element without removing it.\nempty() → Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1\npush 2\ntop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1\npush 2\npop\n\nOutput:\n2\n```\n",
+      "description": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element of the stack.\ntop() \u2192 Return the top element without removing it.\nempty() \u2192 Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1\npush 2\ntop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1\npush 2\npop\n\nOutput:\n2\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -1387,9 +1387,9 @@
       ]
     },
     {
-      "title": "Ticket 12 — Building a Target Array Using Stack Operations",
+      "title": "Ticket 12 \u2014 Building a Target Array Using Stack Operations",
       "ticket_slug": "ticket-building-a-target-array-u",
-      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush → Push the number into the stack.\nPop → Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\nPush Push Pop Push\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\nPush Push Push\n```\n",
+      "description": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush \u2192 Push the number into the stack.\nPop \u2192 Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,3]\n3\n\nOutput:\nPush Push Pop Push\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3]\n3\n\nOutput:\nPush Push Push\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -1516,9 +1516,9 @@
       ]
     },
     {
-      "title": "Ticket 13 — Simulating Folder Navigation Logs",
+      "title": "Ticket 13 \u2014 Simulating Folder Navigation Logs",
       "ticket_slug": "ticket-simulating-folder-navigat",
-      "description": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" → Move to parent folder.\n\"./\" → Stay in current folder.\n\"x/\" → Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\n[\"d1/\",\"../\",\"../\",\"../\"]\n\nOutput:\n0\n```\n",
+      "description": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" \u2192 Move to parent folder.\n\"./\" \u2192 Stay in current folder.\n\"x/\" \u2192 Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\n[\"d1/\",\"../\",\"../\",\"../\"]\n\nOutput:\n0\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -1645,7 +1645,7 @@
       ]
     },
     {
-      "title": "Ticket 14 — Removing Adjacent Duplicate Characters Using Stack",
+      "title": "Ticket 14 \u2014 Removing Adjacent Duplicate Characters Using Stack",
       "ticket_slug": "ticket-removing-adjacent-duplica",
       "description": "Given a string consisting of lowercase letters, repeatedly remove adjacent duplicate characters.\n\nContinue removing duplicates until no more adjacent duplicates remain.\n\nReturn the final string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nabbaca\n\nOutput:\nca\n```\n\n**Example 2:**\n```\nInput:\nazxxzy\n\nOutput:\nay\n```\n",
       "xp_reward": 100,
@@ -1774,9 +1774,9 @@
       ]
     },
     {
-      "title": "Ticket 15 — Designing a Stack with Minimum Retrieval",
+      "title": "Ticket 15 \u2014 Designing a Stack with Minimum Retrieval",
       "ticket_slug": "ticket-designing-a-stack-with-mi",
-      "description": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove the top element.\ntop() → Return the top element.\ngetMin() → Return the minimum element in the stack.\n\nAll operations must run in O(1) time.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush -2\npush 0\npush -3\ngetMin\n\nOutput:\n-3\n```\n\n**Example 2:**\n```\nInput:\npush 2\npush 3\npush 1\ngetMin\n\nOutput:\n1\n```\n",
+      "description": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove the top element.\ntop() \u2192 Return the top element.\ngetMin() \u2192 Return the minimum element in the stack.\n\nAll operations must run in O(1) time.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush -2\npush 0\npush -3\ngetMin\n\nOutput:\n-3\n```\n\n**Example 2:**\n```\nInput:\npush 2\npush 3\npush 1\ngetMin\n\nOutput:\n1\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -1903,9 +1903,9 @@
       ]
     },
     {
-      "title": "Ticket 16 — Stack with Increment Operation",
+      "title": "Ticket 16 \u2014 Stack with Increment Operation",
       "ticket_slug": "ticket-stack-with-increment-oper",
-      "description": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) → Push element x.\npop() → Remove the top element.\nincrement(k,val) → Increment bottom k elements by val.\n\nReturn values for pop operations.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1 push 2 pop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1 push 2 increment 2 3 pop\n\nOutput:\n5\n```\n",
+      "description": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) \u2192 Push element x.\npop() \u2192 Remove the top element.\nincrement(k,val) \u2192 Increment bottom k elements by val.\n\nReturn values for pop operations.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 1 push 2 pop\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\npush 1 push 2 increment 2 3 pop\n\nOutput:\n5\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -2032,9 +2032,9 @@
       ]
     },
     {
-      "title": "Ticket 17 — Stack Supporting Maximum Element Retrieval",
+      "title": "Ticket 17 \u2014 Stack Supporting Maximum Element Retrieval",
       "ticket_slug": "ticket-stack-supporting-maximum-",
-      "description": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element.\ntop() → Return the top element without removing it.\npeekMax() → Return the maximum element in the stack.\npopMax() → Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 1 push 5 peekMax\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 1 push 5 popMax\n\nOutput:\n5\n```\n",
+      "description": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element.\ntop() \u2192 Return the top element without removing it.\npeekMax() \u2192 Return the maximum element in the stack.\npopMax() \u2192 Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 1 push 5 peekMax\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 1 push 5 popMax\n\nOutput:\n5\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -2161,9 +2161,9 @@
       ]
     },
     {
-      "title": "Ticket 18 — Stack that Removes Most Frequent Element",
+      "title": "Ticket 18 \u2014 Stack that Removes Most Frequent Element",
       "ticket_slug": "ticket-stack-that-removes-most-f",
-      "description": "Design a stack that supports push and pop operations.\n\npush(x) → Push element x.\npop() → Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
+      "description": "Design a stack that supports push and pop operations.\n\npush(x) \u2192 Push element x.\npop() \u2192 Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -2290,7 +2290,7 @@
       ]
     },
     {
-      "title": "Ticket 19 — Making a String Good by Removing Case Conflicts",
+      "title": "Ticket 19 \u2014 Making a String Good by Removing Case Conflicts",
       "ticket_slug": "ticket-making-a-string-good-by-r",
       "description": "You are given a string s consisting of lowercase and uppercase English letters.\n\nA string is considered \"good\" if it does not contain two adjacent characters where one is the lowercase version of the other. For example, 'aA' or 'Bb' are considered bad pairs.\n\nYour task is to repeatedly remove such adjacent pairs until the string becomes good.\n\nReturn the final string after all possible removals.\n\n**Example 1:**\nInput:\nleEeetcode\nOutput:\nleetcode\n\nExplanation:\nThe pair 'eE' is removed first, resulting in 'leetcode'.\n\n**Example 2:**\nInput:\nabBAcC\nOutput:\n\nExplanation:\nAll characters cancel each other.\n\n**Constraints:**\n- 1 <= s.length <= 100\n- s contains only uppercase and lowercase English letters.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nleEeetcode\n\nOutput:\nleetcode\n```\n\n**Example 2:**\n```\nInput:\nabBAcC\n\nOutput:\n\n```\n",
       "xp_reward": 100,
@@ -2419,7 +2419,7 @@
       ]
     },
     {
-      "title": "Ticket 20 — Removing Outermost Parentheses",
+      "title": "Ticket 20 \u2014 Removing Outermost Parentheses",
       "ticket_slug": "ticket-removing-outermost-parent",
       "description": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing outer parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s contains only '(' and ')'\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(()())(())\n\nOutput:\n()()()\n```\n\n**Example 2:**\n```\nInput:\n(()())(())(()(()))\n\nOutput:\n()()()()(())\n```\n",
       "xp_reward": 100,
@@ -2545,9 +2545,9 @@
       ]
     },
     {
-      "title": "Ticket 21 — Maximum Element in a Stack",
+      "title": "Ticket 21 \u2014 Maximum Element in a Stack",
       "ticket_slug": "ticket-maximum-element-in-a-stac",
-      "description": "You are given a stack that supports the following operations:\n\n1 x → Push element x onto the stack.\n2 → Pop the top element.\n3 → Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 ≤ number of queries ≤ 10^5\n- -10^9 ≤ x ≤ 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 5\n1 7\n3\n\nOutput:\n7\n```\n\n**Example 2:**\n```\nInput:\n1 10\n1 20\n2\n3\n\nOutput:\n10\n```\n",
+      "description": "You are given a stack that supports the following operations:\n\n1 x \u2192 Push element x onto the stack.\n2 \u2192 Pop the top element.\n3 \u2192 Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 \u2264 number of queries \u2264 10^5\n- -10^9 \u2264 x \u2264 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 5\n1 7\n3\n\nOutput:\n7\n```\n\n**Example 2:**\n```\nInput:\n1 10\n1 20\n2\n3\n\nOutput:\n10\n```\n",
       "xp_reward": 100,
       "ticket_type": "algo",
       "difficulty": "EASY",
@@ -2658,9 +2658,9 @@
       ]
     },
     {
-      "title": "Ticket 22 — Online Stock Span Calculator",
+      "title": "Ticket 22 \u2014 Online Stock Span Calculator",
       "ticket_slug": "ticket-online-stock-span-calcula",
-      "description": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) → Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 ≤ price ≤ 10^5\n- At most 10^4 calls will be made.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[100,80,60,70,60,75,85]\n\nOutput:\n[1,1,1,2,1,4,6]\n```\n\n**Example 2:**\n```\nInput:\n[30,40,50,60]\n\nOutput:\n[1,2,3,4]\n```\n",
+      "description": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) \u2192 Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 \u2264 price \u2264 10^5\n- At most 10^4 calls will be made.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[100,80,60,70,60,75,85]\n\nOutput:\n[1,1,1,2,1,4,6]\n```\n\n**Example 2:**\n```\nInput:\n[30,40,50,60]\n\nOutput:\n[1,2,3,4]\n```\n",
       "xp_reward": 200,
       "ticket_type": "algo",
       "difficulty": "MEDIUM",
@@ -2771,7 +2771,7 @@
       ]
     },
     {
-      "title": "Ticket 23 — Evaluate Reverse Polish Notation",
+      "title": "Ticket 23 \u2014 Evaluate Reverse Polish Notation",
       "ticket_slug": "ticket-evaluate-reverse-polish-n",
       "description": "Evaluate the value of an arithmetic expression in Reverse Polish Notation.\n\nValid operators are +, -, *, /. Each operand may be an integer.\n\n**Example 1:**\nInput:\n[\"2\",\"1\",\"+\",\"3\",\"*\"]\nOutput:\n9\n\nExplanation:\n((2 + 1) * 3) = 9.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[\"2\",\"1\",\"+\",\"3\",\"*\"]\n\nOutput:\n9\n```\n\n**Example 2:**\n```\nInput:\n[\"4\",\"13\",\"5\",\"/\",\"+\"]\n\nOutput:\n6\n```\n",
       "xp_reward": 200,
@@ -2897,7 +2897,7 @@
       ]
     },
     {
-      "title": "Ticket 24 — Decode Nested Encoded Strings",
+      "title": "Ticket 24 \u2014 Decode Nested Encoded Strings",
       "ticket_slug": "ticket-decode-nested-encoded-str",
       "description": "You are given an encoded string that follows the pattern k[encoded_string], where the encoded_string inside the square brackets is repeated exactly k times.\n\nNote that k is guaranteed to be a positive integer. The input string does not contain any spaces and is always valid.\n\nYour task is to decode the string and return the final expanded result.\n\n**Example 1:**\nInput:\n3[a]2[bc]\nOutput:\naaabcbc\n\nExplanation:\nThe substring 'a' is repeated 3 times and 'bc' is repeated 2 times.\n\n**Example 2:**\nInput:\n3[a2[c]]\nOutput:\naccaccacc\n\nExplanation:\nThe inner encoded string '2[c]' becomes 'cc', and then the outer expression repeats 'acc' three times.\n\n**Constraints:**\n- 1 <= s.length <= 30\n- s consists of digits, lowercase English letters, and square brackets.\n- The input string is guaranteed to be valid.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n3[a]2[bc]\n\nOutput:\naaabcbc\n```\n\n**Example 2:**\n```\nInput:\n3[a2[c]]\n\nOutput:\naccaccacc\n```\n",
       "xp_reward": 200,
@@ -3020,9 +3020,9 @@
       ]
     },
     {
-      "title": "Ticket 25 — Stack that Removes the Most Frequent Element",
+      "title": "Ticket 25 \u2014 Stack that Removes the Most Frequent Element",
       "ticket_slug": "ticket-stack-that-removes-the-mo",
-      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
+      "description": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.\n\n### Examples\n\n**Example 1:**\n```\nInput:\npush 5 push 7 push 5 pop\n\nOutput:\n5\n```\n\n**Example 2:**\n```\nInput:\npush 5 push 7 push 5 push 7 pop\n\nOutput:\n7\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -3153,7 +3153,7 @@
       ]
     },
     {
-      "title": "Ticket 26 — Arithmetic Expression Calculator II",
+      "title": "Ticket 26 \u2014 Arithmetic Expression Calculator II",
       "ticket_slug": "ticket-arithmetic-expression-cal",
       "description": "Given a string s representing a valid arithmetic expression, evaluate it and return the result.\n\nThe expression contains non-negative integers and operators '+', '-', '*', '/'. Integer division truncates toward zero.\n\n**Example 1:**\nInput:\n3+2*2\nOutput:\n7\n\n**Example 2:**\nInput:\n3/2\nOutput:\n1\n\n**Example 3:**\nInput:\n3+5/2\nOutput:\n5\n\n**Constraints:**\n- 1 <= s.length <= 3*10^5\n- s consists of digits and operators.\n- s is a valid expression.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n3+2*2\n\nOutput:\n7\n```\n\n**Example 2:**\n```\nInput:\n3/2\n\nOutput:\n1\n```\n",
       "xp_reward": 300,
@@ -3266,7 +3266,7 @@
       ]
     },
     {
-      "title": "Ticket 27 — Minimum Insertions to Make Parentheses Valid",
+      "title": "Ticket 27 \u2014 Minimum Insertions to Make Parentheses Valid",
       "ticket_slug": "ticket-minimum-insertions-to-mak",
       "description": "You are given a string s consisting only of '(' and ')'. Your task is to determine the minimum number of parentheses that must be inserted so that the string becomes a valid parentheses string.\n\nA parentheses string is valid if every opening bracket has a corresponding closing bracket and they are correctly ordered.\n\nYou may insert parentheses at any position in the string.\n\n**Example 1:**\nInput:\n())\nOutput:\n1\n\nExplanation:\nOne '(' must be added at the beginning to make the string valid.\n\n**Example 2:**\nInput:\n((\nOutput:\n2\n\nExplanation:\nTwo ')' characters must be added to balance the string.\n\n**Constraints:**\n- 1 <= s.length <= 1000\n- s consists only of '(' and ')'.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n())\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\n((\n\nOutput:\n2\n```\n",
       "xp_reward": 100,
@@ -3395,7 +3395,7 @@
       ]
     },
     {
-      "title": "Ticket 28 — Maximum Nesting Depth of Parentheses",
+      "title": "Ticket 28 \u2014 Maximum Nesting Depth of Parentheses",
       "ticket_slug": "ticket-maximum-nesting-depth-of-",
       "description": "Given a valid parentheses string s, return the maximum nesting depth of the parentheses.\n\nThe nesting depth is defined as the maximum number of nested parentheses at any point in the string.\n\nA parentheses string is valid if every opening bracket has a corresponding closing bracket and the order is correct.\n\n**Example 1:**\nInput:\n\"(1+(2*3)+((8)/4))+1\"\nOutput:\n3\n\nExplanation:\nThe deepest nested parentheses is \"((8)/4)\" which has a depth of 3.\n\n**Example 2:**\nInput:\n\"(1)+((2))+(((3)))\"\nOutput:\n3\n\n**Constraints:**\n- 1 <= s.length <= 100\n- s consists of digits 0-9, '+', '-', '*', '/', '(', and ')'.\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(1+(2*3)+((8)/4))+1\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\n(1)+((2))+(((3)))\n\nOutput:\n3\n```\n",
       "xp_reward": 100,
@@ -3524,7 +3524,7 @@
       ]
     },
     {
-      "title": "Ticket 29 — Remove Outermost Parentheses",
+      "title": "Ticket 29 \u2014 Remove Outermost Parentheses",
       "ticket_slug": "ticket-remove-outermost-parenthe",
       "description": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing their outermost parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists of '(' and ')'.\n- s is a valid parentheses string.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(()())(())\n\nOutput:\n()()()\n```\n\n**Example 2:**\n```\nInput:\n(()())(())(()(()))\n\nOutput:\n()()()()(())\n```\n",
       "xp_reward": 100,
@@ -3653,7 +3653,7 @@
       ]
     },
     {
-      "title": "Ticket 30 — Reverse Substrings Between Each Pair of Parentheses",
+      "title": "Ticket 30 \u2014 Reverse Substrings Between Each Pair of Parentheses",
       "ticket_slug": "ticket-reverse-substrings-betwee",
       "description": "You are given a string s that consists of lowercase English letters and parentheses. Reverse the strings in each pair of matching parentheses starting from the innermost one.\n\nReturn the final string after removing all parentheses.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n(abcd)\n\nOutput:\ndcba\n```\n\n**Example 2:**\n```\nInput:\n(u(love)i)\n\nOutput:\niloveu\n```\n",
       "xp_reward": 100,
@@ -3782,7 +3782,7 @@
       ]
     },
     {
-      "title": "Ticket 31 — Score of Parentheses",
+      "title": "Ticket 31 \u2014 Score of Parentheses",
       "ticket_slug": "ticket-score-of-parentheses",
       "description": "Given a balanced parentheses string s, compute its score using the following rules:\n\n() has score 1\nAB has score A + B\n(A) has score 2 * A\n\n### Examples\n\n**Example 1:**\n```\nInput:\n()\n\nOutput:\n1\n```\n\n**Example 2:**\n```\nInput:\n(())\n\nOutput:\n2\n```\n",
       "xp_reward": 200,
@@ -3911,7 +3911,7 @@
       ]
     },
     {
-      "title": "Ticket 32 — Basic Calculator",
+      "title": "Ticket 32 \u2014 Basic Calculator",
       "ticket_slug": "ticket-basic-calculator",
       "description": "Evaluate a simple expression string containing non-negative integers, '+', '-', and parentheses.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n1 + 1\n\nOutput:\n2\n```\n\n**Example 2:**\n```\nInput:\n2-1 + 2\n\nOutput:\n3\n```\n",
       "xp_reward": 300,
@@ -4040,7 +4040,7 @@
       ]
     },
     {
-      "title": "Ticket 33 — XML Tag Validator",
+      "title": "Ticket 33 \u2014 XML Tag Validator",
       "ticket_slug": "ticket-xml-tag-validator",
       "description": "Given a string representing code with XML-like tags, determine whether it is valid.\n\nA valid code snippet must satisfy the following rules:\n\n1. The code must be wrapped inside a single valid closed tag.\n2. A tag name must contain only uppercase letters and have length between 1 and 9.\n3. Tags must be properly nested.\n4. The code may contain CDATA sections which should be ignored when validating tags.\n\nReturn true if the code is valid, otherwise return false.\n\n**Example 1:**\nInput:\n<DIV>This is the first line <![CDATA[<div>]]></DIV>\nOutput:\ntrue\n\n**Example 2:**\nInput:\n<A> <B> </A> </B>\nOutput:\nfalse\n\n### Examples\n\n**Example 1:**\n```\nInput:\n<A></A>\n\nOutput:\ntrue\n```\n\n**Example 2:**\n```\nInput:\n<A><B></B></A>\n\nOutput:\ntrue\n```\n",
       "xp_reward": 300,
@@ -4169,7 +4169,7 @@
       ]
     },
     {
-      "title": "Ticket 34 — Next Greater Element Lookup",
+      "title": "Ticket 34 \u2014 Next Greater Element Lookup",
       "ticket_slug": "ticket-next-greater-element-look",
       "description": "You are given two arrays nums1 and nums2. All elements of nums1 are present in nums2.\n\nFor each element in nums1, find the next greater element in nums2. The next greater element of a number x in nums2 is the first greater number to the right of x in nums2.\n\nIf it does not exist, return -1 for that element.\n\n### Examples\n\n**Example 1:**\n```\nInput:\nnums1=[4,1,2], nums2=[1,3,4,2]\n\nOutput:\n[-1,3,-1]\n```\n\n**Example 2:**\n```\nInput:\nnums1=[2,4], nums2=[1,2,3,4]\n\nOutput:\n[3,-1]\n```\n",
       "xp_reward": 100,
@@ -4298,7 +4298,7 @@
       ]
     },
     {
-      "title": "Ticket 35 — Final Prices With Special Discount",
+      "title": "Ticket 35 \u2014 Final Prices With Special Discount",
       "ticket_slug": "ticket-final-prices-with-special",
       "description": "You are given an array prices where prices[i] is the price of the ith item.\n\nFor each item, find the first item to its right whose price is less than or equal to it. If such an item exists, subtract that price as a discount.\n\nReturn the final prices after applying discounts.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[8,4,6,2,3]\n\nOutput:\n[4,2,4,2,3]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,5]\n\nOutput:\n[1,2,3,4,5]\n```\n",
       "xp_reward": 100,
@@ -4427,7 +4427,7 @@
       ]
     },
     {
-      "title": "Ticket 36 — Buildings With Ocean View",
+      "title": "Ticket 36 \u2014 Buildings With Ocean View",
       "ticket_slug": "ticket-buildings-with-ocean-view",
       "description": "You are given an integer array heights where heights[i] represents the height of the ith building.\n\nA building has an ocean view if all the buildings to its right have a smaller height.\n\nReturn the indices of the buildings that have an ocean view. The returned indices should be sorted in increasing order.\n\n**Example 1:**\nInput:\n[4,2,3,1]\nOutput:\n[0,2,3]\n\nExplanation:\nBuilding 1 does not have an ocean view because building 2 is taller.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[4,2,3,1]\n\nOutput:\n[0,2,3]\n```\n\n**Example 2:**\n```\nInput:\n[4,3,2,1]\n\nOutput:\n[0,1,2,3]\n```\n",
       "xp_reward": 100,
@@ -4556,7 +4556,7 @@
       ]
     },
     {
-      "title": "Ticket 37 — Steps to Make Array Non-decreasing",
+      "title": "Ticket 37 \u2014 Steps to Make Array Non-decreasing",
       "ticket_slug": "ticket-steps-to-make-array-non-d",
       "description": "You are given an integer array nums. In one step, remove all elements nums[i] such that nums[i-1] > nums[i].\n\nReturn the number of steps required to make the array non-decreasing.\n\n**Example 1:**\nInput:\n[5,3,4,4,7,3,6,11,8,5,11]\nOutput:\n3\n\nExplanation:\nAfter removing decreasing elements step by step, the array becomes non-decreasing in 3 steps.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[5,3,4,4,7,3,6,11,8,5,11]\n\nOutput:\n3\n```\n\n**Example 2:**\n```\nInput:\n[4,5,7,7,13]\n\nOutput:\n0\n```\n",
       "xp_reward": 100,
@@ -4685,7 +4685,7 @@
       ]
     },
     {
-      "title": "Ticket 38 — Daily Temperatures",
+      "title": "Ticket 38 \u2014 Daily Temperatures",
       "ticket_slug": "ticket-daily-temperatures",
       "description": "You are given an array of integers temperatures representing the daily temperatures. Return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.\n\nIf there is no future day for which this is possible, keep answer[i] == 0.\n\n**Example 1:**\nInput:\n[73,74,75,71,69,72,76,73]\nOutput:\n[1,1,4,2,1,1,0,0]\n\n**Constraints:**\n- 1 <= temperatures.length <= 10^5\n- 30 <= temperatures[i] <= 100\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[73,74,75,71,69,72,76,73]\n\nOutput:\n[1,1,4,2,1,1,0,0]\n```\n\n**Example 2:**\n```\nInput:\n[30,40,50,60]\n\nOutput:\n[1,1,1,0]\n```\n",
       "xp_reward": 200,
@@ -4814,7 +4814,7 @@
       ]
     },
     {
-      "title": "Ticket 39 — Next Greater Element II (Circular Array)",
+      "title": "Ticket 39 \u2014 Next Greater Element II (Circular Array)",
       "ticket_slug": "ticket-next-greater-element-ii-c",
       "description": "Given a circular integer array nums, return the next greater element for every element in nums.\n\nThe next greater element of a number x is the first greater number to its right while traversing the array circularly. If no such element exists, return -1.\n\n**Example 1:**\nInput:\n[1,2,1]\nOutput:\n[2,-1,2]\n\n**Constraints:**\n- 1 <= nums.length <= 10^4\n- -10^9 <= nums[i] <= 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,1]\n\nOutput:\n[2,-1,2]\n```\n\n**Example 2:**\n```\nInput:\n[1,2,3,4,3]\n\nOutput:\n[2,3,4,-1,4]\n```\n",
       "xp_reward": 200,
@@ -4943,7 +4943,7 @@
       ]
     },
     {
-      "title": "Ticket 40 — Sum of Subarray Ranges",
+      "title": "Ticket 40 \u2014 Sum of Subarray Ranges",
       "ticket_slug": "ticket-sum-of-subarray-ranges",
       "description": "You are given an integer array nums. The range of a subarray is the difference between the maximum and minimum elements in that subarray.\n\nReturn the sum of all subarray ranges.\n\n**Example 1:**\nInput:\n[1,2,3]\nOutput:\n4\n\nExplanation:\nThe subarrays are:\n[1] range=0\n[2] range=0\n[3] range=0\n[1,2] range=1\n[2,3] range=1\n[1,2,3] range=2\nTotal = 4\n\n**Constraints:**\n- 1 <= nums.length <= 1000\n- -10^9 <= nums[i] <= 10^9\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[1,2,3]\n\nOutput:\n4\n```\n\n**Example 2:**\n```\nInput:\n[1,3,3]\n\nOutput:\n4\n```\n",
       "xp_reward": 200,
@@ -5072,7 +5072,7 @@
       ]
     },
     {
-      "title": "Ticket 41 — Largest Rectangle in Histogram",
+      "title": "Ticket 41 \u2014 Largest Rectangle in Histogram",
       "ticket_slug": "ticket-largest-rectangle-in-hist",
       "description": "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.\n\n**Example 1:**\nInput:\n[2,1,5,6,2,3]\nOutput:\n10\n\nExplanation:\nThe largest rectangle has area 10 (height 5 and width 2).\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[2,1,5,6,2,3]\n\nOutput:\n10\n```\n\n**Example 2:**\n```\nInput:\n[2,4]\n\nOutput:\n4\n```\n",
       "xp_reward": 300,
@@ -5201,7 +5201,7 @@
       ]
     },
     {
-      "title": "Ticket 42 — Trapping Rain Water",
+      "title": "Ticket 42 \u2014 Trapping Rain Water",
       "ticket_slug": "ticket-trapping-rain-water",
       "description": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.\n\n**Example 1:**\nInput:\n[0,1,0,2,1,0,1,3,2,1,2,1]\nOutput:\n6\n\nExplanation:\nThe elevation map traps a total of 6 units of rain water.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[0,1,0,2,1,0,1,3,2,1,2,1]\n\nOutput:\n6\n```\n\n**Example 2:**\n```\nInput:\n[4,2,0,3,2,5]\n\nOutput:\n9\n```\n",
       "xp_reward": 300,
@@ -5330,9 +5330,9 @@
       ]
     },
     {
-      "title": "Ticket 43 — Sum of Subarray Minimums",
+      "title": "Ticket 43 \u2014 Sum of Subarray Minimums",
       "ticket_slug": "ticket-sum-of-subarray-minimums",
-      "description": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] → 3\n[1] → 1\n[2] → 2\n[4] → 4\n[3,1] → 1\n[1,2] → 1\n[2,4] → 2\n[3,1,2] → 1\n[1,2,4] → 1\n[3,1,2,4] → 1\nTotal = 17\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,1,2,4]\n\nOutput:\n17\n```\n\n**Example 2:**\n```\nInput:\n[11,81,94,43,3]\n\nOutput:\n444\n```\n",
+      "description": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] \u2192 3\n[1] \u2192 1\n[2] \u2192 2\n[4] \u2192 4\n[3,1] \u2192 1\n[1,2] \u2192 1\n[2,4] \u2192 2\n[3,1,2] \u2192 1\n[1,2,4] \u2192 1\n[3,1,2,4] \u2192 1\nTotal = 17\n\n### Examples\n\n**Example 1:**\n```\nInput:\n[3,1,2,4]\n\nOutput:\n17\n```\n\n**Example 2:**\n```\nInput:\n[11,81,94,43,3]\n\nOutput:\n444\n```\n",
       "xp_reward": 300,
       "ticket_type": "algo",
       "difficulty": "HARD",
@@ -5459,7 +5459,7 @@
       ]
     },
     {
-      "title": "Ticket 44 — Maximum of Minimums for Every Window Size",
+      "title": "Ticket 44 \u2014 Maximum of Minimums for Every Window Size",
       "ticket_slug": "ticket-maximum-of-minimums-for-e",
       "description": "Given an array of n integers, for every window size w from 1 to n, find the maximum of the minimum values across all windows of that size.\n\nFormally, for each w, find: max over all i of (min(arr[i..i+w-1]))\n\n**Constraints:**\n- 1 <= n <= 10^5\n- 1 <= arr[i] <= 10^6\n\n### Examples\n\n**Example 1:**\n```\nInput:\n7\n10 20 30 50 10 70 30\n\nOutput:\n70 30 20 10 10 10 10\n```\n\n**Example 2:**\n```\nInput:\n4\n10 20 30 50\n\nOutput:\n50 30 20 10\n```\n\n**Example 3:**\n```\nInput:\n3\n3 1 2\n\nOutput:\n3 1 1\n```\n\n**Example 4:**\n```\nInput:\n1\n5\n\nOutput:\n5\n```\n",
       "xp_reward": 300,
@@ -5577,7 +5577,7 @@
         ]
       },
       "hints": [
-        "Use a monotonic stack to find, for each element, the span over which it is the minimum — i.e., the left and right boundaries.",
+        "Use a monotonic stack to find, for each element, the span over which it is the minimum \u2014 i.e., the left and right boundaries.",
         "For element at index i, if it is the minimum over a window of size w = right[i] - left[i] - 1, update ans[w] = max(ans[w], arr[i]).",
         "After filling ans[], propagate: for w from n-1 down to 1, ans[w] = max(ans[w], ans[w+1]) to handle larger windows."
       ]

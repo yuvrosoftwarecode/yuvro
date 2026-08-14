@@ -587,8 +587,13 @@ function LabDashboard() {
   };
 
   const handleStartLabPrompt = () => {
-    setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`);
-    setEnrollModalOpen(true);
+    const defaultRepoName = `yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`;
+    setEnrollRepoName(defaultRepoName);
+    if (lab.name?.toLowerCase().includes("data structures")) {
+      confirmEnroll(defaultRepoName);
+    } else {
+      setEnrollModalOpen(true);
+    }
   };
 
   const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
@@ -724,12 +729,13 @@ function LabDashboard() {
     }
   };
 
-  const confirmEnroll = async () => {
-    if (!realLab || !enrollRepoName.trim()) return;
+  const confirmEnroll = async (repoNameOverride?: string) => {
+    const finalRepoName = typeof repoNameOverride === "string" ? repoNameOverride : enrollRepoName;
+    if (!realLab || !finalRepoName.trim()) return;
     setEnrollLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: enrollRepoName });
+      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: finalRepoName });
       setIsEnrolled(true);
       setEnrollModalOpen(false);
     } catch (e) {

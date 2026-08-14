@@ -62,12 +62,12 @@ clean:
 
 reload-fixtures-data:
 	@echo "🔄 Reloading YLabs fixtures (with clear)..."
-	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py setup_fixtures_data --clear
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py load_labs --clear
 	@echo "✅ Test data cleared and reloaded!"
 
 load-fixtures-data:
 	@echo "🔄 Loading YLabs fixture data (no clear)..."
-	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py setup_fixtures_data
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py load_labs
 	@echo "✅ YLabs fixture data loaded!"
 # ============================================================================
 # Database

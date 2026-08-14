@@ -166,14 +166,31 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         return UserLabEnrollment.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        
-        
         lab = serializer.validated_data.get('lab')
+        
+        # Bypass GitHub creation for Data Structures Lab
+        if "data structures" in lab.title.lower():
+            enrollment = serializer.save(
+                user=self.request.user,
+                github_repo_name="",
+                github_repo_url="",
+                default_branch=""
+            )
+            
+            starter_repo_path = None
+            if lab.git_repo_starter_url:
+                starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+                starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab.id), starter_repo_name)
+                
+            threading.Thread(
+                target=provision_user_lab_repo, 
+                args=(lab.id, self.request.user.id, starter_repo_path, None, None, None)
+            ).start()
+            return
+
         requested_repo_name = self.request.data.get('github_repo_name')
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
-
-
 
         client = GithubClient(self.request.user.id)
         if not client._fetch_token():
