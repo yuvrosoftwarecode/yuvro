@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     EvaluationViewSet,
     LabQuestionBankViewSet,
-    UserLabQuestionBankSubmissionViewSet
+    UserLabQuestionBankSubmissionViewSet,
     CandidateNoteViewSet,
     CandidateTimelineEventViewSet
 )
