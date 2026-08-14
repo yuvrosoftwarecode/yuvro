@@ -8,7 +8,9 @@ from .models import (
     ExperienceLevel,
     Difficulty,
     UserEvaluationSubmission,
-    EvaluationSectionType
+    EvaluationSectionType,
+    FollowUpConfig,
+    FollowUpCandidate
 )
 import logging
 from lab.workspace_manager import provision_evaluation_lab_starter_repo
@@ -55,9 +57,24 @@ class SubmissionUserSerializer(serializers.Serializer):
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
     user = SubmissionUserSerializer(read_only=True)
 
+    lab_submissions = serializers.SerializerMethodField()
+    knowledge_submissions = serializers.SerializerMethodField()
+
     class Meta:
         model = UserEvaluationSubmission
         fields = '__all__'
+
+    def get_lab_submissions(self, obj):
+        from .models import UserLabQuestionBankSubmission
+        from .serializers import UserLabQuestionBankSubmissionSerializer
+        subs = UserLabQuestionBankSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
+        return UserLabQuestionBankSubmissionSerializer(subs, many=True).data
+
+    def get_knowledge_submissions(self, obj):
+        from .models import UserKnowledgeAssessmentSubmission
+        from .serializers import UserKnowledgeAssessmentSubmissionSerializer
+        subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
+        return UserKnowledgeAssessmentSubmissionSerializer(subs, many=True).data
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -124,19 +141,90 @@ from .models import LabQuestionBankTask
 class LabQuestionBankTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabQuestionBankTask
-        fields = ['id', 'title', 'description', 'difficulty', 'scoring_rules']
+        fields = '__all__'
+        read_only_fields = ['lab_question_bank', 'created_by', 'updated_by']
 
 class LabQuestionBankSerializer(serializers.ModelSerializer):
-    tasks = LabQuestionBankTaskSerializer(many=True, read_only=True)
+    tasks = LabQuestionBankTaskSerializer(many=True, required=False)
     
     class Meta:
         model = LabQuestionBank
         fields = '__all__'
+        read_only_fields = ['created_by', 'updated_by']
 
-from .models import UserLabQuestionBankTaskSubmission
+    def create(self, validated_data):
+        tasks_data = validated_data.pop('tasks', [])
+        question_bank = LabQuestionBank.objects.create(**validated_data)
+        for task_data in tasks_data:
+            LabQuestionBankTask.objects.create(
+                lab_question_bank=question_bank, 
+                created_by=question_bank.created_by,
+                **task_data
+            )
+        return question_bank
 
-class UserLabQuestionBankTaskSubmissionSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        tasks_data = validated_data.pop('tasks', None)
+        
+        # Update normal fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if tasks_data is not None:
+            # Simple approach: delete existing and recreate
+            # In production, you might want to match by ID to preserve existing objects
+            instance.tasks.all().delete()
+            for task_data in tasks_data:
+                LabQuestionBankTask.objects.create(
+                    lab_question_bank=instance, 
+                    created_by=instance.created_by,
+                    **task_data
+                )
+                
+        return instance
+
+from .models import UserLabQuestionBankSubmission, UserKnowledgeAssessmentSubmission
+
+class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserLabQuestionBankTaskSubmission
+        model = UserLabQuestionBankSubmission
         fields = '__all__'
         read_only_fields = ('user',)
+
+class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserKnowledgeAssessmentSubmission
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+class FollowUpConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpConfig
+        fields = '__all__'
+
+class FollowUpCandidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpCandidate
+        fields = '__all__'
+
+from .models import CandidateNote, CandidateTimelineEvent
+
+class CandidateNoteSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CandidateNote
+        fields = '__all__'
+        read_only_fields = ('author',)
+
+    def get_author_name(self, obj):
+        if obj.author:
+            return f"{obj.author.first_name} {obj.author.last_name}".strip() or obj.author.email
+        return None
+
+class CandidateTimelineEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CandidateTimelineEvent
+        fields = '__all__'
+

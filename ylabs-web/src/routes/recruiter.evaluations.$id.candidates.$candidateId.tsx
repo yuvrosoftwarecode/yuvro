@@ -44,7 +44,9 @@ import {
   Maximize2,
 } from "lucide-react";
 import { getCandidates } from "@/lib/recruiterCandidates";
-import { getEvaluation } from "@/lib/recruiter";
+import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
+import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer";
+import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
   loadNotes,
@@ -67,19 +69,41 @@ export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$can
 });
 
 type Tab =
-  "overview" | "labs" | "assessment" | "vitarka" | "resume" | "timeline" | "notes" | "activity";
+  "overview" | "labs" | "assessment" | "vitarka" | "resume" | "timeline" | "notes" | "activity" | "proctoring";
 
 function CandidateWorkspace() {
   const { id, candidateId } = Route.useParams();
   const nav = useNavigate();
-  const ev = getEvaluation(id);
-  const candidate = getCandidates(id).find((x) => x.id === candidateId);
+  
+  const [ev, setEv] = useState<any>(null);
+  const [candidate, setCandidate] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      getEvaluation(id),
+      getEvaluationSubmissions(id)
+    ]).then(([e, subs]) => {
+      if (!e) {
+        nav({ to: "/recruiter/evaluations" });
+        return;
+      }
+      setEv(e);
+      const cands = getCandidates(e.id, subs || []);
+      const cand = cands.find((x) => x.id === candidateId);
+      setCandidate(cand || null);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, [id, candidateId, nav]);
+
   const [tab, setTab] = useState<Tab>("overview");
   const [toast, setToast] = useState<string | null>(null);
   const [decision, setDecision] = useState<HiringDecision>(() =>
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),
   );
-  const [openLab, setOpenLab] = useState<LabAttempt | null>(null);
+  const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any } | null>(null);
   const [notes, setNotes] = useState<Note[]>(() => loadNotes(id, candidateId));
   const [activity, setActivity] = useState(() => loadActivity(id, candidateId));
 
@@ -88,11 +112,14 @@ function CandidateWorkspace() {
     pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
     setActivity(loadActivity(id, candidateId));
   }, [id, candidateId]);
+  
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  if (loading) return <div className="p-16 text-center text-neutral-400">Loading...</div>;
 
   if (!candidate || !ev) {
     return (
@@ -259,7 +286,7 @@ function CandidateWorkspace() {
           </div>
         </div>
       </header>
-      <nav className="mt-6 flex flex-wrap items-center gap-1 overflow-x-auto">
+      <nav className="mt-6 flex flex-wrap items-center gap-1 px-8 max-w-[1440px] mx-auto">
         {(
           [
             "overview",
@@ -270,6 +297,7 @@ function CandidateWorkspace() {
             "timeline",
             "notes",
             "activity",
+            "proctoring",
           ] as Tab[]
         ).map((t) => (
           <button
@@ -282,7 +310,7 @@ function CandidateWorkspace() {
           </button>
         ))}
       </nav>
-      <hr />
+      <hr className="border-neutral-200" />
       <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-8 py-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
           {tab === "overview" && (
@@ -293,8 +321,8 @@ function CandidateWorkspace() {
               onGotoVit={() => setTab("vitarka")}
             />
           )}
-          {tab === "labs" && <LabsPane detail={detail} onOpen={setOpenLab} />}
-          {tab === "assessment" && <AssessmentPane detail={detail} />}
+          {tab === "labs" && <LabsPane ev={ev} candidate={candidate} onOpen={setOpenLab} />}
+          {tab === "assessment" && <AssessmentPane ev={ev} candidate={candidate} />}
           {tab === "vitarka" && (
             <VitarkaPane
               detail={detail}
@@ -304,6 +332,7 @@ function CandidateWorkspace() {
               }}
             />
           )}
+          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} />}
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
@@ -334,7 +363,7 @@ function CandidateWorkspace() {
         />
       </main>
 
-      {openLab && <LabDrawer lab={openLab} onClose={() => setOpenLab(null)} />}
+      {openLab && <LabDrawer data={openLab} evaluationId={id} onClose={() => setOpenLab(null)} />}
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
@@ -478,80 +507,140 @@ function OverviewPane({
 }
 
 function LabsPane({
-  detail,
+  ev,
+  candidate,
   onOpen,
 }: {
-  detail: ReturnType<typeof getCandidateDetail>;
-  onOpen: (l: LabAttempt) => void;
+  ev: any;
+  candidate: any;
+  onOpen: (data: { section: any, labSub: any, candidate: any }) => void;
 }) {
+  const labSections = ev.sections.filter((s: any) => s.kind === "labs" || s.kind === "lab");
+  const allLabs = labSections.flatMap((s: any) => s.labs || []);
+
   return (
     <div className="space-y-3">
       <SectionHeading>Engineering Labs</SectionHeading>
-      {detail.labs.map((lab, i) => (
-        <button
-          key={lab.id}
-          onClick={() => onOpen(lab)}
-          className="group block w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
-        >
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-[11px] text-neutral-400">
-                L{i + 1}
-              </div>
-              <div>
-                <div className="text-[15px] font-medium text-white">{lab.title}</div>
-                <div className="mt-0.5 text-[12px] text-neutral-500">
-                  {lab.domain} · {lab.tasksCompleted}/{lab.tasksTotal} tasks · {lab.timeTaken}m of{" "}
-                  {lab.timeLimit}m
+      {allLabs.map((lab: any, i: number) => {
+        const labSub = candidate.rawSubmission?.lab_submissions?.find(
+          (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
+        );
+        const score = labSub?.score ?? 0;
+        const timeTaken = labSub?.minutes_solved ?? 0;
+        const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
+
+        return (
+          <button
+            key={lab.id || i}
+            onClick={() => onOpen({ section: lab, labSub, candidate })}
+            className="group block w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-[11px] text-neutral-400">
+                  L{i + 1}
                 </div>
+                <div>
+                  <div className="text-[15px] font-medium text-white">{lab.title || lab.name || 'Engineering Lab'}</div>
+                  <div className="mt-0.5 text-[12px] text-neutral-500">
+                    {lab.domain || 'Backend'} · {timeTaken}m of {timeLimit}m
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className={`text-[24px] font-medium leading-none ${eciColor(score)}`}>
+                    {score}
+                    <span className="text-[12px] text-neutral-500">%</span>
+                  </div>
+                  <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">
+                    {labSub?.status === 'in_review' ? 'Needs Review' : (score > 70 ? 'Excellent' : 'Needs Work')}
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-neutral-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className={`text-[24px] font-medium leading-none ${eciColor(lab.score)}`}>
-                  {lab.score}
-                  <span className="text-[12px] text-neutral-500">%</span>
-                </div>
-                <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">
-                  {lab.aiVerdict}
-                </div>
-              </div>
-              <ChevronRight className="h-4 w-4 text-neutral-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/5">
+              <div
+                className={`h-full ${score >= 70 ? "bg-emerald-400" : score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
+                style={{ width: `${score}%` }}
+              />
             </div>
-          </div>
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/5">
-            <div
-              className={`h-full ${lab.score >= 70 ? "bg-emerald-400" : lab.score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
-              style={{ width: `${lab.score}%` }}
-            />
-          </div>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-function AssessmentPane({ detail }: { detail: ReturnType<typeof getCandidateDetail> }) {
-  const [open, setOpen] = useState<string | null>(detail.assessment[0]?.name ?? null);
+function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
+  const assessmentSections = ev.sections.filter((s: any) => s.kind === "knowledge" || s.kind === "assessment");
+  const [open, setOpen] = useState<string | null>(assessmentSections[0]?.name ?? null);
+
   return (
     <div className="space-y-3">
       <SectionHeading>Knowledge Assessment</SectionHeading>
-      {detail.assessment.map((sub) => {
-        const isOpen = open === sub.name;
-        const pct = Math.round((sub.score / sub.total) * 100);
+      {assessmentSections.map((sub: any) => {
+        const isOpen = open === sub.name || open === sub.title;
+        const subId = sub.id || sub.section_id;
+        const knSub = candidate.rawSubmission?.knowledge_submissions?.find(
+          (s: any) => s.section === subId
+        );
+        
+        let score = 0;
+        let total = sub.questions?.length || 0;
+        
+        const mappedQuestions = (sub.questions || []).map((q: any) => {
+          const answerRecord = knSub?.answers?.find((a: any) => a.question === q.id);
+          const isCorrect = answerRecord?.is_correct ?? false;
+          if (isCorrect) score++;
+          
+          let candidateAnswerText = "Not answered";
+          let correctAnswerText = "Unknown";
+          
+          if (q.format === "Description") {
+             candidateAnswerText = answerRecord?.selected_options?.[0] || "Not answered";
+             correctAnswerText = "Manual review required";
+          } else {
+             // Extract text for selected options
+             if (answerRecord?.selected_options?.length) {
+               candidateAnswerText = answerRecord.selected_options.map((optId: string) => {
+                 const foundOpt = q.options?.find((o: any) => o.id === optId);
+                 return foundOpt ? foundOpt.text : optId;
+               }).join(", ");
+             }
+             
+             // Extract text for correct options
+             const correctOptions = q.options?.filter((o: any) => o.is_correct) || [];
+             if (correctOptions.length) {
+               correctAnswerText = correctOptions.map((o: any) => o.text).join(", ");
+             }
+          }
+          
+          return {
+             ...q,
+             correct: isCorrect,
+             candidateAnswer: candidateAnswerText,
+             correctAnswer: correctAnswerText,
+             seconds: answerRecord?.seconds_spent || 0
+          };
+        });
+
+        const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+
         return (
           <div
-            key={sub.name}
+            key={subId}
             className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02]"
           >
             <button
-              onClick={() => setOpen(isOpen ? null : sub.name)}
+              onClick={() => setOpen(isOpen ? null : (sub.name || sub.title))}
               className="flex w-full items-center gap-4 p-5 text-left transition hover:bg-white/[0.03]"
             >
               <div className="flex-1">
-                <div className="text-[15px] font-medium text-white">{sub.name}</div>
+                <div className="text-[15px] font-medium text-white">{sub.title || sub.name}</div>
                 <div className="mt-0.5 text-[12px] text-neutral-500">
-                  {sub.score}/{sub.total} correct · {pct}%
+                  {score}/{total} correct · {pct}%
                 </div>
               </div>
               <div className="hidden w-40 sm:block">
@@ -568,14 +657,14 @@ function AssessmentPane({ detail }: { detail: ReturnType<typeof getCandidateDeta
             </button>
             {isOpen && (
               <div className="divide-y divide-white/5 border-t border-white/5">
-                {sub.questions.map((q, i) => (
+                {mappedQuestions.map((q: any, i: number) => (
                   <div key={i} className="p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="text-[11px] uppercase tracking-widest text-neutral-500">
-                          Question {i + 1} · {q.difficulty}
+                          Question {i + 1} · {q.difficulty || 'Medium'}
                         </div>
-                        <div className="mt-1 text-[14px] text-white">{q.q}</div>
+                        <div className="mt-1 text-[14px] text-white">{q.text || q.q}</div>
                       </div>
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] ${q.correct ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-red-400/30 bg-red-400/10 text-red-300"}`}
@@ -1181,245 +1270,19 @@ function StickySidebar({
 
 // ============ Lab drawer ============
 
-function LabDrawer({ lab, onClose }: { lab: LabAttempt; onClose: () => void }) {
-  const [activeFile, setActiveFile] = useState(lab.files[0]?.path || "src/hooks/useCart.ts");
+function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
+  const { section: lab, labSub, candidate } = data;
 
   return (
-    <div className="fixed inset-0 z-50 flex bg-white/50 backdrop-blur-sm">
-      {/* Left pane - editor/diff */}
-      <div className="flex flex-1 flex-col overflow-hidden bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="text-[13px] font-medium text-neutral-800">{activeFile}</div>
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-              Modified
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="rounded-md bg-neutral-100 px-2.5 py-1.5 text-[11px] text-neutral-600 transition hover:bg-neutral-200 hover:text-neutral-900">
-              View original
-            </button>
-            <button className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] text-neutral-800 shadow-sm">
-              View modified
-            </button>
-          </div>
-        </div>
-
-        {/* Diff content */}
-        <div className="flex-1 overflow-auto p-4 font-mono text-[13px] leading-[1.6] text-neutral-800">
-          <div className="flex gap-6">
-            {/* Line numbers */}
-            <div className="select-none space-y-0.5 text-right text-neutral-400">
-              {Array.from({ length: 25 }).map((_, i) => (
-                <div key={i}>{i + 1}</div>
-              ))}
-            </div>
-
-            {/* Code */}
-            <div className="flex-1 space-y-0.5 whitespace-pre">
-              <div className="text-neutral-500">import {'{'} useState, useEffect {'}'} from 'react';</div>
-              <div className="text-neutral-500">import {'{'} api {'}'} from '../lib/api';</div>
-              <div> </div>
-              <div className="text-neutral-800">export function useCart() {'{'}</div>
-              <div className="text-neutral-800">  const [items, setItems] = useState([]);</div>
-              <div className="text-neutral-800">  const [total, setTotal] = useState(0);</div>
-              <div> </div>
-              <div className="-mx-2 border-l-2 border-red-400 bg-red-50 px-2 text-red-700">
-                -  const fetchCart = async () =&gt; {'{'}
-              </div>
-              <div className="-mx-2 border-l-2 border-red-400 bg-red-50 px-2 text-red-700">
-                -    const res = await api.get('/cart');
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +  const fetchCart = async () =&gt; {'{'}
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +    try {'{'}
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +      const res = await api.get('/cart');
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +      setItems(res.data.items);
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +      setTotal(res.data.total);
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +    {'}'} catch (err) {'{'}
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +      console.error('Failed to fetch cart', err);
-              </div>
-              <div className="-mx-2 border-l-2 border-emerald-400 bg-emerald-50 px-2 text-emerald-700">
-                +    {'}'}
-              </div>
-              <div className="text-neutral-800">  {'}'};</div>
-              <div> </div>
-              <div className="text-neutral-800">  useEffect(() =&gt; {'{'}</div>
-              <div className="text-neutral-800">    fetchCart();</div>
-              <div className="text-neutral-800">  {'}'}, []);</div>
-              <div> </div>
-              <div className="text-neutral-800">  return {'{'} items, total, refresh: fetchCart {'}'};</div>
-              <div className="text-neutral-800">{'}'}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside className="flex h-full w-[480px] shrink-0 flex-col overflow-y-auto border-l border-white/10 bg-neutral-950">
-        <div className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/95 px-6 py-4 backdrop-blur">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
-                {lab.domain} · Engineering lab
-              </div>
-              <div className="mt-0.5 text-[18px] font-medium text-white">{lab.title}</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className={`text-[26px] font-medium leading-none ${eciColor(lab.score)}`}>
-                  {lab.score}
-                  <span className="text-[12px] text-neutral-500">%</span>
-                </div>
-                <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-                  {lab.aiVerdict}
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="rounded p-1.5 text-neutral-400 hover:bg-white/5 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6 px-6 py-6">
-          <Block title="Problem statement">
-            <p className="text-[13px] leading-relaxed text-neutral-300">{lab.problemStatement}</p>
-          </Block>
-
-          <div className="grid grid-cols-3 gap-2">
-            <StatMini label="Time taken" value={`${lab.timeTaken}m`} sub={`of ${lab.timeLimit}m`} />
-            <StatMini
-              label="Tasks completed"
-              value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
-              sub={
-                lab.tasksCompleted === lab.tasksTotal
-                  ? "All done"
-                  : `${lab.tasksTotal - lab.tasksCompleted} missed`
-              }
-            />
-            <StatMini
-              label="Files changed"
-              value={String(lab.files.length)}
-              sub={`${lab.gitCommits.length} commits`}
-            />
-          </div>
-
-          <Block title="Execution timeline">
-            <ol className="relative space-y-3 border-l border-white/10 pl-5">
-              {lab.timeline.map((t, i) => (
-                <li key={i} className="relative">
-                  <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-400" />
-                  <div className="text-[12px] text-white">{t.label}</div>
-                  <div className="text-[10px] text-neutral-500">t+{t.t}m</div>
-                </li>
-              ))}
-            </ol>
-          </Block>
-
-          <Block title="Files modified" icon={<FileText className="h-3.5 w-3.5" />}>
-            <div className="divide-y divide-white/5 overflow-hidden rounded-lg border border-white/10">
-              {lab.files.map((f, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveFile(f.path)}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition ${
-                    activeFile === f.path ? "bg-white/10" : "bg-white/[0.02] hover:bg-white/[0.04]"
-                  }`}
-                >
-                  <span
-                    className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold ${
-                      f.kind === "created"
-                        ? "bg-emerald-400/20 text-emerald-300"
-                        : f.kind === "deleted"
-                          ? "bg-red-400/20 text-red-300"
-                          : "bg-amber-400/20 text-amber-300"
-                    }`}
-                  >
-                    {f.kind[0].toUpperCase()}
-                  </span>
-                  <span className="flex-1 truncate font-mono text-neutral-300">{f.path}</span>
-                  <span className="shrink-0 text-[11px] text-neutral-500">+{f.changes}</span>
-                </button>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
-            <div className="space-y-2">
-              {lab.gitCommits.map((c, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[12px]"
-                >
-                  <span className="font-mono text-[10px] text-emerald-300">{c.sha}</span>
-                  <div className="flex-1">
-                    <div className="text-neutral-200">{c.message}</div>
-                    <div className="text-[10px] text-neutral-500">{c.time}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Console logs" icon={<Terminal className="h-3.5 w-3.5" />}>
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-neutral-300">
-              {lab.consoleLogs.join("\n")}
-            </pre>
-          </Block>
-
-          <Block title="Execution output">
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-emerald-200">
-              {lab.execOutput.join("\n")}
-            </pre>
-          </Block>
-
-          <Block title="AI review" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-400" />}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <ListBlock title="Strengths" items={lab.strengths} tone="good" />
-              <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
-            </div>
-            <div className="mt-4">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-                Suggestions
-              </div>
-              <ul className="mt-2 space-y-1 text-[12px] text-neutral-300">
-                {lab.suggestions.map((s, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Block>
-
-          <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 text-center">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-300/80">
-              Final lab score
-            </div>
-            <div className={`mt-1 text-[36px] font-medium ${eciColor(lab.score)}`}>
-              {lab.score}
-              <span className="text-[14px] text-neutral-500">/100</span>
-            </div>
-          </div>
-        </div>
-      </aside>
+    <div className="fixed inset-0 z-[100] flex bg-background">
+      <LabSubmissionViewer
+        userId={candidate.id}
+        evaluationId={evaluationId}
+        lab={lab}
+        labSub={labSub}
+        candidate={candidate}
+        onClose={onClose}
+      />
     </div>
   );
 }
@@ -1707,7 +1570,9 @@ function tabLabel(t: Tab) {
       ? "Knowledge Assessment"
       : t === "vitarka"
         ? "Vitarka Discussion"
-        : t[0].toUpperCase() + t.slice(1);
+        : t === "proctoring"
+          ? "Proctoring Analytics"
+          : t[0].toUpperCase() + t.slice(1);
 }
 function eciColor(v: number) {
   return v >= 70 ? "text-emerald-300" : v >= 55 ? "text-amber-300" : "text-red-300";

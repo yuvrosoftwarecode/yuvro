@@ -186,25 +186,134 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
 
-class UserLabQuestionBankTaskSubmission(BaseTimestampedModel):
+class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="evaluation_task_submissions"
+        User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"
     )
     evaluation = models.ForeignKey(
-        Evaluation, on_delete=models.CASCADE, related_name="task_submissions"
+        Evaluation, on_delete=models.CASCADE, related_name="lab_submissions"
     )
-    task = models.ForeignKey(
-        LabQuestionBankTask, on_delete=models.CASCADE, related_name="submissions"
+    lab_question = models.ForeignKey(
+        LabQuestionBank, on_delete=models.CASCADE, related_name="submissions"
     )
-    task_status = models.CharField(max_length=20, default="BACKLOG")
-    solution = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default="BACKLOG")
+    solution = models.TextField(blank=True) # Stores the git diff patch
     solution_output = models.TextField(blank=True)
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(default=0)
     minutes_solved = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ("user", "evaluation", "task")
+        unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
         return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
+
+
+class FollowUpConfig(BaseTimestampedAdminModel):
+    evaluation = models.OneToOneField(Evaluation, on_delete=models.CASCADE, related_name="followup_config")
+    start_date = models.DateTimeField(null=True, blank=True)
+    deadline = models.DateTimeField(null=True, blank=True)
+    timezone = models.CharField(max_length=100, default="UTC")
+    smart_followups = models.BooleanField(default=True)
+    reminder1 = models.CharField(max_length=100, blank=True)
+    reminder1_custom_time = models.DateTimeField(null=True, blank=True)
+    reminder2 = models.CharField(max_length=100, blank=True)
+    reminder2_custom_time = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"FollowUpConfig for {self.evaluation.title}"
+
+
+class FollowUpCandidate(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="followup_candidates")
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True)
+    
+    reminder1_sent = models.BooleanField(default=False)
+    reminder2_sent = models.BooleanField(default=False)
+    
+    followups_enabled = models.BooleanField(default=True)
+    emails_sent_count = models.PositiveIntegerField(default=0)
+    has_submitted = models.BooleanField(default=False)
+    activity = models.CharField(max_length=100, default="No Action")
+
+    class Meta:
+        unique_together = ("evaluation", "email")
+
+    def __str__(self):
+        return f"{self.name} - {self.evaluation.title}"
+
+class CandidateNotePriority(models.TextChoices):
+    LOW = "LOW", "Low"
+    MEDIUM = "MEDIUM", "Medium"
+    HIGH = "HIGH", "High"
+
+class CandidateNote(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="candidate_notes")
+    candidate_email = models.EmailField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="authored_candidate_notes")
+    text = models.TextField()
+    priority = models.CharField(
+        max_length=10, 
+        choices=CandidateNotePriority.choices, 
+        default=CandidateNotePriority.LOW
+    )
+    is_internal = models.BooleanField(default=True)
+    tags = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"Note by {self.author} on {self.candidate_email}"
+
+
+class CandidateTimelineEventStatus(models.TextChoices):
+    SUCCESS = "SUCCESS", "Success"
+    PENDING = "PENDING", "Pending"
+    WARNING = "WARNING", "Warning"
+    ERROR = "ERROR", "Error"
+    NEUTRAL = "NEUTRAL", "Neutral"
+
+class CandidateTimelineEventType(models.TextChoices):
+    INVITATION_SENT = "Evaluation invitation sent", "Evaluation invitation sent"
+    STARTED = "Candidate started evaluation", "Candidate started evaluation"
+    LABS_SUBMITTED = "Engineering Labs submitted", "Engineering Labs submitted"
+    ASSESSMENT_SUBMITTED = "Knowledge Assessment submitted", "Knowledge Assessment submitted"
+    VITARKA_COMPLETED = "Vitarka discussion completed", "Vitarka discussion completed"
+    EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
+    RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"
+    SHORTLISTED = "Shortlisted", "Shortlisted"
+    INTERVIEW_SCHEDULED = "Interview scheduled", "Interview scheduled"
+    OFFER_SENT = "Offer sent", "Offer sent"
+
+class CandidateTimelineEvent(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="candidate_timeline_events")
+    candidate_email = models.EmailField()
+    title = models.CharField(
+        max_length=255,
+        choices=CandidateTimelineEventType.choices,
+        default=CandidateTimelineEventType.INVITATION_SENT
+    )
+    description = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=15, 
+        choices=CandidateTimelineEventStatus.choices, 
+        default=CandidateTimelineEventStatus.NEUTRAL
+    )
+    occurred_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-occurred_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.candidate_email}"
+

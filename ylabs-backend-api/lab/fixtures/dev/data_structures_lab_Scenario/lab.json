@@ -1,0 +1,11 @@
+{
+  "labs": [
+    {
+      "title": "Data Structures Lab Scenario",
+      "type": "ALGO",
+      "description": "",
+      "difficulty": "ADVANCED",
+      "icon": "Algorithm"
+    }
+  ]
+}

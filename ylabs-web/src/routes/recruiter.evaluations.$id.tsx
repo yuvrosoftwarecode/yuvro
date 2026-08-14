@@ -1183,13 +1183,13 @@ function LabDrawer({
       leftPanel={
         previewLab && (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-white/5 p-6">
-              <div className="text-[16px] font-semibold text-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 p-6">
+              <div className="text-[16px] font-semibold text-neutral-900">
                 {previewLab.title || previewLab.text || "Preview"}
               </div>
               <button
                 onClick={() => setPreviewLab(null)}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"
+                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1197,7 +1197,7 @@ function LabDrawer({
             <div className="flex-1 overflow-y-auto p-6">
               <LabPreview l={previewLab} />
             </div>
-            <div className="border-t border-white/5 p-5 flex justify-end">
+            <div className="border-t border-neutral-200 p-5 flex justify-end">
               <button
                 disabled={existing.includes(previewLab.id)}
                 onClick={() => {
@@ -1213,14 +1213,14 @@ function LabDrawer({
         )
       }
     >
-      <div className="grid gap-2 border-b border-white/5 pb-4">
+      <div className="grid gap-2 border-b border-neutral-200 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search labs…"
-            className="w-full rounded-md border border-white/10 bg-black/30 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-emerald-400/60"
+            className="w-full rounded-md border border-neutral-200 bg-neutral-50 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-emerald-400/60 focus:bg-white focus:ring-2 focus:ring-emerald-400/20"
           />
         </div>
         <FilterRow
@@ -1253,10 +1253,10 @@ function LabDrawer({
         {filtered.map((l) => {
           const added = existing.includes(l.id);
           return (
-            <div key={l.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+            <div key={l.id} className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[13px] text-white">{l.title}</div>
+                  <div className="text-[13px] font-medium text-neutral-900">{l.title}</div>
                   <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px]">
                     <Chip>{l.domain}</Chip>
                     {l.programming_languages?.map((x) => (
@@ -1274,14 +1274,14 @@ function LabDrawer({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setPreviewLab(l)}
-                    className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5"
+                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-50"
                   >
                     <Eye className="h-3 w-3" /> Preview
                   </button>
                   <button
                     disabled={added}
                     onClick={() => onAdd(l)}
-                    className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500"
+                    className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-neutral-100 disabled:text-neutral-400"
                   >
                     {added ? (
                       <>
@@ -1376,6 +1376,7 @@ function QuestionDrawer({
   onAdd: (q: QuestionItem) => void;
 }) {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [lang, setLang] = useState("All");
   const [db, setDb] = useState("All");
   const [diff, setDiff] = useState("All");
@@ -1384,7 +1385,6 @@ function QuestionDrawer({
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
-  const [allTopics, setAllTopics] = useState<TopicItem[]>([]);
   const [course, setCourse] = useState("All");
   const [topic, setTopic] = useState("All");
 
@@ -1413,7 +1413,7 @@ function QuestionDrawer({
     }
 
     const c = courses.find((c: any) => c.id === finalQ.course);
-    const t = allTopics.find((t: any) => t.id === finalQ.topic);
+    const t = topics.find((t: any) => t.id === finalQ.topic);
 
     onAdd({
       ...finalQ,
@@ -1424,17 +1424,33 @@ function QuestionDrawer({
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      fetchQuestions().then(setQuestions),
-      fetchCourses().then(setCourses),
-      fetchTopics().then(setAllTopics),
-    ]).finally(() => setLoading(false));
+    fetchCourses().then(setCourses).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     setTopics([]);
-    fetchTopics(course !== "All" ? course : undefined).then(setTopics);
+    if (course !== "All") {
+      fetchTopics(course).then(setTopics);
+    } else {
+      setTopic("All");
+    }
   }, [course]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(handler);
+  }, [q]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchQuestions(
+      course !== "All" ? course : undefined, 
+      topic !== "All" ? topic : undefined, 
+      debouncedQ, diff, format
+    )
+      .then(setQuestions)
+      .finally(() => setLoading(false));
+  }, [course, topic, debouncedQ, diff, format]);
 
   const filtered = useMemo(
     () =>
@@ -1638,14 +1654,15 @@ function Chip({ children }: { children: React.ReactNode }) {
 // ---------------- Overlay / Drawer primitives ----------------
 
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  return (
+  const content = (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4 backdrop-blur"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 p-4"
       onClick={onClose}
     >
       <div onClick={(e) => e.stopPropagation()}>{children}</div>
     </div>
   );
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
 function Drawer({
@@ -1661,9 +1678,9 @@ function Drawer({
   subtitle?: string;
   leftPanel?: React.ReactNode;
 }) {
-  return (
+  const content = (
     <div
-      className="fixed inset-0 z-40 flex justify-end bg-black/50 backdrop-blur"
+      className="fixed inset-0 z-50 flex justify-end bg-white/50"
       onClick={onClose}
     >
       {leftPanel && (
@@ -1671,23 +1688,23 @@ function Drawer({
           onClick={(e) => e.stopPropagation()}
           className="flex flex-1 justify-end p-8 pb-10 max-h-screen"
         >
-          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-2xl flex flex-col">
+          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl flex flex-col">
             {leftPanel}
           </div>
         </div>
       )}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-[480px] flex-col border-l border-white/10 bg-neutral-950"
+        className="flex h-full w-[480px] flex-col border-l border-neutral-200 bg-white shadow-xl"
       >
-        <div className="flex items-start justify-between border-b border-white/5 p-5">
+        <div className="flex items-start justify-between border-b border-neutral-200 p-5">
           <div>
-            <div className="text-[14px] font-medium text-white">{title}</div>
+            <div className="text-[14px] font-medium text-neutral-900">{title}</div>
             {subtitle && <div className="mt-0.5 text-[11px] text-neutral-500">{subtitle}</div>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"
+            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
           >
             <X className="h-4 w-4" />
           </button>
@@ -1696,6 +1713,7 @@ function Drawer({
       </div>
     </div>
   );
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
 // ---------------- Preview / Publish screens ----------------

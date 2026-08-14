@@ -1,87 +1,179 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { 
     Clock, 
     AlertTriangle, 
+    List, 
     Trophy, 
     Activity, 
     ShieldAlert, 
+    Network, 
     Camera, 
     Maximize, 
+    FileText, 
     CheckCircle2, 
     XCircle, 
     AlertCircle,
     Eye,
     ShieldCheck,
-    X,
-    FileText
+    X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
+import { LabSubmissionViewer } from './LabSubmissionViewer';
+
+
+interface ProctoringEvent {
+    activity_type: string;
+    timestamp: string;
+    image_path?: string;
+    screen_path?: string;
+    meta_data?: {
+        copied_text?: string;
+        pasted_text?: string;
+        cut_text?: string;
+        selected_text?: string;
+        method?: string;
+        key?: string;
+        platform?: string;
+        db_level?: number;
+    };
+    question_title?: string;
+    question_no?: string;
+}
+
 import { Candidate } from '@/lib/recruiterCandidates';
 
-const ViolationDescription = ({ text }: { text: string }) => {
-    const [expanded, setExpanded] = useState(false);
-    
-    // Check if it's long either by lines or by raw length
-    const lines = text.split('\n');
-    const isLong = lines.length > 5 || text.length > 300;
-    
-    if (!isLong) return <div className="text-sm text-neutral-400 whitespace-pre-wrap">{text}</div>;
-    
-    const displayText = expanded 
-        ? text 
-        : (lines.length > 5 ? lines.slice(0, 5).join('\n') + '...' : text.slice(0, 300) + '...');
-    
-    return (
-        <div className="text-sm text-neutral-400 whitespace-pre-wrap break-all">
-            {displayText}
-            <div className="mt-1">
-                <button 
-                    onClick={() => setExpanded(!expanded)} 
-                    className="text-blue-400 hover:text-blue-300 font-medium hover:underline text-xs"
-                >
-                    {expanded ? 'Show Less' : 'Read More'}
-                </button>
-            </div>
-        </div>
-    );
-};
+
+interface ProctoringEvent {
+    activity_type: string;
+    timestamp: string;
+    image_path?: string;
+    screen_path?: string;
+    meta_data?: {
+        copied_text?: string;
+        pasted_text?: string;
+        cut_text?: string;
+        selected_text?: string;
+        method?: string;
+        key?: string;
+        platform?: string;
+        db_level?: number;
+    };
+    question_title?: string;
+    question_no?: string;
+}
+
+import { Candidate } from '@/lib/recruiterCandidates';
 
 interface CandidateAnalyticsViewerProps {
     candidate: Candidate;
+    evaluation?: any;
 }
 
-const formatEventTime = (timestamp: number) => {
-    return format(new Date(timestamp), 'h:mm:ss a');
+const getImageUrl = (imgUrl: string | undefined) => {
+    if (!imgUrl) return '';
+    
+    let processedUrl = imgUrl;
+    
+    if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/') || processedUrl.includes('yuvro-minio:9000')) {
+        processedUrl = processedUrl.replace('minio:9000', 'localhost:9100')
+                                 .replace('http://minio/', 'http://localhost:9100/')
+                                 .replace('yuvro-minio:9000', 'localhost:9100');
+    }
+
+    if (processedUrl.startsWith('http')) return processedUrl;
+
+    let cleanPath = processedUrl?.replace(/\\/g, '/');
+    if (cleanPath.startsWith('uploads/')) {
+        cleanPath = cleanPath.substring('uploads/'.length);
+    } else if (cleanPath.startsWith('/uploads/')) {
+        cleanPath = cleanPath.substring('/uploads/'.length);
+    }
+
+    // Clean path to prevent double slashes and double media prefixes
+    cleanPath = cleanPath.replace(/^\/+/, '');
+    if (cleanPath.startsWith('media/')) {
+        cleanPath = cleanPath.replace(/^media\//, '');
+    }
+
+    const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api')?.replace(/\/$/, '');
+    const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
+    return `${rootUrl}/media/${cleanPath}`;
 };
 
-const CustomTooltipContent = ({ data, label }: any) => {
+const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
     const log = data.log;
     const severity = data.severity;
+    const isSnapshot = data.isSnapshot;
+    
+    const isPureSnapshot = isSnapshot && (!log.activity_type || log.activity_type === 'snapshot');
     
     return (
         <div className="space-y-3">
-            {label && <div className="font-mono text-[10px] text-muted-foreground mb-1">{label}</div>}
+            {label && <div className="font-mono text-[10px] text-slate-500 mb-1">{label}</div>}
+            {data?.time && label !== data.time && <div className="font-mono text-[10px] text-slate-500 mb-2">{data.time}</div>}
+            {log.question_no && (
+                <div className="text-xs text-slate-500 font-medium mb-2 border-b border-neutral-200 pb-2">
+                    <span className="font-semibold text-slate-900">Question:</span> {log.question_no}
+                </div>
+            )}
             <div className="flex items-center gap-2 mb-3">
                 <div className={`w-2 h-2 rounded-full ${severity === 2 ? 'bg-rose-500' : severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
                 <span className="font-bold text-sm">{data.severityName}</span>
             </div>
-            {log.type && (
+            
+            {!isPureSnapshot && log.activity_type && (
                 <div className="space-y-1">
-                    <span className="font-semibold capitalize text-xs text-white block">
-                        {log.type.replace(/_/g, ' ')}
+                    <span className="font-semibold capitalize text-xs text-slate-900 block">
+                        {log.activity_type.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-xs text-neutral-400">{log.desc}</span>
+                    {log.meta_data && Object.keys(log.meta_data).length > 0 && (
+                        <div className="mt-2 space-y-1 pt-2 border-t border-neutral-200">
+                            {log.meta_data.key && (
+                                <div className="text-[10px] truncate"><span className="text-slate-500">Key:</span> <kbd className="px-1 border border-neutral-200 bg-slate-100 font-mono rounded">{log.meta_data.key}</kbd></div>
+                            )}
+                            {log.meta_data.copied_text && (
+                                <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-slate-500">Copy:</span> "{log.meta_data.copied_text}"</div>
+                            )}
+                            {log.meta_data.pasted_text && (
+                                <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-slate-500">Paste:</span> "{log.meta_data.pasted_text}"</div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
+
             {(log.image_path || log.screen_path) && (
-                <div className="flex gap-2 mt-2 pt-2 border-t border-white/10">
-                    {log.image_path && <img src={log.image_path} alt="Webcam" className="w-1/2 h-auto rounded-md border border-white/10" />}
-                    {log.screen_path && <img src={log.screen_path} alt="Screen" className="w-1/2 h-auto rounded-md border border-white/10" />}
+                <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-neutral-200' : ''}`}>
+                    <div className="flex items-center gap-1.5 text-blue-600  text-xs font-semibold">
+                        <Camera className="h-3 w-3" /> Snapshot Captured
+                    </div>
+                    <div className={`grid ${log.image_path && log.screen_path ? 'grid-cols-2 gap-2' : 'grid-cols-1'}`}>
+                        {log.image_path && (
+                            <div className="space-y-1">
+                                <span className="text-[10px] text-slate-500">Camera</span>
+                                {(() => {
+                                    const isFaceViolation = ['face_not_detected', 'no_face_detected', 'multiple_faces_detected', 'face_mismatch', 'face_recognition_failed'].includes(log.activity_type || '');
+                                    return (
+                                        <img src={getImageUrl(log.image_path)} alt="Camera Snapshot" className={`w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity ${isFaceViolation ? 'border-2 border-red-500 box-border' : ''}`} onClick={() => setActiveLightboxImg?.(getImageUrl(log.image_path))} />
+                                    );
+                                })()}
+                            </div>
+                        )}
+                        {log.screen_path && (
+                            <div className="space-y-1">
+                                <span className="text-[10px] text-slate-500">Screen</span>
+                                <img src={getImageUrl(log.screen_path)} alt="Screen Snapshot" className="w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setActiveLightboxImg?.(getImageUrl(log.screen_path))} />
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
@@ -92,7 +184,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="bg-neutral-900 p-3 rounded-lg shadow-xl border border-white/10 max-w-[300px]">
+            <div className="bg-white p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]">
                 <CustomTooltipContent data={data} label={label} />
             </div>
         );
@@ -100,115 +192,400 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ candidate }) => {
-    const [selectedSection, setSelectedSection] = useState<'labs' | 'assessment' | 'vitarka'>('labs');
-    
-    // Derived Risk Analysis
-    const totalViolations = candidate.proctoringData?.totalViolations || 0;
-    const riskLevel = totalViolations > 6 ? 'Critical' : totalViolations > 3 ? 'High' : totalViolations > 0 ? 'Low' : 'Clean';
-    
-    const violations = candidate.proctoringData?.timelineEvents || [];
-    
-    // Graph Data
-    const chartData = violations.map(log => ({
-        name: formatEventTime(log.time),
-        time: formatEventTime(log.time),
-        severity: log.severity || 1,
-        severityName: log.severity === 2 ? 'Critical' : log.severity === 1 ? 'General' : 'Normal',
-        log
-    }));
+const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ candidate, evaluation }) => {
+    const submission = candidate.rawSubmission;
+    if (!submission) return <div className="p-6 text-neutral-500">No raw submission data available for this candidate.</div>;
+    const navigate = useNavigate();
+    const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
+    const [frozenLog, setFrozenLog] = useState<any>(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setActiveLightboxImg(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    const formatEventTime = (timestampStr: string | number) => {
+        try {
+            const date = new Date(timestampStr);
+            if (isNaN(date.getTime())) return 'Invalid date';
+            return format(date, 'h:mm:ss a');
+        } catch (e) {
+            return timestampStr || 'N/A';
+        }
+    };
+
+    const riskAnalysis = React.useMemo(() => {
+        let score = 0;
+        const details: { type: string; count: number; points: number }[] = [];
+        const eventCounts: Record<string, number> = {};
+
+        const addEventToCount = (type: string) => {
+            eventCounts[type] = (eventCounts[type] || 0) + 1;
+        };
+
+        const allEvents: ProctoringEvent[] = [];
+        if (submission?.proctoring_events) {
+            allEvents.push(...submission.proctoring_events);
+        }
+        if (submission?.general_events) {
+            allEvents.push(...submission.general_events);
+        }
+
+        allEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        
+        const uniqueEvents = allEvents.filter((event, index, self) =>
+            self.findIndex(e => e.activity_type === event.activity_type && e.timestamp === event.timestamp) === index
+        );
+
+        const violations: ProctoringEvent[] = [];
+        const systemLogs: ProctoringEvent[] = [];
+
+        const violationTypes = [
+            'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
+            'new_tab_detected', 'new_window_detected', 'face_not_detected', 
+            'multiple_faces_detected', 'face_recognition_failed', 'violation_critical',
+            'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected',
+            'copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected',
+            'right_click_detected', 'screenshot_detected', 'keyboard_shortcut',
+            'suspicious_movement', 'audio_anomaly', 'audio_anomaly_detected',
+            'network_disconnected', 'network_connected', 'violation_warning', 'violation'
+        ];
+
+        uniqueEvents.forEach(e => {
+            const type = e.activity_type;
+            if (['snapshot', 'camera_enabled', 'camera_disabled'].includes(type)) {
+                return;
+            }
+
+            const isViolation = violationTypes.some(vt => type.includes(vt));
+
+            if (isViolation) {
+                violations.push(e);
+                addEventToCount(type);
+            } else {
+                systemLogs.push(e);
+            }
+        });
+
+        uniqueEvents.forEach(e => {
+            const type = e.activity_type;
+            if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
+                if (!systemLogs.some(sl => sl.activity_type === type && sl.timestamp === e.timestamp)) {
+                    systemLogs.push(e);
+                }
+            }
+        });
+
+        Object.entries(eventCounts).forEach(([type, count]) => {
+            let weight = 1;
+            if (type.includes('face_not_detected') || type.includes('no_face_detected')) {
+                weight = 3;
+            } else if (type.includes('multiple_faces_detected') || type.includes('multi_face_detected')) {
+                weight = 5;
+            } else if (type.includes('tab_switched') || type.includes('tab_switch') || type.includes('focus_lost') || type.includes('window_blur') || type.includes('fullscreen_exit')) {
+                weight = 2;
+            } else if (type.includes('copy_detected') || type.includes('clipboard_copy') || type.includes('copy') || type.includes('keyboard_shortcut') || type.includes('cut_detected') || type.includes('paste_detected') || type.includes('right_click')) {
+                weight = 2;
+            }
+
+            const points = weight * count;
+            score += points;
+            details.push({ type, count, points });
+        });
+
+        let level: 'Clean' | 'Low' | 'Medium' | 'High' | 'Critical' = 'Clean';
+        let colorScheme: 'green' | 'blue' | 'amber' | 'orange' | 'red' = 'green';
+        let colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200   ';
+
+        if (score > 0 && score <= 4) {
+            level = 'Low';
+            colorScheme = 'blue';
+            colorClass = 'bg-blue-50 text-blue-700 border-blue-200   ';
+        } else if (score > 4 && score <= 8) {
+            level = 'Medium';
+            colorScheme = 'amber';
+            colorClass = 'bg-amber-50 text-amber-700 border-amber-200   ';
+        } else if (score > 8 && score <= 15) {
+            level = 'High';
+            colorScheme = 'orange';
+            colorClass = 'bg-orange-50 text-orange-700 border-orange-200   ';
+        } else if (score > 15) {
+            level = 'Critical';
+            colorScheme = 'red';
+            colorClass = 'bg-red-50 text-red-700 border-red-200   ';
+        }
+
+        let normalCount = 0;
+        let generalCount = 0;
+        let criticalCount = 0;
+        const cTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+        const gTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit'];
+
+        violations.forEach(v => {
+            const isC = cTypes.some(vt => v.activity_type?.includes(vt));
+            const isG = gTypes.some(vt => v.activity_type?.includes(vt));
+            if (isC) criticalCount++;
+            else if (isG) generalCount++;
+            else normalCount++;
+        });
+
+        return {
+            score,
+            level,
+            colorScheme,
+            colorClass,
+            details,
+            normalCount,
+            generalCount,
+            criticalCount,
+            violations: violations.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+            systemLogs: systemLogs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+            uniqueEvents: uniqueEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        };
+    }, [submission]);
+
+    const allImages = React.useMemo(() => {
+        const allSnapshots: ProctoringEvent[] = [];
+        if (submission?.proctoring_events) allSnapshots.push(...submission.proctoring_events);
+        if (submission?.general_events) allSnapshots.push(...submission.general_events);
+
+        const uniqueItems: { type: 'camera' | 'screen', path: string, event: ProctoringEvent }[] = [];
+        allSnapshots.forEach(e => {
+            if (e.image_path) uniqueItems.push({ type: 'camera', path: e.image_path, event: e });
+            if (e.screen_path) uniqueItems.push({ type: 'screen', path: e.screen_path, event: e });
+        });
+        return uniqueItems.sort((a, b) => new Date(a.event.timestamp).getTime() - new Date(b.event.timestamp).getTime());
+    }, [submission]);
+
+    const passportPhotos = allImages.filter(i => i.event.activity_type === 'passport_photo_captured').map(i => i.event);
+    const initialScreenshots = allImages.filter(i => i.event.activity_type === 'initial_screenshot_captured').map(i => i.event);
+    const generalSnapshots = allImages.filter(i => i.event.activity_type !== 'passport_photo_captured' && i.event.activity_type !== 'initial_screenshot_captured');
+
+    const latestPassport = passportPhotos.length > 0 ? passportPhotos[0] : null;
+    const latestScreenshot = initialScreenshots.length > 0 ? initialScreenshots[0] : null;
+
+    const totalViolations = riskAnalysis.violations.length;
 
     return (
-        <div className="space-y-6">
+        <div className="px-6 py-6 space-y-6">
             {/* Unified Top Banner */}
-            <div className="bg-white/[0.02] border border-white/5 shadow-sm rounded-2xl flex flex-col xl:flex-row overflow-hidden">
-                <div className="flex-1 flex flex-col p-6 xl:p-8 border-b xl:border-b-0 xl:border-r border-white/5">
-                    <div className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-white/5">
-                        <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-500/10 text-orange-500">
-                                <Trophy className="w-6 h-6" />
+            <div className="bg-white border border-neutral-200 shadow-sm rounded-2xl flex flex-col xl:flex-row overflow-hidden">
+                {/* Left Side: Stats Grid */}
+                <div className="flex-1 flex flex-col p-5 border-b xl:border-b-0 xl:border-r border-neutral-200">
+                    {/* Row 1 */}
+                    <div className="flex flex-col sm:flex-row gap-4 pb-4 border-b border-neutral-200">
+                        {/* Score */}
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-orange-50 text-orange-500">
+                                <Trophy className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold tracking-tight text-white">{candidate.eci}</p>
-                                <p className="text-sm font-medium text-neutral-500">Overall ECI</p>
+                                <p className="text-xl font-bold tracking-tight text-slate-900">{candidate.eci !== undefined ? `${candidate.eci}` : '-'}</p>
+                                <p className="text-xs font-medium text-slate-500">Total Score (ECI)</p>
                             </div>
                         </div>
-                        <div className="hidden sm:block w-px bg-white/5 self-stretch" />
-                        <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/10 text-blue-500">
-                                <Activity className="w-6 h-6" />
+                        <div className="hidden sm:block w-px bg-neutral-200 self-stretch" />
+                        {/* Status */}
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-blue-50 text-blue-500">
+                                <Activity className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-xl font-bold tracking-tight text-white capitalize">{candidate.status}</p>
-                                <p className="text-sm font-medium text-neutral-500">Submission Status</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900 capitalize">{candidate?.status?.replace('_', ' ') || ''}</p>
+                                <p className="text-xs font-medium text-slate-500">Submission Status</p>
                             </div>
                         </div>
-                        <div className="hidden sm:block w-px bg-white/5 self-stretch" />
-                        <div className="flex items-center gap-4 flex-1">
-                            <div className={`flex items-center justify-center w-14 h-14 rounded-full ${riskLevel === 'Clean' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                                {riskLevel === 'Clean' ? <ShieldCheck className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
+                        <div className="hidden sm:block w-px bg-neutral-200 self-stretch" />
+                        {/* Risk Level */}
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className={`flex items-center justify-center w-10 h-10 shrink-0 rounded-full ${riskAnalysis.level === 'Clean' ? 'bg-green-50 text-green-500' : 'bg-rose-50 text-rose-500'}`}>
+                                {riskAnalysis.level === 'Clean' ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
                             </div>
                             <div>
-                                <p className="text-xl font-bold tracking-tight text-white capitalize">{riskLevel}</p>
-                                <p className="text-sm font-medium text-neutral-500">Risk Level</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900 capitalize">{riskAnalysis.level}</p>
+                                <p className="text-xs font-medium text-slate-500">Risk Level</p>
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-6 pt-6">
-                        <div className="flex gap-4 flex-1">
-                            <div className={`flex items-center justify-center w-14 h-14 rounded-full ${totalViolations > 0 ? 'bg-orange-500/10 text-orange-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
-                                <AlertTriangle className="w-6 h-6" />
+                    {/* Row 2 */}
+                    <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        {/* Violations */}
+                        <div className="flex gap-3 flex-1">
+                            <div className={`flex items-center justify-center w-10 h-10 shrink-0 rounded-full ${totalViolations > 0 ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'}`}>
+                                <AlertTriangle className="w-4 h-4" />
                             </div>
                             <div className="flex flex-col justify-center">
-                                <p className="text-2xl font-bold tracking-tight text-white">{totalViolations}</p>
-                                <p className="text-sm font-medium text-neutral-500 mb-2">Total Violations</p>
+                                <p className="text-xl font-bold tracking-tight text-slate-900">{totalViolations}</p>
+                                <p className="text-xs font-medium text-slate-500 mb-1.5">Total Violations</p>
+                                <div className="flex items-center gap-2.5 text-[10px] text-slate-500">
+                                    <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{riskAnalysis.normalCount}</div>
+                                    <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>{riskAnalysis.generalCount}</div>
+                                    <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>{riskAnalysis.criticalCount}</div>
+                                </div>
                             </div>
                         </div>
-                        <div className="hidden sm:block w-px bg-white/5 self-stretch" />
-                        <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-purple-500/10 text-purple-500">
-                                <Clock className="w-6 h-6" />
+                        <div className="hidden sm:block w-px bg-neutral-200 self-stretch" />
+                        {/* Submitted At */}
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-purple-50 text-purple-500">
+                                <Clock className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-xl font-bold tracking-tight text-white">{format(new Date(candidate.submittedAt), 'MMM d, h:mm a')}</p>
-                                <p className="text-sm font-bold text-purple-600 mt-0.5">Submitted At</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900">{candidate.submittedAt ? format(new Date(candidate.submittedAt), 'MMM d, h:mm a') : '-'}</p>
+                                <p className="text-xs font-bold text-purple-600 mt-0.5">Submitted At</p>
                             </div>
                         </div>
+                        <div className="hidden sm:block flex-1" /> {/* Empty div to balance flex spacing on row 2 if needed, though matching the screenshot it's fine */}
                     </div>
                 </div>
+
+                {/* Right Side: Identity */}
+                {(latestPassport || latestScreenshot) && (
+                    <div className="flex gap-6 items-center justify-center p-6 xl:p-8 shrink-0 bg-white">
+                        {latestPassport && (
+                            <div className="flex flex-col items-center gap-3">
+                                <div 
+                                    className="w-32 h-40 sm:w-36 sm:h-44 rounded-xl overflow-hidden ring-1 ring-emerald-400 p-0.5 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => setActiveLightboxImg(latestPassport.image_path || null)}
+                                    title="View Passport Photo"
+                                >
+                                    <img src={getImageUrl(latestPassport.image_path)} className="w-full h-full object-cover rounded-lg" alt="Passport" />
+                                </div>
+                                <span className="text-[11px] font-bold tracking-wider text-emerald-600 uppercase bg-emerald-50 px-4 py-1.5 rounded-md">Passport</span>
+                            </div>
+                        )}
+                        {latestScreenshot && (
+                            <div className="flex flex-col items-center gap-3">
+                                <div 
+                                    className="w-44 h-40 sm:w-56 sm:h-44 rounded-xl overflow-hidden ring-1 ring-blue-400 p-0.5 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => setActiveLightboxImg(latestScreenshot.image_path || latestScreenshot.screen_path || null)}
+                                    title="View Screen Check"
+                                >
+                                    <img src={getImageUrl(latestScreenshot.image_path || latestScreenshot.screen_path)} className="w-full h-full object-cover rounded-lg" alt="Screen" />
+                                </div>
+                                <span className="text-[11px] font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-4 py-1.5 rounded-md">Screen Check</span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid grid-cols-3 w-full md:w-[500px] mb-6">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="sections">Section Breakdown</TabsTrigger>
-                    <TabsTrigger value="violations" className="flex items-center gap-1.5">
+                <TabsList className="grid grid-cols-4 w-full md:w-[650px] mb-6 bg-slate-100 text-slate-500 p-1 rounded-lg">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Overview</TabsTrigger>
+                    <TabsTrigger value="sections" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Section Breakdown</TabsTrigger>
+                    <TabsTrigger value="violations" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
                         Violations
                         {totalViolations > 0 && (
-                            <Badge variant="destructive" className="h-4 min-w-4 px-1 flex items-center justify-center text-[10px]">
+                            <Badge variant="destructive" className="text-white h-4 min-w-4 px-1 flex items-center justify-center text-[10px]">
                                 {totalViolations}
                             </Badge>
                         )}
                     </TabsTrigger>
+                    <TabsTrigger value="system" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">System & Network</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
-                    <div className="border border-white/5 bg-white/[0.02] shadow-sm mt-6 rounded-xl overflow-hidden">
-                        <div className="pb-3 border-b border-white/5 mb-4 p-6">
-                            <h3 className="text-base font-semibold flex items-center gap-2 text-white">
-                                <Activity className="h-5 w-5 text-neutral-500" />
-                                Overall Test Timeline
-                            </h3>
-                        </div>
-                        <div className="p-6 pt-0">
-                            {chartData.length === 0 ? (
-                                <div className="text-neutral-500 italic text-xs py-4 text-center">No proctoring events recorded for this session.</div>
+                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                        <CardHeader>
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                <ShieldAlert className="h-5 w-5 text-slate-500" />
+                                Risk Score Breakdown
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center pb-3 border-b border-neutral-200">
+                                    <span className="text-sm font-medium text-slate-500">Computed Risk Score:</span>
+                                    <Badge className={`text-sm font-bold px-3 py-1 ${riskAnalysis.colorClass}`}>
+                                        {riskAnalysis.score} pts ({riskAnalysis.level})
+                                    </Badge>
+                                </div>
+                                
+                                {riskAnalysis.details.length === 0 ? (
+                                    <div className="text-sm text-emerald-600  flex items-center gap-2 py-4">
+                                        <ShieldCheck className="h-5 w-5" />
+                                        No proctoring anomalies or violations detected!
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {riskAnalysis.details.map((detail, idx) => (
+                                            <div key={idx} className="flex justify-between items-center text-sm">
+                                                <span className="capitalize text-slate-500">
+                                                    {detail.type?.replace(/_/g, ' ') || ''}
+                                                    <span className="text-xs text-slate-500 ml-1.5 font-normal">
+                                                        (x{detail.count})
+                                                    </span>
+                                                </span>
+                                                <span className="font-semibold text-slate-900">+{detail.points} pts</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Overall Session Timeline */}
+                    <Card className="border border-neutral-200 rounded-2xl mt-6 bg-slate-50/50 text-slate-900 shadow-none">
+                        <CardHeader className="pb-3 border-b border-neutral-200 mb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                    <Activity className="h-5 w-5 text-slate-500" />
+                                    Overall Test Timeline
+                                </CardTitle>
+                                <div className="flex items-center gap-4 text-xs">
+                                    <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Normal</div>
+                                    <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-amber-500"></div> General</div>
+                                    <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-rose-500"></div> Critical</div>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            {riskAnalysis.uniqueEvents.length === 0 ? (
+                                <div className="text-slate-500 italic text-xs py-4 text-center">No proctoring events recorded for this session.</div>
                             ) : (
-                                <div className="w-full overflow-x-auto pb-4">
-                                    <div className="relative min-w-[800px]" style={{ width: Math.max(800, chartData.length * 60), height: 350 }}>
+                                <ScrollArea className="w-full pb-4">
+                                    <div className="relative" style={{ width: Math.max(800, riskAnalysis.uniqueEvents.length * 60), height: 450 }}>
                                         <ResponsiveContainer width="100%" height="100%">
                                             <AreaChart 
-                                                data={chartData} 
+                                                onClick={(e) => {
+                                                    if (e && e.activePayload && e.activeCoordinate) {
+                                                        setFrozenLog({ 
+                                                            data: e.activePayload[0].payload, 
+                                                            label: e.activeLabel,
+                                                            x: e.activeCoordinate.x,
+                                                            y: e.activeCoordinate.y
+                                                        });
+                                                    } else {
+                                                        setFrozenLog(null);
+                                                    }
+                                                }}
+                                                data={riskAnalysis.uniqueEvents.map((log) => {
+                                                    const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+                                                    const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit', 'passport_photo_captured', 'initial_screenshot_captured'];
+                                                    
+                                                    const isC = criticalTypes.some(vt => log.activity_type?.includes(vt));
+                                                    const isG = generalTypes.some(vt => log.activity_type?.includes(vt));
+                                                    const isV = isC || isG || log.activity_type?.includes('violation') || log.activity_type?.includes('detected') || log.activity_type?.includes('lost');
+                                                    const isS = !!log.image_path || !!log.screen_path;
+                                                    const severity = isC ? 2 : (isG || isV) ? 1 : 0;
+                                                    const isPureSnapshot = isS && (!log.activity_type || log.activity_type === 'snapshot');
+                                                    
+                                                    return {
+                                                        name: log.question_no || formatEventTime(log.timestamp),
+                                                        time: formatEventTime(log.timestamp),
+                                                        severity: severity,
+                                                        severityName: isPureSnapshot ? 'Snapshot' : severity === 2 ? 'Critical' : severity === 1 ? 'General' : 'Normal',
+                                                        log: log,
+                                                        isSnapshot: isS
+                                                    };
+                                                })} 
                                                 margin={{ top: 20, right: 30, left: 10, bottom: 0 }}
                                             >
                                                 <defs>
@@ -234,11 +611,18 @@ export const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> =
                                                 />
                                                 <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
                                                 
+                                                {/* Horizontal reference lines for each level */}
                                                 <ReferenceLine y={2} stroke="#f43f5e" strokeDasharray="3 3" strokeOpacity={0.4} />
                                                 <ReferenceLine y={1} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.4} />
                                                 <ReferenceLine y={0} stroke="#10b981" strokeDasharray="3 3" strokeOpacity={0.4} />
 
-                                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                                                <Tooltip 
+                                                    content={(props: any) => {
+                                                        if (frozenLog) return null;
+                                                        return <CustomTooltip {...props} />;
+                                                    }} 
+                                                    cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} 
+                                                />
                                                 
                                                 <Area 
                                                     type="monotone" 
@@ -257,53 +641,350 @@ export const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> =
                                                 />
                                             </AreaChart>
                                         </ResponsiveContainer>
+                                        {frozenLog && (
+                                            <div 
+                                                className="absolute z-30 pointer-events-auto"
+                                                style={{ left: frozenLog.x, top: frozenLog.y }}
+                                            >
+                                                {/* Tooltip positioned smartly based on space available */}
+                                                <div 
+                                                    className={`relative -translate-x-1/2 ${frozenLog.y < 225 ? 'translate-y-4' : '-translate-y-[calc(100%+20px)]'} bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="absolute top-1 right-1 h-5 w-5 rounded-full hover:bg-slate-100 text-slate-500" 
+                                                        onClick={(e) => { e.stopPropagation(); setFrozenLog(null); }}
+                                                    >
+                                                        <X className="h-3.5 w-3.5"/>
+                                                    </Button>
+                                                    <CustomTooltipContent data={frozenLog.data} label={frozenLog.label} setActiveLightboxImg={setActiveLightboxImg} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                    <ScrollBar orientation="horizontal" />
+                                </ScrollArea>
                             )}
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Proctoring Snapshots Section */}
+                    <Tabs defaultValue="camera" className="w-full mt-6">
+                        <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                            <CardHeader className="pb-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                        <Camera className="h-5 w-5 text-slate-500" />
+                                        Proctoring Images
+                                    </CardTitle>
+                                    <TabsList className="grid grid-cols-2 w-full sm:w-[300px] bg-slate-100 text-slate-500 p-1 rounded-lg">
+                                        <TabsTrigger value="camera" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Camera ({generalSnapshots.filter(s => s.type === 'camera').length})</TabsTrigger>
+                                        <TabsTrigger value="screen" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Screen ({generalSnapshots.filter(s => s.type === 'screen').length})</TabsTrigger>
+                                    </TabsList>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <TabsContent value="camera" className="mt-0 space-y-0">
+                                    {generalSnapshots.filter(i => i.type === 'camera').length === 0 ? (
+                                        <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                            No camera snapshots were recorded.
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                            {generalSnapshots.filter(i => i.type === 'camera').map((item, i) => {
+                                                const event = item.event;
+                                                const imgUrl = getImageUrl(item.path);
+                                                return (
+                                                    <div 
+                                                        key={`cam-${i}`} 
+                                                        className="group relative border border-neutral-200 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        onClick={() => setActiveLightboxImg(imgUrl)}
+                                                    >
+                                                        <div className="aspect-video w-full relative">
+                                                            {(() => {
+                                                                const isFaceViolation = ['face_not_detected', 'no_face_detected', 'multiple_faces_detected', 'face_mismatch', 'face_recognition_failed'].includes(event.activity_type || '');
+                                                                return (
+                                                                    <img
+                                                                        src={imgUrl}
+                                                                        alt={`Camera Snapshot ${i + 1}`}
+                                                                        className={`object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity ${isFaceViolation ? 'border-4 border-red-500 box-border' : ''}`}
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            })()}
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
+                                                                <Eye className="h-6 w-6 text-white" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-white text-slate-900 text-[10px] p-2 flex justify-between items-center border-t">
+                                                            <span className="font-medium">{formatEventTime(event.timestamp)}</span>
+                                                            {event.activity_type !== 'snapshot' && event.activity_type && (
+                                                                <Badge variant="destructive" className="text-white h-4 px-1 py-0 text-[8px] capitalize">
+                                                                    {event.activity_type?.replace(/_/g, ' ')}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </TabsContent>
+                                <TabsContent value="screen" className="mt-0 space-y-0">
+                                    {generalSnapshots.filter(i => i.type === 'screen').length === 0 ? (
+                                        <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                            No screen share screenshots were recorded.
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                            {generalSnapshots.filter(i => i.type === 'screen').map((item, i) => {
+                                                const event = item.event;
+                                                const imgUrl = getImageUrl(item.path);
+                                                return (
+                                                    <div 
+                                                        key={`scr-${i}`} 
+                                                        className="group relative border border-neutral-200 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        onClick={() => setActiveLightboxImg(imgUrl)}
+                                                    >
+                                                        <div className="aspect-video w-full relative">
+                                                            <img
+                                                                src={imgUrl}
+                                                                alt={`Screen Snapshot ${i + 1}`}
+                                                                className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
+                                                                }}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
+                                                                <Eye className="h-6 w-6 text-white" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-white text-slate-900 text-[10px] p-2 flex justify-between items-center border-t">
+                                                            <span className="font-medium">{formatEventTime(event.timestamp)}</span>
+                                                            {event.activity_type !== 'snapshot' && event.activity_type && (
+                                                                <Badge variant="destructive" className="text-white h-4 px-1 py-0 text-[8px] capitalize">
+                                                                    {event.activity_type?.replace(/_/g, ' ')}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </TabsContent>
+                            </CardContent>
+                        </Card>
+                    </Tabs>
                 </TabsContent>
 
+                {/* 2. Section Breakdown Tab */}
                 <TabsContent value="sections" className="space-y-6">
-                    <div className="border border-white/5 bg-white/[0.02] shadow-sm rounded-xl overflow-hidden">
-                        <div className="p-6 pb-3">
-                            <h3 className="text-base font-semibold flex items-center gap-2 text-white">
-                                <FileText className="h-5 w-5 text-neutral-500" />
+                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                        <CardHeader>
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-slate-500" />
                                 Section-by-Section Activity
-                            </h3>
-                        </div>
-                        <div className="p-6 space-y-6">
-                            <div className="space-y-6">
-                                <div className="flex space-x-2">
-                                    {(['labs', 'assessment', 'vitarka'] as const).map(section => (
-                                        <button
-                                            key={section}
-                                            onClick={() => setSelectedSection(section)}
-                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                                                selectedSection === section 
-                                                    ? 'bg-white/10 text-white shadow-sm border border-white/20' 
-                                                    : 'hover:bg-white/5 text-neutral-400 border border-white/10'
-                                            }`}
-                                        >
-                                            {section === 'labs' ? 'Engineering Labs' : section === 'assessment' ? 'Knowledge Assessments' : 'Vitarka Discussion'}
-                                        </button>
-                                    ))}
-                                </div>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {!candidate.proctoringData?.sections ? (
+                                <div className="text-center py-8 text-slate-500">No section activity data recorded.</div>
+                            ) : (
+                                (() => {
+                                    const activeSections = evaluation?.sections || [];
 
-                                {(() => {
-                                    const sectionData = candidate.proctoringData?.sections?.[selectedSection];
-                                    if (!sectionData) return <div className="text-neutral-500">No data for this section.</div>;
+                                    if (activeSections.length === 0) {
+                                        return <div className="text-center py-8 text-slate-500">No section activity data recorded for this candidate.</div>;
+                                    }
 
                                     return (
-                                        <div className="border border-white/5 rounded-lg p-5 bg-white/[0.01] shadow-sm">
-                                            <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/5">
-                                                <div>
-                                                    <h3 className="font-bold text-lg text-white capitalize">
-                                                        {selectedSection === 'labs' ? 'Engineering Labs' : selectedSection === 'assessment' ? 'Knowledge Assessments' : 'Vitarka Discussion'}
-                                                    </h3>
-                                                    <div className="text-sm text-neutral-500 flex items-center gap-4 mt-1">
-                                                        <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {sectionData.timeSpent} mins spent</span>
-                                                        <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Score: {sectionData.score}</span>
+                                        <Tabs defaultValue={(() => {
+                                            if (activeSections.length === 0) return 'labs';
+                                            const labSec = activeSections.find((s: any) => s.type === 'LAB');
+                                            if (labSec) return labSec.id || 'labs';
+                                            const firstSec = activeSections[0];
+                                            return firstSec.id || (firstSec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka');
+                                        })()} className="w-full">
+                                            <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 p-1 text-slate-500 mb-4 max-w-full overflow-x-auto">
+                                                {activeSections.map((sec: any, index: number) => {
+                                                    const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : 'Vitarka AI Discussion');
+                                                    const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+                                                    return (
+                                                        <TabsTrigger key={`trigger-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-[13px]">
+                                                            {sectionTitle}
+                                                        </TabsTrigger>
+                                                    );
+                                                })}
+                                            </TabsList>
+                                            {activeSections.map((sec: any, index: number) => {
+                                        const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : 'Vitarka AI Discussion');
+                                        const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+                                        const sectionMock = candidate.proctoringData?.sections?.[sectionKey as keyof typeof candidate.proctoringData.sections] || { score: 0, timeSpent: 0, events: [] };
+
+                                        // Fix: Allocate all real violations to the first tab (Engineering Labs) since the submission originally only had 1 section
+                                        const sectionEvents = index === 0 ? riskAnalysis.violations.map((e: any) => {
+                                            const isCritical = e.activity_type.includes('critical') || e.activity_type.includes('face_not');
+                                            let desc = e.activity_type.replace(/_/g, ' ');
+                                            if (e.meta_data) {
+                                                const md = e.meta_data;
+                                                if (md.copied_text) desc += ': ' + md.copied_text.slice(0, 30);
+                                                else if (md.platform) desc += ': ' + md.platform;
+                                                else desc += ': ' + JSON.stringify(md);
+                                            }
+                                            return {
+                                                time: e.timestamp,
+                                                type: e.activity_type,
+                                                desc,
+                                                severity: isCritical ? 2 : 1
+                                            };
+                                        }) : [];
+                                        
+                                        // Fix: Calculate real time spent across all events for the first tab
+                                        let realTimeSpent = index === 0 ? sectionMock.timeSpent : 0;
+                                        if (index === 0 && submission?.general_events && submission.general_events.length > 1) {
+                                            const allGen = submission.general_events;
+                                            const start = new Date(allGen[0].timestamp).getTime();
+                                            const end = new Date(allGen[allGen.length - 1].timestamp).getTime();
+                                            if (!isNaN(start) && !isNaN(end)) {
+                                                realTimeSpent = Math.max(1, Math.round((end - start) / 60000));
+                                            }
+                                        }
+
+                                        // Use real scores directly from the candidate object
+                                        const realScore = sectionKey === 'labs' ? candidate.labsScore : sectionKey === 'assessment' ? candidate.assessmentScore : candidate.vitarkaScore;
+                                        // Fix: If section wasn't attempted, set score to 0 or N/A
+                                        const displayScore = index === 0 ? (realScore !== undefined ? realScore : sectionMock.score) : 0;
+                                        
+                                        return (
+                                            <TabsContent key={`content-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="mt-0 outline-none">
+                                                <div className="border border-neutral-200 rounded-lg p-5 bg-white shadow-sm transition-all duration-200">
+                                                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b border-neutral-200">
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="font-bold text-base text-slate-900">
+                                                                    Section {index + 1}: {sectionTitle}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Clock className="h-3.5 w-3.5" />
+                                                                    Time Spent: {realTimeSpent}m
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Trophy className="h-3.5 w-3.5" />
+                                                                    Score: {displayScore}%
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Submissions UI */}
+                                                    {sec.type === 'LAB' && submission?.lab_submissions && (
+                                                        <div className="mb-6 space-y-4">
+                                                            {submission.lab_submissions.map((labSub: any, lIdx: number) => {
+                                                                const isMatch = sec.questions?.some((q: any) => 
+                                                                    (typeof q === 'string' ? q : q.id) === labSub.lab_question
+                                                                );
+                                                                if (!isMatch) return null;
+                                                                
+                                                                return (
+                                                                    <div key={lIdx} className="mb-4">
+                                                                        <LabSubmissionViewer
+                                                                            userId={candidate.user.id}
+                                                                            evaluationId={evaluation.id}
+                                                                            labId={labSub.lab_question}
+                                                                            diffPatch={labSub.solution}
+                                                                            minutesSolved={labSub.minutes_solved}
+                                                                        />
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    {sec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions && (
+                                                        <div className="mb-6 space-y-4">
+                                                            {submission.knowledge_submissions.map((ks: any, kIdx: number) => {
+                                                                if (ks.section !== sec.id) return null;
+
+                                                                return (
+                                                                    <div key={kIdx} className="space-y-4">
+                                                                        {sec.questions?.map((q: any, qIdx: number) => {
+                                                                            const ans = ks.answers?.find((a: any) => a.question_id === q.id);
+                                                                            const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
+                                                                            const mappedOptions = isMcq ? q.mcq_options.map((opt: any) => opt.text || "") : (q.options || []);
+                                                                            
+                                                                            const correctAnsIdx = isMcq 
+                                                                                ? q.mcq_options.findIndex((opt: any) => opt.is_correct === true)
+                                                                                : (q.correct_answer ?? 0);
+                                                                            
+                                                                            return (
+                                                                                <div key={qIdx} className="bg-white border border-neutral-200 rounded-lg p-4 shadow-sm">
+                                                                                    <div className="flex justify-between items-start mb-3">
+                                                                                        <h6 className="font-medium text-slate-800 text-sm pr-4 leading-relaxed">{qIdx + 1}. {q.title || q.text || q.content}</h6>
+                                                                                        {ans ? (
+                                                                                            <Badge variant={ans.is_correct ? "default" : "destructive"} className={ans.is_correct ? "bg-emerald-500 hover:bg-emerald-600 border-none" : ""}>
+                                                                                                {ans.is_correct ? 'Correct' : 'Incorrect'}
+                                                                                            </Badge>
+                                                                                        ) : (
+                                                                                            <Badge variant="outline" className="text-slate-500 bg-slate-50">Not Attempted</Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="space-y-2 mt-4">
+                                                                                        {mappedOptions.map((opt: string, oIdx: number) => {
+                                                                                            const isSelected = ans?.selected_option === oIdx;
+                                                                                            const isCorrect = correctAnsIdx === oIdx;
+                                                                                            let bgClass = "bg-slate-50 text-slate-700 border-neutral-200 hover:bg-slate-100 transition-colors";
+                                                                                            if (isCorrect && isSelected) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-800 shadow-sm";
+                                                                                            else if (isCorrect && !isSelected) bgClass = "bg-emerald-50/40 border-emerald-200/50 text-emerald-700/80";
+                                                                                            else if (!isCorrect && isSelected) bgClass = "bg-rose-50 border-rose-200 text-rose-800 shadow-sm";
+                                                                                            
+                                                                                            return (
+                                                                                                <div key={oIdx} className={`text-sm p-3.5 rounded-lg border ${bgClass} flex items-center gap-3 transition-all`}>
+                                                                                                    <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${isSelected ? (isCorrect ? 'border-emerald-500 bg-emerald-500' : 'border-rose-500 bg-rose-500') : (isCorrect ? 'border-emerald-400/50' : 'border-slate-300')}`}>
+                                                                                                        {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                                                                                    </div>
+                                                                                                    <span className="leading-snug">{opt}</span>
+                                                                                                </div>
+                                                                                            );
+                                                                                        })}
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <h5 className="font-semibold text-slate-900 flex items-center gap-2">
+                                                                <Activity className="h-4 w-4 text-slate-500" /> Section Event Timeline
+                                                            </h5>
+                                                        </div>
+                                                        {index > 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">Candidate did not attempt this section.</div>
+                                                        ) : sectionEvents.length === 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">No anomalies recorded for this section.</div>
+                                                        ) : (
+                                                            <div className="space-y-3">
+                                                                {sectionEvents.map((evt: any, i: number) => (
+                                                                    <div key={i} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-2 last:border-0 last:pb-0">
+                                                                        <div className={`w-2 h-2 rounded-full ${evt.severity === 2 ? 'bg-rose-500' : evt.severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                                                                        <span className="font-medium min-w-[60px] text-slate-500">{formatEventTime(evt.time)}</span>
+                                                                        <Badge variant="outline" className="text-slate-900 border-neutral-200 text-[10px] capitalize">{evt.type.replace(/_/g, ' ')}</Badge>
+                                                                        <span className="text-slate-500 truncate">{evt.desc}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -322,65 +1003,137 @@ export const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> =
                                                                     <ViolationDescription text={ev.desc} />
                                                                 </div>
                                                             </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-                        </div>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value="violations" className="space-y-6">
-                    <div className="border border-white/5 bg-white/[0.02] shadow-sm rounded-xl overflow-hidden">
-                        <div className="p-6 pb-3">
-                            <h3 className="text-base font-semibold flex items-center gap-2 text-rose-500">
-                                <AlertCircle className="h-5 w-5" />
-                                Proctoring Violations Timeline ({totalViolations})
-                            </h3>
-                        </div>
-                        <div className="p-6 pt-2">
-                            {totalViolations === 0 ? (
-                                <div className="text-center py-12 text-emerald-500 flex flex-col items-center justify-center gap-3 bg-emerald-500/5 border border-dashed border-emerald-500/30 rounded-lg">
-                                    <ShieldCheck className="h-10 w-10 text-emerald-500" />
-                                    <div className="font-semibold text-base">Perfect Session Integrity!</div>
-                                    <p className="text-xs text-emerald-500/80">The student did not trigger any proctoring flags during the assessment.</p>
-                                </div>
-                            ) : (
-                                <div className="relative border-l border-white/10 pl-6 ml-3 space-y-6">
-                                    {violations.filter(event => event.type !== 'snapshot').map((event, idx) => {
-                                        return (
-                                            <div key={idx} className="relative group">
-                                                <div className={`absolute -left-[31px] p-1 rounded-full border-2 border-neutral-900 bg-neutral-900 text-rose-500`}>
-                                                    <AlertTriangle className="h-3 w-3" />
-                                                </div>
-                                                <div className="flex flex-col sm:flex-row gap-4 justify-between bg-white/[0.02] p-4 rounded-lg border border-white/5 transition-colors">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="font-semibold capitalize text-white">{event.type.replace('_', ' ')}</span>
-                                                            {event.severity > 0 && <Badge variant="outline" className="text-[10px] text-rose-500 border-rose-500/50">Violation</Badge>}
                                                         </div>
-                                                        <ViolationDescription text={event.desc} />
-                                                        {(event.image_path || event.screen_path) && (
-                                                            <div className="flex gap-3 mt-3">
-                                                                {event.image_path && (
-                                                                    <div className="relative group/img">
-                                                                        <img src={event.image_path} alt="Webcam snapshot" className="w-48 h-auto rounded-md border border-white/10 opacity-80 group-hover/img:opacity-100 transition" />
+                                                    </div>
+
+                                                    <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <h5 className="font-semibold text-slate-900 flex items-center gap-2">
+                                                                <Activity className="h-4 w-4 text-slate-500" /> Section Event Timeline
+                                                            </h5>
+                                                        </div>
+                                                        {index > 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">Candidate did not attempt this section.</div>
+                                                        ) : sectionEvents.length === 0 ? (
+                                                            <div className="text-slate-500 italic text-xs">No anomalies recorded for this section.</div>
+                                                        ) : (
+                                                            <div className="space-y-3">
+                                                                {sectionEvents.map((evt: any, i: number) => (
+                                                                    <div key={i} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-2 last:border-0 last:pb-0">
+                                                                        <div className={`w-2 h-2 rounded-full ${evt.severity === 2 ? 'bg-rose-500' : evt.severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                                                                        <span className="font-medium min-w-[60px] text-slate-500">{formatEventTime(evt.time)}</span>
+                                                                        <Badge variant="outline" className="text-slate-900 border-neutral-200 text-[10px] capitalize">{evt.type.replace(/_/g, ' ')}</Badge>
+                                                                        <span className="text-slate-500 truncate">{evt.desc}</span>
                                                                     </div>
-                                                                )}
-                                                                {event.screen_path && (
-                                                                    <div className="relative group/img">
-                                                                        <img src={event.screen_path} alt="Screen snapshot" className="w-48 h-auto rounded-md border border-white/10 opacity-80 group-hover/img:opacity-100 transition" />
-                                                                    </div>
-                                                                )}
+                                                                ))}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="text-right shrink-0">
-                                                        <div className="font-mono text-sm text-neutral-500">{formatEventTime(event.time)}</div>
+                                                </div>
+                                            </TabsContent>
+                                        );
+                                    })}
+                                </Tabs>
+                                    );
+                                })()
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* 3. Violations Tab */}
+                <TabsContent value="violations" className="space-y-6">
+                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                        <CardHeader>
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-rose-600 flex items-center gap-2 font-bold">
+                                <AlertCircle className="h-5 w-5" />
+                                Proctoring Violations Timeline ({totalViolations})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {totalViolations === 0 ? (
+                                <div className="text-center py-12 text-emerald-600  flex flex-col items-center justify-center gap-3 bg-emerald-50/20  border border-dashed border-emerald-200  rounded-lg">
+                                    <ShieldCheck className="h-10 w-10 text-emerald-500" />
+                                    <div className="font-semibold text-base">Perfect Session Integrity!</div>
+                                    <p className="text-xs text-slate-500">The student did not trigger any proctoring flags during the assessment.</p>
+                                </div>
+                            ) : (
+                                <div className="relative border-l border-neutral-200 pl-6 ml-3 space-y-6">
+                                    {riskAnalysis.violations.map((event, idx) => {
+                                        const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+                                        const isCritical = criticalTypes.some(vt => event.activity_type.includes(vt));
+
+                                        let icon = AlertTriangle;
+                                        let color = isCritical 
+                                            ? 'bg-rose-100 text-rose-700  ' 
+                                            : 'bg-amber-100 text-amber-700  ';
+                                        
+                                        if (event.activity_type.includes('face')) {
+                                            icon = Eye;
+                                        } else if (event.activity_type.includes('tab_switched') || event.activity_type.includes('focus_lost') || event.activity_type.includes('window')) {
+                                            icon = Maximize;
+                                        } else if (event.activity_type.includes('copy') || event.activity_type.includes('paste') || event.activity_type.includes('cut')) {
+                                            icon = FileText;
+                                        }
+
+                                        const IconComponent = icon;
+
+                                        return (
+                                            <div key={idx} className="relative group">
+                                                {/* Line marker */}
+                                                <div className={`absolute -left-[37px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center border-2 border-background shadow-sm ${color}`}>
+                                                    <IconComponent className="h-3.5 w-3.5" />
+                                                </div>
+
+                                                <div className={`p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow-md transition-shadow ${isCritical ? 'border-rose-200 ' : 'border-neutral-200'}`}>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`font-bold text-sm capitalize ${isCritical ? 'text-rose-600 ' : 'text-slate-900'}`}>
+                                                                {event.activity_type?.replace(/_/g, ' ') || ''}
+                                                            </span>
+                                                            <Badge variant={isCritical ? 'destructive' : 'outline'} className="text-slate-900 border-neutral-200 text-[10px] h-4 px-1 py-0 uppercase">
+                                                                {isCritical ? 'Critical' : 'General'}
+                                                            </Badge>
+                                                        </div>
+                                                        <span className="text-[10px] text-slate-500">
+                                                            {formatEventTime(event.timestamp)}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Meta detail description */}
+                                                    <div className="text-xs text-slate-500 space-y-1">
+                                                        {event.meta_data?.method && (
+                                                            <div><strong>Method:</strong> <Badge variant="secondary" className="text-slate-900 bg-slate-100 text-[10px] h-4 py-0 px-1 ml-1">{event.meta_data.method}</Badge></div>
+                                                        )}
+                                                        {event.meta_data?.platform && (
+                                                            <div><strong>Platform/Browser:</strong> {event.meta_data.platform}</div>
+                                                        )}
+                                                        {event.meta_data?.key && (
+                                                            <div><strong>Trigger Key:</strong> <kbd className="px-1 border border-neutral-200 bg-slate-100 font-mono">{event.meta_data.key}</kbd></div>
+                                                        )}
+                                                        {event.meta_data?.copied_text && (
+                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Copied:</strong> "{event.meta_data.copied_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.pasted_text && (
+                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Pasted:</strong> "{event.meta_data.pasted_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.cut_text && (
+                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Cut:</strong> "{event.meta_data.cut_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.selected_text && (
+                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Selected:</strong> "{event.meta_data.selected_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.db_level !== undefined && (
+                                                            <div><strong>Ambient Audio Noise:</strong> {event.meta_data.db_level} dB</div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -388,10 +1141,93 @@ export const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> =
                                     })}
                                 </div>
                             )}
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* 4. System & Network Tab */}
+                <TabsContent value="system" className="space-y-6">
+                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                        <CardHeader>
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                <Network className="h-5 w-5 text-slate-500" />
+                                Network Status & System Events Log
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {riskAnalysis.systemLogs.length === 0 ? (
+                                <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                    No system, camera, or network logs were recorded.
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {riskAnalysis.systemLogs.map((event, idx) => {
+                                        const isConn = event.activity_type === 'network_connected' || event.activity_type === 'camera_enabled' || event.activity_type === 'focus_gained';
+                                        const isDis = event.activity_type === 'network_disconnected' || event.activity_type === 'camera_disabled' || event.activity_type === 'focus_lost';
+                                        
+                                        return (
+                                            <div key={idx} className="flex justify-between items-center text-[13px] p-3 bg-white rounded-lg border border-neutral-200">
+                                                <div className="flex items-center gap-3">
+                                                    {isConn ? (
+                                                        <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
+                                                    ) : isDis ? (
+                                                        <XCircle className="h-4.5 w-4.5 text-rose-500" />
+                                                    ) : (
+                                                        <Activity className="h-4.5 w-4.5 text-blue-500" />
+                                                    )}
+                                                    <span className="font-semibold text-sm capitalize text-slate-900">
+                                                        {event.activity_type?.replace(/_/g, ' ') || ''}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    {event.meta_data?.platform && (
+                                                        <span className="text-[10px] border border-neutral-200 px-1.5 py-0.5 rounded bg-slate-100">
+                                                            {event.meta_data.platform}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-xs text-slate-500">
+                                                        {formatEventTime(event.timestamp)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
             </Tabs>
+
+            {/* Premium Lightbox Modal */}
+            {activeLightboxImg && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 transition-all duration-300"
+                    onClick={() => setActiveLightboxImg(null)}
+                >
+                    <div className="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center" onClick={e => e.stopPropagation()}>
+                        <button 
+                            onClick={() => setActiveLightboxImg(null)}
+                            className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors text-sm font-semibold flex items-center gap-1 bg-black/50 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md cursor-pointer"
+                        >
+                            ✕ Close Esc
+                        </button>
+                        <img 
+                            src={activeLightboxImg} 
+                            alt="Snapshot Enlarged View" 
+                            className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl border border-white/10"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600?text=Image+Load+Error';
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+
         </div>
     );
 };
+
+export { CandidateAnalyticsViewer };
+

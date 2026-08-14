@@ -1,0 +1,1929 @@
+{
+  "title": "Sprint 8 — Graphs",
+  "description": "Master Graphs through hand-picked algorithmic challenges.",
+  "xp_pool": 2200,
+  "tickets": [
+    {
+      "title": "Ticket 1 — Count Archipelago Islands",
+      "ticket_slug": "ticket-number-of-islands",
+      "description": "A satellite maps an ocean region. Calculate how many distinct, connected landmasses (islands) exist in the grid.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 1,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-number-of-islands-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+          "expected_output": "1",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-number-of-islands-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]",
+          "expected_output": "3",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-number-of-islands-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[\"1\",\"1\"],[\"1\",\"1\"]]",
+          "expected_output": "1",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-number-of-islands-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[\"1\",\"0\"],[\"1\",\"0\"]]",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-number-of-islands-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\"]]",
+          "expected_output": "0",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-number-of-islands-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[\"1\",\"0\",\"1\",\"0\",\"1\"]]",
+          "expected_output": "3",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-number-of-islands-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[\"1\"],[\"0\"],[\"1\"],[\"0\"],[\"1\"]]",
+          "expected_output": "3",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-number-of-islands-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+          "expected_output": "3",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 2 — Digital Image Painting",
+      "ticket_slug": "ticket-flood-fill",
+      "description": "Implement the 'bucket fill' tool for a drawing application, coloring all connected pixels of the original color.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 2,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-flood-fill-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2",
+          "expected_output": "[[2, 2, 2], [2, 2, 0], [2, 0, 1]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-flood-fill-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,0,0],[0,0,0]]\n0\n0\n0",
+          "expected_output": "[[0, 0, 0], [0, 0, 0]]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-flood-fill-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[1,1,1],[1,1,0]]\n0\n0\n2",
+          "expected_output": "[[2, 2, 2], [2, 2, 0]]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-flood-fill-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[1,1],[1,0]]\n1\n0\n2",
+          "expected_output": "[[2, 2], [2, 0]]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-flood-fill-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,0,0],[0,1,1]]\n1\n1\n1",
+          "expected_output": "[[0, 0, 0], [0, 1, 1]]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-flood-fill-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[1,0,1],[0,1,0],[1,0,1]]\n1\n1\n2",
+          "expected_output": "[[1, 0, 1], [0, 2, 0], [1, 0, 1]]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-flood-fill-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,0,0],[0,0,0],[0,0,0]]\n1\n1\n3",
+          "expected_output": "[[3, 3, 3], [3, 3, 3], [3, 3, 3]]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-flood-fill-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[1,2,3],[4,5,6]]\n0\n0\n7",
+          "expected_output": "[[7, 2, 3], [4, 5, 6]]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 3 — Validate Network Route",
+      "ticket_slug": "ticket-find-if-path-exists-in-gr",
+      "description": "Check if a physical data connection path exists between two remote server nodes in a massive IT network.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 3,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-find-if-path-exists-in-graph-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "3\n[[0,1],[1,2],[2,0]]\n0\n2",
+          "expected_output": "True",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-find-if-path-exists-in-graph-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "6\n[[0,1],[0,2],[3,5],[5,4],[4,3]]\n0\n5",
+          "expected_output": "False",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-find-if-path-exists-in-graph-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "1\n[]\n0\n0",
+          "expected_output": "True",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-find-if-path-exists-in-graph-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "2\n[[0,1]]\n0\n1",
+          "expected_output": "True",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-find-if-path-exists-in-graph-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "10\n[[4,3],[1,4],[4,8],[1,7],[6,4],[4,2],[7,4],[4,0],[0,9],[5,4]]\n5\n9",
+          "expected_output": "True",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-find-if-path-exists-in-graph-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "5\n[[0,1],[0,2],[3,4]]\n0\n4",
+          "expected_output": "False",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-find-if-path-exists-in-graph-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "4\n[[0,1],[1,2],[2,3]]\n0\n3",
+          "expected_output": "True",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-find-if-path-exists-in-graph-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "4\n[[0,1],[2,3]]\n0\n3",
+          "expected_output": "False",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 4 — Degree Prerequisite Validation",
+      "ticket_slug": "ticket-course-schedule",
+      "description": "A university student wants to graduate but courses have strict prerequisites. Determine if completing all courses is logically possible.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 4,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-course-schedule-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "2\n[[1,0]]",
+          "expected_output": "True",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-course-schedule-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "2\n[[1,0],[0,1]]",
+          "expected_output": "False",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-course-schedule-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "3\n[[1,0],[2,1]]",
+          "expected_output": "True",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-course-schedule-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "3\n[[1,0],[0,1]]",
+          "expected_output": "False",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-course-schedule-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "3\n[[0,1],[0,2],[1,2]]",
+          "expected_output": "True",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-course-schedule-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "4\n[[1,0],[2,1],[3,2],[1,3]]",
+          "expected_output": "False",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-course-schedule-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "1\n[]",
+          "expected_output": "True",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-course-schedule-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "5\n[[1,4],[2,4],[3,1],[3,2]]",
+          "expected_output": "True",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 5 — Genetic Mutation Steps",
+      "ticket_slug": "ticket-word-ladder",
+      "description": "Find the shortest evolutionary path between two DNA sequences where only one mutation can happen at a time, and all intermediates must be valid genes.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 5,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-word-ladder-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+          "expected_output": "5",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-word-ladder-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+          "expected_output": "0",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-word-ladder-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "a\nc\n[\"a\",\"b\",\"c\"]",
+          "expected_output": "2",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-word-ladder-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "talk\ntail\n[\"talk\", \"tall\", \"tail\"]",
+          "expected_output": "3",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-word-ladder-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "lost\ncost\n[\"most\",\"fist\",\"lost\",\"cost\",\"fish\"]",
+          "expected_output": "2",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-word-ladder-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "qa\nsq\n[\"si\",\"go\",\"se\",\"cm\",\"so\",\"ph\",\"mt\",\"db\",\"mb\",\"sb\",\"kr\",\"ln\",\"tm\",\"le\",\"av\",\"sm\",\"ar\",\"ci\",\"ca\",\"br\",\"ti\",\"ba\",\"to\",\"ra\",\"fa\",\"no\",\"li\",\"ma\",\"re\",\"sy\",\"sc\",\"sr\",\"st\",\"as\",\"ko\",\"th\",\"yo\",\"ro\",\"do\",\"it\",\"la\",\"an\",\"hy\",\"os\",\"ad\",\"ms\",\"au\",\"rv\",\"py\",\"mo\",\"tu\",\"ty\",\"ti\",\"bi\",\"hp\",\"cb\",\"ic\",\"id\",\"il\",\"ii\",\"it\",\"in\",\"if\",\"im\",\"io\",\"ir\",\"is\",\"it\",\"iu\",\"iv\",\"iw\",\"ix\",\"iy\",\"iz\"]",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-word-ladder-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "hot\ndog\n[\"hot\",\"dog\"]",
+          "expected_output": "0",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-word-ladder-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "a\nb\n[\"a\",\"b\"]",
+          "expected_output": "2",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 6 — Continental Divide Rainflow",
+      "ticket_slug": "ticket-pacific-atlantic-water-fl",
+      "description": "Analyze a topographic map to find all coordinate peaks where rainwater can flow down to both the Pacific and Atlantic oceans.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 6,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-pacific-atlantic-water-flow-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+          "expected_output": "[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-pacific-atlantic-water-flow-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[1]]",
+          "expected_output": "[[0, 0]]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-pacific-atlantic-water-flow-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[1,1],[1,1]]",
+          "expected_output": "[[0, 0], [0, 1], [1, 0], [1, 1]]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-pacific-atlantic-water-flow-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[10,10,10],[10,1,10],[10,10,10]]",
+          "expected_output": "[[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-pacific-atlantic-water-flow-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[2,1],[1,2]]",
+          "expected_output": "[[0, 0], [0, 1], [1, 0], [1, 1]]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-pacific-atlantic-water-flow-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[1,2,3],[8,9,4],[7,6,5]]",
+          "expected_output": "[[0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-pacific-atlantic-water-flow-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[1,2,7],[3,4,5]]",
+          "expected_output": "[[0, 2], [1, 0], [1, 1], [1, 2]]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-pacific-atlantic-water-flow-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[10],[10]]",
+          "expected_output": "[[0, 0], [1, 0]]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 7 — Decipher Extraterrestrial Alphabet",
+      "ticket_slug": "ticket-alien-dictionary",
+      "description": "Given a sorted dictionary of alien words, deduce the alphabetical order of the alien language's characters.\n",
+      "xp_reward": 300,
+      "ticket_type": "algo",
+      "difficulty": "HARD",
+      "order_index": 7,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-alien-dictionary-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+          "expected_output": "wertf",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-alien-dictionary-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[\"z\",\"x\"]",
+          "expected_output": "zx",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-alien-dictionary-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[\"abc\",\"ab\"]",
+          "expected_output": "",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-alien-dictionary-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[\"z\",\"z\"]",
+          "expected_output": "z",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-alien-dictionary-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[\"z\",\"x\",\"z\"]",
+          "expected_output": "",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-alien-dictionary-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[\"ri\",\"oc\",\"uo\",\"ts\",\"tc\",\"ri\",\"tc\"]",
+          "expected_output": "",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-alien-dictionary-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\",\"t\"]",
+          "expected_output": "wertf",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-alien-dictionary-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[\"ab\",\"ac\",\"ad\",\"ae\"]",
+          "expected_output": "abcde",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 8 — Contain Zombie Outbreak",
+      "ticket_slug": "ticket-rotting-oranges",
+      "description": "A zombie virus spreads to adjacent healthy humans every minute in a grid city. Calculate how long until the entire city is infected.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 8,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-rotting-oranges-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[2,1,1],[1,1,0],[0,1,1]]",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-rotting-oranges-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[2,1,1],[0,1,1],[1,0,1]]",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3 (Hidden/Advanced)",
+          "task_slug": "task-rotting-oranges-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[1,1,1],[1,1,1],[1,1,1]]",
+          "expected_output": "-1",
+          "order_index": 3
+        }
+      ]
+    },
+    {
+      "title": "Ticket 9 — Remove Circuit Loop",
+      "ticket_slug": "ticket-redundant-connection",
+      "description": "A power grid is designed to be a tree, but a faulty extra wire created a dangerous short-circuit loop. Identify the redundant wire to remove.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 9,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-redundant-connection-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[1,2],[1,3],[2,3]]",
+          "expected_output": "[2, 3]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-redundant-connection-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[1,2],[2,3],[3,4],[1,4],[1,5]]",
+          "expected_output": "[1, 4]",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 10 — Find Largest Mining Claim",
+      "ticket_slug": "ticket-max-area-of-island",
+      "description": "Survey a grid of land plots to find the largest contiguous area of valuable mineral deposits.\n",
+      "xp_reward": 100,
+      "ticket_type": "algo",
+      "difficulty": "EASY",
+      "order_index": 10,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-max-area-of-island-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]]",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2 (Hidden/Advanced)",
+          "task_slug": "task-max-area-of-island-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[1]]",
+          "expected_output": "1",
+          "order_index": 2
+        }
+      ]
+    },
+    {
+      "title": "Ticket 11 — Food Spoilage Simulation",
+      "ticket_slug": "ticket-minimum-time-to-rot-all-f",
+      "description": "Similar to the zombie outbreak, but tracking how quickly a fungal rot spreads through crates of produce in a warehouse.\n",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 11,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+          "expected_output": "4",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+          "expected_output": "-1",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "1 1\n0",
+          "expected_output": "0",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "1 2\n2 1",
+          "expected_output": "1",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "1 1\n1",
+          "expected_output": "-1",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6 (Hidden/Advanced)",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "3 3\n2 2 2\n2 2 2\n2 2 2",
+          "expected_output": "0",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7 (Hidden/Advanced)",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "3 3\n0 2 2\n2 0 1\n0 0 0",
+          "expected_output": "1",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8 (Hidden/Advanced)",
+          "task_slug": "task-minimum-time-to-rot-all-fruits-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "1 4\n2 1 1 1",
+          "expected_output": "3",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 12 — Global Ping Broadcast",
+      "ticket_slug": "ticket-sprint8-generated-12",
+      "description": "Send a ping from a central server to all global nodes and calculate the total time it takes for the slowest node to receive it.\n\n### Problem Statement\nSend a ping from a central server to all global nodes and calculate the total time it takes for the slowest node to receive it.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 12,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-12-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-12-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-12-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-12-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-12-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-12-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-12-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-12-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 13 — Budget Travel Planner",
+      "ticket_slug": "ticket-sprint8-generated-13",
+      "description": "Find the cheapest flight itinerary between two cities that does not exceed a maximum allowed number of layovers.\n\n### Problem Statement\nFind the cheapest flight itinerary between two cities that does not exceed a maximum allowed number of layovers.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 13,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-13-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-13-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-13-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-13-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-13-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-13-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-13-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-13-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 14 — Deduplicate Customer Profiles",
+      "ticket_slug": "ticket-sprint8-generated-14",
+      "description": "Merge fragmented user accounts in a database based on shared overlapping email addresses across profiles.\n\n### Problem Statement\nMerge fragmented user accounts in a database based on shared overlapping email addresses across profiles.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 14,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-14-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-14-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-14-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-14-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-14-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-14-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-14-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-14-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 15 — Assign Hostile Factions",
+      "ticket_slug": "ticket-sprint8-generated-15",
+      "description": "A mediator must divide a group of hostile individuals into two separate rooms such that no enemies are placed in the same room.\n\n### Problem Statement\nA mediator must divide a group of hostile individuals into two separate rooms such that no enemies are placed in the same room.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 15,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-15-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-15-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-15-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-15-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-15-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-15-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-15-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-15-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 16 — Navigate Minefield",
+      "ticket_slug": "ticket-sprint8-generated-16",
+      "description": "Find the shortest safe path from the top-left to the bottom-right of a grid filled with hazardous obstacles.\n\n### Problem Statement\nFind the shortest safe path from the top-left to the bottom-right of a grid filled with hazardous obstacles.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 16,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-16-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-16-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-16-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-16-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-16-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-16-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-16-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-16-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 17 — Currency Arbitrage Calculator",
+      "ticket_slug": "ticket-sprint8-generated-17",
+      "description": "Given exchange rates between specific pairs of currencies, calculate the implied exchange rate between any two currencies.\n\n### Problem Statement\nGiven exchange rates between specific pairs of currencies, calculate the implied exchange rate between any two currencies.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 17,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-17-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-17-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-17-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-17-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-17-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-17-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-17-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-17-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 18 — Replicate Social Network",
+      "ticket_slug": "ticket-sprint8-generated-18",
+      "description": "Perform a deep structural copy of a social network's friend connections to build an isolated sandbox environment for testing.\n\n### Problem Statement\nPerform a deep structural copy of a social network's friend connections to build an isolated sandbox environment for testing.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 18,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-18-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-18-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-18-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-18-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-18-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-18-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-18-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-18-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 19 — Identify Allied Coalitions",
+      "ticket_slug": "ticket-sprint8-generated-19",
+      "description": "Given a matrix of diplomatic relationships, count the number of distinct allied factions (provinces) where everyone is connected.\n\n### Problem Statement\nGiven a matrix of diplomatic relationships, count the number of distinct allied factions (provinces) where everyone is connected.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 19,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-19-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-19-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-19-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-19-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-19-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-19-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-19-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-19-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 20 — Decode Cipher Grid",
+      "ticket_slug": "ticket-sprint8-generated-20",
+      "description": "Traverse a 2D grid of jumbled letters to find a specific password by moving horizontally or vertically without reusing cells.\n\n### Problem Statement\nTraverse a 2D grid of jumbled letters to find a specific password by moving horizontally or vertically without reusing cells.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 20,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-20-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-20-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-20-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-20-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-20-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-20-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-20-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-20-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 21 — Annex Enemy Territories",
+      "ticket_slug": "ticket-sprint8-generated-21",
+      "description": "In a war game board, any enemy territory that is completely surrounded by your borders is captured and flipped to your side.\n\n### Problem Statement\nIn a war game board, any enemy territory that is completely surrounded by your borders is captured and flipped to your side.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 21,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-21-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-21-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-21-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-21-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-21-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-21-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-21-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-21-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 22 — Piece Together Flight Logs",
+      "ticket_slug": "ticket-sprint8-generated-22",
+      "description": "An airplane's flight logs were scrambled. Reconstruct the exact itinerary of the plane, starting from the hub airport, using all tickets exactly once.\n\n### Problem Statement\nAn airplane's flight logs were scrambled. Reconstruct the exact itinerary of the plane, starting from the hub airport, using all tickets exactly once.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 22,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-22-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-22-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-22-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-22-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-22-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-22-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-22-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-22-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 23 — Place Optimal Network Hub",
+      "ticket_slug": "ticket-sprint8-generated-23",
+      "description": "Find the best nodes in a network to place a central hub router such that the maximum distance to any other node is minimized.\n\n### Problem Statement\nFind the best nodes in a network to place a central hub router such that the maximum distance to any other node is minimized.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 23,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-23-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-23-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-23-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-23-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-23-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-23-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-23-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-23-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 24 — Build Deep Sea Base",
+      "ticket_slug": "ticket-sprint8-generated-24",
+      "description": "Find the ocean coordinate in a grid that is the absolute furthest away from any piece of land to build a secret submarine base.\n\n### Problem Statement\nFind the ocean coordinate in a grid that is the absolute furthest away from any piece of land to build a secret submarine base.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 24,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-24-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-24-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-24-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-24-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-24-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-24-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-24-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-24-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    },
+    {
+      "title": "Ticket 25 — Prevent System Deadlocks",
+      "ticket_slug": "ticket-sprint8-generated-25",
+      "description": "Analyze a computer program's state machine to identify all safe states that are guaranteed to eventually terminate without entering an infinite loop.\n\n### Problem Statement\nAnalyze a computer program's state machine to identify all safe states that are guaranteed to eventually terminate without entering an infinite loop.\n\nImplement the solution based on standard graph operations (BFS/DFS/Dijkstra).",
+      "xp_reward": 200,
+      "ticket_type": "algo",
+      "difficulty": "MEDIUM",
+      "order_index": 25,
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "task_slug": "task-sprint8-generated-25-1",
+          "description": "Validate your code against test case 1.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 1
+        },
+        {
+          "title": "Test Case 2",
+          "task_slug": "task-sprint8-generated-25-2",
+          "description": "Validate your code against test case 2.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 2
+        },
+        {
+          "title": "Test Case 3",
+          "task_slug": "task-sprint8-generated-25-3",
+          "description": "Validate your code against test case 3.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 3
+        },
+        {
+          "title": "Test Case 4",
+          "task_slug": "task-sprint8-generated-25-4",
+          "description": "Validate your code against test case 4.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 4
+        },
+        {
+          "title": "Test Case 5",
+          "task_slug": "task-sprint8-generated-25-5",
+          "description": "Validate your code against test case 5.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 5
+        },
+        {
+          "title": "Test Case 6",
+          "task_slug": "task-sprint8-generated-25-6",
+          "description": "Validate your code against test case 6.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 6
+        },
+        {
+          "title": "Test Case 7",
+          "task_slug": "task-sprint8-generated-25-7",
+          "description": "Validate your code against test case 7.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 7
+        },
+        {
+          "title": "Test Case 8",
+          "task_slug": "task-sprint8-generated-25-8",
+          "description": "Validate your code against test case 8.",
+          "points": 10,
+          "input": "[[0,1],[1,0]]",
+          "expected_output": "[]",
+          "order_index": 8
+        }
+      ]
+    }
+  ]
+}

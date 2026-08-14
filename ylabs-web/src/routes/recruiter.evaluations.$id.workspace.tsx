@@ -70,22 +70,24 @@ import {
 import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
 import { SettingsTab } from "@/components/recruiter/SettingsTab";
 import { FollowUpsTab } from "@/components/recruiter/FollowUpsTab";
+import { CandidateRecordsTab } from "@/components/recruiter/CandidateRecordsTab";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 
 const searchSchema = z.object({
   tab: z
-    .enum(["overview", "candidates", "followups", "intelligence", "attention", "settings"])
+    .enum(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"])
     .default("overview")
     .catch("overview"),
 });
 
 const TAB_LABELS: Record<
-  "overview" | "candidates" | "followups" | "intelligence" | "attention" | "settings",
+  "overview" | "candidates" | "followups" | "records" | "intelligence" | "attention" | "settings",
   string
 > = {
   overview: "Overview",
   candidates: "Candidates",
   followups: "Follow-ups",
+  records: "Candidate Records",
   intelligence: "Hiring Intelligence",
   attention: "Need Your Attention",
   settings: "Settings",
@@ -104,13 +106,17 @@ function Workspace() {
   const { tab } = Route.useSearch();
   const nav = useNavigate();
   const [ev, setEv] = useState<Evaluation | null>(null);
+  const [submissions, setSubmissions] = useState<any[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     getEvaluation(id).then((e) => {
       if (!e) nav({ to: "/recruiter/evaluations" });
-      else setEv(e);
+      else {
+        setEv(e);
+        getEvaluationSubmissions(e.id).then(setSubmissions).catch(() => setSubmissions([]));
+      }
     });
   }, [id, nav]);
 
@@ -120,9 +126,9 @@ function Workspace() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  if (!ev) return null;
+  if (!ev || submissions === null) return null;
 
-  const candidates = getCandidates(ev.id);
+  const candidates = getCandidates(ev.id, submissions);
   const totals = evaluationTotals(ev);
   const goto = (t: typeof tab) =>
     nav({ to: "/recruiter/evaluations/$id/workspace", params: { id }, search: { tab: t } });
@@ -204,7 +210,7 @@ function Workspace() {
     <div className="min-h-screen">
       {/* Top header */}
       <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto max-w-[1440px] px-8 pt-6 pb-4">
+        <div className="w-full px-8 pt-6 pb-4">
           <Link
             to="/recruiter/evaluations"
             className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-white"
@@ -247,12 +253,12 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "intelligence", "attention", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"] as const).map(
                 (t) => (
                   <button
                     key={t}
                     onClick={() => goto(t)}
-                    className={`relative px-3 py-2 text-[13px] transition ${tab === t ? "text-white" : "text-neutral-500 hover:text-neutral-300"}`}
+                    className={`relative whitespace-nowrap px-3 py-2 text-[13px] transition ${tab === t ? "text-white" : "text-neutral-500 hover:text-neutral-300"}`}
                   >
                     {TAB_LABELS[t]}
                     {tab === t && (
@@ -362,7 +368,7 @@ function Workspace() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1440px] px-8 py-8">
+      <main className="w-full px-8 py-8">
         {tab === "overview" && (
           <OverviewTab ev={ev} candidates={candidates} onGoto={goto} notify={notify} />
         )}
@@ -370,6 +376,7 @@ function Workspace() {
           <CandidatesTab evId={ev.id} candidates={candidates} notify={notify} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
+        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
@@ -2863,6 +2870,7 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
         hiringStatus: "Pending Review" as HiringStatus,
         submittedAt: new Date(sub.completed_at || sub.created_at).getTime(),
         completionMinutes: durationMins,
+        rawSubmission: sub,
         avatarHue: 0,
         proctoringData: {
           totalViolations,
@@ -2936,3 +2944,4 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
     </div>
   )
 }
+

@@ -37,6 +37,22 @@ class ProductJWTAuthentication(JWTAuthentication):
 
         try:
             user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
+            
+            # Update existing user names from token if they changed
+            token_first = validated_token.get("first_name", "")
+            token_last = validated_token.get("last_name", "")
+            needs_save = False
+            
+            if token_first and user.first_name != token_first:
+                user.first_name = token_first
+                needs_save = True
+            if token_last and user.last_name != token_last:
+                user.last_name = token_last
+                needs_save = True
+                
+            if needs_save:
+                user.save()
+                
         except User.DoesNotExist:
             username = validated_token.get("username", str(user_id))
             email = validated_token.get("email", "")

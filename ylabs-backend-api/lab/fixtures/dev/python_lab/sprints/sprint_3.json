@@ -1,0 +1,590 @@
+{
+  "title": "Sprint 3 - Object-Oriented Python",
+  "description": "Learn object-oriented programming by building a practical Task Management System. Create classes and objects, work with constructors, instance attributes, methods, class attributes, encapsulation, properties, composition, and inheritance.",
+  "order_index": 3,
+  "lab_title": "Python Lab",
+  "tickets": [
+    {
+      "title": "Create the Task Class",
+      "ticket_slug": "python-31",
+      "description": "The Developer Utility now needs to manage development tasks. Create a `Task` class that represents a single task with a title and status.",
+      "tasks": [
+        "Create a class named `Task`.",
+        "Create a constructor that accepts `title`.",
+        "Store the title as an instance attribute.",
+        "Set the initial status to `Pending`.",
+        "Create a Task object and print its title and status."
+      ],
+      "learning_objectives": [
+        "Understand what a Python class represents.",
+        "Learn how to create objects from a class.",
+        "Understand instance attributes.",
+        "Learn how `__init__()` initializes an object."
+      ],
+      "evaluation": "Creates a Task object and verifies that its title and initial status are stored correctly.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using a function instead of a class.",
+        "Forgetting `self` in the constructor.",
+        "Setting the status outside the object.",
+        "Forgetting to initialize the title."
+      ],
+      "hints": [
+        "Use the `class` keyword to define the Task class.",
+        "The constructor method is named `__init__()`.",
+        "Instance attributes are usually stored using `self`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_class": "Task",
+        "test_cases": [
+          {
+            "input": "Fix login bug",
+            "expected_result": {
+              "title": "Fix login bug",
+              "status": "Pending"
+            }
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    def __init__(self, title):\n        self.title = title\n        self.status = \"Pending\"\n\n\ntask = Task(\"Fix login bug\")\nprint(task.title)\nprint(task.status)"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Add Task Methods",
+      "ticket_slug": "python-32",
+      "description": "Tasks need to change their state during development. Add methods to the `Task` class that allow a task to be marked as completed and reopened.",
+      "tasks": [
+        "Create a method named `complete()`.",
+        "Make `complete()` change the task status to `Completed`.",
+        "Create a method named `reopen()`.",
+        "Make `reopen()` change the task status back to `Pending`.",
+        "Create a Task object and demonstrate both operations."
+      ],
+      "learning_objectives": [
+        "Understand instance methods.",
+        "Learn how methods modify object state.",
+        "Understand how `self` refers to the current object."
+      ],
+      "evaluation": "Creates a Task object and verifies that calling the methods changes its status correctly.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Forgetting `self` in method definitions.",
+        "Changing a local variable instead of the object's status.",
+        "Returning a status without updating the object."
+      ],
+      "hints": [
+        "Use `self.status` to access the current task's status.",
+        "A method can modify the attributes belonging to its object."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_methods": [
+          "complete",
+          "reopen"
+        ],
+        "test_cases": [
+          {
+            "operation": "complete",
+            "expected_status": "Completed"
+          },
+          {
+            "operation": "reopen",
+            "expected_status": "Pending"
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    def __init__(self, title):\n        self.title = title\n        self.status = \"Pending\"\n\n    def complete(self):\n        self.status = \"Completed\"\n\n    def reopen(self):\n        self.status = \"Pending\""
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Add Task Priority",
+      "ticket_slug": "python-33",
+      "description": "Developers need to prioritize tasks. Extend the `Task` class so every task has a priority, with `Medium` used when no priority is provided.",
+      "tasks": [
+        "Add a `priority` parameter to the Task constructor.",
+        "Use `Medium` as the default priority.",
+        "Store the priority as an instance attribute.",
+        "Allow callers to provide a custom priority such as `High` or `Low`.",
+        "Verify that both default and custom priorities work."
+      ],
+      "learning_objectives": [
+        "Use constructor parameters to configure objects.",
+        "Apply default arguments inside class constructors.",
+        "Understand how object state is initialized."
+      ],
+      "evaluation": "Creates tasks with and without an explicit priority and verifies the resulting object state.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Making priority mandatory.",
+        "Hardcoding the priority inside the constructor.",
+        "Failing to store the priority on the object."
+      ],
+      "hints": [
+        "Constructor parameters work like normal function parameters.",
+        "Give the priority parameter a default value of `Medium`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_class": "Task",
+        "test_cases": [
+          {
+            "input": "Fix login bug",
+            "expected_result": {
+              "priority": "Medium"
+            }
+          },
+          {
+            "input": "Fix payment issue,High",
+            "expected_result": {
+              "priority": "High"
+            }
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    def __init__(self, title, priority=\"Medium\"):\n        self.title = title\n        self.status = \"Pending\"\n        self.priority = priority"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Create a Developer Class",
+      "ticket_slug": "python-34",
+      "description": "Tasks need to be assigned to developers. Create a `Developer` class containing a developer's name and role, and add a method that returns a readable description of the developer.",
+      "tasks": [
+        "Create a class named `Developer`.",
+        "Accept `name` and `role` in the constructor.",
+        "Store both values as instance attributes.",
+        "Create a method named `get_profile()`.",
+        "Return the developer information in the format `Name - Role`."
+      ],
+      "learning_objectives": [
+        "Create multiple classes in Python.",
+        "Understand how different classes can model different entities.",
+        "Create methods that return formatted information."
+      ],
+      "evaluation": "Creates Developer objects and verifies that their attributes and profile method return the expected values.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Returning the wrong format.",
+        "Using hardcoded developer information.",
+        "Forgetting to store the constructor values."
+      ],
+      "hints": [
+        "The Developer class should be independent of the Task class.",
+        "Use an instance method to generate the profile."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_class": "Developer",
+        "required_method": "get_profile",
+        "test_cases": [
+          {
+            "input": "Rahul,Backend Developer",
+            "expected_result": "Rahul - Backend Developer"
+          }
+        ]
+      },
+      "solution": {
+        "developer.py": "class Developer:\n    def __init__(self, name, role):\n        self.name = name\n        self.role = role\n\n    def get_profile(self):\n        return f\"{self.name} - {self.role}\""
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Assign Developers to Tasks",
+      "ticket_slug": "python-35",
+      "description": "A task can now be assigned to a developer. Update the `Task` class so that a task can store a Developer object as its assignee.",
+      "tasks": [
+        "Add an `assignee` attribute to the Task class.",
+        "Use `None` when a task has no assignee.",
+        "Create a method named `assign_to()` that accepts a Developer object.",
+        "Store the Developer object as the task's assignee.",
+        "Create a method named `get_assignee()` that returns the assigned developer's name or `Unassigned` when no developer is assigned."
+      ],
+      "learning_objectives": [
+        "Understand how objects can contain other objects.",
+        "Learn basic object composition.",
+        "Pass objects as function and method arguments."
+      ],
+      "evaluation": "Creates Developer and Task objects, assigns developers to tasks, and verifies the resulting relationship.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Storing only the developer name instead of the Developer object.",
+        "Failing to handle unassigned tasks.",
+        "Creating a new Developer object inside `assign_to()` instead of using the supplied object."
+      ],
+      "hints": [
+        "Objects can be stored in instance attributes just like strings and numbers.",
+        "The `assignee` attribute can initially be `None`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_methods": [
+          "assign_to",
+          "get_assignee"
+        ],
+        "test_cases": [
+          {
+            "input": "Task: Fix login bug, Developer: Rahul",
+            "expected_result": "Rahul"
+          },
+          {
+            "input": "Task: Fix login bug, Developer: None",
+            "expected_result": "Unassigned"
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    def __init__(self, title, priority=\"Medium\"):\n        self.title = title\n        self.status = \"Pending\"\n        self.priority = priority\n        self.assignee = None\n\n    def assign_to(self, developer):\n        self.assignee = developer\n\n    def get_assignee(self):\n        if self.assignee is None:\n            return \"Unassigned\"\n        return self.assignee.name"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Protect Task Priority",
+      "ticket_slug": "python-36",
+      "description": "The Task class currently allows any code to directly assign an invalid priority. Protect the priority value so that only `Low`, `Medium`, or `High` can be stored.",
+      "tasks": [
+        "Create a private-style attribute for storing the priority.",
+        "Create a property named `priority`.",
+        "Allow the priority to be read through the property.",
+        "Validate the priority whenever it is changed.",
+        "Accept only `Low`, `Medium`, or `High`.",
+        "Keep the existing priority unchanged when an invalid value is provided."
+      ],
+      "learning_objectives": [
+        "Understand encapsulation.",
+        "Learn how Python properties work.",
+        "Validate object state before modifying it."
+      ],
+      "evaluation": "Creates Task objects and attempts to set both valid and invalid priorities, verifying that invalid values do not corrupt the object state.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Allowing invalid priorities.",
+        "Using a public attribute without validation.",
+        "Forgetting to create a setter.",
+        "Changing the priority before validating the value."
+      ],
+      "hints": [
+        "Use a private-style attribute such as `_priority` for the stored value.",
+        "A property can provide controlled access to an attribute.",
+        "Validate the new value before assigning it."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_property": "priority",
+        "test_cases": [
+          {
+            "operation": "set priority to High",
+            "expected_result": "High"
+          },
+          {
+            "operation": "set priority to Critical",
+            "expected_result": "previous value remains unchanged"
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    VALID_PRIORITIES = {\"Low\", \"Medium\", \"High\"}\n\n    def __init__(self, title, priority=\"Medium\"):\n        self.title = title\n        self.status = \"Pending\"\n        self._priority = \"Medium\"\n        self.priority = priority\n\n    @property\n    def priority(self):\n        return self._priority\n\n    @priority.setter\n    def priority(self, value):\n        if value in self.VALID_PRIORITIES:\n            self._priority = value"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Track Total Tasks",
+      "ticket_slug": "python-37",
+      "description": "The task management system needs to know how many Task objects have been created. Add a class attribute that tracks the total number of tasks.",
+      "tasks": [
+        "Create a class attribute named `total_tasks`.",
+        "Initialize it to zero.",
+        "Increment `total_tasks` every time a Task object is created.",
+        "Create multiple Task objects.",
+        "Verify that the class-level count contains the total number of created tasks."
+      ],
+      "learning_objectives": [
+        "Understand class attributes.",
+        "Understand the difference between class-level and instance-level data.",
+        "Track shared information across objects."
+      ],
+      "evaluation": "Creates multiple Task objects and verifies that the class-level counter matches the number of objects created.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Creating `total_tasks` as an instance attribute.",
+        "Resetting the counter every time a Task is created.",
+        "Incrementing the wrong variable."
+      ],
+      "hints": [
+        "A class attribute is shared by all objects of the class.",
+        "Update the counter using the class rather than `self`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_class_attribute": "total_tasks",
+        "test_cases": [
+          {
+            "tasks_created": 3,
+            "expected_result": 3
+          },
+          {
+            "tasks_created": 5,
+            "expected_result": 5
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    total_tasks = 0\n\n    def __init__(self, title):\n        self.title = title\n        self.status = \"Pending\"\n        Task.total_tasks += 1"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Create a Task Manager",
+      "ticket_slug": "python-38",
+      "description": "The application now needs an object responsible for managing multiple tasks. Create a `TaskManager` class that stores tasks and provides methods to add and retrieve them.",
+      "tasks": [
+        "Create a class named `TaskManager`.",
+        "Initialize an empty list of tasks in the constructor.",
+        "Create an `add_task()` method that accepts a Task object.",
+        "Create a `get_tasks()` method that returns all stored tasks.",
+        "Add multiple Task objects to the manager.",
+        "Verify that the manager contains the correct tasks."
+      ],
+      "learning_objectives": [
+        "Understand composition between classes.",
+        "Store objects inside collections.",
+        "Design classes with clear responsibilities."
+      ],
+      "evaluation": "Creates Task objects, adds them to a TaskManager, and verifies that the correct objects are stored and returned.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Creating new tasks inside `add_task()` instead of storing the supplied object.",
+        "Returning only one task.",
+        "Using a global list instead of an instance attribute."
+      ],
+      "hints": [
+        "The TaskManager should own a list of Task objects.",
+        "Store the supplied object directly in the list."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_class": "TaskManager",
+        "required_methods": [
+          "add_task",
+          "get_tasks"
+        ],
+        "test_cases": [
+          {
+            "tasks_added": 2,
+            "expected_task_count": 2
+          }
+        ]
+      },
+      "solution": {
+        "task_manager.py": "class TaskManager:\n    def __init__(self):\n        self.tasks = []\n\n    def add_task(self, task):\n        self.tasks.append(task)\n\n    def get_tasks(self):\n        return self.tasks"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Create Specialized Task Types",
+      "ticket_slug": "python-39",
+      "description": "The task management system now needs different types of tasks. Create specialized `BugTask` and `FeatureTask` classes that inherit from the base `Task` class.",
+      "tasks": [
+        "Create a `BugTask` class that inherits from `Task`.",
+        "Create a `FeatureTask` class that inherits from `Task`.",
+        "Allow `BugTask` to store a `severity` value.",
+        "Allow `FeatureTask` to store a `story_points` value.",
+        "Ensure both classes retain the behavior provided by the base Task class."
+      ],
+      "learning_objectives": [
+        "Understand inheritance.",
+        "Learn how child classes reuse parent functionality.",
+        "Add specialized attributes to derived classes."
+      ],
+      "evaluation": "Creates both specialized task types and verifies inherited Task behavior and their specialized attributes.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Duplicating the entire Task class instead of inheriting from it.",
+        "Forgetting to initialize the parent class.",
+        "Removing inherited attributes.",
+        "Using unrelated classes instead of inheritance."
+      ],
+      "hints": [
+        "Use `class BugTask(Task):` to inherit from Task.",
+        "Use `super()` when the child class needs to initialize the parent."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_classes": [
+          "BugTask",
+          "FeatureTask"
+        ],
+        "test_cases": [
+          {
+            "type": "BugTask",
+            "title": "Login failure",
+            "severity": "High",
+            "expected_status": "Pending"
+          },
+          {
+            "type": "FeatureTask",
+            "title": "Add dark mode",
+            "story_points": 5,
+            "expected_status": "Pending"
+          }
+        ]
+      },
+      "solution": {
+        "task_types.py": "from task import Task\n\n\nclass BugTask(Task):\n    def __init__(self, title, severity, priority=\"Medium\"):\n        super().__init__(title, priority)\n        self.severity = severity\n\n\nclass FeatureTask(Task):\n    def __init__(self, title, story_points, priority=\"Medium\"):\n        super().__init__(title, priority)\n        self.story_points = story_points"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Build the Task Management System",
+      "ticket_slug": "python-310",
+      "description": "Combine the object-oriented concepts learned throughout the sprint into a complete Task Management System. The system should manage developers, tasks, assignments, priorities, and specialized task types.",
+      "tasks": [
+        "Create Task, Developer, TaskManager, BugTask, and FeatureTask classes.",
+        "Allow tasks to be created with titles and priorities.",
+        "Allow tasks to be assigned to developers.",
+        "Allow tasks to be completed and reopened.",
+        "Validate task priorities using a property.",
+        "Track the total number of created tasks.",
+        "Allow TaskManager to store and retrieve tasks.",
+        "Support both BugTask and FeatureTask.",
+        "Display a summary of all tasks managed by the system."
+      ],
+      "learning_objectives": [
+        "Combine classes, objects, methods, constructors, properties, class attributes, composition, and inheritance.",
+        "Design a small application using object-oriented principles.",
+        "Understand how multiple classes collaborate to solve a real-world problem."
+      ],
+      "evaluation": "Runs automated scenarios against the complete task management system and verifies object behavior, relationships, validation, inheritance, and task management functionality.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Putting all functionality into one class.",
+        "Using global variables instead of object state.",
+        "Duplicating functionality between BugTask, FeatureTask, and Task.",
+        "Failing to validate task priorities.",
+        "Breaking inherited Task behavior.",
+        "Storing developer names instead of Developer objects."
+      ],
+      "hints": [
+        "Give each class a clear responsibility.",
+        "Use composition when one object needs to contain another object.",
+        "Use inheritance when a specialized task should reuse Task behavior.",
+        "Keep validation inside the Task priority property."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_classes": [
+          "Task",
+          "Developer",
+          "TaskManager",
+          "BugTask",
+          "FeatureTask"
+        ],
+        "test_cases": [
+          {
+            "scenario": "Create a normal task",
+            "expected_result": "Task is created with Pending status and Medium priority"
+          },
+          {
+            "scenario": "Assign developer",
+            "expected_result": "Task returns assigned developer name"
+          },
+          {
+            "scenario": "Complete task",
+            "expected_result": "Task status becomes Completed"
+          },
+          {
+            "scenario": "Invalid priority",
+            "expected_result": "Previous valid priority remains unchanged"
+          },
+          {
+            "scenario": "Create BugTask",
+            "expected_result": "BugTask contains severity and inherited Task behavior"
+          },
+          {
+            "scenario": "Create FeatureTask",
+            "expected_result": "FeatureTask contains story_points and inherited Task behavior"
+          }
+        ]
+      },
+      "solution": {
+        "task.py": "class Task:\n    VALID_PRIORITIES = {\"Low\", \"Medium\", \"High\"}\n    total_tasks = 0\n\n    def __init__(self, title, priority=\"Medium\"):\n        self.title = title\n        self.status = \"Pending\"\n        self._priority = \"Medium\"\n        self.priority = priority\n        self.assignee = None\n        Task.total_tasks += 1\n\n    @property\n    def priority(self):\n        return self._priority\n\n    @priority.setter\n    def priority(self, value):\n        if value in self.VALID_PRIORITIES:\n            self._priority = value\n\n    def complete(self):\n        self.status = \"Completed\"\n\n    def reopen(self):\n        self.status = \"Pending\"\n\n    def assign_to(self, developer):\n        self.assignee = developer\n\n    def get_assignee(self):\n        if self.assignee is None:\n            return \"Unassigned\"\n        return self.assignee.name\n\n\nclass Developer:\n    def __init__(self, name, role):\n        self.name = name\n        self.role = role\n\n    def get_profile(self):\n        return f\"{self.name} - {self.role}\"\n\n\nclass TaskManager:\n    def __init__(self):\n        self.tasks = []\n\n    def add_task(self, task):\n        self.tasks.append(task)\n\n    def get_tasks(self):\n        return self.tasks\n\n\nclass BugTask(Task):\n    def __init__(self, title, severity, priority=\"Medium\"):\n        super().__init__(title, priority)\n        self.severity = severity\n\n\nclass FeatureTask(Task):\n    def __init__(self, title, story_points, priority=\"Medium\"):\n        super().__init__(title, priority)\n        self.story_points = story_points"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 50,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 10
+    }
+  ]
+}

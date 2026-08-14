@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { fetchQuestions, Question } from "@/services/questionService";
+import { fetchQuestions, fetchQuestionById, Question } from "@/services/questionService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code, CheckCircle, Terminal, BrainCircuit, Target, Sparkles, ChevronRight } from "lucide-react";
@@ -120,9 +120,16 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     }
   };
 
-  const handleSelectQuestion = (q: Question) => {
-    setSelectedQuestion(q);
-    setViewMode('workspace');
+  const handleSelectQuestion = async (q: Question) => {
+    try {
+      const fullQuestion = await fetchQuestionById(q.id);
+      setSelectedQuestion(fullQuestion);
+      setViewMode('workspace');
+    } catch (err) {
+      console.error("Failed to load full question details", err);
+      setSelectedQuestion(q);
+      setViewMode('workspace');
+    }
   };
 
   const handleBackToList = () => {

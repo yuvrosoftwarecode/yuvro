@@ -1,0 +1,510 @@
+{
+  "title": "Sprint 4 - Files, Data Processing and Error Handling",
+  "description": "Learn how Python applications work with real-world data. Build a Developer Data Import System that reads and writes files, processes CSV and JSON data, validates records, handles malformed input, and uses exceptions to prevent application failures.",
+  "order_index": 4,
+  "lab_title": "Python Lab",
+  "tickets": [
+    {
+      "title": "Read a Text File",
+      "ticket_slug": "python-41",
+      "description": "The development team stores project notes in a text file. Read the contents of `project_notes.txt` and display them in the terminal.",
+      "tasks": [
+        "Create or use the file `project_notes.txt`.",
+        "Open the file using Python.",
+        "Read the complete contents of the file.",
+        "Print the contents to the terminal.",
+        "Ensure the file is properly closed after reading."
+      ],
+      "learning_objectives": [
+        "Understand how Python reads files.",
+        "Learn how to use `open()`.",
+        "Understand file read operations."
+      ],
+      "evaluation": "Runs the program and verifies that the complete file contents are read and displayed correctly.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Using the wrong file name.",
+        "Opening the file in write mode instead of read mode.",
+        "Reading only the first line.",
+        "Forgetting to close the file."
+      ],
+      "hints": [
+        "Use `open()` with read mode.",
+        "The `read()` method can retrieve the complete file contents."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_file": "project_notes.txt"
+      },
+      "solution": {
+        "main.py": "with open(\"project_notes.txt\", \"r\") as file:\n    content = file.read()\n\nprint(content)"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 15,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1
+    },
+    {
+      "title": "Process File Lines",
+      "ticket_slug": "python-42",
+      "description": "The project notes file contains one task per line. Read the file and count how many non-empty task lines it contains.",
+      "tasks": [
+        "Read all lines from `project_notes.txt`.",
+        "Process the file line by line.",
+        "Ignore empty lines.",
+        "Count the remaining lines.",
+        "Print the result using the format `Total tasks: <value>`."
+      ],
+      "learning_objectives": [
+        "Learn how to process files line by line.",
+        "Understand iteration over file contents.",
+        "Practice string cleanup and validation."
+      ],
+      "evaluation": "Runs the program against test files containing different numbers of lines and verifies the calculated count.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Counting empty lines.",
+        "Reading the entire file and incorrectly counting newline characters.",
+        "Forgetting to remove whitespace before checking whether a line is empty."
+      ],
+      "hints": [
+        "A file object can be iterated over using a `for` loop.",
+        "Use `strip()` to remove surrounding whitespace."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "Fix login\nAdd tests\n\nUpdate README\n",
+            "expected_output": "Total tasks: 3"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "count = 0\n\nwith open(\"project_notes.txt\", \"r\") as file:\n    for line in file:\n        if line.strip():\n            count += 1\n\nprint(f\"Total tasks: {count}\")"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2
+    },
+    {
+      "title": "Write a Project Report",
+      "ticket_slug": "python-43",
+      "description": "The application needs to generate a summary report for the development team. Create a Python program that writes the generated report to `project_report.txt`.",
+      "tasks": [
+        "Create a report containing the project name, total tasks, and completed tasks.",
+        "Open `project_report.txt` in write mode.",
+        "Write the report to the file.",
+        "Run the program and verify that the file contains the expected information."
+      ],
+      "learning_objectives": [
+        "Understand how Python writes files.",
+        "Learn the difference between read and write modes.",
+        "Generate files programmatically."
+      ],
+      "evaluation": "Runs the program and verifies that `project_report.txt` contains the expected report.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Opening the file in read mode.",
+        "Writing the wrong information.",
+        "Appending when the task requires replacing the existing report."
+      ],
+      "hints": [
+        "Use write mode when creating or replacing the contents of a file.",
+        "Use `write()` to place text into the file."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_file": "project_report.txt",
+        "expected_output": "Project: YCode\nTotal tasks: 10\nCompleted tasks: 7"
+      },
+      "solution": {
+        "main.py": "report = \"Project: YCode\\nTotal tasks: 10\\nCompleted tasks: 7\"\n\nwith open(\"project_report.txt\", \"w\") as file:\n    file.write(report)"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3
+    },
+    {
+      "title": "Read Developer Data from JSON",
+      "ticket_slug": "python-44",
+      "description": "Developer information is now stored in a JSON file named `developers.json`. Read the JSON file and convert its contents into Python data.",
+      "tasks": [
+        "Open `developers.json`.",
+        "Load the JSON data using Python's JSON library.",
+        "Access the developer records.",
+        "Print the name of each developer."
+      ],
+      "learning_objectives": [
+        "Understand JSON data.",
+        "Learn how to use Python's `json` module.",
+        "Convert JSON data into Python dictionaries and lists."
+      ],
+      "evaluation": "Runs the program with the provided JSON file and verifies that all developer names are correctly extracted.",
+      "difficulty": "EASY",
+      "common_mistakes": [
+        "Treating JSON as plain text instead of parsing it.",
+        "Accessing dictionary values incorrectly.",
+        "Forgetting to import the `json` module."
+      ],
+      "hints": [
+        "Python provides the `json` module for working with JSON.",
+        "Use `json.load()` when reading JSON directly from a file."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_file": "developers.json",
+        "expected_output": "Rahul\nPriya\nArun"
+      },
+      "solution": {
+        "main.py": "import json\n\nwith open(\"developers.json\", \"r\") as file:\n    developers = json.load(file)\n\nfor developer in developers:\n    print(developer[\"name\"])"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 4
+    },
+    {
+      "title": "Update Developer JSON Data",
+      "ticket_slug": "python-45",
+      "description": "The system needs to add new developer information to the existing JSON data. Load the developer list, add a new developer, and save the updated data back to the JSON file.",
+      "tasks": [
+        "Read the existing `developers.json` file.",
+        "Create a new developer record containing `name`, `role`, and `active` fields.",
+        "Add the new developer to the existing list.",
+        "Write the updated list back to `developers.json`.",
+        "Ensure the existing developer records are preserved."
+      ],
+      "learning_objectives": [
+        "Read and modify structured JSON data.",
+        "Convert Python objects back into JSON.",
+        "Understand the difference between loading and dumping JSON."
+      ],
+      "evaluation": "Runs the program and verifies that the new developer is added without removing or modifying existing records.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Overwriting the existing developer list before loading it.",
+        "Writing Python dictionary syntax that is not valid JSON.",
+        "Forgetting to save the modified data."
+      ],
+      "hints": [
+        "Load the existing list before modifying it.",
+        "Use `json.dump()` to write Python data back to a JSON file."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "operation": "add developer",
+            "expected_result": "Existing developers remain and the new developer is present"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "import json\n\nwith open(\"developers.json\", \"r\") as file:\n    developers = json.load(file)\n\nnew_developer = {\n    \"name\": \"Sneha\",\n    \"role\": \"Frontend Developer\",\n    \"active\": True\n}\n\ndevelopers.append(new_developer)\n\nwith open(\"developers.json\", \"w\") as file:\n    json.dump(developers, file, indent=2)"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 5
+    },
+    {
+      "title": "Import Developer Data from CSV",
+      "ticket_slug": "python-46",
+      "description": "The company receives developer information as CSV files. Read `developers.csv` and convert each row into a Python dictionary.",
+      "tasks": [
+        "Open `developers.csv`.",
+        "Read the CSV using Python's `csv` module.",
+        "Treat the first row as the column headers.",
+        "Convert each developer row into a dictionary.",
+        "Print each developer's name and role."
+      ],
+      "learning_objectives": [
+        "Understand CSV files.",
+        "Learn how to use Python's `csv` module.",
+        "Convert tabular data into Python dictionaries."
+      ],
+      "evaluation": "Runs the program against the provided CSV file and verifies that all records are read correctly.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Manually splitting CSV lines without considering the CSV format.",
+        "Treating the header as a developer record.",
+        "Accessing columns using incorrect names."
+      ],
+      "hints": [
+        "Python provides `csv.DictReader` for CSV files with headers.",
+        "Each row returned by `DictReader` behaves like a dictionary."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_file": "developers.csv",
+        "expected_output": "Rahul - Backend Developer\nPriya - Data Scientist\nArun - DevOps Engineer"
+      },
+      "solution": {
+        "main.py": "import csv\n\nwith open(\"developers.csv\", \"r\") as file:\n    reader = csv.DictReader(file)\n\n    for developer in reader:\n        print(f\"{developer['name']} - {developer['role']}\")"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 6
+    },
+    {
+      "title": "Validate Developer Records",
+      "ticket_slug": "python-47",
+      "description": "Imported developer data cannot be trusted because external files may contain incomplete records. Validate each developer record before processing it.",
+      "tasks": [
+        "Require every developer record to contain `name`, `role`, and `active`.",
+        "Treat records with missing required fields as invalid.",
+        "Separate valid and invalid records.",
+        "Count the number of valid records.",
+        "Count the number of invalid records."
+      ],
+      "learning_objectives": [
+        "Understand data validation.",
+        "Learn how to check required fields.",
+        "Process valid and invalid records separately."
+      ],
+      "evaluation": "Runs the validation logic against valid and malformed records and verifies the resulting counts.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Assuming every record contains all required fields.",
+        "Accessing missing dictionary keys directly and crashing.",
+        "Counting invalid records as valid."
+      ],
+      "hints": [
+        "Use dictionary methods such as `get()` when a key may not exist.",
+        "Validate the record before processing its values."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "records": 3,
+            "valid_records": 2,
+            "invalid_records": 1
+          },
+          {
+            "records": 5,
+            "valid_records": 5,
+            "invalid_records": 0
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "def validate_developer(developer):\n    required_fields = [\"name\", \"role\", \"active\"]\n\n    for field in required_fields:\n        if field not in developer:\n            return False\n\n    return True"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 7
+    },
+    {
+      "title": "Handle Invalid Input",
+      "ticket_slug": "python-48",
+      "description": "The developer import utility currently crashes when a user enters an invalid numeric value. Update the application so invalid input is handled gracefully.",
+      "tasks": [
+        "Ask the user to enter the number of years of experience.",
+        "Convert the input to an integer.",
+        "Handle cases where the user enters non-numeric text.",
+        "Print `Invalid experience` when conversion fails.",
+        "Print the entered experience when conversion succeeds."
+      ],
+      "learning_objectives": [
+        "Understand Python exceptions.",
+        "Learn how to use `try` and `except`.",
+        "Handle invalid user input without crashing the application."
+      ],
+      "evaluation": "Runs the program with both valid numeric input and invalid text and verifies that both cases are handled correctly.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Not catching `ValueError`.",
+        "Using a broad exception without understanding the expected error.",
+        "Allowing the program to terminate when invalid input is provided."
+      ],
+      "hints": [
+        "Converting invalid text to an integer raises `ValueError`.",
+        "Place the conversion inside a `try` block."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "input": "3",
+            "expected_output": "Experience: 3"
+          },
+          {
+            "input": "abc",
+            "expected_output": "Invalid experience"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "value = input()\n\ntry:\n    experience = int(value)\n    print(f\"Experience: {experience}\")\nexcept ValueError:\n    print(\"Invalid experience\")"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 8
+    },
+    {
+      "title": "Handle Missing Files",
+      "ticket_slug": "python-49",
+      "description": "The import utility currently crashes when the expected data file does not exist. Update the application to handle missing files gracefully.",
+      "tasks": [
+        "Attempt to read `developers.json`.",
+        "Handle the case where the file does not exist.",
+        "Print `Developer data file not found` when the file is missing.",
+        "Continue without crashing the application."
+      ],
+      "learning_objectives": [
+        "Understand file-related exceptions.",
+        "Learn how to handle `FileNotFoundError`.",
+        "Build applications that fail gracefully."
+      ],
+      "evaluation": "Runs the program with an existing file and a missing file and verifies that both cases are handled correctly.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Catching the wrong exception.",
+        "Printing an error but still trying to access unavailable data.",
+        "Using a broad `except` without handling the specific problem."
+      ],
+      "hints": [
+        "Python raises `FileNotFoundError` when an expected file does not exist.",
+        "Handle the exception around the file-opening operation."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_cases": [
+          {
+            "file_state": "exists",
+            "expected_result": "Developer data is processed"
+          },
+          {
+            "file_state": "missing",
+            "expected_result": "Developer data file not found"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "import json\n\ntry:\n    with open(\"developers.json\", \"r\") as file:\n        developers = json.load(file)\nexcept FileNotFoundError:\n    print(\"Developer data file not found\")"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 9
+    },
+    {
+      "title": "Build the Developer Data Import Pipeline",
+      "ticket_slug": "python-410",
+      "description": "The company now needs a complete developer data import pipeline. Build a Python application that reads developer data, validates records, handles invalid input and missing files, and generates a clean JSON report containing only valid developer records.",
+      "tasks": [
+        "Read developer records from `developers.csv`.",
+        "Convert CSV rows into Python dictionaries.",
+        "Validate that every record contains `name`, `role`, and `active`.",
+        "Separate valid and invalid records.",
+        "Count valid and invalid records.",
+        "Handle a missing input file without crashing.",
+        "Write valid records to `valid_developers.json`.",
+        "Generate `import_report.txt` containing the total, valid, and invalid record counts.",
+        "Ensure malformed records do not prevent valid records from being imported."
+      ],
+      "learning_objectives": [
+        "Combine file handling, CSV processing, JSON processing, validation, loops, functions, and exception handling.",
+        "Build a practical data-processing pipeline.",
+        "Handle real-world malformed input safely.",
+        "Generate useful output files from processed data."
+      ],
+      "evaluation": "Runs automated scenarios using valid data, malformed records, empty files, and missing files. Verifies generated JSON output, report contents, record counts, and graceful error handling.",
+      "difficulty": "MEDIUM",
+      "common_mistakes": [
+        "Stopping the entire import when one record is invalid.",
+        "Failing to handle a missing input file.",
+        "Writing invalid records to the output JSON.",
+        "Incorrectly calculating valid and invalid record counts.",
+        "Overwriting valid records while processing later invalid records."
+      ],
+      "hints": [
+        "Separate the pipeline into small functions.",
+        "Validate every record before adding it to the valid collection.",
+        "Use exception handling around operations that can fail.",
+        "Only write validated records to the output JSON."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_files": [
+          "main.py",
+          "developers.csv",
+          "valid_developers.json",
+          "import_report.txt"
+        ],
+        "test_cases": [
+          {
+            "scenario": "All records valid",
+            "expected_result": "All records appear in valid_developers.json"
+          },
+          {
+            "scenario": "Some records invalid",
+            "expected_result": "Only valid records are imported"
+          },
+          {
+            "scenario": "Empty CSV",
+            "expected_result": "Zero valid and zero invalid records"
+          },
+          {
+            "scenario": "Missing CSV",
+            "expected_result": "Application handles FileNotFoundError gracefully"
+          }
+        ]
+      },
+      "solution": {
+        "main.py": "import csv\nimport json\n\n\ndef validate_developer(developer):\n    required_fields = [\"name\", \"role\", \"active\"]\n    return all(field in developer for field in required_fields)\n\n\ndef import_developers(filename):\n    valid = []\n    invalid = []\n\n    try:\n        with open(filename, \"r\") as file:\n            reader = csv.DictReader(file)\n\n            for developer in reader:\n                if validate_developer(developer):\n                    valid.append(developer)\n                else:\n                    invalid.append(developer)\n    except FileNotFoundError:\n        return None, None\n\n    return valid, invalid\n\n\nvalid, invalid = import_developers(\"developers.csv\")\n\nif valid is None:\n    print(\"Developer data file not found\")\nelse:\n    with open(\"valid_developers.json\", \"w\") as file:\n        json.dump(valid, file, indent=2)\n\n    report = (\n        f\"Total records: {len(valid) + len(invalid)}\\n\"\n        f\"Valid records: {len(valid)}\\n\"\n        f\"Invalid records: {len(invalid)}\\n\"\n    )\n\n    with open(\"import_report.txt\", \"w\") as file:\n        file.write(report)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 50,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 10
+    }
+  ]
+}
