@@ -70,20 +70,20 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
                 
         subprocess.run(["git", "init"], cwd=user_dir, check=True, capture_output=True)
         
-        subprocess.run(["git", "add", "."], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=user_dir, check=True, capture_output=True)
         
         git_email = f"{github_username}@users.noreply.github.com" if github_username else "bot@yuvro.ai"
         git_name = github_username if github_username else "Yuvro Bot"
         
-        subprocess.run(["git", "config", "user.email", git_email], cwd=user_dir, check=True)
-        subprocess.run(["git", "config", "user.name", git_name], cwd=user_dir, check=True)
-        subprocess.run(["git", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", git_email], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", git_name], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
         auth_url = inject_token_into_url(user_github_repo_url, access_token)
-        subprocess.run(["git", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
         
-        subprocess.run(["git", "branch", "-M", "main"], cwd=user_dir, check=True)
-        subprocess.run(["git", "push", "-f", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "branch", "-M", "main"], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "push", "-f", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
         
         logger.info(f"Successfully provisioned user repo at {user_dir}")
         return user_dir
@@ -144,18 +144,23 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                 dst = os.path.join(user_dir, item)
                 if os.path.isdir(src):
                     shutil.copytree(src, dst, ignore=ignore, dirs_exist_ok=True)
+                else:
                     shutil.copy2(src, dst)
 
         import subprocess
         subprocess.run(["git", "init"], cwd=user_dir, check=True, capture_output=True)
-        subprocess.run(["git", "add", "."], cwd=user_dir, check=True, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "bot@yuvro.ai"], cwd=user_dir, check=True)
-        subprocess.run(["git", "config", "user.name", "Yuvro Bot"], cwd=user_dir, check=True)
-        subprocess.run(["git", "commit", "--allow-empty", "-m", "Initial commit for evaluation lab workspace"], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=user_dir, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", "bot@yuvro.ai"], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", "Yuvro Bot"], cwd=user_dir, check=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Initial commit for evaluation lab workspace"], cwd=user_dir, check=True, capture_output=True)
 
         
         logger.info(f"Successfully provisioned evaluation user repo at {user_dir}")
         return user_dir
+    except subprocess.CalledProcessError as e:
+        error_msg = f"Git command failed: {e.cmd}. Return code: {e.returncode}. Stderr: {e.stderr.decode('utf-8') if e.stderr else 'No stderr'}"
+        logger.error(error_msg)
+        raise Exception(error_msg)
     except Exception as e:
         logger.error(f"Error provisioning evaluation user lab repo: {e}")
         raise

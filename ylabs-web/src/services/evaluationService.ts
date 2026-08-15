@@ -88,5 +88,9 @@ export const evaluationService = {
       section_id: sectionId,
       answers: answers
     });
+  },
+
+  async updateCandidateStatus(evaluationId: string, email: string, status: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/update_candidate_status/`, { email, status });
   }
 };

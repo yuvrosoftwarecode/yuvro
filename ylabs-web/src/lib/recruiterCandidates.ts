@@ -253,7 +253,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
       } else {
         status = "Not Started";
       }
-      hiring = "Pending Review";
+      hiring = sub.hiring_status || "Pending Review";
     }
     const submittedAt = sub.completed_at ? new Date(sub.completed_at).getTime() : new Date(sub.created_at || now).getTime();
     const completionMinutes = sub.duration ? Math.round(sub.duration / 60) : 25 + Math.floor(r() * 110);

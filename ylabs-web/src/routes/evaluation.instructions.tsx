@@ -22,6 +22,20 @@ function InstructionsPage() {
     try {
       await document.documentElement.requestFullscreen?.();
     } catch {}
+    
+    // Log timeline event
+    try {
+      const { restApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
+      await restApiAuthUtil.post(`/skill_evaluation/timeline-events/`, {
+        evaluation: evaluationId,
+        title: "Candidate started evaluation",
+        status: "SUCCESS",
+        occurred_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error("Failed to log timeline event", e);
+    }
+    
     nav({ to: "/evaluation/workspace", search: { e: evaluationId } });
   };
 
