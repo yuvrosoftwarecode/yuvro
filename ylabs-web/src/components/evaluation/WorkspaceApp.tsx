@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "@/services/evaluationService";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -59,8 +59,8 @@ const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
+  const search: any = useRouterState({ select: (s) => s.location.search });
+  const evaluationId = previewData ? '' : (search.e || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);

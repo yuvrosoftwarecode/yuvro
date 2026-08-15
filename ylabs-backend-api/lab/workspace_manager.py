@@ -144,6 +144,7 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                 dst = os.path.join(user_dir, item)
                 if os.path.isdir(src):
                     shutil.copytree(src, dst, ignore=ignore, dirs_exist_ok=True)
+                else:
                     shutil.copy2(src, dst)
 
         import subprocess
