@@ -334,8 +334,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   // Listen for lab submission from iframe
   useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
+    const onMessage = async (e: MessageEvent) => {
       if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
+        try {
+          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done" });
+        } catch (err) {
+          console.error(err);
+        }
         setSubmittedLabs(prev => new Set(prev).add(e.data.labId));
         setOpenLab(null);
         setModal(null);
@@ -343,7 +348,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }, [evaluationId]);
 
   // Autosave feel
   const touchAutosave = () => {
@@ -398,7 +403,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     });
     touchAutosave();
   };
-  const confirmSubmitLab = (labId: LabId) => {
+  const confirmSubmitLab = async (labId: LabId) => {
+    try {
+      if (evaluationId) await evaluationService.submitLab?.(evaluationId, labId, { status: "done" });
+    } catch (e) {
+      console.error(e);
+    }
     setSubmittedLabs(prev => new Set(prev).add(labId));
     setOpenLab(null);
     setModal(null);

@@ -224,7 +224,10 @@ class CandidateNoteSerializer(serializers.ModelSerializer):
         return None
 
 class CandidateTimelineEventSerializer(serializers.ModelSerializer):
+    candidate_email = serializers.EmailField(required=False, allow_blank=True)
+    
     class Meta:
         model = CandidateTimelineEvent
         fields = '__all__'
+        read_only_fields = ('created_by', 'updated_by')
 

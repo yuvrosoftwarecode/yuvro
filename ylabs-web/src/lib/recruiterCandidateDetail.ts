@@ -918,13 +918,27 @@ export interface TimelineEvent {
 
 import { formatDistanceToNow } from "date-fns";
 
+const MILESTONES = [
+  "Evaluation invitation sent",
+  "Candidate started evaluation",
+  "Engineering Labs submitted",
+  "Knowledge Assessment submitted",
+  "Vitarka discussion completed",
+  "Evaluation finished",
+  "Recruiter viewed profile",
+  "Shortlisted",
+  "Interview scheduled",
+  "Offer sent"
+];
+
 export async function loadTimelineEvents(evId: string, email: string): Promise<TimelineEvent[]> {
   if (evId.startsWith("7700") || evId.startsWith("demo")) {
     return []; // Handled by demo mock in getCandidateDetail
   }
   try {
     const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/timeline-events/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
-    return res.map((r) => {
+    
+    const completed = res.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime()).map((r) => {
       let tone: "success" | "warn" | "neutral" = "neutral";
       if (r.status === "SUCCESS") tone = "success";
       else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
@@ -937,9 +951,49 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
         tone,
       };
     });
+
+    const completedMap = new Map(completed.map(e => [e.label, e]));
+    
+    const fullTimeline = MILESTONES.map(m => {
+      if (completedMap.has(m)) {
+        return completedMap.get(m)!;
+      } else {
+        return {
+          id: m,
+          label: m,
+          time: "pending",
+          done: false,
+          tone: "neutral" as const,
+        };
+      }
+    });
+
+    for (const e of completed) {
+      if (!MILESTONES.includes(e.label)) {
+        fullTimeline.push(e);
+      }
+    }
+    
+    return fullTimeline;
   } catch (err) {
     console.error("Failed to load timeline events", err);
     return [];
+  }
+}
+
+export async function createTimelineEvent(evId: string, email: string, title: string, status: string = "SUCCESS"): Promise<void> {
+  if (evId.startsWith("7700") || evId.startsWith("demo")) return;
+  try {
+    const payload = {
+      evaluation: evId,
+      candidate_email: email,
+      title,
+      status,
+      occurred_at: new Date().toISOString()
+    };
+    await restApiAuthUtil.post(`/skill_evaluation/timeline-events/`, payload);
+  } catch (err) {
+    console.error("Failed to create timeline event", err);
   }
 }
 
@@ -1056,8 +1110,12 @@ export function loadDecision(evId: string, cid: string, fallback: HiringDecision
     return fallback;
   }
 }
-export function saveDecision(evId: string, cid: string, d: HiringDecision) {
+export async function saveDecision(evId: string, cid: string, email: string, d: HiringDecision) {
   try {
     localStorage.setItem(`yuvro-dec-${evId}-${cid}`, d);
+    if (!evId.startsWith("7700") && !evId.startsWith("demo")) {
+      const { evaluationService } = await import("@/services/evaluationService");
+      await evaluationService.updateCandidateStatus(evId, email, d);
+    }
   } catch {}
 }

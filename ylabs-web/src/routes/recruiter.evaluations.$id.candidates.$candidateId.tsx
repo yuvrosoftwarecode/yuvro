@@ -62,6 +62,7 @@ import {
   type LabAttempt,
   loadTimelineEvents,
   type TimelineEvent,
+  createTimelineEvent,
 } from "@/lib/recruiterCandidateDetail";
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
@@ -115,12 +116,21 @@ function CandidateWorkspace() {
     markViewed(id, candidateId);
     pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
     setActivity(loadActivity(id, candidateId));
-  }, [id, candidateId]);
+    if (candidate?.email) {
+      createTimelineEvent(id, candidate.email, "Recruiter viewed profile");
+    }
+  }, [id, candidateId, candidate?.email]);
 
   useEffect(() => {
     if (candidate?.email) {
       loadNotes(id, candidate.email).then(setNotes);
       loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+      
+      const intervalId = setInterval(() => {
+        loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+      }, 5000);
+      
+      return () => clearInterval(intervalId);
     }
   }, [id, candidate?.email]);
   
@@ -155,9 +165,23 @@ function CandidateWorkspace() {
   };
   const doDecision = (d: HiringDecision) => {
     setDecision(d);
-    saveDecision(id, candidateId, d);
+    if (candidate?.email) saveDecision(id, candidateId, candidate.email, d);
     act("decision", `Decision changed to ${d}`);
     notify(`Marked as ${d}`);
+    
+    if (candidate?.email) {
+      if (d === "Shortlisted") {
+        createTimelineEvent(id, candidate.email, "Shortlisted");
+      } else if (d === "Hold") {
+        createTimelineEvent(id, candidate.email, "Placed on hold");
+      } else if (d === "Rejected") {
+        createTimelineEvent(id, candidate.email, "Rejected");
+      } else if (d === "Interview Scheduled") {
+        createTimelineEvent(id, candidate.email, "Interview scheduled");
+      } else if (d === "Selected") {
+        createTimelineEvent(id, candidate.email, "Offer sent");
+      }
+    }
   };
 
   const copy = async (text: string, label: string) => {
@@ -264,21 +288,24 @@ function CandidateWorkspace() {
                 <SecondaryAction
                   icon={<Star className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Shortlisted")}
+                  active={decision === "Shortlisted"}
                 >
-                  Shortlist
+                  {decision === "Shortlisted" ? "Shortlisted" : "Shortlist"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<PauseCircle className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Hold")}
+                  active={decision === "Hold"}
                 >
-                  Hold
+                  {decision === "Hold" ? "On Hold" : "Hold"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<XCircle className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Rejected")}
                   danger
+                  active={decision === "Rejected"}
                 >
-                  Reject
+                  {decision === "Rejected" ? "Rejected" : "Reject"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<Download className="h-3.5 w-3.5" />}
@@ -1069,52 +1096,6 @@ function NotesPane({
           className="min-h-[110px] w-full resize-y rounded-lg border border-white/10 bg-black/20 p-3 text-[13px] text-white placeholder-neutral-500 outline-none focus:border-white/25"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="flex overflow-hidden rounded-md border border-white/10">
-            {(["low", "medium", "high"] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPriority(p)}
-                className={`px-2.5 py-1 text-[11px] capitalize ${priority === p ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white"}`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300">
-            <input
-              type="checkbox"
-              checked={internal}
-              onChange={(e) => setInternal(e.target.checked)}
-              className="mr-1"
-            />{" "}
-            Internal only
-          </div>
-          <input
-            value={tagInput}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && tagInput.trim()) {
-                setTags((t) => Array.from(new Set([...t, tagInput.trim()])));
-                setTagInput("");
-              }
-            }}
-            onChange={(e) => setTagInput(e.target.value)}
-            placeholder="Add tag + Enter"
-            className="w-40 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-white outline-none"
-          />
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-neutral-300"
-            >
-              {t}
-              <button
-                onClick={() => setTags((x) => x.filter((y) => y !== t))}
-                className="text-neutral-500 hover:text-white"
-              >
-                ×
-              </button>
-            </span>
-          ))}
           <button
             onClick={add}
             disabled={!text.trim()}
@@ -1349,16 +1330,27 @@ function SecondaryAction({
   onClick,
   icon,
   danger,
+  active,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   icon?: React.ReactNode;
   danger?: boolean;
+  active?: boolean;
 }) {
+  let colorClasses = "border-white/10 text-neutral-200 hover:bg-white/5 hover:border-white/20";
+  if (danger) {
+    colorClasses = active 
+      ? "border-red-400/50 bg-red-400/10 text-red-300"
+      : "border-red-400/25 text-red-300 hover:border-red-400/40 hover:bg-red-400/[0.06]";
+  } else if (active) {
+    colorClasses = "border-emerald-400/50 bg-emerald-400/10 text-emerald-300";
+  }
+
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${danger ? "border-red-400/25 text-red-300 hover:border-red-400/40 hover:bg-red-400/[0.06]" : "border-white/10 text-neutral-200 hover:bg-white/5 hover:border-white/20"}`}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${colorClasses}`}
     >
       {icon}
       {children}

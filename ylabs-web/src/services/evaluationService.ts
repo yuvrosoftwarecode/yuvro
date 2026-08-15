@@ -92,5 +92,9 @@ export const evaluationService = {
 
   async provisionLabs(evaluationId: string): Promise<any> {
     return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/provision_labs/`, {});
+  },
+
+  async updateCandidateStatus(evaluationId: string, email: string, status: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/update_candidate_status/`, { email, status });
   }
 };

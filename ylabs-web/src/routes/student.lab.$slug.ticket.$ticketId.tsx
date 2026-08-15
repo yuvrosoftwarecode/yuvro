@@ -957,7 +957,7 @@ export function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
-    if (!isReal || isLoading || !userId) return;
+    if (!isReal || isLoading || !userId || slug === "knowledge") return;
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
@@ -1830,10 +1830,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1855,10 +1855,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1906,10 +1906,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error);
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
