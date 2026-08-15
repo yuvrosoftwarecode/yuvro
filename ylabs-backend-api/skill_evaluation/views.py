@@ -375,6 +375,37 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def provision_labs(self, request, pk=None):
+        evaluation = self.get_object()
+        
+        labs_provisioned = 0
+        for section in evaluation.sections.all():
+            if section.type != 'LAB' or not section.questions:
+                continue
+                
+            for question in section.questions:
+                lab_id = question.get('id')
+                if not lab_id:
+                    continue
+                    
+                try:
+                    lab = LabQuestionBank.objects.get(id=lab_id)
+                    if lab.git_repo_starter_url:
+                        starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+                        starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+                        
+                        try:
+                            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+                            labs_provisioned += 1
+                        except Exception as e:
+                            logger = logging.getLogger(__name__)
+                            logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
+                except LabQuestionBank.DoesNotExist:
+                    pass
+
+        return Response({"status": "success", "message": f"{labs_provisioned} lab workspace(s) provisioned successfully"})
+
     @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
     def follow_ups(self, request, pk=None):
         evaluation = self.get_object()

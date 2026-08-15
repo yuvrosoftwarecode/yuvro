@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton } from "@/components/evaluation/EvalShell";
+import { evaluationService } from "../services/evaluationService";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/evaluation/instructions")({
   head: () => ({
@@ -12,6 +14,7 @@ export const Route = createFileRoute("/evaluation/instructions")({
 function InstructionsPage() {
   const nav = useNavigate();
   const [agree, setAgree] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : "",
@@ -23,6 +26,15 @@ function InstructionsPage() {
       await document.documentElement.requestFullscreen?.();
     } catch {}
     
+    setIsStarting(true);
+    try {
+      await evaluationService.provisionLabs(evaluationId);
+    } catch (e) {
+      console.error("Failed to provision labs", e);
+    } finally {
+      setIsStarting(false);
+      nav({ to: "/evaluation/workspace", search: { e: evaluationId } });
+    }
     // Log timeline event
     try {
       const { restApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
@@ -128,8 +140,15 @@ function InstructionsPage() {
             <span>I've read the rules and I'm ready to begin the evaluation.</span>
           </label>
 
-          <PrimaryButton className="mt-6" type="button" disabled={!agree} onClick={start}>
-            Start evaluation
+          <PrimaryButton className="mt-6" type="button" disabled={!agree || isStarting} onClick={start}>
+            {isStarting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Preparing your workspace...
+              </span>
+            ) : (
+              "Start evaluation"
+            )}
           </PrimaryButton>
         </section>
       </div>

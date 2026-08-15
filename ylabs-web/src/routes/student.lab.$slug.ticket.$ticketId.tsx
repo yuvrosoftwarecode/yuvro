@@ -974,15 +974,6 @@ export function TicketIDE({
       setLabTitle(currentTitle);
       const isSqliteLab = currentTitle === "SQLite Lab";
 
-      // For evaluation labs, ensure workspace is provisioned before fetching the file tree
-      if (isEvaluationMode && evaluationId && labId) {
-        try {
-          await evaluationService.startLab(evaluationId, labId);
-        } catch (e) {
-          // May already be provisioned — continue
-        }
-      }
-
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
           if (node.name === ".bash_history") return acc;
@@ -1036,7 +1027,7 @@ export function TicketIDE({
     if (isLoading) return;
     loadWorkspaceFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticket.id, isReal, userId, isLoading, loadWorkspaceFiles]);
+  }, [ticket.id, isReal, userId, isLoading, evaluationId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
   const loadedFiles = useRef<Set<string>>(new Set());
