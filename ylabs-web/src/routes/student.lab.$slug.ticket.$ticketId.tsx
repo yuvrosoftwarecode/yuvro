@@ -962,8 +962,8 @@ export function TicketIDE({
     try {
       let currentTitle = "";
       try {
-        const labEndpoint = isEvaluationMode && evaluationId 
-          ? `/lab/evaluations/${evaluationId}/` 
+        const labEndpoint = isEvaluationMode
+          ? `/skill_evaluation/lab-questions/${labId}/` 
           : `/lab/labs/${labId}/`;
         const { default: api } = await import("@/utils/RestApiAuthUtil");
         const realLab = await api.get<any>(labEndpoint);
@@ -1126,8 +1126,8 @@ export function TicketIDE({
     const isDummy = !isReal;
 
     const RECENT_LAB_KEY = "ylabs-recent-lab";
-    const labEndpoint = isEvaluationMode && evaluationId 
-          ? `/lab/evaluations/${evaluationId}/` 
+    const labEndpoint = isEvaluationMode
+          ? `/skill_evaluation/lab-questions/${labId}/` 
           : `/lab/labs/${labId}/`;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(labEndpoint)

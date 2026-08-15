@@ -44,7 +44,7 @@ export const evaluationService = {
 
   async getWorkspaceData(evaluationId: string): Promise<any> {
     const [evalData, allLabs] = await Promise.all([
-      restApiAuthUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
+      restApiUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
       restApiUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
     ]);
 

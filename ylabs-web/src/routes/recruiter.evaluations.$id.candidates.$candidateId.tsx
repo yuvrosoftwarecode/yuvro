@@ -50,7 +50,8 @@ import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
   loadNotes,
-  saveNotes,
+  addNote,
+  deleteNote,
   loadActivity,
   pushActivity,
   loadDecision,
@@ -59,6 +60,8 @@ import {
   type Note,
   type HiringDecision,
   type LabAttempt,
+  loadTimelineEvents,
+  type TimelineEvent,
 } from "@/lib/recruiterCandidateDetail";
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
@@ -104,7 +107,8 @@ function CandidateWorkspace() {
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),
   );
   const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any } | null>(null);
-  const [notes, setNotes] = useState<Note[]>(() => loadNotes(id, candidateId));
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [activity, setActivity] = useState(() => loadActivity(id, candidateId));
 
   useEffect(() => {
@@ -112,6 +116,13 @@ function CandidateWorkspace() {
     pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
     setActivity(loadActivity(id, candidateId));
   }, [id, candidateId]);
+
+  useEffect(() => {
+    if (candidate?.email) {
+      loadNotes(id, candidate.email).then(setNotes);
+      loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+    }
+  }, [id, candidate?.email]);
   
   useEffect(() => {
     if (!toast) return;
@@ -336,15 +347,28 @@ function CandidateWorkspace() {
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
-          {tab === "timeline" && <TimelinePane detail={detail} />}
+          {tab === "timeline" && <TimelinePane events={timelineEvents} detail={detail} isDemo={id.startsWith("7700") || id.startsWith("demo")} />}
           {tab === "notes" && (
             <NotesPane
               notes={notes}
-              onChange={(n) => {
-                setNotes(n);
-                saveNotes(id, candidateId, n);
+              onAddNote={async (draft) => {
+                const created = await addNote(id, candidate.email, draft);
+                if (created) {
+                  setNotes((prev) => [created, ...prev]);
+                  act("note", `Added a ${draft.priority}-priority note`);
+                } else {
+                  notify("Failed to save note");
+                }
               }}
-              onActivity={(t) => act("note", t)}
+              onDeleteNote={async (noteId) => {
+                const ok = await deleteNote(noteId, id, candidate.email);
+                if (ok) {
+                  setNotes((prev) => prev.filter(x => x.id !== noteId));
+                  act("note", "Deleted a note");
+                } else {
+                  notify("Failed to delete note");
+                }
+              }}
             />
           )}
           {tab === "activity" && <ActivityPane activity={activity} />}
@@ -952,13 +976,26 @@ function ResumeDoc({
   );
 }
 
-function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail> }) {
+function TimelinePane({ events, detail, isDemo }: { events: TimelineEvent[], detail: ReturnType<typeof getCandidateDetail>, isDemo: boolean }) {
+  const displayEvents = events.length > 0 ? events : detail.timeline;
+  
+  if (displayEvents.length === 0) {
+    return (
+      <div>
+        <SectionHeading>Timeline</SectionHeading>
+        <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-sm text-neutral-500">
+          No timeline events yet.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <SectionHeading>Timeline</SectionHeading>
       <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6">
         <ol className="relative space-y-5 border-l border-white/10 pl-6">
-          {detail.timeline.map((t, i) => (
+          {displayEvents.map((t, i) => (
             <li key={i} className="relative">
               <span
                 className={`absolute -left-[27px] mt-1 grid h-3.5 w-3.5 place-items-center rounded-full border ${t.done ? (t.tone === "warn" ? "border-amber-400 bg-amber-400" : "border-emerald-400 bg-emerald-400") : "border-white/20 bg-neutral-900"}`}
@@ -967,7 +1004,7 @@ function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail
                 {t.label}
               </div>
               <div className="text-[11px] text-neutral-500">
-                {t.time} {!t.done && "· pending"}
+                {t.done ? t.time : "pending"}
               </div>
             </li>
           ))}
@@ -979,12 +1016,12 @@ function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail
 
 function NotesPane({
   notes,
-  onChange,
-  onActivity,
+  onAddNote,
+  onDeleteNote,
 }: {
   notes: Note[];
-  onChange: (n: Note[]) => void;
-  onActivity: (t: string) => void;
+  onAddNote: (n: Partial<Note>) => void;
+  onDeleteNote: (id: string | number) => void;
 }) {
   const [text, setText] = useState("");
   const [priority, setPriority] = useState<Note["priority"]>("medium");
@@ -1006,23 +1043,19 @@ function NotesPane({
 
   const add = () => {
     if (!text.trim()) return;
-    const n: Note = {
-      id: Math.random().toString(36).slice(2, 9),
+    onAddNote({
       text: text.trim(),
-      author: "You",
-      time: Date.now(),
       priority,
       tags,
-    };
-    onChange([n, ...notes]);
-    onActivity(`Added a ${priority}-priority note`);
+      internal,
+    });
     setText("");
     setTags([]);
     setPriority("medium");
+    setInternal(true);
   };
-  const remove = (id: string) => {
-    onChange(notes.filter((n) => n.id !== id));
-    onActivity("Deleted a note");
+  const remove = (id: string | number) => {
+    onDeleteNote(id);
   };
 
   return (
@@ -1085,7 +1118,7 @@ function NotesPane({
           <button
             onClick={add}
             disabled={!text.trim()}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-medium text-black disabled:opacity-40"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-1.5 text-[12px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 hover:bg-neutral-800 transition-colors"
           >
             <Send className="h-3.5 w-3.5" /> Save note
           </button>

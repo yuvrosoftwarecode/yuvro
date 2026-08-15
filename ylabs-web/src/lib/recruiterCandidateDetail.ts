@@ -633,80 +633,87 @@ function buildTimeline(c: Candidate) {
     c.hiringStatus === "Selected";
   const interview = c.hiringStatus === "Interview Scheduled" || c.hiringStatus === "Selected";
   const rejected = c.hiringStatus === "Rejected";
-  const now = c.submittedAt;
-  const d = 3 * 60 * 60 * 1000;
+  
+  const anchor = c.submittedAt;
+  // If it's very recent (e.g., within the last 24h), don't subtract 12 hours!
+  // Instead, space them by small increments (e.g., 5 mins) or just use the anchor.
+  const isRecent = Date.now() - anchor < 24 * 60 * 60 * 1000;
+  const d = isRecent ? 5 * 60 * 1000 : 2 * 60 * 60 * 1000;
+  
+  const safeTime = (t: number) => Math.min(t, Date.now() - 60000); 
+
   return [
     {
       icon: "mail",
       label: "Evaluation invitation sent",
-      time: rel(now - 6 * d),
+      time: rel(safeTime(anchor - 6 * d)),
       done: true,
       tone: "neutral" as const,
     },
     {
       icon: "play",
       label: "Candidate started evaluation",
-      time: rel(now - 5 * d),
+      time: rel(safeTime(anchor - 5 * d)),
       done: c.status !== "Not Started",
-      tone: "neutral" as const,
+      tone: "success" as const,
     },
     {
       icon: "labs",
       label: "Engineering Labs submitted",
-      time: rel(now - 4 * d),
-      done: submitted,
-      tone: "neutral" as const,
+      time: rel(safeTime(anchor - 4 * d)),
+      done: submitted || (c.rawSubmission?.lab_submissions?.length > 0),
+      tone: submitted || (c.rawSubmission?.lab_submissions?.length > 0) ? ("success" as const) : "neutral",
     },
     {
       icon: "assess",
       label: "Knowledge Assessment submitted",
-      time: rel(now - 3 * d),
-      done: submitted,
-      tone: "neutral" as const,
+      time: rel(safeTime(anchor - 3 * d)),
+      done: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0),
+      tone: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0) ? ("success" as const) : "neutral",
     },
     {
       icon: "chat",
       label: "Vitarka discussion completed",
-      time: rel(now - 2 * d),
-      done: submitted,
-      tone: "neutral" as const,
+      time: rel(safeTime(anchor - 2 * d)),
+      done: submitted || c.vitarkaScore > 0,
+      tone: submitted || c.vitarkaScore > 0 ? ("success" as const) : "neutral",
     },
     {
       icon: "check",
       label: "Evaluation finished",
-      time: rel(now),
+      time: rel(safeTime(anchor - d)),
       done: submitted,
-      tone: "good" as const,
+      tone: submitted ? ("success" as const) : "neutral",
     },
     {
       icon: "eye",
       label: "Recruiter viewed profile",
-      time: rel(now + d),
-      done: submitted,
-      tone: "neutral" as const,
+      time: rel(safeTime(anchor + d)),
+      done: submitted, // Assume viewed if submitted in this mock
+      tone: submitted ? ("success" as const) : "neutral",
     },
     {
       icon: "star",
       label: "Shortlisted",
-      time: rel(now + 2 * d),
+      time: rel(safeTime(anchor + 2 * d)),
       done: shortlisted,
-      tone: "good" as const,
+      tone: shortlisted ? ("success" as const) : "neutral",
     },
     {
       icon: "cal",
       label: "Interview scheduled",
-      time: rel(now + 3 * d),
+      time: rel(safeTime(anchor + 3 * d)),
       done: interview,
-      tone: "good" as const,
+      tone: interview ? ("success" as const) : "neutral",
     },
     {
       icon: "offer",
       label: "Offer sent",
-      time: rel(now + 4 * d),
+      time: rel(safeTime(anchor + 4 * d)),
       done: c.hiringStatus === "Selected",
-      tone: "good" as const,
+      tone: (c.hiringStatus === "Selected") ? ("success" as const) : "neutral",
     },
-    { icon: "x", label: "Rejected", time: rel(now + 2 * d), done: rejected, tone: "warn" as const },
+    { icon: "x", label: "Rejected", time: rel(safeTime(anchor + 2 * d)), done: rejected, tone: "warn" as const },
   ].filter((item) => !(item.icon === "x" && !rejected));
 }
 function rel(t: number) {
@@ -866,30 +873,149 @@ export function markViewed(evId: string, candidateId: string) {
   } catch {}
 }
 export interface Note {
-  id: string;
+  id: string | number;
   text: string;
   author: string;
   time: number;
   priority: "low" | "medium" | "high";
   tags: string[];
+  internal?: boolean;
 }
-export function loadNotes(evId: string, cid: string): Note[] {
-  if (typeof window === "undefined") return [];
+import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
+
+export async function loadNotes(evId: string, email: string): Promise<Note[]> {
+  if (evId.startsWith("7700") || evId.startsWith("demo")) {
+    try {
+      return JSON.parse(localStorage.getItem(`yuvro-notes-${evId}-${email}`) || "[]");
+    } catch {
+      return [];
+    }
+  }
   try {
-    return JSON.parse(localStorage.getItem(`yuvro-notes-${evId}-${cid}`) || "[]");
-  } catch {
+    const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/notes/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
+    return res.map((r) => ({
+      id: r.id,
+      text: r.text,
+      author: r.author_name || "Unknown",
+      time: new Date(r.created_at).getTime(),
+      priority: (r.priority || "LOW").toLowerCase() as any,
+      tags: r.tags || [],
+      internal: r.is_internal,
+    }));
+  } catch (err) {
+    console.error("Failed to load notes", err);
     return [];
   }
 }
-export function saveNotes(evId: string, cid: string, notes: Note[]) {
-  try {
-    localStorage.setItem(`yuvro-notes-${evId}-${cid}`, JSON.stringify(notes));
-  } catch {}
+
+export interface TimelineEvent {
+  id: string | number;
+  label: string;
+  time: string;
+  done: boolean;
+  tone: "success" | "warn" | "neutral";
 }
+
+import { formatDistanceToNow } from "date-fns";
+
+export async function loadTimelineEvents(evId: string, email: string): Promise<TimelineEvent[]> {
+  if (evId.startsWith("7700") || evId.startsWith("demo")) {
+    return []; // Handled by demo mock in getCandidateDetail
+  }
+  try {
+    const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/timeline-events/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
+    return res.map((r) => {
+      let tone: "success" | "warn" | "neutral" = "neutral";
+      if (r.status === "SUCCESS") tone = "success";
+      else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
+
+      return {
+        id: r.id,
+        label: r.title,
+        time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
+        done: r.status !== "PENDING",
+        tone,
+      };
+    });
+  } catch (err) {
+    console.error("Failed to load timeline events", err);
+    return [];
+  }
+}
+
+export async function addNote(evId: string, email: string, note: Partial<Note>): Promise<Note | null> {
+  const isDemo = evId.startsWith("7700") || evId.startsWith("demo");
+  const newNote: Note = {
+      id: Math.random().toString(36).slice(2, 9),
+      text: note.text || "",
+      author: "You",
+      time: Date.now(),
+      priority: note.priority || "medium",
+      tags: note.tags || [],
+      internal: note.internal ?? true,
+  };
+
+  if (isDemo) {
+    try {
+      const existing = JSON.parse(localStorage.getItem(`yuvro-notes-${evId}-${email}`) || "[]");
+      localStorage.setItem(`yuvro-notes-${evId}-${email}`, JSON.stringify([newNote, ...existing]));
+      return newNote;
+    } catch {
+      return null;
+    }
+  }
+
+  try {
+    const payload = {
+      evaluation: evId,
+      candidate_email: email,
+      text: note.text,
+      priority: (note.priority || "medium").toUpperCase(),
+      is_internal: note.internal ?? true,
+      tags: note.tags || []
+    };
+    const res = await restApiAuthUtil.post<any>(`/skill_evaluation/notes/`, payload);
+    return {
+      id: res.id,
+      text: res.text,
+      author: res.author_name || "You",
+      time: new Date(res.created_at).getTime(),
+      priority: (res.priority || "LOW").toLowerCase() as any,
+      tags: res.tags || [],
+      internal: res.is_internal,
+    };
+  } catch (err: any) {
+    console.error("Failed to save note", err, err.details);
+    return null;
+  }
+}
+
+export async function deleteNote(noteId: string | number, evId?: string, email?: string): Promise<boolean> {
+  if (evId && (evId.startsWith("7700") || evId.startsWith("demo"))) {
+    try {
+      if (!email) return false;
+      const existing = JSON.parse(localStorage.getItem(`yuvro-notes-${evId}-${email}`) || "[]");
+      localStorage.setItem(`yuvro-notes-${evId}-${email}`, JSON.stringify(existing.filter((n: any) => n.id !== noteId)));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  try {
+    await restApiAuthUtil.request<any>(`/skill_evaluation/notes/${noteId}/`, { method: "DELETE" });
+    return true;
+  } catch (err) {
+    console.error("Failed to delete note", err);
+    return false;
+  }
+}
+
 export function loadNotedSet(evId: string, candidateIds: string[]): Set<string> {
   const out = new Set<string>();
   if (typeof window === "undefined") return out;
   for (const id of candidateIds) {
+    // For demo evaluations, we can still read from localStorage by ID if it's the email or candId
     try {
       const raw = localStorage.getItem(`yuvro-notes-${evId}-${id}`);
       if (raw && JSON.parse(raw).length) out.add(id);

@@ -110,6 +110,10 @@ export function VitarkaInterviewScreen({
   };
 
   const startInterview = async () => {
+    if (!mockInterviewId) {
+      alert("No mock interview ID provided. Cannot start discussion.");
+      return;
+    }
     setInterviewState("thinking");
     try {
       const res = await yhubApiAuthUtil.post<any>(

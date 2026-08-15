@@ -216,7 +216,7 @@ class CandidateNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateNote
         fields = '__all__'
-        read_only_fields = ('author',)
+        read_only_fields = ('author', 'created_by')
 
     def get_author_name(self, obj):
         if obj.author:

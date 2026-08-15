@@ -210,27 +210,51 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
             r,
             COMPANIES.filter((c) => c !== "Fresher"),
           );
-    const labs = Math.round(35 + r() * 65);
-    const assess = Math.round(35 + r() * 65);
-    const vit = Math.round(35 + r() * 65);
-    const eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-    const rec: Recommendation =
-      eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
-    const statusRoll = r();
-    const status: CandStatus =
-      statusRoll < 0.55
-        ? "Submitted"
-        : statusRoll < 0.7
-          ? "Completed"
-          : statusRoll < 0.82
-            ? "In Progress"
-            : statusRoll < 0.93
-              ? "Not Started"
-              : "Expired";
-    const hiring =
-      status === "Submitted" || status === "Completed"
-        ? HIRING[Math.floor(r() * HIRING.length)]
-        : "Pending Review";
+    const isDemo = evaluationId.startsWith("7700") || evaluationId.startsWith("demo");
+    let labs = 0;
+    let assess = 0;
+    let vit = 0;
+    let eci = 0;
+    let rec: Recommendation = "Reject";
+    let status: CandStatus = "Not Started";
+    let hiring: HiringStatus = "Pending Review";
+
+    if (isDemo) {
+      labs = Math.round(35 + r() * 65);
+      assess = Math.round(35 + r() * 65);
+      vit = Math.round(35 + r() * 65);
+      eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
+      rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
+      
+      const statusRoll = r();
+      status = statusRoll < 0.55 ? "Submitted" : statusRoll < 0.7 ? "Completed" : statusRoll < 0.82 ? "In Progress" : statusRoll < 0.93 ? "Not Started" : "Expired";
+      hiring = (status === "Submitted" || status === "Completed") ? HIRING[Math.floor(r() * HIRING.length)] : "Pending Review";
+    } else {
+      // For real evaluations, use actual submission data if available
+      const labSubs = sub.lab_submissions || [];
+      const knowSubs = sub.knowledge_submissions || [];
+      
+      if (labSubs.length > 0) {
+        labs = Math.round(labSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0) / labSubs.length);
+      }
+      if (knowSubs.length > 0) {
+        assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0) / knowSubs.length);
+      }
+      
+      // Calculate ECI
+      eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
+      rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
+      
+      // Determine real status
+      if (sub.completed_at) {
+        status = "Completed";
+      } else if (sub.id || labSubs.length > 0 || knowSubs.length > 0 || sub.general_events?.length > 0) {
+        status = "In Progress";
+      } else {
+        status = "Not Started";
+      }
+      hiring = "Pending Review";
+    }
     const submittedAt = sub.completed_at ? new Date(sub.completed_at).getTime() : new Date(sub.created_at || now).getTime();
     const completionMinutes = sub.duration ? Math.round(sub.duration / 60) : 25 + Math.floor(r() * 110);
     const skills = Array.from(
