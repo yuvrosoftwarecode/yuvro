@@ -57,9 +57,6 @@ import {
   fetchCourses,
   fetchTopics,
   createEvaluation,
-  saveDraftLocally,
-  getDraftLocally,
-  clearDraftLocally,
   syncMockInterviews,
 } from "@/lib/recruiter";
 import { Workspace } from "@/components/evaluation/WorkspaceApp";
@@ -96,10 +93,7 @@ function EvaluationWorkspace() {
 
   useEffect(() => {
     if (isChild) return;
-    const local = getDraftLocally(id);
-    if (local) {
-      setEv(local);
-    } else if (id === "draft") {
+    if (id === "draft") {
       createEvaluation().then(setEv);
     } else {
       getEvaluation(id).then((e) => {
@@ -115,7 +109,6 @@ function EvaluationWorkspace() {
   const update = (fn: (e: Evaluation) => void) => {
     const c = { ...ev, sections: JSON.parse(JSON.stringify(ev.sections)) };
     fn(c);
-    saveDraftLocally(c);
     setEv(c);
   };
 
@@ -127,7 +120,6 @@ function EvaluationWorkspace() {
 
     const saved = await saveEvaluation(syncedEv);
     if (saved) {
-      clearDraftLocally(ev.id);
       if (ev.id === "draft") {
         nav({ to: "/recruiter/evaluations/$id", params: { id: saved.id }, replace: true });
       } else {
@@ -165,7 +157,6 @@ function EvaluationWorkspace() {
           };
           const saved = await saveEvaluation(c);
           if (saved) {
-            clearDraftLocally(c.id);
             if (ev.id === "draft") {
               setEv(saved);
               nav({
