@@ -44,7 +44,7 @@ export const evaluationService = {
 
   async getWorkspaceData(evaluationId: string): Promise<any> {
     const [evalData, allLabs] = await Promise.all([
-      restApiAuthUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
+      restApiUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
       restApiUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
     ]);
 
@@ -88,5 +88,13 @@ export const evaluationService = {
       section_id: sectionId,
       answers: answers
     });
+  },
+
+  async provisionLabs(evaluationId: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/provision_labs/`, {});
+  },
+
+  async updateCandidateStatus(evaluationId: string, email: string, status: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/update_candidate_status/`, { email, status });
   }
 };

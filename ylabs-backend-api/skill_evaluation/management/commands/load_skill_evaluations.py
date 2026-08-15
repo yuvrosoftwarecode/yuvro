@@ -35,19 +35,18 @@ class Command(BaseCommand):
             self.stdout.write("Clearing existing skill evaluation data...")
             LabQuestionBankTask.objects.all().delete()
             LabQuestionBank.objects.all().delete()
-            AssessmentQuestionBank.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing skill evaluation data cleared."))
 
         fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures" / deploy_env
 
-        self.stdout.write(f"\nProcessing: {fixtures_dir}/lab_questions.json")
-        lq_file = fixtures_dir / "lab_questions.json"
-        if lq_file.exists():
-            data = self._load_json(lq_file)
-            if data:
-                self._load_lab_questions(data)
-        else:
-            self.stdout.write(self.style.WARNING(f"File not found: {lq_file}"))
+        for lq_file in fixtures_dir.glob("*.json"):
+            self.stdout.write(f"\nProcessing: {lq_file}")
+            if lq_file.exists():
+                data = self._load_json(lq_file)
+                if data:
+                    self._load_lab_questions(data)
+            else:
+                self.stdout.write(self.style.WARNING(f"File not found: {lq_file}"))
 
         self.stdout.write(self.style.SUCCESS("\n✅ All skill evaluation questions loaded successfully!"))
 

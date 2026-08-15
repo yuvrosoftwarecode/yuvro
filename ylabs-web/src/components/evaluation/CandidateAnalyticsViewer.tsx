@@ -70,8 +70,6 @@ interface ProctoringEvent {
     question_no?: string;
 }
 
-import { Candidate } from '@/lib/recruiterCandidates';
-
 interface CandidateAnalyticsViewerProps {
     candidate: Candidate;
     evaluation?: any;
@@ -962,49 +960,6 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                             })}
                                                         </div>
                                                     )}
-
-                                                    <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
-                                                        <div className="flex items-center justify-between mb-4">
-                                                            <h5 className="font-semibold text-slate-900 flex items-center gap-2">
-                                                                <Activity className="h-4 w-4 text-slate-500" /> Section Event Timeline
-                                                            </h5>
-                                                        </div>
-                                                        {index > 0 ? (
-                                                            <div className="text-slate-500 italic text-xs">Candidate did not attempt this section.</div>
-                                                        ) : sectionEvents.length === 0 ? (
-                                                            <div className="text-slate-500 italic text-xs">No anomalies recorded for this section.</div>
-                                                        ) : (
-                                                            <div className="space-y-3">
-                                                                {sectionEvents.map((evt: any, i: number) => (
-                                                                    <div key={i} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-2 last:border-0 last:pb-0">
-                                                                        <div className={`w-2 h-2 rounded-full ${evt.severity === 2 ? 'bg-rose-500' : evt.severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                                                                        <span className="font-medium min-w-[60px] text-slate-500">{formatEventTime(evt.time)}</span>
-                                                                        <Badge variant="outline" className="text-slate-900 border-neutral-200 text-[10px] capitalize">{evt.type.replace(/_/g, ' ')}</Badge>
-                                                                        <span className="text-slate-500 truncate">{evt.desc}</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium mb-3 text-neutral-500">Violations in this section</h4>
-                                                {sectionData.events.filter(ev => ev.type !== 'snapshot').length === 0 ? (
-                                                    <p className="text-sm text-emerald-500">No violations occurred during this section.</p>
-                                                ) : (
-                                                    <div className="space-y-3">
-                                                        {sectionData.events.filter(ev => ev.type !== 'snapshot').map((ev, i) => (
-                                                            <div key={i} className="flex items-start gap-3 bg-white/[0.02] p-3 rounded-md border border-white/5">
-                                                                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${ev.severity === 2 ? 'bg-rose-500' : 'bg-amber-500'}`} />
-                                                                <span className="text-sm font-mono text-neutral-500 mt-0.5 shrink-0">{formatEventTime(ev.time)}</span>
-                                                                <div className="text-neutral-300 w-full overflow-hidden">
-                                                                    <div className="text-xs font-semibold mb-0.5 text-white capitalize">{ev.type.replace('_', ' ')}</div>
-                                                                    <ViolationDescription text={ev.desc} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
                                                     <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
                                                         <div className="flex items-center justify-between mb-4">

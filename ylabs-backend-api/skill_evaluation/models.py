@@ -116,6 +116,7 @@ class UserEvaluationSubmission(BaseTimestampedModel):
     proctoring_passed = models.BooleanField(default=True)
     anomalies_detected = models.JSONField(default=list, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    hiring_status = models.CharField(max_length=50, default="Pending Review")
 
     class Meta:
         unique_together = ("user", "evaluation")
@@ -310,6 +311,8 @@ class CandidateTimelineEventType(models.TextChoices):
     EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
     RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"
     SHORTLISTED = "Shortlisted", "Shortlisted"
+    ON_HOLD = "Placed on hold", "Placed on hold"
+    REJECTED = "Rejected", "Rejected"
     INTERVIEW_SCHEDULED = "Interview scheduled", "Interview scheduled"
     OFFER_SENT = "Offer sent", "Offer sent"
 

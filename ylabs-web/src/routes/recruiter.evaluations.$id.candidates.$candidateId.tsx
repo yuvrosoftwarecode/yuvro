@@ -50,7 +50,8 @@ import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
   loadNotes,
-  saveNotes,
+  addNote,
+  deleteNote,
   loadActivity,
   pushActivity,
   loadDecision,
@@ -59,6 +60,9 @@ import {
   type Note,
   type HiringDecision,
   type LabAttempt,
+  loadTimelineEvents,
+  type TimelineEvent,
+  createTimelineEvent,
 } from "@/lib/recruiterCandidateDetail";
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
@@ -104,14 +108,31 @@ function CandidateWorkspace() {
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),
   );
   const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any } | null>(null);
-  const [notes, setNotes] = useState<Note[]>(() => loadNotes(id, candidateId));
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [activity, setActivity] = useState(() => loadActivity(id, candidateId));
 
   useEffect(() => {
     markViewed(id, candidateId);
     pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
     setActivity(loadActivity(id, candidateId));
-  }, [id, candidateId]);
+    if (candidate?.email) {
+      createTimelineEvent(id, candidate.email, "Recruiter viewed profile");
+    }
+  }, [id, candidateId, candidate?.email]);
+
+  useEffect(() => {
+    if (candidate?.email) {
+      loadNotes(id, candidate.email).then(setNotes);
+      loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+      
+      const intervalId = setInterval(() => {
+        loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+      }, 5000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [id, candidate?.email]);
   
   useEffect(() => {
     if (!toast) return;
@@ -144,9 +165,23 @@ function CandidateWorkspace() {
   };
   const doDecision = (d: HiringDecision) => {
     setDecision(d);
-    saveDecision(id, candidateId, d);
+    if (candidate?.email) saveDecision(id, candidateId, candidate.email, d);
     act("decision", `Decision changed to ${d}`);
     notify(`Marked as ${d}`);
+    
+    if (candidate?.email) {
+      if (d === "Shortlisted") {
+        createTimelineEvent(id, candidate.email, "Shortlisted");
+      } else if (d === "Hold") {
+        createTimelineEvent(id, candidate.email, "Placed on hold");
+      } else if (d === "Rejected") {
+        createTimelineEvent(id, candidate.email, "Rejected");
+      } else if (d === "Interview Scheduled") {
+        createTimelineEvent(id, candidate.email, "Interview scheduled");
+      } else if (d === "Selected") {
+        createTimelineEvent(id, candidate.email, "Offer sent");
+      }
+    }
   };
 
   const copy = async (text: string, label: string) => {
@@ -253,21 +288,24 @@ function CandidateWorkspace() {
                 <SecondaryAction
                   icon={<Star className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Shortlisted")}
+                  active={decision === "Shortlisted"}
                 >
-                  Shortlist
+                  {decision === "Shortlisted" ? "Shortlisted" : "Shortlist"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<PauseCircle className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Hold")}
+                  active={decision === "Hold"}
                 >
-                  Hold
+                  {decision === "Hold" ? "On Hold" : "Hold"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<XCircle className="h-3.5 w-3.5" />}
                   onClick={() => doDecision("Rejected")}
                   danger
+                  active={decision === "Rejected"}
                 >
-                  Reject
+                  {decision === "Rejected" ? "Rejected" : "Reject"}
                 </SecondaryAction>
                 <SecondaryAction
                   icon={<Download className="h-3.5 w-3.5" />}
@@ -336,15 +374,28 @@ function CandidateWorkspace() {
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
-          {tab === "timeline" && <TimelinePane detail={detail} />}
+          {tab === "timeline" && <TimelinePane events={timelineEvents} detail={detail} isDemo={id.startsWith("7700") || id.startsWith("demo")} />}
           {tab === "notes" && (
             <NotesPane
               notes={notes}
-              onChange={(n) => {
-                setNotes(n);
-                saveNotes(id, candidateId, n);
+              onAddNote={async (draft) => {
+                const created = await addNote(id, candidate.email, draft);
+                if (created) {
+                  setNotes((prev) => [created, ...prev]);
+                  act("note", `Added a ${draft.priority}-priority note`);
+                } else {
+                  notify("Failed to save note");
+                }
               }}
-              onActivity={(t) => act("note", t)}
+              onDeleteNote={async (noteId) => {
+                const ok = await deleteNote(noteId, id, candidate.email);
+                if (ok) {
+                  setNotes((prev) => prev.filter(x => x.id !== noteId));
+                  act("note", "Deleted a note");
+                } else {
+                  notify("Failed to delete note");
+                }
+              }}
             />
           )}
           {tab === "activity" && <ActivityPane activity={activity} />}
@@ -952,13 +1003,26 @@ function ResumeDoc({
   );
 }
 
-function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail> }) {
+function TimelinePane({ events, detail, isDemo }: { events: TimelineEvent[], detail: ReturnType<typeof getCandidateDetail>, isDemo: boolean }) {
+  const displayEvents = events.length > 0 ? events : detail.timeline;
+  
+  if (displayEvents.length === 0) {
+    return (
+      <div>
+        <SectionHeading>Timeline</SectionHeading>
+        <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-sm text-neutral-500">
+          No timeline events yet.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <SectionHeading>Timeline</SectionHeading>
       <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6">
         <ol className="relative space-y-5 border-l border-white/10 pl-6">
-          {detail.timeline.map((t, i) => (
+          {displayEvents.map((t, i) => (
             <li key={i} className="relative">
               <span
                 className={`absolute -left-[27px] mt-1 grid h-3.5 w-3.5 place-items-center rounded-full border ${t.done ? (t.tone === "warn" ? "border-amber-400 bg-amber-400" : "border-emerald-400 bg-emerald-400") : "border-white/20 bg-neutral-900"}`}
@@ -967,7 +1031,7 @@ function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail
                 {t.label}
               </div>
               <div className="text-[11px] text-neutral-500">
-                {t.time} {!t.done && "· pending"}
+                {t.done ? t.time : "pending"}
               </div>
             </li>
           ))}
@@ -979,12 +1043,12 @@ function TimelinePane({ detail }: { detail: ReturnType<typeof getCandidateDetail
 
 function NotesPane({
   notes,
-  onChange,
-  onActivity,
+  onAddNote,
+  onDeleteNote,
 }: {
   notes: Note[];
-  onChange: (n: Note[]) => void;
-  onActivity: (t: string) => void;
+  onAddNote: (n: Partial<Note>) => void;
+  onDeleteNote: (id: string | number) => void;
 }) {
   const [text, setText] = useState("");
   const [priority, setPriority] = useState<Note["priority"]>("medium");
@@ -1006,23 +1070,19 @@ function NotesPane({
 
   const add = () => {
     if (!text.trim()) return;
-    const n: Note = {
-      id: Math.random().toString(36).slice(2, 9),
+    onAddNote({
       text: text.trim(),
-      author: "You",
-      time: Date.now(),
       priority,
       tags,
-    };
-    onChange([n, ...notes]);
-    onActivity(`Added a ${priority}-priority note`);
+      internal,
+    });
     setText("");
     setTags([]);
     setPriority("medium");
+    setInternal(true);
   };
-  const remove = (id: string) => {
-    onChange(notes.filter((n) => n.id !== id));
-    onActivity("Deleted a note");
+  const remove = (id: string | number) => {
+    onDeleteNote(id);
   };
 
   return (
@@ -1036,56 +1096,10 @@ function NotesPane({
           className="min-h-[110px] w-full resize-y rounded-lg border border-white/10 bg-black/20 p-3 text-[13px] text-white placeholder-neutral-500 outline-none focus:border-white/25"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="flex overflow-hidden rounded-md border border-white/10">
-            {(["low", "medium", "high"] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPriority(p)}
-                className={`px-2.5 py-1 text-[11px] capitalize ${priority === p ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white"}`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300">
-            <input
-              type="checkbox"
-              checked={internal}
-              onChange={(e) => setInternal(e.target.checked)}
-              className="mr-1"
-            />{" "}
-            Internal only
-          </div>
-          <input
-            value={tagInput}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && tagInput.trim()) {
-                setTags((t) => Array.from(new Set([...t, tagInput.trim()])));
-                setTagInput("");
-              }
-            }}
-            onChange={(e) => setTagInput(e.target.value)}
-            placeholder="Add tag + Enter"
-            className="w-40 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-white outline-none"
-          />
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-neutral-300"
-            >
-              {t}
-              <button
-                onClick={() => setTags((x) => x.filter((y) => y !== t))}
-                className="text-neutral-500 hover:text-white"
-              >
-                ×
-              </button>
-            </span>
-          ))}
           <button
             onClick={add}
             disabled={!text.trim()}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-medium text-black disabled:opacity-40"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-1.5 text-[12px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 hover:bg-neutral-800 transition-colors"
           >
             <Send className="h-3.5 w-3.5" /> Save note
           </button>
@@ -1316,16 +1330,27 @@ function SecondaryAction({
   onClick,
   icon,
   danger,
+  active,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   icon?: React.ReactNode;
   danger?: boolean;
+  active?: boolean;
 }) {
+  let colorClasses = "border-white/10 text-neutral-200 hover:bg-white/5 hover:border-white/20";
+  if (danger) {
+    colorClasses = active 
+      ? "border-red-400/50 bg-red-400/10 text-red-300"
+      : "border-red-400/25 text-red-300 hover:border-red-400/40 hover:bg-red-400/[0.06]";
+  } else if (active) {
+    colorClasses = "border-emerald-400/50 bg-emerald-400/10 text-emerald-300";
+  }
+
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${danger ? "border-red-400/25 text-red-300 hover:border-red-400/40 hover:bg-red-400/[0.06]" : "border-white/10 text-neutral-200 hover:bg-white/5 hover:border-white/20"}`}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${colorClasses}`}
     >
       {icon}
       {children}

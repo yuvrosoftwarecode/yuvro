@@ -18,7 +18,9 @@ from .models import (
     FollowUpCandidate,
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
-    EvaluationSection
+    EvaluationSection,
+    CandidateTimelineEvent,
+    CandidateTimelineEventType
 )
 from .serializers import (
     EvaluationSerializer,
@@ -97,6 +99,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             user=user,
             duration=0,
             discussion_mode=DiscussionMode.AUTOMATIC
+        )
+        
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.INVITATION_SENT,
+            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
         )
         
         return Response({
@@ -230,6 +239,19 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submission.completed_at = timezone.now()
         submission.save(update_fields=['completed_at'])
         
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.VITARKA_COMPLETED,
+            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+        )
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.EVALUATION_FINISHED,
+            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+        )
+        
         has_proctoring = any(sec.proctoring_config for sec in evaluation.sections.all())
         if has_proctoring:
             from .face_verification_proxy import run_async_face_verification
@@ -260,6 +282,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 'solution': solution,
                 'minutes_solved': minutes_solved
             }
+        )
+        
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=request.user.email,
+            title=CandidateTimelineEventType.LABS_SUBMITTED,
+            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": request.user}
         )
         
         if status_val in ['in_review', 'done']:
@@ -306,6 +335,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             }
         )
         
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=request.user.email,
+            title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED,
+            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": request.user}
+        )
+        
         return Response({"status": "success"})
 
     @action(detail=True, methods=['get'], permission_classes=[AllowAny])
@@ -338,6 +374,37 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def provision_labs(self, request, pk=None):
+        evaluation = self.get_object()
+        
+        labs_provisioned = 0
+        for section in evaluation.sections.all():
+            if section.type != 'LAB' or not section.questions:
+                continue
+                
+            for question in section.questions:
+                lab_id = question.get('id')
+                if not lab_id:
+                    continue
+                    
+                try:
+                    lab = LabQuestionBank.objects.get(id=lab_id)
+                    if lab.git_repo_starter_url:
+                        starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+                        starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+                        
+                        try:
+                            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+                            labs_provisioned += 1
+                        except Exception as e:
+                            logger = logging.getLogger(__name__)
+                            logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
+                except LabQuestionBank.DoesNotExist:
+                    pass
+
+        return Response({"status": "success", "message": f"{labs_provisioned} lab workspace(s) provisioned successfully"})
 
     @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
     def follow_ups(self, request, pk=None):
@@ -403,7 +470,27 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
             return Response({"status": "success"})
 
-    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def update_candidate_status(self, request, pk=None):
+        evaluation = self.get_object()
+        candidate_email = request.data.get("email")
+        hiring_status = request.data.get("status")
+
+        if not candidate_email or not hiring_status:
+            return Response({"error": "email and status are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            user = User.objects.get(email=candidate_email)
+            submission = UserEvaluationSubmission.objects.get(evaluation=evaluation, user=user)
+            submission.hiring_status = hiring_status
+            submission.save(update_fields=['hiring_status'])
+            return Response({"status": "success"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
     def records(self, request, pk=None):
         evaluation = self.get_object()
         
@@ -479,12 +566,13 @@ class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-from .models import CandidateNote, CandidateTimelineEvent
+from .models import CandidateNote
 from .serializers import CandidateNoteSerializer, CandidateTimelineEventSerializer
 
 class CandidateNoteViewSet(viewsets.ModelViewSet):
     serializer_class = CandidateNoteSerializer
-    permission_classes = [IsAuthenticated]
+    from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = CandidateNote.objects.all()
@@ -499,11 +587,16 @@ class CandidateNoteViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user
+        if not user.is_authenticated:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.first()
+        serializer.save(author=user, created_by=user)
 
 class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
     serializer_class = CandidateTimelineEventSerializer
-    permission_classes = [IsAuthenticated]
+    from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = CandidateTimelineEvent.objects.all()
@@ -516,4 +609,19 @@ class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(candidate_email=candidate_email)
             
         return queryset
+
+    def perform_create(self, serializer):
+        email = self.request.data.get('candidate_email')
+        if not email and self.request.user and self.request.user.is_authenticated:
+            email = self.request.user.email
+        
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.first()
+
+        if email:
+            serializer.save(candidate_email=email, created_by=user)
+        else:
+            serializer.save(created_by=user)
 

@@ -957,13 +957,13 @@ export function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
-    if (!isReal || isLoading || !userId) return;
+    if (!isReal || isLoading || !userId || slug === "knowledge") return;
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
       try {
-        const labEndpoint = isEvaluationMode && evaluationId 
-          ? `/lab/evaluations/${evaluationId}/` 
+        const labEndpoint = isEvaluationMode
+          ? `/skill_evaluation/lab-questions/${labId}/` 
           : `/lab/labs/${labId}/`;
         const { default: api } = await import("@/utils/RestApiAuthUtil");
         const realLab = await api.get<any>(labEndpoint);
@@ -973,15 +973,6 @@ export function TicketIDE({
       }
       setLabTitle(currentTitle);
       const isSqliteLab = currentTitle === "SQLite Lab";
-
-      // For evaluation labs, ensure workspace is provisioned before fetching the file tree
-      if (isEvaluationMode && evaluationId && labId) {
-        try {
-          await evaluationService.startLab(evaluationId, labId);
-        } catch (e) {
-          // May already be provisioned — continue
-        }
-      }
 
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
@@ -1036,7 +1027,7 @@ export function TicketIDE({
     if (isLoading) return;
     loadWorkspaceFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticket.id, isReal, userId, isLoading, loadWorkspaceFiles]);
+  }, [ticket.id, isReal, userId, isLoading, evaluationId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
   const loadedFiles = useRef<Set<string>>(new Set());
@@ -1126,8 +1117,8 @@ export function TicketIDE({
     const isDummy = !isReal;
 
     const RECENT_LAB_KEY = "ylabs-recent-lab";
-    const labEndpoint = isEvaluationMode && evaluationId 
-          ? `/lab/evaluations/${evaluationId}/` 
+    const labEndpoint = isEvaluationMode
+          ? `/skill_evaluation/lab-questions/${labId}/` 
           : `/lab/labs/${labId}/`;
     import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
       api.get<any>(labEndpoint)
@@ -1839,10 +1830,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1864,10 +1855,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
@@ -1915,10 +1906,10 @@ export function TicketIDE({
               solution: JSON.stringify(files),
             }).catch(console.error);
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticketId }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }

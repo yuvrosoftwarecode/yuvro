@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "@/services/evaluationService";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -59,8 +59,8 @@ const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const evaluationId = previewData ? '' : (searchParams.get('e') || '');
+  const search: any = useRouterState({ select: (s) => s.location.search });
+  const evaluationId = previewData ? '' : (search.e || '');
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -334,8 +334,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   // Listen for lab submission from iframe
   useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
+    const onMessage = async (e: MessageEvent) => {
       if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
+        try {
+          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done" });
+        } catch (err) {
+          console.error(err);
+        }
         setSubmittedLabs(prev => new Set(prev).add(e.data.labId));
         setOpenLab(null);
         setModal(null);
@@ -343,7 +348,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }, [evaluationId]);
 
   // Autosave feel
   const touchAutosave = () => {
@@ -398,7 +403,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     });
     touchAutosave();
   };
-  const confirmSubmitLab = (labId: LabId) => {
+  const confirmSubmitLab = async (labId: LabId) => {
+    try {
+      if (evaluationId) await evaluationService.submitLab?.(evaluationId, labId, { status: "done" });
+    } catch (e) {
+      console.error(e);
+    }
     setSubmittedLabs(prev => new Set(prev).add(labId));
     setOpenLab(null);
     setModal(null);
