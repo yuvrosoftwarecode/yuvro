@@ -90,7 +90,7 @@ function OtpPage() {
 
         await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token);
 
-        router.navigate({ to: "/evaluation/proctoring", search: { e: evaluationId } });
+        window.location.href = `/evaluation/proctoring?e=${evaluationId}`;
       } else {
         setErr("Verification failed: No access token received.");
       }

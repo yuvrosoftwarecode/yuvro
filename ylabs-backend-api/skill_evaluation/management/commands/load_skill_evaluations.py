@@ -128,6 +128,9 @@ class Command(BaseCommand):
                         "marks": task_data.get("marks", 5),
                         "duration_minutes": task_data.get("duration_minutes", 30),
                         "order_index": task_data.get("order_index", 0),
+                        "scoring_rules": task_data.get("scoring_rules", {}),
+                        "expected_output": task_data.get("expected_output", {}),
+                        "solution": task_data.get("solution", {}),
                         "created_by": admin_user,
                     }
                 )

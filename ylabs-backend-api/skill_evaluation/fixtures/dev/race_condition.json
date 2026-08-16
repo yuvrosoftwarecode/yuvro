@@ -1,0 +1,50 @@
+{
+  "lab_questions": [
+    {
+      "title": "E-Commerce Inventory Race Condition",
+      "description": "Fix a classic database concurrency bug known as a Race Condition (TOCTOU vulnerability) in a Django application to prevent overselling inventory during simultaneous checkouts.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_race_condition",
+      "startup_command": "pip install django && python manage.py migrate && python manage.py runserver",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO"
+      ],
+      "frontend_frameworks": [
+        "HTML",
+        "JS"
+      ],
+      "tasks": [
+        {
+          "title": "Fix the TOCTOU Vulnerability in Checkout",
+          "description": "Modify the `buy_vulnerable` view in `store/views.py` to fix the race condition. Instead of checking the stock in Python memory and then updating, use an atomic database update query using Django's `F` expression and a `filter(stock__gt=0)` to ensure concurrent requests cannot drop the stock below zero.",
+          "difficulty": "MEDIUM",
+          "marks": 100,
+          "duration_minutes": 60,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "store/views.py": "def buy_vulnerable(request, product_id):\n    updated_count = Product.objects.filter(\n        id=product_id, \n        stock__gt=0\n    ).update(\n        stock=F('stock') - 1\n    )\n    if updated_count > 0:\n        return JsonResponse({\"status\": \"success\", \"message\": \"Purchase successful!\"})\n    else:\n        return JsonResponse({\"status\": \"error\", \"message\": \"Out of stock!\"}, status=400)"
+          }
+        }
+      ]
+    }
+  ]
+}
