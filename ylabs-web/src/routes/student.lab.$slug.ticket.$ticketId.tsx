@@ -994,9 +994,20 @@ export function TicketIDE({
           await new Promise(r => setTimeout(r, 500));
         }
 
+        const { getFile } = await import("@/services/workspaceService");
+        await Promise.all(Object.keys(paths).map(async (p) => {
+          if (p.endsWith(".db") || p.endsWith(".sqlite") || p.endsWith(".png") || p.endsWith(".jpg") || p.endsWith(".jpeg")) return;
+          try {
+            const fRes = await getFile(userId, labId, sprintId, p, isEvaluationMode ? evaluationId : undefined);
+            paths[p] = fRes.content;
+            loadedFiles.current.add(p);
+          } catch (err) {
+            console.error(`Failed to load ${p}`, err);
+          }
+        }));
+
         if (Object.keys(paths).length > 0) {
           setFiles(prev => {
-            // preserve contents of already loaded files if possible
             const next = { ...paths };
             for (const p of Object.keys(next)) {
               if (prev[p]) next[p] = prev[p];
@@ -1437,8 +1448,9 @@ export function TicketIDE({
 
   async function handleRun() {
     if (isReal) {
+      const filesToSave = getFilesToSave();
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(console.error);
     }
     setRunning(true);
@@ -1518,9 +1530,26 @@ export function TicketIDE({
         sysQ = sRules?.system_query;
         expR = sRules?.expected_result;
       }
+      
+      if (!expQ || expQ.trim() === "") {
+        expQ = sysQ;
+      }
 
       setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
-      runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOut, sRules, sysQ, expR, evaluationId)
+      
+      const executeSql = async () => {
+        try {
+          const { runCommand, runDatabaseQuery } = await import("@/services/workspaceService");
+          if (ticket.startup_command) {
+            await runCommand(userId, labId, sprintId, ticket.startup_command, evaluationId);
+          }
+          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOut, sRules, sysQ, expR, evaluationId);
+        } catch (err: any) {
+          throw err;
+        }
+      };
+
+      executeSql()
         .then((res) => {
           let outText = `-- Executed Query\n\n`;
           if (res.stdout) outText += `${res.stdout}\n`;
@@ -1604,7 +1633,7 @@ export function TicketIDE({
              const isPass = uiScore >= 75 && structScore >= 75;
              api.patch(`${submissionsEndpoint}${ submissionId }/`, {
                [submissionsStatusField]: isPass ? "in_review" : "in_progress",
-               solution: JSON.stringify(files),
+               solution: JSON.stringify(getFilesToSave()),
              }).catch(console.error);
           }
         }).catch((err: any) => {
@@ -1675,7 +1704,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
             [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
+            solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
       } else if (isReal && !submissionId) {
@@ -1684,7 +1713,7 @@ export function TicketIDE({
             [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
             [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
-            solution: JSON.stringify(files),
+            solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
       }
@@ -1808,8 +1837,9 @@ export function TicketIDE({
 
   async function handleSubmit() {
     if (isReal) {
+      const filesToSave = getFilesToSave();
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(console.error);
     }
 
@@ -1820,14 +1850,14 @@ export function TicketIDE({
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -1845,14 +1875,14 @@ export function TicketIDE({
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -1896,14 +1926,14 @@ export function TicketIDE({
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -1948,14 +1978,14 @@ export function TicketIDE({
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(files),
+              solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           }
         });
@@ -1997,22 +2027,31 @@ export function TicketIDE({
     }
   }
 
+  function getFilesToSave() {
+    return Object.fromEntries(
+      Object.entries(files).filter(([p, content]) => {
+        if (p.endsWith(".db") || p.endsWith(".sqlite")) return false;
+        return content !== "" || loadedFiles.current.has(p);
+      })
+    );
+  }
 
   function handleSave() {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
     const now = new Date();
     setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
     if (isReal) {
-      // Persist ALL files (not just dirty) to the workspace so disk is always in sync
+      const filesToSave = getFilesToSave();
+      // Persist loaded files to the workspace so disk is always in sync
       Promise.all(
-        Object.keys(files).map(p => wsWriteFile(userId, labId, sprintId, p, files[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
 
       // Also save to database so the IDE loads it perfectly on refresh
       if (submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-            solution: JSON.stringify(files),
+            solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
       } else {
@@ -2021,7 +2060,7 @@ export function TicketIDE({
             [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
             [submissionsStatusField]: "in_progress",
-            solution: JSON.stringify(files),
+            solution: JSON.stringify(getFilesToSave()),
           }).then((res: any) => {
              setSubmissionId(res.data.id);
           }).catch(console.error);
@@ -2097,8 +2136,13 @@ export function TicketIDE({
     );
   }
 
-  const previewPort = ticket.startup_command
-    ? parseInt(ticket.startup_command.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
+  let computedStartupCommand = ticket.startup_command;
+  if (computedStartupCommand && computedStartupCommand.includes("runserver") && !computedStartupCommand.includes("0.0.0.0")) {
+    computedStartupCommand = computedStartupCommand + " 0.0.0.0:8010";
+  }
+
+  const previewPort = computedStartupCommand
+    ? parseInt(computedStartupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
     : 8000;
 
   return (
@@ -2710,7 +2754,7 @@ export function TicketIDE({
                       ) : isExternalDb ? (
                         <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
                       ) : isUi ? <UiPreview files={files} /> :
-                                (ticket.startup_command) ? <WebPreview port={previewPort} /> :
+                                (computedStartupCommand) ? <WebPreview port={previewPort} /> :
                                 isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                                   <PreviewView />
                   )}
@@ -2720,7 +2764,7 @@ export function TicketIDE({
                         isVisible={bottomTab === "terminal"}
                         wsUrl={isReal && !isLoading && userId ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
                         onCommandRun={() => loadWorkspaceFiles(true)}
-                        startupCommand={ticket.startup_command}
+                        startupCommand={computedStartupCommand}
                         onStartupCommandRun={() => {
                           setTimeout(() => setBottomTab("preview"), 2000);
                         }}
@@ -2784,7 +2828,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-auto scrollbar-thin p-3 text-xs min-w-0">
                   {sidePanel === "preview"
-                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={ticket.startup_command} />
+                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} />
                     : <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />}
                 </div>
               </aside>
