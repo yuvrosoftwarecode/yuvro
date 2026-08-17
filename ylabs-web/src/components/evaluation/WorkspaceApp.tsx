@@ -36,7 +36,7 @@ interface RealLab {
   tag: string;
   minutes: number;
   problem: string;
-  tasks: { id: string; title: string; description: string }[];
+  tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
   file: string;
   code: string;
   terminal: string[];
@@ -110,7 +110,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
                       title: t.title || "Task",
-                      description: t.description || ""
+                      description: t.description || "",
+                      scoring_rules: t.scoring_rules,
+                      solution: t.solution,
+                      expected_output: t.expected_output
                     }))
                   : typeof q.tasks === 'number'
                   ? Array.from({ length: q.tasks }).map((_, i) => ({
@@ -528,7 +531,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
-                  tasks: lab.tasks.map(t => ({ id: t.id, title: t.title, description: t.description })),
+                  tasks: lab.tasks.map(t => ({ 
+                    id: t.id, 
+                    title: t.title, 
+                    description: t.description,
+                    scoring_rules: t.scoring_rules,
+                    solution: t.solution,
+                    expected_output: t.expected_output
+                  })),
                   difficulty: "Intermediate",
                   xp: 100,
                   estMin: lab.minutes,
