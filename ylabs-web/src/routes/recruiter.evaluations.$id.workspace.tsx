@@ -65,6 +65,7 @@ import {
   computeAttentionGroups,
   loadViewed,
   loadNotedSet,
+  pushActivity,
   type AttentionGroup,
 } from "@/lib/recruiterCandidateDetail";
 import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
@@ -773,7 +774,13 @@ function CandidatesTab({
       to: "/recruiter/evaluations/$id/candidates/$candidateId",
       params: { id: evId, candidateId: c.id },
     });
-  const bulk = (label: string) => {
+  const bulk = async (label: string) => {
+    for (const c of selected) {
+      const candidateObj = candidates.find(cand => cand.id === c);
+      if (candidateObj?.email) {
+        await pushActivity(evId, candidateObj.email, label, `Bulk applied ${label}`);
+      }
+    }
     notify(`${label} applied to ${selected.size} candidate${selected.size === 1 ? "" : "s"}`);
     setSelected(new Set());
   };

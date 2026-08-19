@@ -266,6 +266,15 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
       const realProctoringEvents = Array.isArray(sub.proctoring_events) ? sub.proctoring_events : [];
       const realGeneralEvents = Array.isArray(sub.general_events) ? sub.general_events : [];
       const allRealEvents = [...realProctoringEvents, ...realGeneralEvents];
+
+      if (Array.isArray(sub.question_activities)) {
+        sub.question_activities.forEach((q: any, index: number) => {
+          const qNo = `Q${index + 1}`;
+          if (Array.isArray(q.navigation_activities)) allRealEvents.push(...q.navigation_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+          if (Array.isArray(q.proctoring_activities)) allRealEvents.push(...q.proctoring_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+          if (Array.isArray(q.camera_snapshots)) allRealEvents.push(...q.camera_snapshots.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+        });
+      }
       
       const violationTypes = [
           'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 

@@ -231,3 +231,17 @@ class CandidateTimelineEventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('created_by', 'updated_by')
 
+from .models import RecruiterActivityLog
+
+class RecruiterActivityLogSerializer(serializers.ModelSerializer):
+    recruiter_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RecruiterActivityLog
+        fields = '__all__'
+        read_only_fields = ('recruiter', 'created_by', 'updated_by')
+
+    def get_recruiter_name(self, obj):
+        if obj.recruiter:
+            return f"{obj.recruiter.first_name} {obj.recruiter.last_name}".strip() or obj.recruiter.email
+        return None
