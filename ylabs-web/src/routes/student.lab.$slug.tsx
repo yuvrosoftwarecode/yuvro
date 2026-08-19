@@ -278,7 +278,21 @@ function LabDashboard() {
     return isSprintLocked(slug, idx, lab.name);
   };
 
-  const handleStartLabPrompt = () => {
+  const handleStartLabPrompt = async () => {
+    if (realLab?.type === "DATABASE") {
+      setEnrollLoading(true);
+      try {
+        const { default: api } = await import("@/utils/RestApiAuthUtil");
+        await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: "" });
+        setIsEnrolled(true);
+      } catch (e) {
+        console.error("Failed to enroll in lab", e);
+        alert("Failed to start lab. Please try again.");
+      } finally {
+        setEnrollLoading(false);
+      }
+      return;
+    }
     setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, '_') || 'lab'}`);
     setEnrollModalOpen(true);
   };

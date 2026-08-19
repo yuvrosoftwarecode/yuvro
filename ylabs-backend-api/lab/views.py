@@ -120,6 +120,15 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         
         
         lab = serializer.validated_data.get('lab')
+        if lab.type == 'DATABASE':
+            enrollment = serializer.save(
+                user=self.request.user,
+                github_repo_name='',
+                github_repo_url='',
+                default_branch='main'
+            )
+            return
+
         requested_repo_name = self.request.data.get('github_repo_name')
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"
