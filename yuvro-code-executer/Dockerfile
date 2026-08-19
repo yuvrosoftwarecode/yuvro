@@ -34,7 +34,8 @@ RUN curl -sS https://downloads.mongodb.com/compass/mongosh-2.2.12-linux-x64.tgz 
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --default-timeout=1000 --no-cache-dir -r requirements.txt
+RUN playwright install --with-deps chromium
 
 # Cache-bust: forces COPY . . to always run with latest code
 ARG CACHEBUST=1
