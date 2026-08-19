@@ -148,7 +148,9 @@ class DatabaseRunRequest(BaseModel):
     user_id: str
     lab_id: str
     sprint_id: str
-    query: str
+    query: Optional[str] = None
+    task_file: Optional[str] = None
+    task_id: Optional[str] = None
     database_engine: str = "sqlite"
     db_file: str = "lab.db"
     expected_query: Optional[str] = None
@@ -2047,6 +2049,81 @@ async def database_run_endpoint(body: DatabaseRunRequest):
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
+
+class DatabaseSubmitTask(BaseModel):
+    task_id: str
+    task_file: str
+    expected_query: Optional[str] = None
+    expected_output: Optional[str] = None
+    scoring_rules: Optional[Dict[str, Any]] = None
+    system_query: Optional[str] = None
+    expected_result: Optional[str] = None
+
+class DatabaseSubmitRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: str
+    database_engine: str = "sqlite"
+    db_file: str = "lab.db"
+    evaluation_id: Optional[str] = None
+    tasks: List[DatabaseSubmitTask]
+
+@workspace_router.post("/database_submit")
+async def database_submit_endpoint(body: DatabaseSubmitRequest):
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, getattr(body, "evaluation_id", None))
+    ws.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        results = []
+        total_earned = 0.0
+        
+        for task in body.tasks:
+            task_body = DatabaseRunRequest(
+                user_id=body.user_id,
+                lab_id=body.lab_id,
+                sprint_id=body.sprint_id,
+                database_engine=body.database_engine,
+                db_file=body.db_file,
+                evaluation_id=body.evaluation_id,
+                task_file=task.task_file,
+                task_id=task.task_id,
+                expected_query=task.expected_query,
+                expected_output=task.expected_output,
+                scoring_rules=task.scoring_rules,
+                system_query=task.system_query,
+                expected_result=task.expected_result
+            )
+            result = await evaluator.execute(task_body, ws)
+            
+            eval_data = result.get("evaluation", {})
+            score = eval_data.get("final_score_pct", 0.0)
+            
+            task_result = {
+                "task_id": task.task_id,
+                "task_file": task.task_file,
+                "score": score,
+                "passed": score >= 1.0,
+                "query_matches": eval_data.get("query_matches", False),
+                "system_matches": eval_data.get("system_matches", False),
+                "output_matches": eval_data.get("output_matches", False),
+                "stdout": result.get("stdout", ""),
+                "stderr": result.get("stderr", "")
+            }
+            results.append(task_result)
+            total_earned += score
+            
+        max_score = float(len(body.tasks))
+        final_percentage = (total_earned / max_score * 100) if max_score > 0 else 0
+        
+        return {
+            "lab_score": total_earned,
+            "max_score": max_score,
+            "percentage": final_percentage,
+            "tasks": results
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 class DatabaseEvaluateRequest(BaseModel):
     database_engine: str = "sqlite"

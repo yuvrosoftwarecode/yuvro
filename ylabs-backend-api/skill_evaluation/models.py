@@ -208,7 +208,7 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
         unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
-        return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
+        return f"{self.user} -> {self.lab_question.title} ({self.evaluation.title})"
 
 
 class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):

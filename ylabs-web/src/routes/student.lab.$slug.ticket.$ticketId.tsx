@@ -1514,7 +1514,18 @@ export function TicketIDE({
       const targetDbFile = dbFile || "__none__";
 
       const tTasks = ticket.tasks || [];
-      const task = tTasks.length > 0 ? tTasks[0] : null;
+      let task = null;
+      if (activeFile.startsWith("task")) {
+         const numMatch = activeFile.match(/task(\d+)\.sql/);
+         if (numMatch) {
+            const idx = parseInt(numMatch[1], 10) - 1;
+            if (tTasks[idx]) task = tTasks[idx];
+         }
+      }
+      if (!task && tTasks.length > 0) {
+          task = tTasks[0];
+      }
+
       let sRules: any = undefined;
       let sysQ: any = undefined;
       let expR: any = undefined;
@@ -1543,7 +1554,8 @@ export function TicketIDE({
           if (ticket.startup_command) {
             await runCommand(userId, labId, sprintId, ticket.startup_command, evaluationId);
           }
-          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOutStr, sRules, sysQ, expR, evaluationId);
+          const activeTaskId = task?.id || undefined;
+          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOutStr, sRules, sysQ, expR, evaluationId, activeFile, activeTaskId);
         } catch (err: any) {
           throw err;
         }
