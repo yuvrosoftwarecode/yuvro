@@ -73,13 +73,6 @@
                         "is_primary": false
                     },
                     {
-                        "title": "Optimized - Stack Matching - Python",
-                        "language": "python",
-                        "code": "import sys\ns = sys.stdin.read().strip()\nstack = []\nmap_brackets = {')':'(', '}':'{', ']':'['}\nfor ch in s:\n    if ch in '({[':\n        stack.append(ch)\n    else:\n        if not stack or stack[-1] != map_brackets[ch]:\n            print('false')\n            sys.exit()\n        stack.pop()\nprint('true' if not stack else 'false')",
-                        "complexity_analysis": "Time: O(N). Each character is processed once. Space: O(N) for the stack.",
-                        "is_primary": true
-                    },
-                    {
                         "title": "Stack implementation - Java",
                         "language": "java",
                         "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine().trim();\n        Stack<Character> stack = new Stack<>();\n        for(char c : s.toCharArray()){\n            if(c=='(' || c=='{' || c=='[') stack.push(c);\n            else{\n                if(stack.isEmpty()){\n                    System.out.println(\"false\");\n                    return;\n                }\n                char top = stack.pop();\n                if((c==')' && top!='(') ||\n                   (c=='}' && top!='{') ||\n                   (c==']' && top!='[')){\n                    System.out.println(\"false\");\n                    return;\n                }\n            }\n        }\n        System.out.println(stack.isEmpty() ? \"true\" : \"false\");\n    }\n}",
@@ -97,135 +90,6 @@
                         "title": "Stack implementation - C",
                         "language": "c",
                         "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nbool isValid(char * s) {\n    int n = strlen(s);\n    char stack[n + 1];\n    int top = -1;\n    for(int i=0; i<n; i++) {\n        if(s[i]=='('||s[i]=='{'||s[i]=='[') stack[++top] = s[i];\n        else {\n            if(top==-1) return false;\n            char c = stack[top--];\n            if(s[i]==')'&&c!='(') return false;\n            if(s[i]=='}'&&c!='{') return false;\n            if(s[i]==']'&&c!='[') return false;\n        }\n    }\n    return top == -1;\n}\nint main() { char s[10005]; if(scanf(\"%s\", s) == 1) printf(\"%s\\n\", isValid(s)?\"true\":\"false\"); return 0; }\n",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
-                        "is_primary": false
-                    }
-                ]
-            }
-        },
-        {
-            "title": "Ticket 2 — Calculate Final Score in an Arcade Game",
-            "ticket_slug": "ticket-baseball-game-score-calcu",
-            "description": "A retro arcade game uses a strange scoring system where special symbols indicate operations on previous scores rather than just adding points. You must calculate the final score at the end of the game.\n",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 2,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-baseball-game-score-calculation-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[\"5\",\"2\",\"C\",\"D\",\"+\"]",
-                    "expected_output": "30",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-baseball-game-score-calculation-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]",
-                    "expected_output": "27",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[\"1\",\"2\",\"+\",\"D\"]",
-                    "expected_output": "12",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[\"10\",\"D\",\"D\",\"+\"]",
-                    "expected_output": "100",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[\"3\",\"C\",\"5\",\"D\"]",
-                    "expected_output": "15",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[\"7\",\"8\",\"+\",\"C\",\"D\"]",
-                    "expected_output": "30",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[\"1\",\"2\",\"3\",\"+\",\"+\",\"D\"]",
-                    "expected_output": "33",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[\"5\",\"C\",\"6\",\"C\",\"7\",\"D\"]",
-                    "expected_output": "21",
-                    "order_index": 8
-                },
-                {
-                    "title": "Test Case 9 (Hidden/Advanced)",
-                    "task_slug": "task-baseball-game-score-calculation-9",
-                    "description": "Validate your code against test case 9.",
-                    "points": 10,
-                    "input": "[\"4\",\"-2\",\"D\",\"+\",\"C\",\"9\",\"+\"]",
-                    "expected_output": "15",
-                    "order_index": 9
-                }
-            ],
-            "hints": [
-                "Think about which element was added most recently and how it affects the current step.",
-                "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
-                "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ],
-            "solution": {
-                "solutions": [
-                    {
-                        "title": "Stack Simulation - Python",
-                        "language": "python",
-                        "code": "import sys\nops = eval(sys.stdin.read().strip())\nstack = []\nfor op in ops:\n    if op == 'C':\n        stack.pop()\n    elif op == 'D':\n        stack.append(2 * stack[-1])\n    elif op == '+':\n        stack.append(stack[-1] + stack[-2])\n    else:\n        stack.append(int(op))\nprint(sum(stack))",
-                        "complexity_analysis": "Time: O(N) since each operation is processed once. Space: O(N) for storing scores in the stack.",
-                        "is_primary": true
-                    },
-                    {
-                        "title": "Stack Simulation - Java",
-                        "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length()-1);\n        String[] ops = line.split(\",\");\n        Stack<Integer> stack = new Stack<>();\n        for(String op : ops){\n            op = op.trim().replace(\"\\\"\", \"\");\n            if(op.equals(\"C\")) stack.pop();\n            else if(op.equals(\"D\")) stack.push(stack.peek()*2);\n            else if(op.equals(\"+\")) stack.push(stack.get(stack.size()-1) + stack.get(stack.size()-2));\n            else stack.push(Integer.parseInt(op));\n        }\n        int sum = 0;\n        for(int x : stack) sum += x;\n        System.out.println(sum);\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
-                        "is_primary": false
-                    },
-                    {
-                        "title": "Stack Simulation",
-                        "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n    char input[10000];\n    fgets(input, sizeof(input), stdin);\n\n    int stack[1000];\n    int top = -1;\n\n    char *token = strtok(input, \"[, ]\\\"\\n\");\n\n    while (token != NULL) {\n        if (strcmp(token, \"C\") == 0) {\n            top--;\n        } else if (strcmp(token, \"D\") == 0) {\n            stack[++top] = stack[top] * 2;\n        } else if (strcmp(token, \"+\") == 0) {\n            stack[++top] = stack[top] + stack[top-1];\n        } else {\n            stack[++top] = atoi(token);\n        }\n        token = strtok(NULL, \"[, ]\\\"\\n\");\n    }\n\n    int sum = 0;\n    for (int i = 0; i <= top; i++) sum += stack[i];\n\n    printf(\"%d\", sum);\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
-                        "is_primary": false
-                    },
-                    {
-                        "title": "Stack implementation - CPP",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string ops_json; getline(cin, ops_json);\n    vector<int> st;\n    string token;\n    for(char c: ops_json) {\n        if(c=='[' || c==']' || c=='\"' || c==' ' || c==','){\n            if(token!=\"\"){\n                if(token==\"C\") st.pop_back();\n                else if(token==\"D\") st.push_back(st.back()*2);\n                else if(token==\"+\") st.push_back(st.back() + st[st.size()-2]);\n                else st.push_back(stoi(token));\n                token=\"\";\n            }\n        } else token+=c;\n    }\n    long long sum = 0; for(int x: st) sum+=x; cout << sum;\n    return 0; }",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false
                     }
@@ -318,7 +182,7 @@
                     "task_slug": "task-backspace-string-comparision-9",
                     "description": "Validate your code against test case 9.",
                     "points": 10,
-                    "input": "abcd#\nabce#",
+                    "input": "abcd#\nabcf#",
                     "expected_output": "false",
                     "order_index": 9
                 }
@@ -333,29 +197,29 @@
                     {
                         "title": "Stack Simulation - Python",
                         "language": "python",
-                        "code": "import sys\ns, t = sys.stdin.read().splitlines()\n\ndef process(st):\n    stack = []\n    for ch in st:\n        if ch == '#':\n            if stack:\n                stack.pop()\n        else:\n            stack.append(ch)\n    return ''.join(stack)\n\nprint(str(process(s) == process(t)).lower())",
-                        "complexity_analysis": "Time: O(N + M) where N and M are lengths of the two strings. Space: O(N + M) for stacks.",
+                        "code": "import sys\n\ndata = sys.stdin.read().split()\n\ns = data[0] if len(data) > 0 else \"\"\nt = data[1] if len(data) > 1 else \"\"\n\ndef process(text):\n    stack = []\n\n    for ch in text:\n        if ch == '#':\n            if stack:\n                stack.pop()\n        else:\n            stack.append(ch)\n\n    return ''.join(stack)\n\nprint(\"true\" if process(s) == process(t) else \"false\")",
+                        "complexity_analysis": "Time: O(N + M), where N and M are the lengths of the two input strings. Space: O(N + M) for storing the processed characters.",
                         "is_primary": true
                     },
                     {
                         "title": "Stack Simulation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static String process(String s) {\n        Stack<Character> stack = new Stack<>();\n        for(char c : s.toCharArray()){\n            if(c == '#'){\n                if(!stack.isEmpty()) stack.pop();\n            } else {\n                stack.push(c);\n            }\n        }\n        StringBuilder sb = new StringBuilder();\n        for(char c : stack) sb.append(c);\n        return sb.toString();\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        String t = sc.nextLine();\n        System.out.println(process(s).equals(process(t)) ? \"true\" : \"false\");\n    }\n}",
-                        "complexity_analysis": "Time: O(N + M). Space: O(N + M).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    static String process(String text) {\n        StringBuilder stack = new StringBuilder();\n\n        for (char ch : text.toCharArray()) {\n            if (ch == '#') {\n                if (stack.length() > 0) {\n                    stack.deleteCharAt(stack.length() - 1);\n                }\n            } else {\n                stack.append(ch);\n            }\n        }\n\n        return stack.toString();\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        StringBuilder input = new StringBuilder();\n        while (sc.hasNext()) {\n            if (input.length() > 0) {\n                input.append(' ');\n            }\n            input.append(sc.next());\n        }\n\n        String[] parts = input.toString().split(\"\\\\s+\", 2);\n\n        String s = parts.length > 0 ? parts[0] : \"\";\n        String t = parts.length > 1 ? parts[1] : \"\";\n\n        System.out.println(process(s).equals(process(t)) ? \"true\" : \"false\");\n    }\n}",
+                        "complexity_analysis": "Time: O(N + M), where N and M are the lengths of the two input strings. Space: O(N + M) for storing the processed characters.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Simulation",
+                        "title": "Stack Simulation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n\nvoid process(char *s, char *res) {\n    int top = -1;\n    for (int i = 0; s[i]; i++) {\n        if (s[i] == '#') {\n            if (top >= 0) top--;\n        } else {\n            res[++top] = s[i];\n        }\n    }\n    res[top+1] = '\\0';\n}\n\nint main() {\n    char s[300], t[300];\n    char r1[300], r2[300];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(t, sizeof(t), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    t[strcspn(t, \"\\n\")] = 0;\n\n    process(s, r1);\n    process(t, r2);\n\n    if(strcmp(r1, r2) == 0)\n        printf(\"true\");\n    else\n        printf(\"false\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N + M). Space: O(N + M).",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nvoid process(const char *input, char *result) {\n    int top = -1;\n\n    for (int i = 0; input[i] != '\\0'; i++) {\n        if (input[i] == '#') {\n            if (top >= 0) {\n                top--;\n            }\n        } else {\n            result[++top] = input[i];\n        }\n    }\n\n    result[top + 1] = '\\0';\n}\n\nint main() {\n    char s[1000];\n    char t[1000];\n    char result1[1000];\n    char result2[1000];\n\n    if (fgets(s, sizeof(s), stdin) == NULL) {\n        s[0] = '\\0';\n    }\n\n    if (fgets(t, sizeof(t), stdin) == NULL) {\n        t[0] = '\\0';\n    }\n\n    s[strcspn(s, \"\\r\\n\")] = '\\0';\n    t[strcspn(t, \"\\r\\n\")] = '\\0';\n\n    process(s, result1);\n    process(t, result2);\n\n    if (strcmp(result1, result2) == 0) {\n        printf(\"true\");\n    } else {\n        printf(\"false\");\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N + M), where N and M are the lengths of the two input strings. Space: O(N + M) for storing the processed strings.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Simulation - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s, t; getline(cin, s); getline(cin, t);\n    auto process = [](string str) {\n        string res; for(char c: str) { if(c=='#'){ if(!res.empty()) res.pop_back(); } else res+=c; } return res;\n    };\n    cout << (process(s)==process(t) ? \"true\" : \"false\"); return 0; }",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring process(const string& text) {\n    string result;\n\n    for (char ch : text) {\n        if (ch == '#') {\n            if (!result.empty()) {\n                result.pop_back();\n            }\n        } else {\n            result.push_back(ch);\n        }\n    }\n\n    return result;\n}\n\nint main() {\n    string s, t;\n\n    getline(cin, s);\n    getline(cin, t);\n\n    cout << (process(s) == process(t) ? \"true\" : \"false\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N + M), where N and M are the lengths of the two input strings. Space: O(N + M) for storing the processed strings.",
                         "is_primary": false
                     }
                 ]
@@ -591,29 +455,29 @@
                     {
                         "title": "Stack Simulation - Python",
                         "language": "python",
-                        "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\npushed = eval(input_data[0])\npopped = eval(input_data[1])\n\nstack = []\nj = 0\n\nfor x in pushed:\n    stack.append(x)\n    while stack and j < len(popped) and stack[-1] == popped[j]:\n        stack.pop()\n        j += 1\n\nprint(str(len(stack) == 0).lower())",
-                        "complexity_analysis": "Time: O(N) since each element is pushed and popped at most once. Space: O(N) for the stack.",
+                        "code": "import sys\nimport ast\n\nlines = sys.stdin.read().splitlines()\n\npushed = ast.literal_eval(lines[0].strip())\npopped = ast.literal_eval(lines[1].strip())\n\nstack = []\nj = 0\n\nfor value in pushed:\n    stack.append(value)\n\n    while stack and j < len(popped) and stack[-1] == popped[j]:\n        stack.pop()\n        j += 1\n\nprint(\"true\" if not stack and j == len(popped) else \"false\")",
+                        "complexity_analysis": "Time: O(N) since every element is pushed and popped at most once. Space: O(N) for the temporary stack.",
                         "is_primary": true
                     },
                     {
                         "title": "Stack Simulation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line1 = sc.nextLine().trim();\n        String line2 = sc.nextLine().trim();\n\n        line1 = line1.substring(1, line1.length()-1);\n        line2 = line2.substring(1, line2.length()-1);\n\n        String[] p1 = line1.split(\",\");\n        String[] p2 = line2.split(\",\");\n\n        int[] pushed = new int[p1.length];\n        int[] popped = new int[p2.length];\n\n        for(int i=0;i<p1.length;i++) pushed[i] = Integer.parseInt(p1[i].trim());\n        for(int i=0;i<p2.length;i++) popped[i] = Integer.parseInt(p2[i].trim());\n\n        Stack<Integer> stack = new Stack<>();\n        int j = 0;\n\n        for(int x : pushed){\n            stack.push(x);\n            while(!stack.isEmpty() && j < popped.length && stack.peek() == popped[j]){\n                stack.pop();\n                j++;\n            }\n        }\n\n        System.out.println(stack.isEmpty() ? \"true\" : \"false\");\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    static int[] parseArray(String line) {\n        line = line.trim();\n\n        if (line.length() <= 2) {\n            return new int[0];\n        }\n\n        line = line.substring(1, line.length() - 1).trim();\n\n        if (line.isEmpty()) {\n            return new int[0];\n        }\n\n        String[] parts = line.split(\",\");\n        int[] result = new int[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            result[i] = Integer.parseInt(parts[i].trim());\n        }\n\n        return result;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String line1 = sc.hasNextLine() ? sc.nextLine() : \"\";\n        String line2 = sc.hasNextLine() ? sc.nextLine() : \"\";\n\n        int[] pushed = parseArray(line1);\n        int[] popped = parseArray(line2);\n\n        Stack<Integer> stack = new Stack<>();\n        int j = 0;\n\n        for (int value : pushed) {\n            stack.push(value);\n\n            while (!stack.isEmpty()\n                    && j < popped.length\n                    && stack.peek() == popped[j]) {\n                stack.pop();\n                j++;\n            }\n        }\n\n        System.out.println(\n            stack.isEmpty() && j == popped.length\n                ? \"true\"\n                : \"false\"\n        );\n    }\n}",
+                        "complexity_analysis": "Time: O(N) since every element is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Simulation",
+                        "title": "Stack Simulation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line1[10000], line2[10000];\n    fgets(line1, sizeof(line1), stdin);\n    fgets(line2, sizeof(line2), stdin);\n\n    int pushed[1000], popped[1000];\n    int stack[1000];\n    int n=0,m=0;\n\n    char *token = strtok(line1, \"[, ]\\n\");\n    while(token){ pushed[n++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    token = strtok(line2, \"[, ]\\n\");\n    while(token){ popped[m++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    int top = -1, j = 0;\n\n    for(int i=0;i<n;i++){\n        stack[++top] = pushed[i];\n        while(top >= 0 && j < m && stack[top] == popped[j]){\n            top--;\n            j++;\n        }\n    }\n\n    if(top == -1) printf(\"true\");\n    else printf(\"false\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 10000\n\nint parse_array(char *line, int *array) {\n    int count = 0;\n\n    char *token = strtok(line, \"[, ]\\n\\r\");\n\n    while (token != NULL) {\n        array[count++] = atoi(token);\n        token = strtok(NULL, \"[, ]\\n\\r\");\n    }\n\n    return count;\n}\n\nint main() {\n    char line1[MAX_SIZE];\n    char line2[MAX_SIZE];\n\n    if (fgets(line1, sizeof(line1), stdin) == NULL) {\n        return 0;\n    }\n\n    if (fgets(line2, sizeof(line2), stdin) == NULL) {\n        return 0;\n    }\n\n    int pushed[MAX_SIZE];\n    int popped[MAX_SIZE];\n    int stack[MAX_SIZE];\n\n    int n = parse_array(line1, pushed);\n    int m = parse_array(line2, popped);\n\n    int top = -1;\n    int j = 0;\n\n    for (int i = 0; i < n; i++) {\n        stack[++top] = pushed[i];\n\n        while (top >= 0\n                && j < m\n                && stack[top] == popped[j]) {\n            top--;\n            j++;\n        }\n    }\n\n    if (top == -1 && j == m) {\n        printf(\"true\");\n    } else {\n        printf(\"false\");\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) since every element is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Simulation - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s1, s2; getline(cin, s1); getline(cin, s2);\n    auto parse = [](string s){ vector<int> v; string t; for(char c:s){if(isdigit(c))t+=c;else if(t!=\"\"){v.push_back(stoi(t));t=\"\";}} return v; };\n    vector<int> pushed = parse(s1), popped = parse(s2);\n    vector<int> st; int j=0;\n    for(int x: pushed) { st.push_back(x); while(!st.empty() && j<popped.size() && st.back()==popped[j]) { st.pop_back(); j++; } }\n    cout << (st.empty() ? \"true\" : \"false\"); return 0; }",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<int> parseArray(const string& line) {\n    vector<int> result;\n    string number;\n\n    for (char c : line) {\n        if (c == '-' || isdigit(static_cast<unsigned char>(c))) {\n            number += c;\n        } else if (!number.empty()) {\n            result.push_back(stoi(number));\n            number.clear();\n        }\n    }\n\n    if (!number.empty()) {\n        result.push_back(stoi(number));\n    }\n\n    return result;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string line1, line2;\n    getline(cin, line1);\n    getline(cin, line2);\n\n    vector<int> pushed = parseArray(line1);\n    vector<int> popped = parseArray(line2);\n\n    vector<int> stack;\n    int j = 0;\n\n    for (int value : pushed) {\n        stack.push_back(value);\n\n        while (!stack.empty()\n                && j < static_cast<int>(popped.size())\n                && stack.back() == popped[j]) {\n            stack.pop_back();\n            j++;\n        }\n    }\n\n    cout << (stack.empty() && j == static_cast<int>(popped.size())\n        ? \"true\"\n        : \"false\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) since every element is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     }
                 ]
@@ -720,29 +584,29 @@
                     {
                         "title": "Stack Simulation - Python",
                         "language": "python",
-                        "code": "import sys\n\nasteroids = eval(sys.stdin.read().strip())\nstack = []\n\nfor a in asteroids:\n    while stack and a < 0 and stack[-1] > 0:\n        if stack[-1] < -a:\n            stack.pop()\n            continue\n        elif stack[-1] == -a:\n            stack.pop()\n        break\n    else:\n        stack.append(a)\n\nprint(\"[\" + \",\".join(map(str, stack)) + \"]\")",
-                        "complexity_analysis": "Time: O(N). Each asteroid is pushed and popped at most once. Space: O(N) for the stack.",
+                        "code": "import sys\nimport ast\n\nasteroids = ast.literal_eval(sys.stdin.read().strip())\n\nstack = []\n\nfor asteroid in asteroids:\n    destroyed = False\n\n    while stack and asteroid < 0 and stack[-1] > 0:\n        if stack[-1] < -asteroid:\n            stack.pop()\n            continue\n        elif stack[-1] == -asteroid:\n            stack.pop()\n\n        destroyed = True\n        break\n\n    if not destroyed:\n        stack.append(asteroid)\n\nprint(\"[\" + \",\".join(map(str, stack)) + \"]\")",
+                        "complexity_analysis": "Time: O(N) because each asteroid is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": true
                     },
                     {
                         "title": "Stack Simulation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n\n        Stack<Integer> stack = new Stack<>();\n\n        for(String p : parts){\n\n            int a = Integer.parseInt(p.trim());\n            boolean destroyed = false;\n\n            while(!stack.isEmpty() && a < 0 && stack.peek() > 0){\n\n                if(stack.peek() < -a){\n                    stack.pop();\n                    continue;\n                }\n                else if(stack.peek() == -a){\n                    stack.pop();\n                }\n\n                destroyed = true;\n                break;\n            }\n\n            if(!destroyed)\n                stack.push(a);\n        }\n\n        System.out.print(\"[\");\n        for(int i=0;i<stack.size();i++){\n            System.out.print(stack.get(i));\n            if(i < stack.size()-1) System.out.print(\",\");\n        }\n        System.out.print(\"]\");\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    static int[] parseArray(String line) {\n        line = line.trim();\n\n        if (line.length() <= 2) {\n            return new int[0];\n        }\n\n        line = line.substring(1, line.length() - 1).trim();\n\n        if (line.isEmpty()) {\n            return new int[0];\n        }\n\n        String[] parts = line.split(\",\");\n        int[] result = new int[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            result[i] = Integer.parseInt(parts[i].trim());\n        }\n\n        return result;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String line = sc.hasNextLine() ? sc.nextLine() : \"\";\n        int[] asteroids = parseArray(line);\n\n        Stack<Integer> stack = new Stack<>();\n\n        for (int asteroid : asteroids) {\n            boolean destroyed = false;\n\n            while (!stack.isEmpty()\n                    && asteroid < 0\n                    && stack.peek() > 0) {\n\n                if (stack.peek() < -asteroid) {\n                    stack.pop();\n                    continue;\n                }\n\n                if (stack.peek() == -asteroid) {\n                    stack.pop();\n                }\n\n                destroyed = true;\n                break;\n            }\n\n            if (!destroyed) {\n                stack.push(asteroid);\n            }\n        }\n\n        System.out.print(\"[\");\n\n        for (int i = 0; i < stack.size(); i++) {\n            System.out.print(stack.get(i));\n\n            if (i < stack.size() - 1) {\n                System.out.print(\",\");\n            }\n        }\n\n        System.out.print(\"]\");\n    }\n}",
+                        "complexity_analysis": "Time: O(N) because each asteroid is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Simulation",
+                        "title": "Stack Simulation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line[10000];\n    fgets(line, sizeof(line), stdin);\n\n    int arr[10000], stack[10000];\n    int n=0;\n\n    char *token = strtok(line, \"[, ]\\n\");\n    while(token){ arr[n++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    int top = -1;\n\n    for(int i=0;i<n;i++){\n        int a = arr[i];\n        int destroyed = 0;\n\n        while(top >= 0 && a < 0 && stack[top] > 0){\n            if(stack[top] < -a){\n                top--;\n                continue;\n            }\n            else if(stack[top] == -a){\n                top--;\n            }\n            destroyed = 1;\n            break;\n        }\n\n        if(!destroyed) stack[++top] = a;\n    }\n\n    printf(\"[\");\n    for(int i=0;i<=top;i++){\n        printf(\"%d\", stack[i]);\n        if(i<top) printf(\",\");\n    }\n    printf(\"]\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 10000\n\nint parse_array(char *line, int *array) {\n    int count = 0;\n\n    char *token = strtok(line, \"[, ]\\n\\r\");\n\n    while (token != NULL) {\n        array[count++] = atoi(token);\n        token = strtok(NULL, \"[, ]\\n\\r\");\n    }\n\n    return count;\n}\n\nint main(void) {\n    char line[MAX_SIZE];\n\n    if (fgets(line, sizeof(line), stdin) == NULL) {\n        return 0;\n    }\n\n    int asteroids[MAX_SIZE];\n    int stack[MAX_SIZE];\n\n    int n = parse_array(line, asteroids);\n    int top = -1;\n\n    for (int i = 0; i < n; i++) {\n        int asteroid = asteroids[i];\n        int destroyed = 0;\n\n        while (top >= 0\n                && asteroid < 0\n                && stack[top] > 0) {\n\n            if (stack[top] < -asteroid) {\n                top--;\n                continue;\n            }\n\n            if (stack[top] == -asteroid) {\n                top--;\n            }\n\n            destroyed = 1;\n            break;\n        }\n\n        if (!destroyed) {\n            stack[++top] = asteroid;\n        }\n    }\n\n    printf(\"[\");\n\n    for (int i = 0; i <= top; i++) {\n        printf(\"%d\", stack[i]);\n\n        if (i < top) {\n            printf(\",\");\n        }\n    }\n\n    printf(\"]\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) because each asteroid is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Simulation - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; getline(cin, s);\n    vector<int> ast; string t; for(char c:s){if(isdigit(c)||c=='-')t+=c;else if(t!=\"\"){ast.push_back(stoi(t));t=\"\";}}\n    vector<int> st;\n    for(int a: ast) {\n        bool exp = false;\n        while(!st.empty() && a<0 && st.back()>0) {\n            if(st.back() < -a) { st.pop_back(); continue; }\n            else if(st.back() == -a) { st.pop_back(); }\n            exp = true; break;\n        }\n        if(!exp) st.push_back(a);\n    }\n    cout << \"[\"; for(int i=0;i<st.size();i++) cout << st[i] << (i+1==st.size()?\"\":\",\"); cout << \"]\"; return 0; }",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<int> parseArray(const string& line) {\n    vector<int> result;\n    string number;\n\n    for (char c : line) {\n        if (c == '-' || isdigit(static_cast<unsigned char>(c))) {\n            number += c;\n        } else if (!number.empty()) {\n            result.push_back(stoi(number));\n            number.clear();\n        }\n    }\n\n    if (!number.empty()) {\n        result.push_back(stoi(number));\n    }\n\n    return result;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string line;\n    getline(cin, line);\n\n    vector<int> asteroids = parseArray(line);\n    vector<int> stack;\n\n    for (int asteroid : asteroids) {\n        bool destroyed = false;\n\n        while (!stack.empty()\n                && asteroid < 0\n                && stack.back() > 0) {\n\n            if (stack.back() < -asteroid) {\n                stack.pop_back();\n                continue;\n            }\n\n            if (stack.back() == -asteroid) {\n                stack.pop_back();\n            }\n\n            destroyed = true;\n            break;\n        }\n\n        if (!destroyed) {\n            stack.push_back(asteroid);\n        }\n    }\n\n    cout << \"[\";\n\n    for (int i = 0; i < static_cast<int>(stack.size()); i++) {\n        cout << stack[i];\n\n        if (i + 1 < static_cast<int>(stack.size())) {\n            cout << \",\";\n        }\n    }\n\n    cout << \"]\";\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) because each asteroid is pushed and popped at most once. Space: O(N) for the stack.",
                         "is_primary": false
                     }
                 ]
@@ -849,29 +713,29 @@
                     {
                         "title": "Stack Operation Simulation - Python",
                         "language": "python",
-                        "code": "import sys\n\ninput_data = sys.stdin.read().split('\\n')\ntarget = eval(input_data[0])\nn = int(input_data[1])\n\nresult = []\ncurrent = 1\n\nfor num in target:\n    while current < num:\n        result.append(\"Push\")\n        result.append(\"Pop\")\n        current += 1\n\n    result.append(\"Push\")\n    current += 1\n\nprint(\"[\" + \",\".join(f\"\\\"{x}\\\"\" for x in result) + \"]\")",
-                        "complexity_analysis": "Time: O(N) where N is the value of n. Space: O(N) for storing operations.",
+                        "code": "import sys\nimport ast\n\nlines = sys.stdin.read().splitlines()\n\ntarget = ast.literal_eval(lines[0].strip())\nn = int(lines[1].strip())\n\nresult = []\ncurrent = 1\n\nfor value in target:\n    while current < value:\n        result.append(\"Push\")\n        result.append(\"Pop\")\n        current += 1\n\n    result.append(\"Push\")\n    current += 1\n\nprint(\"[\" + \",\".join('\"' + op + '\"' for op in result) + \"]\")",
+                        "complexity_analysis": "Time: O(N), where N is the value of n. Space: O(N) for storing the generated operations.",
                         "is_primary": true
                     },
                     {
                         "title": "Stack Operation Simulation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int n = Integer.parseInt(sc.nextLine().trim());\n\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n\n        int[] target = new int[parts.length];\n\n        for(int i=0;i<parts.length;i++)\n            target[i] = Integer.parseInt(parts[i].trim());\n\n        List<String> result = new ArrayList<>();\n        int current = 1;\n\n        for(int num : target){\n\n            while(current < num){\n                result.add(\"Push\");\n                result.add(\"Pop\");\n                current++;\n            }\n\n            result.add(\"Push\");\n            current++;\n        }\n\n        System.out.print(\"[\");\n        for(int i=0;i<result.size();i++){\n            System.out.print(\"\\\"\" + result.get(i) + \"\\\"\");\n            if(i < result.size()-1) System.out.print(\",\");\n        }\n        System.out.print(\"]\");\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    static int[] parseArray(String line) {\n        line = line.trim();\n\n        if (line.length() <= 2) {\n            return new int[0];\n        }\n\n        line = line.substring(1, line.length() - 1).trim();\n\n        if (line.isEmpty()) {\n            return new int[0];\n        }\n\n        String[] parts = line.split(\",\");\n        int[] target = new int[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            target[i] = Integer.parseInt(parts[i].trim());\n        }\n\n        return target;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String line = sc.hasNextLine() ? sc.nextLine() : \"\";\n        int n = sc.hasNextLine() ? Integer.parseInt(sc.nextLine().trim()) : 0;\n\n        int[] target = parseArray(line);\n\n        List<String> result = new ArrayList<>();\n        int current = 1;\n\n        for (int value : target) {\n            while (current < value) {\n                result.add(\"Push\");\n                result.add(\"Pop\");\n                current++;\n            }\n\n            result.add(\"Push\");\n            current++;\n        }\n\n        System.out.print(\"[\");\n\n        for (int i = 0; i < result.size(); i++) {\n            System.out.print(\"\\\"\" + result.get(i) + \"\\\"\");\n\n            if (i < result.size() - 1) {\n                System.out.print(\",\");\n            }\n        }\n\n        System.out.print(\"]\");\n    }\n}",
+                        "complexity_analysis": "Time: O(N), where N is the value of n. Space: O(N) for storing the generated operations.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Operation Simulation",
+                        "title": "Stack Operation Simulation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line[1000];\n    int n;\n\n    fgets(line, sizeof(line), stdin);\n    scanf(\"%d\", &n);\n\n    int target[100], t=0;\n    char *token = strtok(line, \"[, ]\\n\");\n\n    while(token){\n        target[t++] = atoi(token);\n        token = strtok(NULL, \"[, ]\\n\");\n    }\n\n    int current = 1;\n\n    printf(\"[\");\n\n    int first = 1;\n\n    for(int i=0;i<t;i++){\n        while(current < target[i]){\n            if(!first) printf(\",\");\n            printf(\"\\\"Push\\\",\\\"Pop\\\"\");\n            first = 0;\n            current++;\n        }\n\n        if(!first) printf(\",\");\n        printf(\"\\\"Push\\\"\");\n        first = 0;\n        current++;\n    }\n\n    printf(\"]\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 10000\n\nint main(void) {\n    char line[MAX_SIZE];\n    int n;\n\n    if (fgets(line, sizeof(line), stdin) == NULL) {\n        return 0;\n    }\n\n    if (scanf(\"%d\", &n) != 1) {\n        return 0;\n    }\n\n    int target[MAX_SIZE];\n    int count = 0;\n\n    char *token = strtok(line, \"[, ]\\n\\r\");\n\n    while (token != NULL) {\n        target[count++] = atoi(token);\n        token = strtok(NULL, \"[, ]\\n\\r\");\n    }\n\n    int current = 1;\n    int first = 1;\n\n    printf(\"[\");\n\n    for (int i = 0; i < count; i++) {\n\n        while (current < target[i]) {\n            if (!first) {\n                printf(\",\");\n            }\n\n            printf(\"\\\"Push\\\",\\\"Pop\\\"\");\n            first = 0;\n            current++;\n        }\n\n        if (!first) {\n            printf(\",\");\n        }\n\n        printf(\"\\\"Push\\\"\");\n        first = 0;\n        current++;\n    }\n\n    printf(\"]\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N), where N is the value of n. Space: O(N) for storing the target array.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Operation Simulation - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string strTarget; getline(cin, strTarget);\n    int n; cin >> n;\n    vector<int> target; string t; for(char c:strTarget){if(isdigit(c))t+=c;else if(t!=\"\"){target.push_back(stoi(t));t=\"\";}}\n    int curr = 1; cout << \"[\"; bool first=true;\n    for(int x: target) {\n        while(curr < x) { if(!first)cout<<\",\"; cout<<\"\\\"Push\\\",\\\"Pop\\\"\"; first=false; curr++; }\n        if(!first)cout<<\",\"; cout<<\"\\\"Push\\\"\"; first=false; curr++;\n    }\n    cout << \"]\"; return 0; }",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<int> parseArray(const string& line) {\n    vector<int> result;\n    string number;\n\n    for (char c : line) {\n        if (c == '-' || isdigit(static_cast<unsigned char>(c))) {\n            number += c;\n        } else if (!number.empty()) {\n            result.push_back(stoi(number));\n            number.clear();\n        }\n    }\n\n    if (!number.empty()) {\n        result.push_back(stoi(number));\n    }\n\n    return result;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string line;\n    getline(cin, line);\n\n    int n;\n    cin >> n;\n\n    vector<int> target = parseArray(line);\n\n    vector<string> result;\n    int current = 1;\n\n    for (int value : target) {\n        while (current < value) {\n            result.push_back(\"Push\");\n            result.push_back(\"Pop\");\n            current++;\n        }\n\n        result.push_back(\"Push\");\n        current++;\n    }\n\n    cout << \"[\";\n\n    for (int i = 0; i < static_cast<int>(result.size()); i++) {\n        cout << \"\\\"\" << result[i] << \"\\\"\";\n\n        if (i + 1 < static_cast<int>(result.size())) {\n            cout << \",\";\n        }\n    }\n\n    cout << \"]\";\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N), where N is the value of n. Space: O(N) for storing the generated operations.",
                         "is_primary": false
                     }
                 ]
@@ -919,7 +783,7 @@
                     "description": "Validate your code against test case 4.",
                     "points": 10,
                     "input": "6\n1 abc\n1 xyz\n2 3\n3 2\n4\n3 2",
-                    "expected_output": "b\ny",
+                    "expected_output": "b\nb",
                     "order_index": 4
                 },
                 {
@@ -937,7 +801,7 @@
                     "description": "Validate your code against test case 6.",
                     "points": 10,
                     "input": "4\n1 stack\n2 2\n1 up\n3 4",
-                    "expected_output": "c",
+                    "expected_output": "u",
                     "order_index": 6
                 },
                 {
@@ -969,38 +833,38 @@
                 }
             ],
             "hints": [
-                "Think about which element was added most recently and how it affects the current step.",
-                "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
-                "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
+                "Maintain the current text and keep track of the state before every modifying operation.",
+                "Only operations 1 and 2 need to be stored because undo reverts the most recent text modification.",
+                "A stack is useful because undo always restores the most recently saved editor state."
             ],
             "solution": {
                 "solutions": [
                     {
-                        "title": "Stack Based History Tracking - Python",
+                        "title": "Stack Based Undo - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read().split('\\n')\nq=int(input[0])\ntext=\"\"\nhistory=[]\nres=[]\nfor i in range(1,q+1):\n    parts=input[i].split()\n    if parts[0]=='1':\n        history.append(text)\n        text+=parts[1]\n    elif parts[0]=='2':\n        history.append(text)\n        text=text[:-int(parts[1])]\n    elif parts[0]=='3':\n        res.append(text[int(parts[1])-1])\n    else:\n        text=history.pop()\nprint('\\n'.join(res))",
-                        "complexity_analysis": "Time O(Q). Space O(Q).",
+                        "code": "import sys\n\nlines = sys.stdin.read().splitlines()\nq = int(lines[0])\n\ntext = \"\"\nhistory = []\noutput = []\n\nfor i in range(1, q + 1):\n    parts = lines[i].split()\n    operation = int(parts[0])\n\n    if operation == 1:\n        history.append(text)\n        text += parts[1]\n\n    elif operation == 2:\n        k = int(parts[1])\n        history.append(text)\n        text = text[:-k]\n\n    elif operation == 3:\n        k = int(parts[1])\n        output.append(text[k - 1])\n\n    elif operation == 4:\n        if history:\n            text = history.pop()\n\nsys.stdout.write(\"\\n\".join(output))",
+                        "complexity_analysis": "Time: O(S + Q), where S is the total amount of text copied across modifying operations and Q is the number of operations. Space: O(S) for storing undo states and the current text.",
                         "is_primary": true
                     },
                     {
-                        "title": "Stack Based History Tracking - Java",
+                        "title": "Stack Based Undo - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\npublic static void main(String[] args){\nScanner sc=new Scanner(System.in);\nint q=sc.nextInt();\nsc.nextLine();\nString text=\"\";\nStack<String> history=new Stack<>();\nfor(int i=0;i<q;i++){\nString line=sc.nextLine();\nString[] p=line.split(\" \");\nif(p[0].equals(\"1\")){\nhistory.push(text);\ntext+=p[1];\n}\nelse if(p[0].equals(\"2\")){\nhistory.push(text);\ntext=text.substring(0,text.length()-Integer.parseInt(p[1]));\n}\nelse if(p[0].equals(\"3\")){\nSystem.out.println(text.charAt(Integer.parseInt(p[1])-1));\n}\nelse{\ntext=history.pop();\n}\n}\n}\n}",
-                        "complexity_analysis": "Time O(Q). Space O(Q).",
+                        "code": "import java.io.*;\nimport java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) throws Exception {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n\n        int q = Integer.parseInt(br.readLine().trim());\n        String text = \"\";\n        Deque<String> history = new ArrayDeque<>();\n        StringBuilder output = new StringBuilder();\n\n        for (int i = 0; i < q; i++) {\n            String line = br.readLine();\n            String[] parts = line.split(\" \");\n            int operation = Integer.parseInt(parts[0]);\n\n            if (operation == 1) {\n                history.push(text);\n                text += parts[1];\n            }\n            else if (operation == 2) {\n                int k = Integer.parseInt(parts[1]);\n                history.push(text);\n                text = text.substring(0, text.length() - k);\n            }\n            else if (operation == 3) {\n                int k = Integer.parseInt(parts[1]);\n                output.append(text.charAt(k - 1)).append('\\n');\n            }\n            else if (operation == 4) {\n                if (!history.isEmpty()) {\n                    text = history.pop();\n                }\n            }\n        }\n\n        System.out.print(output.toString());\n    }\n}",
+                        "complexity_analysis": "Time: O(S + Q), where S is the total amount of text copied across modifying operations and Q is the number of operations. Space: O(S) for storing undo states and the current text.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Based History Tracking",
+                        "title": "Stack Based Undo - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\nchar history[1000][100000];\nint top=-1;\nint main(){\nint q; scanf(\"%d\",&q);\nchar text[100000]=\"\";\nwhile(q--){\nint t; scanf(\"%d\",&t);\nif(t==1){\nchar w[100000]; scanf(\"%s\",w);\nstrcpy(history[++top],text);\nstrcat(text,w);\n}\nelse if(t==2){\nint k; scanf(\"%d\",&k);\nstrcpy(history[++top],text);\ntext[strlen(text)-k]='\\0';\n}\nelse if(t==3){\nint k; scanf(\"%d\",&k);\nprintf(\"%c\\n\",text[k-1]);\n}\nelse{\nstrcpy(text,history[top--]);\n}\n}\n}",
-                        "complexity_analysis": "Time O(Q). Space O(Q).",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_Q 1000\n#define MAX_TEXT 100000\n\nchar history[MAX_Q][MAX_TEXT];\nint top = -1;\n\nint main() {\n    int q;\n    scanf(\"%d\", &q);\n    getchar();\n\n    char text[MAX_TEXT] = \"\";\n    char line[MAX_TEXT];\n\n    for (int i = 0; i < q; i++) {\n        fgets(line, sizeof(line), stdin);\n\n        int type;\n        sscanf(line, \"%d\", &type);\n\n        if (type == 1) {\n            char value[MAX_TEXT];\n            sscanf(line, \"%d %s\", &type, value);\n\n            strcpy(history[++top], text);\n            strcat(text, value);\n        }\n        else if (type == 2) {\n            int k;\n            sscanf(line, \"%d %d\", &type, &k);\n\n            strcpy(history[++top], text);\n            text[strlen(text) - k] = '\\0';\n        }\n        else if (type == 3) {\n            int k;\n            sscanf(line, \"%d %d\", &type, &k);\n            printf(\"%c\\n\", text[k - 1]);\n        }\n        else if (type == 4) {\n            if (top >= 0) {\n                strcpy(text, history[top--]);\n            }\n        }\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(S + Q), where S is the total amount of text copied across modifying operations and Q is the number of operations. Space: O(S) for storing undo states and the current text.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Based Undo - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int q; if(!(cin >> q)) return 0;\n    string text = \"\"; vector<string> hist;\n    while(q--) {\n        int type; cin >> type;\n        if(type==1) { string w; cin >> w; hist.push_back(text); text += w; }\n        else if(type==2) { int k; cin >> k; hist.push_back(text); text.erase(text.size()-k); }\n        else if(type==3) { int k; cin >> k; cout << text[k-1] << \"\\n\"; }\n        else { text = hist.back(); hist.pop_back(); }\n    } return 0; }",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    int q;\n    cin >> q;\n\n    string text;\n    vector<string> history;\n\n    while (q--) {\n        int type;\n        cin >> type;\n\n        if (type == 1) {\n            string value;\n            cin >> value;\n\n            history.push_back(text);\n            text += value;\n        }\n        else if (type == 2) {\n            int k;\n            cin >> k;\n\n            history.push_back(text);\n            text.erase(text.size() - k);\n        }\n        else if (type == 3) {\n            int k;\n            cin >> k;\n            cout << text[k - 1] << '\\n';\n        }\n        else if (type == 4) {\n            if (!history.empty()) {\n                text = history.back();\n                history.pop_back();\n            }\n        }\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(S + Q), where S is the total amount of text copied across modifying operations and Q is the number of operations. Space: O(S) for storing undo states and the current text.",
                         "is_primary": false
                     }
                 ]
@@ -1065,7 +929,7 @@
                     "task_slug": "task-stack-of-plates-with-capacity-limit-6",
                     "description": "Validate your code against test case 6.",
                     "points": 10,
-                    "input": "capacity=2 operations=[[push,1],[push,2],[pop],[pop]]",
+                    "input": "capacity=2 operations=[[push,1],[push,2],[pop]]",
                     "expected_output": "2",
                     "order_index": 6
                 },
@@ -1098,31 +962,39 @@
                 }
             ],
             "hints": [
-                "Think about which element was added most recently and how it affects the current step.",
-                "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
-                "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
+                "Maintain multiple stacks, each with the given capacity.",
+                "Push each value into the leftmost stack that is not full.",
+                "Pop removes the most recent value from the rightmost non-empty stack.",
+                "popAtStack removes the most recent value from the specified stack."
             ],
             "solution": {
                 "solutions": [
                     {
                         "title": "Multiple Stack Simulation - Python",
                         "language": "python",
-                        "code": "import sys\nimport re\n\nclass DinnerPlates:\n    def __init__(self, capacity):\n        self.cap = capacity\n        self.stacks = []\n\n    def push(self, val):\n        for s in self.stacks:\n            if len(s) < self.cap:\n                s.append(val)\n                return\n        self.stacks.append([val])\n\n    def pop(self):\n        while self.stacks and not self.stacks[-1]:\n            self.stacks.pop()\n        if not self.stacks:\n            return -1\n        return self.stacks[-1].pop()\n\n    def popAtStack(self, i):\n        if i < len(self.stacks) and self.stacks[i]:\n            return self.stacks[i].pop()\n        return -1\n\n\n# -------- Driver Code --------\ndata = sys.stdin.read().strip()\n\ncap_match = re.search(r'capacity=(\\d+)', data)\nops_match = re.search(r'operations=\\[(.*)\\]', data)\n\ncapacity = int(cap_match.group(1))\nops_raw = ops_match.group(1)\n\nops = re.findall(r'\\[(.*?)\\]', ops_raw)\n\ndp = DinnerPlates(capacity)\nresult = None\n\nfor op in ops:\n    parts = op.split(',')\n    cmd = parts[0]\n\n    if cmd == \"push\":\n        val = int(parts[1])\n        dp.push(val)\n    elif cmd == \"pop\":\n        result = dp.pop()\n    elif cmd == \"popAtStack\":\n        idx = int(parts[1])\n        result = dp.popAtStack(idx)\n\nif result is not None:\n    print(result)",
-                        "complexity_analysis": "Push O(N). Pop O(1).",
+                        "code": "import sys\nimport re\n\nclass DinnerPlates:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.stacks = []\n\n    def push(self, value):\n        for stack in self.stacks:\n            if len(stack) < self.capacity:\n                stack.append(value)\n                return\n        self.stacks.append([value])\n\n    def pop(self):\n        while self.stacks and not self.stacks[-1]:\n            self.stacks.pop()\n\n        if not self.stacks:\n            return -1\n\n        return self.stacks[-1].pop()\n\n    def pop_at_stack(self, index):\n        if 0 <= index < len(self.stacks) and self.stacks[index]:\n            return self.stacks[index].pop()\n        return -1\n\n\ndata = sys.stdin.read().strip()\n\ncapacity_match = re.search(r'capacity=(\\d+)', data)\noperations_match = re.search(r'operations=\\[(.*)\\]', data)\n\nif not capacity_match or not operations_match:\n    sys.exit()\n\ncapacity = int(capacity_match.group(1))\noperations_text = operations_match.group(1)\noperations = re.findall(r'\\[(.*?)\\]', operations_text)\n\ndispenser = DinnerPlates(capacity)\nresult = None\n\nfor operation in operations:\n    parts = operation.split(',')\n    command = parts[0]\n\n    if command == 'push':\n        dispenser.push(int(parts[1]))\n    elif command == 'pop':\n        result = dispenser.pop()\n    elif command == 'popAtStack':\n        result = dispenser.pop_at_stack(int(parts[1]))\n\nif result is not None:\n    print(result)",
+                        "complexity_analysis": "Push: O(S) where S is the number of stacks. Pop: O(S) worst case when empty trailing stacks are removed. popAtStack: O(1). Space: O(N) for storing all trays.",
                         "is_primary": true
                     },
                     {
                         "title": "Multiple Stack Simulation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\nclass DinnerPlates {\n\n    int cap;\n    List<Stack<Integer>> stacks;\n\n    DinnerPlates(int capacity) {\n        cap = capacity;\n        stacks = new ArrayList<>();\n    }\n\n    void push(int val) {\n        for (Stack<Integer> s : stacks) {\n            if (s.size() < cap) {\n                s.push(val);\n                return;\n            }\n        }\n        Stack<Integer> ns = new Stack<>();\n        ns.push(val);\n        stacks.add(ns);\n    }\n\n    int pop() {\n        while (!stacks.isEmpty() && stacks.get(stacks.size() - 1).isEmpty())\n            stacks.remove(stacks.size() - 1);\n\n        if (stacks.isEmpty()) return -1;\n\n        return stacks.get(stacks.size() - 1).pop();\n    }\n\n    int popAtStack(int i) {\n        if (i < stacks.size() && !stacks.get(i).isEmpty())\n            return stacks.get(i).pop();\n        return -1;\n    }\n}\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String input = sc.nextLine();\n\n        int capacity = Integer.parseInt(input.split(\"capacity=\")[1].split(\" \")[0]);\n\n        String opsPart = input.substring(input.indexOf(\"operations=\") + 11);\n        opsPart = opsPart.substring(2, opsPart.length() - 2);\n\n        String[] ops = opsPart.split(\"\\\\],\\\\[\");\n\n        DinnerPlates dp = new DinnerPlates(capacity);\n\n        int result = -1;\n\n        for (String op : ops) {\n\n            String[] parts = op.split(\",\");\n\n            if (parts[0].equals(\"push\")) {\n                dp.push(Integer.parseInt(parts[1]));\n            }\n            else if (parts[0].equals(\"pop\")) {\n                result = dp.pop();\n            }\n            else if (parts[0].equals(\"popAtStack\")) {\n                result = dp.popAtStack(Integer.parseInt(parts[1]));\n            }\n        }\n\n        System.out.println(result);\n    }\n}",
-                        "complexity_analysis": "Push O(N). Pop O(1).",
+                        "code": "import java.util.*;\nimport java.util.regex.*;\n\nclass DinnerPlates {\n    private final int capacity;\n    private final List<Deque<Integer>> stacks = new ArrayList<>();\n\n    DinnerPlates(int capacity) {\n        this.capacity = capacity;\n    }\n\n    void push(int value) {\n        for (Deque<Integer> stack : stacks) {\n            if (stack.size() < capacity) {\n                stack.push(value);\n                return;\n            }\n        }\n\n        Deque<Integer> stack = new ArrayDeque<>();\n        stack.push(value);\n        stacks.add(stack);\n    }\n\n    int pop() {\n        while (!stacks.isEmpty() && stacks.get(stacks.size() - 1).isEmpty()) {\n            stacks.remove(stacks.size() - 1);\n        }\n\n        if (stacks.isEmpty()) {\n            return -1;\n        }\n\n        return stacks.get(stacks.size() - 1).pop();\n    }\n\n    int popAtStack(int index) {\n        if (index < 0 || index >= stacks.size() || stacks.get(index).isEmpty()) {\n            return -1;\n        }\n\n        return stacks.get(index).pop();\n    }\n}\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String input = sc.nextLine().trim();\n\n        Matcher capacityMatcher = Pattern.compile(\"capacity=(\\\\d+)\").matcher(input);\n        if (!capacityMatcher.find()) return;\n\n        int capacity = Integer.parseInt(capacityMatcher.group(1));\n\n        int operationsStart = input.indexOf(\"operations=[\");\n        String operationsText = input.substring(operationsStart + 12, input.length() - 1);\n\n        Matcher operationMatcher = Pattern.compile(\"\\\\[(.*?)\\\\]\").matcher(operationsText);\n\n        DinnerPlates dispenser = new DinnerPlates(capacity);\n        int result = -1;\n\n        while (operationMatcher.find()) {\n            String[] parts = operationMatcher.group(1).split(\",\");\n\n            if (parts[0].equals(\"push\")) {\n                dispenser.push(Integer.parseInt(parts[1]));\n            } else if (parts[0].equals(\"pop\")) {\n                result = dispenser.pop();\n            } else if (parts[0].equals(\"popAtStack\")) {\n                result = dispenser.popAtStack(Integer.parseInt(parts[1]));\n            }\n        }\n\n        System.out.println(result);\n    }\n}",
+                        "complexity_analysis": "Push: O(S) where S is the number of stacks. Pop: O(S) worst case. popAtStack: O(1). Space: O(N).",
                         "is_primary": false
                     },
                     {
-                        "title": "Multiple Stack Simulation",
+                        "title": "Multiple Stack Simulation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\n#define MAX_STACKS 1000\n#define MAX_CAP 100\n\nint stacks[MAX_STACKS][MAX_CAP];\nint top[MAX_STACKS];\nint cap;\nint stack_count = 0;\n\nvoid push(int val) {\n    for (int i = 0; i < stack_count; i++) {\n        if (top[i] < cap) {\n            stacks[i][top[i]++] = val;\n            return;\n        }\n    }\n\n    stacks[stack_count][0] = val;\n    top[stack_count] = 1;\n    stack_count++;\n}\n\nint pop() {\n\n    while (stack_count > 0 && top[stack_count - 1] == 0)\n        stack_count--;\n\n    if (stack_count == 0)\n        return -1;\n\n    return stacks[stack_count - 1][--top[stack_count - 1]];\n}\n\nint popAtStack(int idx) {\n\n    if (idx < stack_count && top[idx] > 0) {\n        return stacks[idx][--top[idx]];\n    }\n\n    return -1;\n}\n\nint main() {\n\n    char input[10000];\n    fgets(input, sizeof(input), stdin);\n\n    sscanf(input, \"capacity=%d\", &cap);\n\n    for (int i = 0; i < MAX_STACKS; i++)\n        top[i] = 0;\n\n    char *p = input;\n    int result = -1;\n\n    while ((p = strchr(p, '['))) {\n\n        char op[50];\n        int val;\n\n        if (sscanf(p, \"[push,%d]\", &val) == 1) {\n            push(val);\n        }\n        else if (strncmp(p, \"[pop]\", 5) == 0) {\n            result = pop();\n        }\n        else if (sscanf(p, \"[popAtStack,%d]\", &val) == 1) {\n            result = popAtStack(val);\n        }\n\n        p++;\n    }\n\n    printf(\"%d\", result);\n}",
-                        "complexity_analysis": "Push O(N). Pop O(1).",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_STACKS 1000\n#define MAX_CAPACITY 1000\n\nint stacks[MAX_STACKS][MAX_CAPACITY];\nint sizes[MAX_STACKS];\nint capacity;\nint stack_count = 0;\n\nvoid push(int value) {\n    for (int i = 0; i < stack_count; i++) {\n        if (sizes[i] < capacity) {\n            stacks[i][sizes[i]++] = value;\n            return;\n        }\n    }\n\n    stacks[stack_count][0] = value;\n    sizes[stack_count] = 1;\n    stack_count++;\n}\n\nint pop_stack(void) {\n    while (stack_count > 0 && sizes[stack_count - 1] == 0) {\n        stack_count--;\n    }\n\n    if (stack_count == 0) {\n        return -1;\n    }\n\n    return stacks[stack_count - 1][--sizes[stack_count - 1]];\n}\n\nint pop_at_stack(int index) {\n    if (index < 0 || index >= stack_count || sizes[index] == 0) {\n        return -1;\n    }\n\n    return stacks[index][--sizes[index]];\n}\n\nint main(void) {\n    char input[10000];\n\n    if (fgets(input, sizeof(input), stdin) == NULL) {\n        return 0;\n    }\n\n    sscanf(input, \"capacity=%d\", &capacity);\n\n    char *p = strstr(input, \"operations=[\");\n    if (p == NULL) {\n        return 0;\n    }\n\n    p += strlen(\"operations=[\");\n\n    int result = -1;\n\n    while ((p = strchr(p, '[')) != NULL) {\n        int value;\n\n        if (sscanf(p, \"[push,%d]\", &value) == 1) {\n            push(value);\n        } else if (strncmp(p, \"[pop]\", 5) == 0) {\n            result = pop_stack();\n        } else if (sscanf(p, \"[popAtStack,%d]\", &value) == 1) {\n            result = pop_at_stack(value);\n        }\n\n        p++;\n    }\n\n    printf(\"%d\", result);\n    return 0;\n}",
+                        "complexity_analysis": "Push: O(S) where S is the number of stacks. Pop: O(S) worst case. popAtStack: O(1). Space: O(N).",
+                        "is_primary": false
+                    },
+                    {
+                        "title": "Multiple Stack Simulation - C++",
+                        "language": "cpp",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nclass DinnerPlates {\nprivate:\n    int capacity;\n    vector<vector<int>> stacks;\n\npublic:\n    DinnerPlates(int capacity) : capacity(capacity) {}\n\n    void push(int value) {\n        for (auto& stack : stacks) {\n            if ((int)stack.size() < capacity) {\n                stack.push_back(value);\n                return;\n            }\n        }\n\n        stacks.push_back({value});\n    }\n\n    int pop() {\n        while (!stacks.empty() && stacks.back().empty()) {\n            stacks.pop_back();\n        }\n\n        if (stacks.empty()) {\n            return -1;\n        }\n\n        int value = stacks.back().back();\n        stacks.back().pop_back();\n        return value;\n    }\n\n    int popAtStack(int index) {\n        if (index < 0 || index >= (int)stacks.size() || stacks[index].empty()) {\n            return -1;\n        }\n\n        int value = stacks[index].back();\n        stacks[index].pop_back();\n        return value;\n    }\n};\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input;\n    getline(cin, input);\n\n    size_t capacityPos = input.find(\"capacity=\");\n    size_t operationsPos = input.find(\"operations=[\");\n\n    if (capacityPos == string::npos || operationsPos == string::npos) {\n        return 0;\n    }\n\n    int capacity = stoi(input.substr(capacityPos + 9, operationsPos - capacityPos - 9));\n\n    string operations = input.substr(operationsPos + 12);\n\n    DinnerPlates dispenser(capacity);\n    int result = -1;\n\n    regex pattern(R\"(\\[([^\\]]+)\\])\");\n    auto begin = sregex_iterator(operations.begin(), operations.end(), pattern);\n    auto end = sregex_iterator();\n\n    for (auto it = begin; it != end; ++it) {\n        string operation = (*it)[1].str();\n        size_t comma = operation.find(',');\n\n        string command = comma == string::npos\n            ? operation\n            : operation.substr(0, comma);\n\n        if (command == \"push\") {\n            dispenser.push(stoi(operation.substr(comma + 1)));\n        } else if (command == \"pop\") {\n            result = dispenser.pop();\n        } else if (command == \"popAtStack\") {\n            result = dispenser.popAtStack(stoi(operation.substr(comma + 1)));\n        }\n    }\n\n    cout << result;\n    return 0;\n}",
+                        "complexity_analysis": "Push: O(S) where S is the number of stacks. Pop: O(S) worst case. popAtStack: O(1). Space: O(N).",
                         "is_primary": false
                     }
                 ]
@@ -1130,8 +1002,8 @@
         },
         {
             "title": "Ticket 10 — Prioritize Support Tickets",
-            "ticket_slug": "ticket-stack-that-pops-most-freq",
-            "description": "A customer support system groups incoming tickets by category. When an agent is available, they must pop the ticket belonging to the category with the highest volume of pending issues. Model this specialized stack.\n",
+            "ticket_slug": "ticket-frequency-stack-prioritization",
+            "description": "A customer support system tracks issue IDs. The system must always resolve the most frequently reported issue first. If multiple issues have the same frequency, the most recently reported one should be resolved first. Implement push and pop operations for this priority system.",
             "xp_reward": 300,
             "ticket_type": "algo",
             "difficulty": "HARD",
@@ -1139,7 +1011,7 @@
             "tasks": [
                 {
                     "title": "Test Case 1",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-1",
+                    "task_slug": "task-frequency-stack-prioritization-1",
                     "description": "Validate your code against test case 1.",
                     "points": 10,
                     "input": "push 5, push 7, push 5, pop",
@@ -1148,7 +1020,7 @@
                 },
                 {
                     "title": "Test Case 2",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-2",
+                    "task_slug": "task-frequency-stack-prioritization-2",
                     "description": "Validate your code against test case 2.",
                     "points": 10,
                     "input": "push 5, push 7, push 5, push 7, pop",
@@ -1157,7 +1029,7 @@
                 },
                 {
                     "title": "Test Case 3 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-3",
+                    "task_slug": "task-frequency-stack-prioritization-3",
                     "description": "Validate your code against test case 3.",
                     "points": 10,
                     "input": "push 1 push 1 push 2 pop",
@@ -1166,7 +1038,7 @@
                 },
                 {
                     "title": "Test Case 4 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-4",
+                    "task_slug": "task-frequency-stack-prioritization-4",
                     "description": "Validate your code against test case 4.",
                     "points": 10,
                     "input": "push 4 push 4 push 4 pop",
@@ -1175,7 +1047,7 @@
                 },
                 {
                     "title": "Test Case 5 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-5",
+                    "task_slug": "task-frequency-stack-prioritization-5",
                     "description": "Validate your code against test case 5.",
                     "points": 10,
                     "input": "push 1 push 2 push 3 pop",
@@ -1184,7 +1056,7 @@
                 },
                 {
                     "title": "Test Case 6 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-6",
+                    "task_slug": "task-frequency-stack-prioritization-6",
                     "description": "Validate your code against test case 6.",
                     "points": 10,
                     "input": "push 1 push 2 push 2 push 1 pop",
@@ -1193,7 +1065,7 @@
                 },
                 {
                     "title": "Test Case 7 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-7",
+                    "task_slug": "task-frequency-stack-prioritization-7",
                     "description": "Validate your code against test case 7.",
                     "points": 10,
                     "input": "push 5 push 7 push 5 push 7 push 4 pop",
@@ -1202,7 +1074,7 @@
                 },
                 {
                     "title": "Test Case 8 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-8",
+                    "task_slug": "task-frequency-stack-prioritization-8",
                     "description": "Validate your code against test case 8.",
                     "points": 10,
                     "input": "push 9 push 9 push 9 pop",
@@ -1211,7 +1083,7 @@
                 },
                 {
                     "title": "Test Case 9 (Hidden/Advanced)",
-                    "task_slug": "task-stack-that-pops-most-frequent-element-9",
+                    "task_slug": "task-frequency-stack-prioritization-9",
                     "description": "Validate your code against test case 9.",
                     "points": 10,
                     "input": "push 1 push 2 push 3 push 3 pop",
@@ -1220,38 +1092,38 @@
                 }
             ],
             "hints": [
-                "Think about which element was added most recently and how it affects the current step.",
-                "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
-                "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
+                "Keep track of how many times each issue ID has been reported.",
+                "When multiple issue IDs have the same frequency, the most recently pushed one should be selected.",
+                "Use a stack for each frequency level so that the most recent issue can be retrieved efficiently."
             ],
             "solution": {
                 "solutions": [
                     {
-                        "title": "Frequency Stack Using HashMap and Stacks - Python",
+                        "title": "Frequency Stack - Python",
                         "language": "python",
-                        "code": "import sys\nfrom collections import defaultdict\n\nclass FreqStack:\n    def __init__(self):\n        self.freq = defaultdict(int)\n        self.group = defaultdict(list)\n        self.maxf = 0\n\n    def push(self, x):\n        f = self.freq[x] + 1\n        self.freq[x] = f\n        if f > self.maxf:\n            self.maxf = f\n        self.group[f].append(x)\n\n    def pop(self):\n        x = self.group[self.maxf].pop()\n        self.freq[x] -= 1\n        if not self.group[self.maxf]:\n            self.maxf -= 1\n        return x\n\n\n# ---- Driver Code ----\nline = sys.stdin.read().strip()\n\nops = [x.strip() for x in line.split(\",\")]\n\nfs = FreqStack()\nresult = None\n\nfor op in ops:\n    parts = op.split()\n\n    if parts[0] == \"push\":\n        fs.push(int(parts[1]))\n\n    elif parts[0] == \"pop\":\n        result = fs.pop()\n\nif result is not None:\n    print(result)",
-                        "complexity_analysis": "Push O(1). Pop O(1).",
+                        "code": "import sys\nimport re\nfrom collections import defaultdict\n\nclass FreqStack:\n    def __init__(self):\n        self.frequency = defaultdict(int)\n        self.groups = defaultdict(list)\n        self.max_frequency = 0\n\n    def push(self, value):\n        self.frequency[value] += 1\n        freq = self.frequency[value]\n\n        if freq > self.max_frequency:\n            self.max_frequency = freq\n\n        self.groups[freq].append(value)\n\n    def pop(self):\n        value = self.groups[self.max_frequency].pop()\n        self.frequency[value] -= 1\n\n        if not self.groups[self.max_frequency]:\n            self.max_frequency -= 1\n\n        return value\n\n\ndata = sys.stdin.read().strip()\n\noperations = re.findall(r'push\\s+(-?\\d+)|\\bpop\\b', data)\n\nstack = FreqStack()\nresult = None\n\nfor operation in operations:\n    if operation:\n        stack.push(int(operation))\n    else:\n        result = stack.pop()\n\nif result is not None:\n    print(result)",
+                        "complexity_analysis": "Time: O(1) average for each push and pop operation. Space: O(N), where N is the number of pushed values.",
                         "is_primary": true
                     },
                     {
                         "title": "Frequency Stack - Java",
                         "language": "java",
-                        "code": "import java.util.*;\r\n\r\nclass FreqStack {\r\n\r\n    Map<Integer,Integer> freq = new HashMap<>();\r\n    Map<Integer,Stack<Integer>> group = new HashMap<>();\r\n    int maxf = 0;\r\n\r\n    void push(int x){\r\n        int f = freq.getOrDefault(x,0)+1;\r\n        freq.put(x,f);\r\n\r\n        maxf = Math.max(maxf,f);\r\n\r\n        group.putIfAbsent(f,new Stack<>());\r\n        group.get(f).push(x);\r\n    }\r\n\r\n    int pop(){\r\n        int x = group.get(maxf).pop();\r\n        freq.put(x,freq.get(x)-1);\r\n\r\n        if(group.get(maxf).isEmpty())\r\n            maxf--;\r\n\r\n        return x;\r\n    }\r\n}\r\n\r\npublic class Solution {\r\n\r\n    public static void main(String[] args){\r\n\r\n        Scanner sc = new Scanner(System.in);\r\n        String line = sc.nextLine();\r\n\r\n        String[] ops = line.split(\",\");\r\n\r\n        FreqStack fs = new FreqStack();\r\n        int result = -1;\r\n\r\n        for(String op : ops){\r\n\r\n            op = op.trim();\r\n            String[] parts = op.split(\" \");\r\n\r\n            if(parts[0].equals(\"push\")){\r\n                fs.push(Integer.parseInt(parts[1]));\r\n            }\r\n            else if(parts[0].equals(\"pop\")){\r\n                result = fs.pop();\r\n            }\r\n        }\r\n\r\n        System.out.println(result);\r\n    }\r\n}",
-                        "complexity_analysis": "Push O(1). Pop O(1).",
+                        "code": "import java.util.*;\n\nclass FreqStack {\n    private final Map<Integer, Integer> frequency = new HashMap<>();\n    private final Map<Integer, Stack<Integer>> groups = new HashMap<>();\n    private int maxFrequency = 0;\n\n    void push(int value) {\n        int freq = frequency.getOrDefault(value, 0) + 1;\n        frequency.put(value, freq);\n\n        maxFrequency = Math.max(maxFrequency, freq);\n\n        groups.putIfAbsent(freq, new Stack<>());\n        groups.get(freq).push(value);\n    }\n\n    int pop() {\n        Stack<Integer> stack = groups.get(maxFrequency);\n\n        int value = stack.pop();\n        frequency.put(value, frequency.get(value) - 1);\n\n        if (stack.isEmpty()) {\n            maxFrequency--;\n        }\n\n        return value;\n    }\n}\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        StringBuilder input = new StringBuilder();\n\n        while (sc.hasNextLine()) {\n            if (input.length() > 0) {\n                input.append(\" \");\n            }\n            input.append(sc.nextLine());\n        }\n\n        String data = input.toString();\n        FreqStack stack = new FreqStack();\n        int result = -1;\n        int i = 0;\n\n        while (i < data.length()) {\n            while (i < data.length() &&\n                   (Character.isWhitespace(data.charAt(i)) || data.charAt(i) == ',')) {\n                i++;\n            }\n\n            if (i >= data.length()) {\n                break;\n            }\n\n            if (data.startsWith(\"push\", i)) {\n                i += 4;\n\n                while (i < data.length() && Character.isWhitespace(data.charAt(i))) {\n                    i++;\n                }\n\n                int sign = 1;\n                if (i < data.length() && data.charAt(i) == '-') {\n                    sign = -1;\n                    i++;\n                }\n\n                int value = 0;\n                while (i < data.length() && Character.isDigit(data.charAt(i))) {\n                    value = value * 10 + (data.charAt(i) - '0');\n                    i++;\n                }\n\n                stack.push(value * sign);\n            }\n            else if (data.startsWith(\"pop\", i)) {\n                i += 3;\n                result = stack.pop();\n            }\n            else {\n                i++;\n            }\n        }\n\n        System.out.println(result);\n    }\n}",
+                        "complexity_analysis": "Time: O(1) average for each push and pop operation. Space: O(N), where N is the number of pushed values.",
                         "is_primary": false
                     },
                     {
-                        "title": "Frequency Stack",
+                        "title": "Frequency Stack - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\r\n#include <string.h>\r\n#include <stdlib.h>\r\n\r\n#define MAX 10000\r\n\r\nint freq[MAX];\r\nint group[MAX][MAX];\r\nint top[MAX];\r\nint maxf = 0;\r\n\r\nvoid push(int x){\r\n\r\n    freq[x]++;\r\n    int f = freq[x];\r\n\r\n    if(f > maxf)\r\n        maxf = f;\r\n\r\n    group[f][top[f]++] = x;\r\n}\r\n\r\nint pop(){\r\n\r\n    int x = group[maxf][--top[maxf]];\r\n\r\n    freq[x]--;\r\n\r\n    if(top[maxf] == 0)\r\n        maxf--;\r\n\r\n    return x;\r\n}\r\n\r\nint main(){\r\n\r\n    char input[10000];\r\n    fgets(input,10000,stdin);\r\n\r\n    char *token = strtok(input,\",\");\r\n\r\n    int result = -1;\r\n\r\n    while(token){\r\n\r\n        char cmd[10];\r\n        int val;\r\n\r\n        if(sscanf(token,\" %s %d\",cmd,&val)==2){\r\n            if(strcmp(cmd,\"push\")==0)\r\n                push(val);\r\n        }\r\n        else{\r\n            sscanf(token,\" %s\",cmd);\r\n            if(strcmp(cmd,\"pop\")==0)\r\n                result = pop();\r\n        }\r\n\r\n        token = strtok(NULL,\",\");\r\n    }\r\n\r\n    printf(\"%d\",result);\r\n}",
-                        "complexity_analysis": "Push O(1). Pop O(1).",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\n#define MAX_VALUE 100000\n#define INITIAL_CAPACITY 16\n\ntypedef struct {\n    int *data;\n    int size;\n    int capacity;\n} IntStack;\n\nvoid stack_init(IntStack *stack) {\n    stack->data = malloc(INITIAL_CAPACITY * sizeof(int));\n    stack->size = 0;\n    stack->capacity = INITIAL_CAPACITY;\n}\n\nvoid stack_push(IntStack *stack, int value) {\n    if (stack->size == stack->capacity) {\n        stack->capacity *= 2;\n        stack->data = realloc(\n            stack->data,\n            stack->capacity * sizeof(int)\n        );\n    }\n\n    stack->data[stack->size++] = value;\n}\n\nint stack_pop(IntStack *stack) {\n    return stack->data[--stack->size];\n}\n\nvoid stack_free(IntStack *stack) {\n    free(stack->data);\n}\n\nint main(void) {\n    char input[1000000];\n\n    if (fgets(input, sizeof(input), stdin) == NULL) {\n        return 0;\n    }\n\n    int frequency[MAX_VALUE + 1] = {0};\n\n    IntStack *groups = malloc(\n        (MAX_VALUE + 1) * sizeof(IntStack)\n    );\n\n    for (int i = 0; i <= MAX_VALUE; i++) {\n        groups[i].data = NULL;\n        groups[i].size = 0;\n        groups[i].capacity = 0;\n    }\n\n    int max_frequency = 0;\n    int result = -1;\n    char *p = input;\n\n    while (*p != '\\0') {\n        while (*p &&\n               (isspace((unsigned char)*p) || *p == ',')) {\n            p++;\n        }\n\n        if (*p == '\\0') {\n            break;\n        }\n\n        if (strncmp(p, \"push\", 4) == 0) {\n            p += 4;\n\n            while (*p && isspace((unsigned char)*p)) {\n                p++;\n            }\n\n            int sign = 1;\n\n            if (*p == '-') {\n                sign = -1;\n                p++;\n            }\n\n            int value = 0;\n\n            while (isdigit((unsigned char)*p)) {\n                value = value * 10 + (*p - '0');\n                p++;\n            }\n\n            value *= sign;\n\n            if (value < 0 || value > MAX_VALUE) {\n                continue;\n            }\n\n            int freq = ++frequency[value];\n\n            if (freq > max_frequency) {\n                max_frequency = freq;\n            }\n\n            if (groups[freq].data == NULL) {\n                stack_init(&groups[freq]);\n            }\n\n            stack_push(&groups[freq], value);\n        }\n        else if (strncmp(p, \"pop\", 3) == 0) {\n            p += 3;\n\n            if (max_frequency > 0 &&\n                groups[max_frequency].size > 0) {\n\n                result = stack_pop(&groups[max_frequency]);\n                frequency[result]--;\n\n                if (groups[max_frequency].size == 0) {\n                    max_frequency--;\n                }\n            }\n        }\n        else {\n            p++;\n        }\n    }\n\n    printf(\"%d\", result);\n\n    for (int i = 0; i <= MAX_VALUE; i++) {\n        if (groups[i].data != NULL) {\n            stack_free(&groups[i]);\n        }\n    }\n\n    free(groups);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(1) average for each push and pop operation. Space: O(N) for the stored values and frequency groups. Memory is allocated dynamically to avoid large static arrays.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Frequency Stack - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nclass FreqStack {\npublic:\n    unordered_map<int,int> freq;\n    unordered_map<int, vector<int>> group;\n    int maxf = 0;\n\n    void push(int x){\n        int f = ++freq[x];\n        maxf = max(maxf, f);\n        group[f].push_back(x);\n    }\n\n    int pop(){\n        int x = group[maxf].back();\n        group[maxf].pop_back();\n        freq[x]--;\n\n        if(group[maxf].empty())\n            maxf--;\n\n        return x;\n    }\n};\n\nint main(){\n\n    string input;\n    getline(cin,input);\n\n    stringstream ss(input);\n    string token;\n\n    FreqStack fs;\n    int result = -1;\n\n    while(getline(ss, token, ',')){\n\n        stringstream op(token);\n        string cmd;\n        op >> cmd;\n\n        if(cmd == \"push\"){\n            int val;\n            op >> val;\n            fs.push(val);\n        }\n        else if(cmd == \"pop\"){\n            result = fs.pop();\n        }\n    }\n\n    cout << result;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nclass FreqStack {\nprivate:\n    unordered_map<int, int> frequency;\n    unordered_map<int, vector<int>> groups;\n    int maxFrequency = 0;\n\npublic:\n    void push(int value) {\n        int freq = ++frequency[value];\n        maxFrequency = max(maxFrequency, freq);\n        groups[freq].push_back(value);\n    }\n\n    int pop() {\n        vector<int>& stack = groups[maxFrequency];\n\n        int value = stack.back();\n        stack.pop_back();\n\n        --frequency[value];\n\n        if (stack.empty()) {\n            --maxFrequency;\n        }\n\n        return value;\n    }\n};\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input;\n    string line;\n\n    while (getline(cin, line)) {\n        if (!input.empty()) {\n            input += \" \";\n        }\n        input += line;\n    }\n\n    FreqStack stack;\n\n    regex pattern(R\"(push\\s+(-?\\d+)|\\bpop\\b)\");\n\n    auto begin = sregex_iterator(\n        input.begin(),\n        input.end(),\n        pattern\n    );\n\n    auto end = sregex_iterator();\n\n    int result = -1;\n\n    for (auto it = begin; it != end; ++it) {\n        smatch match = *it;\n\n        if (match[1].matched) {\n            stack.push(stoi(match[1].str()));\n        }\n        else {\n            result = stack.pop();\n        }\n    }\n\n    cout << result;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(1) average for each push and pop operation. Space: O(N), where N is the number of pushed values.",
                         "is_primary": false
                     }
                 ]
@@ -2871,26 +2743,29 @@
                     {
                         "title": "Stack Evaluation - Python",
                         "language": "python",
-                        "code": "import sys, ast\n\ntokens = ast.literal_eval(sys.stdin.read())\nstack = []\n\nfor t in tokens:\n\n    if t not in '+-*/':\n        stack.append(int(t))\n\n    else:\n        b = stack.pop()\n        a = stack.pop()\n\n        if t == '+':\n            stack.append(a + b)\n        elif t == '-':\n            stack.append(a - b)\n        elif t == '*':\n            stack.append(a * b)\n        else:\n            stack.append(int(a / b))\n\nprint(stack[0])",
-                        "complexity_analysis": "Time O(N). Space O(N).",
+                        "code": "import sys\nimport ast\n\ntokens = ast.literal_eval(sys.stdin.read().strip())\nstack = []\n\nfor token in tokens:\n    if token not in ('+', '-', '*', '/'):\n        stack.append(int(token))\n    else:\n        b = stack.pop()\n        a = stack.pop()\n\n        if token == '+':\n            stack.append(a + b)\n        elif token == '-':\n            stack.append(a - b)\n        elif token == '*':\n            stack.append(a * b)\n        else:\n            stack.append(int(a / b))\n\nprint(stack[-1])",
+                        "complexity_analysis": "Time: O(N), where N is the number of tokens. Space: O(N) for the stack.",
                         "is_primary": true
                     },
                     {
                         "title": "Stack Evaluation - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine();\n\n        line = line.substring(1, line.length() - 1);\n        String[] tokens = line.replace(\"\\\"\", \"\").split(\",\");\n\n        Stack<Integer> stack = new Stack<>();\n\n        for (String t : tokens) {\n\n            t = t.trim();\n\n            if (!t.equals(\"+\") && !t.equals(\"-\") && !t.equals(\"*\") && !t.equals(\"/\")) {\n                stack.push(Integer.parseInt(t));\n            }\n            else {\n                int b = stack.pop();\n                int a = stack.pop();\n\n                if (t.equals(\"+\")) stack.push(a + b);\n                else if (t.equals(\"-\")) stack.push(a - b);\n                else if (t.equals(\"*\")) stack.push(a * b);\n                else stack.push(a / b);\n            }\n        }\n\n        System.out.print(stack.pop());\n    }\n}",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n\n        line = line.substring(1, line.length() - 1);\n\n        if (line.trim().isEmpty()) {\n            return;\n        }\n\n        String[] tokens = line.replace(\"\\\"\", \"\").split(\",\");\n        Stack<Integer> stack = new Stack<>();\n\n        for (String token : tokens) {\n            token = token.trim();\n\n            if (!token.equals(\"+\") &&\n                !token.equals(\"-\") &&\n                !token.equals(\"*\") &&\n                !token.equals(\"/\")) {\n\n                stack.push(Integer.parseInt(token));\n            } else {\n                int b = stack.pop();\n                int a = stack.pop();\n\n                if (token.equals(\"+\")) {\n                    stack.push(a + b);\n                } else if (token.equals(\"-\")) {\n                    stack.push(a - b);\n                } else if (token.equals(\"*\")) {\n                    stack.push(a * b);\n                } else {\n                    stack.push(a / b);\n                }\n            }\n        }\n\n        System.out.print(stack.peek());\n    }\n}",
+                        "complexity_analysis": "Time: O(N), where N is the number of tokens. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack Simulation",
+                        "title": "Stack Evaluation - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n\n    char s[1000];\n    fgets(s, 1000, stdin);\n\n    int stack[1000];\n    int top = -1;\n\n    char *token = strtok(s, \"[\\\", ]\\n\");\n\n    while (token) {\n\n        if (strcmp(token, \"+\") && strcmp(token, \"-\") && strcmp(token, \"*\") && strcmp(token, \"/\")) {\n            stack[++top] = atoi(token);\n        }\n        else {\n\n            int b = stack[top--];\n            int a = stack[top--];\n\n            if (!strcmp(token, \"+\")) stack[++top] = a + b;\n            else if (!strcmp(token, \"-\")) stack[++top] = a - b;\n            else if (!strcmp(token, \"*\")) stack[++top] = a * b;\n            else stack[++top] = a / b;\n        }\n\n        token = strtok(NULL, \"[\\\", ]\\n\");\n    }\n\n    printf(\"%d\", stack[top]);\n}",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    char input[10000];\n\n    if (fgets(input, sizeof(input), stdin) == NULL) {\n        return 0;\n    }\n\n    int stack[10000];\n    int top = -1;\n\n    char *token = strtok(input, \"[\\\", ]\\n\\r\");\n\n    while (token != NULL) {\n        if (strcmp(token, \"+\") != 0 &&\n            strcmp(token, \"-\") != 0 &&\n            strcmp(token, \"*\") != 0 &&\n            strcmp(token, \"/\") != 0) {\n\n            stack[++top] = atoi(token);\n        } else {\n            int b = stack[top--];\n            int a = stack[top--];\n\n            if (strcmp(token, \"+\") == 0) {\n                stack[++top] = a + b;\n            } else if (strcmp(token, \"-\") == 0) {\n                stack[++top] = a - b;\n            } else if (strcmp(token, \"*\") == 0) {\n                stack[++top] = a * b;\n            } else {\n                stack[++top] = a / b;\n            }\n        }\n\n        token = strtok(NULL, \"[\\\", ]\\n\\r\");\n    }\n\n    printf(\"%d\", stack[top]);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N), where N is the number of tokens. Space: O(N) for the stack.",
                         "is_primary": false
                     },
                     {
-                        "title": "Stack implementation - CPP",
+                        "title": "Stack Evaluation - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    getline(cin, s);\n\n    vector<string> tokens;\n    string t = \"\";\n\n    for (char c : s) {\n\n        if (isalnum(c) || c == '-') {\n            t += c;\n        }\n        else if (!t.empty()) {\n            tokens.push_back(t);\n            t = \"\";\n        }\n    }\n\n    stack<int> st;\n\n    for (string x : tokens) {\n\n        if (x == \"+\" || x == \"-\" || x == \"*\" || x == \"/\") {\n\n            int b = st.top(); st.pop();\n            int a = st.top(); st.pop();\n\n            if (x == \"+\") st.push(a + b);\n            else if (x == \"-\") st.push(a - b);\n            else if (x == \"*\") st.push(a * b);\n            else st.push(a / b);\n        }\n        else {\n            st.push(stoi(x));\n        }\n    }\n\n    cout << st.top();\n}",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input;\n    getline(cin, input);\n\n    vector<string> tokens;\n    string token;\n    bool insideQuotes = false;\n\n    for (char c : input) {\n        if (c == '\"') {\n            if (insideQuotes) {\n                tokens.push_back(token);\n                token.clear();\n            }\n\n            insideQuotes = !insideQuotes;\n        }\n        else if (insideQuotes) {\n            token += c;\n        }\n    }\n\n    vector<int> stack;\n\n    for (const string& t : tokens) {\n        if (t == \"+\" || t == \"-\" || t == \"*\" || t == \"/\") {\n            int b = stack.back();\n            stack.pop_back();\n\n            int a = stack.back();\n            stack.pop_back();\n\n            if (t == \"+\") {\n                stack.push_back(a + b);\n            }\n            else if (t == \"-\") {\n                stack.push_back(a - b);\n            }\n            else if (t == \"*\") {\n                stack.push_back(a * b);\n            }\n            else {\n                stack.push_back(a / b);\n            }\n        }\n        else {\n            stack.push_back(stoi(t));\n        }\n    }\n\n    cout << stack.back();\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N), where N is the number of tokens. Space: O(N) for the stack.",
                         "is_primary": false
                     }
                 ]
@@ -3138,16 +3013,6 @@
                         "title": "Stack implementation - CPP",
                         "language": "cpp",
                         "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    unordered_map<int,int> freq;\n    unordered_map<int, stack<int>> group;\n\n    int maxf = 0;\n    int result = 0;\n\n    string cmd;\n\n    while (cin >> cmd) {\n\n        if (cmd == \"push\") {\n\n            int x;\n            cin >> x;\n\n            int f = ++freq[x];\n\n            maxf = max(maxf, f);\n\n            group[f].push(x);\n        }\n\n        else if (cmd == \"pop\") {\n\n            int x = group[maxf].top();\n            group[maxf].pop();\n\n            freq[x]--;\n\n            if (group[maxf].empty()) {\n                maxf--;\n            }\n\n            result = x;\n        }\n    }\n\n    cout << result;\n}"
-                    },
-                    {
-                        "title": "Stack Simulation",
-                        "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nint main() {\n\n    char s[100000];\n    scanf(\"%s\", s);\n\n    int stack[100000];\n    int top = -1;\n\n    int num = 0;\n    char sign = '+';\n\n    int len = strlen(s);\n\n    for (int i = 0; i <= len; i++) {\n\n        char c = (i == len) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == len) {\n\n            if (sign == '+') stack[++top] = num;\n            else if (sign == '-') stack[++top] = -num;\n            else if (sign == '*') stack[top] = stack[top] * num;\n            else if (sign == '/') stack[top] = stack[top] / num;\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    for (int i = 0; i <= top; i++) {\n        result += stack[i];\n    }\n\n    printf(\"%d\", result);\n}"
-                    },
-                    {
-                        "title": "Stack implementation - CPP",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    stack<int> st;\n\n    int num = 0;\n    char sign = '+';\n\n    for (int i = 0; i <= s.size(); i++) {\n\n        char c = (i == s.size()) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == s.size()) {\n\n            if (sign == '+') st.push(num);\n            else if (sign == '-') st.push(-num);\n            else if (sign == '*') {\n                int v = st.top(); st.pop();\n                st.push(v * num);\n            }\n            else if (sign == '/') {\n                int v = st.top(); st.pop();\n                st.push(v / num);\n            }\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    while (!st.empty()) {\n        result += st.top();\n        st.pop();\n    }\n\n    cout << result;\n}"
                     }
                 ]
             }
