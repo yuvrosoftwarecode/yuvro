@@ -1,0 +1,164 @@
+{
+  "lab_questions": [
+    {
+      "title": "Healthcare: Real-time Patient Telemetry Virtualized Data Grid",
+      "description": "An ICU central monitoring dashboard freezes when streaming 50,000+ real-time patient vital sign records simultaneously. Build a high-performance virtualized table component in React/TypeScript that maintains 60 FPS scrolling and supports multi-column filtering without blocking the main thread.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "PERFORMANCE",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_virtualized_grid_lab",
+      "startup_command": "npm install && npm run test",
+      "programming_languages": [
+        "TYPESCRIPT",
+        "JAVASCRIPT"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [
+        "REACT"
+      ],
+      "tasks": [
+        {
+          "title": "Task 1: DOM Virtualization Viewport Windowing",
+          "description": "Implement a custom `useVirtualizer` hook in `src/hooks/useVirtualizer.ts` that calculates `startIndex`, `endIndex`, and `totalHeight` based on container `scrollTop`, `clientHeight`, and uniform `rowHeight`. Ensure only visible rows (plus an overscan buffer of 5) are rendered to the DOM.",
+          "difficulty": "MEDIUM",
+          "marks": 40,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/hooks/useVirtualizer.ts": "import { useState, useEffect } from 'react';\n\nexport function useVirtualizer({ count, rowHeight, containerHeight, scrollTop, overscan = 5 }) {\n  const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);\n  const endIndex = Math.min(count - 1, Math.floor((scrollTop + containerHeight) / rowHeight) + overscan);\n  const virtualItems = [];\n  for (let i = startIndex; i <= endIndex; i++) {\n    virtualItems.push({ index: i, start: i * rowHeight, size: rowHeight });\n  }\n  return { virtualItems, totalHeight: count * rowHeight };\n}"
+          }
+        },
+        {
+          "title": "Task 2: Web Worker Offloaded Sorting & Filtering",
+          "description": "Offload multi-column search and sorting calculations on the 50,000-row dataset to a Dedicated Web Worker (`src/workers/filterWorker.ts`) to avoid dropping frames on the main UI thread during fast user keystrokes.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/workers/filterWorker.ts": "self.onmessage = (e) => {\n  const { data, filterText, sortKey, sortDir } = e.data;\n  let filtered = data.filter(item => \n    !filterText || item.patientName.toLowerCase().includes(filterText.toLowerCase())\n  );\n  if (sortKey) {\n    filtered.sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1) * (sortDir === 'desc' ? -1 : 1));\n  }\n  self.postMessage(filtered);\n};"
+          }
+        },
+        {
+          "title": "Task 3: Dynamic Buffer & Memory Leak Prevention",
+          "description": "Clean up scroll listeners, Web Worker instances, and memory references on component unmount to ensure 0 detached DOM nodes and 0 memory leaks across re-renders.",
+          "difficulty": "EASY",
+          "marks": 25,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/components/VirtualizedGrid.tsx": "useEffect(() => {\n  const worker = new Worker(new URL('../workers/filterWorker.ts', import.meta.url));\n  return () => worker.terminate();\n}, []);"
+          }
+        }
+      ]
+    },
+    {
+      "title": "EdTech: Real-time Collaborative Code Editor with Conflict Resolution",
+      "description": "In a remote pair-programming and student evaluation platform, two candidates or interviewers can collaborate in real time on code files. Implement optimistic UI state updates, an offline mutation queue with reconnection replay, and a Last-Write-Wins (LWW) timestamp conflict resolution strategy.",
+      "difficulty": "HARD",
+      "domain": "EDTECH",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_collab_editor_lab",
+      "startup_command": "npm install && npm run test",
+      "programming_languages": [
+        "TYPESCRIPT",
+        "JAVASCRIPT"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [
+        "REACT"
+      ],
+      "tasks": [
+        {
+          "title": "Task 1: Optimistic UI Updates with State Rollback",
+          "description": "When a user edits code in `src/components/CodeWorkspace.tsx`, immediately update local editor state and dispatch a mutation. If the server rejects the change or WebSocket fails, roll back to the last acknowledged snapshot without jitter.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/store/collabStore.ts": "export function applyOptimisticEdit(state, edit) {\n  const backup = state.code;\n  try {\n    state.code = applyPatch(state.code, edit);\n  } catch (err) {\n    state.code = backup;\n  }\n}"
+          }
+        },
+        {
+          "title": "Task 2: Offline Mutation Queue & Reconnection Replay",
+          "description": "Implement an offline buffer in `src/services/mutationQueue.ts`. If WebSocket connectivity drops, buffer incoming edits in memory / localStorage and automatically replay them in FIFO order once the socket reconnects.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/services/mutationQueue.ts": "export class MutationQueue {\n  private queue: any[] = [];\n  enqueue(mutation: any) { this.queue.push(mutation); }\n  flush(ws: WebSocket) {\n    while (this.queue.length && ws.readyState === WebSocket.OPEN) {\n      ws.send(JSON.stringify(this.queue.shift()));\n    }\n  }\n}"
+          }
+        },
+        {
+          "title": "Task 3: Last-Write-Wins (LWW) Conflict Resolution",
+          "description": "Handle concurrent edits by comparing Lamport logical timestamps / ISO timestamps in `src/services/conflictResolver.ts`. Apply edits with higher timestamps and reject outdated mutations safely.",
+          "difficulty": "EASY",
+          "marks": 30,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": [],
+          "solution": {
+            "src/services/conflictResolver.ts": "export function resolveConflict(localChange, incomingChange) {\n  if (incomingChange.timestamp > localChange.timestamp) {\n    return incomingChange.content;\n  }\n  return localChange.content;\n}"
+          }
+        }
+      ]
+    }
+  ]
+}

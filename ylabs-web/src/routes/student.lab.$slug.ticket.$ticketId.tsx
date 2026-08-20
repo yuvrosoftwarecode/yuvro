@@ -1396,12 +1396,16 @@ export function TicketIDE({
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
+    if (isPython || isDjango || isSql || isMongo || isUi || isBash || activeFile.endsWith(".py") || activeFile.endsWith(".sql")) {
+      return "ok";
+    }
     const m = files["Main.java"];
+    if (!m) return "ok";
     if (!/class\s+\w+/.test(m) || !/public\s+static\s+void\s+main/.test(m)) return "err";
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
       return "warn";
     return "ok";
-  }, [files]);
+  }, [files, isPython, isDjango, isSql, isMongo, isUi, isBash, activeFile]);
 
   const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
   const [runId, setRunId] = useState(0);
@@ -2755,7 +2759,7 @@ export function TicketIDE({
                 </div>
                 <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
                   {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
-                  {bottomTab === "errors" && <ErrorsView state={compileState} />}
+                  {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
                   {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "preview" && (
                     isDjango ? <WebPreview port={previewPort} /> :
@@ -3151,7 +3155,7 @@ function OutputView({ output }: { output: string }) {
   return <pre className="font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>;
 }
 
-function ErrorsView({ state }: { state: "ok" | "warn" | "err" }) {
+function ErrorsView({ state, file }: { state: "ok" | "warn" | "err"; file?: string }) {
   const items = state === "err" ? [
     { sev: "err" as const, line: 0, msg: "Tests failed or errors occurred during execution", fix: "Check your code output for details" },
   ] : state === "warn" ? [
@@ -3171,7 +3175,7 @@ function ErrorsView({ state }: { state: "ok" | "warn" | "err" }) {
             ) : (
               <AlertTriangle className="h-3 w-3 text-warning" />
             )}
-            <span className="underline-offset-2">Main.java:{e.line}</span>
+            <span className="underline-offset-2">{file || "Main.java"}:{e.line}</span>
             <span className={e.sev === "err" ? "text-destructive" : "text-warning"}>{e.msg}</span>
           </div>
           <div className="mt-1 ml-5 text-[11px] text-muted-foreground">💡 {e.fix}</div>
