@@ -90,7 +90,7 @@
           {
             "title": "Brute Force - Sorting",
             "language": "python",
-            "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nnums.sort(reverse=True)\nprint(nums[k-1])",
+            "code": "import sys\nimport ast\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\nnums.sort(reverse=True)\n\nprint(nums[k - 1])",
             "complexity_analysis": "Time: O(N log N) for sorting. Space: O(1). Logic: Sorting the entire array and picking the Kth element is the simplest approach.",
             "is_primary": false,
             "approach": "brute_force"
@@ -98,7 +98,7 @@
           {
             "title": "Optimized - Min Heap of Size K",
             "language": "python",
-            "code": "import sys, heapq\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nheap = []\nfor num in nums:\n    heapq.heappush(heap, num)\n    if len(heap) > k:\n        heapq.heappop(heap)\nprint(heap[0])",
+            "code": "import sys\nimport ast\nimport heapq\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\nheap = []\n\nfor num in nums:\n    heapq.heappush(heap, num)\n\n    if len(heap) > k:\n        heapq.heappop(heap)\n\nprint(heap[0])",
             "complexity_analysis": "Time: O(N log K). Space: O(K). Logic: A Min-Heap of size K maintains the K largest elements. The smallest among these K is the Kth largest element overall.",
             "is_primary": true,
             "approach": "optimal"
@@ -246,7 +246,7 @@
           {
             "title": "Brute Force - Sort by Frequency",
             "language": "python",
-            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nsorted_items = sorted(count.keys(), key=lambda x: count[x], reverse=True)\nprint(sorted(sorted_items[:k]))",
+            "code": "import sys\nimport ast\nfrom collections import Counter\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\ncount = Counter(nums)\n\nsorted_items = sorted(\n    count.keys(),\n    key=lambda x: count[x],\n    reverse=True\n)\n\nprint(sorted(sorted_items[:k]))",
             "complexity_analysis": "Time: O(N log N) for sorting unique elements. Space: O(N). Logic: Counting frequencies and then sorting all unique elements based on those frequencies.",
             "is_primary": false,
             "approach": "brute_force"
@@ -254,7 +254,7 @@
           {
             "title": "Optimized - Bucket Sort",
             "language": "python",
-            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nbuckets = [[] for _ in range(len(nums) + 1)]\nfor num, freq in count.items():\n    buckets[freq].append(num)\nresult = []\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in buckets[i]:\n        result.append(num)\n        if len(result) == k:\n            print(sorted(result))\n            exit()\nprint(sorted(result))",
+            "code": "import sys\nimport ast\nfrom collections import Counter\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\ncount = Counter(nums)\n\nbuckets = [[] for _ in range(len(nums) + 1)]\n\nfor num, freq in count.items():\n    buckets[freq].append(num)\n\nresult = []\n\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in buckets[i]:\n        result.append(num)\n\n        if len(result) == k:\n            print(sorted(result))\n            sys.exit()\n\nprint(sorted(result))",
             "complexity_analysis": "Time: O(N). Space: O(N). Logic: Using frequencies as indices in a bucket array allows us to retrieve top elements in linear time.",
             "is_primary": true,
             "approach": "optimal"
@@ -402,7 +402,7 @@
           {
             "title": "Max Heap - Python",
             "language": "python",
-            "code": "import sys, heapq\nstones = eval(sys.stdin.read().strip())\nheap = [-s for s in stones]\nheapq.heapify(heap)\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n    if y != x:\n        heapq.heappush(heap, -(y - x))\nprint(-heap[0] if heap else 0)",
+            "code": "import sys\nimport ast\nimport heapq\n\nstones = ast.literal_eval(sys.stdin.read().strip())\n\nheap = [-s for s in stones]\nheapq.heapify(heap)\n\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n\n    if y != x:\n        heapq.heappush(heap, -(y - x))\n\nprint(-heap[0] if heap else 0)",
             "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: A Max-Heap allows us to always extract the two heaviest stones in log(N) time.",
             "is_primary": true,
             "approach": "optimal"
@@ -526,7 +526,7 @@
           {
             "title": "Greedy Formula - Python",
             "language": "python",
-            "code": "import sys\nfrom collections import Counter\nlines = sys.stdin.read().strip().split('\\n')\ntasks = eval(lines[0])\nn = int(lines[1])\ncount = Counter(tasks)\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\nresult = max(len(tasks), (max_freq - 1) * (n + 1) + max_count)\nprint(result)",
+            "code": "import sys\nimport ast\nfrom collections import Counter\n\nlines = sys.stdin.read().strip().splitlines()\n\ntasks = ast.literal_eval(lines[0])\nn = int(lines[1])\n\ncount = Counter(tasks)\n\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\n\nresult = max(\n    len(tasks),\n    (max_freq - 1) * (n + 1) + max_count\n)\n\nprint(result)",
             "complexity_analysis": "Time: O(N). Space: O(1). Logic: The total time is dictated by the highest frequency task and the cooling period. The formula calculates the minimum 'slots' needed, accounting for tasks with the same max frequency.",
             "is_primary": true,
             "approach": "optimal"
@@ -670,6 +670,13 @@
             "complexity_analysis": "Time: O(N log K). Space: O(N). Logic: Using PriorityQueue in Java to efficiently merge K sorted streams.",
             "is_primary": false,
             "approach": "optimal"
+          },
+          {
+            "title": "Merge K Sorted Lists Using Priority Queue (C++)",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <queue>\n#include <tuple>\n\nusing namespace std;\n\nvector<vector<int>> parseLists(const string& line) {\n    vector<vector<int>> res;\n    size_t start = line.find('[');\n    size_t end = line.rfind(']');\n    if (start == string::npos || end == string::npos || start >= end) return res;\n\n    size_t i = start + 1;\n    while (i < end) {\n        while (i < end && line[i] != '[') i++;\n        if (i >= end) break;\n        size_t close = line.find(']', i);\n        if (close == string::npos) break;\n        string inner = line.substr(i + 1, close - i - 1);\n        vector<int> list;\n        stringstream ss(inner);\n        string token;\n        while (getline(ss, token, ',')) {\n            size_t first = token.find_first_not_of(\" \\t\\r\\n\");\n            size_t last = token.find_last_not_of(\" \\t\\r\\n\");\n            if (first != string::npos) {\n                list.push_back(stoi(token.substr(first, last - first + 1)));\n            }\n        }\n        res.push_back(list);\n        i = close + 1;\n    }\n    return res;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line;\n    if (!getline(cin, line)) return 0;\n\n    vector<vector<int>> lists = parseLists(line);\n\n    // priority_queue of tuple<val, listIdx, elemIdx>\n    auto comp = [](const tuple<int, int, int>& a, const tuple<int, int, int>& b) {\n        return get<0>(a) > get<0>(b);\n    };\n    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, decltype(comp)> pq(comp);\n\n    for (int i = 0; i < (int)lists.size(); i++) {\n        if (!lists[i].empty()) {\n            pq.push({lists[i][0], i, 0});\n        }\n    }\n\n    vector<int> result;\n    while (!pq.empty()) {\n        auto [val, lIdx, eIdx] = pq.top();\n        pq.pop();\n        result.push_back(val);\n        if (eIdx + 1 < (int)lists[lIdx].size()) {\n            pq.push({lists[lIdx][eIdx + 1], lIdx, eIdx + 1});\n        }\n    }\n\n    cout << \"[\";\n    for (size_t i = 0; i < result.size(); i++) {\n        if (i > 0) cout << \", \";\n        cout << result[i];\n    }\n    cout << \"]\\n\";\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(N log k), Space Complexity: O(k).",
+            "is_primary": false
           }
         ]
       },
@@ -778,6 +785,20 @@
             "complexity_analysis": "Time: O(log N) per add. Space: O(N). Logic: Using PriorityQueue in Java to implement the two-heap median finding algorithm.",
             "is_primary": false,
             "approach": "optimal"
+          },
+          {
+            "title": "Find Median from Data Stream Using Two Heaps (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 50000\n\n// Max-heap for smaller half\nint max_heap[MAX_SIZE];\nint max_size = 0;\n\nvoid max_push(int val) {\n    int i = max_size++;\n    max_heap[i] = val;\n    while (i > 0) {\n        int p = (i - 1) / 2;\n        if (max_heap[p] < max_heap[i]) {\n            int t = max_heap[p]; max_heap[p] = max_heap[i]; max_heap[i] = t;\n            i = p;\n        } else break;\n    }\n}\n\nint max_pop() {\n    int res = max_heap[0];\n    max_heap[0] = max_heap[--max_size];\n    int i = 0;\n    while (2 * i + 1 < max_size) {\n        int l = 2 * i + 1, r = 2 * i + 2, largest = i;\n        if (l < max_size && max_heap[l] > max_heap[largest]) largest = l;\n        if (r < max_size && max_heap[r] > max_heap[largest]) largest = r;\n        if (largest != i) {\n            int t = max_heap[i]; max_heap[i] = max_heap[largest]; max_heap[largest] = t;\n            i = largest;\n        } else break;\n    }\n    return res;\n}\n\n// Min-heap for larger half\nint min_heap[MAX_SIZE];\nint min_size = 0;\n\nvoid min_push(int val) {\n    int i = min_size++;\n    min_heap[i] = val;\n    while (i > 0) {\n        int p = (i - 1) / 2;\n        if (min_heap[p] > min_heap[i]) {\n            int t = min_heap[p]; min_heap[p] = min_heap[i]; min_heap[i] = t;\n            i = p;\n        } else break;\n    }\n}\n\nint min_pop() {\n    int res = min_heap[0];\n    min_heap[0] = min_heap[--min_size];\n    int i = 0;\n    while (2 * i + 1 < min_size) {\n        int l = 2 * i + 1, r = 2 * i + 2, smallest = i;\n        if (l < min_size && min_heap[l] < min_heap[smallest]) smallest = l;\n        if (r < min_size && min_heap[r] < min_heap[smallest]) smallest = r;\n        if (smallest != i) {\n            int t = min_heap[i]; min_heap[i] = min_heap[smallest]; min_heap[smallest] = t;\n            i = smallest;\n        } else break;\n    }\n    return res;\n}\n\nvoid addNum(int num) {\n    max_push(num);\n    min_push(max_pop());\n    if (min_size > max_size) {\n        max_push(min_pop());\n    }\n}\n\ndouble findMedian() {\n    if (max_size > min_size) return (double)max_heap[0];\n    return (max_heap[0] + min_heap[0]) / 2.0;\n}\n\nint main() {\n    char line1[50000], line2[50000];\n    if (!fgets(line1, sizeof(line1), stdin)) return 0;\n    if (!fgets(line2, sizeof(line2), stdin)) return 0;\n\n    char ops[5000][50];\n    int numOps = 0;\n    char* p = line1;\n    while (*p) {\n        if (*p == '\"' || *p == '\\'') {\n            char q = *p++;\n            int len = 0;\n            while (*p && *p != q) ops[numOps][len++] = *p++;\n            ops[numOps][len] = '\\0';\n            numOps++;\n            if (*p) p++;\n        } else p++;\n    }\n\n    int args[5000];\n    int hasArg[5000] = {0};\n    int numArgs = 0;\n    p = line2;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            while (*p == ' ') p++;\n            if (*p == ']') {\n                hasArg[numArgs++] = 0;\n                p++;\n            } else if (*p == '-' || (*p >= '0' && *p <= '9')) {\n                args[numArgs] = strtol(p, &p, 10);\n                hasArg[numArgs++] = 1;\n            }\n        } else p++;\n    }\n\n    printf(\"[\");\n    for (int i = 0; i < numOps; i++) {\n        if (i > 0) printf(\", \");\n        if (strcmp(ops[i], \"MedianFinder\") == 0) {\n            printf(\"null\");\n        } else if (strcmp(ops[i], \"addNum\") == 0) {\n            if (i < numArgs && hasArg[i]) {\n                addNum(args[i]);\n            }\n            printf(\"null\");\n        } else if (strcmp(ops[i], \"findMedian\") == 0) {\n            double med = findMedian();\n            if (med == (long long)med) {\n                printf(\"%.1f\", med);\n            } else {\n                printf(\"%.5g\", med);\n            }\n        }\n    }\n    printf(\"]\\n\");\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(log n) for addNum, O(1) for findMedian. Space Complexity: O(n).",
+            "is_primary": false
+          },
+          {
+            "title": "Find Median from Data Stream Using Two Heaps (C++)",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <queue>\n#include <iomanip>\n\nusing namespace std;\n\nclass MedianFinder {\n    priority_queue<int> small; // max-heap\n    priority_queue<int, vector<int>, greater<int>> large; // min-heap\n\npublic:\n    MedianFinder() {}\n\n    void addNum(int num) {\n        small.push(num);\n        large.push(small.top());\n        small.pop();\n        if (large.size() > small.size()) {\n            small.push(large.top());\n            large.pop();\n        }\n    }\n\n    double findMedian() {\n        if (small.size() > large.size()) {\n            return (double)small.top();\n        }\n        return (small.top() + large.top()) / 2.0;\n    }\n};\n\nvector<string> parseOps(const string& line) {\n    vector<string> res;\n    size_t start = line.find('[');\n    size_t end = line.rfind(']');\n    if (start == string::npos || end == string::npos) return res;\n    bool inQuotes = false;\n    string cur;\n    for (size_t i = start + 1; i < end; i++) {\n        if (line[i] == '\"' || line[i] == '\\'') {\n            if (inQuotes) {\n                res.push_back(cur);\n                cur.clear();\n                inQuotes = false;\n            } else {\n                inQuotes = true;\n            }\n        } else if (inQuotes) {\n            cur += line[i];\n        }\n    }\n    return res;\n}\n\nvector<vector<int>> parseArgs(const string& line) {\n    vector<vector<int>> res;\n    size_t start = line.find('[');\n    size_t end = line.rfind(']');\n    if (start == string::npos || end == string::npos) return res;\n    size_t i = start + 1;\n    while (i < end) {\n        while (i < end && line[i] != '[') i++;\n        if (i >= end) break;\n        size_t close = line.find(']', i);\n        if (close == string::npos) break;\n        string inner = line.substr(i + 1, close - i - 1);\n        vector<int> list;\n        stringstream ss(inner);\n        string token;\n        while (getline(ss, token, ',')) {\n            size_t first = token.find_first_not_of(\" \\t\\r\\n\");\n            size_t last = token.find_last_not_of(\" \\t\\r\\n\");\n            if (first != string::npos) {\n                list.push_back(stoi(token.substr(first, last - first + 1)));\n            }\n        }\n        res.push_back(list);\n        i = close + 1;\n    }\n    return res;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line1, line2;\n    if (!getline(cin, line1)) return 0;\n    if (!getline(cin, line2)) return 0;\n\n    vector<string> ops = parseOps(line1);\n    vector<vector<int>> args = parseArgs(line2);\n\n    MedianFinder mf;\n    vector<string> results;\n\n    for (size_t i = 0; i < ops.size(); i++) {\n        if (ops[i] == \"MedianFinder\") {\n            results.push_back(\"null\");\n        } else if (ops[i] == \"addNum\") {\n            if (i < args.size() && !args[i].empty()) {\n                mf.addNum(args[i][0]);\n            }\n            results.push_back(\"null\");\n        } else if (ops[i] == \"findMedian\") {\n            double med = mf.findMedian();\n            ostringstream oss;\n            oss << fixed << setprecision(1) << med;\n            string s = oss.str();\n            results.push_back(s);\n        }\n    }\n\n    cout << \"[\";\n    for (size_t i = 0; i < results.size(); i++) {\n        if (i > 0) cout << \", \";\n        cout << results[i];\n    }\n    cout << \"]\\n\";\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(log n) for addNum, O(1) for findMedian. Space Complexity: O(n).",
+            "is_primary": false
           }
         ]
       },
@@ -894,6 +915,13 @@
             "complexity_analysis": "Time: O(N). Space: O(K). Logic: Using std::deque in C++ for an efficient monotonic sliding window maximum solver.",
             "is_primary": false,
             "approach": "optimal"
+          },
+          {
+            "title": "Sliding Window Maximum Using Monotonic Deque (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n    char line[100000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n\n    int nums[50000];\n    int n = 0;\n    char* p = line;\n    while (*p && *p != '[') p++;\n    if (*p == '[') p++;\n    while (*p && *p != ']') {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            nums[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n\n    int dq[50000];\n    int head = 0, tail = 0;\n\n    int results[50000];\n    int resCount = 0;\n\n    for (int i = 0; i < n; i++) {\n        if (head < tail && dq[head] < i - k + 1) {\n            head++;\n        }\n        while (head < tail && nums[dq[tail - 1]] < nums[i]) {\n            tail--;\n        }\n        dq[tail++] = i;\n        if (i >= k - 1) {\n            results[resCount++] = nums[dq[head]];\n        }\n    }\n\n    printf(\"[\");\n    for (int i = 0; i < resCount; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"%d\", results[i]);\n    }\n    printf(\"]\\n\");\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(k).",
+            "is_primary": false
           }
         ]
       },
@@ -1010,6 +1038,13 @@
             "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: C++ implementation using sorting based on Euclidean distance squared.",
             "is_primary": false,
             "approach": "better"
+          },
+          {
+            "title": "K Closest Points Using Sorting / QuickSelect (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int x, y;\n    long long dist;\n} Point;\n\nint comparePoints(const void* a, const void* b) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    if (p1->dist < p2->dist) return -1;\n    if (p1->dist > p2->dist) return 1;\n    return 0;\n}\n\nint main() {\n    char line[100000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n\n    Point points[10000];\n    int count = 0;\n\n    char* p = line;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            while (*p == ' ') p++;\n            if (*p == '[') continue;\n            if (*p == '-' || (*p >= '0' && *p <= '9')) {\n                int x = strtol(p, &p, 10);\n                while (*p && *p != ',') p++;\n                if (*p == ',') p++;\n                int y = strtol(p, &p, 10);\n                points[count].x = x;\n                points[count].y = y;\n                points[count].dist = (long long)x * x + (long long)y * y;\n                count++;\n            }\n        } else {\n            p++;\n        }\n    }\n\n    qsort(points, count, sizeof(Point), comparePoints);\n\n    printf(\"[\");\n    for (int i = 0; i < k && i < count; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"[%d, %d]\", points[i].x, points[i].y);\n    }\n    printf(\"]\\n\");\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(n log n), Space Complexity: O(n).",
+            "is_primary": false
           }
         ]
       },
@@ -1126,6 +1161,13 @@
             "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Greedy stick connection strategy implemented in C++ with priority_queue.",
             "is_primary": false,
             "approach": "optimal"
+          },
+          {
+            "title": "Min-Heap for Connecting Sticks (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint heap[50000];\nint heapSize = 0;\n\nvoid push(int val) {\n    int i = heapSize++;\n    heap[i] = val;\n    while (i > 0) {\n        int p = (i - 1) / 2;\n        if (heap[p] > heap[i]) {\n            int t = heap[p]; heap[p] = heap[i]; heap[i] = t;\n            i = p;\n        } else break;\n    }\n}\n\nint pop() {\n    int res = heap[0];\n    heap[0] = heap[--heapSize];\n    int i = 0;\n    while (2 * i + 1 < heapSize) {\n        int l = 2 * i + 1, r = 2 * i + 2, smallest = i;\n        if (l < heapSize && heap[l] < heap[smallest]) smallest = l;\n        if (r < heapSize && heap[r] < heap[smallest]) smallest = r;\n        if (smallest != i) {\n            int t = heap[i]; heap[i] = heap[smallest]; heap[smallest] = t;\n            i = smallest;\n        } else break;\n    }\n    return res;\n}\n\nint main() {\n    char line[50000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n\n    char* p = line;\n    while (*p && *p != '[') p++;\n    if (*p == '[') p++;\n    while (*p && *p != ']') {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            int val = strtol(p, &p, 10);\n            push(val);\n        } else {\n            p++;\n        }\n    }\n\n    if (heapSize < 2) {\n        printf(\"0\\n\");\n        return 0;\n    }\n\n    long long cost = 0;\n    while (heapSize > 1) {\n        int a = pop();\n        int b = pop();\n        int sum = a + b;\n        cost += sum;\n        push(sum);\n    }\n\n    printf(\"%lld\\n\", cost);\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(n log n), Space Complexity: O(n).",
+            "is_primary": false
           }
         ]
       },
@@ -1180,6 +1222,20 @@
             "complexity_analysis": "Time: O(log N). Space: O(N). Logic: Java implementation using PriorityQueue and HashSet to track the smallest available numbers.",
             "is_primary": false,
             "approach": "optimal"
+          },
+          {
+            "title": "Smallest Number in Infinite Set (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\n#define MAX_HEAP 50000\nint heap[MAX_HEAP];\nint heapSize = 0;\nbool inSet[2000] = {false};\nint current = 1;\n\nvoid push(int val) {\n    int i = heapSize++;\n    heap[i] = val;\n    while (i > 0) {\n        int p = (i - 1) / 2;\n        if (heap[p] > heap[i]) {\n            int t = heap[p]; heap[p] = heap[i]; heap[i] = t;\n            i = p;\n        } else break;\n    }\n}\n\nint pop() {\n    int res = heap[0];\n    heap[0] = heap[--heapSize];\n    int i = 0;\n    while (2 * i + 1 < heapSize) {\n        int l = 2 * i + 1, r = 2 * i + 2, smallest = i;\n        if (l < heapSize && heap[l] < heap[smallest]) smallest = l;\n        if (r < heapSize && heap[r] < heap[smallest]) smallest = r;\n        if (smallest != i) {\n            int t = heap[i]; heap[i] = heap[smallest]; heap[smallest] = t;\n            i = smallest;\n        } else break;\n    }\n    return res;\n}\n\nint popSmallest() {\n    if (heapSize > 0) {\n        int val = pop();\n        inSet[val] = false;\n        return val;\n    }\n    return current++;\n}\n\nvoid addBack(int num) {\n    if (num < current && !inSet[num]) {\n        inSet[num] = true;\n        push(num);\n    }\n}\n\nint main() {\n    char line1[50000], line2[50000];\n    if (!fgets(line1, sizeof(line1), stdin)) return 0;\n    if (!fgets(line2, sizeof(line2), stdin)) return 0;\n\n    char ops[5000][50];\n    int numOps = 0;\n    char* p = line1;\n    while (*p) {\n        if (*p == '\"' || *p == '\\'') {\n            char q = *p++;\n            int len = 0;\n            while (*p && *p != q) ops[numOps][len++] = *p++;\n            ops[numOps][len] = '\\0';\n            numOps++;\n            if (*p) p++;\n        } else p++;\n    }\n\n    int args[5000];\n    int hasArg[5000] = {0};\n    int numArgs = 0;\n    p = line2;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            while (*p == ' ') p++;\n            if (*p == ']') {\n                hasArg[numArgs++] = 0;\n                p++;\n            } else if (*p == '-' || (*p >= '0' && *p <= '9')) {\n                args[numArgs] = strtol(p, &p, 10);\n                hasArg[numArgs++] = 1;\n            }\n        } else p++;\n    }\n\n    printf(\"[\");\n    for (int i = 0; i < numOps; i++) {\n        if (i > 0) printf(\", \");\n        if (strcmp(ops[i], \"SmallestInfiniteSet\") == 0) {\n            printf(\"null\");\n        } else if (strcmp(ops[i], \"popSmallest\") == 0) {\n            printf(\"%d\", popSmallest());\n        } else if (strcmp(ops[i], \"addBack\") == 0) {\n            if (i < numArgs && hasArg[i]) {\n                addBack(args[i]);\n            }\n            printf(\"null\");\n        }\n    }\n    printf(\"]\\n\");\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(log n) for popSmallest and addBack. Space Complexity: O(n).",
+            "is_primary": false
+          },
+          {
+            "title": "Smallest Number in Infinite Set (C++)",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <set>\n\nusing namespace std;\n\nclass SmallestInfiniteSet {\n    int current;\n    set<int> addedBack;\n\npublic:\n    SmallestInfiniteSet() : current(1) {}\n\n    int popSmallest() {\n        if (!addedBack.empty()) {\n            int smallest = *addedBack.begin();\n            addedBack.erase(addedBack.begin());\n            return smallest;\n        }\n        return current++;\n    }\n\n    void addBack(int num) {\n        if (num < current) {\n            addedBack.insert(num);\n        }\n    }\n};\n\nvector<string> parseOps(const string& line) {\n    vector<string> res;\n    size_t start = line.find('[');\n    size_t end = line.rfind(']');\n    if (start == string::npos || end == string::npos) return res;\n    bool inQuotes = false;\n    string cur;\n    for (size_t i = start + 1; i < end; i++) {\n        if (line[i] == '\"' || line[i] == '\\'') {\n            if (inQuotes) {\n                res.push_back(cur);\n                cur.clear();\n                inQuotes = false;\n            } else {\n                inQuotes = true;\n            }\n        } else if (inQuotes) {\n            cur += line[i];\n        }\n    }\n    return res;\n}\n\nvector<vector<int>> parseArgs(const string& line) {\n    vector<vector<int>> res;\n    size_t start = line.find('[');\n    size_t end = line.rfind(']');\n    if (start == string::npos || end == string::npos) return res;\n    size_t i = start + 1;\n    while (i < end) {\n        while (i < end && line[i] != '[') i++;\n        if (i >= end) break;\n        size_t close = line.find(']', i);\n        if (close == string::npos) break;\n        string inner = line.substr(i + 1, close - i - 1);\n        vector<int> list;\n        stringstream ss(inner);\n        string token;\n        while (getline(ss, token, ',')) {\n            size_t first = token.find_first_not_of(\" \\t\\r\\n\");\n            size_t last = token.find_last_not_of(\" \\t\\r\\n\");\n            if (first != string::npos) {\n                list.push_back(stoi(token.substr(first, last - first + 1)));\n            }\n        }\n        res.push_back(list);\n        i = close + 1;\n    }\n    return res;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    string line1, line2;\n    if (!getline(cin, line1)) return 0;\n    if (!getline(cin, line2)) return 0;\n\n    vector<string> ops = parseOps(line1);\n    vector<vector<int>> args = parseArgs(line2);\n\n    SmallestInfiniteSet sis;\n    vector<string> results;\n\n    for (size_t i = 0; i < ops.size(); i++) {\n        if (ops[i] == \"SmallestInfiniteSet\") {\n            results.push_back(\"null\");\n        } else if (ops[i] == \"popSmallest\") {\n            results.push_back(to_string(sis.popSmallest()));\n        } else if (ops[i] == \"addBack\") {\n            if (i < args.size() && !args[i].empty()) {\n                sis.addBack(args[i][0]);\n            }\n            results.push_back(\"null\");\n        }\n    }\n\n    cout << \"[\";\n    for (size_t i = 0; i < results.size(); i++) {\n        if (i > 0) cout << \", \";\n        cout << results[i];\n    }\n    cout << \"]\\n\";\n    return 0;\n}",
+            "complexity_analysis": "Time Complexity: O(log n) for popSmallest and addBack. Space Complexity: O(n).",
+            "is_primary": false
           }
         ]
       },
