@@ -12,7 +12,7 @@
 .PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
-.PHONY: db-reset
+.PHONY: db-reset db-reset-ycode db-reset-ycampus db-reset-ylabs db-reset-yhub
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
 .PHONY: secrets-load secrets-validate secrets-rotate secrets-audit
@@ -218,6 +218,13 @@ help:
 	@echo "  make setup-fixtures-data-ylabs      Load YLabs fixture data (no clear)"
 	@echo "  make load-courses-ycode             Load courses only into YCode"
 	@echo "  make load-courses-ycampus           Load courses only into YCampus"
+	@echo ""
+	@echo "Database Reset Commands:"
+	@echo "  make db-reset                       Reset all databases (all apps)"
+	@echo "  make db-reset-ycode                 Reset YCode database only"
+	@echo "  make db-reset-ycampus               Reset YCampus database only"
+	@echo "  make db-reset-ylabs                 Reset YLabs database only"
+	@echo "  make db-reset-yhub                  Reset YHub database only"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -774,15 +781,31 @@ clear-migrations:
 
 # Reset databases: bring down, remove volumes, start DBs and run migrations
 db-reset: _validate-deploy
-	@echo "🧹 Resetting databases (removing DB volumes and restarting DBs/Backends)..."
+	@echo "🧹 Resetting all databases (removing containers + named volumes)..."
 	@docker network create executor 2>/dev/null || true
 	@docker network create yuvro_ylabs 2>/dev/null || true
-	@docker compose $(COMPOSE_FILES) rm -s -f -v ycode-db ycampus-db yhub-db ylabs-db || true
-	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db || true
+	@docker compose $(COMPOSE_FILES) stop ycode-backend ycampus-backend yhub-backend ylabs-backend 2>/dev/null || true
+	@docker compose $(COMPOSE_FILES) rm -s -f ycode-db ycampus-db yhub-db ylabs-db 2>/dev/null || true
+	@docker volume rm yuvro_ycode_postgres_data yuvro_ycampus_postgres_data yuvro_yhub_postgres_data yuvro_ylabs_postgres_data 2>/dev/null || true
+	@echo "🚀 Starting fresh databases..."
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db
 	@echo "⏳ Waiting for databases to become healthy..."
-	@sleep 5
-	@docker compose $(COMPOSE_FILES) restart ycode-backend ycampus-backend yhub-backend ylabs-backend || true
-	@echo "✅ DB reset complete (migrations applied on backend restart)."
+	@sleep 10
+	@docker compose $(COMPOSE_FILES) start ycode-backend ycampus-backend yhub-backend ylabs-backend 2>/dev/null || \
+		docker compose $(COMPOSE_FILES) up -d ycode-backend ycampus-backend yhub-backend ylabs-backend
+	@echo "✅ All databases reset complete (migrations applied on backend restart)."
+
+db-reset-ycode:
+	@$(MAKE) -f Makefile.ycode db-reset
+
+db-reset-ycampus:
+	@$(MAKE) -f Makefile.ycampus db-reset
+
+db-reset-ylabs:
+	@$(MAKE) -f Makefile.ylabs db-reset
+
+db-reset-yhub:
+	@$(MAKE) -f Makefile.yhub db-reset
 
 # ============================================================================
 # Code Executor Commands
