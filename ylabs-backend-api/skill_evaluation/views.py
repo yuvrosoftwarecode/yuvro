@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from core.storage import upload_image
+from .models import RecruiterActivityLog
+from .serializers import RecruiterActivityLogSerializer
 import logging
 import time
 
@@ -188,6 +190,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             "activity_type": activity_type,
             "meta_data": meta_data,
         }
+        
+        question_id = request.data.get("question_id")
+        if question_id:
+            event["question_id"] = question_id
+            
+        question_title = request.data.get("question_title")
+        if question_title:
+            event["question_title"] = question_title
+            
         if image_path:
             event["image_path"] = image_path
         if screen_path:
@@ -677,3 +688,28 @@ class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
         else:
             serializer.save(created_by=user)
 
+
+class RecruiterActivityLogViewSet(viewsets.ModelViewSet):
+    serializer_class = RecruiterActivityLogSerializer
+    from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = RecruiterActivityLog.objects.all()
+        evaluation_id = self.request.query_params.get('evaluation_id')
+        candidate_email = self.request.query_params.get('candidate_email')
+        
+        if evaluation_id:
+            queryset = queryset.filter(evaluation_id=evaluation_id)
+        if candidate_email:
+            queryset = queryset.filter(candidate_email=candidate_email)
+            
+        return queryset
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.first()
+            
+        serializer.save(recruiter=user, created_by=user)

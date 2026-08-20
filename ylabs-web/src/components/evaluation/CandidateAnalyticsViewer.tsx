@@ -17,7 +17,7 @@ import {
     Camera, 
     Maximize, 
     FileText, 
-    CheckCircle2, 
+    CheckCircle2,
     XCircle, 
     AlertCircle,
     Eye,
@@ -27,6 +27,7 @@ import {
 import { format } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
 import { LabSubmissionViewer } from './LabSubmissionViewer';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 interface ProctoringEvent {
@@ -108,6 +109,7 @@ const getImageUrl = (imgUrl: string | undefined) => {
 
 const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
     const log = data.log;
+    if (!log) return null;
     const severity = data.severity;
     const isSnapshot = data.isSnapshot;
     
@@ -181,6 +183,7 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
+        if (!data.log || data.isBaseline) return null;
         return (
             <div className="bg-white p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]">
                 <CustomTooltipContent data={data} label={label} />
@@ -233,9 +236,35 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
         if (submission?.general_events) {
             allEvents.push(...submission.general_events);
         }
+        if (submission?.question_activities) {
+            submission.question_activities.forEach((q: any, index: number) => {
+                const qNo = `Q${index + 1}`;
+                if (q.navigation_activities) allEvents.push(...q.navigation_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo, question_id: q.id })));
+                if (q.proctoring_activities) allEvents.push(...q.proctoring_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo, question_id: q.id })));
+                if (q.camera_snapshots) allEvents.push(...q.camera_snapshots.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo, question_id: q.id })));
+            });
+        }
 
         allEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
         
+        let currentQNo = '';
+        let currentQTitle = '';
+        let currentQId = '';
+        allEvents.forEach(e => {
+            if (e.meta_data && e.meta_data.question_id) {
+                e.question_id = e.meta_data.question_id;
+            }
+            if (e.question_no || e.question_id || e.question_title) {
+                if (e.question_no) currentQNo = e.question_no;
+                if (e.question_title) currentQTitle = e.question_title;
+                if (e.question_id) currentQId = e.question_id;
+            } else if (currentQNo || currentQId || currentQTitle) {
+                if (currentQNo) e.question_no = currentQNo;
+                if (currentQTitle) e.question_title = currentQTitle;
+                if (currentQId) e.question_id = currentQId;
+            }
+        });
+
         const uniqueEvents = allEvents.filter((event, index, self) =>
             self.findIndex(e => e.activity_type === event.activity_type && e.timestamp === event.timestamp) === index
         );
@@ -794,7 +823,12 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                 <div className="text-center py-8 text-slate-500">No section activity data recorded.</div>
                             ) : (
                                 (() => {
-                                    const activeSections = evaluation?.sections || [];
+                                    const rawSections = evaluation?.sections || [];
+                                    const activeSections = rawSections.map((sec: any) => ({
+                                        ...sec,
+                                        type: sec.type || (sec.kind === 'labs' ? 'LAB' : sec.kind === 'assessment' ? 'KNOWLEDGE_ASSESSMENT' : sec.kind === 'discussion' ? 'VITARKA_AI_INTERVIEW' : undefined),
+                                        questions: sec.questions?.length ? sec.questions : (sec.labs || [])
+                                    }));
 
                                     if (activeSections.length === 0) {
                                         return <div className="text-center py-8 text-slate-500">No section activity data recorded for this candidate.</div>;
@@ -824,8 +858,57 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                         const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
                                         const sectionMock = candidate.proctoringData?.sections?.[sectionKey as keyof typeof candidate.proctoringData.sections] || { score: 0, timeSpent: 0, events: [] };
 
-                                        // Fix: Allocate all real violations to the first tab (Engineering Labs) since the submission originally only had 1 section
-                                        const sectionEvents = index === 0 ? riskAnalysis.violations.map((e: any) => {
+                                        // Build a list of all question IDs in this section
+                                        const secQuestionIds = new Set<string>();
+                                        if (sec.questions) {
+                                            sec.questions.forEach((q: any) => secQuestionIds.add(String(typeof q === 'string' ? q : q.id)));
+                                        }
+                                        // Also add from lab_submissions just in case
+                                        if (sec.type === 'LAB' && submission?.lab_submissions) {
+                                            submission.lab_submissions.forEach((ls: any) => secQuestionIds.add(String(ls.lab_question)));
+                                        }
+                                        if (sec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions) {
+                                            submission.knowledge_submissions.forEach((ks: any) => {
+                                                if (ks.section === sec.id) ks.answers?.forEach((a: any) => secQuestionIds.add(String(a.question_id)));
+                                            });
+                                        }
+
+                                        // Build a list of ALL question IDs in OTHER sections
+                                        const otherSectionQuestionIds = new Set<string>();
+                                        const otherSectionQuestionTitles = new Set<string>();
+                                        activeSections.forEach((otherSec: any) => {
+                                            if (otherSec.id !== sec.id) {
+                                                if (otherSec.questions) {
+                                                    otherSec.questions.forEach((q: any) => {
+                                                        otherSectionQuestionIds.add(String(typeof q === 'string' ? q : q.id));
+                                                        const qt = typeof q === 'string' ? null : (q.title || q.text || q.content);
+                                                        if (qt) otherSectionQuestionTitles.add(qt);
+                                                    });
+                                                }
+                                                if (otherSec.type === 'LAB' && submission?.lab_submissions) {
+                                                    submission.lab_submissions.forEach((ls: any) => otherSectionQuestionIds.add(String(ls.lab_question)));
+                                                }
+                                                if (otherSec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions) {
+                                                    submission.knowledge_submissions.forEach((ks: any) => {
+                                                        if (ks.section === otherSec.id) ks.answers?.forEach((a: any) => otherSectionQuestionIds.add(String(a.question_id)));
+                                                    });
+                                                }
+                                            }
+                                        });
+
+                                        const allSectionEvents = riskAnalysis.violations.filter((e: any) => {
+                                            const vQId = e.question_id || (e.meta_data && e.meta_data.question_id);
+                                            const vQTitle = e.question_title || (e.meta_data && e.meta_data.question_title);
+                                            
+                                            // If the event explicitly belongs to ANOTHER section, exclude it!
+                                            if (vQId && otherSectionQuestionIds.has(String(vQId)) && !secQuestionIds.has(String(vQId))) {
+                                                return false;
+                                            }
+                                            if (vQTitle && otherSectionQuestionTitles.has(vQTitle)) {
+                                                return false;
+                                            }
+                                            // If the event has no question_id, we include it in all sections for now, or we could filter by timestamp if we had section times.
+                                            
                                             const isCritical = e.activity_type.includes('critical') || e.activity_type.includes('face_not');
                                             let desc = e.activity_type.replace(/_/g, ' ');
                                             if (e.meta_data) {
@@ -834,22 +917,21 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                 else if (md.platform) desc += ': ' + md.platform;
                                                 else desc += ': ' + JSON.stringify(md);
                                             }
-                                            return {
-                                                time: e.timestamp,
-                                                type: e.activity_type,
-                                                desc,
-                                                severity: isCritical ? 2 : 1
-                                            };
-                                        }) : [];
+                                            e.desc = desc;
+                                            e.severity = isCritical ? 2 : 1;
+                                            return true;
+                                        });
                                         
-                                        // Fix: Calculate real time spent across all events for the first tab
-                                        let realTimeSpent = index === 0 ? sectionMock.timeSpent : 0;
-                                        if (index === 0 && submission?.general_events && submission.general_events.length > 1) {
-                                            const allGen = submission.general_events;
-                                            const start = new Date(allGen[0].timestamp).getTime();
-                                            const end = new Date(allGen[allGen.length - 1].timestamp).getTime();
-                                            if (!isNaN(start) && !isNaN(end)) {
-                                                realTimeSpent = Math.max(1, Math.round((end - start) / 60000));
+                                        // Use real time spent calculated from section events
+                                        let realTimeSpent = sectionMock.timeSpent || 0;
+                                        if (allSectionEvents && allSectionEvents.length > 1) {
+                                            const sortedEvents = [...allSectionEvents].sort((a: any, b: any) => a.timestamp - b.timestamp);
+                                            const firstEvt = sortedEvents[0].timestamp;
+                                            const lastEvt = sortedEvents[sortedEvents.length - 1].timestamp;
+                                            // duration in minutes
+                                            const diffMinutes = (lastEvt - firstEvt) / (1000 * 60);
+                                            if (diffMinutes > 0) {
+                                                realTimeSpent = Math.max(1, Math.round(diffMinutes));
                                             }
                                         }
 
@@ -964,25 +1046,145 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                     <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
                                                         <div className="flex items-center justify-between mb-4">
                                                             <h5 className="font-semibold text-slate-900 flex items-center gap-2">
-                                                                <Activity className="h-4 w-4 text-slate-500" /> Section Event Timeline
+                                                                <Activity className="h-4 w-4 text-slate-500" /> Question-Wise Proctoring Breakdown
                                                             </h5>
                                                         </div>
-                                                        {index > 0 ? (
-                                                            <div className="text-slate-500 italic text-xs">Candidate did not attempt this section.</div>
-                                                        ) : sectionEvents.length === 0 ? (
-                                                            <div className="text-slate-500 italic text-xs">No anomalies recorded for this section.</div>
-                                                        ) : (
-                                                            <div className="space-y-3">
-                                                                {sectionEvents.map((evt: any, i: number) => (
-                                                                    <div key={i} className="flex items-center gap-3 text-xs border-b border-neutral-200 pb-2 last:border-0 last:pb-0">
-                                                                        <div className={`w-2 h-2 rounded-full ${evt.severity === 2 ? 'bg-rose-500' : evt.severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                                                                        <span className="font-medium min-w-[60px] text-slate-500">{formatEventTime(evt.time)}</span>
-                                                                        <Badge variant="outline" className="text-slate-900 border-neutral-200 text-[10px] capitalize">{evt.type.replace(/_/g, ' ')}</Badge>
-                                                                        <span className="text-slate-500 truncate">{evt.desc}</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
+                                                        {(() => {
+                                                            let resolvedQuestions = sec.questions || [];
+                                                            if (resolvedQuestions.length > 0 && typeof resolvedQuestions[0] === 'string') {
+                                                                resolvedQuestions = resolvedQuestions.map((qId: string, idx: number) => ({
+                                                                    id: qId,
+                                                                    title: `Engineering Lab ${idx + 1}`
+                                                                }));
+                                                            } else if (sec.type === 'LAB' && submission?.lab_submissions && resolvedQuestions.length === 0) {
+                                                                const uniqueLabs = new Map<string, any>();
+                                                                submission.lab_submissions.forEach((ls: any, idx: number) => {
+                                                                    if (!uniqueLabs.has(ls.lab_question)) {
+                                                                        uniqueLabs.set(ls.lab_question, {
+                                                                            id: ls.lab_question,
+                                                                            title: ls.lab?.title || ls.lab_title || `Engineering Lab ${uniqueLabs.size + 1}`
+                                                                        });
+                                                                    }
+                                                                });
+                                                                resolvedQuestions = Array.from(uniqueLabs.values());
+                                                            }
+
+                                                            let sectionQuestions: { title: string; events: any[] }[] = [];
+                                                            if (resolvedQuestions && resolvedQuestions.length > 0) {
+                                                                sectionQuestions = resolvedQuestions.map((q: any, qIdx: number) => {
+                                                                    const qTitle = q.title || q.text || q.content || `Question ${qIdx + 1}`;
+                                                                    const qId = typeof q === 'string' ? q : q.id;
+                                                                    const qEvents = allSectionEvents.filter((v: any) => {
+                                                                        const vQId = v.question_id || (v.meta_data && v.meta_data.question_id);
+                                                                        if (vQId && qId && String(vQId) === String(qId)) return true;
+                                                                        if (v.question_title && (v.question_title === q.title || v.question_title === q.text || v.question_title === q.content || qTitle.includes(v.question_title) || v.question_title.includes(qTitle))) return true;
+                                                                        return false;
+                                                                    });
+                                                                    return { title: qTitle, events: qEvents.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) };
+                                                                });
+                                                            } else {
+                                                                const groups = new Map<string, any[]>();
+                                                                allSectionEvents.forEach((v: any) => {
+                                                                    const vQId = v.question_id || (v.meta_data && v.meta_data.question_id);
+                                                                    const t = v.question_title || (vQId ? `Question ${vQId.slice(0,8)}` : 'General / Unknown Question');
+                                                                    if (!groups.has(t)) groups.set(t, []);
+                                                                    groups.get(t)!.push(v);
+                                                                });
+                                                                sectionQuestions = Array.from(groups.entries()).map(([title, events]) => ({ title, events: events.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) }));
+                                                            }
+
+                                                            // Filter out sectionQuestions that are actually from other sections if possible
+                                                            // Or just render them.
+                                                            if (sectionQuestions.length === 0) {
+                                                                return <div className="text-slate-500 italic text-xs">No questions found or candidate did not attempt.</div>;
+                                                            }
+
+                                                            return (
+                                                                <Accordion type="single" collapsible className="w-full space-y-2">
+                                                                    {sectionQuestions.map((q, qIdx) => (
+                                                                        <AccordionItem key={qIdx} value={`q-${qIdx}`} className="bg-white border border-neutral-200 rounded-lg px-3 overflow-hidden shadow-sm">
+                                                                            <AccordionTrigger className="py-3 hover:no-underline flex justify-between group">
+                                                                                <div className="flex items-center gap-2 text-left">
+                                                                                    <span className="font-semibold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">{qIdx + 1}. {q.title}</span>
+                                                                                </div>
+                                                                                <div className="flex items-center gap-3 pr-2">
+                                                                                    {q.events.length > 0 && (
+                                                                                        <Badge variant="destructive" className="h-5 px-1.5 text-[10px] bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-100">
+                                                                                            {q.events.length} Flags
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                            </AccordionTrigger>
+                                                                            <AccordionContent className="pt-2 pb-4 border-t border-neutral-100">
+                                                                                {q.events.length === 0 ? (
+                                                                                    <div className="text-slate-500 italic text-xs py-2 px-1 flex items-center gap-2">
+                                                                                        <ShieldCheck className="w-4 h-4 text-emerald-500" /> No anomalies recorded for this question.
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div className="space-y-4 px-1 mt-2">
+                                                                                        <div className="h-[180px] w-full border border-neutral-200 rounded-lg bg-slate-50/50 p-2 relative">
+                                                                                            <ResponsiveContainer width="100%" height="100%">
+                                                                                                <AreaChart 
+                                                                                                    data={(() => {
+                                                                                                        let chartData: any[] = [];
+                                                                                                        q.events.forEach((log: any, index: number) => {
+                                                                                                            const isCritical = log.severity === 2;
+                                                                                                            const isWarning = log.severity === 1;
+                                                                                                            const logTime = new Date(log.timestamp).getTime();
+                                                                                                            
+                                                                                                            const point = {
+                                                                                                                log,
+                                                                                                                time: formatEventTime(log.timestamp),
+                                                                                                                severity: log.severity || 0,
+                                                                                                                severityName: isCritical ? 'Critical' : isWarning ? 'Warning' : 'Normal',
+                                                                                                                isSnapshot: log.activity_type === 'snapshot',
+                                                                                                                rawTime: logTime
+                                                                                                            };
+                                                                                                            
+                                                                                                            const prevLog = index > 0 ? q.events[index - 1] : null;
+                                                                                                            if (!prevLog || logTime - new Date(prevLog.timestamp).getTime() > 2000) {
+                                                                                                                chartData.push({ time: formatEventTime(logTime - 1000), severity: 0, rawTime: logTime - 1000 });
+                                                                                                            }
+                                                                                                            
+                                                                                                            chartData.push(point);
+                                                                                                            
+                                                                                                            const nextLog = index < q.events.length - 1 ? q.events[index + 1] : null;
+                                                                                                            if (!nextLog || new Date(nextLog.timestamp).getTime() - logTime > 2000) {
+                                                                                                                chartData.push({ time: formatEventTime(logTime + 1000), severity: 0, rawTime: logTime + 1000 });
+                                                                                                            }
+                                                                                                        });
+                                                                                                        return chartData.sort((a, b) => a.rawTime - b.rawTime);
+                                                                                                    })()}
+                                                                                                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                                                                                >
+                                                                                                    <defs>
+                                                                                                        <linearGradient id={`colorSeverity-${qIdx}`} x1="0" y1="0" x2="0" y2="1">
+                                                                                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                                                                                                            <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.8}/>
+                                                                                                            <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.8}/>
+                                                                                                        </linearGradient>
+                                                                                                        <linearGradient id={`colorSeverityFill-${qIdx}`} x1="0" y1="0" x2="0" y2="1">
+                                                                                                            <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
+                                                                                                            <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.2}/>
+                                                                                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                                                                                                        </linearGradient>
+                                                                                                    </defs>
+                                                                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                                                                                                    <XAxis dataKey="time" tick={{fontSize: 9, fill: '#64748b'}} tickLine={false} axisLine={false} minTickGap={30} />
+                                                                                                    <YAxis hide domain={[0, 2.2]} />
+                                                                                                    <Tooltip content={<CustomTooltip setActiveLightboxImg={setActiveLightboxImg} />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                                                                                    <Area type="monotone" dataKey="severity" stroke={`url(#colorSeverity-${qIdx})`} fill={`url(#colorSeverityFill-${qIdx})`} strokeWidth={2} />
+                                                                                                </AreaChart>
+                                                                                            </ResponsiveContainer>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </AccordionContent>
+                                                                        </AccordionItem>
+                                                                    ))}
+                                                                </Accordion>
+                                                            );
+                                                        })()}
                                                     </div>
                                                 </div>
                                             </TabsContent>

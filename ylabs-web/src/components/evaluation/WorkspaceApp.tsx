@@ -297,8 +297,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
              setTimeout(() => {
-               try { document.exitFullscreen?.(); } catch {}
-               nav({ to: "/evaluation/complete" });
+               submitEvaluation();
              }, 3000);
           } else {
              setModal({ kind: "tab-warning" });

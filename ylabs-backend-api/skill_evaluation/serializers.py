@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from .models import RecruiterActivityLog
+from .models import LabQuestionBankTask
 from core.storage import build_public_url
 from .models import (
     Evaluation,
@@ -136,7 +138,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         provision_evaluation_labs(instance)
         return instance
 
-from .models import LabQuestionBankTask
 
 class LabQuestionBankTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -231,3 +232,16 @@ class CandidateTimelineEventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('created_by', 'updated_by')
 
+
+class RecruiterActivityLogSerializer(serializers.ModelSerializer):
+    recruiter_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RecruiterActivityLog
+        fields = '__all__'
+        read_only_fields = ('recruiter', 'created_by', 'updated_by')
+
+    def get_recruiter_name(self, obj):
+        if obj.recruiter:
+            return f"{obj.recruiter.first_name} {obj.recruiter.last_name}".strip() or obj.recruiter.email
+        return None

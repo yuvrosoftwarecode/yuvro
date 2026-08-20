@@ -1,5 +1,5 @@
 // Recruiter data + backend API
-import { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
+import restApiAuthUtil, { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const DOMAINS = [
   "Finance",
@@ -217,6 +217,7 @@ function mapBackendToFrontend(be: any): Evaluation {
           mode: "Custom",
           questions: s.questions || [],
           mockInterviewId: meta.mockInterviewId,
+          proctoring
         };
       } else {
         return {
@@ -224,6 +225,7 @@ function mapBackendToFrontend(be: any): Evaluation {
           kind: "assessment",
           title: s.title,
           questions: s.questions || [],
+          proctoring
         };
       }
     }),
@@ -407,6 +409,8 @@ export function getDraftLocally(id: string): Evaluation | null {
   } catch {}
   return null;
 }
+
+
 
 export function clearDraftLocally(id: string) {
   try {
