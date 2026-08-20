@@ -7,7 +7,7 @@
 #
 # Examples:
 #   bash infra/scripts/deploy-dev-auto.sh              # deploys main
-#   bash infra/scripts/deploy-dev-auto.sh my-feature   # deploys my-feature branch
+#   bash infra/scripts/deploy-dev-auto.sh ylabs_deploy # deploys ylabs_deploy branch
 
 set -e
 
@@ -56,10 +56,9 @@ print_info() {
 
 check_prerequisites() {
     print_header "Checking Prerequisites"
-    
+
     local missing_tools=0
-    
-    # Check OpenTofu
+
     if ! command -v tofu &> /dev/null; then
         print_error "OpenTofu is not installed"
         echo "  Install from: https://opentofu.org/docs/intro/install/"
@@ -67,8 +66,7 @@ check_prerequisites() {
     else
         print_success "OpenTofu $(tofu version | head -1)"
     fi
-    
-    # Check AWS CLI
+
     if ! command -v aws &> /dev/null; then
         print_error "AWS CLI is not installed"
         echo "  Install from: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
@@ -76,16 +74,14 @@ check_prerequisites() {
     else
         print_success "AWS CLI $(aws --version | cut -d' ' -f1)"
     fi
-    
-    # Check SSH
+
     if ! command -v ssh &> /dev/null; then
         print_error "SSH is not installed"
         missing_tools=1
     else
         print_success "SSH installed"
     fi
-    
-    # Check AWS credentials
+
     if ! aws sts get-caller-identity &> /dev/null; then
         print_error "AWS credentials are not configured"
         echo "  Run: aws configure"
@@ -94,19 +90,18 @@ check_prerequisites() {
         local account_id=$(aws sts get-caller-identity --query Account --output text)
         print_success "AWS Account: $account_id"
     fi
-    
+
     if [ $missing_tools -eq 1 ]; then
         print_error "Please install missing tools and try again"
         exit 1
     fi
-    
+
     echo ""
 }
 
 check_aws_setup() {
     print_header "Checking AWS Setup"
-    
-    # Check if key pair exists
+
     if aws ec2 describe-key-pairs --key-names "$KEY_PAIR_NAME" --region "$AWS_REGION" &> /dev/null; then
         print_success "EC2 Key Pair '$KEY_PAIR_NAME' exists"
     else
@@ -117,91 +112,90 @@ check_aws_setup() {
         chmod 400 "$SSH_KEY_PATH"
         print_success "Key pair created and saved to: $SSH_KEY_PATH"
     fi
-    
-    # Check if SSH key file exists
+
     if [ -f "$SSH_KEY_PATH" ]; then
         print_success "SSH key file exists: $SSH_KEY_PATH"
     else
         print_error "SSH key file not found: $SSH_KEY_PATH"
         exit 1
     fi
-    
+
     echo ""
 }
 
 init_opentofu() {
     print_header "Initializing OpenTofu"
-    
+
     cd "$OPENTOFU_DIR"
-    
+
     if [ -d ".terraform" ]; then
         print_warning "OpenTofu already initialized"
     else
         tofu init
         print_success "OpenTofu initialized"
     fi
-    
+
     cd "$PROJECT_ROOT"
     echo ""
 }
 
 plan_deployment() {
     print_header "Planning Deployment"
-    
+
     cd "$OPENTOFU_DIR"
-    
+
     if [ ! -f "$TFVARS_FILE" ]; then
         print_error "Variables file not found: $TFVARS_FILE"
         exit 1
     fi
-    
+
     print_info "Using variables file: $TFVARS_FILE"
     tofu plan -var-file="$TFVARS_FILE" -out="$TFPLAN_FILE"
-    
+
     print_success "Deployment plan created"
-    
+
     cd "$PROJECT_ROOT"
     echo ""
 }
 
 apply_deployment() {
     print_header "Applying Deployment"
-    
+
     cd "$OPENTOFU_DIR"
-    
+
     if [ ! -f "$TFPLAN_FILE" ]; then
         print_error "Plan file not found: $TFPLAN_FILE"
         exit 1
     fi
-    
+
     print_info "Creating AWS resources..."
     tofu apply "$TFPLAN_FILE"
-    
+
     print_success "Infrastructure deployed"
-    
+
     cd "$PROJECT_ROOT"
     echo ""
 }
 
 get_instance_ip() {
     print_header "Getting EC2 Instance IP"
-    
+
     print_info "Retrieving EC2 instance IP..." >&2
-    
+
     local instance_ip=""
     local retries=0
-    
+
     while [ -z "$instance_ip" ] && [ $retries -lt $MAX_RETRIES ]; do
         instance_ip=$(aws ec2 describe-instances \
             --region "$AWS_REGION" \
             --filters "Name=tag:Environment,Values=dev" "Name=instance-state-name,Values=running" \
             --query 'Reservations[0].Instances[0].PublicIpAddress' \
             --output text 2>/dev/null)
-        
+
         if [ "$instance_ip" = "None" ] || [ -z "$instance_ip" ]; then
             instance_ip=""
         fi
-        
+
         if [ -z "$instance_ip" ]; then
             retries=$((retries + 1))
             if [ $retries -lt $MAX_RETRIES ]; then
@@ -210,23 +204,23 @@ get_instance_ip() {
             fi
         fi
     done
-    
+
     if [ -z "$instance_ip" ]; then
         print_error "Could not retrieve EC2 instance IP after $MAX_RETRIES attempts" >&2
         exit 1
     fi
-    
+
     print_success "EC2 Instance IP: $instance_ip" >&2
     echo "$instance_ip"
 }
 
 wait_for_ssh() {
     local instance_ip=$1
-    
+
     print_header "Waiting for SSH Access"
-    
+
     print_info "Waiting for EC2 instance to be SSH-ready..."
-    
+
     local retries=0
     while [ $retries -lt $MAX_RETRIES ]; do
         if ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 "ubuntu@$instance_ip" "echo 'SSH ready'" &> /dev/null; then
@@ -234,14 +228,14 @@ wait_for_ssh() {
             echo ""
             return 0
         fi
-        
+
         retries=$((retries + 1))
         if [ $retries -lt $MAX_RETRIES ]; then
             print_info "SSH not ready yet... ($retries/$MAX_RETRIES)"
             sleep $RETRY_DELAY
         fi
     done
-    
+
     print_error "SSH access not available after $MAX_RETRIES attempts"
     exit 1
 }
@@ -296,7 +290,6 @@ deploy_applications() {
         print_info "S3 IAM user:     ${S3_IAM_USER_NAME:-app-service-user}"
     fi
 
-    # Resolve SECRETS_DIR up front so the _set_kv calls below have a valid path.
     SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
     _set_kv() {
@@ -311,21 +304,17 @@ deploy_applications() {
         fi
     }
 
+    # Inject S3 credentials into ycode and ycampus backend secrets
     for secrets_file in \
         "ycode-backend-api/.env.dev-secrets" \
         "ycampus-backend-api/.env.dev-secrets"
     do
         local_path="$SECRETS_DIR/$secrets_file"
         _set_kv "$local_path" "AWS_STORAGE_BUCKET_NAME" "$S3_BASE_BUCKET"
-        _set_kv "$local_path" "AWS_ACCESS_KEY_ID"     "$S3_ACCESS_KEY_ID"
-        _set_kv "$local_path" "AWS_SECRET_ACCESS_KEY" "$S3_SECRET_ACCESS_KEY"
+        _set_kv "$local_path" "AWS_ACCESS_KEY_ID"       "$S3_ACCESS_KEY_ID"
+        _set_kv "$local_path" "AWS_SECRET_ACCESS_KEY"   "$S3_SECRET_ACCESS_KEY"
     done
 
-    # Also upsert the bucket name in the non-secrets .env.dev files so the
-    # value in source matches what OpenTofu provisioned. (The .env.dev file
-    # already has the literal `yuvro-dev` as a sensible default; this
-    # idempotently overrides it with the value OpenTofu reports in case
-    # someone later renames the bucket.)
     for env_file in \
         "ycode-backend-api/.env.dev" \
         "ycampus-backend-api/.env.dev"
@@ -336,14 +325,17 @@ deploy_applications() {
         fi
     done
 
-    # ── Copy secrets files to EC2 ──────────────────────────────────────────
+    # ── Copy all secrets files to EC2 ─────────────────────────────────────
     print_info "Copying .env.dev-secrets files to EC2..."
 
     for secrets_file in \
         "ycode-backend-api/.env.dev-secrets" \
         "ycampus-backend-api/.env.dev-secrets" \
+        "yhub-backend-api/.env.dev-secrets" \
+        "ylabs-backend-api/.env.dev-secrets" \
         "ycode-web/.env.dev-secrets" \
         "ycampus-web/.env.dev-secrets" \
+        "ylabs-web/.env.dev-secrets" \
         "yuvro-code-executer/.env.dev-secrets"
     do
         local_path="$SECRETS_DIR/$secrets_file"
@@ -359,7 +351,7 @@ deploy_applications() {
         fi
     done
 
-    # Read VITE_GOOGLE_CLIENT_ID from local secrets for build args
+    # ── Read Vite / Google OAuth client IDs from local secrets ────────────
     VITE_GOOGLE_CLIENT_ID_VAL=""
     if [ -f "$SECRETS_DIR/ycode-web/.env.dev-secrets" ]; then
         VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ycode-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
@@ -369,9 +361,16 @@ deploy_applications() {
     if [ -f "$SECRETS_DIR/ycampus-web/.env.dev-secrets" ]; then
         YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ycampus-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
     fi
-    # Fall back to ycode client ID if ycampus-specific one not set
     if [ -z "$YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL" ]; then
         YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL="$VITE_GOOGLE_CLIENT_ID_VAL"
+    fi
+
+    YLABS_VITE_GOOGLE_CLIENT_ID_VAL=""
+    if [ -f "$SECRETS_DIR/ylabs-web/.env.dev-secrets" ]; then
+        YLABS_VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ylabs-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+    fi
+    if [ -z "$YLABS_VITE_GOOGLE_CLIENT_ID_VAL" ]; then
+        YLABS_VITE_GOOGLE_CLIENT_ID_VAL="$VITE_GOOGLE_CLIENT_ID_VAL"
     fi
 
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << DEPLOY_EOF
@@ -388,7 +387,7 @@ Host github.com
 SSHCONF
 chmod 600 /home/ubuntu/.ssh/config
 
-echo "📦 Cloning/updating repository..."
+echo "📦 Cloning/updating repository (branch: $DEPLOY_BRANCH)..."
 cd /home/ubuntu
 if [ -d "yuvro" ]; then
     cd yuvro
@@ -401,12 +400,15 @@ else
     cd yuvro
 fi
 
-echo "📦 Restoring secrets files (copied before this step)..."
+echo "📦 Restoring secrets files..."
 for sf in \
     ycode-backend-api/.env.dev-secrets \
     ycampus-backend-api/.env.dev-secrets \
+    yhub-backend-api/.env.dev-secrets \
+    ylabs-backend-api/.env.dev-secrets \
     ycode-web/.env.dev-secrets \
     ycampus-web/.env.dev-secrets \
+    ylabs-web/.env.dev-secrets \
     yuvro-code-executer/.env.dev-secrets
 do
   if [ -f "\$sf" ]; then
@@ -416,53 +418,57 @@ do
   fi
 done
 
-# Export Vite build args (URLs baked into the frontend bundle at build time)
+# Export Vite build args (baked into frontend bundles at build time)
 export YCODE_VITE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
 export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
 export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
+export YLABS_VITE_BACKEND_API_BASE_URL="https://backend-dev.yuvrolabs.com/api"
 export VITE_GOOGLE_CLIENT_ID="${VITE_GOOGLE_CLIENT_ID_VAL}"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL}"
+export YLABS_VITE_GOOGLE_CLIENT_ID="${YLABS_VITE_GOOGLE_CLIENT_ID_VAL}"
 
-# Deploy metadata — baked into the frontend bundle at build time
+# Deploy metadata
 export VITE_DEPLOY_COMMIT_SHA=\$(git rev-parse HEAD 2>/dev/null || echo 'unknown')
 export VITE_DEPLOY_BRANCH=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')
-# Read app version from package.json (ycode-web)
 export VITE_DEPLOY_APP_VERSION=\$(python3 -c "import json; print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo '1.0.0')
+export CACHEBUST=\$(date +%s)
 
 echo "✓ Build args configured"
 echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
 echo "  YCAMPUS_VITE_BACKEND_API_BASE_URL=\$YCAMPUS_VITE_BACKEND_API_BASE_URL"
-echo "  VITE_GOOGLE_CLIENT_ID=\${VITE_GOOGLE_CLIENT_ID:0:20}..."
+echo "  YLABS_VITE_BACKEND_API_BASE_URL=\$YLABS_VITE_BACKEND_API_BASE_URL"
 echo "  VITE_DEPLOY_BRANCH=\$VITE_DEPLOY_BRANCH"
 echo "  VITE_DEPLOY_COMMIT_SHA=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
 echo "  VITE_DEPLOY_APP_VERSION=\$VITE_DEPLOY_APP_VERSION"
 
-echo "📦 Building services — old containers stay up during build (zero downtime)..."
-
-# Ensure the OS filesystem is expanded in case the EBS volume was recently resized
+# Expand EBS volume if needed
 sudo growpart /dev/nvme0n1 1 2>/dev/null || true
 sudo resize2fs /dev/root 2>/dev/null || sudo resize2fs /dev/nvme0n1p1 2>/dev/null || true
 
-echo "🧹 Cleaning up old Docker images and build cache to free space..."
+echo "🧹 Cleaning up old Docker images and build cache..."
 docker system prune -f
 docker builder prune -f --keep-storage 5GB
 
+echo "📦 Building all services..."
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.ylabs.yml \
+  -f docker-compose.yhub.yml \
   -f docker-compose.dev.yml \
   build
 
 echo "📦 Stopping old containers and starting new ones..."
 docker network create executor 2>/dev/null || true
+docker network create yuvro_ylabs 2>/dev/null || true
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.ylabs.yml \
+  -f docker-compose.yhub.yml \
   -f docker-compose.dev.yml \
   up -d --force-recreate
 
@@ -472,12 +478,12 @@ docker compose \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.ylabs.yml \
+  -f docker-compose.yhub.yml \
   -f docker-compose.dev.yml \
   ps
 
 echo "🔒 Activating nginx HTTPS config from repo..."
 sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
-sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
 sudo nginx -t && sudo systemctl reload nginx \
   && echo "✅ Nginx HTTPS config active" \
   || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
@@ -490,6 +496,12 @@ docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | ta
 
 echo "📦 Loading sample data for YCampus..."
 docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
+
+echo "📦 Loading sample data for YLabs..."
+docker exec yuvro-ylabs-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YLabs sample data already loaded or failed"
+
+echo "📦 Loading sample data for YHub..."
+docker exec yuvro-yhub-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YHub sample data already loaded or failed"
 DEPLOY_EOF
 
     print_success "Applications deployed"
@@ -499,8 +511,6 @@ DEPLOY_EOF
         print_header "Object Storage (S3)"
         print_info "Base bucket (S3):  $S3_BASE_BUCKET"
         print_info "                   https://s3.console.aws.amazon.com/s3/buckets/$S3_BASE_BUCKET"
-        print_info "Per-app layout:   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycode-uploads/"
-        print_info "                   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycampus-uploads/"
         if [ -n "$S3_ACCESS_KEY_ID" ]; then
             print_info "IAM access key:   $S3_ACCESS_KEY_ID (scoped to this base bucket)"
         fi
@@ -512,7 +522,7 @@ setup_nginx() {
 
     print_header "Setting up Nginx Reverse Proxy with Let's Encrypt SSL"
 
-    # ── Install nginx and certbot (idempotent) ─────────────────────────────
+    # Install nginx and certbot (idempotent)
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_INSTALL_EOF'
 set -e
 if ! command -v nginx &>/dev/null; then
@@ -528,13 +538,12 @@ sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-
 echo "✅ Nginx and certbot ready"
 NGINX_INSTALL_EOF
 
-    # ── Upload the HTTPS config from the repo (single source of truth) ─────
+    # Upload the HTTPS config from the repo (single source of truth)
     print_info "Uploading nginx HTTPS config from repo..."
     scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
         "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" \
         "ubuntu@$instance_ip:/tmp/yuvro-nginx-https.conf"
 
-    # ── Check if all certs already exist — skip certbot if so ──────────────
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'CERTBOT_EOF'
 DOMAINS=(
     "code-dev.yuvro.ai"
@@ -542,6 +551,9 @@ DOMAINS=(
     "backend-code-dev.yuvro.ai"
     "backend-campus-dev.yuvro.ai"
     "code-executer-dev.yuvro.ai"
+    "backend-hub-dev.yuvro.ai"
+    "backend-dev.yuvrolabs.com"
+    "dev.yuvrolabs.com"
 )
 CERT_EMAIL="rohith@yuvro.ai"
 
@@ -558,7 +570,6 @@ if [ "$ALL_CERTS" = "true" ]; then
 else
     echo "🔐 Some certs missing — running certbot with HTTP-only config first..."
 
-    # Write HTTP-only config for ACME challenge
     sudo python3 -c "
 domains = [
     'code-dev.yuvro.ai',
@@ -566,6 +577,9 @@ domains = [
     'backend-code-dev.yuvro.ai',
     'backend-campus-dev.yuvro.ai',
     'code-executer-dev.yuvro.ai',
+    'backend-hub-dev.yuvro.ai',
+    'backend-dev.yuvrolabs.com',
+    'dev.yuvrolabs.com',
 ]
 conf = ''
 for d in domains:
@@ -594,14 +608,13 @@ print('HTTP-only config written for ACME challenge')
                 --email "$CERT_EMAIL" \
                 --domain "$domain" 2>&1 \
             && echo "✅ Got cert for $domain" \
-            || echo "⚠ certbot failed for $domain — check DNS"
+            || echo "⚠ certbot failed for $domain — check DNS points to this server"
         fi
     done
 fi
 
 # Always activate HTTPS config from the uploaded repo file
 sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
-sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/yuvro-dev-https.conf
 sudo nginx -t && sudo systemctl reload nginx \
   && echo "✅ HTTPS nginx config active" \
   || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
@@ -636,12 +649,15 @@ show_summary() {
     echo "  YCode Backend:     https://backend-code-dev.yuvro.ai"
     echo "  YCampus Backend:   https://backend-campus-dev.yuvro.ai"
     echo "  Code Executor:     https://code-executer-dev.yuvro.ai"
+    echo "  YHub Backend:      https://backend-hub-dev.yuvro.ai"
+    echo "  YLabs Backend:     https://backend-dev.yuvrolabs.com"
+    echo "  YLabs Frontend:    https://dev.yuvrolabs.com"
     echo ""
 
     print_info "View logs:"
     echo "  ssh -i $SSH_KEY_PATH ubuntu@$instance_ip"
     echo "  cd yuvro"
-    echo "  docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml logs -f"
+    echo "  docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.dev.yml logs -f"
     echo ""
 }
 
@@ -653,11 +669,10 @@ cleanup_on_error() {
     echo "  tofu apply tfplan_destroy"
 }
 
-# Main script
+# Main
 main() {
     print_header "YCode Dev Environment - Fully Automated Deployment"
 
-    # Detect git remote URL from local repo
     REPO_URL=$(git -C "$PROJECT_ROOT" remote get-url origin 2>/dev/null || echo "")
     if [ -z "$REPO_URL" ]; then
         print_error "Could not detect git remote URL. Make sure you're in a git repo with an 'origin' remote."
@@ -669,7 +684,7 @@ main() {
     check_prerequisites
     check_aws_setup
 
-    # Check if EC2 instance is already running - skip infra if so
+    # If EC2 already running, skip infra provisioning
     local existing_ip
     existing_ip=$(aws ec2 describe-instances \
         --region "$AWS_REGION" \
@@ -678,7 +693,7 @@ main() {
         --output text 2>/dev/null || echo "")
 
     if [ -n "$existing_ip" ] && [ "$existing_ip" != "None" ]; then
-        print_warning "EC2 instance already running at $existing_ip - skipping infrastructure provisioning"
+        print_warning "EC2 instance already running at $existing_ip — skipping infrastructure provisioning"
         print_info "Run 'DEPLOY_ENV=dev make clean' first to destroy and recreate infrastructure"
         local instance_ip="$existing_ip"
         wait_for_ssh "$instance_ip"
@@ -711,11 +726,7 @@ main() {
     show_summary "$instance_ip"
 }
 
-# Error handling
 trap cleanup_on_error EXIT
-
 main "$@"
-
-# Remove error trap on success
 trap - EXIT
 print_success "Deployment completed successfully!"
