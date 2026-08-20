@@ -893,7 +893,7 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                                 return (
                                                                     <div key={lIdx} className="mb-4">
                                                                         <LabSubmissionViewer
-                                                                            userId={candidate.user.id}
+                                                                            userId={labSub?.user || candidate.user?.id?.toString() || candidate.id}
                                                                             evaluationId={evaluation.id}
                                                                             labId={labSub.lab_question}
                                                                             diffPatch={labSub.solution}

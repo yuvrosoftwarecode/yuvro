@@ -158,7 +158,9 @@ export async function runDatabaseQuery(
   scoringRules?: any,
   systemQuery?: string,
   expectedResult?: string,
-  evaluationId?: string
+  evaluationId?: string,
+  taskFile?: string,
+  taskId?: string
 ): Promise<{ stdout: string; stderr: string; exit_code: number; evaluation?: any }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/database_run`, {
     method: "POST",
@@ -175,7 +177,9 @@ export async function runDatabaseQuery(
       scoring_rules: scoringRules,
       system_query: systemQuery,
       expected_result: expectedResult,
-      evaluation_id: evaluationId
+      evaluation_id: evaluationId,
+      task_file: taskFile,
+      task_id: taskId
     }),
   });
   if (!res.ok) throw new Error(`Run Database query failed: ${res.statusText}`);

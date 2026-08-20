@@ -11,8 +11,19 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
     async def execute(self, body: Any, workspace_dir: str) -> Dict[str, Any]:
         
         try:
+            task_file = getattr(body, 'task_file', None)
+            if task_file:
+                file_path = os.path.join(str(workspace_dir), task_file)
+                if os.path.exists(file_path):
+                    with open(file_path, 'r') as f:
+                        body.query = f.read()
+                else:
+                    return {"stdout": "", "stderr": f"Task file {task_file} not found", "exit_code": -1}
+            
+            query = getattr(body, 'query', '') or ''
+            
             with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as f:
-                f.write(body.query)
+                f.write(query)
                 temp_path = f.name
                 
             proc = await asyncio.create_subprocess_shell(

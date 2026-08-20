@@ -1290,7 +1290,7 @@ function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labS
   return (
     <div className="fixed inset-0 z-[100] flex bg-background">
       <LabSubmissionViewer
-        userId={candidate.id}
+        userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
         evaluationId={evaluationId}
         lab={lab}
         labSub={labSub}
