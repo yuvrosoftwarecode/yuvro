@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from core.storage import upload_image
+from .models import RecruiterActivityLog
+from .serializers import RecruiterActivityLogSerializer
 import logging
 import time
 
@@ -634,8 +636,6 @@ class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
         else:
             serializer.save(created_by=user)
 
-from .models import RecruiterActivityLog
-from .serializers import RecruiterActivityLogSerializer
 
 class RecruiterActivityLogViewSet(viewsets.ModelViewSet):
     serializer_class = RecruiterActivityLogSerializer
