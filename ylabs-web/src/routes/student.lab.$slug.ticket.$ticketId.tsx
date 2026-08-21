@@ -957,7 +957,11 @@ export function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
-    if (!isReal || isLoading || !userId || slug === "knowledge") return;
+    if (!isReal || isLoading || !userId) return;
+    if (slug === "knowledge") {
+      setWsLoaded(true);
+      return;
+    }
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
@@ -1126,24 +1130,26 @@ export function TicketIDE({
   useEffect(() => {
     if (previewOverride) return;
     const isDummy = !isReal;
-
     const RECENT_LAB_KEY = "ylabs-recent-lab";
     const labEndpoint = isEvaluationMode
           ? `/skill_evaluation/lab-questions/${labId}/` 
           : `/lab/labs/${labId}/`;
-    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(labEndpoint)
-        .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
-        })
-        .catch(() => {
-          const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
-          setLabTitle(labName);
-          try {
-            localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
-          } catch {}
-        });
-    });
+    
+    if (slug !== "knowledge") {
+      import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+        api.get<any>(labEndpoint)
+          .then((realLab) => {
+            try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
+          })
+          .catch(() => {
+            const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
+            setLabTitle(labName);
+            try {
+              localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
+            } catch {}
+          });
+      });
+    }
 
     if (isDummy) return;
 

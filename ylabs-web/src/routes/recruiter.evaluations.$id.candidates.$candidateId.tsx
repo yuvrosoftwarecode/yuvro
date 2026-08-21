@@ -563,6 +563,44 @@ function OverviewPane({
   );
 }
 
+function CodingAnswerViewer({ q, candidateId, evaluationId }: { q: any, candidateId: string, evaluationId: string }) {
+  const [code, setCode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchCode() {
+       try {
+          const { fetchFileTree, fetchFile } = await import("@/services/workspaceService");
+          const treeRes = await fetchFileTree(candidateId, "knowledge", q.id, undefined, undefined, evaluationId);
+          let mainFile: any = null;
+          const findFile = (node: any) => {
+             if (node.type === "file" && node.name !== "README.md" && !node.name.startsWith(".")) {
+                 if (!mainFile) mainFile = node;
+             }
+             if (node.children) node.children.forEach(findFile);
+          };
+          findFile(treeRes.tree);
+          if (mainFile) {
+             const content = await fetchFile(candidateId, "knowledge", q.id, mainFile.path, evaluationId);
+             if (mounted) setCode(content);
+          } else {
+             if (mounted) setCode("No code submitted.");
+          }
+       } catch (err) {
+          if (mounted) setCode("Not answered");
+       } finally {
+          if (mounted) setLoading(false);
+       }
+    }
+    fetchCode();
+    return () => { mounted = false; };
+  }, [candidateId, q.id, evaluationId]);
+
+  if (loading) return <span className="text-neutral-500 italic">Loading code...</span>;
+  return <pre className="whitespace-pre-wrap font-mono text-[11px] overflow-x-auto">{code}</pre>;
+}
+
 function LabsPane({
   ev,
   candidate,
@@ -572,6 +610,7 @@ function LabsPane({
   candidate: any;
   onOpen: (data: { section: any, labSub: any, candidate: any }) => void;
 }) {
+
   const labSections = ev.sections.filter((s: any) => s.kind === "labs" || s.kind === "lab");
   const allLabs = labSections.flatMap((s: any) => s.labs || []);
 
@@ -648,30 +687,73 @@ function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
         let total = sub.questions?.length || 0;
         
         const mappedQuestions = (sub.questions || []).map((q: any) => {
-          const answerRecord = knSub?.answers?.find((a: any) => a.question === q.id);
-          const isCorrect = answerRecord?.is_correct ?? false;
-          if (isCorrect) score++;
+          const answerRecord = knSub?.answers?.find((a: any) => a.question === q.id || a.question_id === q.id);
+          let isCorrect = answerRecord?.is_correct ?? false;
           
           let candidateAnswerText = "Not answered";
           let correctAnswerText = "Unknown";
           
-          if (q.format === "Description") {
-             candidateAnswerText = answerRecord?.selected_options?.[0] || "Not answered";
-             correctAnswerText = "Manual review required";
+          if (q.format === "Description" || q.format === "Coding") {
+             candidateAnswerText = answerRecord?.selected_option || answerRecord?.selected_options?.[0] || "Not answered";
+             
+             let solText = "";
+             if (q.solutions && q.solutions.length > 0) {
+               solText = q.solutions.map((s: any) => s.code || s.title || "").filter(Boolean).join("\n---\n");
+             }
+             correctAnswerText = solText || q.correct_answer || q.solution || "Manual review required";
+             if (isCorrect) score++;
           } else {
+             const optsArray = q.mcq_options || q.options || [];
+             
              // Extract text for selected options
-             if (answerRecord?.selected_options?.length) {
-               candidateAnswerText = answerRecord.selected_options.map((optId: string) => {
-                 const foundOpt = q.options?.find((o: any) => o.id === optId);
-                 return foundOpt ? foundOpt.text : optId;
-               }).join(", ");
+             let selectedOpts = answerRecord?.selected_option !== undefined ? answerRecord.selected_option : answerRecord?.selected_options;
+             let selectedTexts: string[] = [];
+             if (selectedOpts !== undefined && selectedOpts !== null && selectedOpts !== "") {
+               if (!Array.isArray(selectedOpts)) selectedOpts = [selectedOpts];
+               
+               if (selectedOpts.length) {
+                 selectedTexts = selectedOpts.map((optVal: any) => {
+                   if (typeof optVal === 'number') {
+                     if (optsArray[optVal]) {
+                       return typeof optsArray[optVal] === 'string' ? optsArray[optVal] : optsArray[optVal].text;
+                     }
+                     return String(optVal);
+                   }
+                   const foundOpt = optsArray.find((o: any) => o.id === optVal);
+                   return foundOpt ? foundOpt.text : String(optVal);
+                 });
+                 candidateAnswerText = selectedTexts.join(", ");
+               }
              }
              
              // Extract text for correct options
-             const correctOptions = q.options?.filter((o: any) => o.is_correct) || [];
-             if (correctOptions.length) {
-               correctAnswerText = correctOptions.map((o: any) => o.text).join(", ");
+             let correctTexts: string[] = [];
+             if (optsArray.length > 0) {
+                 if (typeof optsArray[0] === 'string') {
+                    const correctOpts = Array.isArray(q.correct) ? q.correct : (q.correct !== undefined && q.correct !== null ? [q.correct] : []);
+                    if (correctOpts.length) {
+                       correctTexts = correctOpts.map((idx: number) => optsArray[idx]);
+                    }
+                 } else {
+                     const correctOptions = optsArray.filter((o: any) => o.is_correct);
+                     if (correctOptions.length) {
+                       correctTexts = correctOptions.map((o: any) => o.text);
+                     }
+                 }
+                 if (correctTexts.length) {
+                   correctAnswerText = correctTexts.join(", ");
+                 }
              }
+             
+             if (selectedTexts.length > 0 && correctTexts.length > 0) {
+                 const selectedSet = new Set(selectedTexts);
+                 const correctSet = new Set(correctTexts);
+                 isCorrect = selectedSet.size === correctSet.size && [...selectedSet].every(x => correctSet.has(x));
+             } else if (answerRecord) {
+                 isCorrect = false;
+             }
+             
+             if (isCorrect) score++;
           }
           
           return {
@@ -741,7 +823,13 @@ function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
                         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
                           Candidate answer
                         </div>
-                        <div className="mt-1 text-white">{q.candidateAnswer}</div>
+                        <div className="mt-1 text-white">
+                          {q.format === "Coding" ? (
+                            <CodingAnswerViewer q={q} candidateId={candidate.id} evaluationId={ev.id} />
+                          ) : (
+                            q.candidateAnswer
+                          )}
+                        </div>
                       </div>
                       <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-[13px]">
                         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
