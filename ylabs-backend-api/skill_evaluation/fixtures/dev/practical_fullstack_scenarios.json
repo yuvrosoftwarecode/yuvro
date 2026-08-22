@@ -7,10 +7,8 @@
       "domain": "HEALTHCARE",
       "experience": "MID_LEVEL",
       "duration_minutes": 60,
-      "marks": 100,
-      "scenario": "PERFORMANCE",
-      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_virtualized_grid_lab",
-      "startup_command": "npm install && npm run test",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_virtualized_grid_lab",
+      "startup_command": "npm install && npm run dev",
       "programming_languages": [
         "TYPESCRIPT",
         "JAVASCRIPT"
@@ -29,11 +27,15 @@
           "duration_minutes": 20,
           "order_index": 0,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "DOM Virtualization windowing calculations in useVirtualizer.ts",
+                "file": "src/hooks/useVirtualizer.ts",
+                "contains": ["Math.floor", "virtualItems.push"]
+              }
+            ],
+            "pass_message": "Task 1 passed! DOM virtualization viewport windowing implemented.",
+            "fail_hint": "Calculate visible rows with Math.floor and push to virtualItems in src/hooks/useVirtualizer.ts."
           },
           "expected_output": [],
           "solution": {
@@ -48,11 +50,15 @@
           "duration_minutes": 20,
           "order_index": 1,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "Web Worker sorting and filtering handler in filterWorker.ts",
+                "file": "src/workers/filterWorker.ts",
+                "contains": ["self.postMessage(filtered)", "data.filter"]
+              }
+            ],
+            "pass_message": "Task 2 passed! Web Worker offloaded sorting and filtering implemented.",
+            "fail_hint": "Filter data with data.filter and send results via self.postMessage(filtered) in src/workers/filterWorker.ts."
           },
           "expected_output": [],
           "solution": {
@@ -67,11 +73,15 @@
           "duration_minutes": 20,
           "order_index": 2,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "Worker cleanup and termination in VirtualizedGrid.tsx",
+                "file": "src/components/VirtualizedGrid.tsx",
+                "contains": ["new Worker", "worker.terminate()"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Memory leak prevention and worker termination implemented.",
+            "fail_hint": "Instantiate new Worker and call worker.terminate() inside useEffect cleanup in src/components/VirtualizedGrid.tsx."
           },
           "expected_output": [],
           "solution": {
@@ -89,8 +99,8 @@
       "duration_minutes": 60,
       "marks": 100,
       "scenario": "FEATURE_DEVELOPMENT",
-      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_collab_editor_lab",
-      "startup_command": "npm install && npm run test",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_collab_editor_lab",
+      "startup_command": "npm install && npm run dev",
       "programming_languages": [
         "TYPESCRIPT",
         "JAVASCRIPT"
@@ -109,15 +119,19 @@
           "duration_minutes": 20,
           "order_index": 0,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "Optimistic UI state updates and rollback in collabStore.ts",
+                "file": "src/store/collabStore.ts",
+                "contains": ["lastAcknowledgedCode", "applyOptimisticEdit", "rollbackEdit"]
+              }
+            ],
+            "pass_message": "Task 1 passed! Optimistic UI state updates with rollback implemented.",
+            "fail_hint": "Implement applyOptimisticEdit and rollbackEdit restoring lastAcknowledgedCode in src/store/collabStore.ts."
           },
           "expected_output": [],
           "solution": {
-            "src/store/collabStore.ts": "export function applyOptimisticEdit(state, edit) {\n  const backup = state.code;\n  try {\n    state.code = applyPatch(state.code, edit);\n  } catch (err) {\n    state.code = backup;\n  }\n}"
+            "src/store/collabStore.ts": "export function applyOptimisticEdit(state, newCode) {\n  return { ...state, code: newCode };\n}\nexport function rollbackEdit(state) {\n  return { ...state, code: state.lastAcknowledgedCode };\n}\nexport function acknowledgeEdit(state, newVersion) {\n  return { ...state, lastAcknowledgedCode: state.code, version: newVersion };\n}"
           }
         },
         {
@@ -128,15 +142,19 @@
           "duration_minutes": 20,
           "order_index": 1,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "Offline mutation queue and FIFO flush replay in mutationQueue.ts",
+                "file": "src/services/mutationQueue.ts",
+                "contains": ["enqueue", "flush", "push", "shift"]
+              }
+            ],
+            "pass_message": "Task 2 passed! Offline mutation queue and FIFO reconnection replay implemented.",
+            "fail_hint": "Implement enqueue with push and flush with shift in FIFO order in src/services/mutationQueue.ts."
           },
           "expected_output": [],
           "solution": {
-            "src/services/mutationQueue.ts": "export class MutationQueue {\n  private queue: any[] = [];\n  enqueue(mutation: any) { this.queue.push(mutation); }\n  flush(ws: WebSocket) {\n    while (this.queue.length && ws.readyState === WebSocket.OPEN) {\n      ws.send(JSON.stringify(this.queue.shift()));\n    }\n  }\n}"
+            "src/services/mutationQueue.ts": "export class MutationQueue {\n  private queue = [];\n  enqueue(m) { this.queue.push(m); }\n  flush(sender) {\n    let count = 0;\n    while (this.queue.length > 0) {\n      const item = this.queue[0];\n      if (sender(item)) {\n        this.queue.shift();\n        count++;\n      } else break;\n    }\n    return count;\n  }\n}"
           }
         },
         {
@@ -147,15 +165,19 @@
           "duration_minutes": 20,
           "order_index": 2,
           "scoring_rules": {
-            "logic_score": 100,
-            "clean_code": 0,
-            "visual_accuracy": 0,
-            "system_query": "N/A",
-            "expected_result": "N/A"
+            "file_checks": [
+              {
+                "label": "LWW timestamp conflict resolution in conflictResolver.ts",
+                "file": "src/services/conflictResolver.ts",
+                "contains": ["resolveConflictLWW", "timestamp"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Last-Write-Wins (LWW) conflict resolution implemented.",
+            "fail_hint": "Compare localMutation.timestamp vs remoteMutation.timestamp in src/services/conflictResolver.ts."
           },
           "expected_output": [],
           "solution": {
-            "src/services/conflictResolver.ts": "export function resolveConflict(localChange, incomingChange) {\n  if (incomingChange.timestamp > localChange.timestamp) {\n    return incomingChange.content;\n  }\n  return localChange.content;\n}"
+            "src/services/conflictResolver.ts": "export function resolveConflictLWW(local, remote) {\n  return remote.timestamp >= local.timestamp ? remote : local;\n}"
           }
         }
       ]

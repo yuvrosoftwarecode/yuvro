@@ -1927,15 +1927,17 @@ def evaluate_task(body: EvaluateRequest):
     """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     history_file = ws / ".bash_history"
+    rules = body.scoring_rules or {}
+    has_history_checks = bool(rules.get("checks")) or (not rules and bool(body.required_command))
     
-    if not history_file.exists():
+    if has_history_checks and not history_file.exists():
         return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
         
     try:
-        content = history_file.read_text(errors="replace")
-        lines = [line.strip() for line in content.splitlines() if line.strip()]
-        
-        rules = body.scoring_rules
+        lines = []
+        if history_file.exists():
+            content = history_file.read_text(errors="replace")
+            lines = [line.strip() for line in content.splitlines() if line.strip()]
         
         # -- If no scoring_rules provided fall back to simple substring check --
         if not rules:
@@ -1967,25 +1969,47 @@ def evaluate_task(body: EvaluateRequest):
                     
         # -- File-based checks ------------------------------------------
         for fc in rules.get("file_checks", []):
-            label        = fc.get("label", "file check")
-            rel_path     = fc.get("file", "")
+            label = fc.get("label", "file check")
+            rel_path = fc.get("file", "")
             check_exists = fc.get("exists", False)
             check_contains = fc.get("contains", None)
+            check_not_contains = fc.get("does_not_contain", None)
+            check_pattern = fc.get("pattern", None)
             
             target = ws / rel_path
             
-            if check_exists or check_contains is not None:
+            if check_exists or check_contains is not None or check_not_contains is not None or check_pattern is not None:
                 if not target.exists():
                     failed_labels.append(f"{label} (file not found: {rel_path})")
                     continue
                 
-                if check_contains is not None:
-                    try:
-                        file_content = target.read_text(errors="replace")
-                        if check_contains not in file_content:
-                            failed_labels.append(f"{label} (content not matched)")
-                    except Exception as e:
-                        failed_labels.append(f"{label} (read error: {e})")
+                try:
+                    file_content = target.read_text(errors="replace")
+                    
+                    # Check contains
+                    if check_contains is not None:
+                        if isinstance(check_contains, list):
+                            for needle in check_contains:
+                                if needle not in file_content:
+                                    failed_labels.append(f"{label} (missing '{needle}')")
+                        elif check_contains not in file_content:
+                            failed_labels.append(f"{label} (missing '{check_contains}')")
+                            
+                    # Check does_not_contain
+                    if check_not_contains is not None:
+                        if isinstance(check_not_contains, list):
+                            for needle in check_not_contains:
+                                if needle in file_content:
+                                    failed_labels.append(f"{label} (should not contain '{needle}')")
+                        elif check_not_contains in file_content:
+                            failed_labels.append(f"{label} (should not contain '{check_not_contains}')")
+                            
+                    # Check regex pattern
+                    if check_pattern is not None:
+                        if not _re.search(check_pattern, file_content):
+                            failed_labels.append(f"{label} (pattern match failed)")
+                except Exception as e:
+                    failed_labels.append(f"{label} (read error: {e})")
                         
         if failed_labels:
             hint = rules.get("fail_hint", "Missing requirements.")
@@ -2000,7 +2024,7 @@ def evaluate_task(body: EvaluateRequest):
         }
             
     except Exception as e:
-        return {"passed": False, "reason": f"Error reading history: {e}"}
+        return {"passed": False, "reason": f"Error during task evaluation: {e}"}
 
 class RunCommandRequest(BaseModel):
     user_id: str
