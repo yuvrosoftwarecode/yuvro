@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter, useSearch } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Field } from "@/components/evaluation/EvalShell";
-import { evaluationService } from "../services/evaluationService";
+import { evaluationService, setTempResumeFile } from "../services/evaluationService";
 
 export const Route = createFileRoute("/evaluation/")({
   head: () => ({
@@ -59,6 +59,9 @@ function EvaluationInvite() {
         "yuvro-eval-candidate",
         JSON.stringify({ firstName, lastName, email, phone: `+91 ${phone}`, resume: file?.name, title }),
       );
+      if (file) {
+        setTempResumeFile(file);
+      }
       router.navigate({ to: "/evaluation/otp", search: { e: evaluationId } });
     } catch (error: any) {
       setErr(error?.message || "Failed to send OTP.");

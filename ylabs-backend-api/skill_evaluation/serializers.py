@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import RecruiterActivityLog
 from .models import LabQuestionBankTask
+from django.contrib.auth import get_user_model
 from core.storage import build_public_url
 from .models import (
     Evaluation,
@@ -50,11 +51,17 @@ def provision_evaluation_labs(evaluation):
                     logger.error(f"Error provisioning lab for evaluation {evaluation.id}: {e}")
 
 
-class SubmissionUserSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    email = serializers.EmailField()
-    first_name = serializers.CharField(max_length=150)
-    last_name = serializers.CharField(max_length=150)
+class SubmissionUserSerializer(serializers.ModelSerializer):
+    resume_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url']
+
+    def get_resume_url(self, obj):
+        if hasattr(obj, 'profile') and obj.profile.resume_file:
+            return obj.profile.resume_file
+        return None
 
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
     user = SubmissionUserSerializer(read_only=True)

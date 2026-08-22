@@ -15,6 +15,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
         token["roles"] = user.roles
+        token["resume_file"] = user.resume_file
 
         return token
 
@@ -33,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "profile_image",
             "cover_image",
+            "resume_file",
             "roles",
             "is_active",
             "date_joined",
