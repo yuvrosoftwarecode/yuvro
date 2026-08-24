@@ -1,38 +1,24 @@
+import alasql from "alasql";
 import mingo from "mingo";
 
 // Define Types
 export type SqlRow = Record<string, string | number>;
 
 let sqlInitialized = false;
-let alasqlInstance: any = null;
-
-function getAlasqlInstance() {
-  if (typeof window === "undefined") return null;
-  if (!alasqlInstance) {
-    try {
-      // @ts-ignore
-      alasqlInstance = window.alasql || null;
-    } catch {
-      alasqlInstance = null;
-    }
-  }
-  return alasqlInstance;
-}
 
 function initSqlDb() {
-  if (typeof window === "undefined" || sqlInitialized) return;
+  if (sqlInitialized) return;
 
-  const alasql = getAlasqlInstance();
-  if (!alasql) return;
-
-  const saved = localStorage.getItem("alasql_dbs");
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      alasql.databases = parsed.databases;
-      if (parsed.useid) alasql.use(parsed.useid);
-    } catch (e) {
-      console.error("Failed to parse alasql databases", e);
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("alasql_dbs");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        alasql.databases = parsed.databases;
+        if (parsed.useid) alasql.use(parsed.useid);
+      } catch (e) {
+        console.error("Failed to parse alasql databases", e);
+      }
     }
   }
 
@@ -46,30 +32,24 @@ export function runDynamicSqlQuery(query: string): {
   ms: number;
 } {
   try {
-    if (typeof window === "undefined") {
-      return { columns: [], rows: [], note: "Server-side execution skipped", ms: 0 };
-    }
     initSqlDb();
-    const alasql = getAlasqlInstance();
-    if (!alasql) {
-      return { columns: [], rows: [], note: "SQL query executed.", ms: 0 };
-    }
-
     const start = performance.now();
     // Execute query using alasql
     const results = alasql(query);
     const ms = Math.round(performance.now() - start);
 
-    try {
-      localStorage.setItem(
-        "alasql_dbs",
-        JSON.stringify({
-          databases: alasql.databases,
-          useid: alasql.useid,
-        }),
-      );
-    } catch (e) {
-      console.warn("localStorage quota exceeded or error", e);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "alasql_dbs",
+          JSON.stringify({
+            databases: alasql.databases,
+            useid: alasql.useid,
+          }),
+        );
+      } catch (e) {
+        console.warn("localStorage quota exceeded or error", e);
+      }
     }
 
     // alasql returns an array of objects for SELECTs, or a number for INSERT/UPDATE/DELETE.
@@ -119,131 +99,152 @@ function executeMongoCommand(collectionName: string, method: string, args: any[]
       if (projection) {
         queryResult = queryResult.map((doc: any) => {
           const res: any = {};
-          for (const k of Object.keys(projection)) {
-            if (projection[k]) res[k] = doc[k];
+          const keys = Object.keys(projection);
+          const isInclude = keys.some((k) => projection[k] === 1);
+          if (isInclude) {
+            if (projection._id !== 0) res._id = doc._id;
+            keys.forEach((k) => {
+              if (projection[k] === 1) res[k] = doc[k];
+            });
+          } else {
+            Object.assign(res, doc);
+            keys.forEach((k) => {
+              if (projection[k] === 0) delete res[k];
+            });
           }
           return res;
         });
       }
-      return queryResult;
+      // Add methods for chained operations like .sort().limit()
+      const chainable = queryResult;
+      (chainable as any).sort = function (sortSpec: any) {
+        // very basic sort
+        const keys = Object.keys(sortSpec);
+        this.sort((a: any, b: any) => {
+          for (const k of keys) {
+            const dir = sortSpec[k] === -1 ? -1 : 1;
+            if (a[k] < b[k]) return -1 * dir;
+            if (a[k] > b[k]) return 1 * dir;
+          }
+          return 0;
+        });
+        return this;
+      };
+      (chainable as any).limit = function (n: number) {
+        return this.slice(0, n);
+      };
+      (chainable as any).toArray = function () {
+        return this;
+      };
+      return chainable;
     }
-    case "findOne": {
-      const query = args[0] || {};
-      return new mingo.Query(query).find(collection).all()[0] || null;
+    case "aggregate": {
+      const pipeline = args[0] || [];
+      return new mingo.Aggregator(pipeline).run(collection);
     }
     case "insertOne": {
-      const doc = { ...args[0], _id: args[0]._id || Math.random().toString(36).substring(7) };
+      const doc = args[0];
+      if (!doc._id) doc._id = Date.now() + Math.random();
       collection.push(doc);
       return { acknowledged: true, insertedId: doc._id };
     }
     case "insertMany": {
-      const docs = args[0].map((d: any) => ({
-        ...d,
-        _id: d._id || Math.random().toString(36).substring(7),
-      }));
-      collection.push(...docs);
-      return {
-        acknowledged: true,
-        insertedCount: docs.length,
-        insertedIds: docs.map((d: any) => d._id),
-      };
+      const docs = args[0];
+      docs.forEach((doc: any) => {
+        if (!doc._id) doc._id = Date.now() + Math.random();
+        collection.push(doc);
+      });
+      return { acknowledged: true, insertedCount: docs.length };
     }
     case "updateOne": {
-      const query = args[0] || {};
-      const update = args[1] || {};
-      const doc = new mingo.Query(query).find(collection).all()[0];
+      const filter = args[0];
+      const update = args[1];
+      const doc = new mingo.Query(filter).find(collection).next();
       if (doc) {
+        // Simple mock of $set
         if (update.$set) Object.assign(doc, update.$set);
-        if (update.$inc) {
-          for (const [k, v] of Object.entries(update.$inc)) {
-            doc[k] = (doc[k] || 0) + (v as number);
-          }
-        }
         return { acknowledged: true, matchedCount: 1, modifiedCount: 1 };
       }
       return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
     }
     case "updateMany": {
-      const query = args[0] || {};
-      const update = args[1] || {};
-      const docs = new mingo.Query(query).find(collection).all();
-      for (const doc of docs) {
-        if (update.$set) Object.assign(doc, update.$set);
-        if (update.$inc) {
-          for (const [k, v] of Object.entries(update.$inc)) {
-            doc[k] = (doc[k] || 0) + (v as number);
-          }
-        }
-      }
-      return { acknowledged: true, matchedCount: docs.length, modifiedCount: docs.length };
+      const filter = args[0];
+      const update = args[1];
+      let modified = 0;
+      new mingo.Query(filter)
+        .find(collection)
+        .all()
+        .forEach((doc: any) => {
+          if (update.$set) Object.assign(doc, update.$set);
+          modified++;
+        });
+      return { acknowledged: true, matchedCount: modified, modifiedCount: modified };
     }
     case "deleteOne": {
-      const query = args[0] || {};
-      const doc = new mingo.Query(query).find(collection).all()[0];
-      if (doc) {
-        dbCollections[collectionName] = collection.filter((d: any) => d !== doc);
+      const filter = args[0];
+      const index = collection.findIndex((doc) => new mingo.Query(filter).test(doc));
+      if (index !== -1) {
+        collection.splice(index, 1);
         return { acknowledged: true, deletedCount: 1 };
       }
       return { acknowledged: true, deletedCount: 0 };
     }
     case "deleteMany": {
-      const query = args[0] || {};
-      const docs = new mingo.Query(query).find(collection).all();
-      dbCollections[collectionName] = collection.filter((d: any) => !docs.includes(d));
-      return { acknowledged: true, deletedCount: docs.length };
-    }
-    case "countDocuments": {
-      const query = args[0] || {};
-      return new mingo.Query(query).find(collection).all().length;
-    }
-    case "aggregate": {
-      const pipeline = args[0] || [];
-      const agg = new mingo.Aggregator(pipeline);
-      return agg.run(collection);
-    }
-    case "drop": {
-      dbCollections[collectionName] = [];
-      return true;
+      const filter = args[0];
+      const initialLength = collection.length;
+      const query = new mingo.Query(filter);
+      dbCollections[collectionName] = collection.filter((doc) => !query.test(doc));
+      return {
+        acknowledged: true,
+        deletedCount: initialLength - dbCollections[collectionName].length,
+      };
     }
     default:
       throw new Error(`Unsupported method: ${method}`);
   }
 }
 
-export function runDynamicMongoQuery(commandStr: string): {
-  rows: any[];
+export function runDynamicMongoQuery(queryStr: string): {
+  rows: unknown[];
   note: string;
   ms: number;
 } {
   try {
     const start = performance.now();
-    let cleaned = commandStr.trim();
-    if (cleaned.endsWith(";")) cleaned = cleaned.slice(0, -1).trim();
+    // Parse things like db.users.find({ ... }).sort({ ... }).limit(1)
 
-    // Context mock for `db`
-    const dbProxy = new Proxy(
-      {},
-      {
-        get(_, collectionName: string) {
-          return new Proxy(
-            {},
-            {
-              get(__, methodName: string) {
-                return (...args: any[]) =>
-                  executeMongoCommand(collectionName, methodName, args);
-              },
+    // We will evaluate the code inside a Sandbox
+    const sandboxDb: any = {};
+    const collections = ["users", "orders"]; // allow dynamic collection names based on proxy
+
+    const dbProxy = new Proxy(sandboxDb, {
+      get: (target, prop: string) => {
+        return new Proxy(
+          {},
+          {
+            get: (colTarget, method: string) => {
+              return (...args: any[]) => {
+                return executeMongoCommand(prop, method, args);
+              };
             },
-          );
-        },
+          },
+        );
       },
-    );
+    });
 
-    // Evaluate the query in a Function with `db` scope
-    // e.g. "db.users.find({ age: { $gt: 20 } })"
+    // Create a safe evaluation environment
     const evalFunc = new Function(
       "db",
       `
-      return ${cleaned};
+      try {
+        const result = eval(${JSON.stringify(queryStr)});
+        if (result && typeof result.toArray === 'function') {
+           return result.toArray();
+        }
+        return result;
+      } catch (e) {
+        throw e;
+      }
     `,
     );
 
@@ -262,17 +263,12 @@ export function runDynamicMongoQuery(commandStr: string): {
 
 export function getAlasqlSchema() {
   try {
-    if (typeof window === "undefined") return [];
     initSqlDb();
-    const alasql = getAlasqlInstance();
-    if (!alasql || !alasql.databases) return [];
-
     const schemas: any[] = [];
     for (const dbName of Object.keys(alasql.databases)) {
       if (dbName === "alasql") continue; // skip the internal engine db
 
       const db = alasql.databases[dbName];
-      if (!db || !db.tables) continue;
       const schema: any = { name: dbName, type: "SQLite", tables: [] };
       for (const tableName of Object.keys(db.tables)) {
         const table = db.tables[tableName];
