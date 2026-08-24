@@ -136,9 +136,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (state.isAuthenticated && state.token) {
       localStorage.setItem("access", state.token);
       authService.setAuthToken(state.token);
-    } else {
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
     }
   }, [state.isAuthenticated, state.token]);
 

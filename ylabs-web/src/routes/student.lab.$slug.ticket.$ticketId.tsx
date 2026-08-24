@@ -857,75 +857,7 @@ export function StudentTicketView({
       }
     : resolvedTicket;
 
-  return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} isEvaluationMode={isEvaluationMode} evaluationId={evaluationId} />;
-}
-
-function parseDbSchemaFromSql(
-  sqlContent: string,
-  dbName: string = "dbo",
-  dbType: "PostgreSQL" | "MySQL" | "SQLite" | "MongoDB" = "SQLite"
-): DbSchema {
-  const tables: DbTable[] = [];
-  if (!sqlContent) return { name: dbName, type: dbType, tables: [] };
-
-  const createTableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([`"']?[\w]+[`"']?)\s*\(([\s\S]*?)\)(?:\s*;|\s*$)/gi;
-  let match;
-
-  while ((match = createTableRegex.exec(sqlContent)) !== null) {
-    const tableName = match[1].replace(/[`"']/g, "").trim();
-    const body = match[2];
-    const columns: DbColumn[] = [];
-
-    const lines = body.split(/,(?![^(]*\))/g);
-    for (const rawLine of lines) {
-      const line = rawLine.trim();
-      if (!line || line.startsWith("--") || line.startsWith("#") || line.startsWith("/*")) continue;
-
-      if (
-        /^PRIMARY\s+KEY\s*\(/i.test(line) ||
-        /^FOREIGN\s+KEY\s*\(/i.test(line) ||
-        /^CONSTRAINT\s+/i.test(line) ||
-        /^UNIQUE\s*\(/i.test(line) ||
-        /^CHECK\s*\(/i.test(line)
-      ) {
-        const pkMatch = line.match(/^PRIMARY\s+KEY\s*\(([`"']?[\w]+[`"']?)\)/i);
-        if (pkMatch) {
-          const pkCol = pkMatch[1].replace(/[`"']/g, "").trim();
-          const targetCol = columns.find((c) => c.name.toLowerCase() === pkCol.toLowerCase());
-          if (targetCol) targetCol.key = "PK";
-        }
-        continue;
-      }
-
-      const colMatch = line.match(/^([`"']?[\w]+[`"']?)\s+([A-Za-z0-9_()]+)(.*)$/);
-      if (colMatch) {
-        const colName = colMatch[1].replace(/[`"']/g, "").trim();
-        const colType = colMatch[2].trim().toUpperCase();
-        const rest = colMatch[3] ? colMatch[3].toUpperCase() : "";
-
-        const isPk = rest.includes("PRIMARY KEY") || rest.includes("PK");
-        const isNotNull = rest.includes("NOT NULL") || isPk;
-        const defaultMatch = rest.match(/DEFAULT\s+([^,\s]+)/);
-        const defaultValue = defaultMatch ? defaultMatch[1].trim() : "-";
-
-        columns.push({
-          name: colName,
-          type: colType,
-          nullable: isNotNull ? "NO" : "YES",
-          default: defaultValue,
-          key: isPk ? "PK" : "-",
-        });
-      }
-    }
-
-    tables.push({
-      name: tableName,
-      columns,
-      ddl: match[0].trim(),
-    });
-  }
-
-  return { name: dbName, type: dbType, tables };
+  return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
 }
 
 export function TicketIDE({
@@ -1479,38 +1411,12 @@ export function TicketIDE({
   const [runId, setRunId] = useState(0);
 
   const refreshSchema = useCallback(() => {
-    if (isAnySql) {
-      const sqlFiles = Object.keys(files).filter(k => k.endsWith(".sql"));
-      let combinedSql = "";
-      if (files["seed.sql"]) combinedSql += files["seed.sql"] + "\n";
-      if (files["schema.sql"]) combinedSql += files["schema.sql"] + "\n";
-      for (const k of sqlFiles) {
-        if (k !== "seed.sql" && k !== "schema.sql") {
-          combinedSql += (files[k] || "") + "\n";
-        }
-      }
-
-      const typeName: "PostgreSQL" | "MySQL" | "SQLite" = isPostgres
-        ? "PostgreSQL"
-        : isMysql
-        ? "MySQL"
-        : "SQLite";
-      const dbName = isPostgres ? "postgres" : isMysql ? "mysql" : "dbo";
-
-      const parsedSchema = parseDbSchemaFromSql(combinedSql, dbName, typeName);
-      const alasqlSchemas = getAlasqlSchema();
-
-      if (parsedSchema.tables.length > 0) {
-        setDbSchemas([parsedSchema]);
-      } else if (alasqlSchemas.length > 0 && alasqlSchemas.some(s => s.tables.length > 0)) {
-        setDbSchemas(alasqlSchemas);
-      } else {
-        setDbSchemas([parsedSchema]);
-      }
+    if (isSql) {
+      setDbSchemas(getAlasqlSchema());
     } else if (isMongo) {
       setDbSchemas(getMongoSchema());
     }
-  }, [files, isAnySql, isPostgres, isMysql, isMongo]);
+  }, [isSql, isMongo]);
 
   useEffect(() => {
     refreshSchema();

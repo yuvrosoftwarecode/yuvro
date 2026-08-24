@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
+import authService from "@/services/authService";
 import {
   ArrowRight,
   Github,
@@ -28,26 +29,23 @@ export const Route = createFileRoute("/auth")({
       if (token) {
         const userStr = localStorage.getItem("user");
         if (userStr) {
+          let user: any = null;
           try {
-            const user = JSON.parse(userStr);
+            user = JSON.parse(userStr);
+          } catch (e) {}
+          if (user) {
             const role = user.roles?.ylabs || user.roles?.ycode || user.role;
             const r = role?.toLowerCase();
             if (r === "admin") throw redirect({ to: "/admin" });
             else if (r === "recruiter") throw redirect({ to: "/recruiter/dashboard" });
             else throw redirect({ to: "/student/dashboard" });
-          } catch (e) {
-            // let them stay on auth page if parsing fails
           }
-        } else {
-          // let them stay on auth page if no user object
         }
       }
     }
   },
   component: AuthPage,
 });
-
-import { useEffect } from "react";
 
 function AuthPage() {
   const { tab } = Route.useSearch();
@@ -205,25 +203,21 @@ function SignInForm() {
     e.preventDefault();
     setErr("");
     try {
-      // @ts-ignore (we know authService exists, we will import it)
-      const res = await import("@/services/authService").then((m) =>
-        m.default.login(email, password),
-      );
+      const res = await authService.login(email, password);
       login(res.user, res.access);
       const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
-      if (redirect) {
-        if (redirect.startsWith("http")) window.location.href = redirect;
-        else nav({ to: redirect as any });
+      const r = role?.toLowerCase();
+      const defaultDest =
+        r === "admin"
+          ? "/admin"
+          : r === "recruiter"
+            ? "/recruiter/dashboard"
+            : "/student/dashboard";
+      const target = redirect || defaultDest;
+      if (target.startsWith("http")) {
+        window.location.href = target;
       } else {
-        const r = role?.toLowerCase();
-        nav({
-          to:
-            r === "admin"
-              ? "/admin"
-              : r === "recruiter"
-                ? "/recruiter/dashboard"
-                : "/student/dashboard",
-        });
+        window.location.href = target;
       }
     } catch (error: any) {
       setErr(error?.message || "Invalid email or password.");
