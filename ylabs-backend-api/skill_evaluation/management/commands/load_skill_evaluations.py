@@ -118,19 +118,20 @@ class Command(BaseCommand):
                 },
             )
 
+            # Clear stale tasks for this lab to match the current fixture exactly
+            LabQuestionBankTask.objects.filter(lab_question_bank=q).delete()
+
             for task_data in q_data.get("tasks", []):
-                LabQuestionBankTask.objects.update_or_create(
+                LabQuestionBankTask.objects.create(
                     lab_question_bank=q,
                     title=task_data["title"],
-                    defaults={
-                        "description": task_data.get("description", ""),
-                        "difficulty": task_data.get("difficulty", "MEDIUM"),
-                        "marks": task_data.get("marks", 5),
-                        "duration_minutes": task_data.get("duration_minutes", 30),
-                        "order_index": task_data.get("order_index", 0),
-                        "scoring_rules": task_data.get("scoring_rules", {}),
-                        "expected_output": task_data.get("expected_output", {}),
-                        "solution": task_data.get("solution", {}),
-                        "created_by": admin_user,
-                    }
+                    description=task_data.get("description", ""),
+                    difficulty=task_data.get("difficulty", "MEDIUM"),
+                    marks=task_data.get("marks", 5),
+                    duration_minutes=task_data.get("duration_minutes", 30),
+                    order_index=task_data.get("order_index", 0),
+                    scoring_rules=task_data.get("scoring_rules", {}),
+                    expected_output=task_data.get("expected_output", {}),
+                    solution=task_data.get("solution", {}),
+                    created_by=admin_user,
                 )

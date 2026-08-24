@@ -174,6 +174,18 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                     break
 
         if has_db_tasks:
+            num_tasks = len(tasks)
+            # Remove any stale taskX.sql files exceeding the current task count
+            for fname in os.listdir(user_dir):
+                m = re.match(r"^task(\d+)\.sql$", fname)
+                if m:
+                    idx = int(m.group(1))
+                    if idx > num_tasks or idx < 1:
+                        try:
+                            os.remove(os.path.join(user_dir, fname))
+                        except Exception:
+                            pass
+
             for i, task in enumerate(tasks, start=1):
                 task_file = os.path.join(user_dir, f"task{i}.sql")
                 if not os.path.exists(task_file):
