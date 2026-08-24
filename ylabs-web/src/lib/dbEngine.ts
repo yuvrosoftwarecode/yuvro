@@ -1,7 +1,5 @@
 import alasql from "alasql";
 import mingo from "mingo";
-import alasql from "alasql";
-import mingo from "mingo";
 
 // Define Types
 export type SqlRow = Record<string, string | number>;
