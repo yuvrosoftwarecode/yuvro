@@ -15,14 +15,6 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    resolve: {
-      alias: [
-        {
-          find: "alasql",
-          replacement: path.resolve(__dirname, "node_modules/alasql/dist/alasql.min.js"),
-        },
-      ],
-    },
     optimizeDeps: {
       include: ['recharts'],
       exclude: [
