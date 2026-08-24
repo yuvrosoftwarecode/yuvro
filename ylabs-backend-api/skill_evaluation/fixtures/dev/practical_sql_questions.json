@@ -218,6 +218,342 @@
           }
         }
       ]
+    },
+    {
+      "title": "Practical PostgreSQL Evaluation",
+      "description": "Evaluate candidates on practical PostgreSQL skills for FinTech and SaaS analytics including aggregations, HAVING filters, Window Functions, and multi-table reconciliation.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_sql_advanced_lab",
+      "startup_command": "sqlite3 lab.db < seed.sql",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Active Monthly Recurring Revenue (MRR) by Plan",
+          "description": "Given table `subscriptions` (id, user_id, plan_name, monthly_amount, status, start_date), write a PostgreSQL query to calculate total Monthly Recurring Revenue (`total_mrr`) and active subscriber count (`active_subscribers`) for each plan where status is 'ACTIVE'. Order by `total_mrr` DESC.",
+          "difficulty": "EASY",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT plan_name, COUNT(id) AS active_subscribers, SUM(monthly_amount) AS total_mrr FROM subscriptions WHERE status = 'ACTIVE' GROUP BY plan_name ORDER BY total_mrr DESC;",
+            "expected_result": "Enterprise"
+          },
+          "expected_output": [
+            {
+              "plan_name": "Enterprise",
+              "active_subscribers": 2,
+              "total_mrr": 2000.0
+            },
+            {
+              "plan_name": "Pro",
+              "active_subscribers": 3,
+              "total_mrr": 300.0
+            },
+            {
+              "plan_name": "Free",
+              "active_subscribers": 1,
+              "total_mrr": 0.0
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT plan_name, COUNT(id) AS active_subscribers, SUM(monthly_amount) AS total_mrr FROM subscriptions WHERE status = 'ACTIVE' GROUP BY plan_name ORDER BY total_mrr DESC;"
+          }
+        },
+        {
+          "title": "Task 2: High-Volume Accounts with Failed Audit Events",
+          "description": "Given tables `accounts` (id, account_number, balance, tier) and `audit_logs` (id, account_id, action, performed_at, status_code), write a PostgreSQL query to identify all account numbers that have experienced more than 2 failed actions (status_code >= 400). Return `account_number` and `failed_count`, ordered by `failed_count` DESC.",
+          "difficulty": "MEDIUM",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT a.account_number, COUNT(l.id) AS failed_count FROM accounts a JOIN audit_logs l ON a.id = l.account_id WHERE l.status_code >= 400 GROUP BY a.id, a.account_number HAVING COUNT(l.id) > 2 ORDER BY failed_count DESC;",
+            "expected_result": "ACC-1001"
+          },
+          "expected_output": [
+            {
+              "account_number": "ACC-1001",
+              "failed_count": 3
+            },
+            {
+              "account_number": "ACC-1004",
+              "failed_count": 3
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT a.account_number, COUNT(l.id) AS failed_count FROM accounts a JOIN audit_logs l ON a.id = l.account_id WHERE l.status_code >= 400 GROUP BY a.id, a.account_number HAVING COUNT(l.id) > 2 ORDER BY failed_count DESC;"
+          }
+        },
+        {
+          "title": "Task 3: Cumulative Running Revenue per Subscription",
+          "description": "Given table `payments` (id, subscription_id, amount, payment_status, payment_date), write a PostgreSQL query using Window Functions (`SUM() OVER`) to calculate the cumulative running total revenue earned per subscription for all successful payments (`payment_status = 'SUCCESS'`). Include `subscription_id`, `payment_date`, `amount`, and `running_total`.",
+          "difficulty": "HARD",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT subscription_id, payment_date, amount, SUM(amount) OVER(PARTITION BY subscription_id ORDER BY payment_date) AS running_total FROM payments WHERE payment_status = 'SUCCESS' ORDER BY subscription_id, payment_date;",
+            "expected_result": "3000.0"
+          },
+          "expected_output": [
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-01-01",
+              "amount": 1000.0,
+              "running_total": 1000.0
+            },
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-02-01",
+              "amount": 1000.0,
+              "running_total": 2000.0
+            },
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-03-01",
+              "amount": 1000.0,
+              "running_total": 3000.0
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT subscription_id, payment_date, amount, SUM(amount) OVER(PARTITION BY subscription_id ORDER BY payment_date) AS running_total FROM payments WHERE payment_status = 'SUCCESS' ORDER BY subscription_id, payment_date;"
+          }
+        },
+        {
+          "title": "Task 4: Subscriptions with No Successful Payments",
+          "description": "Given tables `subscriptions` (id, user_id, plan_name, monthly_amount, status) and `payments` (id, subscription_id, amount, payment_status), write a PostgreSQL query to identify all subscriptions that have never had a single successful payment (`payment_status = 'SUCCESS'`). Return `subscription_id`, `plan_name`, and `status`, ordered by `subscription_id` ASC.",
+          "difficulty": "MEDIUM",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 3,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT s.id AS subscription_id, s.plan_name, s.status FROM subscriptions s LEFT JOIN payments p ON s.id = p.subscription_id AND p.payment_status = 'SUCCESS' WHERE p.id IS NULL ORDER BY s.id;",
+            "expected_result": "Free"
+          },
+          "expected_output": [
+            {
+              "subscription_id": 4,
+              "plan_name": "Pro",
+              "status": "ACTIVE"
+            },
+            {
+              "subscription_id": 5,
+              "plan_name": "Free",
+              "status": "ACTIVE"
+            },
+            {
+              "subscription_id": 6,
+              "plan_name": "Pro",
+              "status": "CANCELLED"
+            },
+            {
+              "subscription_id": 7,
+              "plan_name": "Enterprise",
+              "status": "CANCELLED"
+            },
+            {
+              "subscription_id": 8,
+              "plan_name": "Pro",
+              "status": "ACTIVE"
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT s.id AS subscription_id, s.plan_name, s.status FROM subscriptions s LEFT JOIN payments p ON s.id = p.subscription_id AND p.payment_status = 'SUCCESS' WHERE p.id IS NULL ORDER BY s.id;"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Practical MySQL Evaluation",
+      "description": "Evaluate candidates on practical MySQL skills for FinTech and SaaS analytics including aggregations, HAVING filters, Window Functions, and multi-table reconciliation.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_sql_advanced_lab",
+      "startup_command": "sqlite3 lab.db < seed.sql",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Active Monthly Recurring Revenue (MRR) by Plan",
+          "description": "Given table `subscriptions` (id, user_id, plan_name, monthly_amount, status, start_date), write a MySQL query to calculate total Monthly Recurring Revenue (`total_mrr`) and active subscriber count (`active_subscribers`) for each plan where status is 'ACTIVE'. Order by `total_mrr` DESC.",
+          "difficulty": "EASY",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT plan_name, COUNT(id) AS active_subscribers, SUM(monthly_amount) AS total_mrr FROM subscriptions WHERE status = 'ACTIVE' GROUP BY plan_name ORDER BY total_mrr DESC;",
+            "expected_result": "Enterprise"
+          },
+          "expected_output": [
+            {
+              "plan_name": "Enterprise",
+              "active_subscribers": 2,
+              "total_mrr": 2000.0
+            },
+            {
+              "plan_name": "Pro",
+              "active_subscribers": 3,
+              "total_mrr": 300.0
+            },
+            {
+              "plan_name": "Free",
+              "active_subscribers": 1,
+              "total_mrr": 0.0
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT plan_name, COUNT(id) AS active_subscribers, SUM(monthly_amount) AS total_mrr FROM subscriptions WHERE status = 'ACTIVE' GROUP BY plan_name ORDER BY total_mrr DESC;"
+          }
+        },
+        {
+          "title": "Task 2: High-Volume Accounts with Failed Audit Events",
+          "description": "Given tables `accounts` (id, account_number, balance, tier) and `audit_logs` (id, account_id, action, performed_at, status_code), write a MySQL query to identify all account numbers that have experienced more than 2 failed actions (status_code >= 400). Return `account_number` and `failed_count`, ordered by `failed_count` DESC.",
+          "difficulty": "MEDIUM",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT a.account_number, COUNT(l.id) AS failed_count FROM accounts a JOIN audit_logs l ON a.id = l.account_id WHERE l.status_code >= 400 GROUP BY a.id, a.account_number HAVING COUNT(l.id) > 2 ORDER BY failed_count DESC;",
+            "expected_result": "ACC-1001"
+          },
+          "expected_output": [
+            {
+              "account_number": "ACC-1001",
+              "failed_count": 3
+            },
+            {
+              "account_number": "ACC-1004",
+              "failed_count": 3
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT a.account_number, COUNT(l.id) AS failed_count FROM accounts a JOIN audit_logs l ON a.id = l.account_id WHERE l.status_code >= 400 GROUP BY a.id, a.account_number HAVING COUNT(l.id) > 2 ORDER BY failed_count DESC;"
+          }
+        },
+        {
+          "title": "Task 3: Cumulative Running Revenue per Subscription",
+          "description": "Given table `payments` (id, subscription_id, amount, payment_status, payment_date), write a MySQL query using Window Functions (`SUM() OVER`) to calculate the cumulative running total revenue earned per subscription for all successful payments (`payment_status = 'SUCCESS'`). Include `subscription_id`, `payment_date`, `amount`, and `running_total`.",
+          "difficulty": "HARD",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT subscription_id, payment_date, amount, SUM(amount) OVER(PARTITION BY subscription_id ORDER BY payment_date) AS running_total FROM payments WHERE payment_status = 'SUCCESS' ORDER BY subscription_id, payment_date;",
+            "expected_result": "3000.0"
+          },
+          "expected_output": [
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-01-01",
+              "amount": 1000.0,
+              "running_total": 1000.0
+            },
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-02-01",
+              "amount": 1000.0,
+              "running_total": 2000.0
+            },
+            {
+              "subscription_id": 1,
+              "payment_date": "2023-03-01",
+              "amount": 1000.0,
+              "running_total": 3000.0
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT subscription_id, payment_date, amount, SUM(amount) OVER(PARTITION BY subscription_id ORDER BY payment_date) AS running_total FROM payments WHERE payment_status = 'SUCCESS' ORDER BY subscription_id, payment_date;"
+          }
+        },
+        {
+          "title": "Task 4: Subscriptions with No Successful Payments",
+          "description": "Given tables `subscriptions` (id, user_id, plan_name, monthly_amount, status) and `payments` (id, subscription_id, amount, payment_status), write a MySQL query to identify all subscriptions that have never had a single successful payment (`payment_status = 'SUCCESS'`). Return `subscription_id`, `plan_name`, and `status`, ordered by `subscription_id` ASC.",
+          "difficulty": "MEDIUM",
+          "marks": 25,
+          "duration_minutes": 15,
+          "order_index": 3,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT s.id AS subscription_id, s.plan_name, s.status FROM subscriptions s LEFT JOIN payments p ON s.id = p.subscription_id AND p.payment_status = 'SUCCESS' WHERE p.id IS NULL ORDER BY s.id;",
+            "expected_result": "Free"
+          },
+          "expected_output": [
+            {
+              "subscription_id": 4,
+              "plan_name": "Pro",
+              "status": "ACTIVE"
+            },
+            {
+              "subscription_id": 5,
+              "plan_name": "Free",
+              "status": "ACTIVE"
+            },
+            {
+              "subscription_id": 6,
+              "plan_name": "Pro",
+              "status": "CANCELLED"
+            },
+            {
+              "subscription_id": 7,
+              "plan_name": "Enterprise",
+              "status": "CANCELLED"
+            },
+            {
+              "subscription_id": 8,
+              "plan_name": "Pro",
+              "status": "ACTIVE"
+            }
+          ],
+          "solution": {
+            "query.sql": "SELECT s.id AS subscription_id, s.plan_name, s.status FROM subscriptions s LEFT JOIN payments p ON s.id = p.subscription_id AND p.payment_status = 'SUCCESS' WHERE p.id IS NULL ORDER BY s.id;"
+          }
+        }
+      ]
     }
   ]
 }

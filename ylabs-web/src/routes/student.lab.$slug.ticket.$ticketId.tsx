@@ -1559,7 +1559,8 @@ export function TicketIDE({
             await runCommand(userId, labId, sprintId, ticket.startup_command, evaluationId);
           }
           const activeTaskId = task?.id || undefined;
-          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOutStr, sRules, sysQ, expR, evaluationId, activeFile, activeTaskId);
+          const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : "sqlite";
+          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, dbEngine, expQ, expOutStr, sRules, sysQ, expR, evaluationId, activeFile, activeTaskId);
         } catch (err: any) {
           throw err;
         }
