@@ -14,7 +14,7 @@ export default defineConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ['recharts'],
+      include: ['recharts', 'alasql', 'mingo'],
       exclude: [
         '@uiw/react-codemirror',
         '@codemirror/lang-python',
@@ -30,8 +30,6 @@ export default defineConfig({
         '@codemirror/view',
         '@codemirror/state',
         '@codemirror/language',
-        'alasql',
-        'mingo',
       ],
     },
     ssr: {

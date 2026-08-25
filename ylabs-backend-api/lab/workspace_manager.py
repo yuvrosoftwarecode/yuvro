@@ -175,9 +175,18 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
 
         if has_db_tasks:
             num_tasks = len(tasks)
-            # Remove any stale taskX.sql files exceeding the current task count
+            is_mongo = False
+            try:
+                lab = LabQuestionBank.objects.get(id=lab_uuid)
+                if lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
+                    is_mongo = True
+            except Exception:
+                pass
+
+            ext = "js" if is_mongo else "sql"
+            # Remove any stale taskX.sql / taskX.js files exceeding the current task count
             for fname in os.listdir(user_dir):
-                m = re.match(r"^task(\d+)\.sql$", fname)
+                m = re.match(r"^task(\d+)\.(sql|js)$", fname)
                 if m:
                     idx = int(m.group(1))
                     if idx > num_tasks or idx < 1:
@@ -187,10 +196,13 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                             pass
 
             for i, task in enumerate(tasks, start=1):
-                task_file = os.path.join(user_dir, f"task{i}.sql")
+                task_file = os.path.join(user_dir, f"task{i}.{ext}")
                 if not os.path.exists(task_file):
                     with open(task_file, "w") as f:
-                        f.write("-- Write your SQL query for this task here\n")
+                        if is_mongo:
+                            f.write(f"// Task {i}: {task.title}\n// Write your MongoDB query below\n")
+                        else:
+                            f.write(f"-- Task {i}: {task.title}\n-- Write your SQL query for this task here\n")
 
         import subprocess
         subprocess.run(["git", "init"], cwd=user_dir, check=True, capture_output=True)

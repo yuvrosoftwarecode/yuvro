@@ -101,8 +101,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
-                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
-                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
+                tag: (
+                  (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                  (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
+                  "bash"
+                ).toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,

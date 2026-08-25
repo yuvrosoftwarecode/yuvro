@@ -3,6 +3,7 @@ from .base import BaseDatabaseEvaluator
 from .sqlite import SqliteEvaluator
 from .postgresql import PostgreSqlEvaluator
 from .mysql import MySqlEvaluator
+from .mongodb import MongoDbEvaluator
 
 class DatabaseEvaluatorFactory:
     EVALUATORS: Dict[str, Type[BaseDatabaseEvaluator]] = {
@@ -11,6 +12,9 @@ class DatabaseEvaluatorFactory:
         "postgresql": PostgreSqlEvaluator,
         "postgres": PostgreSqlEvaluator,
         "mysql": MySqlEvaluator,
+        "mongodb": MongoDbEvaluator,
+        "mongo": MongoDbEvaluator,
+        "mongosh": MongoDbEvaluator,
     }
 
     @classmethod

@@ -1,17 +1,64 @@
 import os
 import re
+import json
 import asyncio
-import tempfile
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from .base import BaseDatabaseEvaluator
 
 class PostgreSqlEvaluator(BaseDatabaseEvaluator):
     """
     PostgreSQL Database Evaluator
-    Executes PostgreSQL queries and evaluates them against scoring rules,
-    system validation queries, and expected analytical output.
+    Executes PostgreSQL queries directly on the provided PostgreSQL connection URL
+    and evaluates them against scoring rules, system validation queries, and expected analytical output.
     """
     name = "postgresql"
+
+    def _execute_postgres_sync(self, connection_url: str, query: str) -> Tuple[str, str, int]:
+        import psycopg2
+
+        conn = None
+        try:
+            conn = psycopg2.connect(connection_url)
+            conn.autocommit = True
+            with conn.cursor() as cur:
+                cur.execute(query)
+                
+                if cur.description:
+                    columns = [desc[0] for desc in cur.description]
+                    rows = cur.fetchall()
+                    
+                    if not rows:
+                        return "0 rows returned.", "", 0
+                    
+                    # Format as clean tabular output
+                    col_widths = [len(str(c)) for c in columns]
+                    for row in rows:
+                        for idx, val in enumerate(row):
+                            col_widths[idx] = max(col_widths[idx], len(str(val if val is not None else "NULL")))
+                    
+                    header = " | ".join(str(c).ljust(col_widths[idx]) for idx, c in enumerate(columns))
+                    separator = "-+-".join("-" * col_widths[idx] for idx in range(len(columns)))
+                    
+                    row_lines = []
+                    for row in rows:
+                        row_line = " | ".join(str(val if val is not None else "NULL").ljust(col_widths[idx]) for idx, val in enumerate(row))
+                        row_lines.append(row_line)
+                    
+                    out_text = f"{header}\n{separator}\n" + "\n".join(row_lines) + f"\n({len(rows)} row{'s' if len(rows) != 1 else ''})"
+                    return out_text, "", 0
+                else:
+                    affected = cur.rowcount
+                    if affected >= 0:
+                        return f"Query executed successfully. {affected} row(s) affected.", "", 0
+                    return "Query executed successfully.", "", 0
+        except Exception as e:
+            return "", f"PostgreSQL Error: {str(e)}", 1
+        finally:
+            if conn:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     async def execute(self, body: Any, workspace_dir: str) -> Dict[str, Any]:
         try:
@@ -25,26 +72,19 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
                     return {"stdout": "", "stderr": f"Task file {task_file} not found", "exit_code": -1}
             
             query = getattr(body, 'query', '') or ''
-            db_file = getattr(body, 'db_file', 'lab.db')
+            connection_url = getattr(body, 'connection_url', None) or getattr(body, 'uri', None)
             
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False, encoding='utf-8') as f:
-                f.write(query)
-                temp_path = f.name
-                
-            # Execute PostgreSQL query in workspace environment
-            proc = await asyncio.create_subprocess_shell(
-                f'sqlite3 "{db_file}" < "{temp_path}"',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=str(workspace_dir)
+            if not connection_url or not connection_url.strip():
+                return {
+                    "stdout": "",
+                    "stderr": "PostgreSQL connection URL is required. Please configure your Database Connection.",
+                    "exit_code": 1
+                }
+            
+            # Execute directly on remote PostgreSQL connection URL
+            out_str, err_str, exit_code = await asyncio.to_thread(
+                self._execute_postgres_sync, connection_url.strip(), query
             )
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-            
-            out_str = stdout.decode(errors="replace")
-            err_str = stderr.decode(errors="replace")
-            exit_code = proc.returncode
             
             result = {
                 "stdout": out_str,
@@ -55,14 +95,15 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
             if getattr(body, 'scoring_rules', None) is not None or getattr(body, 'expected_query', None) or getattr(body, 'expected_output', None) or getattr(body, 'system_query', None):
                 actual_result = err_str if exit_code != 0 else out_str
                 
-                if getattr(body, 'system_query', None):
+                if getattr(body, 'system_query', None) and exit_code == 0:
                     actual_result = await self.get_system_query_result(body, workspace_dir)
                         
                 eval_res = self.evaluate(
                     body=body,
                     execution_result={
                         "out_str": err_str if exit_code != 0 else out_str,
-                        "actual_result": actual_result
+                        "actual_result": actual_result,
+                        "exit_code": exit_code
                     }
                 )
                 result["evaluation"] = eval_res
@@ -70,21 +111,20 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
             return result
             
         except asyncio.TimeoutError:
-            try:
-                proc.kill()
-            except Exception:
-                pass
             return {"stdout": "", "stderr": "PostgreSQL query timed out", "exit_code": -1}
         except Exception as e:
             return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
     def evaluate(self, body: Any, execution_result: Dict[str, Any]) -> Dict[str, Any]:
-        scoring_rules = getattr(body, 'scoring_rules', {}) or {}
+        exit_code = execution_result.get("exit_code", 0)
+        user_output = execution_result.get("out_str", "")
+        actual_result = execution_result.get("actual_result", "")
         
-        expected_query = getattr(body, 'expected_query', None)
-        expected_query = (expected_query or "").strip()
-        user_query = getattr(body, 'query', None)
-        user_query = (user_query or "").strip()
+        expected_query = (getattr(body, 'expected_query', None) or "").strip()
+        user_query = (getattr(body, 'query', None) or "").strip()
+        expected_output = getattr(body, 'expected_output', None)
+        system_query = getattr(body, 'system_query', None)
+        expected_result = getattr(body, 'expected_result', None)
         
         def normalize_str(s: str) -> str:
             s = re.sub(r'--.*', '', s)
@@ -94,38 +134,29 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
             s = re.sub(r'\s*\)\s*', ')', s)
             s = re.sub(r'\s*,\s*', ',', s)
             s = re.sub(r'\s*;\s*', ';', s)
-            s = s.rstrip(';')
-            return s
+            return s.rstrip(';')
 
         norm_expected = normalize_str(expected_query)
         norm_user = normalize_str(user_query)
         
-        query_matches = (norm_expected in norm_user) if norm_expected else False
-        
-        # Check required SQL clauses / structure
-        required_clauses = ["select", "from", "group by", "order by", "having", "join", "where", "over", "partition by"]
-        clause_match_count = 0
-        total_clauses = 0
-        for clause in required_clauses:
-            if clause in norm_expected:
-                total_clauses += 1
-                if clause in norm_user:
-                    clause_match_count += 1
-        
-        if total_clauses > 0 and (clause_match_count / total_clauses) >= 0.75:
-            query_matches = True
+        # 1. Check Query Match
+        query_matches = False
+        if norm_expected and norm_user:
+            required_clauses = ["select", "from", "group by", "order by", "having", "join", "where", "over", "partition by"]
+            clause_match_count = 0
+            total_clauses = 0
+            for clause in required_clauses:
+                if clause in norm_expected:
+                    total_clauses += 1
+                    if clause in norm_user:
+                        clause_match_count += 1
+            
+            if total_clauses > 0 and (clause_match_count / total_clauses) >= 0.75:
+                query_matches = True
+            elif norm_expected in norm_user:
+                query_matches = True
 
-        output_matches = True
-        user_output = execution_result.get("out_str", "")
-        actual_result = execution_result.get("actual_result")
-        
-        expected_output = getattr(body, 'expected_output', None)
-        system_query = getattr(body, 'system_query', None)
-        expected_result = getattr(body, 'expected_result', None)
-        
-        if "error:" in user_output.lower() or "parse error" in user_output.lower() or "syntax error" in user_output.lower() or re.search(r"exit code [^0]", user_output):
-            output_matches = False
-
+        # Check primary keywords
         primary_keyword_match = True
         if norm_expected:
             keywords = ["select", "insert", "update", "delete", "create", "drop", "alter", "with"]
@@ -134,54 +165,100 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
                     if kw not in norm_user:
                         primary_keyword_match = False
                     break
-        
-        score_pct = 0.0
-        
-        # 1. Query Structure Match (25%)
-        if query_matches:
-            score_pct += 0.25
-            
-        # 2. System State Validation (50%)
-        system_is_valid = False
-        if system_query and expected_result:
-            if actual_result and expected_result.strip().lower() in actual_result.strip().lower():
-                system_is_valid = True
-                score_pct += 0.50
-        elif not system_query:
-            pass
-            
-        # 3. Output Matching (25%)
-        output_is_valid = output_matches
-        if expected_output is not None and output_is_valid:
-            if expected_output == "":
-                if user_output.strip() != "" or (not query_matches and not system_is_valid):
-                    output_is_valid = False
-            else:
-                try:
-                    if not re.search(expected_output, user_output, re.IGNORECASE) and expected_output not in user_output:
-                        output_is_valid = False
-                except re.error:
-                    if expected_output not in user_output:
-                        output_is_valid = False
-                        
-        if output_is_valid:
-            score_pct += 0.25
-            
-        if not system_query and output_is_valid:
-            score_pct += 0.50
-            system_is_valid = True
-                
-        # Stateful Forgiveness
-        if query_matches and system_is_valid and not output_is_valid:
-            output_is_valid = True
-            score_pct = 1.0
-            
-        # Wrong command penalty
+
         if not primary_keyword_match:
+            query_matches = False
+
+        # 2. Check Output Match
+        output_is_valid = False
+        if exit_code == 0 and "error:" not in user_output.lower():
+            if expected_output is None or expected_output == "":
+                output_is_valid = True
+            else:
+                exp_data = expected_output
+                if isinstance(expected_output, str):
+                    try:
+                        exp_data = json.loads(expected_output)
+                    except Exception:
+                        exp_data = expected_output.strip()
+
+                user_norm = " ".join(user_output.lower().split())
+                if isinstance(exp_data, list):
+                    if len(exp_data) == 0:
+                        output_is_valid = True
+                    else:
+                        all_rows_matched = True
+                        for item in exp_data:
+                            if isinstance(item, dict):
+                                for val in item.values():
+                                    if val is None:
+                                        continue
+                                    if isinstance(val, (int, float)):
+                                        val_str = str(val)
+                                        val_int_str = str(int(val)) if float(val).is_integer() else str(val)
+                                        if val_str.lower() not in user_norm and val_int_str.lower() not in user_norm:
+                                            all_rows_matched = False
+                                            break
+                                    else:
+                                        if str(val).strip().lower() not in user_norm:
+                                            all_rows_matched = False
+                                            break
+                            else:
+                                if str(item).strip().lower() not in user_norm:
+                                    all_rows_matched = False
+                                    break
+                            if not all_rows_matched:
+                                break
+                        output_is_valid = all_rows_matched
+                elif isinstance(exp_data, dict):
+                    all_fields_matched = True
+                    for val in exp_data.values():
+                        if val is None:
+                            continue
+                        if isinstance(val, (int, float)):
+                            val_str = str(val)
+                            val_int_str = str(int(val)) if float(val).is_integer() else str(val)
+                            if val_str.lower() not in user_norm and val_int_str.lower() not in user_norm:
+                                all_fields_matched = False
+                                break
+                        else:
+                            if str(val).strip().lower() not in user_norm:
+                                all_fields_matched = False
+                                break
+                    output_is_valid = all_fields_matched
+                else:
+                    exp_str = str(exp_data).strip().lower()
+                    output_is_valid = exp_str in user_norm
+
+        # 3. System Validation Match
+        system_is_valid = False
+        is_mutation_task = any(kw in norm_expected for kw in ["insert", "update", "delete", "create", "drop", "alter"])
+        if exit_code == 0:
+            if is_mutation_task and system_query and expected_result:
+                if actual_result and expected_result.strip().lower() in actual_result.strip().lower():
+                    system_is_valid = True
+            elif not is_mutation_task:
+                # For analytical / SELECT queries, system validity requires output to be valid
+                system_is_valid = output_is_valid
+
+        # Calculate final percentage
+        if exit_code != 0:
             score_pct = 0.0
+            query_matches = False
             output_is_valid = False
             system_is_valid = False
-                
+        else:
+            score_pct = 0.0
+            if query_matches:
+                score_pct += 0.25
+            if output_is_valid:
+                score_pct += 0.50
+            if system_is_valid:
+                score_pct += 0.25
+            
+            if query_matches and output_is_valid and system_is_valid:
+                score_pct = 1.0
+
         return {
             "query_matches": query_matches,
             "output_matches": output_is_valid,
@@ -193,30 +270,15 @@ class PostgreSqlEvaluator(BaseDatabaseEvaluator):
         }
 
     async def get_system_query_result(self, body: Any, workspace_dir: str) -> str:
-        db_file = getattr(body, 'db_file', 'lab.db')
         system_query = getattr(body, 'system_query', '')
-        
         if not system_query:
             return ""
             
-        try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False, encoding='utf-8') as f:
-                f.write(system_query)
-                temp_path = f.name
+        connection_url = getattr(body, 'connection_url', None) or getattr(body, 'uri', None)
+        if not connection_url or not connection_url.strip():
+            return "PostgreSQL connection URL is required for system query validation."
             
-            proc = await asyncio.create_subprocess_shell(
-                f'sqlite3 "{db_file}" < "{temp_path}"',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=str(workspace_dir)
-            )
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-            
-            if proc.returncode == 0:
-                return stdout.decode(errors="replace").strip()
-            else:
-                return stderr.decode(errors="replace").strip()
-        except Exception as e:
-            return str(e)
+        out_str, err_str, exit_code = await asyncio.to_thread(
+            self._execute_postgres_sync, connection_url.strip(), system_query
+        )
+        return out_str if exit_code == 0 else err_str

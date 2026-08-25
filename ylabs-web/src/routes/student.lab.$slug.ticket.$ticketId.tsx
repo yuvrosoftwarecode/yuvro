@@ -28,9 +28,9 @@ import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
-import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
-import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
-import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
+import { executeRemoteMongoQuery, fetchRemoteMongoSchema } from "@/lib/mongoProxy";
+import { executeRemoteMysqlQuery, fetchRemoteMysqlSchema } from "@/lib/mysqlProxy";
+import { executeRemotePostgresQuery, fetchRemotePostgresSchema } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -706,7 +706,10 @@ const LINUX_KIT_DEFAULT: Kit = {
 };
 
 function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
-  if (tag === "Django Todo") {
+  const t = (tag || "").toLowerCase();
+  const s = (slug || "").toLowerCase();
+
+  if (tag === "Django Todo" || t === "django") {
     return {
       name: "django",
       rootLabel: "todo-app",
@@ -716,17 +719,17 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
-  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
+  if (t === "mysql" || s.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (t === "postgresql" || t === "postgres" || s.includes("postgresql") || s.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (t.includes("mongo") || s.includes("mongo")) return MONGO_KIT_DEFAULT;
+  if (t === "sql" || t === "sqlite" || s.includes("sql") || s.includes("sqlite")) return SQL_KIT_DEFAULT;
+  if (t === "python" || s === "python" || s === "programming" || s === "datastructures" || isAlgo)
     return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
-  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
-  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo")
-    return MONGO_KIT_DEFAULT;
-  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
-  if (slug === "ui") return UI_KIT_DEFAULT;
+  if (t === "ui" || s === "ui") return UI_KIT_DEFAULT;
   if (
-    slug === "linux" ||
-    tag === "bash" ||
+    s === "linux" ||
+    t === "bash" ||
+    t.startsWith("linux") ||
     tag === "Linux Basics" ||
     tag === "Linux Files" ||
     tag === "Linux Perms" ||
@@ -878,8 +881,9 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const isAlgo = slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined));
+  const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
+    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
+  );
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isDjango = kit.name === "django";
   const isJava = kit.name === "java";
@@ -1396,7 +1400,7 @@ export function TicketIDE({
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
-    if (isPython || isDjango || isSql || isMongo || isUi || isBash || activeFile.endsWith(".py") || activeFile.endsWith(".sql")) {
+    if (isPython || isDjango || isAnySql || isMongo || isUi || isBash || activeFile.endsWith(".py") || activeFile.endsWith(".sql")) {
       return "ok";
     }
     const m = files["Main.java"];
@@ -1405,21 +1409,87 @@ export function TicketIDE({
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
       return "warn";
     return "ok";
-  }, [files, isPython, isDjango, isSql, isMongo, isUi, isBash, activeFile]);
+  }, [files, isPython, isDjango, isAnySql, isMongo, isUi, isBash, activeFile]);
 
   const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
+  const [dbSchemasLoading, setDbSchemasLoading] = useState<boolean>(false);
+  const [hasDbConnection, setHasDbConnection] = useState<boolean>(false);
   const [runId, setRunId] = useState(0);
 
-  const refreshSchema = useCallback(() => {
-    if (isSql) {
-      setDbSchemas(getAlasqlSchema());
+  const refreshSchema = useCallback(async () => {
+    if (typeof window === "undefined") return;
+
+    if (isMysql) {
+      const mysqlUri = localStorage.getItem("mysqlUri") || "";
+      if (!mysqlUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemoteMysqlSchema({ data: { uri: mysqlUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
+    } else if (isPostgres) {
+      const postgresUri = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+      if (!postgresUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemotePostgresSchema({ data: { uri: postgresUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
     } else if (isMongo) {
-      setDbSchemas(getMongoSchema());
+      const mongoUri = localStorage.getItem("mongoUri") || "";
+      if (!mongoUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemoteMongoSchema({ data: { uri: mongoUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
+    } else if (isSql) {
+      setHasDbConnection(true);
+      setDbSchemas(getAlasqlSchema());
     }
-  }, [isSql, isMongo]);
+  }, [isMysql, isPostgres, isMongo, isSql]);
 
   useEffect(() => {
     refreshSchema();
+
+    const handleSchemaRefresh = () => {
+      refreshSchema();
+    };
+
+    window.addEventListener("db-schema-refresh", handleSchemaRefresh);
+    window.addEventListener("storage", handleSchemaRefresh);
+
+    return () => {
+      window.removeEventListener("db-schema-refresh", handleSchemaRefresh);
+      window.removeEventListener("storage", handleSchemaRefresh);
+    };
   }, [refreshSchema]);
 
   function showToast(msg: string) {
@@ -1512,15 +1582,32 @@ export function TicketIDE({
       }
       return;
     }
-    if (isSql) {
+    if (isAnySql || isMongo) {
+      setExecutedQuery(src);
+      setRunId((r) => r + 1);
+
       const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
       const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
       const targetDbFile = dbFile || "__none__";
 
+      const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : isMongo ? "mongodb" : "sqlite";
+      let connectionUrl = "";
+      if (typeof window !== "undefined") {
+        if (isPostgres) {
+          connectionUrl = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+        } else if (isMysql) {
+          connectionUrl = localStorage.getItem("mysqlUri") || "";
+        } else if (isMongo) {
+          connectionUrl = localStorage.getItem("mongoUri") || localStorage.getItem("mongodbUri") || "";
+        }
+      }
+      if (!connectionUrl && ticket.connection_url) connectionUrl = ticket.connection_url;
+      if (!connectionUrl && ticket.uri) connectionUrl = ticket.uri;
+
       const tTasks = ticket.tasks || [];
       let task = null;
       if (activeFile.startsWith("task")) {
-         const numMatch = activeFile.match(/task(\d+)\.sql/);
+         const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
          if (numMatch) {
             const idx = parseInt(numMatch[1], 10) - 1;
             if (tTasks[idx]) task = tTasks[idx];
@@ -1533,7 +1620,7 @@ export function TicketIDE({
       let sRules: any = undefined;
       let sysQ: any = undefined;
       let expR: any = undefined;
-      let expQ: any = task?.solution?.["query.sql"] ?? ticket.solution?.["query.sql"];
+      let expQ: any = task?.solution?.["query.js"] ?? task?.solution?.["query.sql"] ?? ticket.solution?.["query.js"] ?? ticket.solution?.["query.sql"];
       let expOut: any = task?.expected_output ?? ticket.expected_output ?? ticket.solution?.["expected_output"];
       let expOutStr = typeof expOut === 'object' ? JSON.stringify(expOut) : expOut;
       if (task && typeof task === "object" && task.scoring_rules) {
@@ -1550,17 +1637,36 @@ export function TicketIDE({
         expQ = sysQ;
       }
 
-      setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
+      setOutput(
+        isMongo
+          ? (connectionUrl ? `-- Executing MongoDB query on connection URL\n…running…` : `-- Executing MongoDB query\n…running…`)
+          : (connectionUrl ? `-- Executing query on ${dbEngine} database\n…running…` : `-- Executing query on ${dbFile || "none"}\n…running…`)
+      );
       
       const executeSql = async () => {
         try {
           const { runCommand, runDatabaseQuery } = await import("@/services/workspaceService");
-          if (ticket.startup_command) {
+          if (ticket.startup_command && !connectionUrl) {
             await runCommand(userId, labId, sprintId, ticket.startup_command, evaluationId);
           }
           const activeTaskId = task?.id || undefined;
-          const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : "sqlite";
-          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, dbEngine, expQ, expOutStr, sRules, sysQ, expR, evaluationId, activeFile, activeTaskId);
+          return await runDatabaseQuery(
+            userId,
+            labId,
+            sprintId,
+            src,
+            targetDbFile,
+            dbEngine,
+            expQ,
+            expOutStr,
+            sRules,
+            sysQ,
+            expR,
+            evaluationId,
+            activeFile,
+            activeTaskId,
+            connectionUrl ? connectionUrl.trim() : undefined
+          );
         } catch (err: any) {
           throw err;
         }
@@ -1602,16 +1708,6 @@ export function TicketIDE({
           setOutput(`Error running script: ${err.message}`);
         })
         .finally(() => setRunning(false));
-      return;
-    }
-    if (isMongo) {
-      setOutput(`> load("${file}")\n…running…`);
-      setTimeout(() => {
-        const outText = `> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`;
-        setOutput(outText);
-        evaluateSubmission(src, outText);
-        setRunning(false);
-      }, 500);
       return;
     }
     if (isUi) {
@@ -1860,7 +1956,7 @@ export function TicketIDE({
       ).catch(console.error);
     }
 
-    if (isSql) {
+    if (isAnySql) {
       setSubmitting(true);
       if (isReal) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -2390,7 +2486,7 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isSql || isMongo ? "font-mono text-[13px]" : ""}`}>
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -2457,13 +2553,33 @@ export function TicketIDE({
                   <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
                     <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                       <span>DB Explorer</span>
+                      <button
+                        onClick={() => refreshSchema()}
+                        title="Refresh Live Schema"
+                        className="p-0.5 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <RotateCcw className={`h-3 w-3 ${dbSchemasLoading ? "animate-spin text-primary" : ""}`} />
+                      </button>
                     </div>
-                    {dbSchemas.length === 0 && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                        No databases found
+                    {dbSchemasLoading && (
+                      <div className="px-3 py-2 text-xs text-muted-foreground italic animate-pulse">
+                        Inspecting live database...
                       </div>
                     )}
-                    {dbSchemas.map((schema) => (
+                    {!dbSchemasLoading && !hasDbConnection && (
+                      <div className="px-3 py-3 text-xs text-muted-foreground">
+                        <div className="font-medium text-foreground/80 mb-1">No Connection Configured</div>
+                        <p className="text-[11px] leading-relaxed opacity-70">
+                          Add a connection URI in the Results tab to view live tables and schema.
+                        </p>
+                      </div>
+                    )}
+                    {!dbSchemasLoading && hasDbConnection && dbSchemas.length === 0 && (
+                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
+                        No tables found in database
+                      </div>
+                    )}
+                    {!dbSchemasLoading && dbSchemas.map((schema) => (
                       <React.Fragment key={schema.name}>
                         <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
                           <svg
@@ -2740,7 +2856,7 @@ export function TicketIDE({
                     { k: "output", label: "Console", icon: TerminalIcon },
                     { k: "errors", label: "Errors", icon: AlertTriangle },
                     { k: "testcases", label: "Test Cases", icon: FlaskConical },
-                    { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
+                    { k: "preview", label: isAnySql || isMongo ? "Results" : "Preview", icon: Globe },
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button
@@ -3896,12 +4012,20 @@ function ProblemPanel({
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
                           {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
-                          {(task.input !== undefined || task.expected_output !== undefined) && (
+                          {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
                             <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
-                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
-                              <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
-                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
-                              <div className="whitespace-pre-wrap font-mono text-foreground">{typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output, null, 2) : (task.expected_output || "No output")}</div>
+                              {task.input !== undefined && (
+                                <>
+                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
+                                  <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
+                                </>
+                              )}
+                              {task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)) && (
+                                <>
+                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
+                                  <div className="whitespace-pre-wrap font-mono text-foreground">{typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output, null, 2) : (task.expected_output || "No output")}</div>
+                                </>
+                              )}
                             </div>
                           )}
                           {taskMethod && (
@@ -4707,16 +4831,27 @@ function ExternalSqlResultsView({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uri, setUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(`${dbType}Uri`) || "";
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem(`${dbType}Uri`) ||
+        (dbType === "postgresql" ? localStorage.getItem("postgresUri") : "") ||
+        ""
+      );
+    }
     return "";
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(uri);
 
   const saveUri = () => {
-    setUri(tempUri.trim());
+    const trimmed = tempUri.trim();
+    setUri(trimmed);
     if (typeof window !== "undefined") {
-      localStorage.setItem(`${dbType}Uri`, tempUri.trim());
+      localStorage.setItem(`${dbType}Uri`, trimmed);
+      if (dbType === "postgresql") {
+        localStorage.setItem("postgresUri", trimmed);
+      }
+      window.dispatchEvent(new Event("db-schema-refresh"));
     }
     setEditingUri(false);
   };
@@ -4730,8 +4865,17 @@ function ExternalSqlResultsView({
       setRes(null);
       try {
         const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
-        const result = await proxyCall({ data: { uri, query } });
-        if (active) setRes(result);
+        const result: any = await proxyCall({ data: { uri, query } });
+        if (active) {
+          if (result && result.error) {
+            setError(result.error);
+            setRes(null);
+          } else {
+            setRes(result);
+            setError(null);
+            window.dispatchEvent(new Event("db-schema-refresh"));
+          }
+        }
       } catch (e: any) {
         if (active) setError(e.message || "Failed to execute query");
       } finally {
@@ -5025,16 +5169,27 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
     if (onQueryExecuted) onQueryExecuted();
   }, [query, runId, onQueryExecuted]);
   const [mongoUri, setMongoUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem("mongoUri") ||
+        localStorage.getItem("mongodbUri") ||
+        localStorage.getItem("externalMongoUri") ||
+        ""
+      );
+    }
     return "";
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(mongoUri);
 
   const saveUri = () => {
-    setMongoUri(tempUri.trim());
+    const trimmed = tempUri.trim();
+    setMongoUri(trimmed);
     if (typeof window !== "undefined") {
-      localStorage.setItem("externalMongoUri", tempUri.trim());
+      localStorage.setItem("mongoUri", trimmed);
+      localStorage.setItem("mongodbUri", trimmed);
+      localStorage.setItem("externalMongoUri", trimmed);
+      window.dispatchEvent(new Event("db-schema-refresh"));
     }
     setEditingUri(false);
   };
@@ -5047,8 +5202,17 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       setRes(null);
       try {
         if (mongoUri) {
-          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
-          if (active) setRes(remoteRes);
+          const remoteRes: any = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          if (active) {
+            if (remoteRes && remoteRes.error) {
+              setError(remoteRes.error);
+              setRes(null);
+            } else {
+              setRes(remoteRes);
+              setError(null);
+              window.dispatchEvent(new Event("db-schema-refresh"));
+            }
+          }
         } else {
           // fallback to local in-memory engine
           const localRes = runDynamicMongoQuery(query);

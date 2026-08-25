@@ -160,6 +160,7 @@ class DatabaseRunRequest(BaseModel):
     evaluation_id: Optional[str] = None
 
     expected_result: Optional[str] = None
+    connection_url: Optional[str] = None
 
 class PlagiarismCheckRequest(BaseModel):
     target_code: str
@@ -2090,6 +2091,7 @@ class DatabaseSubmitRequest(BaseModel):
     database_engine: str = "sqlite"
     db_file: str = "lab.db"
     evaluation_id: Optional[str] = None
+    connection_url: Optional[str] = None
     tasks: List[DatabaseSubmitTask]
 
 @workspace_router.post("/database_submit")
@@ -2110,6 +2112,7 @@ async def database_submit_endpoint(body: DatabaseSubmitRequest):
                 database_engine=body.database_engine,
                 db_file=body.db_file,
                 evaluation_id=body.evaluation_id,
+                connection_url=body.connection_url,
                 task_file=task.task_file,
                 task_id=task.task_id,
                 expected_query=task.expected_query,
@@ -2155,6 +2158,7 @@ class DatabaseEvaluateRequest(BaseModel):
     lab_id: Optional[str] = None
     sprint_id: Optional[str] = None
     db_file: Optional[str] = None
+    connection_url: Optional[str] = None
     user_query: str
     expected_query: str
     user_output: str
