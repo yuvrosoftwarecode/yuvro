@@ -268,6 +268,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             from .face_verification_proxy import run_async_face_verification
             run_async_face_verification(UserEvaluationSubmission, submission.id)
             
+        return Response({"status": "success", "message": "Evaluation finished successfully"})
+            
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()

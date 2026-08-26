@@ -51,7 +51,7 @@ def provision_evaluation_labs(evaluation):
 
 
 class SubmissionUserSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    id = serializers.UUIDField(read_only=True)
     email = serializers.EmailField()
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)

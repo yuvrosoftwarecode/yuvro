@@ -736,6 +736,33 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
     tag === "Linux Services"
   )
     return LINUX_KIT_DEFAULT;
+
+  if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
+    return {
+      name: "js",
+      rootLabel: "project",
+      primary: "main.js",
+      runtime: "Node.js 20",
+      fileList: ["main.js", "README.md"],
+      files: {
+        "main.js": `console.log("Hello, World!");\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+  if (tag === "python" || tag === "py") {
+    return {
+      name: "python",
+      rootLabel: "project",
+      primary: "main.py",
+      runtime: "Python 3.12",
+      fileList: ["main.py", "README.md"],
+      files: {
+        "main.py": `print("Hello, World!")\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
   return {
     name: "java",
     rootLabel: "java-101",
@@ -866,12 +893,14 @@ export function TicketIDE({
   previewOverride,
   isEvaluationMode,
   evaluationId,
+  onCodeChange,
 }: {
   slug: string;
   ticket: any;
   previewOverride: StudentPreviewOverride | null;
   isEvaluationMode?: boolean;
   evaluationId?: string;
+  onCodeChange?: (files: Record<string, string>) => void;
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({
@@ -921,7 +950,7 @@ export function TicketIDE({
   const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
-    if (isReal) return {};
+    if (isReal && slug !== "knowledge") return {};
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
       s["README.md"] = `# ${ticket.title}\n\n${ticket.description}`;
@@ -937,7 +966,7 @@ export function TicketIDE({
   const [activeFile, setActiveFile] = useState<FileName>(initialFileList[0]);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
   const fileList = useMemo(() => Object.keys(files), [files]);
-  const [openTabs, setOpenTabs] = useState<string[]>(isReal ? [] : [...initialFileList]);
+  const [openTabs, setOpenTabs] = useState<string[]>(isReal && slug !== "knowledge" ? [] : [...initialFileList]);
 
   function openFile(path: string) {
     setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
@@ -958,22 +987,22 @@ export function TicketIDE({
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
     if (!isReal || isLoading || !userId) return;
-    if (slug === "knowledge") {
-      setWsLoaded(true);
-      return;
-    }
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
-      try {
-        const labEndpoint = isEvaluationMode
-          ? `/skill_evaluation/lab-questions/${labId}/` 
-          : `/lab/labs/${labId}/`;
-        const { default: api } = await import("@/utils/RestApiAuthUtil");
-        const realLab = await api.get<any>(labEndpoint);
-        currentTitle = realLab.data?.title || realLab.data?.name || "";
-      } catch (e) {
-        currentTitle = labs.find(l => l.slug === slug)?.name || "";
+      if (slug === "knowledge") {
+        currentTitle = "Knowledge Assessment";
+      } else {
+        try {
+          const labEndpoint = isEvaluationMode
+            ? `/skill_evaluation/lab-questions/${labId}/` 
+            : `/lab/labs/${labId}/`;
+          const { default: api } = await import("@/utils/RestApiAuthUtil");
+          const realLab = await api.get<any>(labEndpoint);
+          currentTitle = realLab.data?.title || realLab.data?.name || "";
+        } catch (e) {
+          currentTitle = labs.find(l => l.slug === slug)?.name || "";
+        }
       }
       setLabTitle(currentTitle);
       const isSqliteLab = currentTitle === "SQLite Lab";
@@ -995,6 +1024,7 @@ export function TicketIDE({
           if (Object.keys(paths).length > 0) {
             break;
           }
+          if (slug === "knowledge") break; // Do not poll for knowledge assessments
           await new Promise(r => setTimeout(r, 500));
         }
 
@@ -1014,7 +1044,7 @@ export function TicketIDE({
           setFiles(prev => {
             const next = { ...paths };
             for (const p of Object.keys(next)) {
-              if (prev[p]) next[p] = prev[p];
+              if (prev[p] && prev[p] !== starters[p]) next[p] = prev[p];
             }
             return next;
           });
@@ -1151,7 +1181,7 @@ export function TicketIDE({
       });
     }
 
-    if (isDummy) return;
+    if (isDummy || slug === "knowledge") return;
 
     // In evaluation mode the `evaluation` FK is required by the backend.
     // If evaluationId is not yet available, skip — the effect will re-run when it is.
@@ -1383,6 +1413,17 @@ export function TicketIDE({
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(id);
   }, []);
+
+  const onCodeChangeRef = useRef(onCodeChange);
+  useEffect(() => {
+    onCodeChangeRef.current = onCodeChange;
+  }, [onCodeChange]);
+
+  useEffect(() => {
+    if (onCodeChangeRef.current) {
+      onCodeChangeRef.current(files);
+    }
+  }, [files]);
 
   // Keyboard: Ctrl/Cmd+Enter to run
   useEffect(() => {
@@ -1863,7 +1904,7 @@ export function TicketIDE({
 
     if (isSql) {
       setSubmitting(true);
-      if (isReal) {
+      if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
@@ -1888,7 +1929,7 @@ export function TicketIDE({
 
     if (isUi && uiDiffResult) {
       setSubmitting(true);
-      if (isReal) {
+      if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
@@ -1939,7 +1980,7 @@ export function TicketIDE({
       setTicketScore({ passed: passedCount, total: ticket.tasks.length });
       setSubmitting(false);
       
-      if (isReal) {
+      if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
@@ -1991,7 +2032,7 @@ export function TicketIDE({
       ];
       setTests(next);
       setTestsRan(true);
-      if (isReal) {
+      if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
@@ -2006,13 +2047,11 @@ export function TicketIDE({
               solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
+      } else {
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
-
-      navigate({
-        to: "/student/lab/$slug/ticket/$ticketId/review",
-        params: { slug, ticketId: ticket.id },
-      });
     }, 600);
   }
 
@@ -2066,23 +2105,25 @@ export function TicketIDE({
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
 
       // Also save to database so the IDE loads it perfectly on refresh
-      if (submissionId) {
-        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-            solution: JSON.stringify(getFilesToSave()),
-          }).catch(console.error);
-        });
-      } else {
-        import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.post(submissionsEndpoint, {
-            [submissionsIdField]: ticket.id,
-            ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-            [submissionsStatusField]: "in_progress",
-            solution: JSON.stringify(getFilesToSave()),
-          }).then((res: any) => {
-             setSubmissionId(res.data.id);
-          }).catch(console.error);
-        });
+      if (slug !== "knowledge") {
+        if (submissionId) {
+          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+            api.patch(`${submissionsEndpoint}${ submissionId }/`, {
+              solution: JSON.stringify(getFilesToSave()),
+            }).catch(console.error);
+          });
+        } else {
+          import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+            api.post(submissionsEndpoint, {
+              [submissionsIdField]: ticket.id,
+              ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
+              [submissionsStatusField]: "in_progress",
+              solution: JSON.stringify(getFilesToSave()),
+            }).then((res: any) => {
+               setSubmissionId(res.data.id);
+            }).catch(console.error);
+          });
+        }
       }
     }
     showToast("Saved");

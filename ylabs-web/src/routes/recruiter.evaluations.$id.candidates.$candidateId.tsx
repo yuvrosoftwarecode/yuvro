@@ -563,7 +563,7 @@ function OverviewPane({
   );
 }
 
-function CodingAnswerViewer({ q, candidateId, evaluationId }: { q: any, candidateId: string, evaluationId: string }) {
+function CodingAnswerViewer({ q, userId, evaluationId }: { q: any, userId: string, evaluationId: string }) {
   const [code, setCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -572,7 +572,7 @@ function CodingAnswerViewer({ q, candidateId, evaluationId }: { q: any, candidat
     async function fetchCode() {
        try {
           const { fetchFileTree, fetchFile } = await import("@/services/workspaceService");
-          const treeRes = await fetchFileTree(candidateId, "knowledge", q.id, undefined, undefined, evaluationId);
+          const treeRes = await fetchFileTree(userId, "knowledge", q.id, undefined, undefined, evaluationId);
           let mainFile: any = null;
           const findFile = (node: any) => {
              if (node.type === "file" && node.name !== "README.md" && !node.name.startsWith(".")) {
@@ -582,20 +582,20 @@ function CodingAnswerViewer({ q, candidateId, evaluationId }: { q: any, candidat
           };
           findFile(treeRes.tree);
           if (mainFile) {
-             const content = await fetchFile(candidateId, "knowledge", q.id, mainFile.path, evaluationId);
+             const content = await fetchFile(userId, "knowledge", q.id, mainFile.path, evaluationId);
              if (mounted) setCode(content);
           } else {
-             if (mounted) setCode("No code submitted.");
+             if (mounted) setCode(q.candidateAnswer || "No code submitted.");
           }
        } catch (err) {
-          if (mounted) setCode("Not answered");
+          if (mounted) setCode(q.candidateAnswer || "Not answered");
        } finally {
           if (mounted) setLoading(false);
        }
     }
     fetchCode();
     return () => { mounted = false; };
-  }, [candidateId, q.id, evaluationId]);
+  }, [userId, q.id, evaluationId]);
 
   if (loading) return <span className="text-neutral-500 italic">Loading code...</span>;
   return <pre className="whitespace-pre-wrap font-mono text-[11px] overflow-x-auto">{code}</pre>;
@@ -825,7 +825,7 @@ function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
                         </div>
                         <div className="mt-1 text-white">
                           {q.format === "Coding" ? (
-                            <CodingAnswerViewer q={q} candidateId={candidate.id} evaluationId={ev.id} />
+                            <CodingAnswerViewer q={q} userId={candidate.rawSubmission?.user?.id || candidate.id} evaluationId={ev.id} />
                           ) : (
                             q.candidateAnswer
                           )}
@@ -835,7 +835,13 @@ function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
                         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
                           Correct answer
                         </div>
-                        <div className="mt-1 text-white">{q.correctAnswer}</div>
+                        <div className="mt-1 text-white">
+                          {q.format === "Coding" ? (
+                            <pre className="whitespace-pre-wrap font-mono text-xs">{q.correctAnswer}</pre>
+                          ) : (
+                            q.correctAnswer
+                          )}
+                        </div>
                       </div>
                     </div>
                     <p className="mt-3 text-[12px] leading-relaxed text-neutral-400">
