@@ -31,6 +31,7 @@ import { Route as StudentCertificatesRouteImport } from './routes/student.certif
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
+import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
 import { Route as EvaluationSystemCheckRouteImport } from './routes/evaluation.system-check'
@@ -184,6 +185,11 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
 const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => RecruiterRoute,
+} as any)
+const RecruiterBillingRoute = RecruiterBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => RecruiterRoute,
 } as any)
 const GithubCallbackRoute = GithubCallbackRouteImport.update({
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -587,6 +595,7 @@ export interface FileRoutesById {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -657,6 +666,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -721,6 +731,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -994,6 +1006,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/recruiter/dashboard'
       preLoaderRoute: typeof RecruiterDashboardRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
+    '/recruiter/billing': {
+      id: '/recruiter/billing'
+      path: '/billing'
+      fullPath: '/recruiter/billing'
+      preLoaderRoute: typeof RecruiterBillingRouteImport
       parentRoute: typeof RecruiterRoute
     }
     '/github/callback': {
@@ -1428,6 +1447,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
   )
 
 interface RecruiterRouteChildren {
+  RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -1436,6 +1456,7 @@ interface RecruiterRouteChildren {
 }
 
 const RecruiterRouteChildren: RecruiterRouteChildren = {
+  RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,

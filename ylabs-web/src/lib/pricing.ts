@@ -52,7 +52,7 @@ export const plans: Plan[] = [
       "Basic proctoring",
       "Follow-ups",
     ],
-    cta: "Start Free Trial",
+    cta: "Buy Now",
   },
   {
     id: "growth",
@@ -74,7 +74,7 @@ export const plans: Plan[] = [
       "Follow-ups",
       "Priority support",
     ],
-    cta: "Start Free Trial",
+    cta: "Buy Now",
   },
   {
     id: "scale",
@@ -97,7 +97,7 @@ export const plans: Plan[] = [
       "API / ATS integration",
       "Priority support",
     ],
-    cta: "Start Free Trial",
+    cta: "Buy Now",
   },
 ];
 

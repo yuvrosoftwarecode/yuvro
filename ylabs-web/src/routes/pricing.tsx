@@ -1,7 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Check, GitCommit, Minus, Plus } from "lucide-react";
 import { plans, enterprise, topUps, usageExplainers, faqs, freeTrial, rolloverNote, topUpNote } from "@/lib/pricing";
+import { useAuth } from "@/lib/auth";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { loadRazorpayScript } from "@/lib/razorpay";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -28,19 +32,28 @@ export function selectPlan(planId: string, billing: "monthly" | "yearly") {
   } catch { /* ignore */ }
 }
 
-function Pricing() {
+export function PricingContent({ onSubscribe }: { onSubscribe?: () => void }) {
   const [yearly, setYearly] = useState(true);
   const [selected, setSelected] = useState<string | null>("growth");
+
   return (
-    <div className="min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white" style={{ background: "#FAFAF8" }}>
-      <PricingNav />
+    <>
       <Header yearly={yearly} setYearly={setYearly} />
-      <FreeTrialCard />
-      <PlanCards yearly={yearly} selected={selected} setSelected={setSelected} />
+      <FreeTrialCard onSubscribe={onSubscribe} />
+      <PlanCards yearly={yearly} selected={selected} setSelected={setSelected} onSubscribe={onSubscribe} />
       <EnterpriseCard />
       <TopUps />
       <UsageWorks />
       <Faq />
+    </>
+  );
+}
+
+function Pricing() {
+  return (
+    <div className="min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white" style={{ background: "#FAFAF8" }}>
+      <PricingNav />
+      <PricingContent />
       <FinalCTA />
       <Footer />
     </div>
@@ -107,7 +120,34 @@ function Header({ yearly, setYearly }: { yearly: boolean; setYearly: (v: boolean
   );
 }
 
-function FreeTrialCard() {
+function FreeTrialCard({ onSubscribe }: { onSubscribe?: () => void }) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartTrial = async () => {
+    if (!isAuthenticated) {
+      selectPlan("trial", "monthly");
+      navigate({ to: "/auth", search: { tab: "signup" } });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      toast.success("Free trial activated successfully!");
+      if (onSubscribe) {
+        onSubscribe();
+      } else {
+        navigate({ to: "/recruiter/evaluations" });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to start trial");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="mx-auto max-w-7xl px-6 pt-12">
       <div className="rounded-xl border bg-white p-7 lg:p-8" style={{ borderColor: BORDER }}>
@@ -121,15 +161,14 @@ function FreeTrialCard() {
             <p className="mt-4 text-[14px] leading-relaxed text-[#6B6B6B]">
               The natural entry point. Try the full evaluation workflow before choosing a plan.
             </p>
-            <Link
-              to="/auth"
-              search={{ tab: "signup" }}
-              onClick={() => selectPlan("trial", "monthly")}
-              className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-md border bg-white px-4 py-2.5 text-sm font-medium transition hover:bg-[#F5F3EE]"
+            <button
+              onClick={handleStartTrial}
+              disabled={isLoading}
+              className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-md border bg-white px-4 py-2.5 text-sm font-medium transition hover:bg-[#F5F3EE] disabled:opacity-50"
               style={{ borderColor: BORDER }}
             >
-              {freeTrial.cta} <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+              {isLoading ? "Starting..." : freeTrial.cta} {!isLoading && <ArrowRight className="h-3.5 w-3.5" />}
+            </button>
           </div>
           <div className="border-t pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0" style={{ borderColor: BORDER }}>
             <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">Includes</div>
@@ -159,8 +198,123 @@ function FreeTrialCard() {
   );
 }
 
-function PlanCards({ yearly, selected, setSelected }: { yearly: boolean; selected: string | null; setSelected: (id: string) => void }) {
+function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boolean; selected: string | null; setSelected: (id: string) => void; onSubscribe?: () => void }) {
   const billing: "monthly" | "yearly" = yearly ? "yearly" : "monthly";
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isPaying, setIsPaying] = useState<string | null>(null);
+
+  const handleBuyPlan = async (p: any, price: number) => {
+    if (!isAuthenticated) {
+      selectPlan(p.id, billing);
+      navigate({ to: "/auth", search: { tab: "signup" } });
+      return;
+    }
+    
+    setIsPaying(p.id);
+    try {
+      const orderRes = await yhubApiAuthUtil.post<{
+        id: string;
+        gateway_order_or_intent_id: string;
+      }>("/payment/", {
+        payment_gateway: "RAZORPAY",
+        amount: price,
+        currency: "USD",
+        item_type: "plan",
+        item_id: p.id,
+        item_name: `${p.name} (${billing})`,
+        product: "ylabs",
+      });
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast.error("Razorpay SDK failed to load. Are you online?");
+        setIsPaying(null);
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: price,
+        currency: "USD",
+        name: "Yuvro Labs",
+        description: `${p.name} Plan Subscription`,
+        order_id: orderRes.gateway_order_or_intent_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await yhubApiAuthUtil.post<{ status: string; message: string }>(
+              "/payment/verify/",
+              {
+                gateway_order_id: response.razorpay_order_id,
+                gateway_payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+              },
+            );
+
+            if (verifyRes.status === "SUCCESS") {
+              toast.success("Subscription activated successfully!");
+              if (onSubscribe) {
+                onSubscribe();
+              } else {
+                navigate({ to: "/recruiter/evaluations" });
+              }
+            } else {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "Payment signature verification failed",
+              });
+              throw new Error(verifyRes.message || "Payment verification failed");
+            }
+          } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Payment verification failed");
+          } finally {
+            setIsPaying(null);
+          }
+        },
+        prefill: {
+          name: user?.first_name || "",
+          email: user?.email || "",
+        },
+        theme: {
+          color: "#0A0A0A",
+        },
+        modal: {
+          ondismiss: async function () {
+            setIsPaying(null);
+            toast.info("Payment cancelled");
+            try {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "User closed the payment modal",
+              });
+            } catch (e) {}
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+
+      rzp.on("payment.failed", async function (response: any) {
+        try {
+          await yhubApiAuthUtil.post("/payment/fail/", {
+            gateway_order_id: response.error.metadata.order_id,
+            gateway_payment_id: response.error.metadata.payment_id,
+            reason: response.error.description,
+          });
+        } catch (e) {}
+        toast.error(response.error.description || "Payment failed");
+        setIsPaying(null);
+      });
+
+      rzp.open();
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Failed to initiate payment.");
+      setIsPaying(null);
+    }
+  };
+
   return (
     <section className="mx-auto max-w-7xl px-6 py-14">
       <div className="grid gap-6 md:grid-cols-3">
@@ -194,15 +348,16 @@ function PlanCards({ yearly, selected, setSelected }: { yearly: boolean; selecte
               </div>
               <p className="mt-4 text-[14px] leading-relaxed text-[#6B6B6B]">{p.tagline}</p>
 
-              <Link
-                to="/auth"
-                search={{ tab: "signup" }}
-                onClick={() => { setSelected(p.id); selectPlan(p.id, billing); }}
-                className={`mt-6 inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2.5 text-sm font-medium transition ${p.popular ? "text-white hover:brightness-95" : "border text-[#0A0A0A] hover:bg-[#F5F3EE]"}`}
-                style={p.popular ? { background: INK } : { borderColor: BORDER, background: "#fff" }}
-              >
-                {p.cta} <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              <div className="mt-6">
+                <button
+                  onClick={() => { setSelected(p.id); handleBuyPlan(p, price); }}
+                  disabled={isPaying === p.id}
+                  className={`mt-6 inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2.5 text-sm font-medium transition ${p.popular ? "text-white hover:brightness-95 disabled:bg-neutral-600" : "border text-[#0A0A0A] hover:bg-[#F5F3EE] disabled:opacity-50"}`}
+                  style={p.popular && isPaying !== p.id ? { background: INK } : p.popular ? undefined : { borderColor: BORDER, background: "#fff" }}
+                >
+                  {isPaying === p.id ? "Processing..." : p.cta} {isPaying !== p.id && <ArrowRight className="h-3.5 w-3.5" />}
+                </button>
+              </div>
 
               <ul className="mt-7 space-y-2.5 border-t pt-6 text-[14px]" style={{ borderColor: BORDER }}>
                 {p.features.map((f) => (
