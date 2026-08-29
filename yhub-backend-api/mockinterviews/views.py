@@ -19,6 +19,16 @@ from .models import (
 from .serializers import MockInterviewSerializer, MockInterviewSubmissionSerializer
 
 from ai_assistant.models import AIAgent, ChatSession, InterviewSession, ChatMessage
+from mockinterviews.dynamic_engine.models import (
+    InterviewCreateRequest,
+    InterviewMode as DynMode,
+    CandidateContext,
+    InterviewSession as DynamicInterviewSession,
+    AssessmentEvent,
+)
+from mockinterviews.dynamic_engine.question_engine import DynamicQuestionEngine
+from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM
+from mockinterviews.dynamic_engine.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +165,14 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             current_cycle_step = progress.completed_count
             is_master = current_cycle_step >= 5
             
-            interview_type = "full_ai" if is_master else "predefined"
+            mode_str = getattr(mock_interview, 'interview_mode', 'automatic').lower()
+            try:
+                engine_mode = DynMode(mode_str)
+            except ValueError:
+                engine_mode = DynMode.AUTOMATIC
+                mode_str = "automatic"
+            
+            interview_type = mode_str
             
             context_text = ""
             if resume_file:
@@ -170,6 +187,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             if not context_text.strip():
                 context_text = "No specific background provided."
+
+            candidate_context_frontend = request.data.get('candidate_context', '')
+            if candidate_context_frontend:
+                context_text += f"\n\nCandidate Assessment & Labs Context:\n{candidate_context_frontend}"
 
             ai_agent = AIAgent.objects.filter(provider="anthropic", is_active=True).first()
             if not ai_agent:
@@ -219,66 +240,50 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 resume=resume_file
             )
 
-            is_sequential = str(request.data.get('sequential', '')).lower() in ['true', '1', 'yes']
+            recruiter_qs = []
+            if engine_mode in [DynMode.HYBRID, DynMode.CUSTOM]:
+                tree = mock_interview.predefined_questions.filter(level=1).order_by('id')
+                recruiter_qs = [q.text for q in tree]
+                
+                # Ensure Pydantic constraints are met
+                if not recruiter_qs:
+                    recruiter_qs = ["Could you please introduce yourself and discuss your relevant background?"]
+                
+                if engine_mode == DynMode.HYBRID and len(recruiter_qs) > 2:
+                    recruiter_qs = recruiter_qs[:2]
 
-            first_question_text = ""
-            if interview_type == "predefined":
-                if is_sequential:
-                    main_pool = PredefinedInterviewQuestion.objects.filter(
-                        mock_interview=mock_interview,
-                        level=1
-                    ).order_by('created_at')
-                    selected_mains = list(main_pool)
-                else:
-                    main_pool = PredefinedInterviewQuestion.objects.filter(
-                        mock_interview=mock_interview,
-                        level=1
-                    ).exclude(id__in=progress.asked_questions)
-                    
-                    if main_pool.count() < 10:
-                        progress.asked_questions = [] 
-                        progress.save()
-                        main_pool = PredefinedInterviewQuestion.objects.filter(mock_interview=mock_interview, level=1)
-                    
-                    selected_mains = list(main_pool.order_by('?')[:10])
-                
-                planned_ids = [str(q.id) for q in selected_mains]
-                
-                greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
-                
-                if chat_session:
-                    ChatMessage.objects.create(
-                        chat_session=chat_session,
-                        message_type="assistant",
-                        content=greeting
-                    )
-                
-                first_question_text = greeting
-                
-                state_data = {
-                    "current_main_index": -1, 
-                    "current_node_id": None,
-                    "planned_questions": planned_ids
-                }
-                if interview_session:
-                    interview_session.state_data = state_data
-                    interview_session.save()
-            else:
-                initial_prompt = f"The interview for {mock_interview.title} ({experience_level}) is starting. Use the following candidate info for context: {context_text[:1000]}. Please introduce yourself and ask the first question."
-                first_question_text = "Preparing your AI interviewer..."
-                if chat_session:
-                    ChatMessage.objects.create(
-                        chat_session=chat_session,
-                        message_type="system",
-                        content=initial_prompt
-                    )
+            req = InterviewCreateRequest(
+                mode=engine_mode,
+                candidate=CandidateContext(
+                    candidate_id=str(user.id),
+                    target_role=mock_interview.title,
+                    resume=context_text,
+                    job_description=mock_interview.description
+                ),
+                recruiter_questions=recruiter_qs
+            )
+            dyn_session = DynamicInterviewSession.from_create_request(req)
+            submission.session_state = dyn_session.model_dump(mode='json')
+            submission.save(update_fields=['session_state'])
+            
+            greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
+            
+            if chat_session:
+                ChatMessage.objects.create(
+                    chat_session=chat_session,
+                    message_type="assistant",
+                    content=greeting
+                )
+            
+            first_question_text = greeting
 
             return Response({
                 'submission_id': submission.id,
                 'interview_session_id': str(interview_session.id) if interview_session else None,
                 'chat_session_id': str(chat_session.id) if chat_session else None,
                 'status': submission.status,
-                'interview_type': interview_type,
+                'interview_type': mode_str,
+                'interview_mode': mode_str,
                 'first_question': first_question_text,
                 'progress': {
                     "completed_count": current_cycle_step,
@@ -316,6 +321,40 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     message_type="user",
                     content=user_answer
                 )
+
+            # Use Dynamic Engine if initialized
+            submission = MockInterviewSubmission.objects.filter(
+                user=request.user, 
+                mock_interview=mock_interview, 
+                chat_session=chat_session
+            ).first()
+            if submission and submission.session_state:
+                dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
+                engine = DynamicQuestionEngine(llm_client=OpenAIInterviewLLM.from_settings(get_settings()))
+                
+                # First handle any answer provided
+                if user_answer and user_answer.strip() and dyn_session.current_question_id:
+                    engine.record_answer(dyn_session, dyn_session.current_question_id, user_answer)
+                
+                # Advance question
+                force_new = (status_code == 'skip')
+                question = engine.next_question(dyn_session, force_new=force_new)
+                
+                submission.session_state = dyn_session.model_dump(mode='json')
+                submission.save(update_fields=['session_state'])
+                
+                if chat_session:
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=question.prompt
+                    )
+                return Response({
+                    "question": question.prompt,
+                    "is_finished": False,
+                    "question_id": question.id
+                })
+
 
             planned_questions = state.get('planned_questions', [])
             current_main_index = state.get('current_main_index', -1)
@@ -1098,3 +1137,37 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             logger.error(traceback.format_exc())
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+    @action(detail=True, methods=['post'])
+    def ingest_event(self, request, pk=None):
+        mock_interview = self.get_object()
+        interview_session_id = request.data.get('interview_session_id')
+        if not interview_session_id:
+            return Response({"error": "No interview session ID provided"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from ai_assistant.models import InterviewSession
+        interview_session = InterviewSession.objects.filter(id=interview_session_id).first()
+        if not interview_session:
+            return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission = MockInterviewSubmission.objects.filter(
+            user=request.user, 
+            mock_interview=mock_interview, 
+            chat_session=interview_session.chat_session
+        ).first()
+        
+        if not submission or not submission.session_state:
+            return Response({"error": "Dynamic session not found"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
+        engine = DynamicQuestionEngine(llm_client=OpenAIInterviewLLM.from_settings(get_settings()))
+        
+        try:
+            event = AssessmentEvent.model_validate(request.data.get('event', {}))
+            engine.ingest_event(dyn_session, event)
+            submission.session_state = dyn_session.model_dump(mode='json')
+            submission.save(update_fields=['session_state'])
+            return Response({"status": "success"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

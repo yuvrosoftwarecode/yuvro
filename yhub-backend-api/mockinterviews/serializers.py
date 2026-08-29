@@ -15,6 +15,7 @@ class MockInterviewSerializer(serializers.ModelSerializer):
             "description",
             "instructions",
             "max_duration",
+            "interview_mode",
             "required_skills",
             "optional_skills",
             "publish_status",

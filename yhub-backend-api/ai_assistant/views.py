@@ -781,10 +781,28 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             from django.apps import apps
             MockInterviewSubmission = apps.get_model('mockinterviews', 'MockInterviewSubmission')
             mock_submission = MockInterviewSubmission.objects.filter(chat_session=interview_session.chat_session).first()
+
             if mock_submission and mock_submission.status != MockInterviewSubmission.STATUS_COMPLETED:
                 mock_submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 mock_submission.completed_at = timezone.now()
-                mock_submission.save(update_fields=['status', 'completed_at'])
+                
+                # Evaluate session via Dynamic Engine
+                if mock_submission.session_state:
+                    from mockinterviews.dynamic_engine.models import InterviewSession as DynSession
+                    from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+                    from mockinterviews.dynamic_engine.llm import InterviewLLM
+                    try:
+                        dyn_session = DynSession.model_validate(mock_submission.session_state)
+                        evaluator = InterviewEvaluator(llm_client=InterviewLLM())
+                        evaluation = evaluator.evaluate(dyn_session)
+                        mock_submission.marks = evaluation.overall_score * 10
+                    except Exception as e:
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Error evaluating interview: {e}")
+                        
+                mock_submission.save(update_fields=['status', 'completed_at', 'marks'])
+
 
         try:
             report_generator = InterviewReportGenerator()

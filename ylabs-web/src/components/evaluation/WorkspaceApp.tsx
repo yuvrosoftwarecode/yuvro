@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useSearch, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "@/services/evaluationService";
-import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { VitarkaInterviewScreen } from "@/components/discussion/VitarkaInterviewScreen";
 import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
@@ -212,6 +212,22 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [taskState, setTaskState] = useState<Record<string, Set<number>>>({});
   
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [labSubmissionsData, setLabSubmissionsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (evaluationId) {
+      restApiAuthUtil.get(`/skill_evaluation/lab-submissions/`)
+        .then((res: any) => {
+          if (Array.isArray(res)) {
+            setLabSubmissionsData(res.filter(s => s.evaluation === parseInt(evaluationId) || s.evaluation === evaluationId || s.evaluation?.id === evaluationId));
+          } else if (res && Array.isArray(res.results)) {
+            setLabSubmissionsData(res.results.filter((s: any) => s.evaluation === parseInt(evaluationId) || s.evaluation === evaluationId || s.evaluation?.id === evaluationId));
+          }
+        })
+        .catch(console.error);
+    }
+  }, [evaluationId, submittedLabs]); // re-fetch when a lab is submitted
+
   const [answers, setAnswers] = useState<Record<string, any>>({}); // Maps question id to its answer
   const [marked, setMarked] = useState<Record<string, Set<string>>>({}); // Maps section id to set of marked question ids
   const [qIndex, setQIndex] = useState(0);
@@ -520,6 +536,47 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return null;
   }
 
+  const candidateContextString = useMemo(() => {
+    let contextParts: string[] = [];
+    for (const sec of appSections) {
+      if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+        let correctCount = 0;
+        let totalCount = 0;
+        let details: string[] = [];
+        for (const q of (sec.questions || [])) {
+          if (answers[q.id] !== undefined) {
+            totalCount++;
+            const isCorrect = answers[q.id] === q.correct_answer;
+            if (isCorrect) correctCount++;
+            details.push(`- Question: ${q.text}\n  Selected Answer Option Index: ${answers[q.id]}\n  Is Correct: ${isCorrect ? 'Yes' : 'No'}`);
+          }
+        }
+        if (totalCount > 0) {
+          contextParts.push(`Knowledge Assessment Score: ${correctCount}/${totalCount}\n` + details.join("\n"));
+        }
+      }
+      if (sec.type === "LAB") {
+        let labDetails = `Engineering Labs in section '${sec.title || "Labs"}':\n`;
+        let hasSubmissions = false;
+        
+        for (const lab of sec.labs || []) {
+          const submission = labSubmissionsData.find((s: any) => s.lab_question === lab.id || s.lab_question?.id === lab.id);
+          if (submission && submission.solution) {
+            hasSubmissions = true;
+            labDetails += `\n--- Lab: ${lab.title} ---\n`;
+            labDetails += `Time spent: ${submission.minutes_solved || 0} minutes\n`;
+            labDetails += `Code Diff:\n\`\`\`diff\n${submission.solution}\n\`\`\`\n`;
+          } else {
+            labDetails += `\n--- Lab: ${lab.title} ---\n`;
+            labDetails += `Status: Not submitted or no code diff available.\n`;
+          }
+        }
+        contextParts.push(labDetails);
+      }
+    }
+    return contextParts.join("\n\n");
+  }, [appSections, answers, labSubmissionsData]);
+
   return (
     <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased">
       <TopBar
@@ -658,12 +715,20 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 <VitarkaInterviewScreen
                   key={sec.id}
                   mockInterviewId={meta.mockInterviewId}
+                  candidateContext={candidateContextString}
                   onEnd={() => setModal({ kind: "end-discussion" })}
                 />
               );
             }
             return null;
           })}
+          {section === "discussion-dummy" && (
+            <VitarkaInterviewScreen
+              mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
+              candidateContext={candidateContextString}
+              onEnd={() => setModal({ kind: "end-discussion" })}
+            />
+          )}
         </main>
       </div>
 

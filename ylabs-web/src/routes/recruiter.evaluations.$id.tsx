@@ -336,7 +336,7 @@ function EvaluationWorkspace() {
                   kind: "discussion",
                   title: "Engineering Discussion",
                   duration: 15,
-                  mode: "Custom",
+                  mode: "Automatic",
                   questions: [],
                 });
             });
@@ -809,24 +809,17 @@ function DiscussionSectionBody({
             Question Mode
           </div>
           <div className="mt-1 flex items-center gap-2">
-            {(["Custom", "Automatic"] as const).map(mode => (
+            {(["Custom", "Automatic", "Hybrid"] as const).map(mode => (
               <button 
                 key={mode} 
                 onClick={() => {
                   let updatedQuestions = section.questions;
                   if (mode === "Automatic") {
-                    updatedQuestions = [
-                      {
-                        text: "You've changed the views in the Orders app. What was the reason for making those changes?",
-                        follow_ups: [
-                          { text: "Did you consider any alternative approach instead of this implementation?", follow_ups: [] }
-                        ]
-                      }
-                    ];
+                    updatedQuestions = [];
                   }
                   onChange({ ...section, mode, questions: updatedQuestions });
                 }}
-                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Custom') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Automatic') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
               >
                 {mode}
               </button>
@@ -904,13 +897,15 @@ function QuestionTreeBuilder({
                   <X className="h-3 w-3" />
                 </ToolBtn>
               </div>
-              <div className="pl-4 border-l border-white/5">
-                <QuestionTreeBuilder
-                  questions={q.follow_ups}
-                  onChange={(f) => updateNode(i, { ...q, follow_ups: f })}
-                  level={level + 1}
-                />
-              </div>
+              {level < 2 && (
+                <div className="pl-4 border-l border-white/5">
+                  <QuestionTreeBuilder
+                    questions={q.follow_ups}
+                    onChange={(f) => updateNode(i, { ...q, follow_ups: f })}
+                    level={level + 1}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -919,7 +914,7 @@ function QuestionTreeBuilder({
         <input
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
-          placeholder={level === 0 ? "Add a main question..." : "Add a follow-up question..."}
+          placeholder={level === 0 ? "Add a main question..." : level === 1 ? "Add a follow-up question..." : "Add a deep follow-up question..."}
           className="flex-1 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-[12px] outline-none focus:border-amber-400/50"
         />
         <button
