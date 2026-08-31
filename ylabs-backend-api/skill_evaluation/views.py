@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from core.storage import upload_image
+from .models import RecruiterActivityLog
+from .serializers import RecruiterActivityLogSerializer
 import logging
 import time
 
@@ -188,6 +190,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             "activity_type": activity_type,
             "meta_data": meta_data,
         }
+        
+        question_id = request.data.get("question_id")
+        if question_id:
+            event["question_id"] = question_id
+            
+        question_title = request.data.get("question_title")
+        if question_title:
+            event["question_title"] = question_title
+            
         if image_path:
             event["image_path"] = image_path
         if screen_path:
@@ -303,7 +314,59 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         stderr=subprocess.DEVNULL
                     ).decode()
                     submission.solution = diff_output
-                    submission.save(update_fields=['solution'])
+                    
+                    tasks = lab.tasks.all().order_by('order_index')
+                    has_db_tasks = False
+                    if lab.databases and len(lab.databases) > 0:
+                        has_db_tasks = True
+                    else:
+                        for t in tasks:
+                            rules = t.scoring_rules if isinstance(t.scoring_rules, dict) else {}
+                            sol = t.solution if isinstance(t.solution, dict) else {}
+                            if rules.get("database_engine") or sol.get("query.sql") or rules.get("system_query"):
+                                has_db_tasks = True
+                                break
+                    
+                    if has_db_tasks:
+                        import requests
+                        import json
+                        db_engine = "sqlite"
+                        payload_tasks = []
+                        for i, task in enumerate(tasks, start=1):
+                            expected_sol = task.solution or {}
+                            rules = task.scoring_rules or {}
+                            if rules.get("database_engine"):
+                                db_engine = rules.get("database_engine")
+                            
+                            payload_tasks.append({
+                                "task_id": str(task.id),
+                                "task_file": f"task{i}.sql",
+                                "expected_query": expected_sol.get("query.sql", ""),
+                                "expected_output": expected_sol.get("expected_output", ""),
+                                "scoring_rules": rules,
+                                "system_query": rules.get("system_query", ""),
+                                "expected_result": rules.get("expected_result", "")
+                            })
+                            
+                        executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
+                        try:
+                            response = requests.post(f"{executer_host}/workspace/database_submit", json={
+                                "user_id": str(request.user.id),
+                                "lab_id": str(lab.id),
+                                "sprint_id": str(lab.id),
+                                "database_engine": db_engine,
+                                "evaluation_id": str(evaluation.id),
+                                "tasks": payload_tasks
+                            }, timeout=10)
+                            if response.status_code == 200:
+                                result_data = response.json()
+                                submission.solution_output = json.dumps(result_data)
+                                submission.score = int(result_data.get("percentage", 0))
+                        except Exception as e:
+                            logger = logging.getLogger(__name__)
+                            logger.error(f"Failed to submit database lab to executer: {e}")
+                    
+                    submission.save(update_fields=['solution', 'solution_output', 'score'])
                 except Exception:
                     pass
         
@@ -625,3 +688,28 @@ class CandidateTimelineEventViewSet(viewsets.ModelViewSet):
         else:
             serializer.save(created_by=user)
 
+
+class RecruiterActivityLogViewSet(viewsets.ModelViewSet):
+    serializer_class = RecruiterActivityLogSerializer
+    from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = RecruiterActivityLog.objects.all()
+        evaluation_id = self.request.query_params.get('evaluation_id')
+        candidate_email = self.request.query_params.get('candidate_email')
+        
+        if evaluation_id:
+            queryset = queryset.filter(evaluation_id=evaluation_id)
+        if candidate_email:
+            queryset = queryset.filter(candidate_email=candidate_email)
+            
+        return queryset
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.first()
+            
+        serializer.save(recruiter=user, created_by=user)

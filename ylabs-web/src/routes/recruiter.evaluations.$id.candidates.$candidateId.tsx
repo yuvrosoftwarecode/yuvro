@@ -63,6 +63,7 @@ import {
   loadTimelineEvents,
   type TimelineEvent,
   createTimelineEvent,
+  type ActivityEvent,
 } from "@/lib/recruiterCandidateDetail";
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
@@ -110,15 +111,17 @@ function CandidateWorkspace() {
   const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any } | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
-  const [activity, setActivity] = useState(() => loadActivity(id, candidateId));
+  const [activity, setActivity] = useState<ActivityEvent[]>([]);
 
   useEffect(() => {
     markViewed(id, candidateId);
-    pushActivity(id, candidateId, "view", "Recruiter viewed the profile");
-    setActivity(loadActivity(id, candidateId));
     if (candidate?.email) {
+      pushActivity(id, candidate.email, "view", "Recruiter viewed the profile").then(() => {
+        loadActivity(id, candidate.email).then(setActivity);
+      });
       createTimelineEvent(id, candidate.email, "Recruiter viewed profile");
     }
+    // logRecruiterActivity is redundant here, pushActivity is called above.
   }, [id, candidateId, candidate?.email]);
 
   useEffect(() => {
@@ -159,14 +162,17 @@ function CandidateWorkspace() {
   }
   const detail = getCandidateDetail(candidate);
   const notify = (m: string) => setToast(m);
-  const act = (kind: string, text: string) => {
-    pushActivity(id, candidateId, kind, text);
-    setActivity(loadActivity(id, candidateId));
+  const act = async (kind: string, text: string) => {
+    if (!candidate?.email) return;
+    await pushActivity(id, candidate.email, kind, text);
+    // logRecruiterActivity is redundant here, pushActivity is called above.
+    const newAct = await loadActivity(id, candidate.email);
+    setActivity(newAct);
   };
   const doDecision = (d: HiringDecision) => {
     setDecision(d);
     if (candidate?.email) saveDecision(id, candidateId, candidate.email, d);
-    act("decision", `Decision changed to ${d}`);
+    act("Decision Changed", `Decision changed to ${d}`);
     notify(`Marked as ${d}`);
     
     if (candidate?.email) {
@@ -1151,7 +1157,7 @@ function NotesPane({
   );
 }
 
-function ActivityPane({ activity }: { activity: ReturnType<typeof loadActivity> }) {
+function ActivityPane({ activity }: { activity: ActivityEvent[] }) {
   return (
     <div>
       <SectionHeading>Activity</SectionHeading>
@@ -1318,7 +1324,7 @@ function generateMockLabAttempt(lab: any, labSub: any) {
 }
 
 function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
-  const { section, labSub } = data;
+  const { section, labSub, candidate } = data;
   const lab = generateMockLabAttempt(section, labSub);
 
   return (
@@ -1376,9 +1382,17 @@ function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labS
           </Block>
 
           <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5" />}>
-            <LabCodeExplorer labId={lab.id} changedFiles={lab.files.map((f: any) => ({ path: f.path, kind: f.kind }))} />
+            <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
+              <LabSubmissionViewer
+                userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
+                evaluationId={evaluationId}
+                lab={section}
+                labSub={labSub}
+                candidate={candidate}
+                onClose={onClose}
+              />
+            </div>
           </Block>
-
 
           <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
             <div className="space-y-2">

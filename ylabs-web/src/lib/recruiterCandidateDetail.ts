@@ -1084,21 +1084,61 @@ export interface ActivityEvent {
   text: string;
   time: number;
 }
-export function loadActivity(evId: string, cid: string): ActivityEvent[] {
-  if (typeof window === "undefined") return [];
+export async function loadActivity(evId: string, email: string): Promise<ActivityEvent[]> {
+  if (evId.startsWith("7700") || evId.startsWith("demo")) {
+    try {
+      return JSON.parse(localStorage.getItem(`yuvro-act-${evId}-${email}`) || "[]");
+    } catch {
+      return [];
+    }
+  }
+  
   try {
-    return JSON.parse(localStorage.getItem(`yuvro-act-${evId}-${cid}`) || "[]");
-  } catch {
+    const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/activity-logs/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
+    return res.map(r => ({
+      id: String(r.id),
+      kind: r.kind,
+      text: r.text,
+      time: new Date(r.created_at).getTime()
+    }));
+  } catch (err) {
+    console.error("Failed to load activity logs", err);
     return [];
   }
 }
-export function pushActivity(evId: string, cid: string, kind: string, text: string) {
-  const list = loadActivity(evId, cid);
-  list.unshift({ id: Math.random().toString(36).slice(2, 9), kind, text, time: Date.now() });
+
+export async function pushActivity(evId: string, email: string, kind: string, text: string) {
+  // Deduplicate rapid view events
+  if (kind === "view") {
+    const dedupKey = `view-dedup-${evId}-${email}`;
+    const lastView = sessionStorage.getItem(dedupKey);
+    if (lastView && Date.now() - parseInt(lastView) < 60 * 60 * 1000) {
+      return; // Skip if viewed in the last hour
+    }
+    sessionStorage.setItem(dedupKey, Date.now().toString());
+  }
+
+  if (evId.startsWith("7700") || evId.startsWith("demo")) {
+    const list = await loadActivity(evId, email);
+    list.unshift({ id: Math.random().toString(36).slice(2, 9), kind, text, time: Date.now() });
+    try {
+      localStorage.setItem(`yuvro-act-${evId}-${email}`, JSON.stringify(list.slice(0, 100)));
+    } catch {}
+    return;
+  }
+
   try {
-    localStorage.setItem(`yuvro-act-${evId}-${cid}`, JSON.stringify(list.slice(0, 100)));
-  } catch {}
+    await restApiAuthUtil.post(`/skill_evaluation/activity-logs/`, {
+      evaluation: evId,
+      candidate_email: email,
+      kind,
+      text
+    });
+  } catch (err) {
+    console.error("Failed to push activity log", err);
+  }
 }
+
 
 export type HiringDecision =
   "Pending Review" | "Shortlisted" | "Interview Scheduled" | "Selected" | "Rejected" | "Hold";

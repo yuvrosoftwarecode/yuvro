@@ -63,7 +63,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "tickets=[4,2,1], k=1",
-          "expected_output": "6",
+          "expected_output": "5",
           "order_index": 6
         },
         {
@@ -109,7 +109,7 @@
           {
             "title": "Queue implementation - C",
             "language": "c",
-            "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], =\\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], =\\n\"); }\n int k=arr[n-1];\n int time=0;\n for(int i=0;i<n-1;i++){\n  if(i<=k) time+= arr[i]<arr[k]?arr[i]:arr[k];\n  else time+= arr[i]<(arr[k]-1)?arr[i]:(arr[k]-1);\n }\n printf(\"%d\",time);\n}"
+            "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nint main() {\n    char s[2000];\n    int arr[200];\n    int n = 0;\n\n    fgets(s, sizeof(s), stdin);\n\n    char *p = s;\n\n    while (*p) {\n        if (isdigit(*p) || *p == '-') {\n            char *end;\n            arr[n++] = (int)strtol(p, &end, 10);\n            p = end;\n        } else {\n            p++;\n        }\n    }\n\n    int k = arr[n - 1];\n    int target = arr[k];\n    int time = 0;\n\n    for (int i = 0; i < n - 1; i++) {\n        if (i <= k) {\n            time += (arr[i] < target) ? arr[i] : target;\n        } else {\n            time += (arr[i] < target - 1) ? arr[i] : target - 1;\n        }\n    }\n\n    printf(\"%d\", time);\n\n    return 0;\n}"
           },
           {
             "title": "Queue implementation - CPP",
@@ -323,7 +323,7 @@
           "description": "Validate your code against test case 8.",
           "points": 10,
           "input": "deck=[9,8,7,6]",
-          "expected_output": "[6,9,7,8]",
+          "expected_output": "[6,8,7,9]",
           "order_index": 8
         },
         {
@@ -332,7 +332,7 @@
           "description": "Validate your code against test case 9.",
           "points": 10,
           "input": "deck=[11,12,13,14]",
-          "expected_output": "[11,14,12,13]",
+          "expected_output": "[11,13,12,14]",
           "order_index": 9
         }
       ],
@@ -563,7 +563,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "senate=\"DDRRR\"",
-          "expected_output": "Radiant",
+          "expected_output": "Dire",
           "order_index": 6
         },
         {
@@ -572,7 +572,7 @@
           "description": "Validate your code against test case 7.",
           "points": 10,
           "input": "senate=\"RRDDD\"",
-          "expected_output": "Dire",
+          "expected_output": "Radiant",
           "order_index": 7
         },
         {
@@ -656,7 +656,7 @@
           "description": "Validate your code against test case 2.",
           "points": 10,
           "input": "[[2,3],[3,4],[4,3]]",
-          "expected_output": "2",
+          "expected_output": "-1",
           "order_index": 2
         },
         {
@@ -733,7 +733,7 @@
           {
             "title": "Queue implementation - Java",
             "language": "java",
-            "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  ArrayList<Integer> nums=new ArrayList<>();\n  while(sc.hasNextInt()) nums.add(sc.nextInt());\n  int start=0,tank=0,total=0;\n  for(int i=0;i<nums.size();i+=2){\n   tank+=nums.get(i)-nums.get(i+1);\n   if(tank<0){start=i/2+1;total+=tank;tank=0;}\n  }\n  System.out.print(total+tank>=0?start:-1);\n }\n}"
+            "code": "import java.util.*;\nimport java.util.regex.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        StringBuilder input = new StringBuilder();\n\n        while (sc.hasNextLine()) {\n            input.append(sc.nextLine()).append(\" \");\n        }\n\n        Matcher m = Pattern.compile(\"-?\\\\d+\").matcher(input.toString());\n\n        ArrayList<Integer> nums = new ArrayList<>();\n\n        while (m.find()) {\n            nums.add(Integer.parseInt(m.group()));\n        }\n\n        int start = 0;\n        int tank = 0;\n        int total = 0;\n\n        for (int i = 0; i < nums.size(); i += 2) {\n            int petrol = nums.get(i);\n            int distance = nums.get(i + 1);\n\n            int gain = petrol - distance;\n\n            tank += gain;\n            total += gain;\n\n            if (tank < 0) {\n                start = i / 2 + 1;\n                tank = 0;\n            }\n        }\n\n        System.out.print(total >= 0 ? start : -1);\n    }\n}"
           },
           {
             "title": "Queue implementation - C",
@@ -743,7 +743,7 @@
           {
             "title": "Queue implementation - CPP",
             "language": "cpp",
-            "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n vector<int> nums; int x;\n while(cin>>x) nums.push_back(x);\n int start=0,tank=0,total=0;\n for(int i=0;i<nums.size();i+=2){\n  tank+=nums[i]-nums[i+1];\n  if(tank<0){start=i/2+1;total+=tank;tank=0;}\n }\n cout<<(total+tank>=0?start:-1);\n}"
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, line;\n\n    while (getline(cin, line)) {\n        s += line;\n    }\n\n    vector<int> nums;\n\n    for (int i = 0; i < s.size(); ) {\n        if (isdigit(s[i]) || s[i] == '-') {\n            int sign = 1;\n\n            if (s[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n\n            while (i < s.size() && isdigit(s[i])) {\n                num = num * 10 + (s[i] - '0');\n                i++;\n            }\n\n            nums.push_back(sign * num);\n        } else {\n            i++;\n        }\n    }\n\n    int start = 0;\n    int tank = 0;\n    int total = 0;\n\n    for (int i = 0; i < nums.size(); i += 2) {\n        int petrol = nums[i];\n        int cost = nums[i + 1];\n\n        int gain = petrol - cost;\n\n        tank += gain;\n        total += gain;\n\n        if (tank < 0) {\n            start = i / 2 + 1;\n            tank = 0;\n        }\n    }\n\n    cout << (total >= 0 ? start : -1);\n\n    return 0;\n}"
           }
         ]
       },
@@ -831,7 +831,7 @@
           "description": "Validate your code against test case 8.",
           "points": 10,
           "input": "grid=[\"....\",\"X..X\",\"....\",\"....\"], start=(0,0), goal=(3,3)",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 8
         },
         {
@@ -849,12 +849,12 @@
           {
             "title": "Queue implementation - Python",
             "language": "python",
-            "code": "from collections import deque\nimport sys\n\ndata=sys.stdin.read().split()\nn=len(data[0])\ngrid=data[:-4]\nsx,sy,gx,gy=map(int,data[-4:])\nvisited=[[False]*n for _ in range(n)]\nq=deque([(sx,sy,0)])\nvisited[sx][sy]=True\nwhile q:\n x,y,d=q.popleft()\n if (x,y)==(gx,gy):\n  print(d);break\n for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]:\n  nx,ny=x,y\n  while 0<=nx+dx<n and 0<=ny+dy<n and grid[nx+dx][ny+dy]!='X':\n   nx+=dx; ny+=dy\n   if not visited[nx][ny]:\n    visited[nx][ny]=True\n    q.append((nx,ny,d+1))"
+            "code": "from collections import deque\nimport sys\nimport re\n\ns = sys.stdin.read()\n\n# Extract grid rows\ngrid = re.findall(r'\"([.X]+)\"', s)\n\n# Extract all integers\nnums = list(map(int, re.findall(r'-?\\d+', s)))\n\nsx, sy, gx, gy = nums[-4:]\n\nn = len(grid)\n\nvisited = [[False] * n for _ in range(n)]\n\nq = deque()\nq.append((sx, sy, 0))\nvisited[sx][sy] = True\n\nwhile q:\n    x, y, d = q.popleft()\n\n    if x == gx and y == gy:\n        print(d)\n        break\n\n    for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n        nx, ny = x, y\n\n        while (\n            0 <= nx + dx < n\n            and 0 <= ny + dy < n\n            and grid[nx + dx][ny + dy] != 'X'\n        ):\n            nx += dx\n            ny += dy\n\n            if not visited[nx][ny]:\n                visited[nx][ny] = True\n                q.append((nx, ny, d + 1))"
           },
           {
             "title": "Queue implementation - Java",
             "language": "java",
-            "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  String[] grid=new String[n];\n  for(int i=0;i<n;i++) grid[i]=sc.next();\n  int sx=sc.nextInt(),sy=sc.nextInt(),gx=sc.nextInt(),gy=sc.nextInt();\n  boolean[][] vis=new boolean[n][n];\n  Queue<int[]> q=new LinkedList<>();\n  q.add(new int[]{sx,sy,0}); vis[sx][sy]=true;\n  int[] dx={1,-1,0,0},dy={0,0,1,-1};\n  while(!q.isEmpty()){\n   int[] cur=q.poll();\n   int x=cur[0],y=cur[1],d=cur[2];\n   if(x==gx&&y==gy){System.out.print(d);return;}\n   for(int k=0;k<4;k++){\n    int nx=x,ny=y;\n    while(nx+dx[k]>=0&&nx+dx[k]<n&&ny+dy[k]>=0&&ny+dy[k]<n&&grid[nx+dx[k]].charAt(ny+dy[k])!='X'){\n     nx+=dx[k]; ny+=dy[k];\n     if(!vis[nx][ny]){vis[nx][ny]=true;q.add(new int[]{nx,ny,d+1});}\n    }\n   }\n  }\n }\n}"
+            "code": "import java.util.*;\nimport java.util.regex.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        StringBuilder input = new StringBuilder();\n\n        while (sc.hasNextLine()) {\n            input.append(sc.nextLine()).append(\" \");\n        }\n\n        String s = input.toString();\n\n        Matcher gm = Pattern.compile(\"\\\"([.X]+)\\\"\").matcher(s);\n        ArrayList<String> rows = new ArrayList<>();\n\n        while (gm.find()) {\n            rows.add(gm.group(1));\n        }\n\n        int n = rows.size();\n        String[] grid = rows.toArray(new String[0]);\n\n        Matcher nm = Pattern.compile(\"-?\\\\d+\").matcher(s);\n        ArrayList<Integer> nums = new ArrayList<>();\n\n        while (nm.find()) {\n            nums.add(Integer.parseInt(nm.group()));\n        }\n\n        int sx = nums.get(nums.size() - 4);\n        int sy = nums.get(nums.size() - 3);\n        int gx = nums.get(nums.size() - 2);\n        int gy = nums.get(nums.size() - 1);\n\n        boolean[][] vis = new boolean[n][n];\n        Queue<int[]> q = new LinkedList<>();\n\n        q.add(new int[]{sx, sy, 0});\n        vis[sx][sy] = true;\n\n        int[] dx = {1, -1, 0, 0};\n        int[] dy = {0, 0, 1, -1};\n\n        while (!q.isEmpty()) {\n            int[] cur = q.poll();\n\n            int x = cur[0];\n            int y = cur[1];\n            int d = cur[2];\n\n            if (x == gx && y == gy) {\n                System.out.print(d);\n                return;\n            }\n\n            for (int k = 0; k < 4; k++) {\n                int nx = x;\n                int ny = y;\n\n                while (nx + dx[k] >= 0 &&\n                       nx + dx[k] < n &&\n                       ny + dy[k] >= 0 &&\n                       ny + dy[k] < n &&\n                       grid[nx + dx[k]].charAt(ny + dy[k]) != 'X') {\n\n                    nx += dx[k];\n                    ny += dy[k];\n\n                    if (!vis[nx][ny]) {\n                        vis[nx][ny] = true;\n                        q.add(new int[]{nx, ny, d + 1});\n                    }\n                }\n            }\n        }\n    }\n}"
           },
           {
             "title": "Queue implementation - C",
@@ -864,7 +864,7 @@
           {
             "title": "Queue implementation - CPP",
             "language": "cpp",
-            "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n vector<string> grid(n);\n for(int i=0;i<n;i++) cin>>grid[i];\n int sx,sy,gx,gy; cin>>sx>>sy>>gx>>gy;\n vector<vector<int>> dist(n,vector<int>(n,-1));\n queue<pair<int,int>> q;\n q.push({sx,sy}); dist[sx][sy]=0;\n int dx[4]={1,-1,0,0}; int dy[4]={0,0,1,-1};\n while(!q.empty()){\n  auto [x,y]=q.front(); q.pop();\n  if(x==gx&&y==gy){cout<<dist[x][y]; break;}\n  for(int k=0;k<4;k++){\n   int nx=x,ny=y;\n   while(nx+dx[k]>=0&&nx+dx[k]<n&&ny+dy[k]>=0&&ny+dy[k]<n&&grid[nx+dx[k]][ny+dy[k]]=='.'){\n    nx+=dx[k]; ny+=dy[k];\n    if(dist[nx][ny]==-1){\n     dist[nx][ny]=dist[x][y]+1;\n     q.push({nx,ny});\n    }\n   }\n  }\n }\n}"
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, line;\n\n    while (getline(cin, line)) {\n        s += line;\n    }\n\n    vector<string> grid;\n\n    for (int i = 0; i < (int)s.size(); i++) {\n        if (s[i] == '\"') {\n            int j = i + 1;\n            string row = \"\";\n\n            while (j < (int)s.size() && s[j] != '\"') {\n                if (s[j] == '.' || s[j] == 'X')\n                    row += s[j];\n                j++;\n            }\n\n            if (!row.empty())\n                grid.push_back(row);\n\n            i = j;\n        }\n    }\n\n    int n = grid.size();\n\n    vector<int> nums;\n\n    for (int i = 0; i < (int)s.size(); ) {\n        if (isdigit(s[i]) || s[i] == '-') {\n            int sign = 1;\n\n            if (s[i] == '-') {\n                sign = -1;\n                i++;\n            }\n\n            int num = 0;\n\n            while (i < (int)s.size() && isdigit(s[i])) {\n                num = num * 10 + (s[i] - '0');\n                i++;\n            }\n\n            nums.push_back(sign * num);\n        } else {\n            i++;\n        }\n    }\n\n    int sx = nums[nums.size() - 4];\n    int sy = nums[nums.size() - 3];\n    int gx = nums[nums.size() - 2];\n    int gy = nums[nums.size() - 1];\n\n    vector<vector<int>> dist(n, vector<int>(n, -1));\n    queue<pair<int, int>> q;\n\n    q.push({sx, sy});\n    dist[sx][sy] = 0;\n\n    int dx[4] = {1, -1, 0, 0};\n    int dy[4] = {0, 0, 1, -1};\n\n    while (!q.empty()) {\n        auto [x, y] = q.front();\n        q.pop();\n\n        if (x == gx && y == gy) {\n            cout << dist[x][y];\n            return 0;\n        }\n\n        for (int k = 0; k < 4; k++) {\n            int nx = x;\n            int ny = y;\n\n            while (nx + dx[k] >= 0 &&\n                   nx + dx[k] < n &&\n                   ny + dy[k] >= 0 &&\n                   ny + dy[k] < n &&\n                   grid[nx + dx[k]][ny + dy[k]] != 'X') {\n\n                nx += dx[k];\n                ny += dy[k];\n\n                if (dist[nx][ny] == -1) {\n                    dist[nx][ny] = dist[x][y] + 1;\n                    q.push({nx, ny});\n                }\n            }\n        }\n    }\n\n    cout << -1;\n    return 0;\n}"
           }
         ]
       },
@@ -1629,7 +1629,7 @@
           {
             "title": "Queue implementation - C",
             "language": "c",
-            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint q[10000];\nint size=0,m,k;\n\nvoid addElement(int num){\n\n    if(size<m)\n        q[size++]=num;\n    else{\n        for(int i=1;i<m;i++)\n            q[i-1]=q[i];\n        q[m-1]=num;\n    }\n}\n\nint cmp(const void *a,const void *b){\n    return (*(int*)a-*(int*)b);\n}\n\nint calculateMKAverage(){\n\n    if(size<m) return -1;\n\n    int arr[10000];\n\n    for(int i=0;i<m;i++)\n        arr[i]=q[i];\n\n    qsort(arr,m,sizeof(int),cmp);\n\n    int sum=0;\n\n    for(int i=k;i<m-k;i++)\n        sum+=arr[i];\n\n    return sum/(m-2*k);\n}\n\nint main(){\n\n    char line[10000];\n    fgets(line,sizeof(line),stdin);\n\n    sscanf(strstr(line,\"m=\")+2,\"%d\",&m);\n    sscanf(strstr(line,\"k=\")+2,\"%d\",&k);\n\n    char *p=strstr(line,\"addElement(\");\n\n    while(p){\n\n        int a,b;\n\n        if(sscanf(p,\"addElement(%d..%d)\",&a,&b)==2){\n\n            for(int i=a;i<=b;i++)\n                addElement(i);\n\n        }else{\n\n            int v;\n            sscanf(p,\"addElement(%d)\",&v);\n            addElement(v);\n        }\n\n        p=strstr(p+1,\"addElement(\");\n    }\n\n    printf(\"%d\",calculateMKAverage());\n\n    return 0;\n}",
+            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nint q[10000];\nint size = 0, m, k;\n\nvoid addElement(int num) {\n    if (size < m) {\n        q[size++] = num;\n    } else {\n        for (int i = 1; i < m; i++) {\n            q[i - 1] = q[i];\n        }\n        q[m - 1] = num;\n    }\n}\n\nint cmp(const void *a, const void *b) {\n    int x = *(const int *)a;\n    int y = *(const int *)b;\n\n    return (x > y) - (x < y);\n}\n\nint calculateMKAverage() {\n    if (size < m) return -1;\n\n    int arr[10000];\n\n    for (int i = 0; i < m; i++) {\n        arr[i] = q[i];\n    }\n\n    qsort(arr, m, sizeof(int), cmp);\n\n    long long sum = 0;\n\n    for (int i = k; i < m - k; i++) {\n        sum += arr[i];\n    }\n\n    return (int)(sum / (m - 2 * k));\n}\n\nint main() {\n    char input[20000] = \"\";\n    char line[5000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    char *p = strstr(input, \"m=\");\n    if (p != NULL) {\n        m = atoi(p + 2);\n    }\n\n    p = strstr(input, \"k=\");\n    if (p != NULL) {\n        k = atoi(p + 2);\n    }\n\n    p = strstr(input, \"addElement(\");\n\n    while (p != NULL) {\n        p += strlen(\"addElement(\");\n\n        char *endBracket = strchr(p, ')');\n\n        if (endBracket == NULL) break;\n\n        char content[5000];\n        int len = endBracket - p;\n\n        strncpy(content, p, len);\n        content[len] = '\\0';\n\n        char *range = strstr(content, \"..\");\n\n        if (range != NULL) {\n            *range = '\\0';\n\n            int start = atoi(content);\n            int end = atoi(range + 2);\n\n            if (start <= end) {\n                for (int i = start; i <= end; i++) {\n                    addElement(i);\n                }\n            } else {\n                for (int i = start; i >= end; i--) {\n                    addElement(i);\n                }\n            }\n        } else {\n            char *cur = content;\n\n            while (*cur) {\n                while (*cur && !isdigit(*cur) && *cur != '-') {\n                    cur++;\n                }\n\n                if (!*cur) break;\n\n                char *end;\n                int num = (int)strtol(cur, &end, 10);\n\n                addElement(num);\n                cur = end;\n            }\n        }\n\n        p = strstr(endBracket + 1, \"addElement(\");\n    }\n\n    printf(\"%d\", calculateMKAverage());\n\n    return 0;\n}",
             "complexity_analysis": "",
             "is_primary": false
           },
@@ -1681,7 +1681,7 @@
           "description": "Validate your code against test case 3.",
           "points": 10,
           "input": "charge=[1,2,3], run=[1,1,1], budget=10",
-          "expected_output": "3",
+          "expected_output": "2",
           "order_index": 3
         },
         {
@@ -1690,7 +1690,7 @@
           "description": "Validate your code against test case 4.",
           "points": 10,
           "input": "charge=[10,20,30], run=[1,1,1], budget=25",
-          "expected_output": "1",
+          "expected_output": "2",
           "order_index": 4
         },
         {
@@ -1735,7 +1735,7 @@
           "description": "Validate your code against test case 9.",
           "points": 10,
           "input": "charge=[9,8,7,6], run=[1,1,1,1], budget=20",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 9
         }
       ],
@@ -1758,8 +1758,15 @@
           {
             "title": "Queue implementation - C",
             "language": "c",
-            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint charge[10000],run[10000],dq[10000];\n\nint max(int a,int b){return a>b?a:b;}\n\nint main(){\n\n    char line[10000];\n    fgets(line,sizeof(line),stdin);\n\n    char *a=strstr(line,\"charge=[\")+8;\n    char *b=strchr(a,']');\n\n    char temp[2000];\n    strncpy(temp,a,b-a);\n    temp[b-a]='\\0';\n\n    int n=0;\n    char *t=strtok(temp,\",\");\n    while(t){\n        charge[n++]=atoi(t);\n        t=strtok(NULL,\",\");\n    }\n\n    char *c=strstr(line,\"run=[\")+4;\n    char *d=strchr(c,']');\n\n    strncpy(temp,c,d-c);\n    temp[d-c]='\\0';\n\n    t=strtok(temp,\",\");\n    int i=0;\n    while(t){\n        run[i++]=atoi(t);\n        t=strtok(NULL,\",\");\n    }\n\n    long budget=atol(strstr(line,\"budget=\")+7);\n\n    int front=0,rear=-1,left=0,ans=0;\n    long total=0;\n\n    for(int right=0;right<n;right++){\n\n        while(front<=rear && charge[dq[rear]]<=charge[right]) rear--;\n        dq[++rear]=right;\n\n        total+=run[right];\n\n        while(front<=rear && charge[dq[front]]+(right-left+1)*total>budget){\n\n            if(dq[front]==left) front++;\n            total-=run[left];\n            left++;\n        }\n\n        ans=max(ans,right-left+1);\n    }\n\n    printf(\"%d\",ans);\n\n    return 0;\n}",
+            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint charge[10000], run[10000], dq[10000];\n\nint main() {\n    char input[20000] = \"\";\n    char line[5000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    char temp[5000];\n\n    // Parse charge\n    char *a = strstr(input, \"charge=[\");\n    if (a == NULL) return 0;\n\n    a += 8;\n    char *b = strchr(a, ']');\n\n    int len = b - a;\n    strncpy(temp, a, len);\n    temp[len] = '\\0';\n\n    int n = 0;\n    char *t = strtok(temp, \",\");\n\n    while (t != NULL) {\n        charge[n++] = atoi(t);\n        t = strtok(NULL, \",\");\n    }\n\n    // Parse run\n    char *c = strstr(input, \"run=[\");\n    if (c == NULL) return 0;\n\n    c += 5;\n    char *d = strchr(c, ']');\n\n    len = d - c;\n    strncpy(temp, c, len);\n    temp[len] = '\\0';\n\n    int runSize = 0;\n    t = strtok(temp, \",\");\n\n    while (t != NULL) {\n        run[runSize++] = atoi(t);\n        t = strtok(NULL, \",\");\n    }\n\n    // Parse budget\n    char *bp = strstr(input, \"budget=\");\n    if (bp == NULL) return 0;\n\n    long long budget = atoll(bp + 7);\n\n    // Monotonic deque + sliding window\n    int front = 0;\n    int rear = -1;\n    int left = 0;\n    int ans = 0;\n\n    long long runningSum = 0;\n\n    for (int right = 0; right < n; right++) {\n\n        // Maintain decreasing chargeTimes deque\n        while (front <= rear &&\n               charge[dq[rear]] <= charge[right]) {\n            rear--;\n        }\n\n        dq[++rear] = right;\n\n        runningSum += run[right];\n\n        // Shrink while over budget\n        while (front <= rear) {\n\n            long long windowSize = right - left + 1;\n\n            long long cost =\n                (long long)charge[dq[front]] +\n                windowSize * runningSum;\n\n            if (cost <= budget) {\n                break;\n            }\n\n            if (dq[front] == left) {\n                front++;\n            }\n\n            runningSum -= run[left];\n            left++;\n        }\n\n        int windowSize = right - left + 1;\n\n        if (windowSize > ans) {\n            ans = windowSize;\n        }\n    }\n\n    printf(\"%d\", ans);\n\n    return 0;\n}",
             "complexity_analysis": "",
+            "is_primary": false
+          },
+          {
+            "title": "Maximum Robots Within Budget (C++)",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <deque>\n\nusing namespace std;\n\nvector<int> parseArray(const string &s, const string &key) {\n    vector<int> res;\n    size_t pos = s.find(key);\n    if (pos == string::npos) return res;\n    size_t start = s.find('[', pos);\n    size_t end = s.find(']', start);\n    if (start == string::npos || end == string::npos) return res;\n\n    string content = s.substr(start + 1, end - start - 1);\n    stringstream ss(content);\n    string token;\n    while (getline(ss, token, ',')) {\n        if (!token.empty()) {\n            res.push_back(stoi(token));\n        }\n    }\n    return res;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input, line;\n    while (getline(cin, line)) {\n        input += line + \" \";\n    }\n\n    vector<int> charge = parseArray(input, \"charge\");\n    vector<int> run = parseArray(input, \"run\");\n\n    long long budget = 0;\n    size_t bpos = input.find(\"budget=\");\n    if (bpos != string::npos) {\n        budget = stoll(input.substr(bpos + 7));\n    }\n\n    deque<int> dq;\n    int left = 0;\n    int ans = 0;\n    long long runningSum = 0;\n    int n = charge.size();\n\n    for (int right = 0; right < n; right++) {\n        while (!dq.empty() && charge[dq.back()] <= charge[right]) {\n            dq.pop_back();\n        }\n        dq.push_back(right);\n        runningSum += run[right];\n\n        while (!dq.empty()) {\n            long long windowSize = right - left + 1;\n            long long cost = (long long)charge[dq.front()] + windowSize * runningSum;\n\n            if (cost <= budget) {\n                break;\n            }\n\n            if (dq.front() == left) {\n                dq.pop_front();\n            }\n            runningSum -= run[left];\n            left++;\n        }\n\n        int windowSize = right - left + 1;\n        ans = max(ans, windowSize);\n    }\n\n    cout << ans;\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N) using sliding window and std::deque, Space: O(N).",
             "is_primary": false
           }
         ]
@@ -1941,7 +1948,7 @@
           "description": "Validate your code against test case 4.",
           "points": 10,
           "input": "bulbs=[1,3,5,2,4], k=1",
-          "expected_output": "3",
+          "expected_output": "2",
           "order_index": 4
         },
         {
@@ -1950,7 +1957,7 @@
           "description": "Validate your code against test case 5.",
           "points": 10,
           "input": "bulbs=[3,1,5,4,2], k=1",
-          "expected_output": "3",
+          "expected_output": "2",
           "order_index": 5
         },
         {
@@ -1968,7 +1975,7 @@
           "description": "Validate your code against test case 7.",
           "points": 10,
           "input": "bulbs=[2,4,1,3], k=1",
-          "expected_output": "3",
+          "expected_output": "2",
           "order_index": 7
         },
         {
@@ -2106,7 +2113,7 @@
           "description": "Validate your code against test case 8.",
           "points": 10,
           "input": "grid=[[2,1,0],[0,1,1]]",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 8
         },
         {
@@ -2140,6 +2147,13 @@
             "language": "cpp",
             "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint orangesRotting(vector<vector<int>>& grid) {\n\n    int m = grid.size(), n = grid[0].size();\n    queue<pair<int,int>> q;\n    int fresh = 0, mins = 0;\n\n    for(int i=0;i<m;i++){\n        for(int j=0;j<n;j++){\n            if(grid[i][j]==2) q.push({i,j});\n            if(grid[i][j]==1) fresh++;\n        }\n    }\n\n    vector<int> dirs = {-1,0,1,0,-1};\n\n    while(!q.empty() && fresh>0){\n\n        int size=q.size();\n\n        while(size--){\n            auto [x,y] = q.front();\n            q.pop();\n\n            for(int d=0;d<4;d++){\n\n                int nx=x+dirs[d];\n                int ny=y+dirs[d+1];\n\n                if(nx>=0 && ny>=0 && nx<m && ny<n && grid[nx][ny]==1){\n\n                    grid[nx][ny]=2;\n                    fresh--;\n                    q.push({nx,ny});\n                }\n            }\n        }\n\n        mins++;\n    }\n\n    return fresh==0?mins:-1;\n}\n\nint main(){\n\n    string line;\n    getline(cin,line);\n\n    vector<vector<int>> grid;\n\n    regex r(\"\\\\[([0-9,]+)\\\\]\");\n    auto words_begin = sregex_iterator(line.begin(), line.end(), r);\n    auto words_end = sregex_iterator();\n\n    for(auto it = words_begin; it != words_end; ++it){\n        string row = (*it)[1];\n\n        vector<int> nums;\n        stringstream ss(row);\n        string num;\n\n        while(getline(ss,num,',')){\n            nums.push_back(stoi(num));\n        }\n\n        grid.push_back(nums);\n    }\n\n    cout<<orangesRotting(grid);\n}",
             "complexity_analysis": "Time: O(N). Space: O(N).",
+            "is_primary": false
+          },
+          {
+            "title": "Rotting Oranges Simulation (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\n#define MAX_ROWS 100\n#define MAX_COLS 100\n\nint grid[MAX_ROWS][MAX_COLS];\nint qx[MAX_ROWS * MAX_COLS];\nint qy[MAX_ROWS * MAX_COLS];\n\nint main() {\n    char input[10000] = \"\";\n    char line[2000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    int rows = 0, cols = 0;\n    char *p = strchr(input, '[');\n    if (p == NULL) return 0;\n    p++;\n\n    while (*p && *p != ']') {\n        while (*p && *p != '[' && *p != ']') {\n            p++;\n        }\n        if (*p == '[') {\n            p++;\n            int col = 0;\n            while (*p && *p != ']') {\n                while (*p && !isdigit(*p) && *p != ']') p++;\n                if (isdigit(*p)) {\n                    grid[rows][col++] = strtol(p, &p, 10);\n                }\n            }\n            if (col > 0) {\n                cols = col;\n                rows++;\n            }\n            if (*p == ']') p++;\n        }\n    }\n\n    if (rows == 0 || cols == 0) {\n        printf(\"0\");\n        return 0;\n    }\n\n    int head = 0, tail = 0;\n    int fresh = 0;\n\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            if (grid[i][j] == 2) {\n                qx[tail] = i;\n                qy[tail] = j;\n                tail++;\n            } else if (grid[i][j] == 1) {\n                fresh++;\n            }\n        }\n    }\n\n    int mins = 0;\n    int dx[] = {-1, 1, 0, 0};\n    int dy[] = {0, 0, -1, 1};\n\n    while (head < tail && fresh > 0) {\n        int count = tail - head;\n        for (int k = 0; k < count; k++) {\n            int cx = qx[head];\n            int cy = qy[head];\n            head++;\n\n            for (int d = 0; d < 4; d++) {\n                int nx = cx + dx[d];\n                int ny = cy + dy[d];\n\n                if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && grid[nx][ny] == 1) {\n                    grid[nx][ny] = 2;\n                    fresh--;\n                    qx[tail] = nx;\n                    qy[tail] = ny;\n                    tail++;\n                }\n            }\n        }\n        mins++;\n    }\n\n    if (fresh == 0) {\n        printf(\"%d\", mins);\n    } else {\n        printf(\"-1\");\n    }\n\n    return 0;\n}",
+            "complexity_analysis": "Time: O(M * N) BFS, Space: O(M * N) for the queue.",
             "is_primary": false
           }
         ]
@@ -2210,7 +2224,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "deadends=[\"8887\",\"8889\",\"8878\",\"8898\"], target=\"8888\"",
-          "expected_output": "-1",
+          "expected_output": "8",
           "order_index": 6
         },
         {
@@ -2228,7 +2242,7 @@
           "description": "Validate your code against test case 8.",
           "points": 10,
           "input": "deadends=[\"0001\"], target=\"0002\"",
-          "expected_output": "2",
+          "expected_output": "4",
           "order_index": 8
         },
         {
@@ -2321,7 +2335,7 @@
           "description": "Validate your code against test case 4.",
           "points": 10,
           "input": "board=[[-1,-1,19,10,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1]]",
-          "expected_output": "2",
+          "expected_output": "4",
           "order_index": 4
         },
         {
@@ -2330,7 +2344,7 @@
           "description": "Validate your code against test case 5.",
           "points": 10,
           "input": "board=[[-1,-1,-1,-1],[-1,15,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]]",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 5
         },
         {
@@ -2339,7 +2353,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "board=[[-1,4,-1],[-1,-1,-1],[-1,-1,-1]]",
-          "expected_output": "1",
+          "expected_output": "2",
           "order_index": 6
         },
         {
@@ -2357,7 +2371,7 @@
           "description": "Validate your code against test case 8.",
           "points": 10,
           "input": "board=[[-1,-1,5],[-1,-1,-1],[-1,-1,-1]]",
-          "expected_output": "1",
+          "expected_output": "-1",
           "order_index": 8
         },
         {
@@ -2391,6 +2405,13 @@
             "language": "cpp",
             "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint snakesAndLadders(vector<vector<int>>& board){\n\n    int n=board.size();\n\n    queue<pair<int,int>> q;\n    vector<bool> vis(n*n+1,false);\n\n    q.push({1,0});\n    vis[1]=true;\n\n    while(!q.empty()){\n\n        auto [s,steps]=q.front();\n        q.pop();\n\n        if(s==n*n) return steps;\n\n        for(int i=1;i<=6;i++){\n\n            int ns=s+i;\n            if(ns>n*n) break;\n\n            int r=(ns-1)/n;\n            int c=(ns-1)%n;\n\n            if(r%2==1) c=n-1-c;\n            r=n-1-r;\n\n            if(board[r][c]!=-1)\n                ns=board[r][c];\n\n            if(!vis[ns]){\n                vis[ns]=true;\n                q.push({ns,steps+1});\n            }\n        }\n    }\n\n    return -1;\n}\n\nint main(){\n\n    string line;\n    getline(cin,line);\n\n    string grid=line.substr(line.find(\"=\")+1);\n\n    vector<vector<int>> board;\n    vector<int> row;\n\n    int num=0;\n    bool reading=false;\n    bool neg=false;\n\n    for(char c:grid){\n\n        if(c=='-') neg=true;\n\n        else if(isdigit(c)){\n            num=num*10+(c-'0');\n            reading=true;\n        }\n\n        else{\n            if(reading){\n                row.push_back(neg?-num:num);\n                num=0;\n                reading=false;\n                neg=false;\n            }\n\n            if(c==']'){\n                if(!row.empty()){\n                    board.push_back(row);\n                    row.clear();\n                }\n            }\n        }\n    }\n\n    cout<<snakesAndLadders(board);\n}",
             "complexity_analysis": "Time: O(N). Space: O(N).",
+            "is_primary": false
+          },
+          {
+            "title": "Snakes and Ladders Minimum Moves (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n#include <stdbool.h>\n\n#define MAXN 50\n\nint board[MAXN][MAXN];\nint n = 0;\n\nvoid id2pos(int s, int *r, int *c) {\n    int row = (s - 1) / n;\n    int col = (s - 1) % n;\n\n    if (row % 2 == 1) {\n        col = n - 1 - col;\n    }\n    *r = n - 1 - row;\n    *c = col;\n}\n\nint main() {\n    char input[10000] = \"\";\n    char line[2000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    char *p = strchr(input, '[');\n    if (p == NULL) return 0;\n    p++;\n\n    int row = 0;\n    while (*p && *p != ']') {\n        while (*p && *p != '[' && *p != ']') p++;\n        if (*p == '[') {\n            p++;\n            int col = 0;\n            while (*p && *p != ']') {\n                while (*p && !isdigit(*p) && *p != '-' && *p != ']') p++;\n                if (isdigit(*p) || *p == '-') {\n                    board[row][col++] = (int)strtol(p, &p, 10);\n                }\n            }\n            if (col > 0) {\n                n = col;\n                row++;\n            }\n            if (*p == ']') p++;\n        }\n    }\n\n    if (n == 0) {\n        printf(\"-1\");\n        return 0;\n    }\n\n    int target = n * n;\n    int queue_s[MAXN * MAXN + 10];\n    int queue_steps[MAXN * MAXN + 10];\n    bool vis[MAXN * MAXN + 10];\n    memset(vis, 0, sizeof(vis));\n\n    int head = 0, tail = 0;\n\n    queue_s[tail] = 1;\n    queue_steps[tail] = 0;\n    tail++;\n    vis[1] = true;\n\n    while (head < tail) {\n        int s = queue_s[head];\n        int steps = queue_steps[head];\n        head++;\n\n        if (s == target) {\n            printf(\"%d\", steps);\n            return 0;\n        }\n\n        for (int i = 1; i <= 6; i++) {\n            int ns = s + i;\n            if (ns > target) break;\n\n            int r, c;\n            id2pos(ns, &r, &c);\n\n            if (board[r][c] != -1) {\n                ns = board[r][c];\n            }\n\n            if (!vis[ns]) {\n                vis[ns] = true;\n                queue_s[tail] = ns;\n                queue_steps[tail] = steps + 1;\n                tail++;\n            }\n        }\n    }\n\n    printf(\"-1\");\n    return 0;\n}",
+            "complexity_analysis": "Time: O(N^2) BFS traversal, Space: O(N^2) for BFS queue and visited array.",
             "is_primary": false
           }
         ]
@@ -2635,6 +2656,20 @@
             "language": "java",
             "code": "import java.util.*;\n\npublic class Solution {\n\n    static final int INF = 2147483647;\n\n    static void wallsAndGates(int[][] rooms){\n        int m=rooms.length;\n        int n=rooms[0].length;\n\n        Queue<int[]> q=new LinkedList<>();\n\n        for(int i=0;i<m;i++)\n            for(int j=0;j<n;j++)\n                if(rooms[i][j]==0)\n                    q.offer(new int[]{i,j});\n\n        int[][] dirs={{1,0},{-1,0},{0,1},{0,-1}};\n\n        while(!q.isEmpty()){\n            int[] cur=q.poll();\n            int r=cur[0],c=cur[1];\n\n            for(int[] d:dirs){\n                int nr=r+d[0];\n                int nc=c+d[1];\n\n                if(nr>=0 && nr<m && nc>=0 && nc<n && rooms[nr][nc]==INF){\n                    rooms[nr][nc]=rooms[r][c]+1;\n                    q.offer(new int[]{nr,nc});\n                }\n            }\n        }\n    }\n\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String line=sc.nextLine().trim();\n\n        String grid=line.split(\"=\",2)[1]\n                .replace(\"INF\",String.valueOf(INF));\n\n        grid=grid.substring(2,grid.length()-2);\n        String[] rows=grid.split(\"\\\\],\\\\[\");\n\n        int m=rows.length;\n        int n=rows[0].split(\",\").length;\n\n        int[][] rooms=new int[m][n];\n\n        for(int i=0;i<m;i++){\n            String[] vals=rows[i].split(\",\");\n            for(int j=0;j<n;j++)\n                rooms[i][j]=Integer.parseInt(vals[j]);\n        }\n\n        wallsAndGates(rooms);\n\n        StringBuilder sb=new StringBuilder();\n        sb.append(\"[\");\n\n        for(int i=0;i<m;i++){\n            sb.append(\"[\");\n            for(int j=0;j<n;j++){\n                if(rooms[i][j]==INF) sb.append(\"INF\");\n                else sb.append(rooms[i][j]);\n\n                if(j<n-1) sb.append(\",\");\n            }\n            sb.append(\"]\");\n            if(i<m-1) sb.append(\",\");\n        }\n\n        sb.append(\"]\");\n        System.out.println(sb.toString());\n    }\n}",
             "complexity_analysis": "",
+            "is_primary": false
+          },
+          {
+            "title": "Walls and Gates Distance Fill (C)",
+            "language": "c",
+            "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\n#define INF 2147483647\n#define MAX_ROWS 100\n#define MAX_COLS 100\n\nint rooms[MAX_ROWS][MAX_COLS];\nint qx[MAX_ROWS * MAX_COLS];\nint qy[MAX_ROWS * MAX_COLS];\n\nint main() {\n    char input[10000] = \"\";\n    char line[2000];\n\n    while (fgets(line, sizeof(line), stdin)) {\n        strcat(input, line);\n    }\n\n    char *p = strchr(input, '[');\n    if (p == NULL) return 0;\n    p++;\n\n    int m = 0, n = 0;\n\n    while (*p && *p != ']') {\n        while (*p && *p != '[' && *p != ']') p++;\n        if (*p == '[') {\n            p++;\n            int col = 0;\n            while (*p && *p != ']') {\n                while (*p && !isdigit(*p) && *p != '-' && *p != 'I' && *p != ']') p++;\n                if (strncmp(p, \"INF\", 3) == 0) {\n                    rooms[m][col++] = INF;\n                    p += 3;\n                } else if (isdigit(*p) || *p == '-') {\n                    rooms[m][col++] = (int)strtol(p, &p, 10);\n                }\n            }\n            if (col > 0) {\n                n = col;\n                m++;\n            }\n            if (*p == ']') p++;\n        }\n    }\n\n    if (m == 0 || n == 0) {\n        printf(\"[]\");\n        return 0;\n    }\n\n    int head = 0, tail = 0;\n\n    for (int i = 0; i < m; i++) {\n        for (int j = 0; j < n; j++) {\n            if (rooms[i][j] == 0) {\n                qx[tail] = i;\n                qy[tail] = j;\n                tail++;\n            }\n        }\n    }\n\n    int dx[] = {-1, 1, 0, 0};\n    int dy[] = {0, 0, -1, 1};\n\n    while (head < tail) {\n        int r = qx[head];\n        int c = qy[head];\n        head++;\n\n        for (int d = 0; d < 4; d++) {\n            int nr = r + dx[d];\n            int nc = c + dy[d];\n\n            if (nr >= 0 && nr < m && nc >= 0 && nc < n && rooms[nr][nc] == INF) {\n                rooms[nr][nc] = rooms[r][c] + 1;\n                qx[tail] = nr;\n                qy[tail] = nc;\n                tail++;\n            }\n        }\n    }\n\n    printf(\"[\");\n    for (int i = 0; i < m; i++) {\n        printf(\"[\");\n        for (int j = 0; j < n; j++) {\n            if (rooms[i][j] == INF) {\n                printf(\"INF\");\n            } else {\n                printf(\"%d\", rooms[i][j]);\n            }\n            if (j < n - 1) printf(\",\");\n        }\n        printf(\"]\");\n        if (i < m - 1) printf(\",\");\n    }\n    printf(\"]\");\n\n    return 0;\n}",
+            "complexity_analysis": "Time: O(M * N) multi-source BFS, Space: O(M * N).",
+            "is_primary": false
+          },
+          {
+            "title": "Walls and Gates Distance Fill (C++)",
+            "language": "cpp",
+            "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <queue>\n#include <climits>\n\nusing namespace std;\n\nconst int INF = 2147483647;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input, line;\n    while (getline(cin, line)) {\n        input += line;\n    }\n\n    size_t start = input.find('[');\n    if (start == string::npos) return 0;\n\n    vector<vector<int>> rooms;\n    size_t i = start + 1;\n\n    while (i < input.size() && input[i] != ']') {\n        size_t rowStart = input.find('[', i);\n        if (rowStart == string::npos) break;\n        size_t rowEnd = input.find(']', rowStart);\n        if (rowEnd == string::npos) break;\n\n        string rowStr = input.substr(rowStart + 1, rowEnd - rowStart - 1);\n        stringstream ss(rowStr);\n        string token;\n        vector<int> row;\n\n        while (getline(ss, token, ',')) {\n            while (!token.empty() && isspace(token.front())) token.erase(token.begin());\n            while (!token.empty() && isspace(token.back())) token.pop_back();\n\n            if (token == \"INF\") {\n                row.push_back(INF);\n            } else if (!token.empty()) {\n                row.push_back(stoi(token));\n            }\n        }\n\n        if (!row.empty()) {\n            rooms.push_back(row);\n        }\n        i = rowEnd + 1;\n    }\n\n    int m = rooms.size();\n    if (m == 0) {\n        cout << \"[]\";\n        return 0;\n    }\n    int n = rooms[0].size();\n\n    queue<pair<int, int>> q;\n\n    for (int r = 0; r < m; r++) {\n        for (int c = 0; c < n; c++) {\n            if (rooms[r][c] == 0) {\n                q.push({r, c});\n            }\n        }\n    }\n\n    int dx[] = {-1, 1, 0, 0};\n    int dy[] = {0, 0, -1, 1};\n\n    while (!q.empty()) {\n        auto [r, c] = q.front();\n        q.pop();\n\n        for (int d = 0; d < 4; d++) {\n            int nr = r + dx[d];\n            int nc = c + dy[d];\n\n            if (nr >= 0 && nr < m && nc >= 0 && nc < n && rooms[nr][nc] == INF) {\n                rooms[nr][nc] = rooms[r][c] + 1;\n                q.push({nr, nc});\n            }\n        }\n    }\n\n    cout << \"[\";\n    for (int r = 0; r < m; r++) {\n        cout << \"[\";\n        for (int c = 0; c < n; c++) {\n            if (rooms[r][c] == INF) {\n                cout << \"INF\";\n            } else {\n                cout << rooms[r][c];\n            }\n            if (c < n - 1) cout << \",\";\n        }\n        cout << \"]\";\n        if (r < m - 1) cout << \",\";\n    }\n    cout << \"]\";\n\n    return 0;\n}",
+            "complexity_analysis": "Time: O(M * N) multi-source BFS, Space: O(M * N).",
             "is_primary": false
           }
         ]
@@ -3332,7 +3367,7 @@
           "description": "Validate your code against test case 4.",
           "points": 10,
           "input": "nums=[1,3,5]",
-          "expected_output": "3",
+          "expected_output": "5",
           "order_index": 4
         },
         {
@@ -3359,7 +3394,7 @@
           "description": "Validate your code against test case 7.",
           "points": 10,
           "input": "nums=[3,4,5,6]",
-          "expected_output": "7",
+          "expected_output": "9",
           "order_index": 7
         },
         {
@@ -3515,7 +3550,7 @@
           {
             "title": "Monotonic Deque - Python",
             "language": "python",
-            "code": "import sys, json\nfrom collections import deque\nlines = sys.stdin.read().strip().split('\\n')\nnums = json.loads(lines[0])\nk = int(lines[1])\ndq = deque()\nresult = []\nfor i, n in enumerate(nums):\n    while dq and dq[0] < i - k + 1:\n        dq.popleft()\n    while dq and nums[dq[-1]] < n:\n        dq.pop()\n    dq.append(i)\n    if i >= k - 1:\n        result.append(nums[dq[0]])\nprint(result)",
+            "code": "import sys\nimport re\nfrom collections import deque\n\ns = sys.stdin.read().strip()\n\nnums_match = re.search(r'nums=\\[([^\\]]*)\\]', s)\nnums = list(map(int, re.findall(r'-?\\d+', nums_match.group(1))))\n\nk_match = re.search(r'k=(-?\\d+)', s)\nk = int(k_match.group(1))\n\ndq = deque()\nresult = []\n\nfor i, n in enumerate(nums):\n    while dq and dq[0] < i - k + 1:\n        dq.popleft()\n\n    while dq and nums[dq[-1]] < n:\n        dq.pop()\n\n    dq.append(i)\n\n    if i >= k - 1:\n        result.append(nums[dq[0]])\n\nprint(\"[\" + \",\".join(map(str, result)) + \"]\")",
             "complexity_analysis": "Time: O(N). Space: O(K). Logic: A monotonic deque stores indices of potentials maximums. Each element is pushed and popped at most once, leading to linear time complexity.",
             "is_primary": true,
             "approach": "optimal"
@@ -3523,7 +3558,7 @@
           {
             "title": "Monotonic Deque - Java",
             "language": "java",
-            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = sc.nextInt();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i=0; i<parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Deque<Integer> dq = new ArrayDeque<>();\n        List<Integer> res = new ArrayList<>();\n        for (int i=0; i<nums.length; i++) {\n            if (!dq.isEmpty() && dq.peekFirst() < i - k + 1) dq.pollFirst();\n            while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i]) dq.pollLast();\n            dq.offerLast(i);\n            if (i >= k - 1) res.add(nums[dq.peekFirst()]);\n        }\n        System.out.println(res);\n    }\n}",
+            "code": "import java.util.*;\nimport java.util.regex.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n\n        StringBuilder input = new StringBuilder();\n\n        while (sc.hasNextLine()) {\n            input.append(sc.nextLine()).append(\" \");\n        }\n\n        String s = input.toString();\n\n        Matcher numsMatcher = Pattern.compile(\"nums=\\\\[([^\\\\]]*)\\\\]\").matcher(s);\n\n        if (!numsMatcher.find()) {\n            return;\n        }\n\n        String[] parts = numsMatcher.group(1).split(\",\");\n\n        int[] nums = new int[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i].trim());\n        }\n\n        Matcher kMatcher = Pattern.compile(\"k=(-?\\\\d+)\").matcher(s);\n\n        if (!kMatcher.find()) {\n            return;\n        }\n\n        int k = Integer.parseInt(kMatcher.group(1));\n\n        Deque<Integer> dq = new ArrayDeque<>();\n        List<Integer> res = new ArrayList<>();\n\n        for (int i = 0; i < nums.length; i++) {\n\n            while (!dq.isEmpty() && dq.peekFirst() < i - k + 1) {\n                dq.pollFirst();\n            }\n\n            while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i]) {\n                dq.pollLast();\n            }\n\n            dq.offerLast(i);\n\n            if (i >= k - 1) {\n                res.add(nums[dq.peekFirst()]);\n            }\n        }\n\n        System.out.println(res);\n    }\n}",
             "complexity_analysis": "Time: O(N). Space: O(K). Logic: Java implementation using ArrayDeque to maintain maximums in O(1) amortized time per slide.",
             "is_primary": false,
             "approach": "optimal"
@@ -3531,7 +3566,7 @@
           {
             "title": "Monotonic Deque - C++",
             "language": "cpp",
-            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line; getline(cin, line);\n    int k; cin >> k;\n    vector<int> nums; \n    stringstream ss(line.substr(1, line.length()-2));\n    string t; while(getline(ss,t,',')) nums.push_back(stoi(t));\n    deque<int> dq;\n    vector<int> res;\n    for(int i=0; i<nums.size(); i++) {\n        if(!dq.empty() && dq.front() < i - k + 1) dq.pop_front();\n        while(!dq.empty() && nums[dq.back()] < nums[i]) dq.pop_back();\n        dq.push_back(i);\n        if(i >= k - 1) res.push_back(nums[dq.front()]);\n    }\n    cout << \"[\";\n    for(int i=0; i<res.size(); i++) cout << res[i] << (i==res.size()-1?\"\":\", \");\n    cout << \"]\" << endl;\n}",
+            "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, line;\n\n    while (getline(cin, line)) {\n        s += line;\n    }\n\n    // Extract nums=[...]\n    size_t start = s.find(\"nums=[\");\n    size_t end = s.find(\"]\", start);\n\n    string arr = s.substr(start + 6, end - start - 6);\n\n    vector<int> nums;\n    stringstream ss(arr);\n\n    string t;\n    while (getline(ss, t, ',')) {\n        nums.push_back(stoi(t));\n    }\n\n    // Extract k\n    size_t kpos = s.find(\"k=\");\n    int k = stoi(s.substr(kpos + 2));\n\n    deque<int> dq;\n    vector<int> res;\n\n    for (int i = 0; i < (int)nums.size(); i++) {\n\n        // Remove indices outside current window\n        while (!dq.empty() && dq.front() < i - k + 1) {\n            dq.pop_front();\n        }\n\n        // Maintain decreasing values\n        while (!dq.empty() && nums[dq.back()] < nums[i]) {\n            dq.pop_back();\n        }\n\n        dq.push_back(i);\n\n        // Window is ready\n        if (i >= k - 1) {\n            res.push_back(nums[dq.front()]);\n        }\n    }\n\n    cout << \"[\";\n\n    for (int i = 0; i < (int)res.size(); i++) {\n        if (i > 0)\n            cout << \",\";\n\n        cout << res[i];\n    }\n\n    cout << \"]\";\n\n    return 0;\n}",
             "complexity_analysis": "Time: O(N). Space: O(K). Logic: Using std::deque in C++ for an efficient monotonic sliding window maximum solver.",
             "is_primary": false,
             "approach": "optimal"
@@ -3604,7 +3639,7 @@
           "description": "Validate your code against test case 6.",
           "points": 10,
           "input": "nums=[0,1,1,0], k=2",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 6
         },
         {
@@ -3760,7 +3795,7 @@
           "description": "Validate your code against test case 9.",
           "points": 10,
           "input": "nums=[3,1,4,1,5], k=7",
-          "expected_output": "2",
+          "expected_output": "3",
           "order_index": 9
         }
       ],

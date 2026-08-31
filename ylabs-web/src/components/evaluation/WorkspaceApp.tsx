@@ -36,7 +36,7 @@ interface RealLab {
   tag: string;
   minutes: number;
   problem: string;
-  tasks: { id: string; title: string; description: string }[];
+  tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
   file: string;
   code: string;
   terminal: string[];
@@ -110,7 +110,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
                       title: t.title || "Task",
-                      description: t.description || ""
+                      description: t.description || "",
+                      scoring_rules: t.scoring_rules,
+                      solution: t.solution,
+                      expected_output: t.expected_output
                     }))
                   : typeof q.tasks === 'number'
                   ? Array.from({ length: q.tasks }).map((_, i) => ({
@@ -212,7 +215,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
@@ -294,8 +297,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
              setTimeout(() => {
-               try { document.exitFullscreen?.(); } catch {}
-               nav({ to: "/evaluation/complete" });
+               submitEvaluation();
              }, 3000);
           } else {
              setModal({ kind: "tab-warning" });
@@ -528,7 +530,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
-                  tasks: lab.tasks.map(t => ({ id: t.id, title: t.title, description: t.description })),
+                  tasks: lab.tasks.map(t => ({ 
+                    id: t.id, 
+                    title: t.title, 
+                    description: t.description,
+                    scoring_rules: t.scoring_rules,
+                    solution: t.solution,
+                    expected_output: t.expected_output
+                  })),
                   difficulty: "Intermediate",
                   xp: 100,
                   estMin: lab.minutes,
@@ -554,9 +563,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   labs={sec.labs}
                   submitted={submittedLabs}
                   onOpen={(id) => setOpenLab(id)}
+                  nextSectionTitle={appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title : undefined}
                   onFinishSection={() => {
                     const idx = appSections.findIndex(s => s.id === sec.id);
-                    if (idx + 1 < appSections.length) goSection(appSections[idx + 1].id);
+                    if (idx + 1 < appSections.length) {
+                      goSection(appSections[idx + 1].id);
+                    } else {
+                      setModal({ kind: "submit-evaluation" });
+                    }
                   }}
                 />
               );
@@ -642,6 +656,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="End the engineering discussion?"
           body="This will conclude your evaluation and generate your report."
           confirm="End and submit"
+          onConfirm={submitEvaluation}
+          onCancel={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "submit-evaluation" && (
+        <Confirm
+          title="Submit the evaluation?"
+          body="This will conclude your evaluation and generate your report."
+          confirm="Submit evaluation"
           onConfirm={submitEvaluation}
           onCancel={() => setModal(null)}
         />
@@ -1057,7 +1080,7 @@ function StatusChip({ status }: { status: Status }) {
 // Section: Labs
 // ────────────────────────────────────────────────────────────────────────────
 
-function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void }) {
+function LabsList({ labs, submitted, onOpen, onFinishSection, nextSectionTitle }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void; nextSectionTitle?: string }) {
   const allDone = submitted.size === labs.length;
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
@@ -1088,7 +1111,7 @@ function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[
       <div className="mt-8 flex items-center justify-between">
         <span className="text-[12px] text-neutral-500">{submitted.size} of {labs.length} submitted</span>
         <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-          Continue to Knowledge Assessment →
+          {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
     </div>
@@ -1236,7 +1259,7 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
 // Section: Knowledge Assessment
 // ────────────────────────────────────────────────────────────────────────────
 
-function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { sections: any[]; submitted: Set<string>; onOpen: (id: string) => void; onFinishSection: () => void }) {
+function KnowledgeList({ sections, submitted, onOpen, onFinishSection, nextSectionTitle }: { sections: any[]; submitted: Set<string>; onOpen: (id: string) => void; onFinishSection: () => void; nextSectionTitle?: string }) {
   const allDone = sections.length > 0 && sections.every(s => submitted.has(s.id));
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
@@ -1259,7 +1282,7 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { secti
       <div className="mt-8 flex items-center justify-between">
         <span className="text-[12px] text-neutral-500">{Array.from(submitted).filter(id => sections.some(s => s.id === id)).length} of {sections.length} submitted</span>
         <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-          Continue to Engineering Discussion →
+          {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
     </div>

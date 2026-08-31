@@ -208,7 +208,7 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
         unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
-        return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
+        return f"{self.user} -> {self.lab_question.title} ({self.evaluation.title})"
 
 
 class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):
@@ -341,3 +341,19 @@ class CandidateTimelineEvent(BaseTimestampedAdminModel):
     def __str__(self):
         return f"{self.title} - {self.candidate_email}"
 
+
+class RecruiterActivityLog(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="recruiter_activity_logs")
+    candidate_email = models.EmailField()
+    recruiter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="candidate_activities")
+    kind = models.CharField(max_length=50) # 'view', 'decision', 'note', 'download', etc.
+    text = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"{self.recruiter} - {self.kind} on {self.candidate_email}"
