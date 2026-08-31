@@ -75,21 +75,20 @@ import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnaly
 
 const searchSchema = z.object({
   tab: z
-    .enum(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"])
+    .enum(["overview", "candidates", "followups", "records", "intelligence", "settings"])
     .default("overview")
     .catch("overview"),
 });
 
 const TAB_LABELS: Record<
-  "overview" | "candidates" | "followups" | "records" | "intelligence" | "attention" | "settings",
+  "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings",
   string
 > = {
   overview: "Overview",
-  candidates: "Candidates",
+  candidates: "Submissions",
   followups: "Follow-ups",
   records: "Candidate Records",
   intelligence: "Hiring Intelligence",
-  attention: "Need Your Attention",
   settings: "Settings",
 };
 
@@ -253,7 +252,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -269,14 +268,14 @@ function Workspace() {
               )}
             </nav>
             <div className="flex flex-shrink-0 flex-nowrap items-center gap-2 pb-2">
-              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
-                Copy Link
-              </HeaderBtn>
               <HeaderBtn
                 onClick={() => notify("Invite dialog opened")}
                 icon={<Mail className="h-3.5 w-3.5" />}
               >
                 Invite Candidates
+              </HeaderBtn>
+              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
+                Copy Link
               </HeaderBtn>
               <HeaderBtn
                 onClick={() => download("reports")}
@@ -380,7 +379,6 @@ function Workspace() {
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
-        {tab === "attention" && <AttentionTab evId={ev.id} candidates={candidates} onGoto={goto} />}
         {tab === "settings" && <SettingsTab ev={ev} notify={notify} />}
         {tab === "insights" && <SimplePane title="Insights" desc="Aggregate skill heatmaps, question difficulty analysis, and cohort comparisons will be published here." />}
         {tab === "reports" && <SimplePane title="Reports" desc="Downloadable per-candidate reports, batch summaries and ATS-ready exports live in this tab." />}
@@ -2772,44 +2770,7 @@ function AttentionSection({
   );
 }
 
-function AttentionTab({
-  evId,
-  candidates,
-  onGoto,
-}: {
-  evId: string;
-  candidates: Candidate[];
-  onGoto: (t: "overview" | "candidates" | "intelligence" | "attention" | "settings") => void;
-}) {
-  const nav = useNavigate();
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [noted, setNoted] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    setViewed(loadViewed(evId));
-    setNoted(
-      loadNotedSet(
-        evId,
-        candidates.map((c) => c.id),
-      ),
-    );
-  }, [evId, candidates]);
-  const openDetails = (c: Candidate) =>
-    nav({
-      to: "/recruiter/evaluations/$id/candidates/$candidateId",
-      params: { id: evId, candidateId: c.id },
-    });
-  return (
-    <div>
-      <AttentionSection
-        candidates={candidates}
-        viewed={viewed}
-        noted={noted}
-        onApply={() => onGoto("candidates")}
-        onOpen={openDetails}
-      />
-    </div>
-  );
-}
+
 // ============================ ANALYTICS ============================
 
 function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, candidates: Candidate[] }) {

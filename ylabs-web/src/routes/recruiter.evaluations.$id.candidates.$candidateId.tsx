@@ -45,7 +45,7 @@ import {
 } from "lucide-react";
 import { getCandidates } from "@/lib/recruiterCandidates";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
-import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer";
+import { LabCodeExplorer } from "@/components/recruiter/LabCodeExplorer";
 import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
@@ -1284,20 +1284,159 @@ function StickySidebar({
 
 // ============ Lab drawer ============
 
+function generateMockLabAttempt(lab: any, labSub: any) {
+  return {
+    id: lab.id || "mock-id",
+    title: lab.title || lab.name || "Engineering Lab",
+    domain: lab.domain || "Backend",
+    score: labSub?.score ?? 85,
+    timeTaken: labSub?.minutes_solved ?? 45,
+    timeLimit: lab.duration_minutes ?? lab.duration ?? 60,
+    tasksCompleted: 4,
+    tasksTotal: 5,
+    files: [
+      { path: "src/index.ts", changes: 12, kind: "modified" },
+      { path: "src/utils.ts", changes: 5, kind: "created" }
+    ],
+    gitCommits: [
+      { sha: "a1b2c3d", message: "Initial commit", time: "10:00 AM" },
+      { sha: "e4f5g6h", message: "Fix bug", time: "10:30 AM" }
+    ],
+    consoleLogs: ["[INFO] Starting app...", "[INFO] App running on port 3000"],
+    execOutput: ["Tests passed: 4/5", "Coverage: 80%"],
+    problemStatement: lab.description || "Implement a backend service...",
+    strengths: ["Good use of types", "Clean architecture"],
+    weaknesses: ["Missing some edge case handling"],
+    suggestions: ["Add more unit tests"],
+    aiVerdict: "Strong",
+    timeline: [
+      { t: 0, label: "Started" },
+      { t: 15, label: "First commit" },
+      { t: 45, label: "Submitted" }
+    ]
+  } as any;
+}
+
 function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
-  const { section: lab, labSub, candidate } = data;
+  const { section, labSub } = data;
+  const lab = generateMockLabAttempt(section, labSub);
 
   return (
-    <div className="fixed inset-0 z-[100] flex bg-background">
-      <LabSubmissionViewer
-        userId={candidate.id}
-        evaluationId={evaluationId}
-        lab={lab}
-        labSub={labSub}
-        candidate={candidate}
-        onClose={onClose}
-      />
-    </div>
+    <>
+      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-5xl overflow-y-auto border-l border-white/10 bg-neutral-950">
+        <div className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/95 px-6 py-4 backdrop-blur">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+                {lab.domain} · Engineering lab
+              </div>
+              <div className="mt-0.5 text-[18px] font-medium text-white">{lab.title}</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className={`text-[26px] font-medium leading-none ${eciColor(lab.score)}`}>
+                  {lab.score}
+                  <span className="text-[12px] text-neutral-500">%</span>
+                </div>
+                <div className="text-[10px] uppercase tracking-widest text-neutral-500">{lab.aiVerdict}</div>
+              </div>
+              <button onClick={onClose} className="rounded p-1.5 text-neutral-400 hover:bg-white/5 hover:text-white">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6 px-6 py-6">
+          <Block title="Problem statement">
+            <p className="text-[13px] leading-relaxed text-neutral-300">{lab.problemStatement}</p>
+          </Block>
+
+          <div className="grid grid-cols-3 gap-2">
+            <StatMini label="Time taken" value={`${lab.timeTaken}m`} sub={`of ${lab.timeLimit}m`} />
+            <StatMini
+              label="Tasks completed"
+              value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
+              sub={lab.tasksCompleted === lab.tasksTotal ? "All done" : `${lab.tasksTotal - lab.tasksCompleted} missed`}
+            />
+            <StatMini label="Files changed" value={String(lab.files.length)} sub={`${lab.gitCommits.length} commits`} />
+          </div>
+
+          <Block title="Execution timeline">
+            <ol className="relative space-y-3 border-l border-white/10 pl-5">
+              {lab.timeline.map((t: any, i: number) => (
+                <li key={i} className="relative">
+                  <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-400" />
+                  <div className="text-[12px] text-white">{t.label}</div>
+                  <div className="text-[10px] text-neutral-500">t+{t.t}m</div>
+                </li>
+              ))}
+            </ol>
+          </Block>
+
+          <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5" />}>
+            <LabCodeExplorer labId={lab.id} changedFiles={lab.files.map((f: any) => ({ path: f.path, kind: f.kind }))} />
+          </Block>
+
+
+          <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
+            <div className="space-y-2">
+              {lab.gitCommits.map((c: any, i: number) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[12px]"
+                >
+                  <span className="font-mono text-[10px] text-emerald-300">{c.sha}</span>
+                  <div className="flex-1">
+                    <div className="text-neutral-200">{c.message}</div>
+                    <div className="text-[10px] text-neutral-500">{c.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Block>
+
+          <Block title="Console logs" icon={<Terminal className="h-3.5 w-3.5" />}>
+            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-neutral-300">
+              {lab.consoleLogs.join("\n")}
+            </pre>
+          </Block>
+
+          <Block title="Execution output">
+            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-emerald-200">
+              {lab.execOutput.join("\n")}
+            </pre>
+          </Block>
+
+          <Block title="AI review" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-400" />}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <ListBlock title="Strengths" items={lab.strengths} tone="good" />
+              <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
+            </div>
+            <div className="mt-4">
+              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Suggestions</div>
+              <ul className="mt-2 space-y-1 text-[12px] text-neutral-300">
+                {lab.suggestions.map((s: string, i: number) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Block>
+
+          <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 text-center">
+            <div className="text-[10px] uppercase tracking-widest text-emerald-300/80">Final lab score</div>
+            <div className={`mt-1 text-[36px] font-medium ${eciColor(lab.score)}`}>
+              {lab.score}
+              <span className="text-[14px] text-neutral-500">/100</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 
