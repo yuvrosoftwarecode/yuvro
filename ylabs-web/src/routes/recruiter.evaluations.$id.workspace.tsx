@@ -377,7 +377,7 @@ function Workspace() {
           <CandidatesTab evId={ev.id} candidates={candidates} notify={notify} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
-        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
+        {tab === "records" && <CandidateRecordsTab ev={ev} candidates={candidates} notify={notify} onGotoFollowUps={() => goto("followups")} />}
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}

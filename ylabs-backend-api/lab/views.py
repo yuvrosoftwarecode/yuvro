@@ -6,7 +6,7 @@ from authentication.permissions import IsAdminUser
 from .models import (
     Lab, LabSprint, LabSprintTicket,
     UserLabEnrollment, UserLabSprintTicketSubmission,
-    TicketProgressStatus,
+    TicketProgressStatus, UserLabActivity
 )
 from .serializers import (
     LabSerializer,
@@ -158,6 +158,28 @@ class LabSprintTicketViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    @action(detail=False, methods=['get'], url_path='my-stats')
+    def my_stats(self, request):
+        user = request.user
+        
+        # We need stats per lab: total tickets and resolved tickets for this user
+        from django.db.models import Count, Q
+        from .models import Lab, UserLabSprintTicketSubmission
+        
+        stats = {}
+        labs = Lab.objects.all()
+        
+        for lab in labs:
+            total = LabSprintTicket.objects.filter(sprint__lab=lab).count()
+            resolved = UserLabSprintTicketSubmission.objects.filter(
+                user=user, 
+                lab_sprint_ticket__sprint__lab=lab, 
+                ticket_status__in=['in_review', 'done']
+            ).count()
+            stats[str(lab.id)] = {'total_tickets': total, 'resolved_tickets': resolved}
+            
+        return Response(stats)
+
 class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabEnrollmentSerializer
     permission_classes = [IsAuthenticated]
@@ -218,6 +240,12 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         submission = serializer.save(user=self.request.user)
         evaluate_and_score_submission(submission)
         submission.save()
+        
+        if submission.ticket_status in [TicketProgressStatus.IN_REVIEW, TicketProgressStatus.DONE]:
+            UserLabActivity.objects.get_or_create(
+                user=self.request.user,
+                date=timezone.now().date()
+            )
 
     def perform_update(self, serializer):
         submission = serializer.save()
@@ -270,6 +298,12 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
 
         evaluate_and_score_submission(submission)
         submission.save()
+        
+        if submission.ticket_status in [TicketProgressStatus.IN_REVIEW, TicketProgressStatus.DONE]:
+            UserLabActivity.objects.get_or_create(
+                user=self.request.user,
+                date=timezone.now().date()
+            )
 
     @action(detail=False, methods=['post'], url_path="reveal-solution")
     def reveal_solution(self, request):
@@ -338,15 +372,23 @@ def student_stats_view(request):
         ticket_status__in=['in_review', 'done']
     ).select_related('lab_sprint_ticket')
     
+    # Calculate YP based on actual user earned points, not maximum available points
     total_yp = done_submissions.aggregate(
-        total_yp=Sum('lab_sprint_ticket__yuvro_points')
+        total_yp=Sum('yuvro_points')
     )['total_yp'] or 0
 
-    dates_completed = set()
-    for sub in done_submissions:
-        dates_completed.add(sub.updated_at.date())
+    # Calculate rank based on total_yp of all users
+    rank_count = UserLabSprintTicketSubmission.objects.filter(
+        ticket_status__in=['in_review', 'done']
+    ).values('user').annotate(
+        user_total_yp=Sum('yuvro_points')
+    ).filter(user_total_yp__gt=total_yp).count()
     
-    sorted_dates = sorted(list(dates_completed), reverse=True)
+    rank = rank_count + 1
+
+    # Fetch unique activity dates from the UserLabActivity model
+    activities = UserLabActivity.objects.filter(user=user).values_list('date', flat=True)
+    sorted_dates = sorted(list(activities), reverse=True)
     
     streak = 0
     today = timezone.now().date()
@@ -375,5 +417,6 @@ def student_stats_view(request):
     
     return Response({
         'day_streak': streak,
-        'total_yp': total_yp
+        'total_yp': total_yp,
+        'rank': rank
     })
