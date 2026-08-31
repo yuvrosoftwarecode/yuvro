@@ -46,6 +46,7 @@ import {
 import { getCandidates } from "@/lib/recruiterCandidates";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 import { LabCodeExplorer } from "@/components/recruiter/LabCodeExplorer";
+import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer";
 import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
@@ -65,6 +66,31 @@ import {
   createTimelineEvent,
   type ActivityEvent,
 } from "@/lib/recruiterCandidateDetail";
+import React from "react";
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-red-900/50 text-red-200 border border-red-500 rounded font-mono text-xs whitespace-pre-wrap">
+          <strong>Error in LabSubmissionViewer:</strong>
+          {"\n"}{this.state.error?.message}
+          {"\n"}{this.state.error?.stack}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
   head: () => ({
@@ -1383,14 +1409,14 @@ function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labS
 
           <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5" />}>
             <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
-              <LabSubmissionViewer
-                userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
-                evaluationId={evaluationId}
-                lab={section}
-                labSub={labSub}
-                candidate={candidate}
-                onClose={onClose}
-              />
+              <ErrorBoundary>
+                <LabCodeExplorer
+                  userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
+                  evaluationId={evaluationId}
+                  lab={section}
+                  labSub={labSub}
+                />
+              </ErrorBoundary>
             </div>
           </Block>
 

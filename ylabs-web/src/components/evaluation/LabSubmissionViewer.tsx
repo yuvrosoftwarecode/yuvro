@@ -97,11 +97,15 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     
     const { submittedFiles, fileDiffs, splitDiffs } = useMemo(() => {
-        const patchStr = diffPatch || labSub?.solution;
+        let patchStr = diffPatch || labSub?.solution;
         if (!patchStr) return { submittedFiles: {}, fileDiffs: {}, splitDiffs: {} };
         
+        if (typeof patchStr === 'object') {
+            patchStr = JSON.stringify(patchStr);
+        }
+        
         try {
-            if (patchStr.trim().startsWith('{')) {
+            if (typeof patchStr === 'string' && patchStr.trim().startsWith('{')) {
                 const parsed = JSON.parse(patchStr) as Record<string, string>;
                 const d: Record<string, any[]> = {};
                 const sd: Record<string, any[]> = {};
