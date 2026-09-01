@@ -26,6 +26,7 @@ class User(AbstractUser):
     
     profile_image = models.URLField(blank=True, null=True)
     cover_image = models.URLField(blank=True, null=True)
+    resume_file = models.URLField(blank=True, null=True)
     
     roles = models.JSONField(default=dict, blank=True)
 
