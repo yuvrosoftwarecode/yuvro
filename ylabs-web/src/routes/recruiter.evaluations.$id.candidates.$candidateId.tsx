@@ -1051,18 +1051,30 @@ function ResumePane({
   onDownload: () => void;
 }) {
   const [full, setFull] = useState(false);
+  const resumeUrl = candidate.resumeUrl;
+
+  const handleDownload = () => {
+    if (resumeUrl) {
+      window.open(resumeUrl, "_blank");
+    } else {
+      onDownload(); // Fallback for fake data
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <SectionHeading>Resume</SectionHeading>
         <div className="flex gap-2">
-          <SecondaryAction
-            icon={<Maximize2 className="h-3.5 w-3.5" />}
-            onClick={() => setFull(true)}
-          >
-            Open Full Screen
-          </SecondaryAction>
-          <SecondaryAction icon={<Download className="h-3.5 w-3.5" />} onClick={onDownload}>
+          {resumeUrl && (
+            <SecondaryAction
+              icon={<Maximize2 className="h-3.5 w-3.5" />}
+              onClick={() => setFull(true)}
+            >
+              Open Full Screen
+            </SecondaryAction>
+          )}
+          <SecondaryAction icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>
             Download
           </SecondaryAction>
         </div>
@@ -1075,14 +1087,28 @@ function ResumePane({
         <p className="mt-3 text-[14px] leading-relaxed text-neutral-200">{detail.resume.summary}</p>
       </div>
 
-      <ResumeDoc candidate={candidate} detail={detail} />
+      {resumeUrl ? (
+        <div className="h-[800px] w-full rounded-2xl border border-white/5 bg-white overflow-hidden relative">
+          <iframe 
+            src={resumeUrl} 
+            className="w-full h-full border-none"
+            title="Candidate Resume"
+          />
+        </div>
+      ) : (
+        <EmptyBlock 
+          icon={<FileText className="h-6 w-6" />}
+          title="No Resume Available"
+          desc="This candidate has not uploaded a resume to their profile."
+        />
+      )}
 
-      {full && (
+      {full && resumeUrl && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-6"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-6 flex flex-col"
           onClick={() => setFull(false)}
         >
-          <div className="mx-auto max-w-3xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-auto w-full max-w-5xl h-full flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between text-[12px] text-neutral-400">
               <span>Resume · {candidate.name}</span>
               <button
@@ -1092,7 +1118,13 @@ function ResumePane({
                 Close
               </button>
             </div>
-            <ResumeDoc candidate={candidate} detail={detail} />
+            <div className="flex-1 rounded-xl bg-white overflow-hidden">
+               <iframe 
+                 src={resumeUrl} 
+                 className="w-full h-full border-none"
+                 title="Candidate Resume Full"
+               />
+            </div>
           </div>
         </div>
       )}
@@ -1100,71 +1132,7 @@ function ResumePane({
   );
 }
 
-function ResumeDoc({
-  candidate,
-  detail,
-}: {
-  candidate: ReturnType<typeof getCandidates>[number];
-  detail: ReturnType<typeof getCandidateDetail>;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white p-8 text-neutral-800 shadow-2xl">
-      <div className="border-b border-neutral-200 pb-4">
-        <div className="text-[22px] font-semibold text-neutral-900">{candidate.name}</div>
-        <div className="mt-1 text-[12px] text-neutral-500">
-          {candidate.email} · {candidate.phone} · {detail.location}
-        </div>
-      </div>
-      <div className="mt-5">
-        <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-          Summary
-        </div>
-        <p className="mt-1 text-[13px] leading-relaxed">{detail.resume.summary}</p>
-      </div>
-      <div className="mt-5">
-        <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-          Experience
-        </div>
-        <div className="mt-2 space-y-4">
-          {detail.resume.experience.map((e, i) => (
-            <div key={i}>
-              <div className="flex items-baseline justify-between">
-                <div className="text-[13px] font-medium text-neutral-900">
-                  {e.role} · {e.company}
-                </div>
-                <div className="text-[11px] text-neutral-500">{e.period}</div>
-              </div>
-              <ul className="mt-1 list-inside list-disc space-y-0.5 text-[12px] text-neutral-700">
-                {e.bullets.map((b, j) => (
-                  <li key={j}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="mt-5">
-        <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-          Education
-        </div>
-        {detail.resume.education.map((ed, i) => (
-          <div key={i} className="mt-1 flex items-baseline justify-between text-[12px]">
-            <div>
-              <span className="font-medium text-neutral-900">{ed.school}</span> — {ed.degree}
-            </div>
-            <div className="text-neutral-500">{ed.period}</div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5">
-        <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-          Skills
-        </div>
-        <div className="mt-1 text-[12px] text-neutral-700">{candidate.skills.join(" · ")}</div>
-      </div>
-    </div>
-  );
-}
+
 
 function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, hasVitarka }: { events: TimelineEvent[], detail: ReturnType<typeof getCandidateDetail>, isDemo: boolean, hasLabs: boolean, hasAssessment: boolean, hasVitarka: boolean }) {
   const allEvents = events.length > 0 ? events : detail.timeline;

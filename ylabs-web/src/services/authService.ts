@@ -106,10 +106,21 @@ class AuthService {
     return await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
   }
 
+  async uploadResume(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("field", "resume_file");
+    return await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
+  }
+
   async removeProfileImage(
     field: "profile_image" | "cover_image" = "profile_image",
   ): Promise<User> {
     return await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field });
+  }
+
+  async removeResume(): Promise<User> {
+    return await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field: "resume_file" });
   }
 
   async logoutUser(): Promise<void> {

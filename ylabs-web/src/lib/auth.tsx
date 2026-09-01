@@ -19,6 +19,7 @@ export interface User {
   github_username?: string;
   profile_image?: string;
   cover_image?: string;
+  resume_file?: string;
   profile?: {
     about?: string;
     avatar?: string;

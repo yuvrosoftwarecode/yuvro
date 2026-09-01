@@ -28,6 +28,7 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  resumeUrl?: string;
   rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
@@ -374,6 +375,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
           events: timelineEvents,
           sections: sectionsMap,
         },
+        resumeUrl: user.resume_url,
         rawSubmission: sub
       });
   }
