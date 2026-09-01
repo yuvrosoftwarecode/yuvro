@@ -27,6 +27,13 @@ class InterviewStatus(StrEnum):
     COMPLETED = "completed"
 
 
+class LLMCallStatus(StrEnum):
+    SKIPPED = "skipped"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    INVALID_OUTPUT = "invalid_output"
+
+
 class EventSource(StrEnum):
     SIMULATION_LAB = "simulation_lab"
     CODING_ASSESSMENT = "coding_assessment"
@@ -74,6 +81,7 @@ class QuestionKind(StrEnum):
     CUSTOM_SCOPE_FOLLOW_UP = "custom_scope_follow_up"
     DYNAMIC_FOLLOW_UP = "dynamic_follow_up"
     CLARIFICATION = "clarification"
+    REFRAME = "reframe"
     MCQ_REASONING = "mcq_reasoning"
     MCQ_REMEDIATION = "mcq_remediation"
 
@@ -216,6 +224,20 @@ class CandidateAnswer(BaseModel):
     answered_at: datetime = Field(default_factory=utc_now)
 
 
+class LLMCallLog(BaseModel):
+    id: str = Field(default_factory=lambda: new_id("llm"))
+    operation: str
+    provider: str = "openai"
+    model: str
+    status: LLMCallStatus
+    prompt_version: str
+    latency_ms: int | None = Field(default=None, ge=0)
+    fallback_reason: str | None = None
+    request_summary: dict[str, Any] = Field(default_factory=dict)
+    response_excerpt: str | None = None
+    created_at: datetime = Field(default_factory=utc_now)
+
+
 class MCQAnswerRequest(BaseModel):
     selected_option_id: str | None = None
     skipped: bool = False
@@ -252,10 +274,29 @@ class CompetencyScore(BaseModel):
     guidance: str
 
 
+class CompetencyCoverage(BaseModel):
+    competency: Competency
+    evidence_count: int = Field(default=0, ge=0)
+    status: str
+    score: int = Field(..., ge=0, le=10)
+    suggested_probe: str
+
+
+class EvaluationCoverage(BaseModel):
+    session_id: str
+    rubric_version: str
+    covered_competencies: int = Field(..., ge=0)
+    total_competencies: int = Field(..., ge=1)
+    coverage_percent: float = Field(..., ge=0, le=100)
+    competencies: list[CompetencyCoverage] = Field(default_factory=list)
+
+
 class InterviewEvaluation(BaseModel):
     session_id: str
+    rubric_version: str
     overall_score: float = Field(..., ge=0, le=10)
     scores: list[CompetencyScore]
+    coverage: EvaluationCoverage
     summary: str
     strengths: list[str] = Field(default_factory=list)
     risks: list[str] = Field(default_factory=list)
@@ -285,7 +326,9 @@ class InterviewReport(BaseModel):
     target_role: str | None = None
     mode: InterviewMode
     status: InterviewStatus
+    rubric_version: str
     overall_score: float = Field(..., ge=0, le=10)
+    coverage: EvaluationCoverage
     recommendation: str
     executive_summary: str
     strengths: list[str] = Field(default_factory=list)
@@ -313,6 +356,7 @@ class InterviewSession(BaseModel):
     asked_signatures: list[str] = Field(default_factory=list)
     questions: list[InterviewQuestion] = Field(default_factory=list)
     answers: list[CandidateAnswer] = Field(default_factory=list)
+    llm_calls: list[LLMCallLog] = Field(default_factory=list)
     observations: list[AssessmentEvent] = Field(default_factory=list)
     signals: list[ObservationSignal] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=utc_now)

@@ -36,30 +36,57 @@ class CodeInsightExtractor:
         changed_files: list[str] = []
         added_lines: list[str] = []
         removed_lines: list[str] = []
+        file_changes: dict[str, dict[str, Any]] = {}
+        current_file: str | None = None
+
+        def ensure_file(path: str | None) -> dict[str, Any] | None:
+            if not path or path == "/dev/null":
+                return None
+            changed_files.append(path)
+            if path not in file_changes:
+                file_changes[path] = {
+                    "path": path,
+                    "added_lines": [],
+                    "removed_lines": [],
+                }
+            return file_changes[path]
 
         for line in patch.splitlines():
             if line.startswith("diff --git "):
                 parts = line.split()
                 if len(parts) >= 4:
-                    changed_files.append(parts[3].removeprefix("b/"))
+                    current_file = parts[3].removeprefix("b/")
+                    ensure_file(current_file)
                 continue
             if line.startswith("+++ "):
-                file_name = line.removeprefix("+++ ").removeprefix("b/")
-                if file_name != "/dev/null":
-                    changed_files.append(file_name)
+                current_file = line.removeprefix("+++ ").removeprefix("b/")
+                ensure_file(current_file)
                 continue
             if line.startswith("+") and not line.startswith("+++"):
-                added_lines.append(line[1:].strip())
+                added_line = line[1:].strip()
+                added_lines.append(added_line)
+                file_change = ensure_file(current_file)
+                if file_change is not None:
+                    file_change["added_lines"].append(added_line)
                 continue
             if line.startswith("-") and not line.startswith("---"):
-                removed_lines.append(line[1:].strip())
+                removed_line = line[1:].strip()
+                removed_lines.append(removed_line)
+                file_change = ensure_file(current_file)
+                if file_change is not None:
+                    file_change["removed_lines"].append(removed_line)
 
         changed_files = list(dict.fromkeys(file for file in changed_files if file))
         added_code = "\n".join(added_lines)
         removed_code = "\n".join(removed_lines)
+        file_change_summaries = [
+            self._file_change_summary(path, change)
+            for path, change in file_changes.items()
+        ]
 
         return {
             "changed_files": changed_files,
+            "file_changes": file_change_summaries,
             "additions": len(added_lines),
             "deletions": len(removed_lines),
             "notable_added_lines": self._notable_lines(added_lines),
@@ -101,6 +128,8 @@ class CodeInsightExtractor:
 
     def _question_axes(self, insight: dict[str, Any]) -> list[str]:
         axes = []
+        if insight.get("file_changes") or insight.get("changed_files"):
+            axes.append("file_change_overview")
         if insight.get("solution_contrast") or insight.get("candidate_correctness_concerns"):
             axes.append("correctness_gap")
         if insight.get("candidate_complexity_concerns") or insight.get("performance_concerns"):
@@ -114,6 +143,24 @@ class CodeInsightExtractor:
         axes.append("test_strategy")
         axes.append("production_readiness")
         return list(dict.fromkeys(axes))
+
+    def _file_change_summary(self, path: str, change: dict[str, Any]) -> dict[str, Any]:
+        added_lines = change.get("added_lines") or []
+        removed_lines = change.get("removed_lines") or []
+        added_code = "\n".join(added_lines)
+        removed_code = "\n".join(removed_lines)
+        return {
+            "path": path,
+            "additions": len(added_lines),
+            "deletions": len(removed_lines),
+            "notable_added_lines": self._notable_lines(added_lines),
+            "notable_removed_lines": self._notable_lines(removed_lines),
+            "framework_choices": self._framework_choices(added_code),
+            "performance_concerns": self._performance_concerns(added_code),
+            "security_concerns": self._security_concerns(added_code),
+            "removed_symbols": self._symbols(removed_code),
+            "added_symbols": self._symbols(added_code),
+        }
 
     def _patch_summary(
         self,

@@ -25,7 +25,11 @@ from mockinterviews.dynamic_engine.models import (
     CandidateContext,
     InterviewSession as DynamicInterviewSession,
     AssessmentEvent,
+    InterviewStatus as DynamicInterviewStatus,
 )
+from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+from mockinterviews.dynamic_engine.reporting import InterviewReportService
+
 from mockinterviews.dynamic_engine.question_engine import DynamicQuestionEngine
 from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM
 from mockinterviews.dynamic_engine.config import get_settings
@@ -330,7 +334,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             ).first()
             if submission and submission.session_state:
                 dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
-                engine = DynamicQuestionEngine(llm_client=OpenAIInterviewLLM.from_settings(get_settings()))
+                settings = get_settings()
+                engine = DynamicQuestionEngine(
+                    llm_client=OpenAIInterviewLLM.from_settings(settings),
+                    max_followups_per_topic=settings.max_followups_per_topic,
+                )
                 
                 # First handle any answer provided
                 if user_answer and user_answer.strip() and dyn_session.current_question_id:
@@ -352,7 +360,14 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 return Response({
                     "question": question.prompt,
                     "is_finished": False,
-                    "question_id": question.id
+                    "question_id": question.id,
+                    "question_kind": question.kind.value,
+                    "competency_targets": [competency.value for competency in question.competency_targets],
+                    "evidence_event_ids": question.evidence_event_ids,
+                    "evidence_answer_ids": question.evidence_answer_ids,
+                    "rationale": question.rationale,
+                    "metadata": question.metadata,
+                    "llm_calls": [call.model_dump(mode='json') for call in dyn_session.llm_calls[-3:]],
                 })
 
 
@@ -1104,25 +1119,40 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
     def generate_report(self, request, pk=None):
         try:
             submission = self.get_object()
-            
+
+            if submission.session_state:
+                settings = get_settings()
+                dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
+                dyn_session.status = DynamicInterviewStatus.COMPLETED
+                reporter = InterviewReportService(
+                    evaluator=InterviewEvaluator(rubric_version=settings.rubric_version),
+                    llm_client=OpenAIInterviewLLM.from_settings(settings),
+                )
+                report = reporter.create_report(dyn_session)
+                submission.session_state = dyn_session.model_dump(mode='json')
+                submission.marks = report.overall_score * 10
+                submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                submission.save(update_fields=['session_state', 'marks', 'status'])
+                return Response(report.model_dump(mode='json'))
+
             if not submission.chat_session.id if submission.chat_session else submission.old_chat_session_id:
                 return Response({"error": "No active interview session associated with this submission."}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             auth_token = str(request.auth) if request.auth else None
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            
+
             # End the interview to generate the report
             try:
                 loop.run_until_complete(AIClient.generate_interview_report(submission.old_chat_session_id, auth_token=auth_token))
             except Exception as e:
                 # Might already be completed
                 pass
-                
+
             # Fetch the session and report from YHub
             session_data = loop.run_until_complete(AIClient.get_interview_session(submission.old_chat_session_id, auth_token=auth_token))
             report_data = session_data.get("report")
-            
+
             if report_data:
                 # Update submission marks and status
                 submission.marks = report_data.get("overall_score", 0.0)
@@ -1131,9 +1161,39 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 return Response(report_data)
             else:
                 return Response({"error": "Report not yet available or failed to generate."}, status=status.HTTP_404_NOT_FOUND)
-                
+
         except Exception as e:
             logger.error(f"Error in generate_report: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def dynamic_coverage(self, request, pk=None):
+        try:
+            submission = self.get_object()
+            if not submission.session_state:
+                return Response({"error": "Dynamic session not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+            settings = get_settings()
+            dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
+            coverage = InterviewEvaluator(rubric_version=settings.rubric_version).coverage(dyn_session)
+            return Response(coverage.model_dump(mode='json'))
+        except Exception as e:
+            logger.error(f"Error in dynamic_coverage: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def dynamic_llm_calls(self, request, pk=None):
+        try:
+            submission = self.get_object()
+            if not submission.session_state:
+                return Response({"error": "Dynamic session not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+            dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
+            return Response([call.model_dump(mode='json') for call in dyn_session.llm_calls])
+        except Exception as e:
+            logger.error(f"Error in dynamic_llm_calls: {str(e)}")
             logger.error(traceback.format_exc())
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1161,13 +1221,22 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             return Response({"error": "Dynamic session not found"}, status=status.HTTP_400_BAD_REQUEST)
             
         dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
-        engine = DynamicQuestionEngine(llm_client=OpenAIInterviewLLM.from_settings(get_settings()))
+        settings = get_settings()
+        engine = DynamicQuestionEngine(
+            llm_client=OpenAIInterviewLLM.from_settings(settings),
+            max_followups_per_topic=settings.max_followups_per_topic,
+        )
         
         try:
             event = AssessmentEvent.model_validate(request.data.get('event', {}))
-            engine.ingest_event(dyn_session, event)
+            ingest_response = engine.ingest_event(dyn_session, event)
             submission.session_state = dyn_session.model_dump(mode='json')
             submission.save(update_fields=['session_state'])
-            return Response({"status": "success"})
+            return Response({
+                "status": "success",
+                "event": ingest_response.event.model_dump(mode='json'),
+                "extracted_signals": [signal.model_dump(mode='json') for signal in ingest_response.extracted_signals],
+                "suggested_focus": [competency.value for competency in ingest_response.suggested_focus],
+            })
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

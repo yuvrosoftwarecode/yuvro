@@ -67,7 +67,9 @@ class InterviewReportService:
             target_role=session.candidate.target_role,
             mode=session.mode,
             status=session.status,
+            rubric_version=evaluation.rubric_version,
             overall_score=evaluation.overall_score,
+            coverage=evaluation.coverage,
             recommendation=recommendation,
             executive_summary=executive_summary,
             strengths=strengths,
@@ -149,7 +151,14 @@ class InterviewReportService:
             f"Candidate: {session.candidate.candidate_id}",
             f"Role: {session.candidate.target_role or 'Not specified'}",
             f"Mode: {session.mode.value}",
+            f"Rubric: {evaluation.rubric_version}",
             f"Overall score: {evaluation.overall_score}/10",
+            (
+                "Evidence coverage: "
+                f"{evaluation.coverage.covered_competencies}/"
+                f"{evaluation.coverage.total_competencies} "
+                f"({evaluation.coverage.coverage_percent}%)"
+            ),
             f"Recommendation: {recommendation}",
             "",
             "## Executive Summary",
@@ -164,6 +173,14 @@ class InterviewReportService:
         for summary in competency_summaries:
             label = summary.competency.value.replace("_", " ").title()
             lines.append(f"- {label}: {summary.score}/10 - {summary.guidance}")
+
+        lines.extend(["", "## Evidence Coverage"])
+        for item in evaluation.coverage.competencies:
+            label = item.competency.value.replace("_", " ").title()
+            lines.append(
+                f"- {label}: {item.status} ({item.evidence_count} evidence items) - "
+                f"{item.suggested_probe}"
+            )
 
         lines.extend(["", "## Evidence Highlights"])
         if evidence_highlights:
@@ -186,4 +203,3 @@ class InterviewReportService:
         if not values:
             return ["- None captured yet."]
         return [f"- {value}" for value in values]
-

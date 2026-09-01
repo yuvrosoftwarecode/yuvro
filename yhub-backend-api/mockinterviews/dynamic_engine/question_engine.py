@@ -22,7 +22,7 @@ from mockinterviews.dynamic_engine.models import (
     new_id,
 )
 from mockinterviews.dynamic_engine.code_analysis import CodeInsightExtractor
-from mockinterviews.dynamic_engine  .llm import InterviewLLM
+from mockinterviews.dynamic_engine.llm import InterviewLLM
 
 
 STOP_WORDS = {
@@ -54,6 +54,21 @@ STOP_WORDS = {
 }
 
 
+UNKNOWN_ANSWER_PATTERNS = {
+    "dont know",
+    "don't know",
+    "do not know",
+    "idk",
+    "i dont know",
+    "i don't know",
+    "i do not know",
+    "no idea",
+    "not sure",
+    "pass",
+    "skip",
+}
+
+
 EVENT_SIGNAL_MAP: dict[EventType, tuple[Competency, str, int]] = {
     EventType.FILE_OPENED: (Competency.PROBLEM_SOLVING, "Exploration path", 1),
     EventType.FILE_MODIFIED: (Competency.CODE_QUALITY, "Code modification", 2),
@@ -78,9 +93,11 @@ class DynamicQuestionEngine:
         self,
         llm_client: InterviewLLM | None = None,
         code_analyzer: CodeInsightExtractor | None = None,
+        max_followups_per_topic: int = 3,
     ) -> None:
         self.llm_client = llm_client
         self.code_analyzer = code_analyzer or CodeInsightExtractor()
+        self.max_followups_per_topic = max(1, max_followups_per_topic)
 
     def ingest_event(
         self,
@@ -207,7 +224,9 @@ class DynamicQuestionEngine:
                 return existing
 
         if session.mode == InterviewMode.CUSTOM:
-            question = self._with_llm_question(session, self._next_custom_question(session))
+            question = self._next_custom_question(session)
+            if question.kind != QuestionKind.RECRUITER_REQUIRED:
+                question = self._with_llm_question(session, question)
         elif self._has_required_question(session):
             question = self._next_required_question(session)
         else:
@@ -244,6 +263,12 @@ class DynamicQuestionEngine:
             fallback_question.metadata["rejected_llm_prompt"] = self._compact(generated.prompt, 220)
             return fallback_question
 
+        if not self._llm_prompt_preserves_grounding(session, fallback_question, generated.prompt):
+            fallback_question.metadata["generation_provider"] = "deterministic_fallback_grounding_guard"
+            fallback_question.metadata["llm_grounding_rejected"] = True
+            fallback_question.metadata["rejected_llm_prompt"] = self._compact(generated.prompt, 220)
+            return fallback_question
+
         question = fallback_question.model_copy(
             update={
                 "prompt": generated.prompt.strip(),
@@ -256,6 +281,33 @@ class DynamicQuestionEngine:
         if isinstance(model, str):
             question.metadata["llm_model"] = model
         return question
+
+    def _llm_prompt_preserves_grounding(
+        self,
+        session: InterviewSession,
+        fallback_question: InterviewQuestion,
+        prompt: str,
+    ) -> bool:
+        probe_axis = fallback_question.metadata.get("probe_axis")
+        if probe_axis != "file_change_overview":
+            return True
+
+        event = self._event_for_question(session, fallback_question)
+        code_insights = event.details.get("code_insights") if event else None
+        if not isinstance(code_insights, dict):
+            return True
+
+        changed_files = code_insights.get("changed_files")
+        if not isinstance(changed_files, list) or not changed_files:
+            return True
+
+        normalized_prompt = prompt.lower()
+        for file_path in changed_files:
+            file_text = str(file_path).lower()
+            file_name = file_text.rsplit("/", 1)[-1]
+            if file_text in normalized_prompt or file_name in normalized_prompt:
+                return True
+        return False
 
     def _event_with_code_insights(self, event: AssessmentEvent) -> AssessmentEvent:
         if isinstance(event.details.get("code_insights"), dict):
@@ -273,6 +325,14 @@ class DynamicQuestionEngine:
         session: InterviewSession,
         question: InterviewQuestion,
     ) -> InterviewQuestion:
+        if question.metadata.get("unknown_recovery"):
+            normalized_prompt = self._normalize_question(question.prompt)
+            if all(
+                self._normalize_question(previous.prompt) != normalized_prompt
+                for previous in session.questions[-12:]
+            ):
+                return question
+
         if not self._is_similar_to_previous(session, question.prompt):
             return question
 
@@ -313,11 +373,13 @@ class DynamicQuestionEngine:
         if not any(question.id == question_id for question in session.questions):
             raise ValueError(f"question_id {question_id!r} does not belong to session {session.id}")
 
+        answer_metadata = dict(metadata or {})
+        answer_metadata.setdefault("answer_quality", self._classify_answer(answer_text))
         answer = CandidateAnswer(
             question_id=question_id,
             answer_text=answer_text,
             confidence=confidence,
-            metadata=metadata or {},
+            metadata=answer_metadata,
         )
         session.answers.append(answer)
         if session.current_question_id == question_id:
@@ -417,11 +479,20 @@ class DynamicQuestionEngine:
         )
 
     def _next_custom_question(self, session: InterviewSession) -> InterviewQuestion:
+        latest_answer = session.answers[-1] if session.answers else None
+        if latest_answer is not None and self._should_reframe_unknown_answer(session, latest_answer):
+            return self._unknown_answer_recovery_question(session, latest_answer, custom_scope=True)
+
         pending_answer = self._pending_custom_follow_up_answer(session)
-        if pending_answer is not None:
+        if pending_answer is not None and not self._topic_limit_reached(
+            session, self._topic_key_for_answer(session, pending_answer)
+        ):
             return self._custom_scope_follow_up(session, pending_answer)
         if self._has_required_question(session):
             return self._next_required_question(session)
+
+        if latest_answer is not None and self._is_unknown_answer(latest_answer):
+            return self._custom_wrap_up_reframe(session, latest_answer)
         return self._custom_scope_follow_up(session)
 
     def _pending_custom_follow_up_answer(self, session: InterviewSession) -> CandidateAnswer | None:
@@ -457,6 +528,9 @@ class DynamicQuestionEngine:
         answer: CandidateAnswer | None = None,
     ) -> InterviewQuestion:
         latest_answer = answer or (session.answers[-1] if session.answers else None)
+        if latest_answer is not None and self._is_unknown_answer(latest_answer):
+            return self._unknown_answer_recovery_question(session, latest_answer, custom_scope=True)
+
         latest_question = self._question_for_answer(session, latest_answer) if latest_answer else None
         scope = (
             str(latest_question.metadata.get("scope_prompt"))
@@ -497,6 +571,9 @@ class DynamicQuestionEngine:
                 "parent_answer_id": latest_answer.id if latest_answer else None,
                 "scope_question_id": latest_question.id if latest_question else None,
                 "scope_prompt": scope,
+                "topic_key": self._topic_key_for_question(latest_question)
+                if latest_question
+                else "custom:start",
             },
         )
 
@@ -525,11 +602,13 @@ class DynamicQuestionEngine:
         question = self._question_for_answer(session, answer)
         if question is None or question.kind == QuestionKind.RECRUITER_REQUIRED:
             return None
-        if question.metadata.get("parent_answer_id"):
+        if question.metadata.get("parent_answer_id") or question.metadata.get("unknown_recovery"):
             return None
         if self._has_follow_up_for_answer(session, answer.id):
             return None
-        if question.evidence_event_ids or len(answer.answer_text.split()) < 18:
+        if self._topic_limit_reached(session, self._topic_key_for_question(question)):
+            return None
+        if self._is_unknown_answer(answer) or question.evidence_event_ids or len(answer.answer_text.split()) < 18:
             return answer
         return None
 
@@ -539,6 +618,9 @@ class DynamicQuestionEngine:
         answer: CandidateAnswer,
     ) -> InterviewQuestion:
         question = self._question_for_answer(session, answer)
+        if self._should_reframe_unknown_answer(session, answer):
+            return self._unknown_answer_recovery_question(session, answer)
+
         event = self._event_for_question(session, question)
         code_insights = event.details.get("code_insights") if event else None
         answer_excerpt = self._compact(answer.answer_text, 130)
@@ -582,6 +664,7 @@ class DynamicQuestionEngine:
                 "signature": f"answer-depth:{answer.id}",
                 "parent_answer_id": answer.id,
                 "parent_question_id": question.id if question else None,
+                "topic_key": self._topic_key_for_question(question),
             },
         )
 
@@ -595,6 +678,9 @@ class DynamicQuestionEngine:
         for event in self._ranked_code_events(session):
             code_insights = event.details.get("code_insights")
             if not isinstance(code_insights, dict):
+                continue
+            topic_key = f"code:{event.id}"
+            if self._topic_limit_reached(session, topic_key):
                 continue
             for axis in code_insights.get("question_axes", []):
                 signature = f"code-probe:{event.id}:{axis}"
@@ -611,6 +697,8 @@ class DynamicQuestionEngine:
                 continue
 
             priority = 4
+            if code_insights.get("file_changes") or code_insights.get("changed_files"):
+                priority += 12
             if event.event_type in {EventType.CODE_CHANGED, EventType.FINAL_IMPLEMENTATION}:
                 priority += 4
             if code_insights.get("solution_contrast") or code_insights.get(
@@ -637,6 +725,7 @@ class DynamicQuestionEngine:
         signature: str,
     ) -> InterviewQuestion:
         files = self._join(code_insights.get("changed_files"), default="the submitted code")
+        file_change_summary = self._file_change_summary(code_insights)
         added_line = self._first(
             code_insights.get("notable_added_lines")
             or code_insights.get("candidate_notable_lines"),
@@ -662,7 +751,18 @@ class DynamicQuestionEngine:
             default="the security boundary",
         )
 
-        if axis == "correctness_gap":
+        if axis == "file_change_overview":
+            prompt = (
+                f"You changed {files}. {file_change_summary} Walk me through the approach: "
+                "why did you choose these files, what exact change mattered most, and how "
+                "did you verify the scenario improved?"
+            )
+            targets = [
+                Competency.CODE_QUALITY,
+                Competency.ENGINEERING_DECISION_MAKING,
+                Competency.TESTING_MINDSET,
+            ]
+        elif axis == "correctness_gap":
             finding = self._sentence_fragment(contrast or correctness)
             prompt = (
                 f"In {files}, {finding}. What input or edge case would expose this, "
@@ -724,6 +824,7 @@ class DynamicQuestionEngine:
                 "signature": signature,
                 "probe_axis": axis,
                 "code_focus": self._code_focus_phrase(code_insights),
+                "topic_key": f"code:{event.id}",
             },
         )
 
@@ -893,9 +994,158 @@ class DynamicQuestionEngine:
         evidence_id = question.evidence_event_ids[0]
         return next((event for event in session.observations if event.id == evidence_id), None)
 
+    def _topic_key_for_answer(
+        self,
+        session: InterviewSession,
+        answer: CandidateAnswer,
+    ) -> str:
+        return self._topic_key_for_question(self._question_for_answer(session, answer))
+
+    def _topic_key_for_question(self, question: InterviewQuestion | None) -> str:
+        if question is None:
+            return "general"
+        topic_key = question.metadata.get("topic_key")
+        if isinstance(topic_key, str) and topic_key:
+            return topic_key
+        if question.evidence_event_ids:
+            return f"code:{question.evidence_event_ids[0]}"
+        if question.kind == QuestionKind.RECRUITER_REQUIRED:
+            return f"custom:{question.id}"
+        return f"question:{question.id}"
+
+    def _topic_limit_reached(self, session: InterviewSession, topic_key: str) -> bool:
+        if not topic_key:
+            return False
+        count = 0
+        for question in session.questions:
+            if question.kind == QuestionKind.RECRUITER_REQUIRED:
+                continue
+            if question.metadata.get("topic_key") == topic_key:
+                count += 1
+        return count >= self.max_followups_per_topic
+
     def _has_code_probe_for_event(self, session: InterviewSession, event_id: str) -> bool:
         prefix = f"code-probe:{event_id}:"
         return any(signature.startswith(prefix) for signature in session.asked_signatures)
+
+    def _classify_answer(self, answer_text: str) -> str:
+        normalized = self._normalize_answer(answer_text)
+        if normalized in UNKNOWN_ANSWER_PATTERNS:
+            return "unknown"
+        if any(pattern in normalized for pattern in UNKNOWN_ANSWER_PATTERNS) and len(
+            normalized.split()
+        ) <= 8:
+            return "unknown"
+        if len(normalized.split()) < 8:
+            return "thin"
+        return "substantive"
+
+    def _is_unknown_answer(self, answer: CandidateAnswer) -> bool:
+        if answer.metadata.get("answer_quality") == "unknown":
+            return True
+        return self._classify_answer(answer.answer_text) == "unknown"
+
+    def _should_reframe_unknown_answer(
+        self,
+        session: InterviewSession,
+        answer: CandidateAnswer,
+    ) -> bool:
+        if not self._is_unknown_answer(answer):
+            return False
+        if self._has_follow_up_for_answer(session, answer.id):
+            return False
+        question = self._question_for_answer(session, answer)
+        if question is None:
+            return True
+        return not question.metadata.get("unknown_recovery")
+
+    def _unknown_answer_recovery_question(
+        self,
+        session: InterviewSession,
+        answer: CandidateAnswer,
+        *,
+        custom_scope: bool = False,
+    ) -> InterviewQuestion:
+        question = self._question_for_answer(session, answer)
+        event = self._event_for_question(session, question)
+        code_insights = event.details.get("code_insights") if event else None
+        topic_key = self._topic_key_for_question(question)
+
+        if isinstance(code_insights, dict):
+            focus = self._code_focus_phrase(code_insights)
+            prompt = (
+                f"Let's reframe it through the code instead of repeating the same question. "
+                f"Look at {focus}. What did you change first, why was that the entry point, "
+                "and what small check would confirm whether it helped?"
+            )
+            targets = [
+                Competency.CODE_QUALITY,
+                Competency.DEBUGGING_ABILITY,
+                Competency.TESTING_MINDSET,
+            ]
+        elif custom_scope and question is not None:
+            scope = question.metadata.get("scope_prompt") or question.prompt
+            prompt = (
+                f"Let's make this smaller and stay inside the drafted topic. For "
+                f"{self._compact(str(scope), 110)}, name one assumption you would check first "
+                "and what evidence would help you answer it."
+            )
+            targets = [Competency.COMMUNICATION, Competency.LEARNING_ABILITY]
+        else:
+            prompt = (
+                "Let's approach it from a smaller angle. What is one fact from the assessment "
+                "or code you would inspect first, and what would that fact tell you?"
+            )
+            targets = [
+                Competency.LEARNING_ABILITY,
+                Competency.PROBLEM_SOLVING,
+                Competency.COMMUNICATION,
+            ]
+
+        return InterviewQuestion(
+            prompt=prompt,
+            kind=QuestionKind.REFRAME,
+            competency_targets=targets,
+            evidence_event_ids=[event.id] if event else [],
+            evidence_answer_ids=[answer.id],
+            rationale="Candidate gave an unknown answer, so Vitarka reframed instead of repeating.",
+            metadata={
+                "signature": f"unknown-reframe:{answer.id}",
+                "parent_answer_id": answer.id,
+                "parent_question_id": question.id if question else None,
+                "unknown_recovery": True,
+                "topic_key": topic_key,
+            },
+        )
+
+    def _custom_wrap_up_reframe(
+        self,
+        session: InterviewSession,
+        answer: CandidateAnswer,
+    ) -> InterviewQuestion:
+        scope = session.recruiter_questions[-1] if session.recruiter_questions else "the drafted topic"
+        return InterviewQuestion(
+            prompt=(
+                f"We will not repeat that. Staying inside {self._compact(scope, 110)}, "
+                "what would be the safest next step if you were blocked: ask for a hint, inspect "
+                "a failing case, or validate one assumption?"
+            ),
+            kind=QuestionKind.REFRAME,
+            competency_targets=[Competency.LEARNING_ABILITY, Competency.COMMUNICATION],
+            evidence_answer_ids=[answer.id],
+            rationale="Candidate remained unsure, so Vitarka moved to a recovery-oriented prompt.",
+            metadata={
+                "signature": f"custom-wrap-reframe:{answer.id}",
+                "parent_answer_id": answer.id,
+                "unknown_recovery": True,
+                "topic_key": "custom:wrap",
+            },
+        )
+
+    def _normalize_answer(self, answer_text: str) -> str:
+        normalized = re.sub(r"[^a-z0-9\s']", " ", answer_text.lower())
+        normalized = normalized.replace("dont", "don't")
+        return " ".join(normalized.split())
 
     def _is_similar_to_previous(self, session: InterviewSession, prompt: str) -> bool:
         normalized_prompt = self._normalize_question(prompt)
@@ -955,8 +1205,36 @@ class DynamicQuestionEngine:
             "your solution and explain how you would prove or disprove it."
         )
 
+    def _file_change_summary(self, code_insights: dict[str, Any]) -> str:
+        file_changes = code_insights.get("file_changes")
+        if not isinstance(file_changes, list) or not file_changes:
+            patch_summary = code_insights.get("patch_summary")
+            return str(patch_summary) if patch_summary else "The patch contains implementation changes."
+
+        summaries = []
+        for change in file_changes[:3]:
+            if not isinstance(change, dict):
+                continue
+            path = change.get("path") or "unknown file"
+            additions = change.get("additions", 0)
+            deletions = change.get("deletions", 0)
+            added = self._first(change.get("notable_added_lines"), default="")
+            removed = self._first(change.get("notable_removed_lines"), default="")
+            summary = f"{path}: {additions} additions and {deletions} deletions"
+            if removed and added:
+                summary += (
+                    f", including replacing `{self._compact(removed, 80)}` with "
+                    f"`{self._compact(added, 80)}`"
+                )
+            elif added:
+                summary += f", including `{self._compact(added, 90)}`"
+            summaries.append(summary)
+
+        return " ".join(summaries) if summaries else "The patch contains file-level changes."
+
     def _code_focus_phrase(self, code_insights: dict[str, Any]) -> str:
         files = self._join(code_insights.get("changed_files"), default="")
+        file_summary = self._file_change_summary(code_insights) if files else ""
         choices = self._join(
             code_insights.get("framework_choices")
             or code_insights.get("candidate_framework_choices"),
@@ -972,6 +1250,8 @@ class DynamicQuestionEngine:
         parts = []
         if files:
             parts.append(files)
+        if file_summary:
+            parts.append(file_summary)
         if choices:
             parts.append(choices)
         if contrast:

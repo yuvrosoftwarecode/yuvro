@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-import logging
 import re
+from time import perf_counter
 from typing import Any, Protocol
 
 from pydantic import BaseModel, Field, ValidationError
@@ -12,9 +12,13 @@ from mockinterviews.dynamic_engine.models import (
     InterviewEvaluation,
     InterviewQuestion,
     InterviewSession,
+    LLMCallLog,
+    LLMCallStatus,
 )
 
-logger = logging.getLogger(__name__)
+
+QUESTION_PROMPT_VERSION = "question_v2_file_grounded_no_repeat"
+REPORT_PROMPT_VERSION = "report_v1_evidence_narrative"
 
 
 class GeneratedQuestion(BaseModel):
@@ -74,6 +78,14 @@ class OpenAIInterviewLLM:
         fallback_question: InterviewQuestion,
     ) -> GeneratedQuestion | None:
         if not self._ready():
+            self._log_call(
+                session,
+                operation="generate_question",
+                prompt_version=QUESTION_PROMPT_VERSION,
+                status=LLMCallStatus.SKIPPED,
+                fallback_reason=self._not_ready_reason(),
+                request_summary=self._question_request_summary(session, fallback_question),
+            )
             return None
 
         payload = {
@@ -96,16 +108,35 @@ class OpenAIInterviewLLM:
             "or paraphrase any previous question. Prefer the candidate's actual code, "
             "patch, failed tests, complexity, security, performance, or edge-case choices "
             "over generic reasoning prompts. In custom mode, stay strictly inside the "
-            "recruiter-defined scope. Move one level deeper than the fallback question "
+            "recruiter-defined scope. If the fallback question is about file changes, "
+            "include at least one changed filename and ask about what changed, why that "
+            "file was chosen, and how the candidate verified it. If the candidate said "
+            "they do not know, reframe to a smaller evidence-based question instead of "
+            "repeating the same prompt. Move one level deeper than the fallback question "
             "when code_artifacts are present. Return JSON only with keys: prompt, rationale."
         )
 
-        data = self._call_json(instructions=instructions, payload=payload)
+        data = self._call_json(
+            session=session,
+            operation="generate_question",
+            prompt_version=QUESTION_PROMPT_VERSION,
+            instructions=instructions,
+            payload=payload,
+            required_keys={"prompt", "rationale"},
+        )
         if not data:
             return None
         try:
             return GeneratedQuestion.model_validate(data)
-        except ValidationError:
+        except ValidationError as exc:
+            self._log_call(
+                session,
+                operation="generate_question",
+                prompt_version=QUESTION_PROMPT_VERSION,
+                status=LLMCallStatus.INVALID_OUTPUT,
+                fallback_reason=f"schema_validation_{exc.__class__.__name__}",
+                request_summary=self._question_request_summary(session, fallback_question),
+            )
             return None
 
     def generate_report_narrative(
@@ -114,12 +145,22 @@ class OpenAIInterviewLLM:
         evaluation: InterviewEvaluation,
     ) -> GeneratedReportNarrative | None:
         if not self._ready():
+            self._log_call(
+                session,
+                operation="generate_report_narrative",
+                prompt_version=REPORT_PROMPT_VERSION,
+                status=LLMCallStatus.SKIPPED,
+                fallback_reason=self._not_ready_reason(),
+                request_summary=self._report_request_summary(session, evaluation),
+            )
             return None
 
         payload = {
             "candidate": self._candidate_payload(session),
             "mode": session.mode.value,
+            "rubric_version": evaluation.rubric_version,
             "overall_score": evaluation.overall_score,
+            "coverage": evaluation.coverage.model_dump(mode="json"),
             "strengths": evaluation.strengths,
             "risks": evaluation.risks,
             "previous_questions": self._previous_questions(session, limit=12),
@@ -142,22 +183,63 @@ class OpenAIInterviewLLM:
             "recommendation, strengths, risks."
         )
 
-        data = self._call_json(instructions=instructions, payload=payload)
+        data = self._call_json(
+            session=session,
+            operation="generate_report_narrative",
+            prompt_version=REPORT_PROMPT_VERSION,
+            instructions=instructions,
+            payload=payload,
+            required_keys={"executive_summary", "recommendation", "strengths", "risks"},
+        )
         if not data:
             return None
         try:
             return GeneratedReportNarrative.model_validate(data)
-        except ValidationError:
+        except ValidationError as exc:
+            self._log_call(
+                session,
+                operation="generate_report_narrative",
+                prompt_version=REPORT_PROMPT_VERSION,
+                status=LLMCallStatus.INVALID_OUTPUT,
+                fallback_reason=f"schema_validation_{exc.__class__.__name__}",
+                request_summary=self._report_request_summary(session, evaluation),
+            )
             return None
 
     def _ready(self) -> bool:
         return self.enabled and bool(self.api_key)
 
-    def _call_json(self, *, instructions: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+    def _not_ready_reason(self) -> str:
+        if not self.enabled:
+            return "llm_disabled"
+        if not self.api_key:
+            return "missing_openai_api_key"
+        return "llm_not_ready"
+
+    def _call_json(
+        self,
+        *,
+        session: InterviewSession,
+        operation: str,
+        prompt_version: str,
+        instructions: str,
+        payload: dict[str, Any],
+        required_keys: set[str],
+    ) -> dict[str, Any] | None:
+        started = perf_counter()
+        request_summary = self._request_summary(operation, payload)
         try:
             from openai import OpenAI
         except ImportError:
-            logger.error("OpenAI library not installed")
+            self._log_call(
+                session,
+                operation=operation,
+                prompt_version=prompt_version,
+                status=LLMCallStatus.SKIPPED,
+                latency_ms=self._elapsed_ms(started),
+                fallback_reason="openai_sdk_not_installed",
+                request_summary=request_summary,
+            )
             return None
 
         try:
@@ -170,19 +252,107 @@ class OpenAIInterviewLLM:
                 ],
                 response_format={"type": "json_object"},
             )
-            output_text = response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"OpenAI call failed in Vitarka Dynamic Engine: {e}")
+        except Exception as exc:
+            self._log_call(
+                session,
+                operation=operation,
+                prompt_version=prompt_version,
+                status=LLMCallStatus.FAILED,
+                latency_ms=self._elapsed_ms(started),
+                fallback_reason=f"openai_api_{exc.__class__.__name__}",
+                request_summary=request_summary,
+            )
             return None
 
+        output_text = self._response_text(response)
         if not output_text:
+            self._log_call(
+                session,
+                operation=operation,
+                prompt_version=prompt_version,
+                status=LLMCallStatus.INVALID_OUTPUT,
+                latency_ms=self._elapsed_ms(started),
+                fallback_reason="empty_response",
+                request_summary=request_summary,
+            )
             return None
-        return self._parse_json(output_text)
+        parsed = self._parse_json(output_text)
+        if parsed is None:
+            self._log_call(
+                session,
+                operation=operation,
+                prompt_version=prompt_version,
+                status=LLMCallStatus.INVALID_OUTPUT,
+                latency_ms=self._elapsed_ms(started),
+                fallback_reason="json_parse_failed",
+                request_summary=request_summary,
+                response_excerpt=self._compact(output_text, 500),
+            )
+            return None
+        missing_keys = sorted(required_keys - set(parsed))
+        if missing_keys:
+            self._log_call(
+                session,
+                operation=operation,
+                prompt_version=prompt_version,
+                status=LLMCallStatus.INVALID_OUTPUT,
+                latency_ms=self._elapsed_ms(started),
+                fallback_reason=f"missing_keys:{','.join(missing_keys)}",
+                request_summary=request_summary,
+                response_excerpt=self._compact(output_text, 500),
+            )
+            return None
+
+        self._log_call(
+            session,
+            operation=operation,
+            prompt_version=prompt_version,
+            status=LLMCallStatus.SUCCEEDED,
+            latency_ms=self._elapsed_ms(started),
+            request_summary=request_summary,
+            response_excerpt=self._compact(output_text, 500),
+        )
+        return parsed
+
+    def _log_call(
+        self,
+        session: InterviewSession,
+        *,
+        operation: str,
+        prompt_version: str,
+        status: LLMCallStatus,
+        latency_ms: int | None = None,
+        fallback_reason: str | None = None,
+        request_summary: dict[str, Any] | None = None,
+        response_excerpt: str | None = None,
+    ) -> None:
+        session.llm_calls.append(
+            LLMCallLog(
+                operation=operation,
+                model=self.model,
+                status=status,
+                prompt_version=prompt_version,
+                latency_ms=latency_ms,
+                fallback_reason=fallback_reason,
+                request_summary=request_summary or {},
+                response_excerpt=response_excerpt,
+            )
+        )
+
+    def _elapsed_ms(self, started: float) -> int:
+        return max(0, int(round((perf_counter() - started) * 1000)))
 
     def _response_text(self, response: Any) -> str:
         output_text = getattr(response, "output_text", None)
         if isinstance(output_text, str):
             return output_text
+
+        choices = getattr(response, "choices", None) or []
+        if choices:
+            message = getattr(choices[0], "message", None)
+            content = getattr(message, "content", None) if message is not None else None
+            if isinstance(content, str):
+                return content
 
         chunks: list[str] = []
         for item in getattr(response, "output", []) or []:
@@ -210,6 +380,87 @@ class OpenAIInterviewLLM:
                 return None
 
         return parsed if isinstance(parsed, dict) else None
+
+    def _request_summary(self, operation: str, payload: dict[str, Any]) -> dict[str, Any]:
+        if operation == "generate_question":
+            fallback = payload.get("fallback_question")
+            fallback_metadata = fallback.get("metadata", {}) if isinstance(fallback, dict) else {}
+            return {
+                "mode": payload.get("mode"),
+                "turn_index": payload.get("turn_index"),
+                "fallback_question_id": fallback.get("id") if isinstance(fallback, dict) else None,
+                "fallback_kind": fallback.get("kind") if isinstance(fallback, dict) else None,
+                "probe_axis": fallback_metadata.get("probe_axis"),
+                "topic_key": fallback_metadata.get("topic_key"),
+                "previous_question_count": len(payload.get("previous_questions", []) or []),
+                "recent_observation_count": len(payload.get("recent_observations", []) or []),
+                "recent_answer_count": len(payload.get("recent_answers", []) or []),
+                "code_artifact_count": len(payload.get("code_artifacts", []) or []),
+            }
+        return {
+            "mode": payload.get("mode"),
+            "rubric_version": payload.get("rubric_version"),
+            "overall_score": payload.get("overall_score"),
+            "coverage_percent": (payload.get("coverage") or {}).get("coverage_percent")
+            if isinstance(payload.get("coverage"), dict)
+            else None,
+            "previous_question_count": len(payload.get("previous_questions", []) or []),
+            "recent_observation_count": len(payload.get("recent_observations", []) or []),
+            "recent_answer_count": len(payload.get("recent_answers", []) or []),
+            "code_artifact_count": len(payload.get("code_artifacts", []) or []),
+        }
+
+    def _question_request_summary(
+        self,
+        session: InterviewSession,
+        fallback_question: InterviewQuestion,
+    ) -> dict[str, Any]:
+        return {
+            "mode": session.mode.value,
+            "turn_index": session.turn_index,
+            "fallback_question_id": fallback_question.id,
+            "fallback_kind": fallback_question.kind.value,
+            "probe_axis": fallback_question.metadata.get("probe_axis"),
+            "topic_key": fallback_question.metadata.get("topic_key"),
+            "previous_question_count": len(session.questions),
+            "recent_observation_count": min(len(session.observations), 6),
+            "recent_answer_count": min(len(session.answers), 4),
+            "code_artifact_count": min(
+                len(
+                    [
+                        event
+                        for event in session.observations
+                        if isinstance(event.details.get("code_insights"), dict)
+                    ]
+                ),
+                5,
+            ),
+        }
+
+    def _report_request_summary(
+        self,
+        session: InterviewSession,
+        evaluation: InterviewEvaluation,
+    ) -> dict[str, Any]:
+        return {
+            "mode": session.mode.value,
+            "rubric_version": evaluation.rubric_version,
+            "overall_score": evaluation.overall_score,
+            "coverage_percent": evaluation.coverage.coverage_percent,
+            "previous_question_count": min(len(session.questions), 12),
+            "recent_observation_count": min(len(session.observations), 8),
+            "recent_answer_count": min(len(session.answers), 8),
+            "code_artifact_count": min(
+                len(
+                    [
+                        event
+                        for event in session.observations
+                        if isinstance(event.details.get("code_insights"), dict)
+                    ]
+                ),
+                8,
+            ),
+        }
 
     def _candidate_payload(self, session: InterviewSession) -> dict[str, Any]:
         return {

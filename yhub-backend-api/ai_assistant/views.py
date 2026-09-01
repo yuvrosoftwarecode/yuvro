@@ -790,10 +790,10 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 if mock_submission.session_state:
                     from mockinterviews.dynamic_engine.models import InterviewSession as DynSession
                     from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
-                    from mockinterviews.dynamic_engine.llm import InterviewLLM
+                    from mockinterviews.dynamic_engine.config import get_settings
                     try:
                         dyn_session = DynSession.model_validate(mock_submission.session_state)
-                        evaluator = InterviewEvaluator(llm_client=InterviewLLM())
+                        evaluator = InterviewEvaluator(rubric_version=get_settings().rubric_version)
                         evaluation = evaluator.evaluate(dyn_session)
                         mock_submission.marks = evaluation.overall_score * 10
                     except Exception as e:
