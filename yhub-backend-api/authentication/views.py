@@ -575,25 +575,28 @@ def internal_github_token_view(request, user_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def upload_profile_image(request):
-    ALLOWED_FIELDS = ("profile_image", "cover_image")
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "resume_file")
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
         "image/png": "png",
         "image/webp": "webp",
         "image/gif": "gif",
+        "application/pdf": "pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/msword": "doc",
     }
     MAX_BYTES = 10 * 1024 * 1024
 
     image_file = request.FILES.get("image")
     if not image_file:
         return Response(
-            {"error": "No image file provided. Use the 'image' form field."},
+            {"error": "No file provided. Use the 'image' form field."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     if image_file.size > MAX_BYTES:
         return Response(
-            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            {"error": f"File too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -617,7 +620,7 @@ def upload_profile_image(request):
         stored_name = upload_image(
             key=f"profile/{user.id}/{target_field}.{ext}",
             file_obj=image_file,
-            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif", "pdf", "docx", "doc"),
         )
     except Exception as exc:
         logger.exception("Failed to upload profile image")
@@ -658,7 +661,7 @@ def upload_profile_image(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def remove_profile_image(request):
-    ALLOWED_FIELDS = ("profile_image", "cover_image")
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "resume_file")
 
     target_field = request.data.get("field")
     if target_field not in ALLOWED_FIELDS:

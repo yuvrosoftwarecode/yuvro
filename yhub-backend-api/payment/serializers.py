@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Payment, Refund, PaymentStatus
+from .models import Payment, Refund, PaymentStatus, UserEntitlement, PurchasableItem
 
 
 class PaymentCreateSerializer(serializers.ModelSerializer):
@@ -45,3 +45,15 @@ class RefundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Refund
         fields = ["id", "refund_id", "amount", "status", "gateway_response", "created_at"]
+
+class PurchasableItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchasableItem
+        fields = ["item_type", "item_id", "name", "product"]
+
+class UserEntitlementSerializer(serializers.ModelSerializer):
+    purchasable_item = PurchasableItemSerializer(read_only=True)
+    
+    class Meta:
+        model = UserEntitlement
+        fields = ["id", "purchasable_item", "granted_at", "revoked_at", "is_active"]

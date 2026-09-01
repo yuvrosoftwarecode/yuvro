@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from .models import Payment, Refund, PaymentStatus, PurchasableItem, UserEntitlement
 from .payment_service import PaymentService
-from .serializers import PaymentCreateSerializer, PaymentSerializer, RefundSerializer
+from .serializers import PaymentCreateSerializer, PaymentSerializer, RefundSerializer, UserEntitlementSerializer
 from django.utils import timezone
 
 
@@ -44,17 +44,12 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
                 purpose = name_val
 
         existing_payment = None
-        if purchasable_item:
-            existing_payment = Payment.objects.filter(
-                user=request.user,
-                purchasable_item=purchasable_item
-            ).exclude(status__in=[PaymentStatus.SUCCESS_OR_CAPTURED, PaymentStatus.REFUNDED]).first()
 
         payment_service = PaymentService()
         payment = payment_service.create_payment(
             user=request.user,
             amount=serializer.validated_data["amount"],
-            currency=serializer.validated_data.get("currency", "INR"),
+            currency="USD",
             purpose=purpose,
             description=serializer.validated_data.get("description", ""),
             metadata=serializer.validated_data.get("metadata") or {},
@@ -226,3 +221,45 @@ class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
             return self.get_queryset().get(pk=self.kwargs["pk"])
         except Payment.DoesNotExist as exc:
             raise Http404 from exc
+
+    @action(detail=False, methods=["get"], url_path="entitlements")
+    def entitlements(self, request):
+        entitlements = UserEntitlement.objects.filter(user=request.user, is_active=True)
+        return Response(UserEntitlementSerializer(entitlements, many=True).data)
+
+    @action(detail=False, methods=["post"], url_path="start_trial")
+    def start_trial(self, request):
+        import datetime
+        from django.utils import timezone
+        
+        purchasable_item, _ = PurchasableItem.objects.get_or_create(
+            item_type="plan", 
+            item_id="trial", 
+            defaults={"name": "Free Trial", "product": "ylabs"}
+        )
+        
+        existing = UserEntitlement.objects.filter(user=request.user, purchasable_item=purchasable_item).first()
+        if existing:
+            return Response({"error": "Trial already used or active"}, status=400)
+            
+        payment = Payment.objects.create(
+            user=request.user,
+            amount=0,
+            currency="USD",
+            gateway="none",
+            status=PaymentStatus.SUCCESS_OR_CAPTURED,
+            purchasable_item=purchasable_item,
+            description="Free Trial Activation"
+        )
+            
+        entitlement = UserEntitlement.objects.create(
+            user=request.user,
+            purchasable_item=purchasable_item,
+            payment=payment,
+            revoked_at=timezone.now() + datetime.timedelta(days=15)
+        )
+        
+        return Response({
+            "status": "trial_started", 
+            "revoked_at": entitlement.revoked_at
+        })
