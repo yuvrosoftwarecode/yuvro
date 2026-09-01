@@ -7,6 +7,7 @@
 #   DEPLOY_TYPE=k8s make install        - Use Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
+.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
 .PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
@@ -225,6 +226,13 @@ help:
 	@echo "  make db-reset-ycampus               Reset YCampus database only"
 	@echo "  make db-reset-ylabs                 Reset YLabs database only"
 	@echo "  make db-reset-yhub                  Reset YHub database only"
+	@echo ""
+	@echo "Per-App Dev Deploy (DEPLOY_BRANCH=<branch> make deploy-<app>):"
+	@echo "  make deploy-all                     Deploy all services to dev"
+	@echo "  make deploy-ycode                   Deploy YCode only"
+	@echo "  make deploy-ycampus                 Deploy YCampus only"
+	@echo "  make deploy-ylabs                   Deploy YLabs only"
+	@echo "  make deploy-yhub                    Deploy YHub only"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -806,6 +814,30 @@ db-reset-ylabs:
 
 db-reset-yhub:
 	@$(MAKE) -f Makefile.yhub db-reset
+
+# ============================================================================
+# Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
+# ============================================================================
+
+deploy-all:
+	@echo "🚀 Deploying ALL services to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH)
+
+deploy-ycode:
+	@echo "🚀 Deploying YCode to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH)
+
+deploy-ycampus:
+	@echo "🚀 Deploying YCampus to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH)
+
+deploy-ylabs:
+	@echo "🚀 Deploying YLabs to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH)
+
+deploy-yhub:
+	@echo "🚀 Deploying YHub to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH)
 
 # ============================================================================
 # Code Executor Commands

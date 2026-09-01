@@ -118,6 +118,7 @@ services:
       - ./ylabs-backend-api/.env.dev
       - path: ./ylabs-backend-api/.env.dev-secrets
         required: false
+    depends_on: []
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
@@ -159,6 +160,7 @@ services:
       - ./yhub-backend-api/.env.dev
       - path: ./yhub-backend-api/.env.dev-secrets
         required: false
+    depends_on: []
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yhub-backend-api.wsgi:application"
