@@ -48,6 +48,7 @@ export default defineConfig({
       port: 3000,
       strictPort: true,
       host: "0.0.0.0",
+      allowedHosts: ["dev.yuvrolabs.com", "localhost"],
       hmr: {
         protocol: "ws",
         host: "localhost",
