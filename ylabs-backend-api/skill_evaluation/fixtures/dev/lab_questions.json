@@ -9,7 +9,8 @@
   "duration_minutes": 5,
   "marks": 50,
   "scenario": "PERFORMANCE_OPTIMIZATION",
-  "git_repo_starter_url": "https://github.com/CloudVexTechnologies/yuvro_eval_lab_1",
+  "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+  "git_repo_starter_branch": "n+1",
   "startup_command": "cd production_api_lab && python manage.py runserver 0.0.0.0:8010",
   "programming_languages": [
     "PYTHON"
