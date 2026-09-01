@@ -109,6 +109,7 @@ class Command(BaseCommand):
                     "marks": q_data.get("marks", 50),
                     "scenario": q_data.get("scenario", "FEATURE_DEVELOPMENT"),
                     "git_repo_starter_url": q_data.get("git_repo_starter_url", ""),
+                    "git_repo_starter_branch": q_data.get("git_repo_starter_branch", "main"),
                     "startup_command": q_data.get("startup_command", ""),
                     "programming_languages": q_data.get("programming_languages", []),
                     "databases": q_data.get("databases", []),

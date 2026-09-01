@@ -151,6 +151,12 @@ class LabQuestionBank(QuestionBank):
         default=LabScenario.FEATURE_DEVELOPMENT,
     )
     git_repo_starter_url = models.URLField(blank=True)
+    git_repo_starter_branch = models.CharField(
+        max_length=100,
+        blank=True,
+        default="main",
+        help_text="Branch to clone from the starter repo (defaults to 'main')",
+    )
     startup_command = models.TextField(
         blank=True, 
         help_text="Command to run when the lab starts (e.g., 'cd project && npm run dev')"

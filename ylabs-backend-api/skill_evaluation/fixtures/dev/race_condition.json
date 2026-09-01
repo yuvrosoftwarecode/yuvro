@@ -9,7 +9,8 @@
       "duration_minutes": 60,
       "marks": 100,
       "scenario": "BUG_FIXING",
-      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_race_condition",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Race-Condition",
       "startup_command": "pip install django && python manage.py migrate && python manage.py runserver",
       "programming_languages": [
         "PYTHON"

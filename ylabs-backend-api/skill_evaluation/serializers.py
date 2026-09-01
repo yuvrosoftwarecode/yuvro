@@ -43,7 +43,12 @@ def provision_evaluation_labs(evaluation):
                 try:
                     lab = LabQuestionBank.objects.get(id=q_id)
                     if lab.git_repo_starter_url:
-                        provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url)
+                        provision_evaluation_lab_starter_repo(
+                            evaluation.id, 
+                            lab.id, 
+                            lab.git_repo_starter_url, 
+                            branch=lab.git_repo_starter_branch
+                        )
                 except LabQuestionBank.DoesNotExist:
                     logger.warning(f"LabQuestionBank with id {q_id} not found.")
                 except Exception as e:

@@ -30,6 +30,7 @@ const DEFAULT_FORM = {
   marks: 10,
   duration_minutes: 30,
   git_repo_starter_url: "",
+  git_repo_starter_branch: "main",
   startup_command: "",
   programming_languages: [],
   databases: [],
@@ -86,6 +87,7 @@ function QuestionsPage() {
       marks: q.marks || 10,
       duration_minutes: q.duration_minutes || 30,
       git_repo_starter_url: q.git_repo_starter_url || "",
+      git_repo_starter_branch: q.git_repo_starter_branch || "main",
       startup_command: q.startup_command || "",
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
@@ -289,9 +291,15 @@ function QuestionsPage() {
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="repo_url">Git Repo Starter URL</Label>
-                <Input id="repo_url" value={formData.git_repo_starter_url} onChange={(e) => setFormData({ ...formData, git_repo_starter_url: e.target.value })} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid gap-2 md:col-span-2">
+                  <Label htmlFor="repo_url">Git Repo Starter URL</Label>
+                  <Input id="repo_url" value={formData.git_repo_starter_url} onChange={(e) => setFormData({ ...formData, git_repo_starter_url: e.target.value })} placeholder="https://github.com/..." />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="starter_branch">Starter Branch</Label>
+                  <Input id="starter_branch" value={formData.git_repo_starter_branch} onChange={(e) => setFormData({ ...formData, git_repo_starter_branch: e.target.value })} placeholder="main" />
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="startup_cmd">Startup Command</Label>
