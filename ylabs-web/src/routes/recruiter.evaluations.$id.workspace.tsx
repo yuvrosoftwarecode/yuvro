@@ -76,13 +76,13 @@ import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnaly
 
 const searchSchema = z.object({
   tab: z
-    .enum(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"])
+    .enum(["overview", "candidates", "followups", "records", "intelligence", "settings"])
     .default("overview")
     .catch("overview"),
 });
 
 const TAB_LABELS: Record<
-  "overview" | "candidates" | "followups" | "records" | "intelligence" | "attention" | "settings",
+  "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings",
   string
 > = {
   overview: "Overview",
@@ -90,7 +90,6 @@ const TAB_LABELS: Record<
   followups: "Follow-ups",
   records: "Candidate Records",
   intelligence: "Hiring Intelligence",
-  attention: "Need Your Attention",
   settings: "Settings",
 };
 
@@ -138,7 +137,7 @@ function Workspace() {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${location.origin}/evaluation/${ev.id}`);
+      await navigator.clipboard.writeText(`${location.origin}/evaluation?e=${ev.id}`);
       notify("Public link copied");
     } catch {
       notify("Copy failed");
@@ -254,7 +253,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -279,91 +278,6 @@ function Workspace() {
               >
                 Invite Candidates
               </HeaderBtn>
-              <HeaderBtn
-                onClick={() => download("reports")}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Download
-              </HeaderBtn>
-              <div className="relative">
-                <HeaderBtn
-                  onClick={() => setMoreOpen((v) => !v)}
-                  icon={<MoreHorizontal className="h-3.5 w-3.5" />}
-                >
-                  More
-                </HeaderBtn>
-                {moreOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                    <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
-                      <MenuItem
-                        onClick={() => {
-                          download("csv");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileText className="h-3.5 w-3.5" />}
-                      >
-                        Export CSV
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          download("xlsx");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
-                      >
-                        Export Excel
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          emailAll();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Mail className="h-3.5 w-3.5" />}
-                      >
-                        Email Candidates
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDuplicate();
-                          setMoreOpen(false);
-                        }}
-                        icon={<CopyIcon className="h-3.5 w-3.5" />}
-                      >
-                        Duplicate Evaluation
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          nav({ to: "/recruiter/evaluations/$id", params: { id: ev.id } });
-                        }}
-                        icon={<Pencil className="h-3.5 w-3.5" />}
-                      >
-                        Edit Evaluation
-                      </MenuItem>
-                      <div className="h-px bg-white/5" />
-                      <MenuItem
-                        onClick={() => {
-                          onArchive();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Archive className="h-3.5 w-3.5" />}
-                      >
-                        Archive
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDelete();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Trash2 className="h-3.5 w-3.5" />}
-                        danger
-                      >
-                        Delete
-                      </MenuItem>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -381,7 +295,6 @@ function Workspace() {
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
-        {tab === "attention" && <AttentionTab evId={ev.id} candidates={candidates} onGoto={goto} />}
         {tab === "settings" && <SettingsTab ev={ev} notify={notify} />}
         {tab === "insights" && <SimplePane title="Insights" desc="Aggregate skill heatmaps, question difficulty analysis, and cohort comparisons will be published here." />}
         {tab === "reports" && <SimplePane title="Reports" desc="Downloadable per-candidate reports, batch summaries and ATS-ready exports live in this tab." />}

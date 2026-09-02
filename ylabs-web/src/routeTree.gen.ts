@@ -60,6 +60,7 @@ import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as StudentCollaborationSquadsRouteImport } from './routes/student.collaboration.squads'
 import { Route as StudentCollaborationConnectionsRouteImport } from './routes/student.collaboration.connections'
 import { Route as StudentCollaborationBrowseRouteImport } from './routes/student.collaboration.browse'
+import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
 import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
@@ -337,6 +338,11 @@ const StudentCollaborationBrowseRoute =
     path: '/browse',
     getParentRoute: () => StudentCollaborationRoute,
   } as any)
+const SharedReportTokenRoute = SharedReportTokenRouteImport.update({
+  id: '/shared/report/$token',
+  path: '/shared/report/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordUidb64TokenRoute =
   ResetPasswordUidb64TokenRouteImport.update({
     id: '/reset-password/$uidb64/$token',
@@ -478,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByTo {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -612,6 +620,7 @@ export interface FileRoutesById {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -683,6 +692,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -747,6 +757,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -816,6 +827,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -850,6 +862,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   GithubCallbackRoute: typeof GithubCallbackRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
+  SharedReportTokenRoute: typeof SharedReportTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1210,6 +1223,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/collaboration/browse'
       preLoaderRoute: typeof StudentCollaborationBrowseRouteImport
       parentRoute: typeof StudentCollaborationRoute
+    }
+    '/shared/report/$token': {
+      id: '/shared/report/$token'
+      path: '/shared/report/$token'
+      fullPath: '/shared/report/$token'
+      preLoaderRoute: typeof SharedReportTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/reset-password/$uidb64/$token': {
       id: '/reset-password/$uidb64/$token'
@@ -1578,6 +1598,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   GithubCallbackRoute: GithubCallbackRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
+  SharedReportTokenRoute: SharedReportTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

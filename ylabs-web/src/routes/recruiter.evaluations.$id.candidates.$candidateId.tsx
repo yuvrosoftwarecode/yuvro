@@ -317,10 +317,17 @@ function CandidateWorkspace() {
                   Report
                 </SecondaryAction>
                 <SecondaryAction
-                  icon={<StickyNote className="h-3.5 w-3.5" />}
-                  onClick={() => setTab("notes")}
+                  icon={<Share2 className="h-3.5 w-3.5" />}
+                  onClick={async () => {
+                    // Generate a token and link (mocked for now)
+                    const token = Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem(`shared_report_${token}`, JSON.stringify({ id, candidateId }));
+                    // Append search params so the real data can be fetched even if opened in Incognito mode where localStorage is blank
+                    const url = `${window.location.origin}/shared/report/${token}?evalId=${id}&candId=${candidateId}`;
+                    await copy(url, "Report Link");
+                  }}
                 >
-                  Add Note
+                  Generate report link
                 </SecondaryAction>
               </div>
             </div>
@@ -392,6 +399,7 @@ function CandidateWorkspace() {
               }}
             />
           )}
+
           {tab === "activity" && <ActivityPane activity={activity} />}
         </div>
 
@@ -421,7 +429,7 @@ function CandidateWorkspace() {
 
 // ============ Tabs ============
 
-function OverviewPane({
+export function OverviewPane({
   candidate,
   detail,
   onGotoLabs,
@@ -664,7 +672,7 @@ function CodingAnswerViewer({ q, userId, evaluationId }: { q: any, userId: strin
   return <pre className="whitespace-pre-wrap font-mono text-[11px] overflow-x-auto">{code}</pre>;
 }
 
-function LabsPane({
+export function LabsPane({
   ev,
   candidate,
   onOpen,
@@ -732,7 +740,7 @@ function LabsPane({
   );
 }
 
-function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
+export function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
   const assessmentSections = ev.sections.filter((s: any) => s.kind === "knowledge" || s.kind === "assessment");
   const [open, setOpen] = useState<string | null>(assessmentSections[0]?.name ?? null);
 
@@ -925,7 +933,7 @@ function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
   );
 }
 
-function VitarkaPane({
+export function VitarkaPane({
   detail,
   onDownload,
 }: {
@@ -1041,7 +1049,7 @@ function VitarkaPane({
   );
 }
 
-function ResumePane({
+export function ResumePane({
   candidate,
   detail,
   onDownload,
@@ -1134,7 +1142,7 @@ function ResumePane({
 
 
 
-function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, hasVitarka }: { events: TimelineEvent[], detail: ReturnType<typeof getCandidateDetail>, isDemo: boolean, hasLabs: boolean, hasAssessment: boolean, hasVitarka: boolean }) {
+export function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, hasVitarka }: { events: TimelineEvent[], detail: ReturnType<typeof getCandidateDetail>, isDemo: boolean, hasLabs: boolean, hasAssessment: boolean, hasVitarka: boolean }) {
   const allEvents = events.length > 0 ? events : detail.timeline;
   
   const displayEvents = allEvents.filter(t => {
@@ -1289,7 +1297,7 @@ function NotesPane({
   );
 }
 
-function ActivityPane({ activity }: { activity: ActivityEvent[] }) {
+export function ActivityPane({ activity }: { activity: ActivityEvent[] }) {
   return (
     <div>
       <SectionHeading>Activity</SectionHeading>
@@ -1422,7 +1430,7 @@ function StickySidebar({
 
 // ============ Lab drawer ============
 
-function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
+export function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
   const { section: lab, labSub, candidate } = data;
 
   return (
@@ -1551,7 +1559,7 @@ function ListBlock({
     </div>
   );
 }
-function SubMetric({
+export function SubMetric({
   label,
   value,
   onClick,
@@ -1570,7 +1578,7 @@ function SubMetric({
     </button>
   );
 }
-function RadialScore({ value }: { value: number }) {
+export function RadialScore({ value }: { value: number }) {
   const c = 2 * Math.PI * 42;
   const off = c - (value / 100) * c;
   const stroke = value >= 70 ? "#34d399" : value >= 55 ? "#f59e0b" : "#ef4444";
@@ -1677,7 +1685,7 @@ function RecBadge({ r }: { r: string }) {
     </span>
   );
 }
-function StatusPill({ s }: { s: HiringDecision }) {
+export function StatusPill({ s }: { s: HiringDecision }) {
   const map: Record<HiringDecision, string> = {
     "Pending Review": "border-amber-400/30 bg-amber-400/10 text-amber-300",
     Shortlisted: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
@@ -1694,7 +1702,7 @@ function StatusPill({ s }: { s: HiringDecision }) {
     </span>
   );
 }
-function Avatar({
+export function Avatar({
   name,
   hue,
   size = "md",
@@ -1726,7 +1734,7 @@ function Avatar({
   );
 }
 
-function tabLabel(t: Tab) {
+export function tabLabel(t: Tab) {
   return t === "labs"
     ? "Engineering Labs"
     : t === "assessment"
@@ -1740,7 +1748,7 @@ function tabLabel(t: Tab) {
 function eciColor(v: number) {
   return v >= 70 ? "text-emerald-300" : v >= 55 ? "text-amber-300" : "text-red-300";
 }
-function ecIVerdict(v: number) {
+export function ecIVerdict(v: number) {
   return v >= 85 ? "Excellent" : v >= 70 ? "Strong" : v >= 55 ? "Average" : "Below bar";
 }
 
