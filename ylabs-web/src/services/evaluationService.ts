@@ -1,6 +1,9 @@
 import { restApiUtil, yhubApiUtil } from "../utils/RestApiUtil";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 
+export let tempResumeFile: File | null = null;
+export function setTempResumeFile(file: File | null) { tempResumeFile = file; }
+
 export const evaluationService = {
   async sendRegistrationOtp(
     evaluationId: string,
@@ -26,10 +29,10 @@ export const evaluationService = {
     });
   },
 
-  async registerPublicEvaluation(evaluationId: string, accessToken?: string): Promise<any> {
+  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string): Promise<any> {
     return restApiUtil.post(
       `/skill_evaluation/evaluations/${evaluationId}/public_register/`,
-      {},
+      { resume_url: resumeUrl },
       {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       },

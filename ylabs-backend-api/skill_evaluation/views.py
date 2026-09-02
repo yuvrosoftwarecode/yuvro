@@ -103,6 +103,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             discussion_mode=DiscussionMode.AUTOMATIC
         )
         
+        resume_url = request.data.get('resume_url')
+        if resume_url:
+            from authentication.models import Profile
+            profile, _ = Profile.objects.get_or_create(user=user)
+            profile.resume_file = resume_url
+            profile.save()
+        
         CandidateTimelineEvent.objects.get_or_create(
             evaluation=evaluation,
             candidate_email=user.email,
