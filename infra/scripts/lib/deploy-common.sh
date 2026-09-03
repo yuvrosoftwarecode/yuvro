@@ -53,7 +53,7 @@ check_prerequisites() {
     aws sts get-caller-identity &>/dev/null \
         && print_success "AWS Account: $(aws sts get-caller-identity --query Account --output text)" \
         || { print_error "AWS credentials not configured — run: aws configure"; missing=1; }
-    [ $missing -eq 1 ] && { print_error "Fix missing tools and retry"; exit 1; }
+    if [ $missing -eq 1 ]; then print_error "Fix missing tools and retry"; exit 1; fi
 }
 
 check_aws_setup() {

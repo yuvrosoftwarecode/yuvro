@@ -171,3 +171,19 @@ networks:
   executor:
     driver: bridge
     external: false
+
+# ── Disable all local DB containers on dev ───────────────────────────────────
+# Dev uses RDS (ycode, ycampus) or dedicated containerised postgres that are
+# managed separately. None of the *-db services should auto-start here.
+services:
+  ycode-db:
+    profiles: ["local-only"]
+
+  ycampus-db:
+    profiles: ["local-only"]
+
+  yhub-db:
+    profiles: ["local-only"]
+
+  ylabs-db:
+    profiles: ["local-only"]
