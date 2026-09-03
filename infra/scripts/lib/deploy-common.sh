@@ -58,18 +58,18 @@ check_prerequisites() {
 
 check_aws_setup() {
     print_header "Checking AWS Setup"
-    if aws ec2 describe-key-pairs --key-names "$KEY_PAIR_NAME" --region "$AWS_REGION" &>/dev/null; then
+    # Use || true so set -e does not kill the script if describe-key-pairs returns non-zero
+    if aws ec2 describe-key-pairs --key-names "$KEY_PAIR_NAME" --region "$AWS_REGION" &>/dev/null 2>&1; then
         print_success "EC2 key pair '$KEY_PAIR_NAME' exists"
     else
-        print_warning "Creating key pair '$KEY_PAIR_NAME'..."
-        mkdir -p "$(dirname "$SSH_KEY_PATH")"
-        aws ec2 create-key-pair --key-name "$KEY_PAIR_NAME" --region "$AWS_REGION" \
-            --query 'KeyMaterial' --output text > "$SSH_KEY_PATH"
-        chmod 400 "$SSH_KEY_PATH"
-        print_success "Saved to $SSH_KEY_PATH"
+        print_warning "Key pair '$KEY_PAIR_NAME' not found in AWS — will use local SSH key"
     fi
-    [ -f "$SSH_KEY_PATH" ] || { print_error "SSH key not found: $SSH_KEY_PATH"; exit 1; }
-    print_success "SSH key exists"
+    if [ ! -f "$SSH_KEY_PATH" ]; then
+        print_error "SSH key not found: $SSH_KEY_PATH"
+        print_info "Place your EC2 key at $SSH_KEY_PATH and ensure it has chmod 400"
+        exit 1
+    fi
+    print_success "SSH key exists: $SSH_KEY_PATH"
 }
 
 # ── opentofu ──────────────────────────────────────────────────────────────────

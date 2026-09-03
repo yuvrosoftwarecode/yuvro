@@ -133,6 +133,7 @@ services:
         - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-dev.yuvrolabs.com/api}
         - VITE_YHUB_BACKEND_API_BASE_URL=${YLABS_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - VITE_YCODE_BACKEND_API_BASE_URL=${YLABS_VITE_YCODE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
+        - VITE_CODE_EXECUTOR_BASE_URL=${YLABS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${YLABS_VITE_GOOGLE_CLIENT_ID:-}
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
