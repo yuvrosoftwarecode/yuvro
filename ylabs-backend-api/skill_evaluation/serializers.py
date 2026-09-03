@@ -155,17 +155,6 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tasks_data = validated_data.pop('tasks', [])
-        if 'created_by' not in validated_data:
-            request = self.context.get('request')
-            user = getattr(request, 'user', None) if request and getattr(request.user, 'is_authenticated', False) else None
-            if not user:
-                from django.contrib.auth import get_user_model
-                User = get_user_model()
-                user = User.objects.first()
-                if not user:
-                    user = User.objects.create(username="admin", email="admin@yuvro.com")
-            validated_data['created_by'] = user
-
         question_bank = LabQuestionBank.objects.create(**validated_data)
         for task_data in tasks_data:
             LabQuestionBankTask.objects.create(

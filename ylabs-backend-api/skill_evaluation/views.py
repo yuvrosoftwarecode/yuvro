@@ -632,7 +632,6 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
         if not user:
-            from django.contrib.auth import get_user_model
             User = get_user_model()
             user = User.objects.first()
             if not user:

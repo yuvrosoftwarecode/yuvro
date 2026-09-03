@@ -101,11 +101,59 @@ function QuestionsPage() {
     setEditingId(null);
   };
 
+  const getSolutionString = (solution: any) => {
+    if (!solution) return "";
+    if (typeof solution === "string") return solution;
+    if (typeof solution === "object") {
+      if (solution["query.sql"]) return solution["query.sql"];
+      if (solution["query.js"]) return solution["query.js"];
+      if (solution["code"]) return solution["code"];
+      if (solution["solution"]) return solution["solution"];
+      if (Object.keys(solution).length > 0) return JSON.stringify(solution, null, 2);
+    }
+    return "";
+  };
+
   const handleSave = () => {
+    const preparedTasks = (formData.tasks || []).map((t: any, index: number) => {
+      let solutionObj = t.solution;
+      if (typeof t.solution === "string") {
+        const trimmed = t.solution.trim();
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+          try {
+            solutionObj = JSON.parse(trimmed);
+          } catch (e) {
+            solutionObj = { code: trimmed };
+          }
+        } else if (trimmed) {
+          const dbs = formData.databases || [];
+          if (dbs.includes("MONGODB")) {
+            solutionObj = { "query.js": trimmed };
+          } else if (dbs.includes("MYSQL") || dbs.includes("POSTGRESQL") || dbs.includes("SQLITE")) {
+            solutionObj = { "query.sql": trimmed };
+          } else {
+            solutionObj = { code: trimmed };
+          }
+        } else {
+          solutionObj = {};
+        }
+      }
+      return {
+        ...t,
+        order_index: index,
+        solution: solutionObj,
+      };
+    });
+
+    const payload = {
+      ...formData,
+      tasks: preparedTasks,
+    };
+
     if (editingId) {
-      updateMutation.mutate({ id: editingId, data: formData });
+      updateMutation.mutate({ id: editingId, data: payload });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(payload);
     }
   };
 
@@ -128,6 +176,7 @@ function QuestionsPage() {
         {
           title: "",
           description: "",
+          solution: "",
           difficulty: "EASY",
           marks: 10,
           duration_minutes: 15,
@@ -390,11 +439,21 @@ function QuestionsPage() {
                       <div className="grid gap-4 pr-8">
                         <div className="grid gap-2">
                           <Label>Task Title</Label>
-                          <Input value={task.title} onChange={(e) => updateTask(index, "title", e.target.value)} />
+                          <Input value={task.title} onChange={(e) => updateTask(index, "title", e.target.value)} placeholder="e.g. Calculate Total Revenue by Category" />
                         </div>
                         <div className="grid gap-2">
                           <Label>Description</Label>
-                          <Textarea rows={2} value={task.description} onChange={(e) => updateTask(index, "description", e.target.value)} />
+                          <Textarea rows={2} value={task.description} onChange={(e) => updateTask(index, "description", e.target.value)} placeholder="Task requirements, input schemas, and expected outputs..." />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Solution / Reference Query</Label>
+                          <Textarea 
+                            rows={3} 
+                            className="font-mono text-xs"
+                            placeholder="e.g. SELECT * FROM users; or db.orders.aggregate([...]); or JSON solution object"
+                            value={getSolutionString(task.solution)} 
+                            onChange={(e) => updateTask(index, "solution", e.target.value)} 
+                          />
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                           <div className="grid gap-2">

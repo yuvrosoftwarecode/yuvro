@@ -13,6 +13,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    resolve: {
+      alias: {
+        'react-native-fs': './src/lib/emptyStub.ts',
+      },
+    },
     optimizeDeps: {
       include: ['recharts', 'alasql', 'mingo'],
       exclude: [
