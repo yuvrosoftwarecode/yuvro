@@ -716,27 +716,6 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
-  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
-    return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
-  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
-  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
-  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo")
-    return MONGO_KIT_DEFAULT;
-  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
-  if (slug === "ui") return UI_KIT_DEFAULT;
-  if (
-    slug === "linux" ||
-    tag === "bash" ||
-    tag === "Linux Basics" ||
-    tag === "Linux Files" ||
-    tag === "Linux Perms" ||
-    tag === "Linux Processes" ||
-    tag === "Linux Network" ||
-    tag === "Linux Shell" ||
-    tag === "Linux Services"
-  )
-    return LINUX_KIT_DEFAULT;
-
   if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
     return {
       name: "js",
@@ -763,6 +742,66 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
+  if (tag === "c") {
+    return {
+      name: "c",
+      rootLabel: "project",
+      primary: "main.c",
+      runtime: "C (gcc)",
+      fileList: ["main.c", "README.md"],
+      files: {
+        "main.c": `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+  if (tag === "cpp" || tag === "c++") {
+    return {
+      name: "cpp",
+      rootLabel: "project",
+      primary: "main.cpp",
+      runtime: "C++ (g++)",
+      fileList: ["main.cpp", "README.md"],
+      files: {
+        "main.cpp": `#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+  if (tag === "java") {
+    return {
+      name: "java",
+      rootLabel: "java-101",
+      primary: "Main.java",
+      runtime: "Java 17",
+      fileList: ["Main.java", "README.md"],
+      files: {
+        "Main.java": `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+
+  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
+    return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
+  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo")
+    return MONGO_KIT_DEFAULT;
+  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
+  if (slug === "ui") return UI_KIT_DEFAULT;
+  if (
+    slug === "linux" ||
+    tag === "bash" ||
+    tag === "Linux Basics" ||
+    tag === "Linux Files" ||
+    tag === "Linux Perms" ||
+    tag === "Linux Processes" ||
+    tag === "Linux Network" ||
+    tag === "Linux Shell" ||
+    tag === "Linux Services"
+  )
+    return LINUX_KIT_DEFAULT;
   return {
     name: "java",
     rootLabel: "java-101",
@@ -892,15 +931,21 @@ export function TicketIDE({
   ticket,
   previewOverride,
   isEvaluationMode,
+  isRecruiterPreview,
   evaluationId,
   onCodeChange,
+  headerActions,
+  initialFiles,
 }: {
   slug: string;
   ticket: any;
   previewOverride: StudentPreviewOverride | null;
   isEvaluationMode?: boolean;
+  isRecruiterPreview?: boolean;
   evaluationId?: string;
   onCodeChange?: (files: Record<string, string>) => void;
+  headerActions?: React.ReactNode;
+  initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({
@@ -946,10 +991,22 @@ export function TicketIDE({
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
-  const [progLang, setProgLang] = useState<ProgLang>("python");
+  const [progLang, setProgLang] = useState<ProgLang>(() => {
+    // If initialFiles exists, try to guess the language from the file extension
+    if (initialFiles) {
+      const keys = Object.keys(initialFiles).filter(k => k.startsWith('main.'));
+      if (keys.length > 0) {
+        const ext = keys[0].split('.').pop() || '';
+        const extToLang: Record<string, ProgLang> = { py: 'python', c: 'c', cpp: 'cpp', js: 'js', java: 'java' };
+        if (extToLang[ext]) return extToLang[ext];
+      }
+    }
+    return "python";
+  });
   const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
+    if (initialFiles) return initialFiles;
     if (isReal && slug !== "knowledge") return {};
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
@@ -959,14 +1016,27 @@ export function TicketIDE({
       s[kit.primary] = previewOverride.starterCode;
     }
     return s;
-  }, [kit, isReal, previewOverride, ticket.title, ticket.description]);
+  }, [kit, isReal, previewOverride, ticket.title, ticket.description, initialFiles]);
   const primaryFile = kit.primary;
-
+  
   const [files, setFiles] = useState<Record<string, string>>(starters);
-  const [activeFile, setActiveFile] = useState<FileName>(initialFileList[0]);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
+
   const fileList = useMemo(() => Object.keys(files), [files]);
-  const [openTabs, setOpenTabs] = useState<string[]>(isReal && slug !== "knowledge" ? [] : [...initialFileList]);
+  
+  const [activeFile, setActiveFile] = useState<FileName>(() => {
+    if (initialFiles) {
+      const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
+      if (keys.length > 0) return keys[0];
+    }
+    return initialFileList[0];
+  });
+  
+  const [openTabs, setOpenTabs] = useState<string[]>(() => {
+    if (isReal && slug !== "knowledge") return [];
+    if (initialFiles) return Object.keys(initialFiles);
+    return [...initialFileList];
+  });
 
   function openFile(path: string) {
     setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
@@ -1446,12 +1516,14 @@ export function TicketIDE({
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
+    if (isMultiLang && !isJava) return "ok";
     const m = files["Main.java"];
+    if (!m) return "ok";
     if (!/class\s+\w+/.test(m) || !/public\s+static\s+void\s+main/.test(m)) return "err";
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
       return "warn";
     return "ok";
-  }, [files]);
+  }, [files, isMultiLang, isJava]);
 
   const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
   const [runId, setRunId] = useState(0);
@@ -2283,35 +2355,25 @@ export function TicketIDE({
             <Sparkles className="h-3 w-3" />
             AI Mentor
           </button>
-          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
-            <select
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="h-7 rounded-md border bg-background px-2 text-xs text-foreground focus:ring-1"
-              title="Execution Language"
-            >
-              <option value="">Auto-detect</option>
-              {Object.keys(supportedLanguages).map((lang) => (
-                <option key={lang} value={lang}>
-                  {supportedLanguages[lang].name || lang.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          )}
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
-          <button onClick={() => setIsCommitDialogOpen(true)}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
-            <GitBranch className="h-3 w-3" />Commit
-          </button>
-          <button onClick={handleSubmit}
-            disabled={submitting}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            <Send className="h-3 w-3" />
-            {submitting ? "Submitting..." : "Submit"}
-          </button>
+          {!isEvaluationMode && (
+            <button onClick={() => setIsCommitDialogOpen(true)}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
+              <GitBranch className="h-3 w-3" />Commit
+            </button>
+          )}
+          {(!isEvaluationMode || !headerActions) && (
+            <button onClick={handleSubmit}
+              disabled={submitting}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            >
+              <Send className="h-3 w-3" />
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
+          )}
+          {headerActions}
         </div>
       </div>
 
@@ -2342,9 +2404,11 @@ export function TicketIDE({
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
             {[
               { k: "problem", I: BookOpen, label: "Problem" },
-              { k: "hints", I: Lightbulb, label: "Hints" },
-              // { k: "discuss", I: MessageSquare, label: "Discuss" },
-              { k: "solution", I: Key, label: "Solution" },
+              ...(!isEvaluationMode || isRecruiterPreview ? [
+                { k: "hints", I: Lightbulb, label: "Hints" },
+                // { k: "discuss", I: MessageSquare, label: "Discuss" },
+                { k: "solution", I: Key, label: "Solution" },
+              ] : []),
             ].map(({ k, I, label }) => (
               <button
                 key={k}
@@ -2371,9 +2435,11 @@ export function TicketIDE({
             <div className="flex items-center border-b text-xs">
               {[
                 { k: "problem", label: "Problem" },
-                { k: "hints", label: "Hints" },
-                // { k: "discuss", label: "Discuss" },
-                { k: "solution", label: "Solution" },
+                ...(!isEvaluationMode || isRecruiterPreview ? [
+                  { k: "hints", label: "Hints" },
+                  // { k: "discuss", label: "Discuss" },
+                  { k: "solution", label: "Solution" },
+                ] : []),
               ].map((t) => (
                 <button
                   key={t.k}
@@ -2408,6 +2474,7 @@ export function TicketIDE({
               {tab === "solution" && (
                 <SolutionPanel
                   ticket={ticket}
+                  isPreview={isRecruiterPreview}
                   onLoadIntoEditor={(code, language) => {
                     const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
                     const ext = langMap[language.toLowerCase()] || "txt";
@@ -2422,6 +2489,7 @@ export function TicketIDE({
                   ticket={ticket}
                   elapsed={elapsed}
                   initialRevealedHints={initialRevealedHints}
+                  isPreview={isRecruiterPreview}
                   onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
                 />
               )}
@@ -4135,22 +4203,30 @@ function HintsPanel({
   elapsed,
   initialRevealedHints = [],
   onUnlock,
+  isPreview = false,
 }: {
   ticket: any;
   elapsed: number;
   initialRevealedHints?: number[];
   onUnlock: (n: number, cost: string) => void;
+  isPreview?: boolean;
 }) {
-  const [revealedHints, setRevealedHints] = useState<number[]>(initialRevealedHints);
+  const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
+  // In preview mode all hints are revealed immediately, no API needed
+  const [revealedHints, setRevealedHints] = useState<number[]>(
+    isPreview ? hints.map((_: any, i: number) => i) : initialRevealedHints
+  );
   const [showWarningDialog, setShowWarningDialog] = useState(false);
   const [targetHintIndex, setTargetHintIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setRevealedHints(initialRevealedHints);
-  }, [initialRevealedHints]);
-
-  const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
+    if (isPreview) {
+      setRevealedHints(hints.map((_: any, i: number) => i));
+    } else {
+      setRevealedHints(initialRevealedHints);
+    }
+  }, [initialRevealedHints, isPreview]);
 
   if (hints.length === 0) {
     return (
@@ -4158,13 +4234,17 @@ function HintsPanel({
         <Lightbulb className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
         <h4 className="text-sm font-medium text-foreground mb-1">No Hints Available</h4>
         <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
-          There are no hints provided for this problem. Try your best to solve it on your own!
+          No hints have been added to this question yet.
         </p>
       </div>
     );
   }
 
   const handleReveal = async (index: number) => {
+    if (isPreview) {
+      setRevealedHints(prev => [...prev, index]);
+      return;
+    }
     if (!revealedHints.includes(index)) {
       setLoading(true);
       try {
@@ -4176,7 +4256,6 @@ function HintsPanel({
         if (res?.revealed_hints) {
           setRevealedHints(res.revealed_hints);
         } else {
-          // fallback
           setRevealedHints([...revealedHints, index]);
         }
         onUnlock(index + 1, "50% Penalty");
@@ -4189,32 +4268,44 @@ function HintsPanel({
   };
 
   const attemptReveal = (index: number) => {
+    if (isPreview) {
+      handleReveal(index);
+      return;
+    }
     setTargetHintIndex(index);
     setShowWarningDialog(true);
   };
 
   return (
     <div className="space-y-3">
-      <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
-        <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
-      </div>
+      {isPreview ? (
+        <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
+          <Lightbulb className="inline h-3 w-3 mr-1" /> Recruiter preview — hints are shown without penalty.
+        </div>
+      ) : (
+        <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
+          <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
+        </div>
+      )}
 
-      <ScorePenaltyWarningDialog
-        open={showWarningDialog}
-        onOpenChange={setShowWarningDialog}
-        title="Hint Penalty Warning"
-        description={
-          <>
-            Are you sure you want to reveal this hint?<br /><br />
-            Revealing hints will result in a <strong>50% score penalty</strong> for this problem. This penalty applies once, no matter how many hints you reveal.
-          </>
-        }
-        onAcknowledge={() => {
-          if (targetHintIndex !== null) {
-            handleReveal(targetHintIndex);
+      {!isPreview && (
+        <ScorePenaltyWarningDialog
+          open={showWarningDialog}
+          onOpenChange={setShowWarningDialog}
+          title="Hint Penalty Warning"
+          description={
+            <>
+              Are you sure you want to reveal this hint?<br /><br />
+              Revealing hints will result in a <strong>50% score penalty</strong> for this problem. This penalty applies once, no matter how many hints you reveal.
+            </>
           }
-        }}
-      />
+          onAcknowledge={() => {
+            if (targetHintIndex !== null) {
+              handleReveal(targetHintIndex);
+            }
+          }}
+        />
+      )}
       
       {hints.map((hint: string, index: number) => {
         const isRevealed = revealedHints.includes(index);
@@ -5357,12 +5448,23 @@ function UiDiffView({ result }: { result: any }) {
 }
 
 
-export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void }) {
-  const [revealedSolution, setRevealedSolution] = useState(false);
-  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>([]);
+export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void, isPreview?: boolean }) {
+  // In preview mode, use ticket.solutions directly without API reveal
+  const previewSols: any[] = isPreview
+    ? (Array.isArray(ticket?.solutions) ? ticket.solutions.map((s: any) => ({
+        approach: s.approach || 'optimal',
+        language: s.language || 'python',
+        code: s.code || '',
+        title: s.title || 'Solution',
+        complexity_analysis: s.complexity_analysis || '',
+      })) : [])
+    : [];
+
+  const [revealedSolution, setRevealedSolution] = useState(isPreview);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
   const [loading, setLoading] = useState(false);
-  const [selectedApproach, setSelectedApproach] = useState<string>('optimal');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || 'optimal');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || '');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   const handleRevealSolution = async () => {
@@ -5385,6 +5487,19 @@ export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoa
       setLoading(false);
     }
   };
+
+  // Preview mode with no solutions on the ticket
+  if (isPreview && previewSols.length === 0) {
+    return (
+      <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
+        <Key className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <h4 className="text-sm font-medium text-foreground mb-1">No Solutions Added</h4>
+        <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
+          No solutions have been added to this question yet.
+        </p>
+      </div>
+    );
+  }
 
   if (!revealedSolution) {
     return (

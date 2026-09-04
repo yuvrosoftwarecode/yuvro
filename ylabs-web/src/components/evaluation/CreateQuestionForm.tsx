@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, X, Trash2, Save, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { fetchTopics, checkDuplicateQuestion } from "@/lib/recruiter";
+import { fetchTopics, checkDuplicateQuestion, PROGRAMMING_LANGUAGES } from "@/lib/recruiter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CreateQuestionForm({
@@ -168,7 +168,7 @@ export function CreateQuestionForm({
         content,
         level: topic ? "topic" : "course",
         course,
-        difficulty,
+        difficulty: difficulty.toLowerCase(),
         marks,
         duration,
         categories: ["ylabs_evaluation"],
@@ -189,11 +189,24 @@ export function CreateQuestionForm({
           expected_output: tc.expected_output.trim(),
         }));
         payload.hints = hints.filter(h => h.trim() !== "");
-        payload.solutions = solutions.filter(s => s.code.trim() !== "").map(s => ({
-          ...s,
-          title: s.title.trim() || "Optimal Solution",
-          language: s.language.trim() || "python"
-        }));
+        const usedTitles = new Set();
+        payload.solutions = solutions.filter(s => s.code.trim() !== "").map((s, idx) => {
+          let baseTitle = s.title.trim() || "Optimal Solution";
+          let finalTitle = baseTitle;
+          let counter = 1;
+          while (usedTitles.has(finalTitle.toLowerCase())) {
+            counter++;
+            finalTitle = `${baseTitle} ${counter}`;
+          }
+          usedTitles.add(finalTitle.toLowerCase());
+
+          return {
+            title: finalTitle,
+            language: s.language.trim() || "python",
+            code: s.code,
+            is_primary: s.is_primary ?? s.is_recommended ?? true
+          };
+        });
       }
 
       let res;
@@ -599,12 +612,21 @@ export function CreateQuestionForm({
                         </div>
                         <div>
                           <label className="mb-1 block text-[11px] uppercase tracking-widest text-neutral-500">Language</label>
-                          <input
+                          <Select
                             value={sol.language}
-                            onChange={(e) => handleSolutionChange(i, 'language', e.target.value)}
-                            placeholder="E.g., python, javascript"
-                            className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 p-2 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-violet-400/60 focus:bg-white dark:focus:bg-black/30"
-                          />
+                            onValueChange={(val) => handleSolutionChange(i, 'language', val)}
+                          >
+                            <SelectTrigger className="w-full h-[38px] rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-violet-400/60 focus:ring-0">
+                              <SelectValue placeholder="Select language" />
+                            </SelectTrigger>
+                            <SelectContent className="border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200">
+                              {PROGRAMMING_LANGUAGES.map((lang) => (
+                                <SelectItem key={lang} value={lang.toLowerCase()} className="text-[12px] focus:bg-neutral-100 dark:focus:bg-white/10 focus:text-neutral-900 dark:focus:text-white">
+                                  {lang}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                       <div>

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from .models import (
     Course,
@@ -467,7 +468,7 @@ class QuestionSerializer(serializers.ModelSerializer):
                     )
 
         return data
-
+    @transaction.atomic
     def create(self, validated_data):
         # Set the created_by field to the current user
         validated_data["created_by"] = self.context["request"].user
@@ -493,9 +494,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         question = super().create(validated_data)
         if solutions_data and isinstance(solutions_data, list):
             for sol_data in solutions_data:
-                QuestionSolution.objects.create(question=question, **sol_data)
+                # filter out fields not in model
+                valid_keys = {"title", "approach", "language", "code", "complexity_analysis", "is_primary"}
+                filtered_sol_data = {k: v for k, v in sol_data.items() if k in valid_keys}
+                QuestionSolution.objects.create(question=question, **filtered_sol_data)
         return question
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         # Auto-update related fields if level or subtopic/topic changes
         level = validated_data.get("level", instance.level)
@@ -524,7 +529,9 @@ class QuestionSerializer(serializers.ModelSerializer):
         if solutions_data is not None and isinstance(solutions_data, list):
             question.solutions.all().delete()
             for sol_data in solutions_data:
-                QuestionSolution.objects.create(question=question, **sol_data)
+                valid_keys = {"title", "approach", "language", "code", "complexity_analysis", "is_primary"}
+                filtered_sol_data = {k: v for k, v in sol_data.items() if k in valid_keys}
+                QuestionSolution.objects.create(question=question, **filtered_sol_data)
         return question
 
 class UserCourseProgressSerializer(serializers.ModelSerializer):

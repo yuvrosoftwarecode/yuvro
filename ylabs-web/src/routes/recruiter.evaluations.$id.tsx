@@ -672,7 +672,9 @@ function LabPreview({ l }: { l: any }) {
 function QuestionPreview({ q }: { q: any }) {
   return (
     <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
-      {q.text && <div className="whitespace-pre-wrap">{q.text}</div>}
+      {(q.text || q.content) && (
+        <div className="whitespace-pre-wrap">{q.text || q.content}</div>
+      )}
 
       {q.mcq_options && q.mcq_options.length > 0 && (
         <div className="space-y-2">
@@ -701,8 +703,47 @@ function QuestionPreview({ q }: { q: any }) {
                 <span className="text-neutral-500">Input:</span> {ex.input}
               </div>
               <div className="mt-2 text-neutral-900 dark:text-neutral-300">
-                <span className="text-neutral-500">Output:</span> {ex.output}
+                <span className="text-neutral-500">Output:</span> {ex.expected_output || ex.output}
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {q.hints && q.hints.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Hints:</div>
+          <ul className="list-inside list-disc space-y-1">
+            {q.hints.map((hint: string, i: number) => (
+              <li key={i} className="text-neutral-700 dark:text-neutral-300">
+                {hint}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {q.solutions && q.solutions.length > 0 && (
+        <div className="space-y-3">
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Solutions:</div>
+          {q.solutions.map((sol: any, i: number) => (
+            <div key={i} className="rounded border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/20 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-900 dark:text-white">
+                  {sol.title || "Solution"}
+                </span>
+                <span className="rounded bg-neutral-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:text-neutral-400">
+                  {sol.language}
+                </span>
+                {sol.is_primary && (
+                  <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] uppercase text-emerald-700 dark:text-emerald-400">
+                    Primary
+                  </span>
+                )}
+              </div>
+              <pre className="overflow-x-auto rounded bg-neutral-50 dark:bg-black/40 p-2 font-mono text-[11px] text-neutral-800 dark:text-neutral-300">
+                <code>{sol.code}</code>
+              </pre>
             </div>
           ))}
         </div>
@@ -716,7 +757,7 @@ function AssessmentQuestionItem({ q, onRemove }: { q: any; onRemove: () => void 
     <li className="flex flex-col rounded-md border border-white/5 bg-black/20 px-3 py-2.5">
       <div className="flex items-center gap-3">
         <span className="line-clamp-1 flex-1 text-[12px] text-neutral-300">
-          {q.text || q.title || "Untitled Question"}
+          {q.text || q.content || q.title || "Untitled Question"}
         </span>
         <span className="text-[10px] text-neutral-500">
           {q.difficulty} &middot; {q.marks}m &middot;{" "}
@@ -1322,7 +1363,12 @@ function QuestionDrawerItem({
 }) {
   return (
     <div className="flex flex-col rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:border-emerald-400/50 dark:hover:border-emerald-400/50 transition-colors">
-      <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1">{it.text || it.title}</div>
+      <div className="flex-1 min-w-0" onClick={() => onPreview(it)}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1 truncate">{it.text || it.content || it.title}</div>
+          <span className="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 shrink-0">{it.marks}m</span>
+        </div>
+      </div>
       <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
         {it.programming_languages?.map((x: string) => (
           <Chip key={x}>{x}</Chip>
@@ -1421,8 +1467,8 @@ function QuestionDrawer({
 
     onAdd({
       ...finalQ,
-      course_title: c ? c.name : "Other Subjects",
-      topic_title: t ? t.name : "Other Topics",
+      course_title: finalQ.course_name || (c ? c.name : "Other Subjects"),
+      topic_title: finalQ.topic_name || (t ? t.name : "Other Topics"),
     });
   };
 
@@ -1532,7 +1578,7 @@ function QuestionDrawer({
   const filtered = useMemo(
     () =>
       questions.filter((it) => {
-        const qmatch = !q || (it.text || it.title || "").toLowerCase().includes(q.toLowerCase());
+        const qmatch = !q || (it.text || it.content || it.title || "").toLowerCase().includes(q.toLowerCase());
         const lmatch =
           lang === "All" ||
           (it.programming_languages || []).map((x) => x.toUpperCase()).includes(lang.toUpperCase());
@@ -1567,7 +1613,7 @@ function QuestionDrawer({
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6 shrink-0">
               <div className="text-[16px] font-semibold text-neutral-900 dark:text-white truncate mr-4">
-                {previewQ.title || previewQ.text || "Preview"}
+                {previewQ.title || previewQ.text || previewQ.content || "Preview"}
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <button
@@ -1611,7 +1657,10 @@ function QuestionDrawer({
               </button>
             </div>
           </div>
-        ) : <div className="grid gap-2 border-b border-neutral-200 dark:border-white/5 pb-4">
+        ) : null
+      }
+    >
+      <div className="grid gap-2 border-b border-neutral-200 dark:border-white/5 pb-4">
         <div className="relative flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
@@ -1623,11 +1672,17 @@ function QuestionDrawer({
             />
           </div>
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setIsCreating(true);
+              setPreviewQ(null);
+            }}
             className="rounded-md bg-emerald-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-emerald-600 transition-colors shrink-0"
           >
             Create New Question
           </button>
+        </div>
+        <FilterRow
+          label="Programming Languages"
           value={lang}
           setValue={setLang}
           options={["All", ...PROGRAMMING_LANGUAGES]}
