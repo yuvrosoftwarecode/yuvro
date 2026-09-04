@@ -1,5 +1,7 @@
 # YHub Platform Makefile
 
+COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.yhub.yml
+
 .PHONY: setup dev dev-detached stop restart logs clean
 .PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset load-fixtures-data
 .PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
@@ -92,13 +94,17 @@ db-createsuperuser:
 	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py createsuperuser
 
 db-reset:
-	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.yhub.yml rm -s -f -v yhub-db
-	docker compose -f docker-compose.yhub.yml up -d yhub-db
+	@echo "🔄 Resetting YHub database (removing container + volume)..."
+	docker compose $(COMPOSE_FILES) stop yhub-backend yhub-db 2>/dev/null || true
+	docker compose $(COMPOSE_FILES) rm -s -f yhub-db 2>/dev/null || true
+	docker volume rm yuvro_yhub_postgres_data 2>/dev/null || true
+	@echo "🚀 Starting fresh database..."
+	docker compose $(COMPOSE_FILES) up -d yhub-db
 	@echo "⏳ Waiting for database to become healthy..."
-	@sleep 5
-	docker compose -f docker-compose.yhub.yml restart yhub-backend
-	@echo "✅ Database reset complete!"
+	@sleep 8
+	docker compose $(COMPOSE_FILES) start yhub-backend 2>/dev/null || \
+		docker compose $(COMPOSE_FILES) up -d yhub-backend
+	@echo "✅ YHub database reset complete!"
 
 
 

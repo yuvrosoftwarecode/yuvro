@@ -3467,14 +3467,21 @@ function QualityView({ code }: { code: string }) {
 }
 
 function WebPreview({ port = 8000 }: { port?: number }) {
-  const url = `http://localhost:${port}`;
+  const executorBase = (import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009").replace(/\/$/, "");
+  // In local dev, the workspace process IS accessible on localhost.
+  // In deployed environments, route through the code executor proxy so the
+  // browser doesn't try to connect to a port on its own machine.
+  const isLocalhost = executorBase.includes("localhost") || executorBase.includes("127.0.0.1");
+  const url = isLocalhost
+    ? `http://localhost:${port}`
+    : `${executorBase}/workspace/preview?port=${port}`;
   return (
     <div className="flex h-full w-full bg-white flex-col rounded border">
       <div className="flex items-center gap-2 border-b p-2 text-xs text-gray-500">
         <Globe className="h-3.5 w-3.5" />
-        <span className="font-mono">{url}</span>
+        <span className="font-mono">{isLocalhost ? `http://localhost:${port}` : `Preview (port ${port})`}</span>
       </div>
-      <iframe src={url} className="w-full flex-1" />
+      <iframe src={url} className="w-full flex-1" title={`Preview on port ${port}`} />
     </div>
   );
 }

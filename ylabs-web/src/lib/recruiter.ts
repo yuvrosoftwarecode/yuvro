@@ -181,7 +181,9 @@ export function newUid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const API_BASE = "http://localhost:8002/api/skill_evaluation";
+const API_BASE = (
+  import.meta.env.VITE_BACKEND_API_BASE_URL || "http://localhost:8002/api"
+).replace(/\/$/, "") + "/skill_evaluation";
 
 function mapBackendToFrontend(be: any): Evaluation {
   return {
