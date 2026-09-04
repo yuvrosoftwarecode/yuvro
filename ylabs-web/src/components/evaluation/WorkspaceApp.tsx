@@ -61,6 +61,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
   const search: any = useRouterState({ select: (s) => s.location.search });
   const evaluationId = previewData ? '' : (search.e || '');
+  const isPreviewMode = search.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -515,12 +516,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   useEffect(() => {
-    if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+    if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
       nav({ to: "/evaluation/proctoring", search: { e: evaluationId }, replace: true });
     }
-  }, [anySectionNeedsProctoring, proctoringData, previewData, nav, evaluationId]);
+  }, [anySectionNeedsProctoring, proctoringData, isPreviewMode, nav, evaluationId]);
 
-  if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
     return null;
   }
 

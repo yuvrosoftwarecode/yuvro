@@ -24,7 +24,7 @@ from django.core.cache import cache
 
 
 from rest_framework.views import APIView
-from .models import GithubConnection
+from .models import GithubConnection, RegistrationOTP
 import base64
 import os   
 
@@ -191,8 +191,14 @@ def public_send_otp(request):
         
     
     otp = str(random.randint(100000, 999999))
-    cache.set(f"public_registration_otp_{resource_type}_{resource_id}_{email}", otp, timeout=300)
-    cache.set(f"public_registration_otp_{resource_id}_{email}", otp, timeout=300)
+    
+    # Store OTP in DB
+    otp_record, _ = RegistrationOTP.objects.update_or_create(
+        email=email,
+        resource_id=resource_id,
+        resource_type=resource_type,
+        defaults={'otp': otp, 'expires_at': None}
+    )
     
     context = {
         "resource_title": contest_title,
@@ -207,7 +213,7 @@ def public_send_otp(request):
         html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
         
     send_mail(
-        subject=f"OTP for Registration",
+        subject=f"Yuvro OTP for Registration",
         message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[email],
@@ -241,11 +247,14 @@ def public_verify_otp(request):
     if not email or not otp or not resource_id:
         return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-    cached_otp = cache.get(f"public_registration_otp_{resource_type}_{resource_id}_{email}")
-    if not cached_otp:
-        cached_otp = cache.get(f"public_registration_otp_{resource_id}_{email}")
+    otp_record = RegistrationOTP.objects.filter(
+        email=email, 
+        resource_id=resource_id, 
+        resource_type=resource_type
+    ).first()
     
-    if cached_otp and str(cached_otp) == str(otp):
+    if otp_record and str(otp_record.otp) == str(otp) and otp_record.is_valid():
+        otp_record.delete()  # prevent reuse
         user = User.objects.filter(email=email).first()
         
         if not user:

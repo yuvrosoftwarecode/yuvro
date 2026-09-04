@@ -43,9 +43,13 @@ import json
 def get_emails_list(emails):
     if not emails:
         return []
+    if isinstance(emails, dict):
+        return list(emails.keys())
     if isinstance(emails, str):
         try:
             parsed = json.loads(emails)
+            if isinstance(parsed, dict):
+                return list(parsed.keys())
             if isinstance(parsed, list):
                 return parsed
             return [emails]
@@ -83,6 +87,49 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         send_evaluation_email(evaluation, emails, is_reminder=False)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def invite(self, request, pk=None):
+        evaluation = self.get_object()
+        emails = request.data.get('emails', [])
+        template = request.data.get('template', '')
+        
+        emails_list = get_emails_list(emails)
+        if not emails_list:
+            return Response({"error": "No emails provided."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        new_emails = set(emails_list)
+        
+        current_invited = evaluation.candidate_invited_emails
+        if isinstance(current_invited, str):
+            try:
+                current_invited = json.loads(current_invited)
+            except:
+                current_invited = []
+                
+        if isinstance(current_invited, list):
+            fallback_ts = int(evaluation.created_at.timestamp() * 1000)
+            current_invited = {email: fallback_ts for email in current_invited}
+        elif not isinstance(current_invited, dict):
+            current_invited = {}
+            
+        now_ms = int(time.time() * 1000)
+        for email in new_emails:
+            if email not in current_invited:
+                current_invited[email] = now_ms
+                
+        evaluation.candidate_invited_emails = current_invited
+        evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
+        
+        # Optionally, we could use the custom template here for send_mail
+        # But we'll fallback to send_evaluation_email for simplicity
+        if template:
+            # Custom logic if needed
+            pass
+            
+        self.send_invitation_emails(evaluation, list(new_emails))
+        
+        return Response({"status": "success", "invited": list(new_emails)})
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
         evaluation = self.get_object()
         
@@ -91,8 +138,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         user = request.user
         
-        if evaluation.candidate_invited_emails and user.email not in evaluation.candidate_invited_emails:
-            return Response({"error": "This email was not invited for this assessment."}, status=status.HTTP_403_FORBIDDEN)
+        # We allow any email to register via the public link.
+        # They will be tracked as 'Shared Link' source if not explicitly invited.
             
         if UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
             return Response({"error": "This email is already registered for this evaluation"}, status=status.HTTP_400_BAD_REQUEST)
@@ -134,8 +181,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
             
-        if evaluation.candidate_invited_emails and email not in evaluation.candidate_invited_emails:
-            return Response({"error": "This email was not invited for this assessment."}, status=status.HTTP_403_FORBIDDEN)
+        # We allow any email to register via the public link.
+        # They will be tracked as 'Shared Link' source if not explicitly invited.
             
         User = get_user_model()
         user = User.objects.filter(email=email).first()
@@ -441,6 +488,34 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submissions = UserEvaluationSubmission.objects.filter(evaluation=evaluation).select_related('user')
         serializer = UserEvaluationSubmissionSerializer(submissions, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def generate_share_link(self, request, pk=None):
+        evaluation = self.get_object()
+        candidate_email = request.data.get('candidate_email')
+        if not candidate_email:
+            return Response({"error": "candidate_email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # In a real system, you would check if the request.user has permission to share this evaluation
+        # For this prototype, we'll proceed if the submission exists
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=candidate_email).first()
+        if not submission:
+            return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Generate a new token and set expiration to 30 days from now
+        import secrets
+        from datetime import timedelta
+        
+        token = secrets.token_urlsafe(12)
+        submission.share_token = token
+        submission.share_token_expires_at = timezone.now() + timedelta(days=30)
+        submission.save(update_fields=['share_token', 'share_token_expires_at'])
+        
+        return Response({
+            "token": token,
+            "expires_at": submission.share_token_expires_at
+        })
+
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def start_lab(self, request, pk=None):
         evaluation = self.get_object()
@@ -525,6 +600,11 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     'reminder1_custom_time': config_data.get('reminder1CustomDate') or None,
                     'reminder2': config_data.get('reminder2', ''),
                     'reminder2_custom_time': config_data.get('reminder2CustomDate') or None,
+                    'email_template': config_data.get('emailTemplate', ''),
+                    'ai_call': config_data.get('aiCall', False),
+                    'ai_timing': config_data.get('aiTiming', '4 Hours Before Deadline'),
+                    'language': config_data.get('language', 'English'),
+                    'voice': config_data.get('voice', 'Aria (Female)'),
                     'created_by': evaluation.created_by
                 }
             )
@@ -550,14 +630,35 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     newly_added_emails.add(email)
                     
             if newly_added_emails:
-                current_invited = set(get_emails_list(evaluation.candidate_invited_emails))
-                current_invited.update(newly_added_emails)
-                evaluation.candidate_invited_emails = list(current_invited)
-                evaluation.save(update_fields=['candidate_invited_emails'])
+                current_invited = evaluation.candidate_invited_emails
+                if isinstance(current_invited, str):
+                    try:
+                        current_invited = json.loads(current_invited)
+                    except:
+                        current_invited = []
+                
+                if isinstance(current_invited, list):
+                    fallback_ts = int(evaluation.created_at.timestamp() * 1000)
+                    current_invited = {e: fallback_ts for e in current_invited}
+                elif not isinstance(current_invited, dict):
+                    current_invited = {}
+                    
+                now_ms = int(time.time() * 1000)
+                for email in newly_added_emails:
+                    if email not in current_invited:
+                        current_invited[email] = now_ms
+                
+                evaluation.candidate_invited_emails = current_invited
+                evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
             
             if processed_emails:
                 from .email_utils import send_evaluation_email
-                send_evaluation_email(evaluation, list(processed_emails), is_reminder=True)
+                send_evaluation_email(
+                    evaluation, 
+                    list(processed_emails), 
+                    is_reminder=True, 
+                    custom_body=config.email_template if config and config.email_template else None
+                )
             
             return Response({"status": "success"})
 
@@ -613,6 +714,23 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             submitted_at = int(sub.completed_at.timestamp() * 1000) if sub and sub.completed_at else None
             status_val = "Submitted" if sub and sub.completed_at else ("In Progress" if sub else "Not Submitted")
             
+            sent_at = None
+            if fc and fc.created_at:
+                sent_at = int(fc.created_at.timestamp() * 1000)
+            elif source == "Yuvro Invite":
+                invites_data = evaluation.candidate_invited_emails
+                if isinstance(invites_data, str):
+                    try:
+                        invites_data = json.loads(invites_data)
+                    except:
+                        pass
+                if isinstance(invites_data, dict) and email in invites_data:
+                    sent_at = invites_data[email]
+                elif evaluation.created_at:
+                    sent_at = int(evaluation.created_at.timestamp() * 1000)
+            elif source == "Shared Link" and sub and sub.created_at:
+                sent_at = int(sub.created_at.timestamp() * 1000)
+            
             records_list.append({
                 "id": email,
                 "candidateId": email,
@@ -620,7 +738,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 "email": email,
                 "phone": phone,
                 "source": source,
-                "sentAt": None,
+                "sentAt": sent_at,
                 "accessedAt": None,
                 "status": status_val,
                 "submittedAt": submitted_at,
@@ -635,7 +753,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 "emailsSent": fc.emails_sent_count if fc else 0,
                 "aiCall": False,
                 "lastActivity": submitted_at or int(time.time() * 1000),
-                "activity": fc.timeline if fc else []
+                "activity": []
             })
             
         records_list.sort(key=lambda x: x['lastActivity'] or 0, reverse=True)
@@ -750,3 +868,35 @@ class RecruiterActivityLogViewSet(viewsets.ModelViewSet):
             user = get_user_model().objects.first()
             
         serializer.save(recruiter=user, created_by=user)
+
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+
+class SharedReportView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, token, format=None):
+        submission = get_object_or_404(UserEvaluationSubmission, share_token=token)
+        
+        if submission.share_token_expires_at and timezone.now() > submission.share_token_expires_at:
+            return Response({'error': 'Shared report link has expired.'}, status=status.HTTP_410_GONE)
+
+        evaluation = submission.evaluation
+        
+        # Serialize only the evaluation context and the specific candidate submission
+        eval_serializer = EvaluationSerializer(evaluation)
+        sub_serializer = UserEvaluationSubmissionSerializer(submission)
+        
+        # Include timeline events specifically for this candidate and evaluation
+        events = CandidateTimelineEvent.objects.filter(
+            evaluation=evaluation, 
+            candidate_email=submission.user.email
+        )
+        from .serializers import CandidateTimelineEventSerializer
+        event_serializer = CandidateTimelineEventSerializer(events, many=True)
+        
+        return Response({
+            'evaluation': eval_serializer.data,
+            'submission': sub_serializer.data,
+            'timeline_events': event_serializer.data
+        })

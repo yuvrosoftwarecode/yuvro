@@ -2,11 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Plus,
-  MoreHorizontal,
   Eye,
   Copy,
   Pencil,
-  Archive,
   Trash2,
   Clock,
   Users,
@@ -30,7 +28,6 @@ export const Route = createFileRoute("/recruiter/evaluations/")({
 
 function EvaluationsList() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
-  const [menuFor, setMenuFor] = useState<string | null>(null);
   const nav = useNavigate();
   const refresh = () => listEvaluations().then(setEvals);
   useEffect(() => {
@@ -42,25 +39,17 @@ function EvaluationsList() {
     nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
   };
   const onDuplicate = async (id: string) => {
-    await duplicateEvaluation(id);
+    const newEval = await duplicateEvaluation(id);
+    if (newEval) {
+      setEvals((prev) => [newEval, ...prev]);
+    }
     refresh();
-    setMenuFor(null);
   };
   const onDelete = async (id: string) => {
     if (confirm("Delete this evaluation?")) {
       await deleteEvaluation(id);
       refresh();
     }
-    setMenuFor(null);
-  };
-  const onArchive = async (id: string) => {
-    const evals = await listEvaluations();
-    const e = evals.find((x) => x.id === id);
-    if (!e) return;
-    e.status = "draft";
-    await saveEvaluation(e);
-    refresh();
-    setMenuFor(null);
   };
 
   return (
@@ -145,14 +134,10 @@ function EvaluationsList() {
                 <div className="flex items-center justify-between border-t border-white/5 bg-black/20 px-3 py-2">
                   <div className="flex items-center gap-1">
                     <IconBtn
-                      title="Open workspace"
-                      onClick={() =>
-                        nav({
-                          to: "/recruiter/evaluations/$id/workspace",
-                          params: { id: e.id },
-                          search: { tab: "overview" },
-                        })
-                      }
+                      title="Preview"
+                      onClick={() => {
+                        window.open(`/evaluation/workspace?e=${e.id}&preview=true`, '_blank');
+                      }}
                     >
                       <Eye className="h-3.5 w-3.5" />
                     </IconBtn>
@@ -160,7 +145,7 @@ function EvaluationsList() {
                       <Copy className="h-3.5 w-3.5" />
                     </IconBtn>
                     <IconBtn
-                      title="Edit builder"
+                      title="Edit"
                       onClick={() =>
                         nav({
                           to: "/recruiter/evaluations/$id",
@@ -172,29 +157,10 @@ function EvaluationsList() {
                       <Pencil className="h-3.5 w-3.5" />
                     </IconBtn>
                   </div>
-                  <div className="relative">
-                    <IconBtn
-                      title="More"
-                      onClick={() => setMenuFor(menuFor === e.id ? null : e.id)}
-                    >
-                      <MoreHorizontal className="h-3.5 w-3.5" />
+                  <div className="flex items-center">
+                    <IconBtn title="Delete" onClick={() => onDelete(e.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
                     </IconBtn>
-                    {menuFor === e.id && (
-                      <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-xl">
-                        <button
-                          onClick={() => onArchive(e.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-neutral-300 hover:bg-white/5"
-                        >
-                          <Archive className="h-3.5 w-3.5" /> Archive
-                        </button>
-                        <button
-                          onClick={() => onDelete(e.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-red-400 hover:bg-red-500/10"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

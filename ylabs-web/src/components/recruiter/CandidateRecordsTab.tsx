@@ -63,11 +63,29 @@ export function CandidateRecordsTab({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    const load = () => {
+      fetchCandidateRecords(ev.id).then(data => {
+        if (mounted) {
+          setAll(data);
+          setLoading(false);
+        }
+      });
+    };
+    
     setLoading(true);
-    fetchCandidateRecords(ev.id).then(data => {
-      setAll(data);
-      setLoading(false);
-    });
+    load();
+    
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        load();
+      }
+    }, 5000);
+    
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, [ev.id]);
 
   const totals = useMemo(() => recordTotals(all), [all]);
@@ -304,15 +322,14 @@ export function CandidateRecordsTab({
         </div>
       </div>
 
-      {/* Table */}
-      <div className="border-t border-neutral-200">
-        <div>
+      <div className="border-t border-neutral-200 overflow-x-auto">
+        <div className="min-w-fit">
           <table className="w-full text-[12.5px]">
 
             <thead className="sticky top-0 z-10">
               <tr className="bg-neutral-900 text-left text-[11px] uppercase tracking-widest text-white">
                 {COLUMNS.filter((c) => show(c.key)).map((c) => (
-                  <th key={c.key} className="whitespace-nowrap px-3 py-2.5 font-normal">{c.label}</th>
+                  <th key={c.key} className="px-3 py-2.5 font-normal">{c.label}</th>
                 ))}
                 <th className="px-3 py-2.5 text-right font-normal">Actions</th>
               </tr>
@@ -338,7 +355,7 @@ export function CandidateRecordsTab({
                     className="cursor-pointer border-b border-black/5 text-neutral-900 hover:bg-black/[0.02]"
                   >
                     {COLUMNS.filter((c) => show(c.key)).map((c) => (
-                      <td key={c.key} className="whitespace-nowrap px-3 py-2.5 align-middle">
+                      <td key={c.key} className="px-3 py-2.5 align-middle">
                         {renderCell(r, c.key)}
                       </td>
                     ))}
@@ -369,7 +386,7 @@ export function CandidateRecordsTab({
                               <RowItem
                                 icon={<Link2 className="h-3.5 w-3.5" />}
                                 onClick={() => {
-                                  navigator.clipboard?.writeText(`${location.origin}/evaluation/${ev.id}?c=${r.candidateId}`);
+                                  navigator.clipboard?.writeText(`${location.origin}/evaluation?e=${ev.id}&c=${r.candidateId}`);
                                   notify("Assessment link copied");
                                   setMenuFor(null);
                                 }}
@@ -530,8 +547,8 @@ function cellText(r: CandidateRecord, k: ColKey): string {
 }
 
 function renderCell(r: CandidateRecord, k: ColKey) {
-  if (k === "candidate") return <span className="font-medium text-neutral-900">{r.name}</span>;
-  if (k === "email") return <span className="text-neutral-700">{r.email}</span>;
+  if (k === "candidate") return <div className="truncate max-w-[140px] font-medium text-neutral-900" title={r.name}>{r.name}</div>;
+  if (k === "email") return <div className="truncate max-w-[160px] text-neutral-700" title={r.email}>{r.email}</div>;
   if (k === "source") return <span className="text-neutral-600">{r.source}</span>;
   if (k === "sent" || k === "submitted") {
     const ts = k === "sent" ? r.sentAt : r.submittedAt;
