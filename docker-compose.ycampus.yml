@@ -30,9 +30,6 @@ services:
       - ./ycampus-backend-api/.env.local
       - path: ./ycampus-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ycampus-db:
-        condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"

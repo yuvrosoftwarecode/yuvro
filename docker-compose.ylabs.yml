@@ -32,9 +32,6 @@ services:
         required: false
       - path: ./ylabs-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ylabs-db:
-        condition: service_healthy
     volumes:
       - ./ylabs-backend-api:/app
       - ./workspaces:/workspaces
