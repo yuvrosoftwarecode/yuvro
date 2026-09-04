@@ -1,18 +1,29 @@
-# Dev environment override - uses RDS instead of local DB containers
-# Frontends and backends use the 'serve' build target (pre-built static assets, gunicorn)
-# so the dev environment behaves like production for performance.
-# Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
+# Dev environment override
+# - All backends use RDS (ycode, ycampus) or containerised postgres where RDS
+#   isn't provisioned yet (yhub, ylabs use their own postgres containers on dev).
+# - All *-db containers are excluded via profiles so they don't auto-start.
+# - Frontends use the 'serve' nginx target; ylabs uses 'development' (SSR).
 
-services: 
+services:
 
-  # Use .env.dev files for all services
+  # ── Disable local DB containers — dev uses RDS or external postgres ─────────
+  ycode-db:
+    profiles: ["local-only"]
+  ycampus-db:
+    profiles: ["local-only"]
+  yhub-db:
+    profiles: ["local-only"]
+  ylabs-db:
+    profiles: ["local-only"]
+
+  # ── Code executor ─────────────────────────────────────────────────────────
   yuvro-code-executor:
     env_file:
       - ./yuvro-code-executer/.env.dev
       - path: ./yuvro-code-executer/.env.dev-secrets
         required: false
 
-  # Backend: use production target (gunicorn, not runserver)
+  # ── YCode backend (gunicorn + RDS) ────────────────────────────────────────
   ycode-backend:
     build:
       context: ./ycode-backend-api
@@ -28,7 +39,7 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use 'serve' target (pre-built static files served by nginx)
+  # ── YCode frontend (nginx static) ─────────────────────────────────────────
   ycode-frontend:
     build:
       context: ./ycode-web
@@ -46,7 +57,6 @@ services:
       - ./ycode-web/.env.dev
       - path: ./ycode-web/.env.dev-secrets
         required: false
-    # nginx serves on port 80 inside container; host port 3000 maps to it
     ports:
       - "3000:80"
     stdin_open: false
@@ -59,7 +69,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # Backend: use production target (gunicorn, not runserver)
+  # ── YCampus backend (gunicorn + RDS) ──────────────────────────────────────
   ycampus-backend:
     build:
       context: ./ycampus-backend-api
@@ -75,7 +85,7 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use 'serve' target (pre-built static files served by nginx)
+  # ── YCampus frontend (nginx static) ───────────────────────────────────────
   ycampus-frontend:
     build:
       context: ./ycampus-web
@@ -93,7 +103,6 @@ services:
       - ./ycampus-web/.env.dev
       - path: ./ycampus-web/.env.dev-secrets
         required: false
-    # nginx serves on port 80 inside container; host port 3001 maps to it
     ports:
       - "3001:80"
     stdin_open: false
@@ -106,7 +115,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # Backend: use production target (gunicorn)
+  # ── YLabs backend (gunicorn + RDS) ────────────────────────────────────────
   ylabs-backend:
     build:
       context: ./ylabs-backend-api
@@ -123,7 +132,7 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
 
-  # Frontend: dev server (TanStack Start — SSR, no static build)
+  # ── YLabs frontend (dev server — TanStack Start SSR) ──────────────────────
   ylabs-frontend:
     build:
       context: ./ylabs-web
@@ -151,7 +160,7 @@ services:
       retries: 5
       start_period: 60s
 
-  # Backend: use production target (gunicorn)
+  # ── YHub backend (gunicorn + RDS) ─────────────────────────────────────────
   yhub-backend:
     build:
       context: ./yhub-backend-api
@@ -171,19 +180,3 @@ networks:
   executor:
     driver: bridge
     external: false
-
-# ── Disable all local DB containers on dev ───────────────────────────────────
-# Dev uses RDS (ycode, ycampus) or dedicated containerised postgres that are
-# managed separately. None of the *-db services should auto-start here.
-services:
-  ycode-db:
-    profiles: ["local-only"]
-
-  ycampus-db:
-    profiles: ["local-only"]
-
-  yhub-db:
-    profiles: ["local-only"]
-
-  ylabs-db:
-    profiles: ["local-only"]
