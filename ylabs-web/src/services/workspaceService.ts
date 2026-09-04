@@ -160,7 +160,8 @@ export async function runDatabaseQuery(
   expectedResult?: string,
   evaluationId?: string,
   taskFile?: string,
-  taskId?: string
+  taskId?: string,
+  connectionUrl?: string
 ): Promise<{ stdout: string; stderr: string; exit_code: number; evaluation?: any }> {
   const res = await fetch(`${EXECUTOR_BASE}/workspace/database_run`, {
     method: "POST",
@@ -179,9 +180,52 @@ export async function runDatabaseQuery(
       expected_result: expectedResult,
       evaluation_id: evaluationId,
       task_file: taskFile,
-      task_id: taskId
+      task_id: taskId,
+      connection_url: connectionUrl
     }),
   });
   if (!res.ok) throw new Error(`Run Database query failed: ${res.statusText}`);
+  return res.json();
+}
+
+/** Submits all database tasks for evaluation in the workspace */
+export async function submitDatabaseLab(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  tasks: Array<{
+    task_id: string;
+    task_file: string;
+    expected_query?: string;
+    expected_output?: string;
+    scoring_rules?: any;
+    system_query?: string;
+    expected_result?: string;
+  }>,
+  databaseEngine: string = "sqlite",
+  dbFile: string = "lab.db",
+  evaluationId?: string,
+  connectionUrl?: string
+): Promise<{
+  lab_score: number;
+  max_score: number;
+  percentage: number;
+  tasks: any[];
+}> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/database_submit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      tasks: tasks,
+      database_engine: databaseEngine,
+      db_file: dbFile,
+      evaluation_id: evaluationId,
+      connection_url: connectionUrl
+    }),
+  });
+  if (!res.ok) throw new Error(`Submit Database lab failed: ${res.statusText}`);
   return res.json();
 }

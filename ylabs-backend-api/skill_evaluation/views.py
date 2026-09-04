@@ -340,6 +340,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         import requests
                         import json
                         db_engine = "sqlite"
+                        if lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
+                            db_engine = "mongodb"
+                        elif lab.databases and any("mysql" in str(d).lower() for d in lab.databases):
+                            db_engine = "mysql"
+                        elif lab.databases and any("postgres" in str(d).lower() for d in lab.databases):
+                            db_engine = "postgresql"
+
                         payload_tasks = []
                         for i, task in enumerate(tasks, start=1):
                             expected_sol = task.solution or {}
@@ -347,10 +354,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             if rules.get("database_engine"):
                                 db_engine = rules.get("database_engine")
                             
+                            task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
+                            expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
+                            
                             payload_tasks.append({
                                 "task_id": str(task.id),
-                                "task_file": f"task{i}.sql",
-                                "expected_query": expected_sol.get("query.sql", ""),
+                                "task_file": f"task{i}.{task_ext}",
+                                "expected_query": expected_query,
                                 "expected_output": expected_sol.get("expected_output", ""),
                                 "scoring_rules": rules,
                                 "system_query": rules.get("system_query", ""),
@@ -627,6 +637,15 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
     serializer_class = LabQuestionBankSerializer
     permission_classes = [AllowAny]
     authentication_classes = []
+
+    def perform_create(self, serializer):
+        user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
+        if not user:
+            User = get_user_model()
+            user = User.objects.first()
+            if not user:
+                user = User.objects.create(username="admin", email="admin@yuvro.com")
+        serializer.save(created_by=user)
 
 class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabQuestionBankSubmissionSerializer

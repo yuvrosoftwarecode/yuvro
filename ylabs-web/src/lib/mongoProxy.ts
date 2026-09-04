@@ -4,8 +4,12 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" }).handle
   async ({ data }: { data: { uri: string; query: string } }) => {
     const { uri, query } = data;
 
-    if (!query.trim()) {
+    if (!query || !query.trim()) {
       return { rows: [], note: "No query provided.", ms: 0 };
+    }
+
+    if (!uri || !uri.trim()) {
+      return { error: "MongoDB connection URL is required.", rows: [], note: "", ms: 0 };
     }
 
     // Split multiple commands, e.g. db.users.insert() \n db.users.find()
@@ -14,14 +18,13 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" }).handle
       .map((s) => s.trim())
       .filter(Boolean);
 
-    // Dynamically import to ensure it strictly runs on server side and doesn't leak to client bundle
     const { MongoClient } = await import("mongodb");
 
     let client;
     try {
-      client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
+      client = new MongoClient(uri.trim(), { serverSelectionTimeoutMS: 5000 });
       await client.connect();
-      const database = client.db(); // connects to default DB in URI
+      const database = client.db();
 
       let finalResult: any[] = [];
       let finalCollection = "";
@@ -96,8 +99,76 @@ export const executeRemoteMongoQuery = createServerFn({ method: "POST" }).handle
         ms,
       };
     } catch (e: any) {
-      if (client) await client.close();
-      throw new Error(`MongoDB Error: ${e.message}`);
+      if (client) {
+        try {
+          await client.close();
+        } catch (closeErr) {}
+      }
+      const errMsg = e?.message || (typeof e === "string" ? e : "MongoDB execution failed");
+      return {
+        error: `MongoDB Error: ${errMsg}`,
+        rows: [],
+        note: "",
+        ms: 0,
+      };
     }
   },
 );
+
+export const fetchRemoteMongoSchema = createServerFn({ method: "POST" }).handler(
+  async ({ data }: { data: { uri: string } }) => {
+    const { uri } = data;
+    if (!uri || !uri.trim()) return [];
+
+    const { MongoClient } = await import("mongodb");
+    let client;
+    try {
+      client = new MongoClient(uri.trim(), { serverSelectionTimeoutMS: 5000 });
+      await client.connect();
+      const db = client.db();
+      const dbName = db.databaseName || "mongo_db";
+      const collections = await db.listCollections().toArray();
+
+      const tables: any[] = [];
+      for (const col of collections) {
+        const cName = col.name;
+        if (cName.startsWith("system.")) continue;
+        const sample = await db.collection(cName).findOne({});
+        const columns: any[] = [];
+        if (sample) {
+          for (const key of Object.keys(sample)) {
+            columns.push({
+              name: key,
+              type: typeof sample[key] === "object" && sample[key] !== null ? (sample[key]._bsontype || "Object") : typeof sample[key],
+              nullable: "YES",
+              default: "-",
+              key: key === "_id" || key === "id" ? "PK" : "-",
+            });
+          }
+        } else {
+          columns.push({ name: "_id", type: "ObjectId", nullable: "NO", default: "-", key: "PK" });
+        }
+
+        tables.push({
+          name: cName,
+          columns,
+          ddl: `// Collection: ${cName}`,
+        });
+      }
+
+      return [{
+        name: dbName,
+        type: "MongoDB",
+        tables,
+      }];
+    } catch (err: any) {
+      console.error("fetchRemoteMongoSchema error:", err.message);
+      return [];
+    } finally {
+      if (client) {
+        try { await client.close(); } catch (e) {}
+      }
+    }
+  }
+);
+
