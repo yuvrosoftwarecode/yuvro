@@ -33,9 +33,6 @@ services:
         required: false
       - path: ./yhub-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      yhub-db:
-        condition: service_healthy
     volumes:
       - ./yhub-backend-api:/app
     command: >

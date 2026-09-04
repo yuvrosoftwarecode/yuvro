@@ -1,29 +1,11 @@
-# Dev environment override
-# - All backends use RDS (ycode, ycampus) or containerised postgres where RDS
-#   isn't provisioned yet (yhub, ylabs use their own postgres containers on dev).
-# - All *-db containers are excluded via profiles so they don't auto-start.
-# - Frontends use the 'serve' nginx target; ylabs uses 'development' (SSR).
-
 services:
 
-  # ── Disable local DB containers — dev uses RDS or external postgres ─────────
-  ycode-db:
-    profiles: ["local-only"]
-  ycampus-db:
-    profiles: ["local-only"]
-  yhub-db:
-    profiles: ["local-only"]
-  ylabs-db:
-    profiles: ["local-only"]
-
-  # ── Code executor ─────────────────────────────────────────────────────────
   yuvro-code-executor:
     env_file:
       - ./yuvro-code-executer/.env.dev
       - path: ./yuvro-code-executer/.env.dev-secrets
         required: false
 
-  # ── YCode backend (gunicorn + RDS) ────────────────────────────────────────
   ycode-backend:
     build:
       context: ./ycode-backend-api
@@ -39,7 +21,6 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # ── YCode frontend (nginx static) ─────────────────────────────────────────
   ycode-frontend:
     build:
       context: ./ycode-web
@@ -69,7 +50,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── YCampus backend (gunicorn + RDS) ──────────────────────────────────────
   ycampus-backend:
     build:
       context: ./ycampus-backend-api
@@ -85,7 +65,6 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # ── YCampus frontend (nginx static) ───────────────────────────────────────
   ycampus-frontend:
     build:
       context: ./ycampus-web
@@ -115,7 +94,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # ── YLabs backend (gunicorn + RDS) ────────────────────────────────────────
   ylabs-backend:
     build:
       context: ./ylabs-backend-api
@@ -127,12 +105,10 @@ services:
       - ./ylabs-backend-api/.env.dev
       - path: ./ylabs-backend-api/.env.dev-secrets
         required: false
-    depends_on: []
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
 
-  # ── YLabs frontend (dev server — TanStack Start SSR) ──────────────────────
   ylabs-frontend:
     build:
       context: ./ylabs-web
@@ -160,7 +136,6 @@ services:
       retries: 5
       start_period: 60s
 
-  # ── YHub backend (gunicorn + RDS) ─────────────────────────────────────────
   yhub-backend:
     build:
       context: ./yhub-backend-api
@@ -170,12 +145,10 @@ services:
       - ./yhub-backend-api/.env.dev
       - path: ./yhub-backend-api/.env.dev-secrets
         required: false
-    depends_on: []
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yhub-backend-api.wsgi:application"
 
-# Override executor network - create it locally (not external)
 networks:
   executor:
     driver: bridge

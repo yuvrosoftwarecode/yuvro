@@ -30,9 +30,6 @@ services:
       - ./ycode-backend-api/.env.local
       - path: ./ycode-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ycode-db:
-        condition: service_healthy
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
