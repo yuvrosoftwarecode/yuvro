@@ -2786,6 +2786,46 @@ sqlite3() {
     await websocket.close()
 
 
+# ─── Browser Preview Proxy ────────────────────────────────────────────────────
+# Forwards the browser's preview request to a process running on the host
+# (e.g. Django runserver bound to 0.0.0.0:8010 inside the workspace terminal).
+# On dev/prod the workspace bash session runs inside this container, but the
+# process binds on the HOST network namespace (port-mapped via docker-compose),
+# so we reach it via host.docker.internal (requires extra_hosts in compose).
+import urllib.request as _urllib_req
+import urllib.error as _urllib_err
+import socket as _socket
+
+def _preview_host() -> str:
+    """Return the best host to reach workspace processes from inside this container."""
+    # Try host.docker.internal first (set via extra_hosts: host-gateway)
+    try:
+        return _socket.gethostbyname("host.docker.internal")
+    except _socket.gaierror:
+        return "localhost"
+
+@workspace_router.get("/preview")
+@workspace_router.get("/preview/{subpath:path}")
+async def workspace_preview_proxy(
+    port: int = Query(8000),
+    subpath: str = "",
+):
+    target_path = "/" + subpath if subpath else "/"
+    host = _preview_host()
+    target_url = f"http://{host}:{port}{target_path}"
+    try:
+        with _urllib_req.urlopen(_urllib_req.Request(target_url), timeout=10) as resp:
+            content = resp.read()
+            ctype = resp.headers.get("Content-Type", "text/html")
+            from fastapi.responses import Response
+            return Response(content=content, media_type=ctype)
+    except _urllib_err.URLError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Preview unavailable — no process listening on port {port}"
+        )
+
+
 app.include_router(workspace_router)
 
 # --- Face Verification Integration ---

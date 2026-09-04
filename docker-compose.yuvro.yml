@@ -9,6 +9,8 @@ services:
       - "8009:8009"  
       - "9002:9002" 
       - "8010:8010"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - ./yuvro-code-executer/.env.local
       - path: ./yuvro-code-executer/.env.local-secrets
