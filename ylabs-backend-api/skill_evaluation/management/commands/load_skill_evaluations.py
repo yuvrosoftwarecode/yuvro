@@ -133,5 +133,5 @@ class Command(BaseCommand):
                         "expected_output": task_data.get("expected_output", {}),
                         "solution": task_data.get("solution", {}),
                         "created_by": admin_user,
-                    }
+                    },
                 )

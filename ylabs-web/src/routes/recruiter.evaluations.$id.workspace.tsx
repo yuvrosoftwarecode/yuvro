@@ -88,7 +88,7 @@ const TAB_LABELS: Record<
   string
 > = {
   overview: "Overview",
-  candidates: "Candidates",
+  candidates: "Submissions",
   followups: "Follow-ups",
   records: "Candidate Records",
   intelligence: "Hiring Intelligence",
@@ -272,15 +272,100 @@ function Workspace() {
               )}
             </nav>
             <div className="flex flex-shrink-0 flex-nowrap items-center gap-2 pb-2">
-              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
-                Copy Link
-              </HeaderBtn>
               <HeaderBtn
                 onClick={() => setInviteOpen(true)}
                 icon={<Mail className="h-3.5 w-3.5" />}
               >
                 Invite Candidates
               </HeaderBtn>
+              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
+                Copy Link
+              </HeaderBtn>
+              <HeaderBtn
+                onClick={() => download("reports")}
+                icon={<Download className="h-3.5 w-3.5" />}
+              >
+                Download
+              </HeaderBtn>
+              <div className="relative">
+                <HeaderBtn
+                  onClick={() => setMoreOpen((v) => !v)}
+                  icon={<MoreHorizontal className="h-3.5 w-3.5" />}
+                >
+                  More
+                </HeaderBtn>
+                {moreOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
+                    <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
+                      <MenuItem
+                        onClick={() => {
+                          download("csv");
+                          setMoreOpen(false);
+                        }}
+                        icon={<FileText className="h-3.5 w-3.5" />}
+                      >
+                        Export CSV
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          download("xlsx");
+                          setMoreOpen(false);
+                        }}
+                        icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
+                      >
+                        Export Excel
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          emailAll();
+                          setMoreOpen(false);
+                        }}
+                        icon={<Mail className="h-3.5 w-3.5" />}
+                      >
+                        Email Candidates
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          onDuplicate();
+                          setMoreOpen(false);
+                        }}
+                        icon={<CopyIcon className="h-3.5 w-3.5" />}
+                      >
+                        Duplicate Evaluation
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          nav({ to: "/recruiter/evaluations/$id", params: { id: ev.id } });
+                        }}
+                        icon={<Pencil className="h-3.5 w-3.5" />}
+                      >
+                        Edit Evaluation
+                      </MenuItem>
+                      <div className="h-px bg-white/5" />
+                      <MenuItem
+                        onClick={() => {
+                          onArchive();
+                          setMoreOpen(false);
+                        }}
+                        icon={<Archive className="h-3.5 w-3.5" />}
+                      >
+                        Archive
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          onDelete();
+                          setMoreOpen(false);
+                        }}
+                        icon={<Trash2 className="h-3.5 w-3.5" />}
+                        danger
+                      >
+                        Delete
+                      </MenuItem>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -2910,44 +2995,7 @@ function AttentionSection({
   );
 }
 
-function AttentionTab({
-  evId,
-  candidates,
-  onGoto,
-}: {
-  evId: string;
-  candidates: Candidate[];
-  onGoto: (t: "overview" | "candidates" | "intelligence" | "attention" | "settings") => void;
-}) {
-  const nav = useNavigate();
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [noted, setNoted] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    setViewed(loadViewed(evId));
-    setNoted(
-      loadNotedSet(
-        evId,
-        candidates.map((c) => c.id),
-      ),
-    );
-  }, [evId, candidates]);
-  const openDetails = (c: Candidate) =>
-    nav({
-      to: "/recruiter/evaluations/$id/candidates/$candidateId",
-      params: { id: evId, candidateId: c.id },
-    });
-  return (
-    <div>
-      <AttentionSection
-        candidates={candidates}
-        viewed={viewed}
-        noted={noted}
-        onApply={() => onGoto("candidates")}
-        onOpen={openDetails}
-      />
-    </div>
-  );
-}
+
 // ============================ ANALYTICS ============================
 
 function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, candidates: Candidate[] }) {

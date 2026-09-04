@@ -36,3 +36,9 @@ django
 djangorestframework
 drf-yasg
 pytest-django
+
+# Database Evaluator Drivers
+psycopg2-binary
+pymysql
+pymongo
+dnspython
