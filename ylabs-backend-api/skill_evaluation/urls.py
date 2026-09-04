@@ -7,7 +7,8 @@ from .views import (
     UserLabQuestionBankSubmissionViewSet,
     CandidateNoteViewSet,
     CandidateTimelineEventViewSet,
-    RecruiterActivityLogViewSet
+    RecruiterActivityLogViewSet,
+    SharedReportView
 )
 
 router = DefaultRouter()
@@ -19,5 +20,6 @@ router.register(r'timeline-events', CandidateTimelineEventViewSet, basename='can
 router.register(r'activity-logs', RecruiterActivityLogViewSet, basename='recruiteractivitylog')
 
 urlpatterns = [
+    path('shared-report/<str:token>/', SharedReportView.as_view(), name='shared-report'),
     path('', include(router.urls)),
 ]

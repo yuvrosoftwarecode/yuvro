@@ -9,6 +9,7 @@ export type VitarkaLabel = "Excellent" | "Good" | "Average" | "Poor";
 
 export interface Candidate {
   id: string;
+  realUserId?: string;
   name: string;
   email: string;
   phone: string;
@@ -346,6 +347,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
 
       out.push({
         id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
+        realUserId: user.id,
         name,
         email,
         phone: `+91 ${Math.floor(r() * 9000000000) + 1000000000}`,
