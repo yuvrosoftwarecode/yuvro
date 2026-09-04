@@ -94,10 +94,10 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         logger.error(f"Error provisioning user lab repo: {e}")
         raise
 
-def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url):
+def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url, branch="main"):
     try:
         with open("/tmp/workspace.log", "a") as f:
-            f.write(f"Provisioning evaluation starter repo {repo_url} for {lab_uuid} in evaluation {evaluation_uuid}\n")
+            f.write(f"Provisioning evaluation starter repo {repo_url} (branch: {branch}) for {lab_uuid} in evaluation {evaluation_uuid}\n")
         repo_name = get_repo_name_from_url(repo_url)
         lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "labs", str(lab_uuid))
         os.makedirs(lab_dir, exist_ok=True)
@@ -110,9 +110,14 @@ def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url):
             
         auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
         
-        logger.info(f"Cloning {repo_url} into {target_path}")
+        clone_cmd = ["git", "clone"]
+        if branch and str(branch).strip():
+            clone_cmd.extend(["--branch", str(branch).strip(), "--single-branch"])
+        clone_cmd.extend([auth_url, target_path])
+
+        logger.info(f"Cloning {repo_url} (branch: {branch}) into {target_path}")
         subprocess.run(
-            ["git", "clone", auth_url, target_path],
+            clone_cmd,
             check=True,
             capture_output=True
         )

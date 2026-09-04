@@ -111,6 +111,7 @@ class Profile(models.Model):
         null=True,
         help_text="Resume builder configuration: template, typography, colors, section order, etc."
     )
+    resume_file = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.email}'s Profile"

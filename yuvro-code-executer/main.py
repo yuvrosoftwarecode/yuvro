@@ -1715,7 +1715,11 @@ workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 def _workspace_dir(user_id: str, lab_id: str, sprint_id: str, evaluation_id: Optional[str] = None) -> Path:
     """Return the per-student workspace directory."""
     if evaluation_id:
+        if lab_id == "knowledge":
+            return WORKSPACES_ROOT / "evaluation" / evaluation_id / "users" / user_id / "labs" / lab_id / sprint_id
         return WORKSPACES_ROOT / "evaluation" / evaluation_id / "users" / user_id / "labs" / lab_id
+    if lab_id == "knowledge":
+        return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id / sprint_id
     return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id
 
 def _safe_path(workspace: Path, relative: str) -> Path:

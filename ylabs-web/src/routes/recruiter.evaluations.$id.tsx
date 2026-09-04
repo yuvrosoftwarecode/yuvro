@@ -1321,8 +1321,8 @@ function QuestionDrawerItem({
   onPreview: (q: any) => void;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none">
-      <div className="text-[13px] text-neutral-900 dark:text-white flex-1">{it.text || it.title}</div>
+    <div className="flex flex-col rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:border-emerald-400/50 dark:hover:border-emerald-400/50 transition-colors">
+      <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1">{it.text || it.title}</div>
       <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
         {it.programming_languages?.map((x: string) => (
           <Chip key={x}>{x}</Chip>
@@ -1342,14 +1342,14 @@ function QuestionDrawerItem({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onPreview(it)}
-            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 px-2 py-1 text-[11px] text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-white dark:hover:bg-white/5 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-transparent px-2 py-1 text-[11px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 hover:text-neutral-900 dark:hover:text-white dark:hover:bg-white/5 transition-colors"
           >
             <Eye className="h-3 w-3" /> Preview
           </button>
           <button
             disabled={added}
             onClick={() => onAdd(it)}
-            className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-neutral-100 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 hover:bg-emerald-600 px-2 py-1 text-[11px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 dark:disabled:border-transparent transition-colors"
           >
             {added ? (
               <>
@@ -1572,14 +1572,14 @@ function QuestionDrawer({
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => setEditingQ(previewQ)}
-                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white"
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   title="Edit Question"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(previewQ)}
-                  className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 dark:hover:bg-white/5 hover:text-red-500 dark:hover:text-red-400"
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 dark:hover:bg-white/5 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   title="Delete Question"
                   disabled={loadingPreview}
                 >
@@ -1588,7 +1588,7 @@ function QuestionDrawer({
                 <div className="w-px h-4 bg-neutral-200 dark:bg-white/10 mx-1" />
                 <button
                   onClick={() => setPreviewQ(null)}
-                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white"
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   title="Close Preview"
                 >
                   <X className="h-4 w-4" />
@@ -1605,38 +1605,29 @@ function QuestionDrawer({
                   handleAdd(previewQ);
                   setPreviewQ(null);
                 }}
-                className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50"
+                className="rounded-md bg-emerald-500 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-emerald-600 disabled:bg-neutral-200 disabled:text-neutral-500 transition-colors"
               >
                 {existing.includes(previewQ.id) ? "Added" : "Add Question"}
               </button>
             </div>
           </div>
-        ) : null
-      }
-    >
-      <div className="grid gap-2 border-b border-white/5 pb-4">
+        ) : <div className="grid gap-2 border-b border-neutral-200 dark:border-white/5 pb-4">
         <div className="relative flex gap-2">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
             <input
+              placeholder="Search questions..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search questions…"
-              className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-8 pr-3 text-[12px] text-neutral-900 dark:text-white outline-none focus:border-violet-400/60 focus:bg-white dark:focus:bg-black/30 placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
+              className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-9 pr-3 text-[13px] text-neutral-900 dark:text-white outline-none focus:bg-white dark:focus:bg-black/30 placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
             />
           </div>
           <button
-            onClick={() => {
-              setIsCreating(true);
-              setPreviewQ(null);
-            }}
-            className="flex-shrink-0 rounded-md bg-emerald-400 px-3 py-2 text-[12px] font-medium text-black hover:bg-emerald-300 transition"
+            onClick={() => setIsCreating(true)}
+            className="rounded-md bg-emerald-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-emerald-600 transition-colors shrink-0"
           >
             Create New Question
           </button>
-        </div>
-        <FilterRow
-          label="Programming Languages"
           value={lang}
           setValue={setLang}
           options={["All", ...PROGRAMMING_LANGUAGES]}

@@ -17,6 +17,7 @@ import {
   UploadCloud,
   Trash2,
   Edit2,
+  FileText,
 } from "lucide-react";
 import { useClickOutside } from "@/hooks/use-click-outside";
 
@@ -224,6 +225,38 @@ function Profile() {
       alert(`Failed to remove image. Please try again.`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingResume(true);
+    try {
+      const updatedUser = await authService.uploadResume(file);
+      updateUser(updatedUser);
+    } catch (err) {
+      console.error(`Failed to upload resume:`, err);
+      alert(`Failed to upload resume. Please try again.`);
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
+
+  const handleRemoveResume = async () => {
+    if (!confirm(`Are you sure you want to remove your resume?`)) return;
+
+    setIsUploadingResume(true);
+    try {
+      const updatedUser = await authService.removeResume();
+      updateUser(updatedUser);
+    } catch (err) {
+      console.error(`Failed to remove resume:`, err);
+      alert(`Failed to remove resume. Please try again.`);
+    } finally {
+      setIsUploadingResume(false);
     }
   };
 
@@ -522,6 +555,60 @@ function Profile() {
               </button>
             </div>
           </form>
+        </section>
+
+        {/* ── Resume ──────────────────────────────────────────── */}
+        <section className="rounded-xl border bg-card p-5">
+          <div className="mb-4">
+            <h2 className="text-sm font-semibold">Resume</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Upload your resume for recruiters to view during evaluations.
+            </p>
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/40 p-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="grid h-9 w-9 place-items-center rounded-md bg-accent text-primary">
+                <FileText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-medium">Resume Document</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {user?.resume_file ? "Resume uploaded" : "No resume uploaded"}
+                </div>
+              </div>
+            </div>
+            {user?.resume_file ? (
+              <div className="flex gap-2">
+                <a
+                  href={user.resume_file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
+                >
+                  <LinkIcon className="h-3.5 w-3.5" /> View
+                </a>
+                <button
+                  onClick={handleRemoveResume}
+                  disabled={isUploadingResume}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                >
+                  {isUploadingResume ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Remove
+                </button>
+              </div>
+            ) : (
+              <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                {isUploadingResume ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}
+                {isUploadingResume ? "Uploading..." : "Upload Resume"}
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="sr-only"
+                  onChange={handleResumeUpload}
+                  disabled={isUploadingResume}
+                />
+              </label>
+            )}
+          </div>
         </section>
 
         {/* ── Connected accounts ──────────────────────────── */}
