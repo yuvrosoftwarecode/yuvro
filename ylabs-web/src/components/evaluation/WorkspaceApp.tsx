@@ -109,6 +109,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
+                test_command: q.test_command || undefined,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
@@ -581,6 +582,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   learning_objectives: [],
                   common_mistakes: [],
                   startup_command: lab.startup_command,
+                  test_command: (lab as any).test_command,
                 };
                 return (
                   <TicketIDE

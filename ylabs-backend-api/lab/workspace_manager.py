@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import logging
@@ -152,38 +153,21 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                 else:
                     shutil.copy2(src, dst)
 
-        from skill_evaluation.models import LabQuestionBankTask
-        tasks = LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index')
-        has_db_tasks = False
+        from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
+        from skill_evaluation.utils import is_database_lab
+
+        tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+        lab = None
         try:
-            from skill_evaluation.models import LabQuestionBank
             lab = LabQuestionBank.objects.get(id=lab_uuid)
-            if lab.databases and len(lab.databases) > 0:
-                has_db_tasks = True
         except Exception:
             pass
 
-        if not has_db_tasks:
-            for task in tasks:
-                rules = task.scoring_rules if isinstance(task.scoring_rules, dict) else {}
-                sol = task.solution if isinstance(task.solution, dict) else {}
-                
-                if rules.get("database_engine"):
-                    has_db_tasks = True
-                    break
-                if sol.get("query.sql"):
-                    has_db_tasks = True
-                    break
-                if rules.get("system_query"):
-                    has_db_tasks = True
-                    break
-
-        if has_db_tasks:
+        if is_database_lab(lab, tasks):
             num_tasks = len(tasks)
             is_mongo = False
             try:
-                lab = LabQuestionBank.objects.get(id=lab_uuid)
-                if lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
+                if lab and lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
                     is_mongo = True
             except Exception:
                 pass
@@ -199,7 +183,6 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                             os.remove(os.path.join(user_dir, fname))
                         except Exception:
                             pass
-
             for i, task in enumerate(tasks, start=1):
                 task_file = os.path.join(user_dir, f"task{i}.{ext}")
                 if not os.path.exists(task_file):
