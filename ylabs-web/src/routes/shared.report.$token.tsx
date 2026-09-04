@@ -11,11 +11,10 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import { getSharedReportByToken } from "@/lib/recruiter";
 import { getCandidates } from "@/lib/recruiterCandidates";
-import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
 import {
   getCandidateDetail,
-  loadTimelineEvents,
   type TimelineEvent,
 } from "@/lib/recruiterCandidateDetail";
 import {
@@ -64,108 +63,28 @@ function SharedReportWorkspace() {
   const [isLightMode, setIsLightMode] = useState(true); // Default to light mode (recruiter theme)
 
   useEffect(() => {
-    // Check token in localStorage (mock backend)
-    const stored = localStorage.getItem(`shared_report_${token}`);
-    
-    // For local testing: allow overriding via URL if localStorage is missing
-    const searchParams = new URLSearchParams(window.location.search);
-    const testEvalId = searchParams.get('evalId');
-    const testCandId = searchParams.get('candId');
-
-    let parsed;
-    if (stored) {
-      try {
-        parsed = JSON.parse(stored);
-      } catch {
-        setError("Invalid link format.");
-        setLoading(false);
-        return;
-      }
-    } else if (testEvalId && testCandId) {
-      console.warn("Using URL params for demo fallback.");
-      parsed = { id: testEvalId, candidateId: testCandId };
-    } else {
-      // Fallback for demonstration if localStorage fails or is empty
-      console.warn("Token not found in localStorage, using demo fallback.");
-      parsed = { 
-        id: "661a36cb-0720-457e-8e68-1cb48f5364f3", 
-        candidateId: "661a-rs",
-        fallback: true
-      };
-    }
-
     const loadData = async () => {
       try {
-        let e = await getEvaluation(parsed.id).catch(() => null);
-        const cId = parsed.candidateId;
-
-        // If backend returns 404 (due to auth), provide a fully mocked evaluation for the UI demo
-        if (!e) {
-          console.warn("Backend returned 404 (likely auth protected). Using mock evaluation data.");
-          e = {
-            id: parsed.id,
-            title: "Mocked Software Engineer Evaluation",
-            domain: "Backend",
-            status: "published",
-            createdAt: Date.now(),
-            candidatesInvited: 1,
-            candidatesCompleted: 1,
-            sections: [
-              {
-                id: "sec-1",
-                kind: "labs",
-                title: "Engineering Labs",
-                labs: [{ id: "lab-1", title: "API Debugging", duration_minutes: 45 }]
-              },
-              {
-                id: "sec-2",
-                kind: "assessment",
-                title: "Knowledge Assessment",
-                questions: [{ id: "q-1", marks: 5 }]
-              },
-              {
-                id: "sec-3",
-                kind: "discussion",
-                title: "Vitarka Discussion",
-                duration: 25
-              }
-            ]
-          };
+        const data = await getSharedReportByToken(token);
+        if (!data) {
+          setError("Invalid or expired report link.");
+          setLoading(false);
+          return;
         }
 
-        const subs = await getEvaluationSubmissions(e.id).catch(() => []);
-        const cands = getCandidates(e.id, subs || []);
-        let cand = cands.find((x) => x.id === cId) || cands[0];
+        setEv(data.evaluation);
         
-        if (!cand) {
-          console.warn("Candidate not found in generated list, using mock candidate.");
-          cand = {
-            id: cId,
-            name: "Demo Candidate",
-            email: "demo@example.com",
-            phone: "+91 9876543210",
-            college: "NIT Trichy",
-            company: "Tech Corp",
-            experience: 2,
-            domain: "Backend",
-            skills: ["Python", "Django", "React"],
-            tags: [],
-            labsScore: 85,
-            assessmentScore: 78,
-            vitarkaScore: 88,
-            eci: 84,
-            recommendation: "Strong Hire",
-            status: "Submitted",
-            hiringStatus: "Pending Review",
-            submittedAt: Date.now() - 86400000,
-            avatarHue: 120
-          };
-        }
-
-        setEv(e);
-        setCandidate(cand);
-        if (cand.email) {
-          loadTimelineEvents(e.id, cand.email).then(setTimelineEvents);
+        // Pass the single submission into getCandidates to perfectly hydrate scores, names, and logic
+        const cands = getCandidates(data.evaluation.id, [data.submission]);
+        const hydratedCand = cands[0];
+        
+        setCandidate({
+          ...hydratedCand,
+          rawSubmission: data.submission
+        });
+        
+        if (data.timelineEvents) {
+          setTimelineEvents(data.timelineEvents);
         }
         setLoading(false);
       } catch (err) {

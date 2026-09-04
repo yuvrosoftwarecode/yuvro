@@ -48,7 +48,11 @@ import { buildEvaluationSummary } from "@/lib/evaluationSummary";
 import { downloadCandidateReportPdf } from "@/lib/candidateReportPdf";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer";
-import { getEvaluation, getEvaluationSubmissions } from "@/lib/recruiter";
+import { 
+  getEvaluation, 
+  getEvaluationSubmissions,
+  generateSharedReportLink 
+} from "@/lib/recruiter";
 import {
   getCandidateDetail,
   loadNotes,
@@ -319,11 +323,13 @@ function CandidateWorkspace() {
                 <SecondaryAction
                   icon={<Share2 className="h-3.5 w-3.5" />}
                   onClick={async () => {
-                    // Generate a token and link (mocked for now)
-                    const token = Math.random().toString(36).substring(2, 15);
-                    localStorage.setItem(`shared_report_${token}`, JSON.stringify({ id, candidateId }));
-                    // Append search params so the real data can be fetched even if opened in Incognito mode where localStorage is blank
-                    const url = `${window.location.origin}/shared/report/${token}?evalId=${id}&candId=${candidateId}`;
+                    if (!candidate?.email) { notify("Candidate email not found."); return; }
+                    const result = await generateSharedReportLink(id, candidate.email);
+                    if (!result) {
+                      notify("Failed to generate report link");
+                      return;
+                    }
+                    const url = `${window.location.origin}/shared/report/${result.token}`;
                     await copy(url, "Report Link");
                   }}
                 >
