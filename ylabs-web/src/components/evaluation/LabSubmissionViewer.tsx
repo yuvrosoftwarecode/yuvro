@@ -17,10 +17,13 @@ import { sql } from '@codemirror/lang-sql';
 interface LabSubmissionViewerProps {
     userId: string;
     evaluationId: string;
-    lab: any;
-    labSub: any;
-    candidate: any;
-    onClose: () => void;
+    lab?: any;
+    labId?: string;
+    labSub?: any;
+    diffPatch?: string;
+    minutesSolved?: number;
+    candidate?: any;
+    onClose?: () => void;
 }
 
 const getLanguageExtension = (filename: string) => {
@@ -87,31 +90,136 @@ const FileTreeItem = ({ node, onSelect, selectedPath }: {
 };
 
 export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
-    userId, evaluationId, lab, labSub, candidate, onClose
+    userId, evaluationId, lab, labId, labSub, diffPatch, minutesSolved, candidate, onClose
 }) => {
     const { theme } = useTheme();
     const [activeTab, setActiveTab] = useState<'explorer' | 'source_control' | 'summary'>('explorer');
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     
-    const submittedFiles = useMemo(() => {
-        if (!labSub?.solution) return {};
-        try {
-            return JSON.parse(labSub.solution) as Record<string, string>;
-        } catch {
-            return {};
+    const { submittedFiles, fileDiffs, splitDiffs } = useMemo(() => {
+        let patchStr = diffPatch || labSub?.solution;
+        if (!patchStr) return { submittedFiles: {}, fileDiffs: {}, splitDiffs: {} };
+        
+        if (typeof patchStr === 'object') {
+            patchStr = JSON.stringify(patchStr);
         }
-    }, [labSub]);
+        
+        try {
+            if (typeof patchStr === 'string' && patchStr.trim().startsWith('{')) {
+                const parsed = JSON.parse(patchStr) as Record<string, string>;
+                const d: Record<string, any[]> = {};
+                const sd: Record<string, any[]> = {};
+                for (const k of Object.keys(parsed)) {
+                    d[k] = [{ type: 'add', text: parsed[k] }];
+                    sd[k] = [{ left: null, right: d[k][0] }];
+                }
+                return { submittedFiles: parsed, fileDiffs: d, splitDiffs: sd };
+            }
+        } catch {
+            // ignore
+        }
 
-    const changedFilesList = Object.keys(submittedFiles).filter(k => submittedFiles[k]);
+        const files: Record<string, string> = {};
+        const diffs: Record<string, { type: 'add' | 'del' | 'same', text: string }[]> = {};
+        
+        const lines = patchStr.split('\n');
+        let currentFile = '';
+        let currentContent: string[] = [];
+        let currentDiff: { type: 'add' | 'del' | 'same', text: string }[] = [];
+        let inHunk = false;
+
+        const isIgnored = (f: string) => {
+            const noise = ['.cache', '__pycache__', 'node_modules', '.npm', '.config', '.local', '.bash_history', '.python_history'];
+            return noise.some(p => f.startsWith(p + '/') || f.includes('/' + p + '/') || f === p);
+        };
+
+        const flush = () => {
+            if (currentFile && !isIgnored(currentFile)) {
+                files[currentFile] = currentContent.join('\n');
+                diffs[currentFile] = currentDiff;
+            }
+        };
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].replace(/\r$/, '');
+            if (line.startsWith('diff --git ')) {
+                flush();
+                currentContent = [];
+                currentDiff = [];
+                inHunk = false;
+                const parts = line.split(' ');
+                if (parts.length >= 4) {
+                    const bPath = parts.slice(3).join(' ');
+                    currentFile = bPath.startsWith('b/') ? bPath.substring(2) : bPath;
+                }
+            } else if (currentFile) {
+                if (line.startsWith('@@ ')) {
+                    inHunk = true;
+                } else if (inHunk) {
+                    if (line.startsWith('+')) {
+                        const txt = line.substring(1);
+                        currentContent.push(txt);
+                        currentDiff.push({ type: 'add', text: txt });
+                    } else if (line.startsWith('-')) {
+                        const txt = line.substring(1);
+                        currentDiff.push({ type: 'del', text: txt });
+                    } else if (line.startsWith(' ') && line.length > 0) {
+                        const txt = line.substring(1);
+                        currentContent.push(txt);
+                        currentDiff.push({ type: 'same', text: txt });
+                    } else if (line === '') {
+                        currentContent.push('');
+                        currentDiff.push({ type: 'same', text: '' });
+                    }
+                }
+            }
+        }
+        flush();
+        
+        // Compute split rows for each file
+        const splitDiffs: Record<string, { left: any | null, right: any | null }[]> = {};
+        for (const file of Object.keys(diffs)) {
+            const fd = diffs[file];
+            const rows: { left: any | null, right: any | null }[] = [];
+            let j = 0;
+            while (j < fd.length) {
+                if (fd[j].type === 'same') {
+                    rows.push({ left: fd[j], right: fd[j] });
+                    j++;
+                } else {
+                    const dels = [];
+                    const adds = [];
+                    while (j < fd.length && fd[j].type !== 'same') {
+                        if (fd[j].type === 'del') dels.push(fd[j]);
+                        if (fd[j].type === 'add') adds.push(fd[j]);
+                        j++;
+                    }
+                    const maxLen = Math.max(dels.length, adds.length);
+                    for (let k = 0; k < maxLen; k++) {
+                        rows.push({
+                            left: dels[k] || null,
+                            right: adds[k] || null
+                        });
+                    }
+                }
+            }
+            splitDiffs[file] = rows;
+        }
+
+        return { submittedFiles: files, fileDiffs: diffs, splitDiffs };
+    }, [labSub, diffPatch]);
+
+    const changedFilesList = Object.keys(submittedFiles);
     const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
     const [fileContent, setFileContent] = useState<string>('');
     const [isLoadingFile, setIsLoadingFile] = useState(false);
+    const [diffViewMode, setDiffViewMode] = useState<'unified' | 'split'>('unified');
     
     const [fileTree, setFileTree] = useState<FileTreeNode | null>(null);
     const [isLoadingTree, setIsLoadingTree] = useState(false);
     const [treeError, setTreeError] = useState<string | null>(null);
 
-    // Build a virtual file tree from submitted files
+    // Build a virtual file tree from submitted files as fallback
     const virtualTree = useMemo(() => {
         const root: FileTreeNode = { name: '/', path: '', type: 'directory', children: [] };
         const keys = Object.keys(submittedFiles);
@@ -145,20 +253,39 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         return root;
     }, [submittedFiles]);
 
+
+
     useEffect(() => {
         if (activeTab === 'explorer' && !fileTree && !isLoadingTree && !treeError) {
-            if (virtualTree) {
-                setFileTree(virtualTree);
+            const targetLabId = lab?.id || labId;
+            if (!targetLabId) {
+                setTreeError("No lab ID provided.");
                 return;
             }
-            
             setIsLoadingTree(true);
-            fetchFileTree(userId, lab.id, "eval", undefined, "EVALUATION", evaluationId)
-                .then(res => setFileTree(res.tree))
-                .catch(err => setTreeError(err.message))
+            const labType = lab?.domain?.toLowerCase() === 'database' ? 'sqlite' : 'other';
+            fetchFileTree(userId, targetLabId, "eval", undefined, labType, evaluationId)
+                .then(res => {
+                    if (!res.tree || (res.tree.children && res.tree.children.length === 0)) {
+                        if (virtualTree) {
+                            setFileTree(virtualTree);
+                        } else {
+                            setTreeError("Workspace inactive or empty.");
+                        }
+                    } else {
+                        setFileTree(res.tree);
+                    }
+                })
+                .catch(err => {
+                    if (virtualTree) {
+                        setFileTree(virtualTree);
+                    } else {
+                        setTreeError(err.message);
+                    }
+                })
                 .finally(() => setIsLoadingTree(false));
         }
-    }, [activeTab, fileTree, isLoadingTree, treeError, userId, lab.id, evaluationId, virtualTree]);
+    }, [activeTab, fileTree, isLoadingTree, treeError, userId, lab, labId, evaluationId, virtualTree]);
 
     const handleSelectFile = async (path: string) => {
         setSelectedFilePath(path);
@@ -169,8 +296,14 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         }
 
         setIsLoadingFile(true);
+        const targetLabId = lab?.id || labId;
+        if (!targetLabId) {
+            setFileContent("Error: No lab ID.");
+            setIsLoadingFile(false);
+            return;
+        }
         try {
-            const content = await fetchFile(userId, lab.id, "eval", path, evaluationId);
+            const content = await fetchFile(userId, targetLabId, "eval", path, evaluationId);
             setFileContent(content);
         } catch (e: any) {
             setFileContent(`Error loading file: ${e.message}`);
@@ -179,13 +312,13 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         }
     };
 
-    const timeTaken = labSub?.minutes_solved ?? 0;
+    const timeTaken = minutesSolved ?? labSub?.minutes_solved ?? 0;
     const score = labSub?.score ?? 0;
 
     const eciColor = (v: number) => v >= 70 ? "text-emerald-500" : v >= 55 ? "text-amber-500" : "text-red-500";
 
     return (
-        <div className="flex h-screen w-full bg-background font-sans overflow-hidden">
+        <div className="flex h-full w-full bg-background font-sans overflow-hidden">
             <div className="flex w-12 flex-col items-center gap-2 border-r bg-editor-panel py-4 text-muted-foreground">
                 <button 
                     onClick={() => {
@@ -233,11 +366,22 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                                 ) : treeError ? (
                                     <div className="px-4 py-2 text-sm text-destructive">Workspace inactive or unavailable.</div>
                                 ) : fileTree ? (
-                                    <FileTreeItem 
-                                        node={fileTree} 
-                                        onSelect={handleSelectFile}
-                                        selectedPath={selectedFilePath}
-                                    />
+                                    fileTree.type === 'directory' && fileTree.children ? (
+                                        fileTree.children.map((child, idx) => (
+                                            <FileTreeItem 
+                                                key={idx}
+                                                node={child} 
+                                                onSelect={handleSelectFile}
+                                                selectedPath={selectedFilePath}
+                                            />
+                                        ))
+                                    ) : (
+                                        <FileTreeItem 
+                                            node={fileTree} 
+                                            onSelect={handleSelectFile}
+                                            selectedPath={selectedFilePath}
+                                        />
+                                    )
                                 ) : null}
                             </div>
                         )}
@@ -267,13 +411,13 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                         {activeTab === 'summary' && (
                             <div className="p-4 space-y-6">
                                 <div>
-                                    <div className="text-sm font-medium text-foreground">{lab.title}</div>
-                                    <div className="text-xs text-muted-foreground mt-1">{lab.domain} · Engineering lab</div>
+                                    <div className="text-sm font-medium text-foreground">{lab?.title || 'Engineering Lab'}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">{lab?.domain || 'Backend'} · Engineering lab</div>
                                 </div>
                                 
                                 <div className="space-y-2">
                                     <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Problem Statement</div>
-                                    <p className="text-sm text-foreground leading-relaxed">{lab.problemStatement}</p>
+                                    <p className="text-sm text-foreground leading-relaxed">{lab?.problemStatement || 'No problem statement available.'}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
@@ -329,6 +473,22 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                         {selectedFilePath || 'No file selected'}
                     </div>
                     <div className="flex items-center gap-3">
+                        {activeTab === 'source_control' && selectedFilePath && (
+                            <div className="flex gap-1 text-xs">
+                                <button
+                                    onClick={() => setDiffViewMode("unified")}
+                                    className={`px-2 py-0.5 rounded transition-colors ${diffViewMode === "unified" ? "bg-primary text-primary-foreground" : "hover:bg-accent text-muted-foreground"}`}
+                                >
+                                    Unified
+                                </button>
+                                <button
+                                    onClick={() => setDiffViewMode("split")}
+                                    className={`px-2 py-0.5 rounded transition-colors ${diffViewMode === "split" ? "bg-primary text-primary-foreground" : "hover:bg-accent text-muted-foreground"}`}
+                                >
+                                    Split
+                                </button>
+                            </div>
+                        )}
                         <button onClick={onClose} className="text-xs font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:opacity-90">
                             Close Lab View
                         </button>
@@ -349,21 +509,53 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                         </div>
                     ) : (
                         <div className="absolute inset-0">
-                            <CodeMirror
-                                value={fileContent}
-                                height="100%"
-                                extensions={[getLanguageExtension(selectedFilePath)]}
-                                theme={theme === "dark" ? vscodeDark : vscodeLight}
-                                readOnly={true}
-                                basicSetup={{
-                                    lineNumbers: true,
-                                    foldGutter: true,
-                                    dropCursor: false,
-                                    allowMultipleSelections: false,
-                                    indentOnInput: false,
-                                }}
-                                className="h-full text-[13px]"
-                            />
+                            {activeTab === 'source_control' && fileDiffs[selectedFilePath] ? (
+                                <div className="h-full overflow-auto bg-editor-bg pb-10">
+                                    {diffViewMode === "unified" ? (
+                                        <table className="w-full text-[13px] font-mono leading-relaxed">
+                                            <tbody>
+                                                {fileDiffs[selectedFilePath].map((d, i) => (
+                                                    <tr key={i} className={`${d.type === "add" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : d.type === "del" ? "bg-red-500/10 text-red-600 dark:text-red-400" : "text-foreground"}`}>
+                                                        <td className="px-3 py-0.5 w-4 select-none opacity-50 border-r border-border/50 text-right">
+                                                            {d.type === "add" ? "+" : d.type === "del" ? "-" : " "}
+                                                        </td>
+                                                        <td className="px-4 py-0.5 whitespace-pre break-all">{d.text}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="table w-full text-[13px] font-mono leading-relaxed pb-10">
+                                            {splitDiffs[selectedFilePath].map((row, i) => (
+                                                <div key={i} className="table-row">
+                                                    <div className={`table-cell w-1/2 border-r border-border/50 align-top ${row.left?.type === "del" ? "bg-red-500/10 text-red-600 dark:text-red-400" : row.left ? "text-foreground bg-editor-bg" : "bg-transparent"}`}>
+                                                        <div className="px-4 py-0.5 whitespace-pre-wrap break-all min-h-[22px]">{row.left?.text ?? " "}</div>
+                                                    </div>
+                                                    <div className={`table-cell w-1/2 align-top ${row.right?.type === "add" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : row.right ? "text-foreground bg-editor-bg" : "bg-transparent"}`}>
+                                                        <div className="px-4 py-0.5 whitespace-pre-wrap break-all min-h-[22px]">{row.right?.text ?? " "}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <CodeMirror
+                                    value={fileContent}
+                                    height="100%"
+                                    extensions={[getLanguageExtension(selectedFilePath)]}
+                                    theme={theme === "dark" ? vscodeDark : vscodeLight}
+                                    readOnly={true}
+                                    basicSetup={{
+                                        lineNumbers: true,
+                                        foldGutter: true,
+                                        dropCursor: false,
+                                        allowMultipleSelections: false,
+                                        indentOnInput: false,
+                                    }}
+                                    className="h-full text-[13px]"
+                                />
+                            )}
                         </div>
                     )}
                 </div>

@@ -36,7 +36,7 @@ interface RealLab {
   tag: string;
   minutes: number;
   problem: string;
-  tasks: { id: string; title: string; description: string }[];
+  tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
   file: string;
   code: string;
   terminal: string[];
@@ -61,6 +61,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
   const search: any = useRouterState({ select: (s) => s.location.search });
   const evaluationId = previewData ? '' : (search.e || '');
+  const isPreviewMode = search.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -101,16 +102,23 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
-                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
-                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
+                tag: (
+                  (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                  (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
+                  "bash"
+                ).toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
+                test_command: q.test_command || undefined,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
                       title: t.title || "Task",
-                      description: t.description || ""
+                      description: t.description || "",
+                      scoring_rules: t.scoring_rules,
+                      solution: t.solution,
+                      expected_output: t.expected_output
                     }))
                   : typeof q.tasks === 'number'
                   ? Array.from({ length: q.tasks }).map((_, i) => ({
@@ -137,7 +145,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               questions: (sec.questions || []).map((q: any) => {
                 const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
                 let mappedOptions = q.options || [];
-                let mappedCorrect = q.correct_answer ?? 0;
+                let mappedCorrect: any = q.correct_answer ?? 0;
+                
+                if (q.format === "Coding" || q.format === "CODING") {
+                  let solText = "";
+                  if (q.solutions && q.solutions.length > 0) {
+                    solText = q.solutions.map((s: any) => s.code || s.title || "").filter(Boolean).join("\n---\n");
+                  }
+                  mappedCorrect = solText || q.correct_answer || q.solution || "";
+                }
                 
                 if (isMcq) {
                   mappedOptions = q.mcq_options.map((opt: any) => opt.text || "");
@@ -203,6 +219,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, any>>({}); // Maps question id to its answer
   const [marked, setMarked] = useState<Record<string, Set<string>>>({}); // Maps section id to set of marked question ids
+  const [qIndex, setQIndex] = useState(0);
   const [submittedSections, setSubmittedSections] = useState<Set<string>>(new Set());
   
   const [codingCode, setCodingCode] = useState<Record<string, string>>({});
@@ -212,7 +229,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const discussionTriggered = useRef(false);
@@ -274,12 +291,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       const discussionSection = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
       if (discussionSection) {
         setSection(discussionSection.id);
-      } else {
-        setSection("discussion-dummy"); 
+        setOpenLab(null);
+        setActiveQuestionId(null);
+        setModal({ kind: "discussion-starting" });
       }
-      setOpenLab(null);
-      setActiveQuestionId(null);
-      setModal({ kind: "discussion-starting" });
     }
     if (remaining === 0) submitEvaluation();
   }, [remaining]);
@@ -294,8 +309,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
              setTimeout(() => {
-               try { document.exitFullscreen?.(); } catch {}
-               nav({ to: "/evaluation/complete" });
+               submitEvaluation();
              }, 3000);
           } else {
              setModal({ kind: "tab-warning" });
@@ -336,6 +350,20 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     const onMessage = async (e: MessageEvent) => {
       if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
+        const activeSection = appSections.find(s => s.id === section);
+        if (activeSection?.type === "KNOWLEDGE_ASSESSMENT") {
+          const qList = activeSection.questions || [];
+          const isCodingQuestion = qList.some((q: any) => q.id === e.data.labId);
+          if (isCodingQuestion) {
+            if (qIndex < qList.length - 1) {
+              setQIndex(qIndex + 1);
+            } else {
+              setModal({ kind: "submit-section", id: activeSection.id });
+            }
+            return;
+          }
+        }
+
         try {
           if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done" });
         } catch (err) {
@@ -348,7 +376,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [evaluationId]);
+  }, [evaluationId, appSections, section, qIndex]);
 
   // Autosave feel
   const touchAutosave = () => {
@@ -381,13 +409,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     if (section === secId) return "current";
     return "not-started";
   };
-  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW" || section === "discussion-dummy";
+  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW";
   const discussionStatus = isDiscussionSection ? "current" : "not-started";
-
-  const [qIndex, setQIndex] = useState(0);
-
   const goSection = (s: string) => {
-    const isDiscussion = appSections.find(x => x.id === s)?.type === "VITARKA_AI_INTERVIEW" || s === "discussion-dummy";
+    const isDiscussion = appSections.find(x => x.id === s)?.type === "VITARKA_AI_INTERVIEW";
     if (locked && !isDiscussion) return;
     setSection(s);
     setOpenLab(null);
@@ -420,10 +445,18 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       if (sec && sec.type === "KNOWLEDGE_ASSESSMENT" && sec.questions) {
         sec.questions.forEach((q: any) => {
           if (answers[q.id] !== undefined) {
+            let isCorrect = answers[q.id] === q.correct;
+            if (typeof answers[q.id] === "string" && typeof q.correct === "string") {
+              if (q.format?.toUpperCase() === "CODING") {
+                const normUser = answers[q.id].replace(/\s+/g, "").replace(/'/g, '"');
+                const normCorrect = q.correct.replace(/\s+/g, "").replace(/'/g, '"');
+                isCorrect = normUser === normCorrect;
+              }
+            }
             richAnswers.push({
               question_id: q.id,
               selected_option: answers[q.id],
-              is_correct: answers[q.id] === q.correct
+              is_correct: isCorrect
             });
           }
         });
@@ -432,7 +465,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
-    setModal(null);
+    const idx = appSections.findIndex(s => s.id === secId);
+    if (idx !== -1 && idx + 1 < appSections.length) {
+      goSection(appSections[idx + 1].id);
+      setModal(null);
+    } else {
+      setModal({ kind: "submit-evaluation" });
+    }
   };
 
   const setAnswer = (qId: string, opt: any) => {
@@ -477,12 +516,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   useEffect(() => {
-    if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+    if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
       nav({ to: "/evaluation/proctoring", search: { e: evaluationId }, replace: true });
     }
-  }, [anySectionNeedsProctoring, proctoringData, previewData, nav, evaluationId]);
+  }, [anySectionNeedsProctoring, proctoringData, isPreviewMode, nav, evaluationId]);
 
-  if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
     return null;
   }
 
@@ -528,7 +567,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
-                  tasks: lab.tasks.map(t => ({ id: t.id, title: t.title, description: t.description })),
+                  tasks: lab.tasks.map(t => ({ 
+                    id: t.id, 
+                    title: t.title, 
+                    description: t.description,
+                    scoring_rules: t.scoring_rules,
+                    solution: t.solution,
+                    expected_output: t.expected_output
+                  })),
                   difficulty: "Intermediate",
                   xp: 100,
                   estMin: lab.minutes,
@@ -537,6 +583,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   learning_objectives: [],
                   common_mistakes: [],
                   startup_command: lab.startup_command,
+                  test_command: (lab as any).test_command,
                 };
                 return (
                   <TicketIDE
@@ -554,9 +601,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   labs={sec.labs}
                   submitted={submittedLabs}
                   onOpen={(id) => setOpenLab(id)}
+                  nextSectionTitle={appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title : undefined}
                   onFinishSection={() => {
                     const idx = appSections.findIndex(s => s.id === sec.id);
-                    if (idx + 1 < appSections.length) goSection(appSections[idx + 1].id);
+                    if (idx + 1 < appSections.length) {
+                      goSection(appSections[idx + 1].id);
+                    } else {
+                      setModal({ kind: "submit-evaluation" });
+                    }
                   }}
                 />
               );
@@ -583,6 +635,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   }}
                   onBack={() => {}}
                   onSubmit={() => setModal({ kind: "submit-section", id: sec.id })}
+                  onFinishSection={() => {
+                    const idx = appSections.findIndex(s => s.id === sec.id);
+                    if (idx + 1 < appSections.length) {
+                      goSection(appSections[idx + 1].id);
+                    } else {
+                      setModal({ kind: "submit-evaluation" });
+                    }
+                  }}
+                  nextSectionTitle={appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title : undefined}
                   codingCode={codingCode}
                   setCodingCode={(qId, val) => setCodingCode(prev => ({ ...prev, [qId]: val }))}
                   codingResults={codingResults}
@@ -609,12 +670,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
             }
             return null;
           })}
-          {section === "discussion-dummy" && (
-            <VitarkaInterviewScreen
-              mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
-              onEnd={() => setModal({ kind: "end-discussion" })}
-            />
-          )}
         </main>
       </div>
 
@@ -642,6 +697,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="End the engineering discussion?"
           body="This will conclude your evaluation and generate your report."
           confirm="End and submit"
+          onConfirm={submitEvaluation}
+          onCancel={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "submit-evaluation" && (
+        <Confirm
+          title="Submit the evaluation?"
+          body="This will conclude your evaluation and generate your report."
+          confirm="Submit evaluation"
           onConfirm={submitEvaluation}
           onCancel={() => setModal(null)}
         />
@@ -761,7 +825,7 @@ function StatusDot({ label, tone }: { label: string; tone: "ok" | "warn" }) {
 
 function sectionLabel(s: string | null, appSections: AppSection[]) {
   if (!s) return "";
-  if (s === "discussion-dummy") return "Engineering Discussion";
+
   if (s === "knowledge") return "Knowledge Assessment";
   const sec = appSections.find(x => x.id === s);
   return sec ? sec.title : s;
@@ -997,19 +1061,11 @@ function Sidebar({
           </SectionItem>
         )}
 
-        {discussionSection ? (
+        {discussionSection && (
           <SectionItem
             n={getNum()} label={discussionSection.title} status={discussionStatus}
             hint="Last 15 minutes"
             onClick={() => onSelectSection(discussionSection.id)}
-            disabled={discussionStatus === "locked"}
-          />
-        ) : (
-          <SectionItem
-            key="discussion-dummy"
-            n={getNum()} label="Engineering Discussion" status={discussionStatus}
-            hint="Last 15 minutes"
-            onClick={() => onSelectSection("discussion-dummy")}
             disabled={discussionStatus === "locked"}
           />
         )}
@@ -1057,7 +1113,7 @@ function StatusChip({ status }: { status: Status }) {
 // Section: Labs
 // ────────────────────────────────────────────────────────────────────────────
 
-function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void }) {
+function LabsList({ labs, submitted, onOpen, onFinishSection, nextSectionTitle }: { labs: RealLab[]; submitted: Set<LabId>; onOpen: (id: LabId) => void; onFinishSection: () => void; nextSectionTitle?: string }) {
   const allDone = submitted.size === labs.length;
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
@@ -1088,7 +1144,7 @@ function LabsList({ labs, submitted, onOpen, onFinishSection }: { labs: RealLab[
       <div className="mt-8 flex items-center justify-between">
         <span className="text-[12px] text-neutral-500">{submitted.size} of {labs.length} submitted</span>
         <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-          Continue to Knowledge Assessment →
+          {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
     </div>
@@ -1236,7 +1292,7 @@ function LabDetail({ lab, tasks, submitted, onToggleTask, onBack, onSubmit }: { 
 // Section: Knowledge Assessment
 // ────────────────────────────────────────────────────────────────────────────
 
-function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { sections: any[]; submitted: Set<string>; onOpen: (id: string) => void; onFinishSection: () => void }) {
+function KnowledgeList({ sections, submitted, onOpen, onFinishSection, nextSectionTitle }: { sections: any[]; submitted: Set<string>; onOpen: (id: string) => void; onFinishSection: () => void; nextSectionTitle?: string }) {
   const allDone = sections.length > 0 && sections.every(s => submitted.has(s.id));
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
@@ -1259,7 +1315,7 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { secti
       <div className="mt-8 flex items-center justify-between">
         <span className="text-[12px] text-neutral-500">{Array.from(submitted).filter(id => sections.some(s => s.id === id)).length} of {sections.length} submitted</span>
         <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-          Continue to Engineering Discussion →
+          {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
     </div>
@@ -1268,13 +1324,13 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection }: { secti
 
 function KnowledgeRunner({
   subject, submitted, index, setIndex, answers, marked,
-  setAnswer, clearAnswer, onMark, onBack, onSubmit,
+  setAnswer, clearAnswer, onMark, onBack, onSubmit, onFinishSection, nextSectionTitle,
   codingCode, setCodingCode, codingResults, runCode, evaluationId
 }: {
   subject: any; submitted: boolean; index: number; setIndex: (i: number) => void;
   answers: Record<string, any>; marked: Set<string>;
   setAnswer: (qId: string, val: any) => void; clearAnswer: (qId: string) => void; onMark: (qId: string) => void;
-  onBack: () => void; onSubmit: () => void;
+  onBack: () => void; onSubmit: () => void; onFinishSection?: () => void; nextSectionTitle?: string;
   codingCode: Record<string, string>; setCodingCode: (qId: string, val: string) => void;
   codingResults: Record<string, { name: string; pass: boolean }[] | null>; runCode: (qId: string) => void; evaluationId?: string;
 }) {
@@ -1306,17 +1362,21 @@ function KnowledgeRunner({
              <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
              {index < subject.questions.length - 1 ? (
                <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
+             ) : submitted ? (
+               <button onClick={onFinishSection} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+                 {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
+               </button>
              ) : (
-               <button onClick={onSubmit} disabled={submitted} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-                 {submitted ? "Submitted" : `Submit ${subject.title}`}
+               <button onClick={onSubmit} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+                 Submit {subject.title}
                </button>
              )}
           </div>
         </div>
 
         <div className="min-h-0 flex-1">
-          <TicketIDE slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true}
-                    evaluationId={evaluationId} />
+          <TicketIDE key={mappedTicket.id} slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true}
+                    evaluationId={evaluationId} onCodeChange={(files) => setAnswer(q.id, Object.values(files).join('\n\n'))} />
         </div>
       </div>
     );
@@ -1384,9 +1444,13 @@ function KnowledgeRunner({
             <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
             {index < subject.questions.length - 1 ? (
               <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
+            ) : submitted ? (
+              <button onClick={onFinishSection} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+                {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
+              </button>
             ) : (
-              <button onClick={onSubmit} disabled={submitted} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
-                {submitted ? "Submitted" : `Submit ${subject.title}`}
+              <button onClick={onSubmit} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+                Submit {subject.title}
               </button>
             )}
           </div>

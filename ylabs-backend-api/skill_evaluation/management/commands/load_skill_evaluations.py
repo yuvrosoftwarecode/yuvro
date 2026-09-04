@@ -102,6 +102,7 @@ class Command(BaseCommand):
                 title=q_data["title"],
                 defaults={
                     "description": q_data.get("description", ""),
+                    "type": q_data.get("type", "BACKEND"),
                     "difficulty": q_data.get("difficulty", "MEDIUM"),
                     "domain": q_data.get("domain", "OTHER"),
                     "experience": q_data.get("experience", "FRESHER"),
@@ -109,7 +110,9 @@ class Command(BaseCommand):
                     "marks": q_data.get("marks", 50),
                     "scenario": q_data.get("scenario", "FEATURE_DEVELOPMENT"),
                     "git_repo_starter_url": q_data.get("git_repo_starter_url", ""),
+                    "git_repo_starter_branch": q_data.get("git_repo_starter_branch", "main"),
                     "startup_command": q_data.get("startup_command", ""),
+                    "test_command": q_data.get("test_command", ""),
                     "programming_languages": q_data.get("programming_languages", []),
                     "databases": q_data.get("databases", []),
                     "backend_frameworks": q_data.get("backend_frameworks", []),
@@ -132,5 +135,5 @@ class Command(BaseCommand):
                         "expected_output": task_data.get("expected_output", {}),
                         "solution": task_data.get("solution", {}),
                         "created_by": admin_user,
-                    }
+                    },
                 )

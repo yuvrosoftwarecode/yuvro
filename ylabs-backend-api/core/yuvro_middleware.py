@@ -53,6 +53,12 @@ class ProductJWTAuthentication(JWTAuthentication):
             if needs_save:
                 user.save()
                 
+            token_resume = validated_token.get("resume_file")
+            profile, created = Profile.objects.get_or_create(user=user)
+            if token_resume and profile.resume_file != token_resume:
+                profile.resume_file = token_resume
+                profile.save()
+                
         except User.DoesNotExist:
             username = validated_token.get("username", str(user_id))
             email = validated_token.get("email", "")
@@ -76,7 +82,11 @@ class ProductJWTAuthentication(JWTAuthentication):
             # Do not persist the internal sync user to the database
             if email != "admin_sync@yhub.internal":
                 user.save()
-                Profile.objects.get_or_create(user=user)
+                profile, _ = Profile.objects.get_or_create(user=user)
+                token_resume = validated_token.get("resume_file")
+                if token_resume:
+                    profile.resume_file = token_resume
+                    profile.save()
 
         if not user.is_active:
             raise AuthenticationFailed("User is inactive", code="user_inactive")

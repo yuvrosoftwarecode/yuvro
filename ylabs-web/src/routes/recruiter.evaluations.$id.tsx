@@ -1311,8 +1311,8 @@ function QuestionDrawerItem({
   onPreview: (q: any) => void;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-white/5 bg-white/[0.02] p-3">
-      <div className="text-[13px] text-white flex-1">{it.text || it.title}</div>
+    <div className="flex flex-col rounded-lg border border-neutral-200 bg-white p-3 shadow-sm hover:border-emerald-400/50 transition-colors">
+      <div className="text-[13px] text-neutral-900 font-medium flex-1">{it.text || it.title}</div>
       <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
         {it.programming_languages?.map((x: string) => (
           <Chip key={x}>{x}</Chip>
@@ -1332,14 +1332,14 @@ function QuestionDrawerItem({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onPreview(it)}
-            className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-neutral-300 hover:bg-white/5"
+            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
           >
             <Eye className="h-3 w-3" /> Preview
           </button>
           <button
             disabled={added}
             onClick={() => onAdd(it)}
-            className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-white/10 disabled:text-neutral-500"
+            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600 disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 transition-colors"
           >
             {added ? (
               <>
@@ -1469,13 +1469,13 @@ function QuestionDrawer({
       leftPanel={
         previewQ && (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-white/5 p-6">
-              <div className="text-[16px] font-semibold text-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 p-6">
+              <div className="text-[16px] font-semibold text-neutral-900">
                 {previewQ.title || previewQ.text || "Preview"}
               </div>
               <button
                 onClick={() => setPreviewQ(null)}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-white/5 hover:text-white"
+                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1483,14 +1483,14 @@ function QuestionDrawer({
             <div className="flex-1 overflow-y-auto p-6">
               <QuestionPreview q={previewQ} />
             </div>
-            <div className="border-t border-white/5 p-5 flex justify-end">
+            <div className="border-t border-neutral-200 p-5 flex justify-end">
               <button
                 disabled={existing.includes(previewQ.id)}
                 onClick={() => {
                   handleAdd(previewQ);
                   setPreviewQ(null);
                 }}
-                className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50"
+                className="rounded-md bg-emerald-500 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-emerald-600 disabled:bg-neutral-200 disabled:text-neutral-500 transition-colors"
               >
                 {existing.includes(previewQ.id) ? "Added" : "Add Question"}
               </button>
@@ -1499,14 +1499,14 @@ function QuestionDrawer({
         )
       }
     >
-      <div className="grid gap-2 border-b border-white/5 pb-4">
+      <div className="grid gap-2 border-b border-neutral-200 pb-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search questions…"
-            className="w-full rounded-md border border-white/10 bg-black/30 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-violet-400/60"
+            className="w-full rounded-md border border-neutral-200 bg-neutral-50 py-2 pl-8 pr-3 text-[12px] text-neutral-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
           />
         </div>
         <FilterRow
@@ -1596,7 +1596,7 @@ function FilterRow({
           <button
             key={o}
             onClick={() => setValue(o)}
-            className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${value === o ? "border-emerald-400/50 bg-emerald-50 text-emerald-700" : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}`}
           >
             {o}
           </button>
@@ -1625,7 +1625,7 @@ function FilterRowObj({
           <button
             key={o.value}
             onClick={() => setValue(o.value)}
-            className={`rounded-md border px-2 py-0.5 text-[11px] ${value === o.value ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${value === o.value ? "border-emerald-400/50 bg-emerald-50 text-emerald-700" : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}`}
           >
             {o.label}
           </button>
@@ -1636,7 +1636,7 @@ function FilterRowObj({
 }
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-neutral-400">
+    <span className="rounded-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 text-neutral-600">
       {children}
     </span>
   );

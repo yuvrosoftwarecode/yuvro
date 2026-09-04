@@ -9,6 +9,7 @@ export type VitarkaLabel = "Excellent" | "Good" | "Average" | "Poor";
 
 export interface Candidate {
   id: string;
+  realUserId?: string;
   name: string;
   email: string;
   phone: string;
@@ -28,6 +29,7 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  resumeUrl?: string;
   rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
@@ -266,6 +268,15 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
       const realProctoringEvents = Array.isArray(sub.proctoring_events) ? sub.proctoring_events : [];
       const realGeneralEvents = Array.isArray(sub.general_events) ? sub.general_events : [];
       const allRealEvents = [...realProctoringEvents, ...realGeneralEvents];
+
+      if (Array.isArray(sub.question_activities)) {
+        sub.question_activities.forEach((q: any, index: number) => {
+          const qNo = `Q${index + 1}`;
+          if (Array.isArray(q.navigation_activities)) allRealEvents.push(...q.navigation_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+          if (Array.isArray(q.proctoring_activities)) allRealEvents.push(...q.proctoring_activities.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+          if (Array.isArray(q.camera_snapshots)) allRealEvents.push(...q.camera_snapshots.map((e: any) => ({ ...e, question_title: q.question_title, question_no: qNo })));
+        });
+      }
       
       const violationTypes = [
           'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
@@ -336,6 +347,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
 
       out.push({
         id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
+        realUserId: user.id,
         name,
         email,
         phone: `+91 ${Math.floor(r() * 9000000000) + 1000000000}`,
@@ -365,6 +377,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
           events: timelineEvents,
           sections: sectionsMap,
         },
+        resumeUrl: user.resume_url,
         rawSubmission: sub
       });
   }

@@ -24,7 +24,7 @@ from django.core.cache import cache
 
 
 from rest_framework.views import APIView
-from .models import GithubConnection
+from .models import GithubConnection, RegistrationOTP
 import base64
 import os   
 
@@ -191,8 +191,14 @@ def public_send_otp(request):
         
     
     otp = str(random.randint(100000, 999999))
-    cache.set(f"public_registration_otp_{resource_type}_{resource_id}_{email}", otp, timeout=300)
-    cache.set(f"public_registration_otp_{resource_id}_{email}", otp, timeout=300)
+    
+    # Store OTP in DB
+    otp_record, _ = RegistrationOTP.objects.update_or_create(
+        email=email,
+        resource_id=resource_id,
+        resource_type=resource_type,
+        defaults={'otp': otp, 'expires_at': None}
+    )
     
     context = {
         "resource_title": contest_title,
@@ -207,7 +213,7 @@ def public_send_otp(request):
         html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
         
     send_mail(
-        subject=f"OTP for Registration",
+        subject=f"Yuvro OTP for Registration",
         message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[email],
@@ -241,11 +247,14 @@ def public_verify_otp(request):
     if not email or not otp or not resource_id:
         return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-    cached_otp = cache.get(f"public_registration_otp_{resource_type}_{resource_id}_{email}")
-    if not cached_otp:
-        cached_otp = cache.get(f"public_registration_otp_{resource_id}_{email}")
+    otp_record = RegistrationOTP.objects.filter(
+        email=email, 
+        resource_id=resource_id, 
+        resource_type=resource_type
+    ).first()
     
-    if cached_otp and str(cached_otp) == str(otp):
+    if otp_record and str(otp_record.otp) == str(otp) and otp_record.is_valid():
+        otp_record.delete()  # prevent reuse
         user = User.objects.filter(email=email).first()
         
         if not user:
@@ -575,25 +584,28 @@ def internal_github_token_view(request, user_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def upload_profile_image(request):
-    ALLOWED_FIELDS = ("profile_image", "cover_image")
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "resume_file")
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
         "image/png": "png",
         "image/webp": "webp",
         "image/gif": "gif",
+        "application/pdf": "pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/msword": "doc",
     }
     MAX_BYTES = 10 * 1024 * 1024
 
     image_file = request.FILES.get("image")
     if not image_file:
         return Response(
-            {"error": "No image file provided. Use the 'image' form field."},
+            {"error": "No file provided. Use the 'image' form field."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     if image_file.size > MAX_BYTES:
         return Response(
-            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            {"error": f"File too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -617,7 +629,7 @@ def upload_profile_image(request):
         stored_name = upload_image(
             key=f"profile/{user.id}/{target_field}.{ext}",
             file_obj=image_file,
-            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif", "pdf", "docx", "doc"),
         )
     except Exception as exc:
         logger.exception("Failed to upload profile image")
@@ -658,7 +670,7 @@ def upload_profile_image(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def remove_profile_image(request):
-    ALLOWED_FIELDS = ("profile_image", "cover_image")
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "resume_file")
 
     target_field = request.data.get("field")
     if target_field not in ALLOWED_FIELDS:

@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton } from "@/components/evaluation/EvalShell";
-import { evaluationService } from "../services/evaluationService";
+import { evaluationService, tempResumeFile, setTempResumeFile } from "../services/evaluationService";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 import { authService } from "../services/authService";
 
@@ -87,8 +87,20 @@ function OtpPage() {
       const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp, firstName, lastName);
       if (verifyRes.access_token) {
         authService.setAuthToken(verifyRes.access_token);
+        
+        let resumeUrl: string | undefined;
+        if (tempResumeFile) {
+          try {
+            const updatedUser = await authService.uploadResume(tempResumeFile);
+            resumeUrl = updatedUser.resume_file;
+            setTempResumeFile(null); // clear after upload
+          } catch (uploadErr) {
+            console.error("Failed to upload resume:", uploadErr);
+            // Non-fatal, continue with registration
+          }
+        }
 
-        await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token);
+        await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token, resumeUrl);
 
         window.location.href = `/evaluation/proctoring?e=${evaluationId}`;
       } else {

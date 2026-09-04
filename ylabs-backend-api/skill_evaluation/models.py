@@ -13,6 +13,15 @@ from core.models import (
 User = settings.AUTH_USER_MODEL
 
 
+class LabType(models.TextChoices):
+    DATABASE = "DATABASE", "Database"
+    BACKEND = "BACKEND", "Backend"
+    FRONTEND = "FRONTEND", "Frontend"
+    FULL_STACK = "FULL_STACK", "Full Stack"
+    QUALITY_ASSURANCE = "QUALITY_ASSURANCE", "QA"
+    DEVOPS = "DEVOPS", "DevOps"
+
+
 class EvaluationSectionType(models.TextChoices):
     LAB = "LAB", "Lab"
     KNOWLEDGE_ASSESSMENT = "KNOWLEDGE_ASSESSMENT", "Knowledge Assessment"
@@ -50,6 +59,7 @@ class Evaluation(BaseTimestampedAdminModel):
     maximum_attempts = models.PositiveIntegerField(default=1)
     expiry_datetime = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
+    settings = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.title
@@ -108,7 +118,22 @@ class UserEvaluationSubmission(BaseTimestampedModel):
     proctoring_events = models.JSONField(
         default=list,
         blank=True,
-        help_text="Proctoring events: camera/mic status, face detection, violations, etc.",
+        help_text="Proctoring-specific events like tab switches, fullscreen exits, mouse exits",
+    )
+    
+    # Shared Report Link Fields
+    share_token = models.CharField(
+        max_length=64, 
+        unique=True, 
+        null=True, 
+        blank=True, 
+        db_index=True,
+        help_text="Unique token for generating a public shared report link."
+    )
+    share_token_expires_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="Expiration date for the shared report link."
     )
     browser_info = models.JSONField(default=dict, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
@@ -145,15 +170,31 @@ class QuestionBank(DeveloperSkill, BaseTimestampedAdminModel):
 
 
 class LabQuestionBank(QuestionBank):
+    type = models.CharField(
+        max_length=40,
+        choices=LabType.choices,
+        default=LabType.BACKEND,
+    )
     scenario = models.CharField(
         max_length=25,
         choices=LabScenario.choices,
         default=LabScenario.FEATURE_DEVELOPMENT,
     )
     git_repo_starter_url = models.URLField(blank=True)
+    git_repo_starter_branch = models.CharField(
+        max_length=100,
+        blank=True,
+        default="main",
+        help_text="Branch to clone from the starter repo (defaults to 'main')",
+    )
     startup_command = models.TextField(
         blank=True, 
         help_text="Command to run when the lab starts (e.g., 'cd project && npm run dev')"
+    )
+    test_command = models.TextField(
+        blank=True,
+        default="",
+        help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
     )
 
     def __str__(self):
@@ -208,7 +249,7 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
         unique_together = ("user", "evaluation", "lab_question")
 
     def __str__(self):
-        return f"{self.user} -> {self.task.title} ({self.evaluation.title})"
+        return f"{self.user} -> {self.lab_question.title} ({self.evaluation.title})"
 
 
 class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):
@@ -242,6 +283,12 @@ class FollowUpConfig(BaseTimestampedAdminModel):
     reminder1_custom_time = models.DateTimeField(null=True, blank=True)
     reminder2 = models.CharField(max_length=100, blank=True)
     reminder2_custom_time = models.DateTimeField(null=True, blank=True)
+    
+    email_template = models.TextField(blank=True)
+    ai_call = models.BooleanField(default=False)
+    ai_timing = models.CharField(max_length=100, default="4 Hours Before Deadline")
+    language = models.CharField(max_length=50, default="English")
+    voice = models.CharField(max_length=50, default="Aria (Female)")
     
     def __str__(self):
         return f"FollowUpConfig for {self.evaluation.title}"
@@ -341,3 +388,19 @@ class CandidateTimelineEvent(BaseTimestampedAdminModel):
     def __str__(self):
         return f"{self.title} - {self.candidate_email}"
 
+
+class RecruiterActivityLog(BaseTimestampedAdminModel):
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="recruiter_activity_logs")
+    candidate_email = models.EmailField()
+    recruiter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="candidate_activities")
+    kind = models.CharField(max_length=50) # 'view', 'decision', 'note', 'download', etc.
+    text = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["evaluation", "candidate_email"]),
+        ]
+
+    def __str__(self):
+        return f"{self.recruiter} - {self.kind} on {self.candidate_email}"

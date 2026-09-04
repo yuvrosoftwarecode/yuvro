@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import logging
@@ -94,10 +95,10 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         logger.error(f"Error provisioning user lab repo: {e}")
         raise
 
-def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url):
+def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url, branch="main"):
     try:
         with open("/tmp/workspace.log", "a") as f:
-            f.write(f"Provisioning evaluation starter repo {repo_url} for {lab_uuid} in evaluation {evaluation_uuid}\n")
+            f.write(f"Provisioning evaluation starter repo {repo_url} (branch: {branch}) for {lab_uuid} in evaluation {evaluation_uuid}\n")
         repo_name = get_repo_name_from_url(repo_url)
         lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "labs", str(lab_uuid))
         os.makedirs(lab_dir, exist_ok=True)
@@ -110,9 +111,14 @@ def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url):
             
         auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
         
-        logger.info(f"Cloning {repo_url} into {target_path}")
+        clone_cmd = ["git", "clone"]
+        if branch and str(branch).strip():
+            clone_cmd.extend(["--branch", str(branch).strip(), "--single-branch"])
+        clone_cmd.extend([auth_url, target_path])
+
+        logger.info(f"Cloning {repo_url} (branch: {branch}) into {target_path}")
         subprocess.run(
-            ["git", "clone", auth_url, target_path],
+            clone_cmd,
             check=True,
             capture_output=True
         )
@@ -146,6 +152,45 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                     shutil.copytree(src, dst, ignore=ignore, dirs_exist_ok=True)
                 else:
                     shutil.copy2(src, dst)
+
+        from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
+        from skill_evaluation.utils import is_database_lab
+
+        tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+        lab = None
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_uuid)
+        except Exception:
+            pass
+
+        if is_database_lab(lab, tasks):
+            num_tasks = len(tasks)
+            is_mongo = False
+            try:
+                if lab and lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
+                    is_mongo = True
+            except Exception:
+                pass
+
+            ext = "js" if is_mongo else "sql"
+            # Remove any stale taskX.sql / taskX.js files exceeding the current task count
+            for fname in os.listdir(user_dir):
+                m = re.match(r"^task(\d+)\.(sql|js)$", fname)
+                if m:
+                    idx = int(m.group(1))
+                    if idx > num_tasks or idx < 1:
+                        try:
+                            os.remove(os.path.join(user_dir, fname))
+                        except Exception:
+                            pass
+            for i, task in enumerate(tasks, start=1):
+                task_file = os.path.join(user_dir, f"task{i}.{ext}")
+                if not os.path.exists(task_file):
+                    with open(task_file, "w") as f:
+                        if is_mongo:
+                            f.write(f"// Task {i}: {task.title}\n// Write your MongoDB query below\n")
+                        else:
+                            f.write(f"-- Task {i}: {task.title}\n-- Write your SQL query for this task here\n")
 
         import subprocess
         subprocess.run(["git", "init"], cwd=user_dir, check=True, capture_output=True)
