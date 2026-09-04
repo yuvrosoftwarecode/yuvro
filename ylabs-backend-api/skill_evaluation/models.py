@@ -13,6 +13,15 @@ from core.models import (
 User = settings.AUTH_USER_MODEL
 
 
+class LabType(models.TextChoices):
+    DATABASE = "DATABASE", "Database"
+    BACKEND = "BACKEND", "Backend"
+    FRONTEND = "FRONTEND", "Frontend"
+    FULL_STACK = "FULL_STACK", "Full Stack"
+    QUALITY_ASSURANCE = "QUALITY_ASSURANCE", "QA"
+    DEVOPS = "DEVOPS", "DevOps"
+
+
 class EvaluationSectionType(models.TextChoices):
     LAB = "LAB", "Lab"
     KNOWLEDGE_ASSESSMENT = "KNOWLEDGE_ASSESSMENT", "Knowledge Assessment"
@@ -161,6 +170,11 @@ class QuestionBank(DeveloperSkill, BaseTimestampedAdminModel):
 
 
 class LabQuestionBank(QuestionBank):
+    type = models.CharField(
+        max_length=40,
+        choices=LabType.choices,
+        default=LabType.BACKEND,
+    )
     scenario = models.CharField(
         max_length=25,
         choices=LabScenario.choices,
@@ -176,6 +190,11 @@ class LabQuestionBank(QuestionBank):
     startup_command = models.TextField(
         blank=True, 
         help_text="Command to run when the lab starts (e.g., 'cd project && npm run dev')"
+    )
+    test_command = models.TextField(
+        blank=True,
+        default="",
+        help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
     )
 
     def __str__(self):

@@ -833,6 +833,7 @@ export function StudentTicketView({
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
             startup_command: t.startup_command,
+            test_command: t.test_command,
             sprint_id: t.sprint ?? null,
             sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
             ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
@@ -1578,6 +1579,69 @@ export function TicketIDE({
     setBottomTab("output");
     const src = files[activeFile] ?? "";
     const file = activeFile;
+
+    if (ticket.test_command && ticket.test_command.trim()) {
+      try {
+        const { runTestCommand } = await import("@/services/workspaceService");
+        const res = await runTestCommand(userId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+
+        let outText = res.stdout || "";
+        if (res.stderr && res.stderr.trim()) {
+          outText += (outText ? "\n" : "") + res.stderr;
+        }
+        if (!outText && res.exit_code !== 0) {
+          outText = `Process exited with code ${res.exit_code}`;
+        }
+        setOutput(outText);
+        setExecutionOutput(outText);
+
+        if (res.data && typeof res.data === "object") {
+          const tasksData = res.data.tasks || {};
+          const taskKeys = Object.keys(tasksData);
+          
+          const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+          const nextTests: TestResult[] = [];
+
+          taskKeys.forEach((key, idx) => {
+            const tObj = tasksData[key];
+            const isPassed = tObj?.result === "passed" || (tObj?.score ?? 0) > 0;
+            newEvalResult[key] = {
+              passed: isPassed,
+              reason: tObj?.message || (isPassed ? "Passed" : "Failed"),
+            };
+            const taskLabel = ticket.tasks?.[idx]?.title || key;
+            const scoreLabel = tObj?.score !== undefined ? ` (${tObj.score} pts)` : "";
+            nextTests.push({
+              name: `${taskLabel}${scoreLabel}`,
+              pass: isPassed,
+              time: "—",
+              expected: "Task completed successfully",
+              got: tObj?.message || (isPassed ? "Passed" : "Failed"),
+            });
+          });
+
+          setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+          if (nextTests.length > 0) {
+            setTests(nextTests);
+            setTestsRan(true);
+          }
+
+          const passedScore = res.data.total_score ?? res.total_score ?? 0;
+          const maxScore = res.data.max_possible_score ?? res.max_possible_score ?? 100;
+          setTicketScore({ passed: passedScore, total: maxScore });
+          showToast(`Score: ${passedScore} / ${maxScore}`);
+        } else {
+          showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+        }
+      } catch (err: any) {
+        setOutput(err.message || "Error executing tests");
+        setExecutionOutput(err.message || "Error executing tests");
+        showToast("Test execution failed");
+      } finally {
+        setRunning(false);
+      }
+      return;
+    }
 
     if (isMultiLang || isPython) {
       let extLang = 'python';

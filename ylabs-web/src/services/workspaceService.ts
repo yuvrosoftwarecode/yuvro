@@ -229,3 +229,39 @@ export async function submitDatabaseLab(
   if (!res.ok) throw new Error(`Submit Database lab failed: ${res.statusText}`);
   return res.json();
 }
+
+/** Executes a scoring test command (e.g. 'python yuvro_scoring_rules/main_test.py') */
+export async function runTestCommand(
+  userId: string,
+  labId: string,
+  sprintId: string,
+  command: string,
+  evaluationId?: string
+): Promise<{
+  stdout: string;
+  stderr: string;
+  exit_code: number;
+  data?: {
+    tasks?: Record<string, { result: string; score: number; message: string }>;
+    total_score?: number;
+    max_possible_score?: number;
+  };
+  total_score: number;
+  max_possible_score: number;
+  percentage: number;
+}> {
+  const res = await fetch(`${EXECUTOR_BASE}/workspace/run_test_command`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      lab_id: labId,
+      sprint_id: sprintId,
+      command: command,
+      evaluation_id: evaluationId,
+    }),
+  });
+  if (!res.ok) throw new Error(`Run test command failed: ${res.statusText}`);
+  return res.json();
+}
+

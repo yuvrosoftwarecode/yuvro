@@ -37,6 +37,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
 from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
+from .utils import is_database_lab
 import json
 
 def get_emails_list(emails):
@@ -372,18 +373,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     submission.solution = diff_output
                     
                     tasks = lab.tasks.all().order_by('order_index')
-                    has_db_tasks = False
-                    if lab.databases and len(lab.databases) > 0:
-                        has_db_tasks = True
-                    else:
-                        for t in tasks:
-                            rules = t.scoring_rules if isinstance(t.scoring_rules, dict) else {}
-                            sol = t.solution if isinstance(t.solution, dict) else {}
-                            if rules.get("database_engine") or sol.get("query.sql") or rules.get("system_query"):
-                                has_db_tasks = True
-                                break
-                    
-                    if has_db_tasks:
+                    executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
+
+                    if is_database_lab(lab, tasks):
                         import requests
                         import json
                         db_engine = "sqlite"
@@ -414,7 +406,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                                 "expected_result": rules.get("expected_result", "")
                             })
                             
-                        executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
                         try:
                             response = requests.post(f"{executer_host}/workspace/database_submit", json={
                                 "user_id": str(request.user.id),
@@ -431,6 +422,24 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         except Exception as e:
                             logger = logging.getLogger(__name__)
                             logger.error(f"Failed to submit database lab to executer: {e}")
+                    elif getattr(lab, 'test_command', None) and lab.test_command.strip():
+                        import requests
+                        import json
+                        try:
+                            response = requests.post(f"{executer_host}/workspace/run_test_command", json={
+                                "user_id": str(request.user.id),
+                                "lab_id": str(lab.id),
+                                "sprint_id": str(lab.id),
+                                "command": lab.test_command.strip(),
+                                "evaluation_id": str(evaluation.id)
+                            }, timeout=35)
+                            if response.status_code == 200:
+                                result_data = response.json()
+                                submission.solution_output = json.dumps(result_data)
+                                submission.score = int(result_data.get("percentage", result_data.get("total_score", 0)))
+                        except Exception as e:
+                            logger = logging.getLogger(__name__)
+                            logger.error(f"Failed to submit test_command lab to executer: {e}")
                     
                     submission.save(update_fields=['solution', 'solution_output', 'score'])
                 except Exception:

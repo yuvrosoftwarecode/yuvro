@@ -36,6 +36,8 @@ django
 djangorestframework
 drf-yasg
 pytest-django
+django-cors-headers
+drf-spectacular
 
 # Database Evaluator Drivers
 psycopg2-binary

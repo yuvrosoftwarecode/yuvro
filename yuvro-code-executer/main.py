@@ -2065,6 +2065,109 @@ async def run_command_endpoint(body: RunCommandRequest):
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
+class RunTestCommandRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: Optional[str] = None
+    command: str
+    evaluation_id: Optional[str] = None
+
+@workspace_router.post("/run_test_command")
+async def run_test_command_endpoint(body: RunTestCommandRequest):
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "0", body.evaluation_id)
+    ws.mkdir(parents=True, exist_ok=True)
+
+    starter_scoring_rules = None
+    if body.evaluation_id:
+        lab_starter_dir = WORKSPACES_ROOT / "evaluation" / body.evaluation_id / "labs" / body.lab_id
+    else:
+        lab_starter_dir = WORKSPACES_ROOT / "labs" / body.lab_id
+
+    if lab_starter_dir.exists():
+        if (lab_starter_dir / "yuvro_scoring_rules").exists():
+            starter_scoring_rules = lab_starter_dir / "yuvro_scoring_rules"
+        else:
+            for item in lab_starter_dir.iterdir():
+                if item.is_dir() and (item / "yuvro_scoring_rules").exists():
+                    starter_scoring_rules = item / "yuvro_scoring_rules"
+                    break
+
+    target_scoring_rules = ws / "yuvro_scoring_rules"
+    mounted_rules = False
+
+    try:
+        if starter_scoring_rules and not target_scoring_rules.exists():
+            shutil.copytree(starter_scoring_rules, target_scoring_rules)
+            mounted_rules = True
+
+        proc = await asyncio.create_subprocess_shell(
+            body.command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws)
+        )
+        stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=30.0)
+        stdout = stdout_bytes.decode(errors="replace")
+        stderr = stderr_bytes.decode(errors="replace")
+        exit_code = proc.returncode
+
+        parsed_data = None
+        try:
+            parsed_data = json.loads(stdout.strip())
+        except Exception:
+            json_match = _re.search(r'(\{[\s\S]*"tasks"[\s\S]*\})', stdout)
+            if json_match:
+                try:
+                    parsed_data = json.loads(json_match.group(1))
+                except Exception:
+                    pass
+
+        total_score = 0
+        max_possible_score = 100
+        percentage = 0
+        if isinstance(parsed_data, dict):
+            total_score = parsed_data.get("total_score", 0)
+            max_possible_score = parsed_data.get("max_possible_score", 100) or 100
+            if max_possible_score > 0:
+                percentage = int(round((total_score / max_possible_score) * 100))
+
+        return {
+            "stdout": stdout,
+            "stderr": stderr,
+            "exit_code": exit_code,
+            "data": parsed_data,
+            "total_score": total_score,
+            "max_possible_score": max_possible_score,
+            "percentage": percentage
+        }
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+        except Exception:
+            pass
+        return {
+            "stdout": "",
+            "stderr": "Test command execution timed out (30s limit exceeded)",
+            "exit_code": -1,
+            "data": None,
+            "total_score": 0,
+            "max_possible_score": 100,
+            "percentage": 0
+        }
+    except Exception as e:
+        return {
+            "stdout": "",
+            "stderr": str(e),
+            "exit_code": -1,
+            "data": None,
+            "total_score": 0,
+            "max_possible_score": 100,
+            "percentage": 0
+        }
+    finally:
+        if mounted_rules and target_scoring_rules.exists():
+            shutil.rmtree(target_scoring_rules, ignore_errors=True)
+
 @workspace_router.post("/database_run")
 async def database_run_endpoint(body: DatabaseRunRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, getattr(body, "evaluation_id", None))

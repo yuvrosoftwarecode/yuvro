@@ -2,6 +2,7 @@
   "lab_questions": [
     {
       "title": "Practical SQL Evaluation",
+      "type": "DATABASE",
       "description": "Evaluate candidates on their practical SQL skills across various domains.",
       "difficulty": "MEDIUM",
       "domain": "OTHER",

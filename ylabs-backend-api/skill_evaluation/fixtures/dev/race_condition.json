@@ -2,6 +2,7 @@
   "lab_questions": [
     {
       "title": "E-Commerce Inventory Race Condition",
+      "type": "BACKEND",
       "description": "Fix a classic database concurrency bug known as a Race Condition (TOCTOU vulnerability) in a Django application to prevent overselling inventory during simultaneous checkouts.",
       "difficulty": "MEDIUM",
       "domain": "BACKEND",
@@ -12,6 +13,7 @@
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "Race-Condition",
       "startup_command": "pip install django && python manage.py migrate && python manage.py runserver",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
       "programming_languages": [
         "PYTHON"
       ],

@@ -1,55 +1,41 @@
 {
   "lab_questions": [
     {
-  "title": "Fix Production API Latency Caused by an N+1 Query Problem",
-  "description": "A backend service in Django REST Framework is suffering from severe performance degradation under load. Read through the codebase, identify the intentional N+1 query regression, and optimize the ORM execution to reduce SQL queries to an absolute minimum.",
-  "difficulty": "MEDIUM",
-  "domain": "ECOMMERCE",
-  "experience": "MID_LEVEL",
-  "duration_minutes": 5,
-  "marks": 50,
-  "scenario": "PERFORMANCE_OPTIMIZATION",
-  "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
-  "git_repo_starter_branch": "n+1",
-  "startup_command": "cd production_api_lab && python manage.py runserver 0.0.0.0:8010",
-  "programming_languages": [
-    "PYTHON"
-  ],
-  "databases": [
-    "SQLITE",
-    "POSTGRESQL"
-  ],
-  "backend_frameworks": [
-    "DJANGO",
-    "DJANGO_REST_FRAMEWORK"
-  ],
-  "frontend_frameworks": [],
-  "tasks": [
-    {
-      "title": "Identify the performance bottleneck",
-      "description": "Analyze the `/api/orders/` endpoint and find the exact lines in the serializer and views causing the N+1 database queries.",
+      "title": "Fix Production API Latency Caused by an N+1 Query Problem",
+      "type": "BACKEND",
+      "description": "A backend service in Django REST Framework is suffering from severe performance degradation under load. Read through the codebase, identify the intentional N+1 query regression, and optimize the ORM execution to reduce SQL queries to an absolute minimum.",
       "difficulty": "MEDIUM",
-      "marks": 10,
-      "duration_minutes": 15,
-      "order_index": 0
-    },
-    {
-      "title": "Optimize the Django ORM queries",
-      "description": "Modify the view's queryset using `select_related` and `prefetch_related` (or `Prefetch`) so that the endpoint fetches all necessary customer, product, and category data efficiently.",
-      "difficulty": "MEDIUM",
-      "marks": 30,
-      "duration_minutes": 30,
-      "order_index": 1
-    },
-    {
-      "title": "Verify optimizations via tests",
-      "description": "Run the performance test suite via pytest to verify that the query count has successfully dropped to 3 or fewer queries, passing the strict performance threshold.",
-      "difficulty": "EASY",
-      "marks": 10,
-      "duration_minutes": 15,
-      "order_index": 2
+      "domain": "ECOMMERCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 100,
+      "scenario": "PERFORMANCE_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "n+1",
+      "startup_command": "python manage.py migrate && python manage.py seed_data && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE",
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Optimize N+1 Query Bottleneck in Orders API",
+          "description": "Analyze the `/api/orders/` endpoint and optimize the queryset so that related customer, product, and category data are retrieved in <= 4 queries.",
+          "difficulty": "MEDIUM",
+          "marks": 100,
+          "duration_minutes": 30,
+          "order_index": 0
+        }
+      ]
     }
-  ]
-}
   ]
 }
