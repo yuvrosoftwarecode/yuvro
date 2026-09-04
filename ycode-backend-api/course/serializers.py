@@ -323,6 +323,25 @@ class QuestionSerializer(serializers.ModelSerializer):
         question_type = data.get("type")
         level = data.get("level")
 
+        # Duplicate detection
+        content = data.get("content")
+        course = data.get("course")
+        
+        if content and course:
+            import re
+            normalized_input = re.sub(r'\s+', ' ', content.strip().lower())
+            
+            qs = Question.objects.filter(course=course).only('id', 'content')
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+                
+            for q in qs:
+                if not q.content:
+                    continue
+                q_content_norm = re.sub(r'\s+', ' ', q.content.strip().lower())
+                if q_content_norm == normalized_input:
+                    raise serializers.ValidationError("A duplicate question with the exact same content already exists in this course.")
+
         # Validate level associations
         if level == "course" and not data.get("course"):
             raise serializers.ValidationError(
@@ -470,8 +489,12 @@ class QuestionSerializer(serializers.ModelSerializer):
                 validated_data["course"] = topic.course
 
         # For course level, course is already set
-
-        return super().create(validated_data)
+        solutions_data = self.initial_data.get("solutions")
+        question = super().create(validated_data)
+        if solutions_data and isinstance(solutions_data, list):
+            for sol_data in solutions_data:
+                QuestionSolution.objects.create(question=question, **sol_data)
+        return question
 
     def update(self, instance, validated_data):
         # Auto-update related fields if level or subtopic/topic changes
@@ -489,13 +512,20 @@ class QuestionSerializer(serializers.ModelSerializer):
             topic = validated_data["topic"]
             if topic:
                 validated_data["course"] = topic.course
-                validated_data["subtopic"] = None
+                validated_data["subtopic"] = None  # Clear subtopic if level is topic
 
+        # If updating to course level
         elif level == "course":
             validated_data["topic"] = None
             validated_data["subtopic"] = None
-
-        return super().update(instance, validated_data)
+            
+        solutions_data = self.initial_data.get("solutions")
+        question = super().update(instance, validated_data)
+        if solutions_data is not None and isinstance(solutions_data, list):
+            question.solutions.all().delete()
+            for sol_data in solutions_data:
+                QuestionSolution.objects.create(question=question, **sol_data)
+        return question
 
 class UserCourseProgressSerializer(serializers.ModelSerializer):
     class Meta:

@@ -32,12 +32,12 @@ function RecruiterLayout() {
     exact ? pathname === to : pathname.startsWith(to);
 
   return (
-    <div className="recruiter-theme min-h-screen bg-[#0a0a0b] text-neutral-100">
+    <div className="recruiter-theme h-screen bg-[#0a0a0b] text-neutral-100 overflow-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10 opacity-40 recruiter-glow">
         <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-emerald-500/10 blur-[160px]" />
         <div className="absolute -bottom-40 -right-20 h-[520px] w-[520px] rounded-full bg-violet-500/10 blur-[160px]" />
       </div>
-      <div className="flex min-h-screen">
+      <div className="flex h-screen">
         <aside className="fixed inset-y-0 left-0 z-20 flex w-[240px] flex-col border-r border-white/5 bg-black/40 backdrop-blur-xl">
           <Link to="/recruiter/dashboard" className="flex items-center gap-2.5 px-6 py-5">
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
@@ -109,7 +109,7 @@ function RecruiterLayout() {
             </div>
           </div>
         </aside>
-        <main className="ml-[240px] flex-1">
+        <main className="ml-[240px] flex-1 h-screen overflow-y-auto hide-scrollbar">
           <Outlet />
         </main>
       </div>

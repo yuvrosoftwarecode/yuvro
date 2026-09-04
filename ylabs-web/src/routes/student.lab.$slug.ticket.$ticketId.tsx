@@ -900,7 +900,7 @@ export function TicketIDE({
   const isBash = kit.name === "bash";
   const isGit = kit.name === "git";
 
-  const isReal = !tickets.some((t) => t.id === ticket.id);
+  const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
 
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {
@@ -957,7 +957,11 @@ export function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
-    if (!isReal || isLoading || !userId || slug === "knowledge") return;
+    if (isLoading) return;
+    if (!isReal || !userId || slug === "knowledge") {
+      setWsLoaded(true);
+      return;
+    }
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
@@ -1128,22 +1132,24 @@ export function TicketIDE({
     const isDummy = !isReal;
 
     const RECENT_LAB_KEY = "ylabs-recent-lab";
-    const labEndpoint = isEvaluationMode
-          ? `/skill_evaluation/lab-questions/${labId}/` 
-          : `/lab/labs/${labId}/`;
-    import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-      api.get<any>(labEndpoint)
-        .then((realLab) => {
-          try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
-        })
-        .catch(() => {
-          const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
-          setLabTitle(labName);
-          try {
-            localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
-          } catch {}
-        });
-    });
+    if (labId !== "knowledge") {
+      const labEndpoint = isEvaluationMode
+            ? `/skill_evaluation/lab-questions/${labId}/` 
+            : `/lab/labs/${labId}/`;
+      import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+        api.get<any>(labEndpoint)
+          .then((realLab) => {
+            try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
+          })
+          .catch(() => {
+            const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
+            setLabTitle(labName);
+            try {
+              localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
+            } catch {}
+          });
+      });
+    }
 
     if (isDummy) return;
 

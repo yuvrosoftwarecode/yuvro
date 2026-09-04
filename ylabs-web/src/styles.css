@@ -192,6 +192,13 @@
     background: var(--border);
     border-radius: 8px;
   }
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 /* ============================================================
@@ -231,6 +238,33 @@
   font-feature-settings: "cv02", "cv03", "cv11";
   background-color: var(--rec-bg) !important;
   color: var(--rec-fg) !important;
+}
+
+.dark .recruiter-theme {
+  --rec-bg: #0a0a0b;
+  --rec-surface: rgba(0, 0, 0, 0.4);
+  --rec-surface-2: rgba(0, 0, 0, 0.6);
+  --rec-fg: #f5f5f5;
+  --rec-fg-soft: #d4d4d4;
+  --rec-muted: #a3a3a3;
+  --rec-muted-2: #737373;
+  --rec-border: rgba(255, 255, 255, 0.05);
+  --rec-border-strong: rgba(255, 255, 255, 0.1);
+  --rec-overlay-1: rgba(255, 255, 255, 0.02);
+  --rec-overlay-2: rgba(255, 255, 255, 0.06);
+  --rec-overlay-3: rgba(255, 255, 255, 0.1);
+  --rec-accent: #ffffff;
+  --rec-accent-fg: #000000;
+  --rec-success: #34d399;
+  --rec-success-soft: rgba(52, 211, 153, 0.1);
+  --rec-warning: #fbbf24;
+  --rec-warning-soft: rgba(251, 191, 36, 0.1);
+  --rec-danger: #f87171;
+  --rec-menu-bg: #0a0a0b;
+}
+
+.dark .recruiter-theme .recruiter-glow {
+  display: block;
 }
 
 /* Serif display for headings + oversized numerals */
