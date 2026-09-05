@@ -61,6 +61,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
   const search: any = useRouterState({ select: (s) => s.location.search });
   const evaluationId = previewData ? '' : (search.e || '');
+  const isPreviewMode = search.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -101,11 +102,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
-                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
-                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
+                tag: (
+                  (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                  (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
+                  "bash"
+                ).toLowerCase(),
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
+                test_command: q.test_command || undefined,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
@@ -527,12 +532,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   useEffect(() => {
-    if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+    if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
       nav({ to: "/evaluation/proctoring", search: { e: evaluationId }, replace: true });
     }
-  }, [anySectionNeedsProctoring, proctoringData, previewData, nav, evaluationId]);
+  }, [anySectionNeedsProctoring, proctoringData, isPreviewMode, nav, evaluationId]);
 
-  if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
     return null;
   }
 
@@ -635,6 +640,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   learning_objectives: [],
                   common_mistakes: [],
                   startup_command: lab.startup_command,
+                  test_command: (lab as any).test_command,
                 };
                 return (
                   <TicketIDE

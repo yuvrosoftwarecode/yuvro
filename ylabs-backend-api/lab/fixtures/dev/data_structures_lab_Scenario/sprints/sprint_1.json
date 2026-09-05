@@ -2234,36 +2234,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Separate and Merge Alternately - Python",
+                        "title": "Linear Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*arr=map(int,input().split())\npos=[x for x in arr if x>=0]\nneg=[x for x in arr if x<0]\nres=[]\ni=j=0\nwhile i<len(pos) and j<len(neg):\n res.append(pos[i]); res.append(neg[j])\n i+=1; j+=1\nres.extend(pos[i:])\nres.extend(neg[j:])\nprint(*res)",
+                        "code": "n = int(input())\npackages = list(map(int, input().split()))\ntarget = int(input())\n\nfor i in range(n):\n    if packages[i] == target:\n        print(i)\n        break\nelse:\n    print(-1)",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Alternate Merge - Java",
+                        "title": "Linear Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  List<Integer> pos=new ArrayList<>();\n  List<Integer> neg=new ArrayList<>();\n  for(int i=0;i<n;i++){\n   int x=sc.nextInt();\n   if(x>=0) pos.add(x);\n   else neg.add(x);\n  }\n  int i=0,j=0;\n  while(i<pos.size() && j<neg.size()){\n   System.out.print(pos.get(i++)+\" \");\n   System.out.print(neg.get(j++)+\" \");\n  }\n  while(i<pos.size()) System.out.print(pos.get(i++)+\" \");\n  while(j<neg.size()) System.out.print(neg.get(j++)+\" \");\n }\n}",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] packages = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            packages[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        for (int i = 0; i < n; i++) {\n            if (packages[i] == target) {\n                System.out.println(i);\n                return;\n            }\n        }\n\n        System.out.println(-1);\n    }\n}",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Alternate Merge - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> pos,neg;\n for(int i=0;i<n;i++){\n  cin>>x;\n  if(x>=0) pos.push_back(x);\n  else neg.push_back(x);\n }\n int i=0,j=0;\n while(i<pos.size() && j<neg.size()){\n  cout<<pos[i++]<<\" \"<<neg[j++]<<\" \";\n }\n while(i<pos.size()) cout<<pos[i++]<<\" \";\n while(j<neg.size()) cout<<neg[j++]<<\" \";\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Alternate Positive Negative - C",
+                        "title": "Linear Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int pos[n],neg[n],p=0,q=0;\n for(int i=0;i<n;i++){\n  scanf(\"%d\",&x);\n  if(x>=0) pos[p++]=x;\n  else neg[q++]=x;\n }\n int i=0,j=0;\n while(i<p && j<q){\n  printf(\"%d %d \",pos[i++],neg[j++]);\n }\n while(i<p) printf(\"%d \",pos[i++]);\n while(j<q) printf(\"%d \",neg[j++]);\n}\n",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int packages[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &packages[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    for (int i = 0; i < n; i++) {\n        if (packages[i] == target) {\n            printf(\"%d\\n\", i);\n            return 0;\n        }\n    }\n\n    printf(\"-1\\n\");\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
+                    },
+                    {
+                        "title": "Linear Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> packages(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> packages[i];\n    }\n\n    int target;\n    cin >> target;\n\n    for (int i = 0; i < n; i++) {\n        if (packages[i] == target) {\n            cout << i << endl;\n            return 0;\n        }\n    }\n\n    cout << -1 << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "linear-search"
                     }
                 ]
             }
@@ -2385,36 +2385,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Implement Linear Search - Python",
+                        "title": "Linear Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nres=-1\nfor i in range(n):\n if arr[i]==x:\n  res=i\n  break\nprint(res)",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "n = int(input())\ncustomer_ids = list(map(int, input().split()))\ntarget = int(input())\n\nfor customer_id in customer_ids:\n    if customer_id == target:\n        print(\"YES\")\n        break\nelse:\n    print(\"NO\")",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Implement Linear Search - Java",
+                        "title": "Linear Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int res=-1;\n  for(int i=0;i<n;i++){\n   if(arr[i]==x){res=i;break;}\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] customerIds = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            customerIds[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        for (int i = 0; i < n; i++) {\n            if (customerIds[i] == target) {\n                System.out.println(\"YES\");\n                return;\n            }\n        }\n\n        System.out.println(\"NO\");\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Implement Linear Search - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int res=-1;\n for(int i=0;i<n;i++){\n  if(arr[i]==x){res=i;break;}\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
                         "title": "Linear Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&x);\n for(int i=0;i<n;i++){\n  if(a[i]==x){printf(\"%d\",i);return 0;}\n }\n printf(\"-1\");\n}\n",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int customerIds[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &customerIds[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    for (int i = 0; i < n; i++) {\n        if (customerIds[i] == target) {\n            printf(\"YES\\n\");\n            return 0;\n        }\n    }\n\n    printf(\"NO\\n\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
+                    },
+                    {
+                        "title": "Linear Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> customerIds(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> customerIds[i];\n    }\n\n    int target;\n    cin >> target;\n\n    for (int i = 0; i < n; i++) {\n        if (customerIds[i] == target) {\n            cout << \"YES\" << endl;\n            return 0;\n        }\n    }\n\n    cout << \"NO\" << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "linear-search"
                     }
                 ]
             }
@@ -2536,36 +2536,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Check if Element Exists in Array - Python",
+                        "title": "Count Occurrences - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nfound=False\nfor num in arr:\n if num==x:\n  found=True\n  break\nprint(\"YES\" if found else \"NO\")",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "n = int(input())\nproduct_ids = list(map(int, input().split()))\ntarget = int(input())\n\ncount = 0\n\nfor product_id in product_ids:\n    if product_id == target:\n        count += 1\n\nprint(count)",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Check if Element Exists in Array - Java",
+                        "title": "Count Occurrences - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  boolean found=false;\n  for(int i=0;i<n;i++){\n   if(arr[i]==x){found=true;break;}\n  }\n  if(found) System.out.print(\"YES\");\n  else System.out.print(\"NO\");\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] productIds = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            productIds[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        int count = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (productIds[i] == target) {\n                count++;\n            }\n        }\n\n        System.out.println(count);\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Check if Element Exists in Array - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n bool found=false;\n for(int i=0;i<n;i++){\n  if(arr[i]==x){found=true;break;}\n }\n if(found) cout<<\"YES\";\n else cout<<\"NO\";\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Check Element Exists - C",
+                        "title": "Count Occurrences - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x,found=0;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&x);\n for(int i=0;i<n;i++) if(a[i]==x) found=1;\n if(found) printf(\"YES\");\n else printf(\"NO\");\n}\n",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int productIds[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &productIds[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    int count = 0;\n\n    for (int i = 0; i < n; i++) {\n        if (productIds[i] == target) {\n            count++;\n        }\n    }\n\n    printf(\"%d\\n\", count);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
+                    },
+                    {
+                        "title": "Count Occurrences - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> productIds(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> productIds[i];\n    }\n\n    int target;\n    cin >> target;\n\n    int count = 0;\n\n    for (int i = 0; i < n; i++) {\n        if (productIds[i] == target) {\n            count++;\n        }\n    }\n\n    cout << count << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "linear-search"
                     }
                 ]
             }
@@ -2687,36 +2687,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Count Occurrences of a Number - Python",
+                        "title": "Find First Occurrence - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\ncount=0\nfor num in arr:\n if num==x:\n  count+=1\nprint(count)",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "n = int(input())\ncomplaints = list(map(int, input().split()))\ntarget = int(input())\n\nfor i in range(n):\n    if complaints[i] == target:\n        print(i)\n        break\nelse:\n    print(-1)",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Count Occurrences of a Number - Java",
+                        "title": "Find First Occurrence - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int count=0;\n  for(int i=0;i<n;i++){\n   if(arr[i]==x) count++;\n  }\n  System.out.print(count);\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] complaints = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            complaints[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        for (int i = 0; i < n; i++) {\n            if (complaints[i] == target) {\n                System.out.println(i);\n                return;\n            }\n        }\n\n        System.out.println(-1);\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Count Occurrences of a Number - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int count=0;\n for(int i=0;i<n;i++){\n  if(arr[i]==x) count++;\n }\n cout<<count;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Count Occurrences - C",
+                        "title": "Find First Occurrence - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x,count=0;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&x);\n for(int i=0;i<n;i++) if(a[i]==x) count++;\n printf(\"%d\",count);\n}\n",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int complaints[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &complaints[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    for (int i = 0; i < n; i++) {\n        if (complaints[i] == target) {\n            printf(\"%d\\n\", i);\n            return 0;\n        }\n    }\n\n    printf(\"-1\\n\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
+                    },
+                    {
+                        "title": "Find First Occurrence - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> complaints(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> complaints[i];\n    }\n\n    int target;\n    cin >> target;\n\n    for (int i = 0; i < n; i++) {\n        if (complaints[i] == target) {\n            cout << i << endl;\n            return 0;\n        }\n    }\n\n    cout << -1 << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "linear-search"
                     }
                 ]
             }
@@ -2838,36 +2838,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Find Index of First Occurrence - Python",
+                        "title": "Find Last Occurrence - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nres=-1\nfor i in range(n):\n if arr[i]==x:\n  res=i\n  break\nprint(res)",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "n = int(input())\ncomplaints = list(map(int, input().split()))\ntarget = int(input())\n\nlast_index = -1\n\nfor i in range(n):\n    if complaints[i] == target:\n        last_index = i\n\nprint(last_index)",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Find Index of First Occurrence - Java",
+                        "title": "Find Last Occurrence - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int res=-1;\n  for(int i=0;i<n;i++){\n   if(arr[i]==x){res=i;break;}\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] complaints = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            complaints[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        int lastIndex = -1;\n\n        for (int i = 0; i < n; i++) {\n            if (complaints[i] == target) {\n                lastIndex = i;\n            }\n        }\n\n        System.out.println(lastIndex);\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
                     },
                     {
-                        "title": "Find Index of First Occurrence - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int res=-1;\n for(int i=0;i<n;i++){\n  if(arr[i]==x){res=i;break;}\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "First Occurrence - C",
+                        "title": "Find Last Occurrence - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&x);\n for(int i=0;i<n;i++){\n  if(a[i]==x){printf(\"%d\",i);return 0;}\n }\n printf(\"-1\");\n}\n",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int complaints[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &complaints[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    int lastIndex = -1;\n\n    for (int i = 0; i < n; i++) {\n        if (complaints[i] == target) {\n            lastIndex = i;\n        }\n    }\n\n    printf(\"%d\\n\", lastIndex);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "linear-search"
+                    },
+                    {
+                        "title": "Find Last Occurrence - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> complaints(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> complaints[i];\n    }\n\n    int target;\n    cin >> target;\n\n    int lastIndex = -1;\n\n    for (int i = 0; i < n; i++) {\n        if (complaints[i] == target) {\n            lastIndex = i;\n        }\n    }\n\n    cout << lastIndex << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "linear-search"
                     }
                 ]
             }
@@ -3140,36 +3140,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Implement Binary Search - Python",
+                        "title": "Find First Occurrence Using Binary Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nl=0\nr=n-1\nres=-1\nwhile l<=r:\n mid=(l+r)//2\n if arr[mid]==x:\n  res=mid\n  break\n elif arr[mid]<x:\n  l=mid+1\n else:\n  r=mid-1\nprint(res)",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "n = int(input())\narr = list(map(int, input().split()))\ntarget = int(input())\n\nleft = 0\nright = n - 1\nfirst_index = -1\n\nwhile left <= right:\n    mid = left + (right - left) // 2\n\n    if arr[mid] == target:\n        first_index = mid\n        right = mid - 1\n    elif arr[mid] < target:\n        left = mid + 1\n    else:\n        right = mid - 1\n\nprint(first_index)",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "binary-search-lower-bound"
                     },
                     {
-                        "title": "Implement Binary Search - Java",
+                        "title": "Find First Occurrence Using Binary Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]==x){res=mid;break;}\n   else if(arr[mid]<x) l=mid+1;\n   else r=mid-1;\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        int left = 0;\n        int right = n - 1;\n        int firstIndex = -1;\n\n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] == target) {\n                firstIndex = mid;\n                right = mid - 1;\n            } else if (arr[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n\n        System.out.println(firstIndex);\n    }\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-lower-bound"
                     },
                     {
-                        "title": "Implement Binary Search - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){res=mid;break;}\n  else if(arr[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Binary Search - C",
+                        "title": "Find First Occurrence Using Binary Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&x);\n int l=0,r=n-1,mid,res=-1;\n while(l<=r){\n  mid=(l+r)/2;\n  if(a[mid]==x){res=mid;break;}\n  else if(a[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n printf(\"%d\",res);\n}\n",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    int left = 0;\n    int right = n - 1;\n    int firstIndex = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            firstIndex = mid;\n            right = mid - 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    printf(\"%d\\n\", firstIndex);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-lower-bound"
+                    },
+                    {
+                        "title": "Find First Occurrence Using Binary Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> arr[i];\n    }\n\n    int target;\n    cin >> target;\n\n    int left = 0;\n    int right = n - 1;\n    int firstIndex = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            firstIndex = mid;\n            right = mid - 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    cout << firstIndex << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "binary-search-lower-bound"
                     }
                 ]
             }
@@ -3291,36 +3291,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Find First Occurrence Using Binary Search - Python",
+                        "title": "Find Last Occurrence Using Binary Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nl=0\nr=n-1\nres=-1\nwhile l<=r:\n mid=(l+r)//2\n if arr[mid]==x:\n  res=mid\n  r=mid-1\n elif arr[mid]<x:\n  l=mid+1\n else:\n  r=mid-1\nprint(res)",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "n = int(input())\narr = list(map(int, input().split()))\ntarget = int(input())\n\nleft = 0\nright = n - 1\nlast_index = -1\n\nwhile left <= right:\n    mid = left + (right - left) // 2\n\n    if arr[mid] == target:\n        last_index = mid\n        left = mid + 1\n    elif arr[mid] < target:\n        left = mid + 1\n    else:\n        right = mid - 1\n\nprint(last_index)",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "binary-search-upper-bound"
                     },
                     {
-                        "title": "Find First Occurrence Using Binary Search - Java",
+                        "title": "Find Last Occurrence Using Binary Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]==x){res=mid;r=mid-1;}\n   else if(arr[mid]<x) l=mid+1;\n   else r=mid-1;\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        int left = 0;\n        int right = n - 1;\n        int lastIndex = -1;\n\n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] == target) {\n                lastIndex = mid;\n                left = mid + 1;\n            } else if (arr[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n\n        System.out.println(lastIndex);\n    }\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-upper-bound"
                     },
                     {
-                        "title": "Find First Occurrence Using Binary Search - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){res=mid;r=mid-1;}\n  else if(arr[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Find First Occurrence Using Binary Search - C",
+                        "title": "Find Last Occurrence Using Binary Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n\nint main() {\n    int n, x;\n\n    scanf(\"%d\", &n);\n\n    int arr[n];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    scanf(\"%d\", &x);\n\n    int l = 0, r = n - 1;\n    int res = -1;\n\n    while (l <= r) {\n        int mid = (l + r) / 2;\n\n        if (arr[mid] == x) {\n            res = mid;\n            r = mid - 1;\n        }\n        else if (arr[mid] < x) {\n            l = mid + 1;\n        }\n        else {\n            r = mid - 1;\n        }\n    }\n\n    printf(\"%d\", res);\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    int left = 0;\n    int right = n - 1;\n    int lastIndex = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            lastIndex = mid;\n            left = mid + 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    printf(\"%d\\n\", lastIndex);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-upper-bound"
+                    },
+                    {
+                        "title": "Find Last Occurrence Using Binary Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> arr[i];\n    }\n\n    int target;\n    cin >> target;\n\n    int left = 0;\n    int right = n - 1;\n    int lastIndex = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            lastIndex = mid;\n            left = mid + 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    cout << lastIndex << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "binary-search-upper-bound"
                     }
                 ]
             }
@@ -3442,36 +3442,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Find Last Occurrence Using Binary Search - Python",
+                        "title": "Count Occurrences Using Binary Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nl=0\nr=n-1\nres=-1\nwhile l<=r:\n mid=(l+r)//2\n if arr[mid]==x:\n  res=mid\n  l=mid+1\n elif arr[mid]<x:\n  l=mid+1\n else:\n  r=mid-1\nprint(res)",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "n = int(input())\narr = list(map(int, input().split()))\ntarget = int(input())\n\n# Find first occurrence\nleft = 0\nright = n - 1\nfirst = -1\n\nwhile left <= right:\n    mid = left + (right - left) // 2\n\n    if arr[mid] == target:\n        first = mid\n        right = mid - 1\n    elif arr[mid] < target:\n        left = mid + 1\n    else:\n        right = mid - 1\n\n# Target does not exist\nif first == -1:\n    print(0)\nelse:\n    # Find last occurrence\n    left = 0\n    right = n - 1\n    last = -1\n\n    while left <= right:\n        mid = left + (right - left) // 2\n\n        if arr[mid] == target:\n            last = mid\n            left = mid + 1\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n\n    print(last - first + 1)",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "binary-search-range"
                     },
                     {
-                        "title": "Find Last Occurrence Using Binary Search - Java",
+                        "title": "Count Occurrences Using Binary Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]==x){res=mid;l=mid+1;}\n   else if(arr[mid]<x) l=mid+1;\n   else r=mid-1;\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        // Find first occurrence\n        int left = 0;\n        int right = n - 1;\n        int first = -1;\n\n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] == target) {\n                first = mid;\n                right = mid - 1;\n            } else if (arr[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n\n        if (first == -1) {\n            System.out.println(0);\n            return;\n        }\n\n        // Find last occurrence\n        left = 0;\n        right = n - 1;\n        int last = -1;\n\n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] == target) {\n                last = mid;\n                left = mid + 1;\n            } else if (arr[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n\n        System.out.println(last - first + 1);\n    }\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-range"
                     },
                     {
-                        "title": "Find Last Occurrence Using Binary Search - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){res=mid;l=mid+1;}\n  else if(arr[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Find Last Occurrence Using Binary Search - C",
+                        "title": "Count Occurrences Using Binary Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n\n int arr[n];\n for(int i=0;i<n;i++)\n  scanf(\"%d\",&arr[i]);\n\n scanf(\"%d\",&x);\n\n int l=0,r=n-1,res=-1;\n\n while(l<=r){\n  int mid=(l+r)/2;\n\n  if(arr[mid]==x){\n   res=mid;\n   l=mid+1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n\n printf(\"%d\",res);\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    // Find first occurrence\n    int left = 0;\n    int right = n - 1;\n    int first = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            first = mid;\n            right = mid - 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    if (first == -1) {\n        printf(\"0\\n\");\n        return 0;\n    }\n\n    // Find last occurrence\n    left = 0;\n    right = n - 1;\n    int last = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            last = mid;\n            left = mid + 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    printf(\"%d\\n\", last - first + 1);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-range"
+                    },
+                    {
+                        "title": "Count Occurrences Using Binary Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> arr[i];\n    }\n\n    int target;\n    cin >> target;\n\n    // Find first occurrence\n    int left = 0;\n    int right = n - 1;\n    int first = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            first = mid;\n            right = mid - 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    if (first == -1) {\n        cout << 0 << endl;\n        return 0;\n    }\n\n    // Find last occurrence\n    left = 0;\n    right = n - 1;\n    int last = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] == target) {\n            last = mid;\n            left = mid + 1;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    cout << last - first + 1 << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "binary-search-range"
                     }
                 ]
             }
@@ -3593,36 +3593,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Count Total Occurrences in Sorted Array - Python",
+                        "title": "Find Highest Affordable Price Using Binary Search - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\ndef first():\n l=0;r=n-1;res=-1\n while l<=r:\n  mid=(l+r)//2\n  if arr[mid]==x:\n   res=mid\n   r=mid-1\n  elif arr[mid]<x:\n   l=mid+1\n  else:\n   r=mid-1\n return res\n\ndef last():\n l=0;r=n-1;res=-1\n while l<=r:\n  mid=(l+r)//2\n  if arr[mid]==x:\n   res=mid\n   l=mid+1\n  elif arr[mid]<x:\n   l=mid+1\n  else:\n   r=mid-1\n return res\nf=first()\nl=last()\nprint(0 if f==-1 else l-f+1)",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "n = int(input())\narr = list(map(int, input().split()))\nbudget = int(input())\n\nleft = 0\nright = n - 1\nanswer = -1\n\nwhile left <= right:\n    mid = left + (right - left) // 2\n\n    if arr[mid] <= budget:\n        answer = arr[mid]\n        left = mid + 1\n    else:\n        right = mid - 1\n\nprint(answer)",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "binary-search-floor"
                     },
                     {
-                        "title": "Count Total Occurrences in Sorted Array - Java",
+                        "title": "Find Highest Affordable Price Using Binary Search - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n static int first(int[] arr,int n,int x){\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]==x){res=mid;r=mid-1;}\n   else if(arr[mid]<x) l=mid+1;\n   else r=mid-1;\n  }\n  return res;\n }\n static int last(int[] arr,int n,int x){\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]==x){res=mid;l=mid+1;}\n   else if(arr[mid]<x) l=mid+1;\n   else r=mid-1;\n  }\n  return res;\n }\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int f=first(arr,n,x);\n  int l=last(arr,n,x);\n  if(f==-1) System.out.print(0);\n  else System.out.print(l-f+1);\n }\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int budget = sc.nextInt();\n\n        int left = 0;\n        int right = n - 1;\n        int answer = -1;\n\n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] <= budget) {\n                answer = arr[mid];\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n\n        System.out.println(answer);\n    }\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-floor"
                     },
                     {
-                        "title": "Count Total Occurrences in Sorted Array - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint first(vector<int>&arr,int n,int x){\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){res=mid;r=mid-1;}\n  else if(arr[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n return res;\n}\nint last(vector<int>&arr,int n,int x){\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){res=mid;l=mid+1;}\n  else if(arr[mid]<x) l=mid+1;\n  else r=mid-1;\n }\n return res;\n}\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int f=first(arr,n,x);\n int l=last(arr,n,x);\n if(f==-1) cout<<0;\n else cout<<l-f+1;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Count Total Occurrences in Sorted Array - C",
+                        "title": "Find Highest Affordable Price Using Binary Search - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n\nint first(int arr[], int n, int x){\n int l=0, r=n-1, res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){\n   res=mid;\n   r=mid-1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n return res;\n}\n\nint last(int arr[], int n, int x){\n int l=0, r=n-1, res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){\n   res=mid;\n   l=mid+1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n return res;\n}\n\nint main(){\n int n, x;\n scanf(\"%d\", &n);\n int arr[n];\n\n for(int i=0;i<n;i++)\n  scanf(\"%d\", &arr[i]);\n\n scanf(\"%d\", &x);\n\n int f=first(arr,n,x);\n int l=last(arr,n,x);\n\n if(f==-1)\n  printf(\"0\");\n else\n  printf(\"%d\", l-f+1);\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int budget;\n    scanf(\"%d\", &budget);\n\n    int left = 0;\n    int right = n - 1;\n    int answer = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] <= budget) {\n            answer = arr[mid];\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    printf(\"%d\\n\", answer);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-floor"
+                    },
+                    {
+                        "title": "Find Highest Affordable Price Using Binary Search - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> arr[i];\n    }\n\n    int budget;\n    cin >> budget;\n\n    int left = 0;\n    int right = n - 1;\n    int answer = -1;\n\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] <= budget) {\n            answer = arr[mid];\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n\n    cout << answer << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "binary-search-floor"
                     }
                 ]
             }
@@ -3737,43 +3737,43 @@
                 }
             ],
             "hints": [
-                "Consider sorting the array as a first step to simplify the problem.",
-                "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
-                "Iterate through the sorted elements to find the final answer."
+                "Consider the fact that the array is a rotated sorted array.",
+                "Compare the middle element with the rightmost element to determine which half contains the minimum.",
+                "Continue narrowing the search range until the left and right pointers meet."
             ],
             "solution": {
                 "solutions": [
                     {
-                        "title": "Find Floor of a Number in Sorted Array - Python",
+                        "title": "Find Minimum in Rotated Sorted Array - Python",
                         "language": "python",
-                        "code": "import sys\ninput=sys.stdin.read\nn,*data=map(int,input().split())\narr=data[:n]\nx=data[n]\nl=0\nr=n-1\nres=-1\nwhile l<=r:\n mid=(l+r)//2\n if arr[mid]<=x:\n  res=arr[mid]\n  l=mid+1\n else:\n  r=mid-1\nprint(res)",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "n = int(input())\narr = list(map(int, input().split()))\n\nleft = 0\nright = n - 1\n\nwhile left < right:\n    mid = left + (right - left) // 2\n\n    if arr[mid] > arr[right]:\n        left = mid + 1\n    else:\n        right = mid\n\nprint(arr[left])",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "binary-search-rotated-array"
                     },
                     {
-                        "title": "Find Floor of a Number in Sorted Array - Java",
+                        "title": "Find Minimum in Rotated Sorted Array - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int x=sc.nextInt();\n  int l=0,r=n-1,res=-1;\n  while(l<=r){\n   int mid=(l+r)/2;\n   if(arr[mid]<=x){res=arr[mid];l=mid+1;}\n   else r=mid-1;\n  }\n  System.out.print(res);\n }\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int left = 0;\n        int right = n - 1;\n\n        while (left < right) {\n            int mid = left + (right - left) / 2;\n\n            if (arr[mid] > arr[right]) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n\n        System.out.println(arr[left]);\n    }\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-rotated-array"
                     },
                     {
-                        "title": "Find Floor of a Number in Sorted Array - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,x; cin>>n;\n vector<int> arr(n);\n for(int i=0;i<n;i++) cin>>arr[i];\n cin>>x;\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]<=x){res=arr[mid];l=mid+1;}\n  else r=mid-1;\n }\n cout<<res;\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Find Floor of a Number in Sorted Array - C",
+                        "title": "Find Minimum in Rotated Sorted Array - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int arr[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&arr[i]);\n scanf(\"%d\",&x);\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]<=x){\n   res=arr[mid];\n   l=mid+1;\n  }\n  else r=mid-1;\n }\n printf(\"%d\",res);\n}",
-                        "complexity_analysis": "Time: O(log N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int left = 0;\n    int right = n - 1;\n\n    while (left < right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] > arr[right]) {\n            left = mid + 1;\n        } else {\n            right = mid;\n        }\n    }\n\n    printf(\"%d\\n\", arr[left]);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "binary-search-rotated-array"
+                    },
+                    {
+                        "title": "Find Minimum in Rotated Sorted Array - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n\n    for (int i = 0; i < n; i++) {\n        cin >> arr[i];\n    }\n\n    int left = 0;\n    int right = n - 1;\n\n    while (left < right) {\n        int mid = left + (right - left) / 2;\n\n        if (arr[mid] > arr[right]) {\n            left = mid + 1;\n        } else {\n            right = mid;\n        }\n    }\n\n    cout << arr[left] << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(log N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "binary-search-rotated-array"
                     }
                 ]
             }

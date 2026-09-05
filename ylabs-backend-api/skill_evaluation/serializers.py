@@ -125,7 +125,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
             'maximum_attempts', 'expiry_datetime', 'is_published', 
-            'sections', 'created_at', 'updated_at'
+            'settings', 'sections', 'created_at', 'updated_at'
         ]
 
     def create(self, validated_data):

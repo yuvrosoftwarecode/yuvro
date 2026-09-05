@@ -97,11 +97,15 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     
     const { submittedFiles, fileDiffs, splitDiffs } = useMemo(() => {
-        const patchStr = diffPatch || labSub?.solution;
+        let patchStr = diffPatch || labSub?.solution;
         if (!patchStr) return { submittedFiles: {}, fileDiffs: {}, splitDiffs: {} };
         
+        if (typeof patchStr === 'object') {
+            patchStr = JSON.stringify(patchStr);
+        }
+        
         try {
-            if (patchStr.trim().startsWith('{')) {
+            if (typeof patchStr === 'string' && patchStr.trim().startsWith('{')) {
                 const parsed = JSON.parse(patchStr) as Record<string, string>;
                 const d: Record<string, any[]> = {};
                 const sd: Record<string, any[]> = {};
@@ -314,7 +318,7 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
     const eciColor = (v: number) => v >= 70 ? "text-emerald-500" : v >= 55 ? "text-amber-500" : "text-red-500";
 
     return (
-        <div className="flex h-screen w-full bg-background font-sans overflow-hidden">
+        <div className="flex h-full w-full bg-background font-sans overflow-hidden">
             <div className="flex w-12 flex-col items-center gap-2 border-r bg-editor-panel py-4 text-muted-foreground">
                 <button 
                     onClick={() => {

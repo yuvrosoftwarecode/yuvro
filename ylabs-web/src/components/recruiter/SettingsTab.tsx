@@ -72,31 +72,27 @@ const DEFAULTS: Settings = {
   notifyOnExpiry: true,
 };
 
-export function SettingsTab({ ev, notify }: { ev: Evaluation; notify: (m: string) => void }) {
-  const [s, setS] = useState<Settings>(DEFAULTS);
+export function SettingsTab({ ev, notify, onSave }: { ev: Evaluation; notify: (m: string) => void; onSave?: (e: Evaluation) => void }) {
+  const [s, setS] = useState<Settings>(() => ({ ...DEFAULTS, ...(ev.settings || {}) }));
   const [dirty, setDirty] = useState(false);
   const [title, setTitle] = useState(ev.title);
   const [status, setStatus] = useState(ev.status);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY(ev.id));
-      if (raw) setS({ ...DEFAULTS, ...JSON.parse(raw) });
-    } catch {}
+    setS({ ...DEFAULTS, ...(ev.settings || {}) });
     setTitle(ev.title);
     setStatus(ev.status);
-  }, [ev.id, ev.title, ev.status]);
+  }, [ev.id, ev.title, ev.status, ev.settings]);
 
   const update = <K extends keyof Settings>(k: K, v: Settings[K]) => {
     setS((prev) => ({ ...prev, [k]: v }));
     setDirty(true);
   };
 
-  const save = () => {
-    try {
-      localStorage.setItem(KEY(ev.id), JSON.stringify(s));
-    } catch {}
-    saveEvaluation({ ...ev, title: title || ev.title, status });
+  const save = async () => {
+    const updated = { ...ev, title: title || ev.title, status, settings: s as any };
+    await saveEvaluation(updated);
+    if (onSave) onSave(updated);
     setDirty(false);
     notify("Settings saved");
   };
@@ -409,13 +405,13 @@ export function SettingsTab({ ev, notify }: { ev: Evaluation; notify: (m: string
 
         {/* Sticky save bar */}
         <div
-          className={`sticky bottom-4 z-30 flex items-center justify-between rounded-xl border border-white/10 bg-neutral-950/95 px-4 py-3 backdrop-blur transition ${dirty ? "opacity-100" : "opacity-60"}`}
+          className={`sticky bottom-4 z-30 flex items-center justify-between rounded-xl border border-neutral-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur transition ${dirty ? "opacity-100" : "opacity-60"}`}
         >
-          <div className="text-[12px] text-neutral-400">
+          <div className="text-[12px] text-neutral-500">
             {dirty ? (
-              <span className="text-amber-300">You have unsaved changes</span>
+              <span className="text-amber-600">You have unsaved changes</span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-emerald-300">
+              <span className="inline-flex items-center gap-1.5 text-emerald-600">
                 <Check className="h-3.5 w-3.5" /> All changes saved
               </span>
             )}
@@ -423,14 +419,14 @@ export function SettingsTab({ ev, notify }: { ev: Evaluation; notify: (m: string
           <div className="flex items-center gap-2">
             <button
               onClick={reset}
-              className="rounded-md border border-white/10 px-3 py-1.5 text-[12px] text-neutral-300 hover:bg-white/5"
+              className="rounded-md border border-neutral-200 px-3 py-1.5 text-[12px] text-neutral-600 hover:bg-neutral-50 transition-colors"
             >
               Reset to defaults
             </button>
             <button
               onClick={save}
               disabled={!dirty}
-              className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-medium text-black transition hover:bg-white/90 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-md bg-amber-400 px-3 py-1.5 text-[12px] font-medium text-black transition hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Save className="h-3.5 w-3.5" /> Save changes
             </button>

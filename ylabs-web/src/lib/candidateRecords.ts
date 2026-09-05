@@ -37,7 +37,9 @@ export interface CandidateRecord {
   activity: ActivityEvent[];
 }
 
-const API_BASE = "http://localhost:8002/api/skill_evaluation";
+const API_BASE = (
+  import.meta.env.VITE_BACKEND_API_BASE_URL || "http://localhost:8002/api"
+).replace(/\/$/, "") + "/skill_evaluation";
 
 export async function fetchCandidateRecords(evId: string): Promise<CandidateRecord[]> {
   try {
