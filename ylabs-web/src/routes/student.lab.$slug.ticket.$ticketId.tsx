@@ -2502,12 +2502,12 @@ export function TicketIDE({
         {/* Left panel (collapsible) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-            {[
+            {([
               { k: "problem", I: BookOpen, label: "Problem" },
-              { k: "hints", I: Lightbulb, label: "Hints" },
+              !isEvaluationMode ? { k: "hints", I: Lightbulb, label: "Hints" } : null,
               // { k: "discuss", I: MessageSquare, label: "Discuss" },
-              { k: "solution", I: Key, label: "Solution" },
-            ].map(({ k, I, label }) => (
+              !isEvaluationMode ? { k: "solution", I: Key, label: "Solution" } : null,
+            ].filter(Boolean) as { k: string; I: any; label: string }[]).map(({ k, I, label }) => (
               <button
                 key={k}
                 title={label}
@@ -2531,12 +2531,12 @@ export function TicketIDE({
         ) : (
           <aside className="hidden md:flex w-[30%] min-w-[300px] max-w-[460px] flex-col border-r bg-editor-panel">
             <div className="flex items-center border-b text-xs">
-              {[
+              {([
                 { k: "problem", label: "Problem" },
-                { k: "hints", label: "Hints" },
+                !isEvaluationMode ? { k: "hints", label: "Hints" } : null,
                 // { k: "discuss", label: "Discuss" },
-                { k: "solution", label: "Solution" },
-              ].map((t) => (
+                !isEvaluationMode ? { k: "solution", label: "Solution" } : null,
+              ].filter(Boolean) as { k: string; label: string }[]).map((t) => (
                 <button
                   key={t.k}
                   onClick={() => setTab(t.k as typeof tab)}
