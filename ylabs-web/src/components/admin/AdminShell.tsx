@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState, Outlet } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import { DeployInfo } from "@/components/common/DeployInfo";
 import {
   LayoutDashboard,
   Users,
@@ -186,6 +187,7 @@ export function AdminShell({
           >
             <LogOut className="h-4 w-4 shrink-0" /> {!collapsed && "Sign out"}
           </button>
+          <DeployInfo collapsed={collapsed} />
         </div>
       </aside>
 
