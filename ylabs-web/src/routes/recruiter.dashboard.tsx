@@ -30,8 +30,8 @@ function RecruiterDashboard() {
   const invited = evals.reduce((a, e) => a + e.candidatesInvited, 0);
   const completed = evals.reduce((a, e) => a + e.candidatesCompleted, 0);
 
-  const onCreate = () => {
-    const e = createEvaluation();
+  const onCreate = async () => {
+    const e = await createEvaluation();
     nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
   };
 

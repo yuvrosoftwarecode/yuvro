@@ -8,6 +8,7 @@ import {
   Trash2,
   Clock,
   Users,
+  Link2,
 } from "lucide-react";
 import {
   listEvaluations,
@@ -28,11 +29,18 @@ export const Route = createFileRoute("/recruiter/evaluations/")({
 
 function EvaluationsList() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
   const nav = useNavigate();
   const refresh = () => listEvaluations().then(setEvals);
   useEffect(() => {
     refresh();
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const onCreate = async () => {
     const e = await createEvaluation();
@@ -141,6 +149,15 @@ function EvaluationsList() {
                     >
                       <Eye className="h-3.5 w-3.5" />
                     </IconBtn>
+                    <IconBtn
+                      title="Copy Public Link"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/evaluation?e=${e.id}`);
+                        setToast("Public link copied to clipboard!");
+                      }}
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
+                    </IconBtn>
                     <IconBtn title="Duplicate" onClick={() => onDuplicate(e.id)}>
                       <Copy className="h-3.5 w-3.5" />
                     </IconBtn>
@@ -166,6 +183,12 @@ function EvaluationsList() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
+          {toast}
         </div>
       )}
     </div>
