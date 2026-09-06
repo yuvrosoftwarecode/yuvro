@@ -12,7 +12,7 @@
       "scenario": "BUG_FIXING",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "SD/Status-codes-Swagger",
-      "startup_command": "python manage.py migrate && python manage.py setup_superuser && python manage.py runserver",
+      "startup_command": "python manage.py migrate && python manage.py setup_superuser && python manage.py runserver 0.0.0.0:8010",
       "test_command": "python yuvro_scoring_rules/main_test.py",
       "programming_languages": [
         "PYTHON"
