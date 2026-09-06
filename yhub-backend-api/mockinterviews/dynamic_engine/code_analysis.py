@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
 
 class CodeInsightExtractor:
     def from_event_details(self, details: dict[str, Any]) -> dict[str, Any] | None:
-        patch = self._text(details.get("solution_patch") or details.get("patch") or details.get("diff"))
+        patch_value = details.get("solution_patch") or details.get("patch") or details.get("diff")
+        patch = self._text(patch_value)
         candidate_code = self._text(
             details.get("candidate_implementation")
             or details.get("candidate_code")
@@ -16,8 +18,14 @@ class CodeInsightExtractor:
         reference_code = self._text(details.get("correct_solution") or details.get("reference_solution"))
 
         insight: dict[str, Any] = {}
-        if patch:
-            insight.update(self._patch_insights(patch))
+        if isinstance(patch_value, dict):
+            insight.update(self._workspace_snapshot_insights(patch_value))
+        elif patch:
+            workspace_snapshot = self._json_workspace_snapshot(patch)
+            if workspace_snapshot is not None:
+                insight.update(self._workspace_snapshot_insights(workspace_snapshot))
+            else:
+                insight.update(self._patch_insights(patch))
         if candidate_code:
             insight.update(self._source_insights(candidate_code, prefix="candidate"))
         if reference_code:
@@ -31,6 +39,76 @@ class CodeInsightExtractor:
 
         insight["question_axes"] = self._question_axes(insight)
         return insight
+
+    def _json_workspace_snapshot(self, raw: str) -> dict[str, str] | None:
+        stripped = raw.strip()
+        if not stripped.startswith("{"):
+            return None
+        try:
+            parsed = json.loads(stripped)
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(parsed, dict):
+            return None
+
+        files: dict[str, str] = {}
+        for path, content in parsed.items():
+            if not isinstance(path, str) or not path.strip():
+                continue
+            if isinstance(content, str):
+                files[path] = content
+            elif content is None:
+                files[path] = ""
+            else:
+                return None
+
+        return files or None
+
+    def _workspace_snapshot_insights(self, files: dict[str, Any]) -> dict[str, Any]:
+        changed_files = [str(path) for path in files if str(path).strip()]
+        file_change_summaries = []
+        all_source_chunks = []
+        notable_lines = []
+        for path in changed_files:
+            source = self._text(files.get(path))
+            all_source_chunks.append(source)
+            lines = source.splitlines()
+            file_change_summaries.append(
+                {
+                    "path": path,
+                    "additions": len(lines),
+                    "deletions": 0,
+                    "notable_added_lines": self._notable_lines(lines),
+                    "notable_removed_lines": [],
+                    "framework_choices": self._framework_choices(source),
+                    "performance_concerns": self._performance_concerns(source),
+                    "security_concerns": self._security_concerns(source),
+                    "removed_symbols": [],
+                    "added_symbols": self._symbols(source),
+                }
+            )
+            notable_lines.extend(self._notable_lines(lines))
+
+        combined_source = "\n".join(all_source_chunks)
+        return {
+            "changed_files": changed_files,
+            "file_changes": file_change_summaries,
+            "additions": sum(len(self._text(files.get(path)).splitlines()) for path in changed_files),
+            "deletions": 0,
+            "notable_added_lines": notable_lines[:8],
+            "notable_removed_lines": [],
+            "added_symbols": self._symbols(combined_source),
+            "removed_symbols": [],
+            "framework_choices": self._framework_choices(combined_source),
+            "performance_concerns": self._performance_concerns(combined_source),
+            "security_concerns": self._security_concerns(combined_source),
+            "code_diff_format": "workspace_snapshot_json",
+            "patch_summary": (
+                f"Submitted a workspace snapshot with {len(changed_files)} files."
+                if changed_files
+                else "Submitted a workspace snapshot."
+            ),
+        }
 
     def _patch_insights(self, patch: str) -> dict[str, Any]:
         changed_files: list[str] = []

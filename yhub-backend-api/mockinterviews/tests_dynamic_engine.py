@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from mockinterviews.dynamic_engine.models import (
@@ -10,9 +11,12 @@ from mockinterviews.dynamic_engine.models import (
     InterviewQuestion,
     InterviewSession,
     QuestionKind,
+    UnifiedAssessmentPayload,
 )
 from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM, QUESTION_PROMPT_VERSION
+from mockinterviews.dynamic_engine.payload_adapter import UnifiedPayloadAdapter
 from mockinterviews.dynamic_engine.question_engine import DynamicQuestionEngine
+from mockinterviews.dynamic_engine.reporting import InterviewReportService
 
 
 class DynamicEngineIntegrationTest(unittest.TestCase):
@@ -113,6 +117,58 @@ class DynamicEngineIntegrationTest(unittest.TestCase):
 
         self.assertEqual("Explain API idempotency exactly as drafted.", question.prompt)
         self.assertEqual(QuestionKind.RECRUITER_REQUIRED, question.kind)
+
+
+    def test_candidate_context_payload_generates_report_bundle(self):
+        workspace_snapshot = json.dumps({
+            "orders/views.py": (
+                "from rest_framework import generics\n"
+                "from .models import Order\n"
+                "class OrderListAPIView(generics.ListAPIView):\n"
+                "    queryset = Order.objects.select_related('customer').all()"
+            ),
+            "orders/models.py": "class Order:\n    pass",
+        })
+        context = f"""
+Engineering Labs in section 'Backend Labs':
+
+--- Lab: REST API HTTP Status Codes and Error Handling ---
+Time spent: 0 minutes
+Code Diff:
+```diff
+{workspace_snapshot}
+```
+
+Knowledge Assessment Score: 1/2
+- Question: Which HTTP status should a missing resource return?
+  Selected Answer Option Index: 404
+  Is Correct: Yes
+- Question: Which challenge commonly occurs in large-scale sales analysis systems?
+  Selected Answer Option Index: 2,1
+  Is Correct: No
+"""
+        payload = UnifiedAssessmentPayload.model_validate({"candidate_context": context})
+        adapter = UnifiedPayloadAdapter()
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        for event in adapter.to_assessment_events(payload):
+            engine.ingest_event(session, event)
+        question = engine.next_question(session)
+        engine.record_answer(
+            session,
+            question.id,
+            "I used select_related because the serializer needs the related customer without extra queries.",
+        )
+
+        bundle = InterviewReportService().create_report_bundle(session)
+
+        self.assertEqual("Engineering Labs Report", bundle.engineering_labs_report.title)
+        self.assertEqual("Knowledge Assessment Report", bundle.knowledge_assessment_report.title)
+        self.assertEqual("Overall Interview Report", bundle.overall_report.title)
+        self.assertEqual(1, bundle.engineering_labs_report.lab_count)
+        self.assertEqual(2, bundle.knowledge_assessment_report.question_count)
+        self.assertIn("orders/views.py", bundle.engineering_labs_report.labs[0].changed_files)
+        self.assertEqual(3, len(bundle.overall_report.section_scores))
 
     def test_missing_openai_key_records_llm_skip(self):
         session = InterviewSession.from_create_request(

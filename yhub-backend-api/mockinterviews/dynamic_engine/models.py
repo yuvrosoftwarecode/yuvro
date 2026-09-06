@@ -157,10 +157,13 @@ class UnifiedAssessmentPayload(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    event_type: str = Field(..., min_length=1)
+    event_type: str | None = None
     timestamp: datetime | None = None
     evaluation_id: str | None = None
     discussion_mode: str = "AUTOMATIC"
+    candidate_context: str | None = None
+    force: bool | None = None
+    sequential: bool | None = None
     candidate: dict[str, Any] = Field(default_factory=dict)
     job_description: dict[str, Any] | str = Field(default_factory=dict)
     knowledge_assessment: dict[str, Any] = Field(default_factory=dict)
@@ -170,6 +173,12 @@ class UnifiedAssessmentPayload(BaseModel):
     interviewer_questions: list[Any] = Field(default_factory=list)
     drafted_questions: list[Any] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_payload_identity(self) -> "UnifiedAssessmentPayload":
+        if not self.event_type and not self.candidate_context:
+            raise ValueError("unified payload requires event_type or candidate_context")
+        return self
 
 
 class AssessmentEvent(BaseModel):
@@ -319,6 +328,98 @@ class ReportCompetencySummary(BaseModel):
     evidence: list[EvaluationEvidence] = Field(default_factory=list)
 
 
+class EngineeringLabReportItem(BaseModel):
+    lab_id: str | None = None
+    title: str
+    scenario: str | None = None
+    time_spent_seconds: int | None = Field(default=None, ge=0)
+    tests_passed: int | None = Field(default=None, ge=0)
+    tests_total: int | None = Field(default=None, ge=0)
+    terminal_commands_run: int | None = Field(default=None, ge=0)
+    errors_encountered: int | None = Field(default=None, ge=0)
+    changed_files: list[str] = Field(default_factory=list)
+    code_diff_format: str | None = None
+    score: float | None = Field(default=None, ge=0, le=10)
+    summary: str
+    strengths: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    evidence_event_ids: list[str] = Field(default_factory=list)
+
+
+class EngineeringLabsReport(BaseModel):
+    id: str = Field(default_factory=lambda: new_id("eng_rpt"))
+    title: str = "Engineering Labs Report"
+    session_id: str
+    candidate_id: str
+    lab_count: int = Field(..., ge=0)
+    total_time_seconds: int = Field(default=0, ge=0)
+    tests_passed: int = Field(default=0, ge=0)
+    tests_total: int = Field(default=0, ge=0)
+    overall_score: float | None = Field(default=None, ge=0, le=10)
+    labs: list[EngineeringLabReportItem] = Field(default_factory=list)
+    strengths: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    markdown: str
+    generated_at: datetime = Field(default_factory=utc_now)
+
+
+class KnowledgeQuestionReport(BaseModel):
+    question_id: str | None = None
+    question_type: str | None = None
+    title: str | None = None
+    prompt: str
+    difficulty: str | None = None
+    marks_awarded: float | None = Field(default=None, ge=0)
+    max_marks: float | None = Field(default=None, ge=0)
+    is_correct: bool | None = None
+    time_spent_seconds: int | None = Field(default=None, ge=0)
+    candidate_answer: Any = None
+    correct_solution: Any = None
+    score_percent: float | None = Field(default=None, ge=0, le=100)
+    feedback: str
+
+
+class KnowledgeAssessmentReport(BaseModel):
+    id: str = Field(default_factory=lambda: new_id("know_rpt"))
+    title: str = "Knowledge Assessment Report"
+    session_id: str
+    candidate_id: str
+    total_score: float | None = Field(default=None, ge=0)
+    max_score: float | None = Field(default=None, ge=0)
+    score_percent: float | None = Field(default=None, ge=0, le=100)
+    correct_count: int = Field(default=0, ge=0)
+    question_count: int = Field(default=0, ge=0)
+    questions: list[KnowledgeQuestionReport] = Field(default_factory=list)
+    strengths: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    markdown: str
+    generated_at: datetime = Field(default_factory=utc_now)
+
+
+class OverallReportSectionScore(BaseModel):
+    section: str
+    score: float | None = Field(default=None, ge=0, le=10)
+    max_score: float = Field(default=10, ge=0)
+    weight: float = Field(default=0, ge=0, le=1)
+    summary: str
+
+
+class OverallInterviewReport(BaseModel):
+    id: str = Field(default_factory=lambda: new_id("overall_rpt"))
+    title: str = "Overall Interview Report"
+    session_id: str
+    candidate_id: str
+    target_role: str | None = None
+    overall_score: float = Field(..., ge=0, le=10)
+    recommendation: str
+    executive_summary: str
+    section_scores: list[OverallReportSectionScore] = Field(default_factory=list)
+    strengths: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    markdown: str
+    generated_at: datetime = Field(default_factory=utc_now)
+
+
 class InterviewReport(BaseModel):
     id: str = Field(default_factory=lambda: new_id("rpt"))
     session_id: str
@@ -337,6 +438,18 @@ class InterviewReport(BaseModel):
     evidence_highlights: list[EvaluationEvidence] = Field(default_factory=list)
     transcript: list[InterviewTranscriptItem] = Field(default_factory=list)
     markdown: str
+    generated_at: datetime = Field(default_factory=utc_now)
+
+
+class InterviewReportBundle(BaseModel):
+    id: str = Field(default_factory=lambda: new_id("rpt_bundle"))
+    session_id: str
+    candidate_id: str
+    target_role: str | None = None
+    engineering_labs_report: EngineeringLabsReport
+    knowledge_assessment_report: KnowledgeAssessmentReport
+    vitarka_report: InterviewReport
+    overall_report: OverallInterviewReport
     generated_at: datetime = Field(default_factory=utc_now)
 
 
