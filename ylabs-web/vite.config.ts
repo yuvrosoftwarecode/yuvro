@@ -15,11 +15,12 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
+        'react-native': './src/lib/emptyStub.ts',
         'react-native-fs': './src/lib/emptyStub.ts',
       },
     },
     optimizeDeps: {
-      include: ['recharts', 'alasql', 'mingo'],
+      include: ['recharts', 'alasql', 'mingo', 'jspdf', 'xlsx'],
       exclude: [
         '@uiw/react-codemirror',
         '@codemirror/lang-python',

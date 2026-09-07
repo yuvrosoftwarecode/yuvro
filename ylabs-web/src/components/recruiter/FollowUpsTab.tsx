@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import * as XLSX from "xlsx";
 import {
   Save, Users, User, ListChecks, Upload, ClipboardPaste, Mail,
   MoreHorizontal, PhoneCall, Send, Pencil, Trash2, Eye, PowerOff,
@@ -447,6 +446,7 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
     try {
       let rows: Candidate[] = [];
       if (f.name.endsWith(".xlsx") || f.name.endsWith(".xls")) {
+        const XLSX = await import("xlsx");
         const buf = await f.arrayBuffer();
         const wb = XLSX.read(buf, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];

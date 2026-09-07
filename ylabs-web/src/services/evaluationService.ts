@@ -46,9 +46,17 @@ export const evaluationService = {
   },
 
   async getWorkspaceData(evaluationId: string): Promise<any> {
+    let emailParam = "";
+    try {
+      if (typeof window !== "undefined") {
+        const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
+        if (cand?.email) emailParam = `?email=${encodeURIComponent(cand.email)}`;
+      }
+    } catch {}
+
     const [evalData, allLabs] = await Promise.all([
-      restApiUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
-      restApiUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
+      restApiAuthUtil.get(`/skill_evaluation/evaluations/${evaluationId}/${emailParam}`),
+      restApiAuthUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
     ]);
 
     if ((evalData as any).sections) {

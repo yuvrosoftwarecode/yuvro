@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { z } from "zod";
-import * as XLSX from "xlsx";
 import {
   ChevronLeft,
   ArrowLeft,
@@ -1351,7 +1350,7 @@ function ExportMenu({
       ? `${selected.length} selected`
       : `${candidates.length.toLocaleString()} in view`;
 
-  const doCsv = (kind: "csv" | "xlsx") => {
+  const doCsv = async (kind: "csv" | "xlsx") => {
     const rows = [
       [
         "Candidate",
@@ -1381,6 +1380,7 @@ function ExportMenu({
     );
     
     if (kind === "xlsx") {
+      const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(wb, ws, "Candidates");
