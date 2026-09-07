@@ -524,6 +524,19 @@ export async function fetchQuestions(
   }
 }
 
+export async function checkDuplicateQuestion(content: string, courseId: string) {
+  try {
+    const res = await ycodeApiAuthUtil.post<any>("/course/questions/check_duplicate/", {
+      content,
+      course: courseId,
+    });
+    return res;
+  } catch (err) {
+    console.error("Duplicate check error:", err);
+    return { is_duplicate: false };
+  }
+}
+
 export async function fetchQuestionDetails(id: string): Promise<QuestionItem | null> {
   try {
     const q = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);

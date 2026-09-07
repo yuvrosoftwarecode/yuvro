@@ -60,6 +60,7 @@ import {
   createEvaluation,
   syncMockInterviews,
 } from "@/lib/recruiter";
+import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import { Workspace } from "@/components/evaluation/WorkspaceApp";
 import { createPortal } from "react-dom";
 import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
@@ -376,6 +377,15 @@ function EvaluationWorkspace() {
               if (sec && !sec.questions.find((qq) => qq.id === q.id)) sec.questions.push(q);
             });
           }}
+          onRemove={(id) => {
+            update((x) => {
+              const sec = x.sections.find((s) => s.id === qDrawerFor.sectionId) as
+                AssessmentSection | undefined;
+              if (sec) {
+                sec.questions = sec.questions.filter((qq) => qq.id !== id);
+              }
+            });
+          }}
         />
       )}
     </div>
@@ -578,7 +588,7 @@ function LabsSectionBody({
 
 function LabPreview({ l }: { l: any }) {
   return (
-    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
+    <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
       {l.description ? (
         <div className="whitespace-pre-wrap">{l.description}</div>
       ) : l.text ? (
@@ -590,23 +600,23 @@ function LabPreview({ l }: { l: any }) {
       <div className="grid grid-cols-2 gap-4 text-[12px]">
         <div>
           <div className="text-neutral-500">Domain</div>
-          <div className="text-white">{l.domain || "N/A"}</div>
+          <div className="text-neutral-900 dark:text-white">{l.domain || "N/A"}</div>
         </div>
         <div>
           <div className="text-neutral-500">Scenario</div>
-          <div className="text-white">{l.scenario || "N/A"}</div>
+          <div className="text-neutral-900 dark:text-white">{l.scenario || "N/A"}</div>
         </div>
         <div>
           <div className="text-neutral-500">Difficulty</div>
-          <div className="text-white">{l.difficulty || "N/A"}</div>
+          <div className="text-neutral-900 dark:text-white">{l.difficulty || "N/A"}</div>
         </div>
         <div>
           <div className="text-neutral-500">Duration</div>
-          <div className="text-white">{l.duration_minutes || 0} min</div>
+          <div className="text-neutral-900 dark:text-white">{l.duration_minutes || 0} min</div>
         </div>
         <div>
           <div className="text-neutral-500">Marks</div>
-          <div className="text-white">{l.marks || 0}</div>
+          <div className="text-neutral-900 dark:text-white">{l.marks || 0}</div>
         </div>
       </div>
 
@@ -633,21 +643,21 @@ function LabPreview({ l }: { l: any }) {
       )}
 
       {l.tasks && l.tasks.length > 0 && (
-        <div className="border-t border-white/5 pt-4">
-          <div className="text-neutral-400 font-semibold mb-3">Tasks in this Lab</div>
+        <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
+          <div className="text-neutral-700 dark:text-neutral-400 font-semibold mb-3">Tasks in this Lab</div>
           <div className="space-y-2">
             {l.tasks.map((t: any, i: number) => (
-              <div key={t.id || i} className="rounded bg-black/20 p-3 text-[12px]">
+              <div key={t.id || i} className="rounded bg-neutral-100 dark:bg-black/20 p-3 text-[12px]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-white">
+                  <span className="font-medium text-neutral-900 dark:text-white">
                     {i + 1}. {t.title}
                   </span>
                   {t.difficulty && (
-                    <span className="text-[10px] text-neutral-400">{t.difficulty}</span>
+                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{t.difficulty}</span>
                   )}
                 </div>
                 {t.description && (
-                  <div className="text-neutral-400 line-clamp-2 mt-1 whitespace-pre-wrap">
+                  <div className="text-neutral-500 dark:text-neutral-400 line-clamp-2 mt-1 whitespace-pre-wrap">
                     {t.description}
                   </div>
                 )}
@@ -662,22 +672,24 @@ function LabPreview({ l }: { l: any }) {
 
 function QuestionPreview({ q }: { q: any }) {
   return (
-    <div className="rounded-md bg-white/5 p-4 text-[13px] text-neutral-300 space-y-4">
-      {q.text && <div className="whitespace-pre-wrap">{q.text}</div>}
+    <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
+      {(q.text || q.content) && (
+        <div className="whitespace-pre-wrap">{q.text || q.content}</div>
+      )}
 
       {q.mcq_options && q.mcq_options.length > 0 && (
         <div className="space-y-2">
-          <div className="font-semibold text-neutral-400">Options:</div>
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Options:</div>
           {q.mcq_options.map((opt: any, i: number) => (
-            <div key={i} className="flex items-start gap-3 rounded bg-black/20 px-3 py-2">
+            <div key={i} className="flex items-start gap-3 rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-transparent px-3 py-2">
               <div className="mt-0.5">
                 {opt.is_correct ? (
-                  <Check className="h-4 w-4 text-emerald-400" />
+                  <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 ) : (
-                  <div className="h-4 w-4 rounded-full border border-white/10" />
+                  <div className="h-4 w-4 rounded-full border border-neutral-300 dark:border-white/10" />
                 )}
               </div>
-              <div className="flex-1">{opt.text}</div>
+              <div className="flex-1 text-neutral-900 dark:text-white">{opt.text}</div>
             </div>
           ))}
         </div>
@@ -685,15 +697,54 @@ function QuestionPreview({ q }: { q: any }) {
 
       {q.test_cases_basic && q.test_cases_basic.length > 0 && (
         <div className="space-y-3">
-          <div className="font-semibold text-neutral-400">Examples:</div>
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Examples:</div>
           {q.test_cases_basic.map((ex: any, i: number) => (
-            <div key={i} className="rounded bg-black/20 p-3 font-mono text-[11px]">
-              <div>
+            <div key={i} className="rounded bg-neutral-100 dark:bg-black/20 p-3 font-mono text-[11px]">
+              <div className="text-neutral-900 dark:text-neutral-300">
                 <span className="text-neutral-500">Input:</span> {ex.input}
               </div>
-              <div className="mt-2">
-                <span className="text-neutral-500">Output:</span> {ex.output}
+              <div className="mt-2 text-neutral-900 dark:text-neutral-300">
+                <span className="text-neutral-500">Output:</span> {ex.expected_output || ex.output}
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {q.hints && q.hints.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Hints:</div>
+          <ul className="list-inside list-disc space-y-1">
+            {q.hints.map((hint: string, i: number) => (
+              <li key={i} className="text-neutral-700 dark:text-neutral-300">
+                {hint}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {q.solutions && q.solutions.length > 0 && (
+        <div className="space-y-3">
+          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Solutions:</div>
+          {q.solutions.map((sol: any, i: number) => (
+            <div key={i} className="rounded border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/20 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-900 dark:text-white">
+                  {sol.title || "Solution"}
+                </span>
+                <span className="rounded bg-neutral-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:text-neutral-400">
+                  {sol.language}
+                </span>
+                {sol.is_primary && (
+                  <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] uppercase text-emerald-700 dark:text-emerald-400">
+                    Primary
+                  </span>
+                )}
+              </div>
+              <pre className="overflow-x-auto rounded bg-neutral-50 dark:bg-black/40 p-2 font-mono text-[11px] text-neutral-800 dark:text-neutral-300">
+                <code>{sol.code}</code>
+              </pre>
             </div>
           ))}
         </div>
@@ -707,7 +758,7 @@ function AssessmentQuestionItem({ q, onRemove }: { q: any; onRemove: () => void 
     <li className="flex flex-col rounded-md border border-white/5 bg-black/20 px-3 py-2.5">
       <div className="flex items-center gap-3">
         <span className="line-clamp-1 flex-1 text-[12px] text-neutral-300">
-          {q.text || q.title || "Untitled Question"}
+          {q.text || q.content || q.title || "Untitled Question"}
         </span>
         <span className="text-[10px] text-neutral-500">
           {q.difficulty} &middot; {q.marks}m &middot;{" "}
@@ -985,7 +1036,7 @@ function SummarySidebar({
         <SumRow label="Total Duration" value={`${t.minutes} min`} strong />
         <SumRow label="Total Marks" value={t.marks} strong />
       </div>
-      <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      {/* <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
           Estimated Candidate Experience
         </div>
@@ -1000,7 +1051,7 @@ function SummarySidebar({
             />
           ))}
         </div>
-      </div>
+      </div> */}
       <div className="mt-6 space-y-2">
         <button
           onClick={onPreview}
@@ -1063,30 +1114,30 @@ function AddSectionModal({
   const later = ["Coding Challenge", "Take Home Assignment", "System Design"];
   return (
     <Overlay onClose={onClose}>
-      <div className="w-[560px] rounded-2xl border border-white/10 bg-neutral-950 p-6">
+      <div className="w-[560px] rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-6 shadow-xl dark:shadow-none">
         <div className="text-[10px] uppercase tracking-widest text-neutral-500">Add section</div>
-        <div className="mt-1 text-[18px] font-semibold text-white">What kind of section?</div>
+        <div className="mt-1 text-[18px] font-semibold text-neutral-900 dark:text-white">What kind of section?</div>
         <div className="mt-5 grid gap-2.5">
           {options.map((o) => (
             <button
               key={o.key}
               onClick={() => onPick(o.key as any)}
-              className="group flex items-center gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
+              className="group flex items-center gap-4 rounded-xl border border-neutral-100 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-4 text-left transition hover:border-neutral-200 dark:hover:border-white/15 hover:bg-neutral-100 dark:hover:bg-white/[0.04]"
             >
               <div
-                className={`grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br ${o.tone} text-black`}
+                className={`grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br ${o.tone} text-white dark:text-black`}
               >
                 <o.icon className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <div className="text-[14px] text-white">{o.title}</div>
+                <div className="text-[14px] font-medium text-neutral-900 dark:text-white">{o.title}</div>
                 <div className="text-[11px] text-neutral-500">{o.desc}</div>
               </div>
-              <ChevronRight className="h-4 w-4 text-neutral-600 transition group-hover:text-white" />
+              <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition group-hover:text-neutral-900 dark:group-hover:text-white" />
             </button>
           ))}
         </div>
-        <div className="mt-5 rounded-lg border border-dashed border-white/10 p-3 text-[11px] text-neutral-500">
+        <div className="mt-5 rounded-lg border border-dashed border-neutral-200 dark:border-white/10 p-3 text-[11px] text-neutral-500">
           Coming soon: {later.join(" · ")}
         </div>
       </div>
@@ -1175,13 +1226,13 @@ function LabDrawer({
       leftPanel={
         previewLab && (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-neutral-200 p-6">
-              <div className="text-[16px] font-semibold text-neutral-900">
+            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6">
+              <div className="text-[16px] font-semibold text-neutral-900 dark:text-white">
                 {previewLab.title || previewLab.text || "Preview"}
               </div>
               <button
                 onClick={() => setPreviewLab(null)}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1189,7 +1240,7 @@ function LabDrawer({
             <div className="flex-1 overflow-y-auto p-6">
               <LabPreview l={previewLab} />
             </div>
-            <div className="border-t border-neutral-200 p-5 flex justify-end">
+            <div className="border-t border-neutral-200 dark:border-white/5 p-5 flex justify-end">
               <button
                 disabled={existing.includes(previewLab.id)}
                 onClick={() => {
@@ -1212,7 +1263,7 @@ function LabDrawer({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search labs…"
-            className="w-full rounded-md border border-neutral-200 bg-neutral-50 py-2 pl-8 pr-3 text-[12px] outline-none focus:border-emerald-400/60 focus:bg-white focus:ring-2 focus:ring-emerald-400/20"
+            className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-8 pr-3 text-[12px] text-neutral-900 dark:text-white outline-none focus:border-emerald-400/60 focus:bg-white dark:focus:bg-black/30 focus:ring-2 focus:ring-emerald-400/20 dark:focus:ring-transparent placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
           />
         </div>
         <FilterRow
@@ -1245,10 +1296,10 @@ function LabDrawer({
         {filtered.map((l) => {
           const added = existing.includes(l.id);
           return (
-            <div key={l.id} className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow">
+            <div key={l.id} className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[13px] font-medium text-neutral-900">{l.title}</div>
+                  <div className="text-[13px] font-medium text-neutral-900 dark:text-white">{l.title}</div>
                   <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px]">
                     <Chip>{l.domain}</Chip>
                     {l.programming_languages?.map((x) => (
@@ -1266,14 +1317,14 @@ function LabDrawer({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setPreviewLab(l)}
-                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-50"
+                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 px-2 py-1 text-[11px] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors"
                   >
                     <Eye className="h-3 w-3" /> Preview
                   </button>
                   <button
                     disabled={added}
                     onClick={() => onAdd(l)}
-                    className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-neutral-100 disabled:text-neutral-400"
+                    className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-neutral-100 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 transition-colors"
                   >
                     {added ? (
                       <>
@@ -1312,8 +1363,13 @@ function QuestionDrawerItem({
   onPreview: (q: any) => void;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-neutral-200 bg-white p-3 shadow-sm hover:border-emerald-400/50 transition-colors">
-      <div className="text-[13px] text-neutral-900 font-medium flex-1">{it.text || it.title}</div>
+    <div className="flex flex-col rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:border-emerald-400/50 dark:hover:border-emerald-400/50 transition-colors">
+      <div className="flex-1 min-w-0" onClick={() => onPreview(it)}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1 truncate">{it.text || it.content || it.title}</div>
+          <span className="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 shrink-0">{it.marks}m</span>
+        </div>
+      </div>
       <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
         {it.programming_languages?.map((x: string) => (
           <Chip key={x}>{x}</Chip>
@@ -1333,14 +1389,14 @@ function QuestionDrawerItem({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onPreview(it)}
-            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-[11px] text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-transparent px-2 py-1 text-[11px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 hover:text-neutral-900 dark:hover:text-white dark:hover:bg-white/5 transition-colors"
           >
             <Eye className="h-3 w-3" /> Preview
           </button>
           <button
             disabled={added}
             onClick={() => onAdd(it)}
-            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600 disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 hover:bg-emerald-600 px-2 py-1 text-[11px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 dark:disabled:border-transparent transition-colors"
           >
             {added ? (
               <>
@@ -1362,10 +1418,12 @@ function QuestionDrawer({
   existing,
   onClose,
   onAdd,
+  onRemove,
 }: {
   existing: string[];
   onClose: () => void;
   onAdd: (q: QuestionItem) => void;
+  onRemove?: (id: string) => void;
 }) {
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
@@ -1388,6 +1446,7 @@ function QuestionDrawer({
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   const handlePreview = async (q: any) => {
+    setIsCreating(false);
     setLoadingPreview(true);
     const { fetchQuestionDetails } = await import("@/lib/recruiter");
     const details = await fetchQuestionDetails(q.id);
@@ -1409,10 +1468,83 @@ function QuestionDrawer({
 
     onAdd({
       ...finalQ,
-      course_title: c ? c.name : "Other Subjects",
-      topic_title: t ? t.name : "Other Topics",
+      course_title: finalQ.course_name || (c ? c.name : "Other Subjects"),
+      topic_title: finalQ.topic_name || (t ? t.name : "Other Topics"),
     });
   };
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingQ, setEditingQ] = useState<any>(null);
+
+  const handleCreateSuccess = async (createdQuestion: any) => {
+    setIsCreating(false);
+    // Add to current assessment
+    await handleAdd(createdQuestion);
+    // Refresh question list
+    setLoading(true);
+    fetchQuestions(
+      course !== "All" ? course : undefined, 
+      topic !== "All" ? topic : undefined, 
+      debouncedQ, diff, format
+    )
+      .then(setQuestions)
+      .finally(() => setLoading(false));
+  };
+
+  const handleEditSuccess = async (updatedQuestion: any) => {
+    setEditingQ(null);
+    setPreviewQ(updatedQuestion);
+
+    // If it's currently added to the assessment, update it in place by removing then adding back, or just calling onAdd again? 
+    // Wait, onAdd pushes it if not found. Let's remove and add, or since it updates in place, maybe onAdd doesn't replace.
+    // Instead of full state gymnastics, we can remove it and re-add it.
+    if (existing.includes(updatedQuestion.id) && onRemove) {
+      onRemove(updatedQuestion.id);
+      await handleAdd(updatedQuestion);
+    }
+    
+    // Refresh question list
+    setLoading(true);
+    fetchQuestions(
+      course !== "All" ? course : undefined, 
+      topic !== "All" ? topic : undefined, 
+      debouncedQ, diff, format
+    )
+      .then(setQuestions)
+      .finally(() => setLoading(false));
+  };
+
+  const handleDelete = async (q: any) => {
+    if (!window.confirm("Are you sure you want to permanently delete this question from the shared bank? This cannot be undone.")) return;
+    
+    setLoadingPreview(true);
+    try {
+      const { ycodeApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
+      await ycodeApiAuthUtil.delete(`/course/questions/${q.id}/`);
+      
+      if (existing.includes(q.id) && onRemove) {
+        onRemove(q.id);
+      }
+      
+      setPreviewQ(null);
+      setEditingQ(null);
+      
+      // Refresh question list
+      setLoading(true);
+      fetchQuestions(
+        course !== "All" ? course : undefined, 
+        topic !== "All" ? topic : undefined, 
+        debouncedQ, diff, format
+      )
+        .then(setQuestions)
+        .finally(() => setLoading(false));
+    } catch (err: any) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete question. You might not have permission.");
+      setLoadingPreview(false);
+    }
+  };
+
 
   useEffect(() => {
     setLoading(true);
@@ -1447,7 +1579,7 @@ function QuestionDrawer({
   const filtered = useMemo(
     () =>
       questions.filter((it) => {
-        const qmatch = !q || (it.text || it.title || "").toLowerCase().includes(q.toLowerCase());
+        const qmatch = !q || (it.text || it.content || it.title || "").toLowerCase().includes(q.toLowerCase());
         const lmatch =
           lang === "All" ||
           (it.programming_languages || []).map((x) => x.toUpperCase()).includes(lang.toUpperCase());
@@ -1468,23 +1600,52 @@ function QuestionDrawer({
       subtitle="Curated by topic and experience level."
       onClose={onClose}
       leftPanel={
-        previewQ && (
+        isCreating || editingQ ? (
+          <CreateQuestionForm
+            initialData={editingQ}
+            courses={courses}
+            onClose={() => {
+              setIsCreating(false);
+              setEditingQ(null);
+            }}
+            onSuccess={editingQ ? handleEditSuccess : handleCreateSuccess}
+          />
+        ) : previewQ ? (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-neutral-200 p-6">
-              <div className="text-[16px] font-semibold text-neutral-900">
-                {previewQ.title || previewQ.text || "Preview"}
+            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6 shrink-0">
+              <div className="text-[16px] font-semibold text-neutral-900 dark:text-white truncate mr-4">
+                {previewQ.title || previewQ.text || previewQ.content || "Preview"}
               </div>
-              <button
-                onClick={() => setPreviewQ(null)}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => setEditingQ(previewQ)}
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  title="Edit Question"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(previewQ)}
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 dark:hover:bg-white/5 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  title="Delete Question"
+                  disabled={loadingPreview}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <div className="w-px h-4 bg-neutral-200 dark:bg-white/10 mx-1" />
+                <button
+                  onClick={() => setPreviewQ(null)}
+                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  title="Close Preview"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <QuestionPreview q={previewQ} />
             </div>
-            <div className="border-t border-neutral-200 p-5 flex justify-end">
+            <div className="border-t border-neutral-200 dark:border-white/5 p-5 flex justify-end">
               <button
                 disabled={existing.includes(previewQ.id)}
                 onClick={() => {
@@ -1497,18 +1658,29 @@ function QuestionDrawer({
               </button>
             </div>
           </div>
-        )
+        ) : null
       }
     >
-      <div className="grid gap-2 border-b border-neutral-200 pb-4">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search questions…"
-            className="w-full rounded-md border border-neutral-200 bg-neutral-50 py-2 pl-8 pr-3 text-[12px] text-neutral-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
-          />
+      <div className="grid gap-2 border-b border-neutral-200 dark:border-white/5 pb-4">
+        <div className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
+            <input
+              placeholder="Search questions..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-9 pr-3 text-[13px] text-neutral-900 dark:text-white outline-none focus:bg-white dark:focus:bg-black/30 placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
+            />
+          </div>
+          <button
+            onClick={() => {
+              setIsCreating(true);
+              setPreviewQ(null);
+            }}
+            className="rounded-md bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors shrink-0"
+          >
+            Create New Question
+          </button>
         </div>
         <FilterRow
           label="Programming Languages"
@@ -1597,7 +1769,11 @@ function FilterRow({
           <button
             key={o}
             onClick={() => setValue(o)}
-            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${value === o ? "border-emerald-400/50 bg-emerald-50 text-emerald-700" : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}`}
+            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
+              value === o
+                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
+            }`}
           >
             {o}
           </button>
@@ -1626,7 +1802,11 @@ function FilterRowObj({
           <button
             key={o.value}
             onClick={() => setValue(o.value)}
-            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${value === o.value ? "border-emerald-400/50 bg-emerald-50 text-emerald-700" : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}`}
+            className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
+              value === o.value
+                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
+            }`}
           >
             {o.label}
           </button>
@@ -1637,7 +1817,7 @@ function FilterRowObj({
 }
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 text-neutral-600">
+    <span className="rounded-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 text-neutral-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-neutral-400">
       {children}
     </span>
   );
@@ -1648,7 +1828,7 @@ function Chip({ children }: { children: React.ReactNode }) {
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   const content = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/50 p-4"
       onClick={onClose}
     >
       <div onClick={(e) => e.stopPropagation()}>{children}</div>
@@ -1672,7 +1852,7 @@ function Drawer({
 }) {
   const content = (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-white/50"
+      className="fixed inset-0 z-50 flex justify-end bg-black/20 dark:bg-black/50"
       onClick={onClose}
     >
       {leftPanel && (
@@ -1680,28 +1860,28 @@ function Drawer({
           onClick={(e) => e.stopPropagation()}
           className="flex flex-1 justify-end p-8 pb-10 max-h-screen"
         >
-          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl flex flex-col">
+          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-950 shadow-2xl flex flex-col">
             {leftPanel}
           </div>
         </div>
       )}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-[480px] flex-col border-l border-neutral-200 bg-white shadow-xl"
+        className="flex h-full w-[480px] flex-col border-l border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-950 shadow-xl"
       >
-        <div className="flex items-start justify-between border-b border-neutral-200 p-5">
+        <div className="flex items-start justify-between border-b border-neutral-200 dark:border-white/10 p-5">
           <div>
-            <div className="text-[14px] font-medium text-neutral-900">{title}</div>
+            <div className="text-[14px] font-medium text-neutral-900 dark:text-white">{title}</div>
             {subtitle && <div className="mt-0.5 text-[11px] text-neutral-500">{subtitle}</div>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-5">{children}</div>
+        <div className="flex-1 overflow-y-auto hide-scrollbar p-5">{children}</div>
       </div>
     </div>
   );
