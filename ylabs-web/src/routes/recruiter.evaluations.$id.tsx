@@ -1035,7 +1035,7 @@ function SummarySidebar({
         <SumRow label="Total Duration" value={`${t.minutes} min`} strong />
         <SumRow label="Total Marks" value={t.marks} strong />
       </div>
-      <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      {/* <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
           Estimated Candidate Experience
         </div>
@@ -1050,7 +1050,7 @@ function SummarySidebar({
             />
           ))}
         </div>
-      </div>
+      </div> */}
       <div className="mt-6 space-y-2">
         <button
           onClick={onPreview}
@@ -1676,7 +1676,7 @@ function QuestionDrawer({
               setIsCreating(true);
               setPreviewQ(null);
             }}
-            className="rounded-md bg-emerald-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-emerald-600 transition-colors shrink-0"
+            className="rounded-md bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors shrink-0"
           >
             Create New Question
           </button>
@@ -1770,7 +1770,7 @@ function FilterRow({
             onClick={() => setValue(o)}
             className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
               value === o
-                ? "border-emerald-500/50 bg-emerald-50 text-emerald-700 dark:border-emerald-400/50 dark:bg-emerald-400/10 dark:text-emerald-300"
+                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
                 : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
             }`}
           >
@@ -1803,7 +1803,7 @@ function FilterRowObj({
             onClick={() => setValue(o.value)}
             className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
               value === o.value
-                ? "border-emerald-500/50 bg-emerald-50 text-emerald-700 dark:border-emerald-400/50 dark:bg-emerald-400/10 dark:text-emerald-300"
+                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
                 : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
             }`}
           >

@@ -669,7 +669,7 @@ export function CreateQuestionForm({
           form="create-q-form"
           type="submit"
           disabled={loading || isCheckingDuplicate || duplicateMeta?.is_duplicate}
-          className="inline-flex items-center gap-2 rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black transition hover:bg-emerald-300 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md bg-amber-500 px-5 py-2.5 text-[13px] font-medium text-black transition hover:bg-amber-400 disabled:opacity-50"
         >
           {loading ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black" />

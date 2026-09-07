@@ -140,12 +140,12 @@ function RecruiterLayout() {
                 </Link>
               </div>
             )}
-            <div className="mb-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            {/* <div className="mb-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
               <div className="flex items-center gap-2 text-[11px] text-neutral-400">Vitarka AI</div>
               <div className="mt-1 text-[11px] text-neutral-500">
                 Auto-generates candidate discussions from lab & assessment context.
               </div>
-            </div>
+            </div> */}
             <div className="flex items-center gap-2 rounded-lg px-2 py-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 text-[11px] font-semibold text-black">
                 {(user?.name ?? "R")[0]}

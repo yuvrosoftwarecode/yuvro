@@ -57,25 +57,25 @@
 :root {
   --radius: 0.625rem;
   /* Light theme — clean, soft slate/indigo */
-  --background: oklch(0.985 0.003 260);
-  --foreground: oklch(0.22 0.02 260);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 260);
+  --card-foreground: oklch(0.2 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.02 260);
-  --primary: oklch(0.58 0.18 255);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: var(--eval-orange, #f97316);
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.96 0.01 260);
   --secondary-foreground: oklch(0.28 0.02 260);
-  --muted: oklch(0.96 0.008 260);
-  --muted-foreground: oklch(0.5 0.02 260);
-  --accent: oklch(0.94 0.02 260);
-  --accent-foreground: oklch(0.25 0.03 260);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.2 0 0);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.91 0.008 260);
-  --input: oklch(0.93 0.008 260);
-  --ring: oklch(0.58 0.18 255);
+  --border: oklch(0.91 0 0);
+  --input: oklch(0.93 0 0);
+  --ring: var(--eval-orange, #f97316);
 
   --success: oklch(0.62 0.16 150);
   --warning: oklch(0.7 0.16 75);
@@ -92,10 +92,10 @@
   --sec: oklch(0.58 0.2 25);
 
   /* Editor stays a soft paper tone in light mode */
-  --editor-bg: oklch(0.99 0.003 260);
-  --editor-panel: oklch(0.965 0.006 260);
-  --editor-line: oklch(0.94 0.008 260);
-  --editor-gutter: oklch(0.6 0.02 260);
+  --editor-bg: oklch(1 0 0);
+  --editor-panel: oklch(1 0 0);
+  --editor-line: oklch(0.95 0 0);
+  --editor-gutter: oklch(0.6 0 0);
 
   --syntax-keyword: oklch(0.5 0.2 300);
   --syntax-string: oklch(0.5 0.15 145);
@@ -113,19 +113,19 @@
   --card-foreground: oklch(0.96 0.005 260);
   --popover: oklch(0.2 0.02 260);
   --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.72 0.18 250);
-  --primary-foreground: oklch(0.15 0.02 260);
+  --primary: var(--eval-orange, #f97316);
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.26 0.02 260);
   --secondary-foreground: oklch(0.96 0.005 260);
   --muted: oklch(0.24 0.018 260);
   --muted-foreground: oklch(0.68 0.02 260);
-  --accent: oklch(0.3 0.04 260);
-  --accent-foreground: oklch(0.96 0.005 260);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.96 0 0);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.28 0.02 260);
   --input: oklch(0.26 0.02 260);
-  --ring: oklch(0.72 0.18 250);
+  --ring: var(--eval-orange, #f97316);
 
   --success: oklch(0.74 0.17 150);
   --warning: oklch(0.8 0.16 80);

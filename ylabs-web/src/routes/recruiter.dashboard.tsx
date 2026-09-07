@@ -66,9 +66,9 @@ function RecruiterDashboard() {
     <div className="p-10">
       <div className="flex items-start justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-neutral-400">
+          {/* <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-neutral-400">
             AI-assisted recruiting workspace
-          </div>
+          </div> */}
           <h1 className="mt-4 text-[34px] font-semibold tracking-tight">Good to see you back.</h1>
           <p className="mt-1 text-[14px] text-neutral-400">
             Design engineering evaluations that feel like real work.
