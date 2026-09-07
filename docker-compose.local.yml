@@ -125,3 +125,4 @@ services:
         required: false
     volumes:
       - ./yuvro-code-executer:/app
+      - ./workspaces:/workspaces

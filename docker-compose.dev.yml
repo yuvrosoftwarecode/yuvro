@@ -144,6 +144,8 @@ services:
       context: ./yhub-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./yhub-backend-api/.env.dev
       - path: ./yhub-backend-api/.env.dev-secrets

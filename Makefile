@@ -8,6 +8,7 @@
 
 .PHONY: help install run stop clean logs status port-forward
 .PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub
+.PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
 .PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
@@ -32,6 +33,10 @@ DEPLOY_BRANCH ?= main
 # - staging: k8s (Kubernetes) - default
 # - prod: k8s (Kubernetes) - default
 DEPLOY_TYPE ?= $(if $(filter staging prod,$(DEPLOY_ENV)),k8s,docker)
+
+# Enable BuildKit for all docker builds (faster, cache mounts, smaller images)
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
 
 # Validate DEPLOY_ENV
 VALID_DEPLOY_ENVS  := local dev staging prod
@@ -204,6 +209,8 @@ help:
 	@echo "Platform-Specific Commands:"
 	@echo "  make install-ycode      Build and start YCode services only"
 	@echo "  make install-ycampus    Build and start YCampus services only"
+	@echo "  make install-ylabs      Build and start YLabs services only"
+	@echo "  make install-yhub       Build and start YHub services only"
 	@echo "  make run-ycode          Start YCode services (no build)"
 	@echo "  make run-ycampus        Start YCampus services (no build)"
 	@echo "  make stop-ycode         Stop YCode services"
@@ -233,6 +240,13 @@ help:
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
 	@echo "  make deploy-ylabs                   Deploy YLabs only"
 	@echo "  make deploy-yhub                    Deploy YHub only"
+	@echo ""
+	@echo "Image Build Commands (cache-friendly, BuildKit):"
+	@echo "  make deployImages                   Build all images (from cache)"
+	@echo "  make deployImages-ycode             Build YCode images only"
+	@echo "  make deployImages-ycampus           Build YCampus images only"
+	@echo "  make deployImages-ylabs             Build YLabs images only"
+	@echo "  make deployImages-yhub              Build YHub images only"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -264,7 +278,8 @@ install: _validate-deploy
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
-		docker compose $(COMPOSE_FILES) up --build; \
+		docker compose $(COMPOSE_FILES) build --build-arg BUILDKIT_INLINE_CACHE=1; \
+		docker compose $(COMPOSE_FILES) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
@@ -479,8 +494,9 @@ port-forward: _validate-deploy
 
 install-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "� Building YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
-		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		echo "🔨 Building YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YCode services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -508,8 +524,9 @@ install-ycode: _validate-deploy
 
 install-ycampus: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "� Building YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
-		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		echo "🔨 Building YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YCampus services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -686,11 +703,23 @@ logs-ycampus: _validate-deploy
 install-yhub: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
-		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YHub services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
 	else \
 		echo "❌ Kubernetes deployment for YHub is not configured"; \
+	fi
+
+install-ylabs: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🔨 Building YLabs services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
+		echo "🚀 Starting YLabs services..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+	else \
+		echo "❌ Kubernetes deployment for YLabs is not configured"; \
 	fi
 
 run-yhub: _validate-deploy
@@ -1011,3 +1040,49 @@ prod-up:
 prod-down:
 	docker compose -f docker-compose.prod.yml down
 	docker compose -f docker-compose.ycampus.prod.yml down
+
+# ============================================================================
+# Image Build Targets (cache-friendly)
+# Build images with BuildKit layer cache. Uses CACHEBUST=$(date +%s) so
+# application code is always refreshed while expensive install layers stay cached.
+# ============================================================================
+
+deployImages: _validate-deploy
+	@echo "🐳 Building all images [DEPLOY_ENV=$(DEPLOY_ENV)] (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose $(COMPOSE_FILES) build \
+		--build-arg BUILDKIT_INLINE_CACHE=1 \
+		--build-arg CACHEBUST=$$CACHEBUST
+	@echo "✅ All images built!"
+
+deployImages-ycode: _validate-deploy
+	@echo "🐳 Building YCode images (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		ycode-backend ycode-frontend yuvro-code-executor
+	@echo "✅ YCode images built!"
+
+deployImages-ycampus: _validate-deploy
+	@echo "🐳 Building YCampus images (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		ycampus-backend ycampus-frontend
+	@echo "✅ YCampus images built!"
+
+deployImages-ylabs: _validate-deploy
+	@echo "🐳 Building YLabs images (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		ylabs-backend ylabs-frontend
+	@echo "✅ YLabs images built!"
+
+deployImages-yhub: _validate-deploy
+	@echo "🐳 Building YHub images (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		yhub-backend
+	@echo "✅ YHub images built!"
