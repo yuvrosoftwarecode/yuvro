@@ -2617,7 +2617,7 @@ export function TicketIDE({
         {/* Left panel (collapsible) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-            {([
+            {[
               { k: "problem", I: BookOpen, label: "Problem" },
                 ...(!isEvaluationMode || isRecruiterPreview ? [
                   { k: "hints", I: Lightbulb, label: "Hints" },
@@ -2648,7 +2648,7 @@ export function TicketIDE({
         ) : (
           <aside className="hidden md:flex w-[30%] min-w-[300px] max-w-[460px] flex-col border-r bg-editor-panel">
             <div className="flex items-center border-b text-xs">
-              {([
+              {[
                 { k: "problem", label: "Problem" },
                 ...(!isEvaluationMode || isRecruiterPreview ? [
                   { k: "hints", label: "Hints" },
