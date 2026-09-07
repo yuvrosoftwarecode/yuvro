@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Flag, Users, Link2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { DeployInfo } from "@/components/common/DeployInfo";
 
 const navItems = [
   { to: "/student/collaboration", label: "Dashboard", icon: LayoutDashboard },
@@ -52,6 +53,10 @@ export function CollabSidebar() {
           );
         })}
       </nav>
+      <div className="p-2 border-t border-border">
+        <DeployInfo collapsed={collapsed} />
+      </div>
     </aside>
   );
 }
+
