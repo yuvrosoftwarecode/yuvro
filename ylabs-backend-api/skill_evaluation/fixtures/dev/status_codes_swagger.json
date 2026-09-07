@@ -1,0 +1,112 @@
+{
+  "lab_questions": [
+    {
+      "title": "REST API HTTP Status Codes and Error Handling",
+      "type": "BACKEND",
+      "description": "Debug and fix 5 critical HTTP status code and error handling bugs in a Django REST Framework API to comply with RESTful standards, prevent server crashes, and ensure proper authentication semantics.\n\nTo authorize:\nusername = admin \npassword =adminpassword123",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "SD/Status-codes-Swagger",
+      "startup_command": "python manage.py migrate && python manage.py setup_superuser && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Fix Resource Creation Status Code (201 Created)",
+          "description": "When a client sends a valid `POST /api/library/books/` request to create a new book, the server currently returns `200 OK`. In RESTful API design (RFC 7231), creating a new resource on the server must return HTTP status code `201 Created` along with the created resource payload.\n\n**Testing in Swagger UI:**\n1. Open preview.\n2. Expand `POST /api/library/books/` and click **'Try it out'**.\n3. Provide a valid book payload (e.g., `{\"title\": \"Clean Code\", \"author\": \"Robert C. Martin\", \"isbn\": \"9780132350884\"}`) and click **'Execute'**.\n4. Observe that the response status code is `200 OK` instead of `201 Created`.\n\n**Goal:** Ensure that creating a book returns `201 Created` on success.",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Handle Duplicate Resource Uniqueness Conflict (409 Conflict)",
+          "description": "When attempting to create a book with an `isbn` that already exists in the database, the view currently attempts a direct database insert without checking, causing an unhandled `IntegrityError` (UNIQUE constraint failed) and crashing with a `500 Internal Server Error`.\n\nIn REST APIs, when a request cannot be completed due to a conflict with the current state of the resource (such as duplicate unique fields), the server must return HTTP status code `409 Conflict`.\n\n**Testing in Swagger UI:**\n1. Open preview.\n2. Using `POST /api/library/books/`, create a book with a specific ISBN (e.g., `\"9780132350884\"`).\n3. Send a second `POST /api/library/books/` request using the exact same ISBN (`\"9780132350884\"`).\n4. Observe the unhandled `500 Internal Server Error` crash in Swagger UI.\n\n**Goal:** Ensure duplicate resource conflicts are handled gracefully and return `409 Conflict`.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Safely Handle Non-Existent Resource Retrieval (404 Not Found)",
+          "description": "When a client sends a `GET /api/library/books/<id>/` request for an ID that does not exist in the database, `Book.objects.filter(pk=pk).first()` returns `None`. The view directly attempts to read attributes from `None` (e.g., `book.id`), resulting in an uncaught `AttributeError` that crashes with a `500 Internal Server Error`.\n\nWhen a requested resource cannot be found, the endpoint must return HTTP status code `404 Not Found` with a clean error response.\n\n**Testing in Swagger UI:**\n1. Open preview.\n2. Expand `GET /api/library/books/{id}/` and click **'Try it out'**.\n3. In the `id` field, enter a non-existent ID (such as `99999`) and click **'Execute'**.\n4. Observe the `500 Internal Server Error` crash.\n\n**Goal:** Ensure queries for non-existent records safely return `404 Not Found`.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fix Unauthenticated Deletion Status Code (401 Unauthorized)",
+          "description": "When an unauthenticated request (without credentials) attempts to delete a book via `DELETE /api/library/books/<id>/`, the view currently returns `403 Forbidden`. Per HTTP authentication specifications (RFC 7235):\n- **`401 Unauthorized`**: Must be returned when a request lacks valid authentication credentials.\n- **`403 Forbidden`**: Reserved for when the client is authenticated but lacks sufficient permissions.\n\nSince the client provided no credentials (`not request.user.is_authenticated`), the server must return `401 Unauthorized`.\n\n**Testing in Swagger UI (Removing Authentication):**\n1. Open preview.\n2. Check the **Authorize 🔓** button at the top-right of Swagger UI.\n3. If authorized, click **Authorize 🔓**, click **'Logout'** under `basicAuth`, and click **'Close'**.\n4. Expand `DELETE /api/library/books/{id}/`, click **'Try it out'**, enter any ID (e.g., `1`), and click **'Execute'**.\n5. Observe that the response returns `403 Forbidden` instead of `401 Unauthorized`.\n\n**Goal:** Ensure unauthenticated requests return `401 Unauthorized`.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 10,
+          "order_index": 3,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce REST Deletion Semantics (204 No Content)",
+          "description": "When an authenticated user successfully deletes a book via `DELETE /api/library/books/<id>/`, the view currently returns `200 OK` with a JSON payload `{\"message\": \"Book deleted successfully.\"}`. Under REST standards (RFC 7231), when a deletion succeeds and produces no response body, the API must return `204 No Content` with an empty body.\n\n**Testing in Swagger UI (Adding Authentication):**\n1. Ensure the default superuser exists by running `python manage.py setup_superuser` (Credentials: `admin` / `adminpassword123`).\n2. Open preview.\n3. Click the green **Authorize 🔓** button (top-right).\n4. Under **basicAuth**, enter Username: `admin` and Password: `adminpassword123`, then click **'Authorize'** and **'Close'**.\n5. Create a book using `POST /api/library/books/` and note its `id`.\n6. Send an authenticated `DELETE /api/library/books/{id}/` request with that ID and click **'Execute'**.\n7. Observe that the response returns `200 OK` with a body instead of `204 No Content` with an empty body.\n\n**Goal:** Ensure successful deletion returns `204 No Content` with an empty response body.",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 15,
+          "order_index": 4,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

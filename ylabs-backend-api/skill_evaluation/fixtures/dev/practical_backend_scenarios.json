@@ -1,0 +1,384 @@
+{
+  "lab_questions": [
+    {
+      "title": "FinTech: Prevent Double-Spending in Wallet Transfer API",
+      "description": "A financial wallet transfer API suffers from a critical concurrency vulnerability where rapid simultaneous requests result in double-spending. Refactor the transfer endpoint to implement idempotency, atomic database locking with select_for_update, and double-entry ledger auditing.",
+      "difficulty": "HARD",
+      "domain": "PAYMENT",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "SECURITY",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_wallet_concurrency_lab",
+      "startup_command": "pip install django djangorestframework && python manage.py migrate && python manage.py runserver",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "POSTGRESQL",
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Enforce Idempotency Key Validation",
+          "description": "In `wallet/views.py`, inspect the incoming `Idempotency-Key` HTTP header. If a request with the same idempotency key was previously processed, return the cached response immediately. If the key is missing on state-mutating transfer requests, reject with HTTP 400 Bad Request.",
+          "difficulty": "MEDIUM",
+          "marks": 30,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Idempotency key caching and validation in middleware.py",
+                "file": "wallet/middleware.py",
+                "contains": ["cache.get", "cache.set", "ValidationError"]
+              }
+            ],
+            "pass_message": "Task 1 passed! Idempotency key validation correctly enforced.",
+            "fail_hint": "Implement idempotency validation with cache.get, cache.set, and ValidationError in wallet/middleware.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "wallet/middleware.py": "from django.core.cache import cache\nfrom rest_framework.response import Response\nfrom rest_framework import status\nfrom rest_framework.exceptions import ValidationError\n\ndef check_idempotency(key, request_func, *args, **kwargs):\n    if not key:\n        raise ValidationError({'error': 'Idempotency-Key header is required'})\n    cache_key = f'idempotency:{key}'\n    cached = cache.get(cache_key)\n    if cached is not None:\n        return cached\n    result = request_func(*args, **kwargs)\n    cache.set(cache_key, result, timeout=86400)\n    return result"
+          }
+        },
+        {
+          "title": "Task 2: Atomic Balance Deduction with Pessimistic Locking",
+          "description": "Update the transfer execution logic inside a `transaction.atomic()` context using `Wallet.objects.select_for_update()`. Verify sender balance is sufficient before decrementing, ensuring concurrent requests cannot reduce balances below zero.",
+          "difficulty": "HARD",
+          "marks": 40,
+          "duration_minutes": 25,
+          "order_index": 1,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Atomic balance deduction and pessimistic locking in services.py",
+                "file": "wallet/services.py",
+                "contains": ["transaction.atomic", "select_for_update", "balance -="]
+              }
+            ],
+            "pass_message": "Task 2 passed! Atomic balance deduction and pessimistic locking implemented.",
+            "fail_hint": "Wrap transfer in transaction.atomic() and use Wallet.objects.select_for_update() with balance -= in wallet/services.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "wallet/services.py": "from django.db import transaction\nfrom rest_framework.exceptions import ValidationError\nfrom .models import Wallet, LedgerEntry\n\ndef execute_transfer(sender_id, recipient_id, amount):\n    with transaction.atomic():\n        wallets = Wallet.objects.select_for_update().filter(id__in=[sender_id, recipient_id])\n        wallet_map = {w.id: w for w in wallets}\n        sender = wallet_map.get(sender_id)\n        recipient = wallet_map.get(recipient_id)\n        \n        if not sender or not recipient:\n            raise ValidationError('Invalid wallet ID')\n        if sender.balance < amount:\n            raise ValidationError('Insufficient funds')\n            \n        sender.balance -= amount\n        recipient.balance += amount\n        sender.save(update_fields=['balance'])\n        recipient.save(update_fields=['balance'])"
+          }
+        },
+        {
+          "title": "Task 3: Double-Entry Immutable Ledger Recording",
+          "description": "For every successful transfer, record two immutable ledger entries (DEBIT for sender, CREDIT for recipient) in `LedgerEntry` table with matching transaction reference ID and timestamp.",
+          "difficulty": "MEDIUM",
+          "marks": 30,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Double-entry LedgerEntry creation in services.py",
+                "file": "wallet/services.py",
+                "contains": ["LedgerEntry", "DEBIT", "CREDIT"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Immutable double-entry ledger entries recorded.",
+            "fail_hint": "Create DEBIT and CREDIT LedgerEntry records in wallet/services.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "wallet/services.py": "LedgerEntry.objects.bulk_create([\n    LedgerEntry(wallet=sender, entry_type='DEBIT', amount=amount, tx_ref=tx_id),\n    LedgerEntry(wallet=recipient, entry_type='CREDIT', amount=amount, tx_ref=tx_id)\n])"
+          }
+        }
+      ]
+    },
+    {
+      "title": "API Gateway: Distributed Token Bucket Rate Limiter",
+      "description": "An external partner API is experiencing service degradation due to unthrottled burst traffic. Design and implement a high-throughput Token Bucket rate limiting middleware in Python that tracks tokens per API key and returns standard HTTP 429 and rate-limiting headers.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "API_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_rate_limiter_lab",
+      "startup_command": "pytest",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "REDIS"
+      ],
+      "backend_frameworks": [
+        "FASTAPI"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Implement Token Bucket Algorithm",
+          "description": "Implement the core `TokenBucket` class with capacity `max_tokens` and continuous refill rate `refill_per_second`. Ensure thread-safe or atomic deduction of tokens upon each incoming request.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Token bucket refill and consumption logic in rate_limiter.py",
+                "file": "rate_limiter.py",
+                "contains": ["elapsed", "refill_rate", "self.tokens -="]
+              }
+            ],
+            "pass_message": "Task 1 passed! Token Bucket refill and consumption logic implemented.",
+            "fail_hint": "Calculate elapsed refill time and deduct self.tokens in rate_limiter.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "rate_limiter.py": "import time\n\nclass TokenBucket:\n    def __init__(self, capacity: int, refill_rate: float):\n        self.capacity = capacity\n        self.refill_rate = refill_rate\n        self.tokens = float(capacity)\n        self.last_refill = time.time()\n\n    def consume(self, tokens: int = 1) -> bool:\n        now = time.time()\n        elapsed = now - self.last_refill\n        self.tokens = min(float(self.capacity), self.tokens + elapsed * self.refill_rate)\n        self.last_refill = now\n        if self.tokens >= tokens:\n            self.tokens -= tokens\n            return True\n        return False"
+          }
+        },
+        {
+          "title": "Task 2: Standard X-RateLimit Headers & 429 Status",
+          "description": "Wrap the rate limiter in FastAPI middleware. For throttled requests, return HTTP 429 Too Many Requests with a `Retry-After` header indicating seconds until the next token is available. For all requests, inject `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "429 Too Many Requests and X-RateLimit headers in middleware.py",
+                "file": "middleware.py",
+                "contains": ["rate_limit_middleware", "429", "Retry-After", "X-RateLimit-Limit"]
+              }
+            ],
+            "pass_message": "Task 2 passed! Standard X-RateLimit headers and 429 status implemented.",
+            "fail_hint": "Return JSONResponse 429 with Retry-After and inject X-RateLimit headers in middleware.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "middleware.py": "from fastapi import Request, Response\nfrom fastapi.responses import JSONResponse\nfrom rate_limiter import TokenBucket\nfrom config import TIER_LIMITS, WHITELIST_PATHS\n\nbuckets = {}\n\ndef get_bucket(client_id: str, tier: str = 'FREE'):\n    if client_id not in buckets:\n        cap, rate = TIER_LIMITS.get(tier, (10, 10 / 60.0))\n        buckets[client_id] = TokenBucket(cap, rate)\n    return buckets[client_id]\n\nasync def rate_limit_middleware(request: Request, call_next):\n    if request.url.path in WHITELIST_PATHS:\n        return await call_next(request)\n    client_id = request.headers.get('X-API-Key') or (request.client.host if request.client else '127.0.0.1')\n    tier = request.headers.get('X-Tier', 'FREE')\n    bucket = get_bucket(client_id, tier)\n    if not bucket.consume(1):\n        retry_after = max(1, int((1.0 - bucket.tokens) / max(bucket.refill_rate, 0.001)))\n        return JSONResponse(\n            status_code=429,\n            content={'error': 'Too Many Requests'},\n            headers={'Retry-After': str(retry_after), 'X-RateLimit-Limit': str(bucket.capacity), 'X-RateLimit-Remaining': '0'}\n        )\n    response = await call_next(request)\n    response.headers['X-RateLimit-Limit'] = str(bucket.capacity)\n    response.headers['X-RateLimit-Remaining'] = str(int(bucket.tokens))\n    return response"
+          }
+        },
+        {
+          "title": "Task 3: Dynamic Tier-Based Quotas & Healthcheck Whitelist",
+          "description": "Configure tiered quotas: `FREE` tier (10 req/min), `PRO` tier (100 req/min), and `ENTERPRISE` tier (1000 req/min). Ensure system health routes `/healthz` and `/metrics` completely bypass rate limiting.",
+          "difficulty": "EASY",
+          "marks": 30,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Tier-based quotas and healthcheck whitelist in config.py",
+                "file": "config.py",
+                "contains": ["TIER_LIMITS", "FREE", "PRO", "WHITELIST_PATHS", "healthz"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Dynamic tier-based quotas and healthcheck whitelist configured.",
+            "fail_hint": "Define TIER_LIMITS with FREE/PRO/ENTERPRISE and WHITELIST_PATHS with /healthz in config.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "config.py": "TIER_LIMITS = {\n    'FREE': (10, 10 / 60.0),\n    'PRO': (100, 100 / 60.0),\n    'ENTERPRISE': (1000, 1000 / 60.0)\n}\n\nWHITELIST_PATHS = {'/healthz', '/metrics'}"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Security Incident: Fix Broken Object-Level Authorization (IDOR) on Invoices",
+      "description": "A security audit discovered an IDOR (Insecure Direct Object Reference / BOLA) vulnerability in a multi-tenant B2B invoicing backend. Authenticated users from Tenant A can view, edit, and delete invoices belonging to Tenant B by guessing invoice UUIDs. Remediate the vulnerability and build automated security regression tests.",
+      "difficulty": "MEDIUM",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 100,
+      "scenario": "SECURITY",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_idor_remediation_lab",
+      "startup_command": "python manage.py migrate && python manage.py test invoices.tests",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "POSTGRESQL",
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Enforce Tenant-Scoped Querysets",
+          "description": "Refactor `InvoiceViewSet.get_queryset()` in `invoices/views.py` so that it strictly filters records by the authenticated user's organization (`request.user.profile.organization` or `request.user.organization`). Prevent unfiltered `Invoice.objects.all()` lookups.",
+          "difficulty": "EASY",
+          "marks": 30,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Tenant-scoped queryset filtering in views.py",
+                "file": "invoices/views.py",
+                "contains": ["organization", "get_queryset"],
+                "does_not_contain": ["return Invoice.objects.all()"]
+              }
+            ],
+            "pass_message": "Task 1 passed! Tenant-scoped queryset filtering enforced.",
+            "fail_hint": "Filter Invoice queryset by the authenticated user organization and remove Invoice.objects.all() in invoices/views.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "invoices/views.py": "class InvoiceViewSet(viewsets.ModelViewSet):\n    serializer_class = InvoiceSerializer\n    permission_classes = [IsAuthenticated]\n\n    def get_queryset(self):\n        org = getattr(self.request.user, 'organization', None) or getattr(self.request.user.profile, 'organization', None)\n        return Invoice.objects.filter(organization=org)"
+          }
+        },
+        {
+          "title": "Task 2: Implement Object-Level Permission Checker",
+          "description": "Create a custom DRF permission class `IsInvoiceTenantOwner` in `invoices/permissions.py` implementing `has_object_permission` to verify that `obj.organization` matches the authenticated user's organization on detail endpoints.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Object-level tenant ownership permission in permissions.py",
+                "file": "invoices/permissions.py",
+                "contains": ["IsInvoiceTenantOwner", "has_object_permission", "organization"],
+                "does_not_contain": ["return True"]
+              }
+            ],
+            "pass_message": "Task 2 passed! Object-level permission checker implemented.",
+            "fail_hint": "Implement has_object_permission checking obj.organization matches request.user organization in invoices/permissions.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "invoices/permissions.py": "from rest_framework import permissions\n\nclass IsInvoiceTenantOwner(permissions.BasePermission):\n    def has_object_permission(self, request, view, obj):\n        user_org = getattr(request.user, 'organization', None) or getattr(request.user.profile, 'organization', None)\n        return obj.organization_id == getattr(user_org, 'id', user_org)"
+          }
+        },
+        {
+          "title": "Task 3: Automated Security Regression Tests",
+          "description": "Write automated test cases in `invoices/tests/test_security.py` demonstrating that User A from Tenant A accessing Tenant B's invoice receives an HTTP 404 Not Found (or 403 Forbidden) and cannot mutate records.",
+          "difficulty": "MEDIUM",
+          "marks": 35,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Automated cross-tenant security regression tests in test_security.py",
+                "file": "invoices/tests/test_security.py",
+                "contains": ["test_cross_tenant"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Automated security regression tests implemented.",
+            "fail_hint": "Write test_cross_tenant_access_forbidden asserting HTTP 404 or 403 status in invoices/tests/test_security.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "invoices/tests/test_security.py": "def test_cross_tenant_access_forbidden(self):\n    self.client.force_authenticate(user=self.user_a)\n    response = self.client.get(f'/api/invoices/{self.invoice_b.id}/')\n    self.assertIn(response.status_code, [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN])"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Production Incident: Database Deadlocks in Order Processing Pipeline",
+      "description": "During peak sales events, the order processing background worker crashes with PostgreSQL deadlocks (SQLSTATE 40P01) while updating order item inventory counters concurrently. Identify the root cause, establish consistent lock ordering, and add an exponential backoff retry decorator.",
+      "difficulty": "HARD",
+      "domain": "RETAIL",
+      "experience": "SENIOR",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "PRODUCTION_INCIDENT",
+      "git_repo_starter_url": "https://github.com/Lokesh-ui3/evaluation_deadlock_mitigation_lab",
+      "startup_command": "python manage.py migrate && python manage.py test tests",
+      "programming_languages": [
+        "PYTHON",
+        "SQL"
+      ],
+      "databases": [
+        "POSTGRESQL",
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Enforce Deterministic Lock Acquisition Order",
+          "description": "In `fulfillment/tasks.py`, sort all SKU product IDs in ascending order prior to executing `select_for_update()`. This ensures all parallel workers acquire row locks in identical sequence, mathematically eliminating circular wait conditions.",
+          "difficulty": "MEDIUM",
+          "marks": 40,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Deterministic lock ordering with sorted IDs and select_for_update",
+                "file": "fulfillment/tasks.py",
+                "contains": ["sorted", "select_for_update", "transaction.atomic"]
+              }
+            ],
+            "pass_message": "Task 1 passed! Deterministic lock acquisition order enforced.",
+            "fail_hint": "Sort product IDs ascending and acquire locks using select_for_update() within transaction.atomic() in fulfillment/tasks.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "fulfillment/tasks.py": "def process_order(order_items):\n    sorted_product_ids = sorted([item.product_id for item in order_items])\n    with transaction.atomic():\n        locked_products = list(Product.objects.filter(id__in=sorted_product_ids).order_by('id').select_for_update())\n        # Process fulfillment updates safely"
+          }
+        },
+        {
+          "title": "Task 2: Jittered Exponential Backoff Retry Decorator",
+          "description": "Implement a Python decorator `@retry_on_db_deadlock(max_retries=3, base_delay=0.1)` in `common/decorators.py` that catches `django.db.OperationalError` / PostgreSQL deadlock exceptions and retries with random jitter.",
+          "difficulty": "MEDIUM",
+          "marks": 40,
+          "duration_minutes": 25,
+          "order_index": 1,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Deadlock retry decorator with OperationalError and jittered backoff",
+                "file": "common/decorators.py",
+                "contains": ["retry_on_db_deadlock", "OperationalError", "deadlock detected", "time.sleep"]
+              }
+            ],
+            "pass_message": "Task 2 passed! Jittered exponential backoff retry decorator implemented.",
+            "fail_hint": "Catch OperationalError containing 'deadlock detected' and sleep with jittered backoff before retrying in common/decorators.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "common/decorators.py": "import time, random, functools\nfrom django.db import OperationalError\n\ndef retry_on_db_deadlock(max_retries=3, base_delay=0.1):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_retries):\n                try:\n                    return func(*args, **kwargs)\n                except OperationalError as exc:\n                    if 'deadlock detected' in str(exc).lower() and attempt < max_retries - 1:\n                        sleep_time = base_delay * (2 ** attempt) + random.uniform(0, 0.1)\n                        time.sleep(sleep_time)\n                    else:\n                        raise\n        return wrapper\n    return decorator"
+          }
+        },
+        {
+          "title": "Task 3: Structured Logging and Metric Emission",
+          "description": "Add structured JSON logging whenever a retry occurs, logging `attempt`, `backoff_seconds`, `order_id`, and error details for observability in Prometheus / Datadog.",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "file_checks": [
+              {
+                "label": "Structured logging for deadlock retries",
+                "file": "common/logging.py",
+                "contains": ["logger.warning", "Deadlock retry triggered", "order_id"]
+              }
+            ],
+            "pass_message": "Task 3 passed! Structured deadlock retry logging implemented.",
+            "fail_hint": "Use logger.warning with 'Deadlock retry triggered' and extra containing order_id in common/logging.py."
+          },
+          "expected_output": [],
+          "solution": {
+            "common/logging.py": "import logging\nlogger = logging.getLogger('deadlock_monitor')\n\ndef log_retry(order_id, attempt, backoff):\n    logger.warning('Deadlock retry triggered', extra={'order_id': order_id, 'attempt': attempt, 'backoff_s': backoff})"
+          }
+        }
+      ]
+    }
+  ]
+}

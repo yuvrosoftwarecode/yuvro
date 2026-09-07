@@ -273,34 +273,34 @@
                     {
                         "title": "Check if a String is Palindrome - Python",
                         "language": "python",
-                        "code": "import sys\ns=sys.stdin.read().strip()\nprint(str(s==s[::-1]).lower())",
+                        "code": "s = input().strip()\n\nif s == s[::-1]:\n    print(\"Valid Code\")\nelse:\n    print(\"Invalid Code\")",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "two-pointer-palindrome-check"
                     },
                     {
                         "title": "Check if a String is Palindrome - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  String rev=new StringBuilder(s).reverse().toString();\n  System.out.println(s.equals(rev));\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.nextLine().trim();\n\n        int left = 0;\n        int right = s.length() - 1;\n        boolean palindrome = true;\n\n        while (left < right) {\n            if (s.charAt(left) != s.charAt(right)) {\n                palindrome = false;\n                break;\n            }\n\n            left++;\n            right--;\n        }\n\n        if (palindrome) {\n            System.out.println(\"Valid Code\");\n        } else {\n            System.out.println(\"Invalid Code\");\n        }\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1).",
                         "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Check if a String is Palindrome - C++",
-                        "language": "cpp",
-                        "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n string r=s;\n reverse(r.begin(),r.end());\n cout<<(s==r?\"true\":\"false\");\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
-                        "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "two-pointer-palindrome-check"
                     },
                     {
                         "title": "Check if a String is Palindrome - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int l=0,r=strlen(s)-1;while(l<r){if(s[l++]!=s[r--]){printf(\"false\");return 0;}}printf(\"true\");}",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n\n    scanf(\"%10004s\", s);\n\n    int left = 0;\n    int right = strlen(s) - 1;\n    int palindrome = 1;\n\n    while (left < right) {\n        if (s[left] != s[right]) {\n            palindrome = 0;\n            break;\n        }\n\n        left++;\n        right--;\n    }\n\n    if (palindrome) {\n        printf(\"Valid Code\\n\");\n    } else {\n        printf(\"Invalid Code\\n\");\n    }\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N). Space: O(1).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "two-pointer-palindrome-check"
+                    },
+                    {
+                        "title": "Check if a String is Palindrome - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n\n    int left = 0;\n    int right = s.length() - 1;\n    bool palindrome = true;\n\n    while (left < right) {\n        if (s[left] != s[right]) {\n            palindrome = false;\n            break;\n        }\n\n        left++;\n        right--;\n    }\n\n    if (palindrome) {\n        cout << \"Valid Code\" << endl;\n    } else {\n        cout << \"Invalid Code\" << endl;\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "is_primary": false,
+                        "approach": "two-pointer-palindrome-check"
                     }
                 ]
             }
@@ -1063,7 +1063,7 @@
         {
             "title": "Ticket 8 — Identify the First Unique Transaction ID",
             "ticket_slug": "ticket-identify-the-first-unique-transaction-id",
-            "description": "A fintech company processes millions of payment transactions every day. During log analysis, each transaction is represented by a sequence of characters. Due to retries and duplicate processing, many transaction identifiers appear multiple times. The fraud detection team needs to identify the **first unique transaction identifier** in the sequence to trace the original successful transaction.\n\nYour task is to write a program that finds the **first non-repeating character** in a given transaction log.\n\n**Business Rules:**\n- Return the first character that appears exactly once.\n- Preserve the original order while checking.\n- If every character repeats, return **-1**.\n",
+            "description": "A fintech company processes millions of payment transactions every day. During log analysis, each transaction is represented by a sequence of characters. Due to retries and duplicate processing, many transaction identifiers appear multiple times. The fraud detection team needs to identify the first unique transaction identifier in the sequence to trace the original successful transaction.\n\nYour task is to write a program that finds the first non-repeating character in a given transaction log.\n\n**Business Rules:**\n- Return the first character that appears exactly once.\n- Preserve the original order while checking.\n- If every character repeats, return **-1**.\n",
             "xp_reward": 200,
             "ticket_type": "algo",
             "difficulty": "MEDIUM",
@@ -1156,7 +1156,7 @@
                     "description": "Validate the transaction log analysis for test case 10.",
                     "points": 10,
                     "input": "testcase",
-                    "expected_output": "s",
+                    "expected_output": "c",
                     "order_index": 10
                 },
                 {
@@ -1179,7 +1179,7 @@
                     {
                         "title": "First Non-Repeating Character - Python",
                         "language": "python",
-                        "code": "s=input().strip()\nfrom collections import Counter\nc=Counter(s)\nfor ch in s:\n if c[ch]==1:\n  print(ch)\n  break\nelse:\n print(-1)",
+                        "code": "from collections import Counter\n\ns = input().strip()\nfreq = Counter(s)\n\nfor ch in s:\n    if freq[ch] == 1:\n        print(ch)\n        break\nelse:\n    print(-1)",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
                         "approach": "optimal"
@@ -1187,7 +1187,7 @@
                     {
                         "title": "First Non-Repeating Character - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  Map<Character,Integer> map=new HashMap<>();\n  for(char ch:s.toCharArray()) map.put(ch,map.getOrDefault(ch,0)+1);\n  for(char ch:s.toCharArray()){\n   if(map.get(ch)==1){\n    System.out.print(ch);\n    return;\n   }\n  }\n  System.out.print(-1);\n }\n}",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.nextLine();\n\n        Map<Character, Integer> freq = new HashMap<>();\n\n        for (char ch : s.toCharArray()) {\n            freq.put(ch, freq.getOrDefault(ch, 0) + 1);\n        }\n\n        for (char ch : s.toCharArray()) {\n            if (freq.get(ch) == 1) {\n                System.out.println(ch);\n                return;\n            }\n        }\n\n        System.out.println(-1);\n    }\n}",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
                         "approach": "optimal"
@@ -1195,16 +1195,16 @@
                     {
                         "title": "First Non-Repeating Character - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n unordered_map<char,int> mp;\n for(char ch:s) mp[ch]++;\n for(char ch:s){\n  if(mp[ch]==1){\n   cout<<ch;\n   return 0;\n  }\n }\n cout<<-1;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n\n    unordered_map<char, int> freq;\n\n    for (char ch : s) {\n        freq[ch]++;\n    }\n\n    for (char ch : s) {\n        if (freq[ch] == 1) {\n            cout << ch;\n            return 0;\n        }\n    }\n\n    cout << -1;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) average. Space: O(N).",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "First Non-Repeating Character - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int freq[256] = {0};\n\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++)\n        freq[(unsigned char)s[i]]++;\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++) {\n        if (freq[(unsigned char)s[i]] == 1) {\n            printf(\"%c\", s[i]);\n            return 0;\n        }\n    }\n\n    printf(\"-1\");\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <stdio.h>\n\nint main() {\n    char s[10005];\n    int freq[256] = {0};\n\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++) {\n        freq[(unsigned char)s[i]]++;\n    }\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++) {\n        if (freq[(unsigned char)s[i]] == 1) {\n            printf(\"%c\", s[i]);\n            return 0;\n        }\n    }\n\n    printf(\"-1\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(256), effectively O(1).",
                         "is_primary": false,
                         "approach": "optimal"
                     }
@@ -1365,7 +1365,7 @@
         {
             "title": "Ticket 10 — Update Deprecated API Endpoints in Server Logs",
             "ticket_slug": "ticket-update-deprecated-api-endpoints-in-server-logs",
-            "description": "A backend engineering team is migrating an application to a new API version. Thousands of server log entries and configuration files still contain old API endpoint names. Before deployment, every occurrence of a deprecated endpoint must be replaced with its new endpoint.\n\nYour task is to write a program that replaces **all occurrences** of a given substring in a log entry with a new substring.\n\n**Business Rules:**\n- Replace every occurrence of the target substring.\n- Preserve the order of all other characters.\n- If the replacement string is empty, remove the matching substring.\n",
+            "description": "A backend engineering team is migrating an application to a new API version. Thousands of server log entries and configuration files still contain old API endpoint names. Before deployment, every occurrence of a deprecated endpoint must be replaced with its new endpoint.\n\nYour task is to write a program that replaces **all occurrences** of a given substring in a log entry with a new substring.\n\n**Business Rules:**\n- Replace every occurrence of the target substring.\n- Preserve the order of all other characters.\n- If the replacement string is empty, remove the matching substring.",
             "xp_reward": 200,
             "ticket_type": "algo",
             "difficulty": "MEDIUM",
@@ -1481,7 +1481,7 @@
                     {
                         "title": "Replace All Occurrences of Substring - Python",
                         "language": "python",
-                        "code": "s=input()\nold=input()\nnew=input()\nprint(s.replace(old,new))",
+                        "code": "import sys\n\nlines = sys.stdin.read().splitlines()\n\ns = lines[0] if len(lines) > 0 else \"\"\nold = lines[1] if len(lines) > 1 else \"\"\nnew = lines[2] if len(lines) > 2 else \"\"\n\nif old == \"\":\n    print(s)\nelse:\n    print(s.replace(old, new))",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
                         "approach": "optimal"
@@ -1489,7 +1489,7 @@
                     {
                         "title": "Replace All Occurrences of Substring - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  String old=sc.nextLine();\n  String ne=sc.nextLine();\n  System.out.print(s.replace(old,ne));\n }\n}",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.hasNextLine() ? sc.nextLine() : \"\";\n        String old = sc.hasNextLine() ? sc.nextLine() : \"\";\n        String replacement = sc.hasNextLine() ? sc.nextLine() : \"\";\n\n        if (old.isEmpty()) {\n            System.out.print(s);\n            return;\n        }\n\n        System.out.print(s.replace(old, replacement));\n    }\n}",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
                         "approach": "optimal"
@@ -1497,16 +1497,16 @@
                     {
                         "title": "Replace All Occurrences of Substring - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,old,rep;\n getline(cin,s);\n getline(cin,old);\n getline(cin,rep);\n size_t pos=0;\n while((pos=s.find(old,pos))!=string::npos){\n  s.replace(pos,old.length(),rep);\n  pos+=rep.length();\n }\n cout<<s;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, oldStr, newStr;\n\n    getline(cin, s);\n    getline(cin, oldStr);\n    getline(cin, newStr);\n\n    if (oldStr.empty()) {\n        cout << s;\n        return 0;\n    }\n\n    size_t pos = 0;\n\n    while ((pos = s.find(oldStr, pos)) != string::npos) {\n        s.replace(pos, oldStr.length(), newStr);\n        pos += newStr.length();\n    }\n\n    cout << s;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N*M) worst case. Space: O(N).",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "Replace All Occurrences of Substring - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], old[1005], rep[1005], res[20005];\n    \n    fgets(s, sizeof(s), stdin);\n    fgets(old, sizeof(old), stdin);\n    fgets(rep, sizeof(rep), stdin);\n\n    old[strcspn(old, \"\\n\")] = 0;\n    rep[strcspn(rep, \"\\n\")] = 0;\n\n    int i = 0, j = 0;\n    int len = strlen(old);\n\n    while (s[i]) {\n        if (strncmp(&s[i], old, len) == 0) {\n            strcpy(&res[j], rep);\n            j += strlen(rep);\n            i += len;\n        } else {\n            res[j++] = s[i++];\n        }\n    }\n\n    res[j] = '\\0';\n    printf(\"%s\", res);\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N*M). Space: O(N).",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    char oldStr[1005];\n    char newStr[1005];\n    char result[20005];\n\n    if (fgets(s, sizeof(s), stdin) == NULL) return 0;\n    if (fgets(oldStr, sizeof(oldStr), stdin) == NULL) return 0;\n\n    if (fgets(newStr, sizeof(newStr), stdin) == NULL) {\n        newStr[0] = '\\0';\n    }\n\n    s[strcspn(s, \"\\r\\n\")] = '\\0';\n    oldStr[strcspn(oldStr, \"\\r\\n\")] = '\\0';\n    newStr[strcspn(newStr, \"\\r\\n\")] = '\\0';\n\n    int oldLen = strlen(oldStr);\n\n    if (oldLen == 0) {\n        printf(\"%s\", s);\n        return 0;\n    }\n\n    int i = 0;\n    int j = 0;\n\n    while (s[i] != '\\0') {\n        if (strncmp(&s[i], oldStr, oldLen) == 0) {\n            i += oldLen;\n\n            for (int k = 0; newStr[k] != '\\0'; k++) {\n                result[j++] = newStr[k];\n            }\n        } else {\n            result[j++] = s[i++];\n        }\n    }\n\n    result[j] = '\\0';\n\n    printf(\"%s\", result);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N*M) worst case. Space: O(N).",
                         "is_primary": false,
                         "approach": "brute_force"
                     }
@@ -3279,40 +3279,48 @@
                     "description": "Validate your code against test case 11.",
                     "points": 10,
                     "input": "banana\n2",
-                    "expected_output": "7",
+                    "expected_output": "11",
                     "order_index": 11
                 }
             ],
             "hints": [
-                "A palindrome reads the same backwards and forwards. A common approach is to treat each character (or pair) as a center and expand outwards.",
-                "Consider both odd-length (expand from one center) and even-length (expand from between two characters) palindromes.",
-                "Update the result whenever you find a palindrome longer than the current maximum."
+                "Use a sliding window to maintain a substring with at most K distinct characters.",
+                "The number of substrings with exactly K distinct characters can be calculated as: atMost(K) - atMost(K - 1).",
+                "Maintain character frequencies in the current window and move the left pointer whenever the number of distinct characters exceeds K."
             ],
             "solution": {
                 "solutions": [
                     {
-                        "title": "Expand Around Center - Python",
+                        "title": "Count Substrings with Exactly K Distinct Characters - Python",
                         "language": "python",
-                        "code": "import sys, json\ns = json.loads(sys.stdin.read().strip())\nif not s: print(\"\"); exit()\ndef expand(l, r):\n    while l>=0 and r<len(s) and s[l]==s[r]: l-=1; r+=1\n    return s[l+1:r]\nres = \"\"\nfor i in range(len(s)):\n    s1 = expand(i, i)\n    s2 = expand(i, i+1)\n    res = max(res, s1, s2, key=len)\nprint(json.dumps(res))",
-                        "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                        "code": "s = input().strip()\nk = int(input())\n\ndef at_most_k(s, k):\n    if k <= 0:\n        return 0\n\n    freq = {}\n    left = 0\n    result = 0\n\n    for right in range(len(s)):\n        freq[s[right]] = freq.get(s[right], 0) + 1\n\n        while len(freq) > k:\n            freq[s[left]] -= 1\n\n            if freq[s[left]] == 0:\n                del freq[s[left]]\n\n            left += 1\n\n        result += right - left + 1\n\n    return result\n\nprint(at_most_k(s, k) - at_most_k(s, k - 1))",
+                        "complexity_analysis": "Time: O(N). Space: O(K).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Expand Around Center - Java",
+                        "title": "Count Substrings with Exactly K Distinct Characters - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNext()) return;\n        String s = sc.next().trim();\n        if (s.startsWith(\"\\\"\") && s.endsWith(\"\\\"\")) s = s.substring(1, s.length()-1);\n        \n        if (s.isEmpty()) { System.out.println(\"\\\"\\\"\"); return; }\n        \n        String res = \"\";\n        for (int i = 0; i < s.length(); i++) {\n            String s1 = extend(s, i, i);\n            String s2 = extend(s, i, i + 1);\n            if (s1.length() > res.length()) res = s1;\n            if (s2.length() > res.length()) res = s2;\n        }\n        System.out.println(\"\\\"\" + res + \"\\\"\");\n    }\n    private static String extend(String s, int l, int r) {\n        while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) {\n            l--; r++;\n        }\n        return s.substring(l + 1, r);\n    }\n}",
-                        "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static long atMostK(String s, int k) {\n        if (k <= 0) {\n            return 0;\n        }\n\n        Map<Character, Integer> freq = new HashMap<>();\n        int left = 0;\n        long result = 0;\n\n        for (int right = 0; right < s.length(); right++) {\n            char ch = s.charAt(right);\n            freq.put(ch, freq.getOrDefault(ch, 0) + 1);\n\n            while (freq.size() > k) {\n                char leftChar = s.charAt(left);\n                freq.put(leftChar, freq.get(leftChar) - 1);\n\n                if (freq.get(leftChar) == 0) {\n                    freq.remove(leftChar);\n                }\n\n                left++;\n            }\n\n            result += right - left + 1;\n        }\n\n        return result;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.nextLine().trim();\n        int k = sc.nextInt();\n\n        long answer = atMostK(s, k) - atMostK(s, k - 1);\n        System.out.println(answer);\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(K).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Expand Around Center - C",
+                        "title": "Count Substrings with Exactly K Distinct Characters - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint lo, maxLen;\n\nvoid expandAroundCenter(char* s, int j, int k, int len) {\n    while (j >= 0 && k < len && s[j] == s[k]) {\n        j--;\n        k++;\n    }\n    if (maxLen < k - j - 1) {\n        lo = j + 1;\n        maxLen = k - j - 1;\n    }\n}\n\nint main() {\n    char s_input[1005];\n    if (!fgets(s_input, sizeof(s_input), stdin)) return 0;\n    \n    int s_len = strlen(s_input);\n    if (s_len > 0 && s_input[s_len - 1] == '\\n') s_input[--s_len] = '\\0';\n    if (s_len > 0 && s_input[s_len - 1] == '\\r') s_input[--s_len] = '\\0';\n\n    char* s_ptr = s_input;\n    if (s_len >= 2 && s_input[0] == '\"' && s_input[s_len - 1] == '\"') {\n        s_ptr++;\n        s_input[s_len - 1] = '\\0';\n        s_len -= 2;\n    }\n\n    if (s_len == 0) {\n        printf(\"\\\"\\\"\\n\");\n        return 0;\n    }\n\n    lo = 0;\n    maxLen = 0;\n\n    for (int i = 0; i < s_len; i++) {\n        expandAroundCenter(s_ptr, i, i, s_len);\n        expandAroundCenter(s_ptr, i, i + 1, s_len);\n    }\n\n    printf(\"\\\"\");\n    for (int i = 0; i < maxLen; i++) {\n        putchar(s_ptr[lo + i]);\n    }\n    printf(\"\\\"\\n\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nlong long atMostK(char *s, int k) {\n    if (k <= 0) {\n        return 0;\n    }\n\n    int freq[256] = {0};\n    int distinct = 0;\n    int left = 0;\n    int n = strlen(s);\n    long long result = 0;\n\n    for (int right = 0; right < n; right++) {\n        unsigned char ch = s[right];\n\n        if (freq[ch] == 0) {\n            distinct++;\n        }\n\n        freq[ch]++;\n\n        while (distinct > k) {\n            unsigned char leftChar = s[left];\n            freq[leftChar]--;\n\n            if (freq[leftChar] == 0) {\n                distinct--;\n            }\n\n            left++;\n        }\n\n        result += right - left + 1;\n    }\n\n    return result;\n}\n\nint main() {\n    char s[100005];\n    int k;\n\n    scanf(\"%100004s\", s);\n    scanf(\"%d\", &k);\n\n    long long answer = atMostK(s, k) - atMostK(s, k - 1);\n\n    printf(\"%lld\\n\", answer);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1) for the fixed ASCII character set.",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
+                    },
+                    {
+                        "title": "Count Substrings with Exactly K Distinct Characters - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <string>\n#include <unordered_map>\nusing namespace std;\n\nlong long atMostK(const string& s, int k) {\n    if (k <= 0) {\n        return 0;\n    }\n\n    unordered_map<char, int> freq;\n    int left = 0;\n    long long result = 0;\n\n    for (int right = 0; right < (int)s.length(); right++) {\n        freq[s[right]]++;\n\n        while ((int)freq.size() > k) {\n            freq[s[left]]--;\n\n            if (freq[s[left]] == 0) {\n                freq.erase(s[left]);\n            }\n\n            left++;\n        }\n\n        result += right - left + 1;\n    }\n\n    return result;\n}\n\nint main() {\n    string s;\n    int k;\n\n    cin >> s;\n    cin >> k;\n\n    long long answer = atMostK(s, k) - atMostK(s, k - 1);\n\n    cout << answer << endl;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) average. Space: O(K).",
+                        "is_primary": false,
+                        "approach": "sliding-window"
                     }
                 ]
             }
@@ -3404,7 +3412,7 @@
                     "description": "Validate your code against test case 9.",
                     "points": 10,
                     "input": "abcdebdde\nbde",
-                    "expected_output": "bdde",
+                    "expected_output": "deb",
                     "order_index": 9
                 },
                 {
@@ -3427,43 +3435,43 @@
                 }
             ],
             "hints": [
-                "Read the problem carefully and identify the inputs and the expected output.",
-                "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
-                "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
+                "Use a sliding window to maintain a substring that contains all required characters.",
+                "Maintain the frequency of each required character and track how many required characters are currently satisfied.",
+                "Once the current window contains all required characters, shrink it from the left while keeping it valid to find the smallest possible window."
             ],
             "solution": {
                 "solutions": [
                     {
-                        "title": "Count Substrings with Exactly K Distinct Characters - Python",
+                        "title": "Minimum Window Substring - Python",
                         "language": "python",
-                        "code": "def atMostK(s,k):\n count={}\n left=res=0\n for right in range(len(s)):\n  count[s[right]]=count.get(s[right],0)+1\n  while len(count)>k:\n   count[s[left]]-=1\n   if count[s[left]]==0: del count[s[left]]\n   left+=1\n  res+=right-left+1\n return res\n\ns=input().strip()\nk=int(input())\nprint(atMostK(s,k)-atMostK(s,k-1))",
-                        "complexity_analysis": "Time: O(N). Space: O(K).",
+                        "code": "from collections import Counter\n\ns = input().strip()\nt = input().strip()\n\nif not t or len(t) > len(s):\n    print(\"-1\")\n    exit()\n\nneed = Counter(t)\nwindow = {}\n\nleft = 0\nformed = 0\nrequired = len(need)\n\nbest_len = float(\"inf\")\nbest_start = 0\n\nfor right in range(len(s)):\n    ch = s[right]\n    window[ch] = window.get(ch, 0) + 1\n\n    if ch in need and window[ch] == need[ch]:\n        formed += 1\n\n    while formed == required:\n        if right - left + 1 < best_len:\n            best_len = right - left + 1\n            best_start = left\n\n        left_char = s[left]\n        window[left_char] -= 1\n\n        if left_char in need and window[left_char] < need[left_char]:\n            formed -= 1\n\n        left += 1\n\nif best_len == float(\"inf\"):\n    print(\"-1\")\nelse:\n    print(s[best_start:best_start + best_len])",
+                        "complexity_analysis": "Time: O(N + M). Space: O(M).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Count Substrings with Exactly K Distinct Characters - Java",
+                        "title": "Minimum Window Substring - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n static int atMostK(String s,int k){\n  Map<Character,Integer> map=new HashMap<>();\n  int left=0,res=0;\n  for(int right=0;right<s.length();right++){\n   map.put(s.charAt(right),map.getOrDefault(s.charAt(right),0)+1);\n   while(map.size()>k){\n    char c=s.charAt(left);\n    map.put(c,map.get(c)-1);\n    if(map.get(c)==0) map.remove(c);\n    left++;\n   }\n   res+=right-left+1;\n  }\n  return res;\n }\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  int k=sc.nextInt();\n  System.out.println(atMostK(s,k)-atMostK(s,k-1));\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(K).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.nextLine().trim();\n        String t = sc.nextLine().trim();\n\n        if (t.length() == 0 || t.length() > s.length()) {\n            System.out.println(\"-1\");\n            return;\n        }\n\n        Map<Character, Integer> need = new HashMap<>();\n        Map<Character, Integer> window = new HashMap<>();\n\n        for (char ch : t.toCharArray()) {\n            need.put(ch, need.getOrDefault(ch, 0) + 1);\n        }\n\n        int required = need.size();\n        int formed = 0;\n        int left = 0;\n        int bestStart = 0;\n        int bestLen = Integer.MAX_VALUE;\n\n        for (int right = 0; right < s.length(); right++) {\n            char ch = s.charAt(right);\n            window.put(ch, window.getOrDefault(ch, 0) + 1);\n\n            if (need.containsKey(ch) &&\n                window.get(ch).intValue() == need.get(ch).intValue()) {\n                formed++;\n            }\n\n            while (formed == required) {\n                if (right - left + 1 < bestLen) {\n                    bestLen = right - left + 1;\n                    bestStart = left;\n                }\n\n                char leftChar = s.charAt(left);\n                window.put(leftChar, window.get(leftChar) - 1);\n\n                if (need.containsKey(leftChar) &&\n                    window.get(leftChar) < need.get(leftChar)) {\n                    formed--;\n                }\n\n                left++;\n            }\n        }\n\n        if (bestLen == Integer.MAX_VALUE) {\n            System.out.println(\"-1\");\n        } else {\n            System.out.println(s.substring(bestStart, bestStart + bestLen));\n        }\n    }\n}",
+                        "complexity_analysis": "Time: O(N + M). Space: O(M).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Count Substrings with Exactly K Distinct Characters - C++",
-                        "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint atMostK(string s,int k){\n unordered_map<char,int> mp;\n int left=0,res=0;\n for(int right=0;right<s.length();right++){\n  mp[s[right]]++;\n  while(mp.size()>k){\n   mp[s[left]]--;\n   if(mp[s[left]]==0) mp.erase(s[left]);\n   left++;\n  }\n  res+=right-left+1;\n }\n return res;\n}\nint main(){\n string s; int k;\n cin>>s>>k;\n cout<<atMostK(s,k)-atMostK(s,k-1);\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(K).",
-                        "is_primary": false,
-                        "approach": "optimal"
-                    },
-                    {
-                        "title": "Count Substrings with Exactly K Distinct Characters - C",
+                        "title": "Minimum Window Substring - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n\nint atMost(char *s, int k) {\n    int freq[256] = {0}, left = 0, res = 0, distinct = 0;\n\n    for (int right = 0; s[right]; right++) {\n        if (freq[(unsigned char)s[right]]++ == 0)\n            distinct++;\n\n        while (distinct > k) {\n            if (--freq[(unsigned char)s[left]] == 0)\n                distinct--;\n            left++;\n        }\n\n        res += right - left + 1;\n    }\n\n    return res;\n}\n\nint main() {\n    char s[10005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    printf(\"%d\", atMost(s, k) - atMost(s, k - 1));\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(256).",
+                        "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\n\nint main() {\n    char s[100005];\n    char t[100005];\n\n    scanf(\"%100004s\", s);\n    scanf(\"%100004s\", t);\n\n    int n = strlen(s);\n    int m = strlen(t);\n\n    if (m == 0 || m > n) {\n        printf(\"-1\\n\");\n        return 0;\n    }\n\n    int need[256] = {0};\n    int window[256] = {0};\n    int required = 0;\n\n    for (int i = 0; i < m; i++) {\n        unsigned char ch = t[i];\n\n        if (need[ch] == 0) {\n            required++;\n        }\n\n        need[ch]++;\n    }\n\n    int formed = 0;\n    int left = 0;\n    int bestStart = 0;\n    int bestLen = INT_MAX;\n\n    for (int right = 0; right < n; right++) {\n        unsigned char ch = s[right];\n        window[ch]++;\n\n        if (need[ch] > 0 && window[ch] == need[ch]) {\n            formed++;\n        }\n\n        while (formed == required) {\n            int currentLen = right - left + 1;\n\n            if (currentLen < bestLen) {\n                bestLen = currentLen;\n                bestStart = left;\n            }\n\n            unsigned char leftChar = s[left];\n            window[leftChar]--;\n\n            if (need[leftChar] > 0 &&\n                window[leftChar] < need[leftChar]) {\n                formed--;\n            }\n\n            left++;\n        }\n    }\n\n    if (bestLen == INT_MAX) {\n        printf(\"-1\\n\");\n    } else {\n        for (int i = bestStart; i < bestStart + bestLen; i++) {\n            putchar(s[i]);\n        }\n        putchar('\\n');\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N + M). Space: O(256).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
+                    },
+                    {
+                        "title": "Minimum Window Substring - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <climits>\nusing namespace std;\n\nint main() {\n    string s, t;\n    cin >> s;\n    cin >> t;\n\n    if (t.empty() || t.length() > s.length()) {\n        cout << -1 << endl;\n        return 0;\n    }\n\n    unordered_map<char, int> need;\n    unordered_map<char, int> window;\n\n    for (char ch : t) {\n        need[ch]++;\n    }\n\n    int required = need.size();\n    int formed = 0;\n    int left = 0;\n    int bestStart = 0;\n    int bestLen = INT_MAX;\n\n    for (int right = 0; right < (int)s.length(); right++) {\n        char ch = s[right];\n        window[ch]++;\n\n        if (need.count(ch) && window[ch] == need[ch]) {\n            formed++;\n        }\n\n        while (formed == required) {\n            int currentLen = right - left + 1;\n\n            if (currentLen < bestLen) {\n                bestLen = currentLen;\n                bestStart = left;\n            }\n\n            char leftChar = s[left];\n            window[leftChar]--;\n\n            if (need.count(leftChar) &&\n                window[leftChar] < need[leftChar]) {\n                formed--;\n            }\n\n            left++;\n        }\n    }\n\n    if (bestLen == INT_MAX) {\n        cout << -1 << endl;\n    } else {\n        cout << s.substr(bestStart, bestLen) << endl;\n    }\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N + M). Space: O(M).",
+                        "is_primary": false,
+                        "approach": "sliding-window"
                     }
                 ]
             }
@@ -3480,7 +3488,7 @@
                 {
                     "title": "Test Case 1",
                     "task_slug": "task-find-longest-user-activity-window-1",
-                    "description": "Validate your code against test case 1.",
+                    "description": "Validate your solution against test case 1.",
                     "points": 10,
                     "input": "eceba\n2",
                     "expected_output": "3",
@@ -3489,7 +3497,7 @@
                 {
                     "title": "Test Case 2",
                     "task_slug": "task-find-longest-user-activity-window-2",
-                    "description": "Validate your code against test case 2.",
+                    "description": "Validate your solution against test case 2.",
                     "points": 10,
                     "input": "aa\n1",
                     "expected_output": "2",
@@ -3498,7 +3506,7 @@
                 {
                     "title": "Test Case 3",
                     "task_slug": "task-find-longest-user-activity-window-3",
-                    "description": "Validate your code against test case 3.",
+                    "description": "Validate your solution against test case 3.",
                     "points": 10,
                     "input": "abc\n2",
                     "expected_output": "2",
@@ -3507,7 +3515,7 @@
                 {
                     "title": "Test Case 4 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-4",
-                    "description": "Validate your code against test case 4.",
+                    "description": "Validate your solution against test case 4.",
                     "points": 10,
                     "input": "aabbcc\n2",
                     "expected_output": "4",
@@ -3516,7 +3524,7 @@
                 {
                     "title": "Test Case 5 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-5",
-                    "description": "Validate your code against test case 5.",
+                    "description": "Validate your solution against test case 5.",
                     "points": 10,
                     "input": "abcabc\n3",
                     "expected_output": "6",
@@ -3525,7 +3533,7 @@
                 {
                     "title": "Test Case 6 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-6",
-                    "description": "Validate your code against test case 6.",
+                    "description": "Validate your solution against test case 6.",
                     "points": 10,
                     "input": "aaaa\n1",
                     "expected_output": "4",
@@ -3534,7 +3542,7 @@
                 {
                     "title": "Test Case 7 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-7",
-                    "description": "Validate your code against test case 7.",
+                    "description": "Validate your solution against test case 7.",
                     "points": 10,
                     "input": "abcde\n1",
                     "expected_output": "1",
@@ -3543,7 +3551,7 @@
                 {
                     "title": "Test Case 8 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-8",
-                    "description": "Validate your code against test case 8.",
+                    "description": "Validate your solution against test case 8.",
                     "points": 10,
                     "input": "abaccc\n2",
                     "expected_output": "4",
@@ -3552,25 +3560,25 @@
                 {
                     "title": "Test Case 9 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-9",
-                    "description": "Validate your code against test case 9.",
+                    "description": "Validate your solution against test case 9.",
                     "points": 10,
                     "input": "worldwideweb\n3",
-                    "expected_output": "6",
+                    "expected_output": "4",
                     "order_index": 9
                 },
                 {
                     "title": "Test Case 10 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-10",
-                    "description": "Validate your code against test case 10.",
+                    "description": "Validate your solution against test case 10.",
                     "points": 10,
                     "input": "mississippi\n2",
-                    "expected_output": "5",
+                    "expected_output": "7",
                     "order_index": 10
                 },
                 {
                     "title": "Test Case 11 (Hidden/Advanced)",
                     "task_slug": "task-find-longest-user-activity-window-11",
-                    "description": "Validate your code against test case 11.",
+                    "description": "Validate your solution against test case 11.",
                     "points": 10,
                     "input": "xyzxyzxyz\n2",
                     "expected_output": "2",
@@ -3585,36 +3593,36 @@
             "solution": {
                 "solutions": [
                     {
-                        "title": "Smallest Substring Containing All Characters of Another String - Python",
+                        "title": "Longest Substring with At Most K Distinct Characters - Python",
                         "language": "python",
-                        "code": "from collections import Counter\ns=input().strip()\nt=input().strip()\nneed=Counter(t)\nhave={}\nreq=len(need)\nformed=0\nl=0\nres=(float('inf'),0,0)\nfor r,c in enumerate(s):\n have[c]=have.get(c,0)+1\n if c in need and have[c]==need[c]: formed+=1\n while l<=r and formed==req:\n  if r-l+1<res[0]: res=(r-l+1,l,r)\n  have[s[l]]-=1\n  if s[l] in need and have[s[l]]<need[s[l]]: formed-=1\n  l+=1\nprint(-1 if res[0]==float('inf') else s[res[1]:res[2]+1])",
-                        "complexity_analysis": "Time: O(N). Space: O(M).",
+                        "code": "from collections import defaultdict\n\ns = input().strip()\nk = int(input())\n\nif k <= 0 or not s:\n    print(0)\n    exit()\n\nfreq = defaultdict(int)\nleft = 0\ndistinct = 0\nmax_len = 0\n\nfor right in range(len(s)):\n    freq[s[right]] += 1\n\n    if freq[s[right]] == 1:\n        distinct += 1\n\n    while distinct > k:\n        freq[s[left]] -= 1\n\n        if freq[s[left]] == 0:\n            distinct -= 1\n\n        left += 1\n\n    max_len = max(max_len, right - left + 1)\n\nprint(max_len)",
+                        "complexity_analysis": "Time: O(N). Space: O(K).",
                         "is_primary": true,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Smallest Substring Containing All Characters of Another String - Java",
+                        "title": "Longest Substring with At Most K Distinct Characters - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  String t=sc.nextLine();\n  Map<Character,Integer> need=new HashMap<>();\n  for(char c:t.toCharArray()) need.put(c,need.getOrDefault(c,0)+1);\n  Map<Character,Integer> have=new HashMap<>();\n  int formed=0,l=0,min=Integer.MAX_VALUE,start=0;\n  for(int r=0;r<s.length();r++){\n   char c=s.charAt(r);\n   have.put(c,have.getOrDefault(c,0)+1);\n   if(need.containsKey(c) && have.get(c).intValue()==need.get(c).intValue()) formed++;\n   while(l<=r && formed==need.size()){\n    if(r-l+1<min){min=r-l+1;start=l;}\n    char ch=s.charAt(l);\n    have.put(ch,have.get(ch)-1);\n    if(need.containsKey(ch) && have.get(ch)<need.get(ch)) formed--;\n    l++;\n   }\n  }\n  System.out.println(min==Integer.MAX_VALUE?\"-1\":s.substring(start,start+min));\n }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(M).",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String s = sc.nextLine().trim();\n        int k = sc.nextInt();\n\n        if (k <= 0 || s.length() == 0) {\n            System.out.println(0);\n            return;\n        }\n\n        Map<Character, Integer> freq = new HashMap<>();\n\n        int left = 0;\n        int distinct = 0;\n        int maxLen = 0;\n\n        for (int right = 0; right < s.length(); right++) {\n            char ch = s.charAt(right);\n\n            freq.put(ch, freq.getOrDefault(ch, 0) + 1);\n\n            if (freq.get(ch) == 1) {\n                distinct++;\n            }\n\n            while (distinct > k) {\n                char leftChar = s.charAt(left);\n\n                freq.put(leftChar, freq.get(leftChar) - 1);\n\n                if (freq.get(leftChar) == 0) {\n                    distinct--;\n                }\n\n                left++;\n            }\n\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n\n        System.out.println(maxLen);\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(K).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Smallest Substring Containing All Characters of Another String - C++",
+                        "title": "Longest Substring with At Most K Distinct Characters - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,t; cin>>s>>t;\n unordered_map<char,int> need,have;\n for(char c:t) need[c]++;\n int formed=0,l=0,minlen=INT_MAX,start=0;\n for(int r=0;r<s.length();r++){\n  have[s[r]]++;\n  if(need.count(s[r]) && have[s[r]]==need[s[r]]) formed++;\n  while(l<=r && formed==need.size()){\n   if(r-l+1<minlen){minlen=r-l+1;start=l;}\n   have[s[l]]--;\n   if(need.count(s[l]) && have[s[l]]<need[s[l]]) formed--;\n   l++;\n  }\n }\n if(minlen==INT_MAX) cout<<-1;\n else cout<<s.substr(start,minlen);\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(M).",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    int k;\n\n    cin >> s;\n    cin >> k;\n\n    if (k <= 0 || s.empty()) {\n        cout << 0;\n        return 0;\n    }\n\n    unordered_map<char, int> freq;\n\n    int left = 0;\n    int distinct = 0;\n    int maxLen = 0;\n\n    for (int right = 0; right < (int)s.length(); right++) {\n        char ch = s[right];\n\n        freq[ch]++;\n\n        if (freq[ch] == 1) {\n            distinct++;\n        }\n\n        while (distinct > k) {\n            char leftChar = s[left];\n\n            freq[leftChar]--;\n\n            if (freq[leftChar] == 0) {\n                distinct--;\n            }\n\n            left++;\n        }\n\n        maxLen = max(maxLen, right - left + 1);\n    }\n\n    cout << maxLen;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) average. Space: O(K).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     },
                     {
-                        "title": "Smallest Substring Containing All Characters of Another String - C",
+                        "title": "Longest Substring with At Most K Distinct Characters - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\n\nint main() {\n    char s[10005], t[1005];\n    scanf(\"%s\", s);\n    scanf(\"%s\", t);\n\n    int need[256] = {0}, have[256] = {0};\n\n    for (int i = 0; t[i]; i++)\n        need[(unsigned char)t[i]]++;\n\n    int count = strlen(t), start = 0, min = INT_MAX, l = 0;\n\n    for (int r = 0; s[r]; r++) {\n        have[(unsigned char)s[r]]++;\n\n        if (need[(unsigned char)s[r]] && have[(unsigned char)s[r]] <= need[(unsigned char)s[r]])\n            count--;\n\n        while (count == 0) {\n            if (r - l + 1 < min) {\n                min = r - l + 1;\n                start = l;\n            }\n\n            have[(unsigned char)s[l]]--;\n\n            if (need[(unsigned char)s[l]] && have[(unsigned char)s[l]] < need[(unsigned char)s[l]])\n                count++;\n\n            l++;\n        }\n    }\n\n    if (min == INT_MAX)\n        printf(\"-1\");\n    else\n        for (int i = start; i < start + min; i++)\n            printf(\"%c\", s[i]);\n\n    return 0;\n}",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[100005];\n    int k;\n\n    scanf(\"%100004s\", s);\n    scanf(\"%d\", &k);\n\n    if (k <= 0 || strlen(s) == 0) {\n        printf(\"0\");\n        return 0;\n    }\n\n    int freq[256] = {0};\n\n    int left = 0;\n    int distinct = 0;\n    int maxLen = 0;\n    int n = strlen(s);\n\n    for (int right = 0; right < n; right++) {\n        unsigned char ch = s[right];\n\n        freq[ch]++;\n\n        if (freq[ch] == 1) {\n            distinct++;\n        }\n\n        while (distinct > k) {\n            unsigned char leftChar = s[left];\n\n            freq[leftChar]--;\n\n            if (freq[leftChar] == 0) {\n                distinct--;\n            }\n\n            left++;\n        }\n\n        int currentLen = right - left + 1;\n\n        if (currentLen > maxLen) {\n            maxLen = currentLen;\n        }\n    }\n\n    printf(\"%d\", maxLen);\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N). Space: O(256).",
                         "is_primary": false,
-                        "approach": "optimal"
+                        "approach": "sliding-window"
                     }
                 ]
             }

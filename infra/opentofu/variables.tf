@@ -171,3 +171,65 @@ variable "s3_cors_allowed_origins" {
     "https://yuvro.ai",
   ]
 }
+
+# RDS Configuration - YHub
+variable "yhub_db_username" {
+  description = "YHub database master username"
+  type        = string
+  default     = "yhub_admin"
+}
+
+variable "yhub_db_password" {
+  description = "YHub database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "yhub_db_instance_class" {
+  description = "YHub RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "yhub_db_allocated_storage" {
+  description = "YHub database allocated storage in GB"
+  type        = number
+  default     = 5
+}
+
+variable "yhub_db_max_allocated_storage" {
+  description = "YHub database max allocated storage for autoscaling in GB"
+  type        = number
+  default     = 10
+}
+
+# RDS Configuration - YLabs
+variable "ylabs_db_username" {
+  description = "YLabs database master username"
+  type        = string
+  default     = "ylabs_admin"
+}
+
+variable "ylabs_db_password" {
+  description = "YLabs database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "ylabs_db_instance_class" {
+  description = "YLabs RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "ylabs_db_allocated_storage" {
+  description = "YLabs database allocated storage in GB"
+  type        = number
+  default     = 5
+}
+
+variable "ylabs_db_max_allocated_storage" {
+  description = "YLabs database max allocated storage for autoscaling in GB"
+  type        = number
+  default     = 10
+}

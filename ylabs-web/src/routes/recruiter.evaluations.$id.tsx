@@ -25,6 +25,7 @@ import {
   Upload,
   Mail,
   Rocket,
+  Loader2,
   Eye,
   Pencil,
   GripVertical,
@@ -1986,8 +1987,9 @@ function PublishScreen({
 }: {
   ev: Evaluation;
   onBack: () => void;
-  onPublish: (invite: NonNullable<Evaluation["invite"]>) => void;
+  onPublish: (invite: NonNullable<Evaluation["invite"]>) => Promise<void> | void;
 }) {
+  const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
   const [emails, setEmails] = useState("");
   const [csvError, setCsvError] = useState("");
@@ -2054,7 +2056,8 @@ function PublishScreen({
     reader.readAsText(f);
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (isPublishing) return;
     if (type === "csv" && !emails) {
       alert("Please upload a valid CSV first.");
       return;
@@ -2068,14 +2071,21 @@ function PublishScreen({
       return;
     }
     const publishType = type === "csv" ? "email" : type;
-    onPublish({ type: publishType, emails: list, expiry, attempts, link });
+    setIsPublishing(true);
+    try {
+      await onPublish({ type: publishType, emails: list, expiry, attempts, link });
+    } catch (err) {
+      console.error(err);
+      setIsPublishing(false);
+    }
   };
 
   return (
     <div className="min-h-screen p-10">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white"
+        disabled={isPublishing}
+        className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <ChevronLeft className="h-3.5 w-3.5" /> Back
       </button>
@@ -2097,7 +2107,7 @@ function PublishScreen({
           ].map((o: any) => (
             <button
               key={o.k}
-              disabled={o.soon}
+              disabled={o.soon || isPublishing}
               onClick={() => setType(o.k)}
               className={`rounded-xl border p-4 text-left transition ${o.soon ? "border-white/5 opacity-40" : type === o.k ? "border-emerald-400/40 bg-emerald-400/5" : "border-white/10 hover:bg-white/[0.02]"}`}
             >
@@ -2117,9 +2127,10 @@ function PublishScreen({
               <textarea
                 value={emails}
                 onChange={(e) => setEmails(e.target.value)}
+                disabled={isPublishing}
                 rows={4}
                 placeholder="candidate@example.com, another@example.com"
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60"
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50"
               />
             </div>
           )}
@@ -2156,11 +2167,11 @@ function PublishScreen({
               <div className="text-[11px] uppercase tracking-widest text-neutral-500">
                 Upload CSV
               </div>
-              <label className="mt-2 flex cursor-pointer items-center justify-between rounded-lg border border-dashed border-white/10 p-4 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white">
+              <label className={`mt-2 flex items-center justify-between rounded-lg border border-dashed border-white/10 p-4 text-[12px] text-neutral-400 ${isPublishing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-emerald-400/40 hover:text-white"}`}>
                 <span className="flex items-center gap-2">
                   <Upload className="h-4 w-4" /> Drop CSV or browse (email,name,role)
                 </span>
-                <input type="file" accept=".csv" className="sr-only" onChange={handleCsvUpload} />
+                <input type="file" accept=".csv" disabled={isPublishing} className="sr-only" onChange={handleCsvUpload} />
               </label>
               <div className="mt-2 flex justify-between items-center text-[11px]">
                 <a
@@ -2184,8 +2195,9 @@ function PublishScreen({
               {(["7", "14", "30", "custom"] as const).map((x) => (
                 <button
                   key={x}
+                  disabled={isPublishing}
                   onClick={() => setExpiry(x)}
-                  className={`rounded-md border px-2 py-1 text-[11px] ${expiry === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"}`}
+                  className={`rounded-md border px-2 py-1 text-[11px] ${expiry === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
                 >
                   {x === "custom" ? "Custom" : `${x} days`}
                 </button>
@@ -2198,8 +2210,9 @@ function PublishScreen({
               {(["1", "2", "unlimited"] as const).map((x) => (
                 <button
                   key={x}
+                  disabled={isPublishing}
                   onClick={() => setAttempts(x)}
-                  className={`rounded-md border px-2 py-1 text-[11px] ${attempts === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"}`}
+                  className={`rounded-md border px-2 py-1 text-[11px] ${attempts === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
                 >
                   {x}
                 </button>
@@ -2211,15 +2224,25 @@ function PublishScreen({
         <div className="mt-8 flex items-center justify-end gap-2">
           <button
             onClick={onBack}
-            className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5"
+            disabled={isPublishing}
+            className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={submit}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2 text-[13px] font-medium text-black hover:brightness-110"
+            disabled={isPublishing}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2 text-[13px] font-medium text-black hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
           >
-            <Rocket className="h-4 w-4" /> Publish Evaluation
+            {isPublishing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Publishing...
+              </>
+            ) : (
+              <>
+                <Rocket className="h-4 w-4" /> Publish Evaluation
+              </>
+            )}
           </button>
         </div>
       </div>

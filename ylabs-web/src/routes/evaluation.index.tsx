@@ -134,7 +134,7 @@ function EvaluationInvite() {
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Jane"
+                    placeholder="First name"
                     className="eval-input"
                   />
                 </Field>
@@ -144,7 +144,7 @@ function EvaluationInvite() {
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Doe"
+                    placeholder="Last name"
                     className="eval-input"
                   />
                 </Field>
@@ -155,7 +155,7 @@ function EvaluationInvite() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
+                  placeholder="Email address"
                   className="eval-input"
                 />
               </Field>

@@ -86,13 +86,17 @@ db-createsuperuser:
 	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py createsuperuser
 
 db-reset:
-	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.ylabs.yml rm -s -f -v ylabs-db
+	@echo "🔄 Resetting YLabs database (removing container + volume)..."
+	docker compose -f docker-compose.ylabs.yml stop ylabs-backend ylabs-db 2>/dev/null || true
+	docker compose -f docker-compose.ylabs.yml rm -s -f ylabs-db 2>/dev/null || true
+	docker volume rm yuvro_ylabs_postgres_data 2>/dev/null || true
+	@echo "🚀 Starting fresh database..."
 	docker compose -f docker-compose.ylabs.yml up -d ylabs-db
 	@echo "⏳ Waiting for database to become healthy..."
-	@sleep 5
-	docker compose -f docker-compose.ylabs.yml restart ylabs-backend
-	@echo "✅ Database reset complete!"
+	@sleep 8
+	docker compose -f docker-compose.ylabs.yml start ylabs-backend 2>/dev/null || \
+		docker compose -f docker-compose.ylabs.yml up -d ylabs-backend
+	@echo "✅ YLabs database reset complete!"
 
 # ============================================================================
 # Backend

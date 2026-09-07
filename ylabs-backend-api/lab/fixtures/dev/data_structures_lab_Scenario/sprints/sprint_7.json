@@ -95,7 +95,7 @@
                     {
                         "title": "Brute Force - Sorting",
                         "language": "python",
-                        "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nnums.sort(reverse=True)\nprint(nums[k-1])",
+                        "code": "import sys\nimport ast\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\nnums.sort(reverse=True)\n\nprint(nums[k - 1])",
                         "complexity_analysis": "Time: O(N log N) for sorting. Space: O(1). Logic: Sorting the entire array and picking the Kth element is the simplest approach.",
                         "is_primary": false,
                         "approach": "brute_force"
@@ -103,7 +103,7 @@
                     {
                         "title": "Optimized - Min Heap of Size K",
                         "language": "python",
-                        "code": "import sys, heapq\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nheap = []\nfor num in nums:\n    heapq.heappush(heap, num)\n    if len(heap) > k:\n        heapq.heappop(heap)\nprint(heap[0])",
+                        "code": "import sys\nimport ast\nimport heapq\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\nheap = []\n\nfor num in nums:\n    heapq.heappush(heap, num)\n    \n    if len(heap) > k:\n        heapq.heappop(heap)\n\nprint(heap[0])",
                         "complexity_analysis": "Time: O(N log K). Space: O(K). Logic: A Min-Heap of size K maintains the K largest elements. The smallest among these K is the Kth largest element overall.",
                         "is_primary": true,
                         "approach": "optimal"
@@ -251,23 +251,23 @@
                     {
                         "title": "Brute Force - Sort by Frequency",
                         "language": "python",
-                        "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nsorted_items = sorted(count.keys(), key=lambda x: count[x], reverse=True)\nprint(sorted(sorted_items[:k]))",
-                        "complexity_analysis": "Time: O(N log N) for sorting unique elements. Space: O(N). Logic: Counting frequencies and then sorting all unique elements based on those frequencies.",
+                        "code": "import sys\nimport ast\nfrom collections import Counter\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\ncount = Counter(nums)\n\nsorted_items = sorted(\n    count.keys(),\n    key=lambda x: (-count[x], x)\n)\n\nprint(sorted(sorted_items[:k]))",
+                        "complexity_analysis": "Time: O(N log N) for sorting unique elements. Space: O(N). Logic: Counting frequencies and then sorting all unique elements based on frequency.",
                         "is_primary": false,
                         "approach": "brute_force"
                     },
                     {
                         "title": "Optimized - Bucket Sort",
                         "language": "python",
-                        "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nbuckets = [[] for _ in range(len(nums) + 1)]\nfor num, freq in count.items():\n    buckets[freq].append(num)\nresult = []\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in buckets[i]:\n        result.append(num)\n        if len(result) == k:\n            print(sorted(result))\n            exit()\nprint(sorted(result))",
-                        "complexity_analysis": "Time: O(N). Space: O(N). Logic: Using frequencies as indices in a bucket array allows us to retrieve top elements in linear time.",
+                        "code": "import sys\nimport ast\nfrom collections import Counter\n\ninput_data = sys.stdin.read().splitlines()\n\nnums = ast.literal_eval(input_data[0])\nk = int(input_data[1])\n\ncount = Counter(nums)\n\nbuckets = [[] for _ in range(len(nums) + 1)]\n\nfor num, freq in count.items():\n    buckets[freq].append(num)\n\nresult = []\n\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in sorted(buckets[i]):\n        result.append(num)\n\n        if len(result) == k:\n            print(sorted(result))\n            sys.exit()\n\nprint(sorted(result))",
+                        "complexity_analysis": "Time: O(N) excluding sorting within buckets. Space: O(N). Logic: Using frequencies as indices in a bucket array allows efficient retrieval of top elements in linear time.",
                         "is_primary": true,
                         "approach": "optimal"
                     },
                     {
                         "title": "Sort by Frequency - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        Map<Integer,Integer> count = new HashMap<>();\n        for (String p : parts) {\n            int n = Integer.parseInt(p.trim());\n            count.put(n, count.getOrDefault(n, 0) + 1);\n        }\n        List<Integer> keys = new ArrayList<>(count.keySet());\n        keys.sort((a, b) -> count.get(b) - count.get(a));\n        List<Integer> result = keys.subList(0, k);\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        Map<Integer,Integer> count = new HashMap<>();\n        for (String p : parts) {\n            int n = Integer.parseInt(p.trim());\n            count.put(n, count.getOrDefault(n, 0) + 1);\n        }\n        List<Integer> keys = new ArrayList<>(count.keySet());\n        keys.sort((a, b) -> {\n            if (!count.get(a).equals(count.get(b))) return count.get(b) - count.get(a);\n            return Integer.compare(a, b);\n        });\n        List<Integer> result = new ArrayList<>(keys.subList(0, k));\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
                         "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Counting frequencies in a HashMap and then sorting the keys results in a clean O(N log N) solution.",
                         "is_primary": false,
                         "approach": "brute_force"
@@ -275,40 +275,40 @@
                     {
                         "title": "Bucket Sort - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Map<Integer,Integer> count = new HashMap<>();\n        for (int n : nums) count.put(n, count.getOrDefault(n, 0) + 1);\n        List<List<Integer>> buckets = new ArrayList<>();\n        for (int i = 0; i <= nums.length; i++) buckets.add(new ArrayList<>());\n        for (var e : count.entrySet()) buckets.get(e.getValue()).add(e.getKey());\n        List<Integer> result = new ArrayList<>();\n        for (int i = buckets.size()-1; i > 0 && result.size() < k; i--)\n            for (int n : buckets.get(i)) { result.add(n); if (result.size() == k) break; }\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N). Logic: Bucket sort allows linear time frequency tracking by using counts as array indices.",
+                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Map<Integer,Integer> count = new HashMap<>();\n        for (int n : nums) count.put(n, count.getOrDefault(n, 0) + 1);\n        List<List<Integer>> buckets = new ArrayList<>();\n        for (int i = 0; i <= nums.length; i++) buckets.add(new ArrayList<>());\n        for (Map.Entry<Integer, Integer> e : count.entrySet()) buckets.get(e.getValue()).add(e.getKey());\n        List<Integer> result = new ArrayList<>();\n        for (int i = buckets.size()-1; i > 0 && result.size() < k; i--) {\n            Collections.sort(buckets.get(i));\n            for (int n : buckets.get(i)) {\n                result.add(n);\n                if (result.size() == k) break;\n            }\n        }\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+                        "complexity_analysis": "Time: O(N) excluding sorting within buckets. Space: O(N). Logic: Bucket sort allows efficient frequency tracking by using counts as array indices.",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "Sort by Frequency - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<pair<int,int>> freq(count.begin(), count.end());\n    sort(freq.begin(), freq.end(), [](auto& a, auto& b){ \n        if (a.second != b.second) return a.second > b.second;\n        return a.first < b.first;  // tiebreak by value ascending\n    });\n    vector<int> result;\n    for (int i = 0; i < k; i++) result.push_back(freq[i].first);\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: C++ implementation using a map for counting and a vector for sorting by frequency.",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<pair<int,int>> freq(count.begin(), count.end());\n    sort(freq.begin(), freq.end(), [](const auto& a, const auto& b){\n        if (a.second != b.second) return a.second > b.second;\n        return a.first < b.first;\n    });\n    vector<int> result;\n    for (int i = 0; i < k; i++) result.push_back(freq[i].first);\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) {\n        if (i) cout << \", \";\n        cout << result[i];\n    }\n    cout << \"]\" << endl;\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: C++ implementation using a hash map for counting and a vector for sorting by frequency.",
                         "is_primary": false,
                         "approach": "brute_force"
                     },
                     {
                         "title": "Bucket Sort - C++",
                         "language": "cpp",
-                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<vector<int>> buckets(nums.size()+1);\n    for (auto& [num, freq] : count) buckets[freq].push_back(num);\n    // Sort within each bucket for deterministic output\n    for (auto& b : buckets) sort(b.begin(), b.end());\n    vector<int> result;\n    for (int i = buckets.size()-1; i > 0 && (int)result.size() < k; i--)\n        for (int n : buckets[i]) { result.push_back(n); if ((int)result.size() == k) break; }\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(N). Logic: Using bucket sort in C++ to achieve O(N) complexity for frequency-based retrieval.",
+                        "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<vector<int>> buckets(nums.size()+1);\n    for (auto& entry : count) buckets[entry.second].push_back(entry.first);\n    for (auto& bucket : buckets) sort(bucket.begin(), bucket.end());\n    vector<int> result;\n    for (int i = (int)buckets.size()-1; i > 0 && (int)result.size() < k; i--) {\n        for (int n : buckets[i]) {\n            result.push_back(n);\n            if ((int)result.size() == k) break;\n        }\n    }\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) {\n        if (i) cout << \", \";\n        cout << result[i];\n    }\n    cout << \"]\" << endl;\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N) excluding sorting within buckets. Space: O(N). Logic: Using bucket sort in C++ to efficiently retrieve the top K frequent elements.",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "Sort by Frequency - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int val;\n    int freq;\n} Item;\n\nint cmpFreq(const void* a, const void* b) {\n    if (((Item*)b)->freq != ((Item*)a)->freq)\n        return ((Item*)b)->freq - ((Item*)a)->freq;\n    return ((Item*)a)->val - ((Item*)b)->val; // tiebreak by value ascending\n}\n\nint cmpInt(const void* a, const void* b) {\n    return *(int*)a - *(int*)b;\n}\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int k;\n    if (scanf(\"%d\", &k) != 1) k = 1;\n\n    int nums[5000], n = 0;\n    char *p = line;\n    while (*p) {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            nums[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n\n    if (n == 0) { printf(\"[]\\n\"); return 0; }\n\n    Item items[5000];\n    int itemCount = 0;\n    for (int i = 0; i < n; i++) {\n        int found = 0;\n        for (int j = 0; j < itemCount; j++) {\n            if (items[j].val == nums[i]) {\n                items[j].freq++;\n                found = 1;\n                break;\n            }\n        }\n        if (!found) {\n            items[itemCount].val = nums[i];\n            items[itemCount].freq = 1;\n            itemCount++;\n        }\n    }\n\n    qsort(items, itemCount, sizeof(Item), cmpFreq);\n\n    int result[5000];\n    int rk = k < itemCount ? k : itemCount;\n    for (int i = 0; i < rk; i++) result[i] = items[i].val;\n    qsort(result, rk, sizeof(int), cmpInt);\n\n    printf(\"[\");\n    for (int i = 0; i < rk; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"%d\", result[i]);\n    }\n    printf(\"]\\n\");\n\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N^2) for counting + O(N log N) for sorting. Space: O(N). Logic: Manual frequency counting and sorting in C.",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int val;\n    int freq;\n} Item;\n\nint cmpFreq(const void* a, const void* b) {\n    const Item* x = (const Item*)a;\n    const Item* y = (const Item*)b;\n    if (y->freq != x->freq) return y->freq - x->freq;\n    return x->val - y->val;\n}\n\nint cmpInt(const void* a, const void* b) {\n    return *(const int*)a - *(const int*)b;\n}\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n\n    int nums[5000], n = 0;\n    char *p = line;\n\n    while (*p) {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            nums[n++] = (int)strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n\n    if (n == 0) {\n        printf(\"[]\\n\");\n        return 0;\n    }\n\n    Item items[5000];\n    int itemCount = 0;\n\n    for (int i = 0; i < n; i++) {\n        int found = 0;\n        for (int j = 0; j < itemCount; j++) {\n            if (items[j].val == nums[i]) {\n                items[j].freq++;\n                found = 1;\n                break;\n            }\n        }\n        if (!found) {\n            items[itemCount].val = nums[i];\n            items[itemCount].freq = 1;\n            itemCount++;\n        }\n    }\n\n    qsort(items, itemCount, sizeof(Item), cmpFreq);\n\n    int result[5000];\n    int resultCount = k < itemCount ? k : itemCount;\n\n    for (int i = 0; i < resultCount; i++) {\n        result[i] = items[i].val;\n    }\n\n    qsort(result, resultCount, sizeof(int), cmpInt);\n\n    printf(\"[\");\n    for (int i = 0; i < resultCount; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"%d\", result[i]);\n    }\n    printf(\"]\\n\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N^2) for manual frequency counting plus O(N log N) for sorting. Space: O(N). Logic: Manual frequency counting followed by sorting in C.",
                         "is_primary": false,
                         "approach": "brute_force"
                     },
                     {
                         "title": "Min Heap - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct { int val; int freq; } Element;\n\nvoid swapE(Element *a, Element *b) { Element temp = *a; *a = *b; *b = temp; }\n\nvoid minHeapify(Element heap[], int size, int i) {\n    int smallest = i;\n    int left = 2 * i + 1, right = 2 * i + 2;\n    if (left < size && heap[left].freq < heap[smallest].freq) smallest = left;\n    if (right < size && heap[right].freq < heap[smallest].freq) smallest = right;\n    if (smallest != i) { swapE(&heap[i], &heap[smallest]); minHeapify(heap, size, smallest); }\n}\n\nint cmpInt(const void* a, const void* b) { return *(int*)a - *(int*)b; }\n\nint main() {\n    char input[100000]; fgets(input, sizeof(input), stdin);\n    int k; scanf(\"%d\", &k);\n    int nums[5000], count = 0, distinct = 0;\n    char *ptr = input;\n    while (*ptr) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) nums[count++] = strtol(ptr, &ptr, 10);\n        else ptr++;\n    }\n    Element freq[5000];\n    for (int i = 0; i < count; i++) {\n        int found = 0;\n        for (int j = 0; j < distinct; j++) {\n            if (freq[j].val == nums[i]) { freq[j].freq++; found = 1; break; }\n        }\n        if (!found) { freq[distinct].val = nums[i]; freq[distinct++].freq = 1; }\n    }\n    if (k > distinct) k = distinct;\n    Element heap[k];\n    for (int i = 0; i < k; i++) heap[i] = freq[i];\n    for (int i = k / 2 - 1; i >= 0; i--) minHeapify(heap, k, i);\n    for (int i = k; i < distinct; i++) {\n        if (freq[i].freq > heap[0].freq) {\n            heap[0] = freq[i];\n            minHeapify(heap, k, 0);\n        }\n    }\n    int res[k];\n    for (int i = 0; i < k; i++) res[i] = heap[i].val;\n    qsort(res, k, sizeof(int), cmpInt);\n    printf(\"[\");\n    for (int i = 0; i < k; i++) { if (i > 0) printf(\", \"); printf(\"%d\", res[i]); }\n    printf(\"]\\n\");\n    return 0;\n}",
-                        "complexity_analysis": "Time: O(N log K) using a Min-Heap of size K. Space: O(N). Logic: Efficient frequency tracking using a heap.",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX_SIZE 5000\n\ntypedef struct {\n    int val;\n    int freq;\n} Element;\n\nvoid swapE(Element *a, Element *b) {\n    Element temp = *a;\n    *a = *b;\n    *b = temp;\n}\n\nvoid minHeapify(Element heap[], int size, int i) {\n    int smallest = i;\n    int left = 2 * i + 1;\n    int right = 2 * i + 2;\n\n    if (left < size && heap[left].freq < heap[smallest].freq)\n        smallest = left;\n\n    if (right < size && heap[right].freq < heap[smallest].freq)\n        smallest = right;\n\n    if (smallest != i) {\n        swapE(&heap[i], &heap[smallest]);\n        minHeapify(heap, size, smallest);\n    }\n}\n\nint cmpInt(const void* a, const void* b) {\n    return *(const int*)a - *(const int*)b;\n}\n\nint main() {\n    char input[100000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n\n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n\n    int nums[MAX_SIZE];\n    int count = 0;\n    int distinct = 0;\n    char *ptr = input;\n\n    while (*ptr && count < MAX_SIZE) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) {\n            nums[count++] = (int)strtol(ptr, &ptr, 10);\n        } else {\n            ptr++;\n        }\n    }\n\n    if (count == 0) {\n        printf(\"[]\\n\");\n        return 0;\n    }\n\n    Element freq[MAX_SIZE];\n\n    for (int i = 0; i < count; i++) {\n        int found = 0;\n\n        for (int j = 0; j < distinct; j++) {\n            if (freq[j].val == nums[i]) {\n                freq[j].freq++;\n                found = 1;\n                break;\n            }\n        }\n\n        if (!found) {\n            freq[distinct].val = nums[i];\n            freq[distinct].freq = 1;\n            distinct++;\n        }\n    }\n\n    if (k > distinct) k = distinct;\n\n    Element heap[MAX_SIZE];\n\n    for (int i = 0; i < k; i++)\n        heap[i] = freq[i];\n\n    for (int i = k / 2 - 1; i >= 0; i--)\n        minHeapify(heap, k, i);\n\n    for (int i = k; i < distinct; i++) {\n        if (freq[i].freq > heap[0].freq) {\n            heap[0] = freq[i];\n            minHeapify(heap, k, 0);\n        }\n    }\n\n    int result[MAX_SIZE];\n\n    for (int i = 0; i < k; i++)\n        result[i] = heap[i].val;\n\n    qsort(result, k, sizeof(int), cmpInt);\n\n    printf(\"[\");\n    for (int i = 0; i < k; i++) {\n        if (i > 0) printf(\", \");\n        printf(\"%d\", result[i]);\n    }\n    printf(\"]\\n\");\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N log K) for heap processing plus O(N^2) for manual frequency counting. Space: O(N). Logic: Frequency counting followed by a Min-Heap of size K.",
                         "is_primary": false,
                         "approach": "optimal"
                     }
@@ -407,7 +407,7 @@
                     {
                         "title": "Max Heap - Python",
                         "language": "python",
-                        "code": "import sys, heapq\nstones = eval(sys.stdin.read().strip())\nheap = [-s for s in stones]\nheapq.heapify(heap)\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n    if y != x:\n        heapq.heappush(heap, -(y - x))\nprint(-heap[0] if heap else 0)",
+                        "code": "import sys\nimport ast\nimport heapq\n\nstones = ast.literal_eval(sys.stdin.read().strip())\n\nheap = [-s for s in stones]\nheapq.heapify(heap)\n\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n\n    if y != x:\n        heapq.heappush(heap, -(y - x))\n\nprint(-heap[0] if heap else 0)",
                         "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: A Max-Heap allows us to always extract the two heaviest stones in log(N) time.",
                         "is_primary": true,
                         "approach": "optimal"
@@ -415,15 +415,15 @@
                     {
                         "title": "Max Heap - Java",
                         "language": "java",
-                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNext()) return;\n        String line = sc.next().trim();\n        // Handle input like [2,7,4,1,8,1]\n        line = line.substring(1, line.length() - 1);\n        if (line.isEmpty()) { System.out.println(0); return; }\n        \n        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\n        for (String s : line.split(\",\")) {\n            if (!s.trim().isEmpty()) pq.offer(Integer.parseInt(s.trim()));\n        }\n        \n        while (pq.size() > 1) {\n            int y = pq.poll();\n            int x = pq.poll();\n            if (y != x) pq.offer(y - x);\n        }\n        System.out.println(pq.isEmpty() ? 0 : pq.peek());\n    }\n}",
-                        "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: PriorityQueue in Java acts as a Max-Heap (when reversed) to track the heaviest stones.",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNext()) return;\n        String line = sc.next().trim();\n        line = line.substring(1, line.length() - 1);\n        if (line.isEmpty()) {\n            System.out.println(0);\n            return;\n        }\n\n        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\n\n        for (String s : line.split(\",\")) {\n            if (!s.trim().isEmpty()) {\n                pq.offer(Integer.parseInt(s.trim()));\n            }\n        }\n\n        while (pq.size() > 1) {\n            int y = pq.poll();\n            int x = pq.poll();\n\n            if (y != x) {\n                pq.offer(y - x);\n            }\n        }\n\n        System.out.println(pq.isEmpty() ? 0 : pq.peek());\n    }\n}",
+                        "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: PriorityQueue in Java acts as a Max-Heap when configured with reverse order.",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "Max Heap - C++",
                         "language": "cpp",
-                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <queue>\n#include <sstream>\n\nusing namespace std;\n\nint main() {\n    string line;\n    if (!getline(cin, line)) return 0;\n    \n    priority_queue<int> pq;\n    for (int i = 0; i < line.length(); i++) {\n        if (isdigit(line[i]) || line[i] == '-') {\n            string num;\n            while (i < line.length() && (isdigit(line[i]) || line[i] == '-')) {\n                num += line[i++];\n            }\n            pq.push(stoi(num));\n        }\n    }\n    \n    while (pq.size() > 1) {\n        int y = pq.top(); pq.pop();\n        int x = pq.top(); pq.pop();\n        if (y != x) pq.push(y - x);\n    }\n    cout << (pq.empty() ? 0 : pq.top()) << endl;\n    return 0;\n}",
+                        "code": "#include <iostream>\n#include <string>\n#include <queue>\n#include <cctype>\n\nusing namespace std;\n\nint main() {\n    string line;\n    if (!getline(cin, line)) return 0;\n\n    priority_queue<int> pq;\n\n    for (size_t i = 0; i < line.length(); i++) {\n        if (isdigit(static_cast<unsigned char>(line[i])) || line[i] == '-') {\n            string num;\n\n            while (i < line.length() &&\n                   (isdigit(static_cast<unsigned char>(line[i])) || line[i] == '-')) {\n                num += line[i++];\n            }\n\n            pq.push(stoi(num));\n        }\n    }\n\n    while (pq.size() > 1) {\n        int y = pq.top();\n        pq.pop();\n\n        int x = pq.top();\n        pq.pop();\n\n        if (y != x) {\n            pq.push(y - x);\n        }\n    }\n\n    cout << (pq.empty() ? 0 : pq.top()) << endl;\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Using std::priority_queue to simulate the stone smashing game.",
                         "is_primary": false,
                         "approach": "optimal"
@@ -431,7 +431,7 @@
                     {
                         "title": "Max Heap - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nvoid swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }\nvoid heapify(int h[], int s, int i) {\n    int largest = i, l = 2*i+1, r = 2*i+2;\n    if (l < s && h[l] > h[largest]) largest = l;\n    if (r < s && h[r] > h[largest]) largest = r;\n    if (largest != i) { swap(&h[i], &h[largest]); heapify(h, s, largest); }\n}\n\nint main() {\n    char input[1000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n    \n    int st[100], n = 0;\n    char *p = input;\n    while (*p) {\n        if ((*p >= '0' && *p <= '9') || *p == '-') {\n            st[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n    \n    if (n == 0) { printf(\"0\\n\"); return 0; }\n    \n    for (int i = n/2-1; i >= 0; i--) heapify(st, n, i);\n    \n    while (n > 1) {\n        int y = st[0]; st[0] = st[--n]; heapify(st, n, 0);\n        int x = st[0]; st[0] = st[--n]; heapify(st, n, 0);\n        if (y != x) {\n            st[n++] = y - x;\n            // Bubble up\n            int i = n - 1;\n            while (i > 0 && st[(i-1)/2] < st[i]) {\n                swap(&st[i], &st[(i-1)/2]);\n                i = (i-1)/2;\n            }\n        }\n    }\n    printf(\"%d\\n\", n == 1 ? st[0] : 0);\n    return 0;\n}",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}\n\nvoid heapify(int heap[], int size, int index) {\n    int largest = index;\n    int left = 2 * index + 1;\n    int right = 2 * index + 2;\n\n    if (left < size && heap[left] > heap[largest])\n        largest = left;\n\n    if (right < size && heap[right] > heap[largest])\n        largest = right;\n\n    if (largest != index) {\n        swap(&heap[index], &heap[largest]);\n        heapify(heap, size, largest);\n    }\n}\n\nint main() {\n    char input[100000];\n\n    if (!fgets(input, sizeof(input), stdin))\n        return 0;\n\n    int stones[10000];\n    int n = 0;\n    char *ptr = input;\n\n    while (*ptr) {\n        if (*ptr == '-' || (*ptr >= '0' && *ptr <= '9')) {\n            stones[n++] = (int)strtol(ptr, &ptr, 10);\n        } else {\n            ptr++;\n        }\n    }\n\n    if (n == 0) {\n        printf(\"0\\n\");\n        return 0;\n    }\n\n    for (int i = n / 2 - 1; i >= 0; i--)\n        heapify(stones, n, i);\n\n    while (n > 1) {\n        int y = stones[0];\n        stones[0] = stones[--n];\n        heapify(stones, n, 0);\n\n        int x = stones[0];\n        stones[0] = stones[--n];\n        heapify(stones, n, 0);\n\n        if (y != x) {\n            stones[n++] = y - x;\n\n            int i = n - 1;\n            while (i > 0 && stones[(i - 1) / 2] < stones[i]) {\n                swap(&stones[i], &stones[(i - 1) / 2]);\n                i = (i - 1) / 2;\n            }\n        }\n    }\n\n    printf(\"%d\\n\", n == 1 ? stones[0] : 0);\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N log N). Space: O(N). Logic: Manual Max-Heap implementation in C for efficient extraction and re-insertion.",
                         "is_primary": false,
                         "approach": "optimal"
@@ -531,15 +531,15 @@
                     {
                         "title": "Greedy Formula - Python",
                         "language": "python",
-                        "code": "import sys\nfrom collections import Counter\nlines = sys.stdin.read().strip().split('\\n')\ntasks = eval(lines[0])\nn = int(lines[1])\ncount = Counter(tasks)\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\nresult = max(len(tasks), (max_freq - 1) * (n + 1) + max_count)\nprint(result)",
-                        "complexity_analysis": "Time: O(N). Space: O(1). Logic: The total time is dictated by the highest frequency task and the cooling period. The formula calculates the minimum 'slots' needed, accounting for tasks with the same max frequency.",
+                        "code": "import sys\nimport ast\nfrom collections import Counter\n\nlines = sys.stdin.read().strip().splitlines()\n\ntasks = ast.literal_eval(lines[0])\nn = int(lines[1])\n\ncount = Counter(tasks)\n\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\n\nresult = max(\n    len(tasks),\n    (max_freq - 1) * (n + 1) + max_count\n)\n\nprint(result)",
+                        "complexity_analysis": "Time: O(N). Space: O(1). Logic: The total time is dictated by the highest frequency task and the cooling period. The formula calculates the minimum slots needed, accounting for tasks with the same maximum frequency.",
                         "is_primary": true,
                         "approach": "optimal"
                     },
                     {
                         "title": "Greedy Formula - C",
                         "language": "c",
-                        "code": "#include <stdio.h>\n#include <string.h>\n#define MAX(a,b) ((a)>(b)?(a):(b))\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int count[26] = {0};\n    int len = 0;\n    for (int i = 0; line[i]; i++) {\n        if (line[i] >= 'A' && line[i] <= 'Z') {\n            count[line[i] - 'A']++;\n            len++;\n        }\n    }\n    int max_freq = 0;\n    for (int i = 0; i < 26; i++) if (count[i] > max_freq) max_freq = count[i];\n    int max_count = 0;\n    for (int i = 0; i < 26; i++) if (count[i] == max_freq) max_count++;\n    int res = MAX(len, (max_freq - 1) * (n + 1) + max_count);\n    printf(\"%d\\n\", res);\n    return 0;\n}",
+                        "code": "#include <stdio.h>\n\n#define MAX(a,b) ((a) > (b) ? (a) : (b))\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 0;\n\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    int count[26] = {0};\n    int len = 0;\n\n    for (int i = 0; line[i]; i++) {\n        if (line[i] >= 'A' && line[i] <= 'Z') {\n            count[line[i] - 'A']++;\n            len++;\n        }\n    }\n\n    int max_freq = 0;\n    for (int i = 0; i < 26; i++) {\n        if (count[i] > max_freq)\n            max_freq = count[i];\n    }\n\n    int max_count = 0;\n    for (int i = 0; i < 26; i++) {\n        if (count[i] == max_freq)\n            max_count++;\n    }\n\n    int result = MAX(len, (max_freq - 1) * (n + 1) + max_count);\n\n    printf(\"%d\\n\", result);\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N). Space: O(1). Logic: Greedy approach using a frequency array to determine cooling slots.",
                         "is_primary": false,
                         "approach": "optimal"
@@ -547,15 +547,15 @@
                     {
                         "title": "Greedy Formula - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine();\n        int n = sc.nextInt();\n        int[] count = new int[26];\n        int len = 0;\n        for (char c : line.toCharArray()) {\n            if (c >= 'A' && c <= 'Z') {\n                count[c - 'A']++;\n                len++;\n            }\n        }\n        int maxFreq = 0;\n        for (int f : count) maxFreq = Math.max(maxFreq, f);\n        int maxCount = 0;\n        for (int f : count) if (f == maxFreq) maxCount++;\n        System.out.println(Math.max(len, (maxFreq - 1) * (n + 1) + maxCount));\n    }\n}",
-                        "complexity_analysis": "Time: O(N). Space: O(1). Logic: Standard Java implementation of the greedy math formula for task scheduling.",
+                        "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        String line = sc.nextLine();\n        int n = sc.nextInt();\n\n        int[] count = new int[26];\n        int len = 0;\n\n        for (char c : line.toCharArray()) {\n            if (c >= 'A' && c <= 'Z') {\n                count[c - 'A']++;\n                len++;\n            }\n        }\n\n        int maxFreq = 0;\n        for (int f : count)\n            maxFreq = Math.max(maxFreq, f);\n\n        int maxCount = 0;\n        for (int f : count) {\n            if (f == maxFreq)\n                maxCount++;\n        }\n\n        System.out.println(\n            Math.max(len, (maxFreq - 1) * (n + 1) + maxCount)\n        );\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1). Logic: Standard Java implementation of the greedy mathematical formula for task scheduling.",
                         "is_primary": false,
                         "approach": "optimal"
                     },
                     {
                         "title": "Greedy Formula - C++",
                         "language": "cpp",
-                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s; getline(cin, s);\n    int n; cin >> n;\n    vector<int> count(26, 0);\n    int len = 0;\n    for (char c : s) if (c >= 'A' && c <= 'Z') { count[c - 'A']++; len++; }\n    int max_f = *max_element(count.begin(), count.end());\n    int max_c = 0;\n    for (int f : count) if (f == max_f) max_c++;\n    cout << max((int)len, (max_f - 1) * (n + 1) + max_c) << endl;\n    return 0;\n}",
+                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n\n    int n;\n    cin >> n;\n\n    vector<int> count(26, 0);\n    int len = 0;\n\n    for (char c : s) {\n        if (c >= 'A' && c <= 'Z') {\n            count[c - 'A']++;\n            len++;\n        }\n    }\n\n    int maxFreq = *max_element(count.begin(), count.end());\n    int maxCount = 0;\n\n    for (int f : count) {\n        if (f == maxFreq)\n            maxCount++;\n    }\n\n    int result = max(\n        len,\n        (maxFreq - 1) * (n + 1) + maxCount\n    );\n\n    cout << result << endl;\n\n    return 0;\n}",
                         "complexity_analysis": "Time: O(N). Space: O(1). Logic: Efficient greedy scheduling using frequency counting in C++.",
                         "is_primary": false,
                         "approach": "optimal"
@@ -1188,1251 +1188,6 @@
                     }
                 ]
             }
-        },
-        {
-            "title": "Ticket 11 — Assembly Line Spacing",
-            "ticket_slug": "ticket-sprint7-generated-11",
-            "description": "A factory conveyor belt carries fragile components. Rearrange the components so that no two identical items touch each other, to prevent static discharge.\n\n### Problem Statement\nA factory conveyor belt carries fragile components. Rearrange the components so that no two identical items touch each other, to prevent static discharge.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 11,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-11-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-11-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-11-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-11-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-11-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-11-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-11-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-11-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 12 — Social Media Feed Generator",
-            "ticket_slug": "ticket-sprint7-generated-12",
-            "description": "A user follows hundreds of accounts. Generate a chronological feed by efficiently pulling the 10 latest posts from the vast pool of followed users' posts.\n\n### Problem Statement\nA user follows hundreds of accounts. Generate a chronological feed by efficiently pulling the 10 latest posts from the vast pool of followed users' posts.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 12,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-12-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-12-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-12-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-12-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-12-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-12-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-12-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-12-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 13 — Mars Rover Fuel Planning",
-            "ticket_slug": "ticket-sprint7-generated-13",
-            "description": "A rover needs to cross the Martian surface. It can pick up fuel at specific supply drops. Plan the journey to reach the destination with the absolute minimum number of stops.\n\n### Problem Statement\nA rover needs to cross the Martian surface. It can pick up fuel at specific supply drops. Plan the journey to reach the destination with the absolute minimum number of stops.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 13,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-13-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-13-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-13-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-13-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-13-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-13-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-13-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-13-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 14 — Maximize Completed Certifications",
-            "ticket_slug": "ticket-sprint7-generated-14",
-            "description": "An employee wants to complete as many training courses as possible. Each course takes time and has a strict deadline. Maximize the total number of completed courses.\n\n### Problem Statement\nAn employee wants to complete as many training courses as possible. Each course takes time and has a strict deadline. Maximize the total number of completed courses.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 14,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-14-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-14-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-14-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-14-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-14-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-14-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-14-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-14-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 15 — Flood Volume Estimation",
-            "ticket_slug": "ticket-sprint7-generated-15",
-            "description": "A city's buildings are mapped in a 2D height matrix. After a heavy storm, calculate the total volume of floodwater the city layout can trap.\n\n### Problem Statement\nA city's buildings are mapped in a 2D height matrix. After a heavy storm, calculate the total volume of floodwater the city layout can trap.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 15,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-15-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-15-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-15-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-15-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-15-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-15-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-15-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-15-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 16 — Reverse Engineer Encryption Array",
-            "ticket_slug": "ticket-sprint7-generated-16",
-            "description": "A target array was built by repeatedly replacing the maximum element with the sum of all elements. Reverse engineer it to see if it started as an array of all ones.\n\n### Problem Statement\nA target array was built by repeatedly replacing the maximum element with the sum of all elements. Reverse engineer it to see if it started as an array of all ones.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 16,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-16-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-16-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-16-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-16-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-16-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-16-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-16-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-16-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 17 — Matchmaking Algorithm",
-            "ticket_slug": "ticket-sprint7-generated-17",
-            "description": "A competitive game matches players from two sorted skill tiers. Find the K pairs of players with the smallest combined skill difference.\n\n### Problem Statement\nA competitive game matches players from two sorted skill tiers. Find the K pairs of players with the smallest combined skill difference.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 17,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-17-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-17-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-17-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-17-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-17-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-17-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-17-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-17-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 18 — File Compression Optimizer",
-            "ticket_slug": "ticket-sprint7-generated-18",
-            "description": "To build a Huffman coding tree, a file compression tool must sort all the characters present in a document based on their frequency of occurrence.\n\n### Problem Statement\nTo build a Huffman coding tree, a file compression tool must sort all the characters present in a document based on their frequency of occurrence.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 18,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-18-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-18-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-18-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-18-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-18-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-18-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-18-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-18-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 19 — Rank Database Queries",
-            "ticket_slug": "ticket-sprint7-generated-19",
-            "description": "A benchmarking tool outputs execution times into a grid where rows and columns are sorted. Find the kth fastest query execution time from the matrix.\n\n### Problem Statement\nA benchmarking tool outputs execution times into a grid where rows and columns are sorted. Find the kth fastest query execution time from the matrix.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 19,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-19-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-19-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-19-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-19-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-19-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-19-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-19-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-19-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 20 — Broadcast Signal Delay",
-            "ticket_slug": "ticket-sprint7-generated-20",
-            "description": "A network of servers sends a broadcast signal. Given travel times between connected servers, find how long it takes for all nodes to receive the signal.\n\n### Problem Statement\nA network of servers sends a broadcast signal. Given travel times between connected servers, find how long it takes for all nodes to receive the signal.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 20,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-20-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-20-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-20-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-20-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-20-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-20-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-20-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-20-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 21 — Concert Ticketing System",
-            "ticket_slug": "ticket-sprint7-generated-21",
-            "description": "A ticketing system manages a pool of numbered concert seats. When a customer buys a ticket, it must always reserve the lowest numbered available seat.\n\n### Problem Statement\nA ticketing system manages a pool of numbered concert seats. When a customer buys a ticket, it must always reserve the lowest numbered available seat.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 21,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-21-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-21-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-21-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-21-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-21-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-21-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-21-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-21-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 22 — Venture Capital Strategy",
-            "ticket_slug": "ticket-sprint7-generated-22",
-            "description": "A venture capital firm has limited starting capital and can only fund a maximum of K projects. Pick the optimal projects to fund to maximize absolute capital.\n\n### Problem Statement\nA venture capital firm has limited starting capital and can only fund a maximum of K projects. Pick the optimal projects to fund to maximize absolute capital.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 22,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-22-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-22-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-22-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-22-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-22-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-22-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-22-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-22-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 23 — Parkour Robot Navigation",
-            "ticket_slug": "ticket-sprint7-generated-23",
-            "description": "A robot traverses building rooftops using a limited supply of bricks (for small gaps) and ladders (for huge gaps). Find the furthest building it can reach.\n\n### Problem Statement\nA robot traverses building rooftops using a limited supply of bricks (for small gaps) and ladders (for huge gaps). Find the furthest building it can reach.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 23,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-23-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-23-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-23-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-23-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-23-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-23-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-23-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-23-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 24 — Generate Cryptographic Primes",
-            "ticket_slug": "ticket-sprint7-generated-24",
-            "description": "A cryptographic algorithm requires keys that only contain prime factors 2, 3, and 5. Generate the nth key in this specific sequence.\n\n### Problem Statement\nA cryptographic algorithm requires keys that only contain prime factors 2, 3, and 5. Generate the nth key in this specific sequence.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 24,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-24-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-24-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-24-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-24-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-24-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-24-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-24-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-24-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 25 — Assemble E-Sports Team",
-            "ticket_slug": "ticket-sprint7-generated-25",
-            "description": "An E-Sports manager is hiring K players. Each player has a skill level and minimum wage expectation. Assemble the team for the lowest total cost while respecting wage ratios.\n\n### Problem Statement\nAn E-Sports manager is hiring K players. Each player has a skill level and minimum wage expectation. Assemble the team for the lowest total cost while respecting wage ratios.\n\nImplement the solution based on standard heap/priority queue operations.",
-            "xp_reward": 200,
-            "ticket_type": "algo",
-            "difficulty": "MEDIUM",
-            "order_index": 25,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint7-generated-25-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint7-generated-25-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint7-generated-25-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint7-generated-25-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint7-generated-25-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint7-generated-25-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint7-generated-25-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint7-generated-25-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
         }
     ]
 }

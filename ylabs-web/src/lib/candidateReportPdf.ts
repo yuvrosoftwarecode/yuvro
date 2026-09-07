@@ -1,4 +1,4 @@
-import { jsPDF } from "jspdf";
+import jsPDF from "jspdf";
 import type { EvaluationSummaryData } from "./evaluationSummary";
 
 export interface ReportInput {
@@ -27,7 +27,8 @@ const INK: [number, number, number] = [23, 23, 23];
 const MUTED: [number, number, number] = [115, 115, 115];
 
 export function buildCandidateReportPdf(d: ReportInput) {
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const PDFConstructor = (jsPDF as any).jsPDF || (jsPDF as any).default || jsPDF;
+  const doc = new PDFConstructor({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 48;
@@ -218,5 +219,5 @@ export function buildCandidateReportPdf(d: ReportInput) {
 
 export function downloadCandidateReportPdf(d: ReportInput) {
   const doc = buildCandidateReportPdf(d);
-  doc.save(`${d.name.replace(/\\s+/g, "-")}-Yuvro-Report.pdf`);
+  doc.save(`${d.name.replace(/\s+/g, "-")}-Yuvro-Report.pdf`);
 }

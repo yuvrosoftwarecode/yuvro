@@ -34,6 +34,8 @@ interface RealLab {
   title: string;
   sub: string;
   tag: string;
+  type?: string;
+  ticket_type?: string;
   minutes: number;
   problem: string;
   tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
@@ -41,6 +43,7 @@ interface RealLab {
   code: string;
   terminal: string[];
   startup_command?: string;
+  test_command?: string;
 }
 
 
@@ -62,6 +65,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const search: any = useRouterState({ select: (s) => s.location.search });
   const evaluationId = previewData ? '' : (search.e || '');
   const isRecruiterPreview = !!previewData;
+  const isPreviewMode = search.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -99,14 +103,28 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
           if (sec.type === "LAB") {
             (sec.questions || []).forEach((q: any) => {
+              const isDbOnly = q.type === "DATABASE" || q.ticket_type === "database";
+              const detectedTag = (
+                (isDbOnly && q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                (q.backend_frameworks && q.backend_frameworks.length > 0 ? q.backend_frameworks[0] : null) ||
+                (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
+                (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                "bash"
+              ).toLowerCase();
+
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
-                sub: `${(q.programming_languages || []).join(', ')} · ${(q.databases || []).join(', ')}`,
-                tag: (q.programming_languages?.[0] || q.databases?.[0] || "bash").toLowerCase(),
+                tag: detectedTag,
+                type: q.type,
+                ticket_type: q.ticket_type || q.type,
+                backend_frameworks: q.backend_frameworks || [],
+                programming_languages: q.programming_languages || [],
+                databases: q.databases || [],
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
+                test_command: q.test_command || undefined,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
@@ -203,10 +221,52 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       }
       
       if (dQs.length > 0) setDiscussionQuestions(dQs);
-      
+
       setLabsData(mappedLabs);
+
+      const totalMins = res.duration_minutes || res.duration || res.settings?.duration || durationMinutes || 60;
+      const totalSecs = totalMins * 60;
+      totalDurationSecondsRef.current = totalSecs;
+      try { sessionStorage.setItem(sessionDurKey, String(totalSecs)); } catch {}
+
+      let startedAt = res.started_at;
+      if (!startedAt) {
+        try {
+          startedAt = sessionStorage.getItem(sessionKey);
+        } catch {}
+      }
+      if (!startedAt) {
+        startedAt = new Date().toISOString();
+      }
+      try {
+        sessionStorage.setItem(sessionKey, startedAt);
+      } catch {}
+
+      startedAtRef.current = startedAt;
+      const elapsed = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+      let remainingSeconds = Math.max(0, totalSecs - elapsed);
+      setRemaining(remainingSeconds);
   };
-  const [remaining, setRemaining] = useState(TOTAL_SECONDS);
+
+  const sessionKey = `eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`;
+  const sessionDurKey = `eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`;
+
+  const [remaining, setRemaining] = useState<number>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const savedStart = sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`);
+        const savedDur = sessionStorage.getItem(`eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`);
+        const dur = savedDur ? parseInt(savedDur, 10) : TOTAL_SECONDS;
+        if (savedStart) {
+          const elapsed = Math.floor((Date.now() - new Date(savedStart).getTime()) / 1000);
+          return Math.max(0, dur - elapsed);
+        }
+      }
+    } catch {}
+    return TOTAL_SECONDS;
+  });
+  const startedAtRef = useRef<string | null>(typeof window !== "undefined" ? sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`) : null);
+  const totalDurationSecondsRef = useRef<number>(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
   const [submittedLabs, setSubmittedLabs] = useState<Set<LabId>>(new Set());
@@ -274,6 +334,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining(r => {
+        if (startedAtRef.current) {
+          const elapsed = Math.floor((Date.now() - new Date(startedAtRef.current).getTime()) / 1000);
+          const rem = Math.max(0, totalDurationSecondsRef.current - elapsed);
+          if (rem <= 0) {
+            clearInterval(t);
+            return 0;
+          }
+          return rem;
+        }
+
         if (r <= 1) { clearInterval(t); return 0; }
         return r - 1;
       });
@@ -384,6 +454,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const locked = discussionTriggered.current;
 
   const submitEvaluation = async () => {
+    try {
+      sessionStorage.removeItem(sessionKey);
+      sessionStorage.removeItem(sessionDurKey);
+    } catch {}
     try {
       await evaluationService.finishEvaluation?.(evaluationId);
     } catch (e) {
@@ -512,12 +586,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   useEffect(() => {
-    if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+    if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
       nav({ to: "/evaluation/proctoring", search: { e: evaluationId }, replace: true });
     }
-  }, [anySectionNeedsProctoring, proctoringData, previewData, nav, evaluationId]);
+  }, [anySectionNeedsProctoring, proctoringData, isPreviewMode, nav, evaluationId]);
 
-  if (anySectionNeedsProctoring && !proctoringData && !previewData) {
+  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
     return null;
   }
 
@@ -530,7 +604,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         section={section}
         appSections={appSections}
         onExit={() => setModal({ kind: "exit" })}
-        onJumpToDiscussion={() => setRemaining(DISCUSSION_LOCK_SECONDS + 5)}
       />
 
       <div className="flex min-h-0 flex-1">
@@ -552,7 +625,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         />
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className={`min-w-0 flex-1 ${activeSection?.type === "LAB" && openLab ? "flex flex-col h-full overflow-hidden min-h-0" : "overflow-y-auto"}`}>
           {appSections.map(sec => {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
@@ -563,6 +636,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
+                  type: lab.type,
+                  ticket_type: lab.ticket_type || lab.type,
+                  backend_frameworks: (lab as any).backend_frameworks || [],
+                  programming_languages: (lab as any).programming_languages || [],
+                  databases: (lab as any).databases || [],
                   tasks: lab.tasks.map(t => ({ 
                     id: t.id, 
                     title: t.title, 
@@ -579,6 +657,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   learning_objectives: [],
                   common_mistakes: [],
                   startup_command: lab.startup_command,
+                  test_command: (lab as any).test_command,
                 };
                 return (
                   <TicketIDE
@@ -750,7 +829,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 // Top bar
 // ────────────────────────────────────────────────────────────────────────────
 
-function TopBar({ remaining, online, autosave, section, appSections, onExit, onJumpToDiscussion }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void; onJumpToDiscussion: () => void }) {
+function TopBar({ remaining, online, autosave, section, appSections, onExit }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void }) {
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
@@ -783,10 +862,6 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         <span className="hidden md:inline">
           {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
         </span>
-        <span className="hidden text-neutral-300 dark:text-neutral-700 md:inline">·</span>
-        <button onClick={onJumpToDiscussion} title="Demo: jump to 15:00 remaining" className="hidden rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 md:inline">
-          demo · jump to 15:00
-        </button>
         <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
         <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
         <ThemeToggle />

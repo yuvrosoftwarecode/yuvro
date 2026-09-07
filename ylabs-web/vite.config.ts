@@ -13,8 +13,14 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    resolve: {
+      alias: {
+        'react-native': './src/lib/emptyStub.ts',
+        'react-native-fs': './src/lib/emptyStub.ts',
+      },
+    },
     optimizeDeps: {
-      include: ['recharts'],
+      include: ['recharts', 'alasql', 'mingo', 'jspdf', 'xlsx'],
       exclude: [
         '@uiw/react-codemirror',
         '@codemirror/lang-python',
@@ -48,6 +54,7 @@ export default defineConfig({
       port: 3000,
       strictPort: true,
       host: "0.0.0.0",
+      allowedHosts: ["dev.yuvrolabs.com", "localhost"],
       hmr: {
         protocol: "ws",
         host: "localhost",

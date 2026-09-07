@@ -28,9 +28,9 @@ import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
-import { executeRemoteMongoQuery } from "@/lib/mongoProxy";
-import { executeRemoteMysqlQuery } from "@/lib/mysqlProxy";
-import { executeRemotePostgresQuery } from "@/lib/postgresProxy";
+import { executeRemoteMongoQuery, fetchRemoteMongoSchema } from "@/lib/mongoProxy";
+import { executeRemoteMysqlQuery, fetchRemoteMysqlSchema } from "@/lib/mysqlProxy";
+import { executeRemotePostgresQuery, fetchRemotePostgresSchema } from "@/lib/postgresProxy";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -706,7 +706,10 @@ const LINUX_KIT_DEFAULT: Kit = {
 };
 
 function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
-  if (tag === "Django Todo") {
+  const t = (tag || "").toLowerCase();
+  const s = (slug || "").toLowerCase();
+
+  if (tag === "Django Todo" || t === "django") {
     return {
       name: "django",
       rootLabel: "todo-app",
@@ -716,6 +719,27 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
+  if (t === "mysql" || s.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (t === "postgresql" || t === "postgres" || s.includes("postgresql") || s.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (t.includes("mongo") || s.includes("mongo")) return MONGO_KIT_DEFAULT;
+  if (t === "sql" || t === "sqlite" || s.includes("sql") || s.includes("sqlite")) return SQL_KIT_DEFAULT;
+  if (t === "python" || s === "python" || s === "programming" || s === "datastructures" || isAlgo)
+    return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
+  if (t === "ui" || s === "ui") return UI_KIT_DEFAULT;
+  if (
+    s === "linux" ||
+    t === "bash" ||
+    t.startsWith("linux") ||
+    tag === "Linux Basics" ||
+    tag === "Linux Files" ||
+    tag === "Linux Perms" ||
+    tag === "Linux Processes" ||
+    tag === "Linux Network" ||
+    tag === "Linux Shell" ||
+    tag === "Linux Services"
+  )
+    return LINUX_KIT_DEFAULT;
+
   if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
     return {
       name: "js",
@@ -869,6 +893,7 @@ export function StudentTicketView({
             tag: t.accepted_programming_languages?.[0] ?? "bash",
             status: "Not Started",
             startup_command: t.startup_command,
+            test_command: t.test_command,
             sprint_id: t.sprint ?? null,
             sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
             ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
@@ -952,25 +977,26 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
-  const lab = labs.find((l) => l.slug === slug) ?? labs[0];
-  const isAlgo = slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined));
+  const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
+    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
+    ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
+    (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
+  );
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
-  const isDjango = kit.name === "django";
+  const isDjango = kit.name === "django" || ticket.backend_frameworks?.includes("DJANGO") || ticket.tag?.toLowerCase().includes("django");
   const isJava = kit.name === "java";
-  const isSql = kit.name === "sql";
-  const isMysql = kit.name === "mysql";
-  const isPostgres = kit.name === "postgresql";
+  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor";
+  const isSql = isDbTicket && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite");
+  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql");
+  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres"));
   const isAnySql = isSql || isMysql || isPostgres;
   const isExternalDb = isMysql || isPostgres;
   const dbType = isMysql ? "mysql" : "postgresql";
-  const isMongo = kit.name === "mongo";
+  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo"));
   const isUi = kit.name === "ui";
-  const isPython = kit.name === "python";
-  const isDbEditor =
-    ticket.editor_type === "sql_editor" ||
-    ticket.editor_type === "db_editor" ||
-    isAnySql ||
-    isMongo;
+  const isPython = kit.name === "python" || isDjango;
+  const isDbEditor = isDbTicket && (isAnySql || isMongo);
   const isBash = kit.name === "bash";
   const isGit = kit.name === "git";
 
@@ -1167,7 +1193,7 @@ export function TicketIDE({
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
@@ -1438,6 +1464,7 @@ export function TicketIDE({
   const [testResults, setTestResults] = useState<any>(null);
   const [executionMetrics, setExecutionMetrics] = useState<any>(null);
   const [executionOutput, setExecutionOutput] = useState<string>("");
+  const [taskExecutionData, setTaskExecutionData] = useState<any>(null);
 
   useEffect(() => {
     codeExecutorService.getSupportedLanguagesAndTemplates()
@@ -1523,21 +1550,87 @@ export function TicketIDE({
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
       return "warn";
     return "ok";
-  }, [files, isMultiLang, isJava]);
+  }, [files, isMultiLang, isJava, isPython, isDjango, isAnySql, isMongo, isUi, isBash, activeFile]);
 
   const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
+  const [dbSchemasLoading, setDbSchemasLoading] = useState<boolean>(false);
+  const [hasDbConnection, setHasDbConnection] = useState<boolean>(false);
   const [runId, setRunId] = useState(0);
 
-  const refreshSchema = useCallback(() => {
-    if (isSql) {
-      setDbSchemas(getAlasqlSchema());
+  const refreshSchema = useCallback(async () => {
+    if (typeof window === "undefined") return;
+
+    if (isMysql) {
+      const mysqlUri = localStorage.getItem("mysqlUri") || "";
+      if (!mysqlUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemoteMysqlSchema({ data: { uri: mysqlUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
+    } else if (isPostgres) {
+      const postgresUri = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+      if (!postgresUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemotePostgresSchema({ data: { uri: postgresUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
     } else if (isMongo) {
-      setDbSchemas(getMongoSchema());
+      const mongoUri = localStorage.getItem("mongoUri") || "";
+      if (!mongoUri.trim()) {
+        setHasDbConnection(false);
+        setDbSchemas([]);
+        return;
+      }
+      setHasDbConnection(true);
+      setDbSchemasLoading(true);
+      try {
+        const schemas: any = await fetchRemoteMongoSchema({ data: { uri: mongoUri } });
+        setDbSchemas(schemas || []);
+      } catch (err) {
+        setDbSchemas([]);
+      } finally {
+        setDbSchemasLoading(false);
+      }
+    } else if (isSql) {
+      setHasDbConnection(true);
+      setDbSchemas(getAlasqlSchema());
     }
-  }, [isSql, isMongo]);
+  }, [isMysql, isPostgres, isMongo, isSql]);
 
   useEffect(() => {
     refreshSchema();
+
+    const handleSchemaRefresh = () => {
+      refreshSchema();
+    };
+
+    window.addEventListener("db-schema-refresh", handleSchemaRefresh);
+    window.addEventListener("storage", handleSchemaRefresh);
+
+    return () => {
+      window.removeEventListener("db-schema-refresh", handleSchemaRefresh);
+      window.removeEventListener("storage", handleSchemaRefresh);
+    };
   }, [refreshSchema]);
 
   function showToast(msg: string) {
@@ -1576,9 +1669,84 @@ export function TicketIDE({
       ).catch(console.error);
     }
     setRunning(true);
-    setBottomTab("output");
     const src = files[activeFile] ?? "";
     const file = activeFile;
+
+    if (ticket.test_command && ticket.test_command.trim()) {
+      try {
+        const { runTestCommand } = await import("@/services/workspaceService");
+        const res = await runTestCommand(userId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+
+        let outText = res.stdout || "";
+        if (res.stderr && res.stderr.trim()) {
+          outText += (outText ? "\n" : "") + res.stderr;
+        }
+        if (!outText && res.exit_code !== 0) {
+          outText = `Process exited with code ${res.exit_code}`;
+        }
+        setOutput(outText);
+        setExecutionOutput(outText);
+
+        let parsedData = (res.data && typeof res.data === "object") ? res.data : null;
+        if (!parsedData && res.stdout) {
+          try {
+            const parsed = JSON.parse(res.stdout);
+            if (parsed && typeof parsed === "object") {
+              parsedData = parsed;
+            }
+          } catch {}
+        }
+
+        if (parsedData && typeof parsedData === "object") {
+          setTaskExecutionData(parsedData);
+          const tasksData = parsedData.tasks || {};
+          const taskKeys = Object.keys(tasksData);
+          
+          const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+          const nextTests: TestResult[] = [];
+
+          taskKeys.forEach((key, idx) => {
+            const tObj = tasksData[key];
+            const isPassed = tObj?.result === "passed" || (tObj?.score ?? 0) > 0;
+            newEvalResult[key] = {
+              passed: isPassed,
+              reason: tObj?.message || (isPassed ? "Passed" : "Failed"),
+            };
+            const taskLabel = ticket.tasks?.[idx]?.title || key;
+            const scoreLabel = tObj?.score !== undefined ? ` (${tObj.score} pts)` : "";
+            nextTests.push({
+              name: `${taskLabel}${scoreLabel}`,
+              pass: isPassed,
+              time: "—",
+              expected: "Task completed successfully",
+              got: tObj?.message || (isPassed ? "Passed" : "Failed"),
+            });
+          });
+
+          setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+          if (nextTests.length > 0) {
+            setTests(nextTests);
+            setTestsRan(true);
+          }
+
+          const passedScore = parsedData.total_score ?? res.total_score ?? 0;
+          const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? 100;
+          setTicketScore({ passed: passedScore, total: maxScore });
+          showToast(`Score: ${passedScore} / ${maxScore}`);
+        } else {
+          showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+        }
+        setBottomTab("preview");
+      } catch (err: any) {
+        setOutput(err.message || "Error executing tests");
+        setExecutionOutput(err.message || "Error executing tests");
+        showToast("Test execution failed");
+        setBottomTab("preview");
+      } finally {
+        setRunning(false);
+      }
+      return;
+    }
 
     if (isMultiLang || isPython) {
       let extLang = 'python';
@@ -1627,18 +1795,36 @@ export function TicketIDE({
         showToast('Code execution failed');
       } finally {
         setRunning(false);
+        setBottomTab("preview");
       }
       return;
     }
-    if (isSql) {
+    if (isAnySql || isMongo) {
+      setExecutedQuery(src);
+      setRunId((r) => r + 1);
+
       const dbFiles = Object.keys(files).filter(path => path.endsWith(".db"));
       const dbFile = dbFiles.length > 0 ? dbFiles[0] : null;
       const targetDbFile = dbFile || "__none__";
 
+      const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : isMongo ? "mongodb" : "sqlite";
+      let connectionUrl = "";
+      if (typeof window !== "undefined") {
+        if (isPostgres) {
+          connectionUrl = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+        } else if (isMysql) {
+          connectionUrl = localStorage.getItem("mysqlUri") || "";
+        } else if (isMongo) {
+          connectionUrl = localStorage.getItem("mongoUri") || localStorage.getItem("mongodbUri") || "";
+        }
+      }
+      if (!connectionUrl && ticket.connection_url) connectionUrl = ticket.connection_url;
+      if (!connectionUrl && ticket.uri) connectionUrl = ticket.uri;
+
       const tTasks = ticket.tasks || [];
       let task = null;
       if (activeFile.startsWith("task")) {
-         const numMatch = activeFile.match(/task(\d+)\.sql/);
+         const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
          if (numMatch) {
             const idx = parseInt(numMatch[1], 10) - 1;
             if (tTasks[idx]) task = tTasks[idx];
@@ -1651,7 +1837,7 @@ export function TicketIDE({
       let sRules: any = undefined;
       let sysQ: any = undefined;
       let expR: any = undefined;
-      let expQ: any = task?.solution?.["query.sql"] ?? ticket.solution?.["query.sql"];
+      let expQ: any = task?.solution?.["query.js"] ?? task?.solution?.["query.sql"] ?? ticket.solution?.["query.js"] ?? ticket.solution?.["query.sql"];
       let expOut: any = task?.expected_output ?? ticket.expected_output ?? ticket.solution?.["expected_output"];
       let expOutStr = typeof expOut === 'object' ? JSON.stringify(expOut) : expOut;
       if (task && typeof task === "object" && task.scoring_rules) {
@@ -1668,16 +1854,36 @@ export function TicketIDE({
         expQ = sysQ;
       }
 
-      setOutput(`-- Executing query on ${dbFile || "none"}\n…running…`);
+      setOutput(
+        isMongo
+          ? (connectionUrl ? `-- Executing MongoDB query on connection URL\n…running…` : `-- Executing MongoDB query\n…running…`)
+          : (connectionUrl ? `-- Executing query on ${dbEngine} database\n…running…` : `-- Executing query on ${dbFile || "none"}\n…running…`)
+      );
       
       const executeSql = async () => {
         try {
           const { runCommand, runDatabaseQuery } = await import("@/services/workspaceService");
-          if (ticket.startup_command) {
+          if (ticket.startup_command && !connectionUrl) {
             await runCommand(userId, labId, sprintId, ticket.startup_command, evaluationId);
           }
           const activeTaskId = task?.id || undefined;
-          return await runDatabaseQuery(userId, labId, sprintId, src, targetDbFile, "sqlite", expQ, expOutStr, sRules, sysQ, expR, evaluationId, activeFile, activeTaskId);
+          return await runDatabaseQuery(
+            userId,
+            labId,
+            sprintId,
+            src,
+            targetDbFile,
+            dbEngine,
+            expQ,
+            expOutStr,
+            sRules,
+            sysQ,
+            expR,
+            evaluationId,
+            activeFile,
+            activeTaskId,
+            connectionUrl ? connectionUrl.trim() : undefined
+          );
         } catch (err: any) {
           throw err;
         }
@@ -1714,26 +1920,17 @@ export function TicketIDE({
           }
           
           setOutput(outText);
+          setBottomTab("preview");
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
+          setBottomTab("preview");
         })
         .finally(() => setRunning(false));
       return;
     }
-    if (isMongo) {
-      setOutput(`> load("${file}")\n…running…`);
-      setTimeout(() => {
-        const outText = `> load("${file}")\n✓ mongosh executed. See Results tab in the preview panel.`;
-        setOutput(outText);
-        evaluateSubmission(src, outText);
-        setRunning(false);
-      }, 500);
-      return;
-    }
     if (isUi) {
       setRunning(true);
-      setBottomTab("output");
       setOutput("Running UI validation...");
 
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -1760,6 +1957,7 @@ export function TicketIDE({
           }
           
           setOutput(JSON.stringify(resultJson, null, 2));
+          setBottomTab("preview");
           
           if (isReal && submissionId) {
              const uiScore = res.ui_score ?? 0;
@@ -1773,7 +1971,7 @@ export function TicketIDE({
         }).catch((err: any) => {
           console.error(err);
           setOutput(`Error running validation: ${err.message}`);
-          setBottomTab("output");
+          setBottomTab("preview");
           setRunning(false);
         });
       });
@@ -1782,7 +1980,6 @@ export function TicketIDE({
     if (isGit) {
       // Git Lab: evaluate every task from ticket.tasks using scoring_rules
       setRunning(true);
-      setBottomTab("output");
       setOutput("⏳ Evaluating Git tasks against your terminal history...");
 
       const tasks: any[] = ticket.tasks ?? [];
@@ -1822,6 +2019,7 @@ export function TicketIDE({
       }
 
       setTicketScore({ passed: passedCount, total: tasks.length });
+      setBottomTab("preview");
       setOutput(
         JSON.stringify(
           {
@@ -1977,7 +2175,7 @@ export function TicketIDE({
       ).catch(console.error);
     }
 
-    if (isSql) {
+    if (isAnySql) {
       setSubmitting(true);
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -2280,7 +2478,7 @@ export function TicketIDE({
     : 8000;
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-full flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
@@ -2348,13 +2546,30 @@ export function TicketIDE({
             <Globe className="h-3 w-3" />
             Preview
           </button>
-          <button
-            onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
-          >
-            <Sparkles className="h-3 w-3" />
-            AI Mentor
-          </button>
+          {!isEvaluationMode && (
+            <button
+              onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
+              className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
+            >
+              <Sparkles className="h-3 w-3" />
+              AI Mentor
+            </button>
+          )}
+          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="h-7 rounded-md border bg-background px-2 text-xs text-foreground focus:ring-1"
+              title="Execution Language"
+            >
+              <option value="">Auto-detect</option>
+              {Object.keys(supportedLanguages).map((lang) => (
+                <option key={lang} value={lang}>
+                  {supportedLanguages[lang].name || lang.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          )}
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
@@ -2402,14 +2617,14 @@ export function TicketIDE({
         {/* Left panel (collapsible) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-            {[
+            {([
               { k: "problem", I: BookOpen, label: "Problem" },
-              ...(!isEvaluationMode || isRecruiterPreview ? [
-                { k: "hints", I: Lightbulb, label: "Hints" },
-                // { k: "discuss", I: MessageSquare, label: "Discuss" },
-                { k: "solution", I: Key, label: "Solution" },
-              ] : []),
-            ].map(({ k, I, label }) => (
+                ...(!isEvaluationMode || isRecruiterPreview ? [
+                  { k: "hints", I: Lightbulb, label: "Hints" },
+                  // { k: "discuss", I: MessageSquare, label: "Discuss" },
+                  { k: "solution", I: Key, label: "Solution" },
+                ] : []),
+              ].map(({ k, I, label }) => (
               <button
                 key={k}
                 title={label}
@@ -2433,7 +2648,7 @@ export function TicketIDE({
         ) : (
           <aside className="hidden md:flex w-[30%] min-w-[300px] max-w-[460px] flex-col border-r bg-editor-panel">
             <div className="flex items-center border-b text-xs">
-              {[
+              {([
                 { k: "problem", label: "Problem" },
                 ...(!isEvaluationMode || isRecruiterPreview ? [
                   { k: "hints", label: "Hints" },
@@ -2503,7 +2718,7 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isSql || isMongo ? "font-mono text-[13px]" : ""}`}>
+              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}>
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -2570,13 +2785,33 @@ export function TicketIDE({
                   <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
                     <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                       <span>DB Explorer</span>
+                      <button
+                        onClick={() => refreshSchema()}
+                        title="Refresh Live Schema"
+                        className="p-0.5 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <RotateCcw className={`h-3 w-3 ${dbSchemasLoading ? "animate-spin text-primary" : ""}`} />
+                      </button>
                     </div>
-                    {dbSchemas.length === 0 && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                        No databases found
+                    {dbSchemasLoading && (
+                      <div className="px-3 py-2 text-xs text-muted-foreground italic animate-pulse">
+                        Inspecting live database...
                       </div>
                     )}
-                    {dbSchemas.map((schema) => (
+                    {!dbSchemasLoading && !hasDbConnection && (
+                      <div className="px-3 py-3 text-xs text-muted-foreground">
+                        <div className="font-medium text-foreground/80 mb-1">No Connection Configured</div>
+                        <p className="text-[11px] leading-relaxed opacity-70">
+                          Add a connection URI in the Results tab to view live tables and schema.
+                        </p>
+                      </div>
+                    )}
+                    {!dbSchemasLoading && hasDbConnection && dbSchemas.length === 0 && (
+                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
+                        No tables found in database
+                      </div>
+                    )}
+                    {!dbSchemasLoading && dbSchemas.map((schema) => (
                       <React.Fragment key={schema.name}>
                         <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
                           <svg
@@ -2850,11 +3085,11 @@ export function TicketIDE({
               <div className="border-t bg-editor-panel">
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
+                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
+                    ...(isAlgo ? [{ k: "testcases", label: "Test Cases", icon: FlaskConical }] : []),
+                    { k: "preview", label: "Results", icon: Globe },
                     { k: "output", label: "Console", icon: TerminalIcon },
                     { k: "errors", label: "Errors", icon: AlertTriangle },
-                    { k: "testcases", label: "Test Cases", icon: FlaskConical },
-                    { k: "preview", label: isSql || isMongo ? "Results" : "Preview", icon: Globe },
-                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button
                       key={t.k}
@@ -2871,22 +3106,45 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
-                  {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
-                  {bottomTab === "errors" && <ErrorsView state={compileState} />}
+                <div className="h-60 max-h-[45vh] min-h-[14rem] overflow-auto scrollbar-thin p-3 text-xs">
+                  {bottomTab === "output" && (
+                    <ExecutionOutputView
+                      output={output}
+                      executionMetrics={executionMetrics}
+                      testResults={null}
+                      executionOutput={executionOutput}
+                    />
+                  )}
+                  {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
                   {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "preview" && (
-                    isDjango ? <WebPreview port={previewPort} /> :
-                      isSql ? (
-                        <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isMongo ? (
-                        <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isExternalDb ? (
-                        <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
-                      ) : isUi ? <UiPreview files={files} /> :
-                                (computedStartupCommand) ? <WebPreview port={previewPort} /> :
-                                isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                                  <PreviewView />
+                    <FormattedResultsView
+                      ticket={ticket}
+                      taskExecutionData={taskExecutionData}
+                      testResults={testResults}
+                      executionMetrics={executionMetrics}
+                      tests={tests}
+                      testsRan={testsRan}
+                      ticketScore={ticketScore}
+                      evalResult={evalResult}
+                      output={output}
+                      executionOutput={executionOutput}
+                      onRun={handleRun}
+                      running={running}
+                      isSql={isSql}
+                      isMongo={isMongo}
+                      isExternalDb={isExternalDb}
+                      executedQuery={executedQuery}
+                      runId={runId}
+                      refreshSchema={refreshSchema}
+                      dbType={dbType}
+                      isUi={isUi}
+                      files={files}
+                      isDjango={isDjango}
+                      previewPort={previewPort}
+                      computedStartupCommand={computedStartupCommand}
+                      isPython={isPython}
+                    />
                   )}
                   <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
                       <TerminalView
@@ -3194,6 +3452,447 @@ function CompileBadge({ state }: { state: "ok" | "warn" | "err" }) {
   );
 }
 
+function extractTasksReport(
+  ticket: any,
+  taskExecutionData: any,
+  rawOutput: string,
+  evalResult: Record<string, { passed: boolean; reason: string }>,
+  ticketScore: { passed: number; total: number } | null
+) {
+  let parsedJson: any = taskExecutionData;
+
+  if (!parsedJson || !parsedJson.tasks) {
+    if (rawOutput && typeof rawOutput === "string") {
+      try {
+        parsedJson = JSON.parse(rawOutput.trim());
+      } catch {
+        const jsonMatch = rawOutput.match(/\{[\s\S]*"tasks"[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            parsedJson = JSON.parse(jsonMatch[0]);
+          } catch {}
+        }
+      }
+    }
+  }
+
+  const tasksJson = (parsedJson && typeof parsedJson === "object" && parsedJson.tasks) ? parsedJson.tasks : {};
+  const taskKeys = Object.keys(tasksJson);
+  const ticketTasks: any[] = Array.isArray(ticket?.tasks) ? ticket.tasks : [];
+
+  const items: Array<{
+    key: string;
+    index: number;
+    title: string;
+    description?: string;
+    passed: boolean | null;
+    score: number | null;
+    message?: string;
+  }> = [];
+
+  const count = Math.max(taskKeys.length, ticketTasks.length);
+
+  for (let i = 0; i < count; i++) {
+    const tMeta = ticketTasks[i];
+    const key = taskKeys[i] || `task${i + 1}`;
+    const tObj = tasksJson[key] || tasksJson[`task${i + 1}`] || (tMeta?.id ? tasksJson[tMeta.id] : undefined) || (tMeta?.task_slug ? tasksJson[tMeta.task_slug] : undefined);
+
+    const title = tMeta?.title || tObj?.title || `Task ${i + 1}`;
+    const description = tMeta?.description;
+
+    let passed: boolean | null = null;
+    let score: number | null = null;
+    let message: string | undefined = undefined;
+
+    if (tObj) {
+      passed = tObj.result === "passed" || tObj.status === "passed" || (typeof tObj.score === "number" && tObj.score > 0);
+      score = typeof tObj.score === "number" ? tObj.score : (passed ? 20 : 0);
+      message = tObj.message || tObj.reason || (passed ? "Task requirements satisfied" : "Task failed verification");
+    } else {
+      const slug = tMeta?.task_slug || `task-${i}`;
+      if (evalResult && evalResult[slug]) {
+        passed = evalResult[slug].passed;
+        message = evalResult[slug].reason;
+        score = passed ? 20 : 0;
+      }
+    }
+
+    items.push({
+      key,
+      index: i + 1,
+      title,
+      description,
+      passed,
+      score,
+      message,
+    });
+  }
+
+  const evaluatedItems = items.filter((it) => it.passed !== null);
+  const hasRan = evaluatedItems.length > 0;
+  const passedCount = items.filter((it) => it.passed === true).length;
+  const totalScore = ticketScore ? ticketScore.passed : (parsedJson?.total_score ?? items.reduce((acc, it) => acc + (it.score || 0), 0));
+  const maxScore = ticketScore ? ticketScore.total : (parsedJson?.max_possible_score ?? (items.length * 20 || 100));
+
+  return {
+    hasRan,
+    items,
+    passedCount,
+    totalCount: items.length,
+    totalScore,
+    maxScore,
+  };
+}
+
+function FormattedResultsView({
+  ticket,
+  taskExecutionData,
+  testResults,
+  executionMetrics,
+  tests,
+  testsRan,
+  ticketScore,
+  evalResult,
+  output,
+  executionOutput,
+  onRun,
+  running,
+  isSql,
+  isMongo,
+  isExternalDb,
+  executedQuery,
+  runId,
+  refreshSchema,
+  dbType,
+  isUi,
+  files,
+  isDjango,
+  previewPort,
+  computedStartupCommand,
+  isPython,
+}: {
+  ticket: any;
+  taskExecutionData: any;
+  testResults: any;
+  executionMetrics: any;
+  tests: TestResult[];
+  testsRan: boolean;
+  ticketScore: { passed: number; total: number } | null;
+  evalResult: Record<string, { passed: boolean; reason: string }>;
+  output: string;
+  executionOutput: string;
+  onRun: () => void;
+  running: boolean;
+  isSql: boolean;
+  isMongo: boolean;
+  isExternalDb: boolean;
+  executedQuery: string;
+  runId: number;
+  refreshSchema: () => void;
+  dbType?: string;
+  isUi: boolean;
+  files: Record<string, string>;
+  isDjango: boolean;
+  previewPort: number;
+  computedStartupCommand?: string;
+  isPython: boolean;
+}) {
+  // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
+  const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
+
+  if (taskExecutionData || ticket?.test_command || (!isSql && !isMongo && !isExternalDb && !isUi && report.items.length > 0)) {
+    if (report.items.length > 0) {
+      const isAllPassed = report.hasRan && report.passedCount === report.totalCount && report.totalCount > 0;
+      const scorePct = report.maxScore > 0 ? Math.round((report.totalScore / report.maxScore) * 100) : 0;
+
+      const bannerBorder = isAllPassed
+        ? "bg-success/5 border-success/30"
+        : "bg-card border-border";
+
+      let iconBg = "bg-muted/30 text-muted-foreground border-border";
+      let statusText = "Not Run Yet";
+      let statusCls = "bg-muted text-muted-foreground border border-border";
+      let headerText = "Test Evaluation Pending";
+
+      if (report.hasRan) {
+        if (isAllPassed) {
+          iconBg = "bg-success/10 text-success border-success/30";
+          statusText = "Passed";
+          statusCls = "bg-success/15 text-success border border-success/30";
+          headerText = "All Tasks Passed Successfully";
+        } else if (report.totalScore > 0) {
+          iconBg = "bg-amber-500/10 text-amber-500 border-amber-500/30";
+          statusText = "In Progress";
+          statusCls = "bg-amber-500/15 text-amber-500 border-amber-500/30";
+          headerText = `${report.passedCount} of ${report.totalCount} Tasks Passed`;
+        } else {
+          iconBg = "bg-destructive/10 text-destructive border-destructive/30";
+          statusText = "Failed";
+          statusCls = "bg-destructive/15 text-destructive border border-destructive/30";
+          headerText = `${report.passedCount} of ${report.totalCount} Tasks Passed`;
+        }
+      }
+
+      return (
+        <div className="space-y-4 max-w-4xl pb-4">
+          {/* Score & Summary Banner */}
+          <div className={`rounded-lg border p-4 transition-all ${bannerBorder}`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full border ${iconBg}`}>
+                  {isAllPassed ? <CheckCircle2 className="h-5 w-5" /> : report.hasRan ? <XCircle className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-foreground">
+                      {headerText}
+                    </span>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${statusCls}`}>
+                      {statusText}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {!report.hasRan
+                      ? "Click Run to execute automated evaluation against all tasks"
+                      : "Automated test evaluation results"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Score</div>
+                  <div className="font-mono text-base font-bold text-foreground">
+                    <span className={isAllPassed ? "text-success" : report.totalScore > 0 ? "text-amber-500" : "text-foreground"}>{report.totalScore}</span>
+                    <span className="text-muted-foreground text-xs font-normal"> / {report.maxScore}</span>
+                  </div>
+                </div>
+                {!report.hasRan && (
+                  <button
+                    onClick={onRun}
+                    disabled={running}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 shadow-sm"
+                  >
+                    <Play className="h-3.5 w-3.5" />
+                    {running ? "Running..." : "Run"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            {report.hasRan && (
+              <div className="mt-3 w-full bg-muted/40 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 rounded-full ${isAllPassed ? "bg-success" : report.totalScore > 0 ? "bg-amber-500" : "bg-destructive/60"}`}
+                  style={{ width: `${Math.max(scorePct, isAllPassed ? 100 : 2)}%` }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Tasks List */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-0.5">
+              Tasks ({report.items.length})
+            </h4>
+            {report.items.map((it) => {
+              const isEvaluated = it.passed !== null;
+              const isPassed = it.passed === true;
+
+              const cardBorder = !isEvaluated
+                ? "border-border bg-card/60"
+                : isPassed
+                ? "border-success/30 bg-success/5"
+                : "border-destructive/30 bg-destructive/5";
+
+              const badgeCls = !isEvaluated
+                ? "bg-muted text-muted-foreground border border-border"
+                : isPassed
+                ? "bg-success/20 text-success border border-success/30"
+                : "bg-destructive/20 text-destructive border border-destructive/30";
+
+              const badgeText = !isEvaluated ? "PENDING" : isPassed ? "PASSED" : "FAILED";
+
+              const scoreBadgeCls = isPassed
+                ? "bg-success/10 text-success border-success/30"
+                : "bg-muted/60 text-muted-foreground border-border";
+
+              const msgBoxCls = isPassed
+                ? "bg-success/10 text-success border-success/20"
+                : "bg-background/90 text-destructive border-destructive/25 shadow-sm";
+
+              return (
+                <div
+                  key={it.key}
+                  className={`rounded-lg border p-3.5 transition-all ${cardBorder}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      {!isEvaluated ? (
+                        <div className="h-4 w-4 rounded-full border border-muted-foreground/40 flex items-center justify-center text-[10px] text-muted-foreground shrink-0 mt-0.5 font-mono">
+                          {it.index}
+                        </div>
+                      ) : isPassed ? (
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-xs text-foreground">{it.title}</span>
+                          <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${badgeCls}`}>
+                            {badgeText}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {it.score !== null && (
+                      <span className={`shrink-0 font-mono text-[11px] font-semibold px-2 py-0.5 rounded border ${scoreBadgeCls}`}>
+                        {it.score} pts
+                      </span>
+                    )}
+                  </div>
+
+                  {it.message && (
+                    <div className={`mt-2.5 rounded-md p-2.5 text-[11px] font-mono leading-relaxed border ${msgBoxCls}`}>
+                      {it.message}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // 2. Database / SQL results (only for pure DB editor without task report)
+  if (isSql) {
+    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+  }
+  if (isMongo) {
+    return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+  }
+  if (isExternalDb) {
+    return <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />;
+  }
+
+  // 3. UI preview
+  if (isUi) {
+    return <UiPreview files={files} />;
+  }
+
+  // 4. Algo test cases (if testResults from code executor exists)
+  if (testResults && testResults.results && testResults.results.length > 0) {
+    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
+    const totalCount = testResults.total ?? testResults.results.length;
+    const isAllPassed = passedCount === totalCount && totalCount > 0;
+
+    return (
+      <div className="space-y-4 max-w-4xl pb-4">
+        {/* Metrics Header */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
+              {passedCount} / {totalCount} Test Cases Passed
+            </span>
+          </div>
+          {executionMetrics && (
+            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
+              {executionMetrics.execution_time !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
+                </div>
+              )}
+              {executionMetrics.memory_usage !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Test Cases List */}
+        <div className="space-y-2">
+          {testResults.results.map((tr: any, idx: number) => (
+            <div
+              key={idx}
+              className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
+                <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
+                  Test Case #{tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1} {tr.passed ? "Passed" : "Failed"}
+                </span>
+                {tr.execution_time !== undefined && (
+                  <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
+                )}
+              </div>
+
+              {!tr.passed && (
+                <div className="space-y-1.5 mt-2 text-[11px]">
+                  {tr.input !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Input:</span>
+                      <span className="text-foreground truncate">{tr.input}</span>
+                    </div>
+                  )}
+                  {tr.expected_output !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Expected:</span>
+                      <span className="text-success truncate">{tr.expected_output}</span>
+                    </div>
+                  )}
+                  {tr.actual_output !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Output:</span>
+                      <span className="text-destructive truncate">{tr.actual_output || "(no output)"}</span>
+                    </div>
+                  )}
+                  {tr.error && (
+                    <div className="mt-2 text-destructive font-semibold text-[11px]">
+                      Error: {tr.error}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 5. Empty State fallback
+  return (
+    <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2.5 text-center p-4">
+      <div className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground mb-1">
+        <FlaskConical className="h-5 w-5" />
+      </div>
+      <div>
+        <h3 className="text-xs font-semibold text-foreground">No Results Yet</h3>
+        <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs">
+          Click <span className="font-semibold text-foreground">Run</span> to execute your solution and evaluate against the requirements.
+        </p>
+      </div>
+      <button
+        onClick={onRun}
+        disabled={running}
+        className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+      >
+        <Play className="h-3 w-3" />
+        {running ? "Running tests..." : "Run Tests"}
+      </button>
+    </div>
+  );
+}
+
 function TestsView({
   tests,
   ran,
@@ -3269,7 +3968,7 @@ function OutputView({ output }: { output: string }) {
   return <pre className="font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>;
 }
 
-function ErrorsView({ state }: { state: "ok" | "warn" | "err" }) {
+function ErrorsView({ state, file }: { state: "ok" | "warn" | "err"; file?: string }) {
   const items = state === "err" ? [
     { sev: "err" as const, line: 0, msg: "Tests failed or errors occurred during execution", fix: "Check your code output for details" },
   ] : state === "warn" ? [
@@ -3289,7 +3988,7 @@ function ErrorsView({ state }: { state: "ok" | "warn" | "err" }) {
             ) : (
               <AlertTriangle className="h-3 w-3 text-warning" />
             )}
-            <span className="underline-offset-2">Main.java:{e.line}</span>
+            <span className="underline-offset-2">{file || "Main.java"}:{e.line}</span>
             <span className={e.sev === "err" ? "text-destructive" : "text-warning"}>{e.msg}</span>
           </div>
           <div className="mt-1 ml-5 text-[11px] text-muted-foreground">💡 {e.fix}</div>
@@ -3353,14 +4052,21 @@ function QualityView({ code }: { code: string }) {
 }
 
 function WebPreview({ port = 8000 }: { port?: number }) {
-  const url = `http://localhost:${port}`;
+  const executorBase = (import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009").replace(/\/$/, "");
+  // In local dev, the workspace process IS accessible on localhost.
+  // In deployed environments, route through the code executor proxy so the
+  // browser doesn't try to connect to a port on its own machine.
+  const isLocalhost = executorBase.includes("localhost") || executorBase.includes("127.0.0.1");
+  const url = isLocalhost
+    ? `http://localhost:${port}`
+    : `${executorBase}/workspace/preview?port=${port}`;
   return (
     <div className="flex h-full w-full bg-white flex-col rounded border">
       <div className="flex items-center gap-2 border-b p-2 text-xs text-gray-500">
         <Globe className="h-3.5 w-3.5" />
-        <span className="font-mono">{url}</span>
+        <span className="font-mono">{isLocalhost ? `http://localhost:${port}` : `Preview (port ${port})`}</span>
       </div>
-      <iframe src={url} className="w-full flex-1" />
+      <iframe src={url} className="w-full flex-1" title={`Preview on port ${port}`} />
     </div>
   );
 }
@@ -4009,12 +4715,20 @@ function ProblemPanel({
                         <div className="flex-1">
                           <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
                           {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
-                          {(task.input !== undefined || task.expected_output !== undefined) && (
+                          {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
                             <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
-                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
-                              <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
-                              <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
-                              <div className="whitespace-pre-wrap font-mono text-foreground">{typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output, null, 2) : (task.expected_output || "No output")}</div>
+                              {task.input !== undefined && (
+                                <>
+                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
+                                  <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
+                                </>
+                              )}
+                              {task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)) && (
+                                <>
+                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
+                                  <div className="whitespace-pre-wrap font-mono text-foreground">{typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output, null, 2) : (task.expected_output || "No output")}</div>
+                                </>
+                              )}
                             </div>
                           )}
                           {taskMethod && (
@@ -4843,16 +5557,27 @@ function ExternalSqlResultsView({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uri, setUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(`${dbType}Uri`) || "";
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem(`${dbType}Uri`) ||
+        (dbType === "postgresql" ? localStorage.getItem("postgresUri") : "") ||
+        ""
+      );
+    }
     return "";
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(uri);
 
   const saveUri = () => {
-    setUri(tempUri.trim());
+    const trimmed = tempUri.trim();
+    setUri(trimmed);
     if (typeof window !== "undefined") {
-      localStorage.setItem(`${dbType}Uri`, tempUri.trim());
+      localStorage.setItem(`${dbType}Uri`, trimmed);
+      if (dbType === "postgresql") {
+        localStorage.setItem("postgresUri", trimmed);
+      }
+      window.dispatchEvent(new Event("db-schema-refresh"));
     }
     setEditingUri(false);
   };
@@ -4866,8 +5591,17 @@ function ExternalSqlResultsView({
       setRes(null);
       try {
         const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
-        const result = await proxyCall({ data: { uri, query } });
-        if (active) setRes(result);
+        const result: any = await proxyCall({ data: { uri, query } });
+        if (active) {
+          if (result && result.error) {
+            setError(result.error);
+            setRes(null);
+          } else {
+            setRes(result);
+            setError(null);
+            window.dispatchEvent(new Event("db-schema-refresh"));
+          }
+        }
       } catch (e: any) {
         if (active) setError(e.message || "Failed to execute query");
       } finally {
@@ -5161,16 +5895,27 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
     if (onQueryExecuted) onQueryExecuted();
   }, [query, runId, onQueryExecuted]);
   const [mongoUri, setMongoUri] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("externalMongoUri") || "";
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem("mongoUri") ||
+        localStorage.getItem("mongodbUri") ||
+        localStorage.getItem("externalMongoUri") ||
+        ""
+      );
+    }
     return "";
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(mongoUri);
 
   const saveUri = () => {
-    setMongoUri(tempUri.trim());
+    const trimmed = tempUri.trim();
+    setMongoUri(trimmed);
     if (typeof window !== "undefined") {
-      localStorage.setItem("externalMongoUri", tempUri.trim());
+      localStorage.setItem("mongoUri", trimmed);
+      localStorage.setItem("mongodbUri", trimmed);
+      localStorage.setItem("externalMongoUri", trimmed);
+      window.dispatchEvent(new Event("db-schema-refresh"));
     }
     setEditingUri(false);
   };
@@ -5183,8 +5928,17 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       setRes(null);
       try {
         if (mongoUri) {
-          const remoteRes = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
-          if (active) setRes(remoteRes);
+          const remoteRes: any = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          if (active) {
+            if (remoteRes && remoteRes.error) {
+              setError(remoteRes.error);
+              setRes(null);
+            } else {
+              setRes(remoteRes);
+              setError(null);
+              window.dispatchEvent(new Event("db-schema-refresh"));
+            }
+          }
         } else {
           // fallback to local in-memory engine
           const localRes = runDynamicMongoQuery(query);

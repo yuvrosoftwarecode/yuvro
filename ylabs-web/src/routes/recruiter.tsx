@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/hooks/use-theme";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { PricingContent } from "./pricing";
+import { DeployInfo } from "@/components/common/DeployInfo";
 
 export const Route = createFileRoute("/recruiter")({
   head: () => ({
@@ -177,6 +178,7 @@ function RecruiterLayout() {
                 <LogOut className="h-3.5 w-3.5" />
               </button>
             </div>
+            <DeployInfo className="text-neutral-500/60" />
           </div>
         </aside>
         <main className="ml-[240px] flex-1 h-screen overflow-y-auto hide-scrollbar">

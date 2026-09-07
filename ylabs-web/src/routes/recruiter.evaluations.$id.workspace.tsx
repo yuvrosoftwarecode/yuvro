@@ -44,6 +44,7 @@ import {
   deleteEvaluation,
   Evaluation,
   getEvaluationSubmissions,
+  inviteCandidates,
 } from "@/lib/recruiter";
 import {
   getCandidates,
@@ -76,21 +77,20 @@ import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnaly
 
 const searchSchema = z.object({
   tab: z
-    .enum(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"])
+    .enum(["overview", "candidates", "followups", "records", "intelligence", "settings"])
     .default("overview")
     .catch("overview"),
 });
 
 const TAB_LABELS: Record<
-  "overview" | "candidates" | "followups" | "records" | "intelligence" | "attention" | "settings",
+  "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings",
   string
 > = {
   overview: "Overview",
-  candidates: "Candidates",
+  candidates: "Submissions",
   followups: "Follow-ups",
   records: "Candidate Records",
   intelligence: "Hiring Intelligence",
-  attention: "Need Your Attention",
   settings: "Settings",
 };
 
@@ -110,6 +110,7 @@ function Workspace() {
   const [submissions, setSubmissions] = useState<any[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   useEffect(() => {
     getEvaluation(id).then((e) => {
@@ -138,7 +139,7 @@ function Workspace() {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${location.origin}/evaluation/${ev.id}`);
+      await navigator.clipboard.writeText(`${location.origin}/evaluation?e=${ev.id}`);
       notify("Public link copied");
     } catch {
       notify("Copy failed");
@@ -254,7 +255,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "attention", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -270,100 +271,16 @@ function Workspace() {
               )}
             </nav>
             <div className="flex flex-shrink-0 flex-nowrap items-center gap-2 pb-2">
-              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
-                Copy Link
-              </HeaderBtn>
               <HeaderBtn
-                onClick={() => notify("Invite dialog opened")}
+                onClick={() => setInviteOpen(true)}
                 icon={<Mail className="h-3.5 w-3.5" />}
               >
                 Invite Candidates
               </HeaderBtn>
-              <HeaderBtn
-                onClick={() => download("reports")}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Download
+              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
+                Copy Link
               </HeaderBtn>
-              <div className="relative">
-                <HeaderBtn
-                  onClick={() => setMoreOpen((v) => !v)}
-                  icon={<MoreHorizontal className="h-3.5 w-3.5" />}
-                >
-                  More
-                </HeaderBtn>
-                {moreOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                    <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
-                      <MenuItem
-                        onClick={() => {
-                          download("csv");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileText className="h-3.5 w-3.5" />}
-                      >
-                        Export CSV
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          download("xlsx");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
-                      >
-                        Export Excel
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          emailAll();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Mail className="h-3.5 w-3.5" />}
-                      >
-                        Email Candidates
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDuplicate();
-                          setMoreOpen(false);
-                        }}
-                        icon={<CopyIcon className="h-3.5 w-3.5" />}
-                      >
-                        Duplicate Evaluation
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          nav({ to: "/recruiter/evaluations/$id", params: { id: ev.id } });
-                        }}
-                        icon={<Pencil className="h-3.5 w-3.5" />}
-                      >
-                        Edit Evaluation
-                      </MenuItem>
-                      <div className="h-px bg-white/5" />
-                      <MenuItem
-                        onClick={() => {
-                          onArchive();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Archive className="h-3.5 w-3.5" />}
-                      >
-                        Archive
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDelete();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Trash2 className="h-3.5 w-3.5" />}
-                        danger
-                      >
-                        Delete
-                      </MenuItem>
-                    </div>
-                  </>
-                )}
-              </div>
+
             </div>
           </div>
         </div>
@@ -382,7 +299,7 @@ function Workspace() {
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
         {tab === "attention" && <AttentionTab evId={ev.id} candidates={candidates} onGoto={goto} />}
-        {tab === "settings" && <SettingsTab ev={ev} notify={notify} />}
+        {tab === "settings" && <SettingsTab ev={ev} notify={notify} onSave={(updatedEv) => setEv(updatedEv)} />}
         {tab === "insights" && <SimplePane title="Insights" desc="Aggregate skill heatmaps, question difficulty analysis, and cohort comparisons will be published here." />}
         {tab === "reports" && <SimplePane title="Reports" desc="Downloadable per-candidate reports, batch summaries and ATS-ready exports live in this tab." />}
         {tab === "analytics" && <AnalyticsTab evId={ev.id} candidates={candidates} />}
@@ -393,6 +310,276 @@ function Workspace() {
           {toast}
         </div>
       )}
+
+      {inviteOpen && (
+        <InviteDialog
+          evId={ev.id}
+          evTitle={ev.title}
+          onClose={() => setInviteOpen(false)}
+          notify={notify}
+        />
+      )}
+    </div>
+  );
+}
+
+function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitle: string; onClose: () => void; notify: (m: string) => void }) {
+  const [emailsInput, setEmailsInput] = useState("");
+  const [recipients, setRecipients] = useState<string[]>([]);
+  const [subject, setSubject] = useState("Invitation to Complete Evaluation");
+  const [body, setBody] = useState("Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nGood luck,\nThe hiring team\n\n{{link}}");
+  const [sending, setSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [error, setError] = useState("");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleEmailInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['Enter', ',', ' '].includes(e.key)) {
+      e.preventDefault();
+      addRecipients(emailsInput);
+    }
+  };
+
+  const addRecipients = (text: string) => {
+    const list = text.split(/[\s,]+/).map(e => e.trim()).filter(Boolean);
+    const valid: string[] = [];
+    const invalid: string[] = [];
+    
+    list.forEach(email => {
+      if (emailRegex.test(email)) {
+        if (!recipients.includes(email)) valid.push(email);
+      } else {
+        invalid.push(email);
+      }
+    });
+
+    if (valid.length > 0) {
+      setRecipients([...recipients, ...valid]);
+    }
+    
+    if (invalid.length > 0) {
+      setError(`Invalid email(s): ${invalid[0]}${invalid.length > 1 ? ` and ${invalid.length - 1} more` : ''}`);
+    } else {
+      setError("");
+    }
+    
+    setEmailsInput("");
+  };
+
+  const removeRecipient = (email: string) => {
+    setRecipients(recipients.filter(r => r !== email));
+  };
+
+  const onSubmit = async () => {
+    if (emailsInput.trim()) {
+      addRecipients(emailsInput);
+    }
+    const finalRecipients = emailsInput.trim() && emailRegex.test(emailsInput.trim()) 
+      ? Array.from(new Set([...recipients, emailsInput.trim()]))
+      : recipients;
+
+    if (!finalRecipients.length) {
+      notify("Please enter at least one valid email");
+      return;
+    }
+    setSending(true);
+    const res = await inviteCandidates(evId, finalRecipients, subject, body);
+    setSending(false);
+    if (res) {
+      notify(`Invited ${finalRecipients.length} candidate(s)`);
+      onClose();
+    } else {
+      notify("Failed to invite candidates");
+    }
+  };
+
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertPlaceholder = (ph: string) => {
+    const textarea = bodyRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      setBody(prev => prev.substring(0, start) + ph + prev.substring(end));
+      
+      // Move cursor after the inserted placeholder
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + ph.length, start + ph.length);
+      }, 0);
+    } else {
+      setBody(prev => prev + ph);
+    }
+  };
+
+  const parseTemplateText = (text: string) => {
+    return text
+      .replace(/{{name}}/g, "Candidate Name")
+      .replace(/{{evaluation}}/g, evTitle || "Evaluation")
+      .replace(/{{company}}/g, "Yuvro");
+  };
+
+  const renderPreviewBody = () => {
+    const parsed = parseTemplateText(body);
+    const parts = parsed.split(/({{link}})/);
+    return (
+      <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-300">
+        {parts.map((part, i) => {
+          if (part === "{{link}}") {
+            return (
+              <div key={i} className="my-4">
+                <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                  Start Evaluation
+                </a>
+              </div>
+            );
+          }
+          return <span key={i}>{part}</span>;
+        })}
+      </div>
+    );
+  };
+
+  const isValid = recipients.length > 0 || (emailsInput.trim() && emailRegex.test(emailsInput.trim()));
+  const totalCount = recipients.length + (emailsInput.trim() && emailRegex.test(emailsInput.trim()) ? 1 : 0);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col bg-white text-neutral-900">
+      {/* Header */}
+      <div className="flex items-center justify-between px-8 py-5">
+        <div>
+          <h2 className="text-[20px] font-semibold text-neutral-900">Invite Candidates</h2>
+          <p className="mt-1 text-[13px] text-neutral-500">Send personalized evaluation invitations to candidates.</p>
+        </div>
+        <button onClick={onClose} className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100 transition-colors">
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+      
+      {/* Content */}
+      <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
+        {/* Editor Side */}
+        <div className="flex w-full flex-col p-8 md:w-1/2 md:border-r md:border-neutral-200">
+          <div className="flex flex-col h-full space-y-6">
+            {/* Emails */}
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-neutral-700">Candidate Emails</label>
+              <div className="flex min-h-[46px] flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white p-2 focus-within:border-neutral-400 transition-colors">
+                {recipients.map(r => (
+                  <span key={r} className="flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-[12px] text-neutral-800">
+                    {r}
+                    <button onClick={() => removeRecipient(r)} className="text-neutral-500 hover:text-neutral-800">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={emailsInput}
+                  onChange={(e) => setEmailsInput(e.target.value)}
+                  onKeyDown={handleEmailInput}
+                  onBlur={() => addRecipients(emailsInput)}
+                  placeholder={recipients.length === 0 ? "candidate1@example.com, candidate2@example.com..." : ""}
+                  className="min-w-[200px] flex-1 bg-transparent px-1 text-[13px] text-neutral-900 outline-none placeholder:text-neutral-400"
+                />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <div className="text-[12px] text-neutral-500">Paste multiple email addresses separated by commas or spaces.</div>
+                {error && <div className="text-[12px] text-red-500">{error}</div>}
+              </div>
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-neutral-700">Email Subject</label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full rounded-lg border border-neutral-200 bg-white px-3.5 py-2.5 text-[13px] text-neutral-900 outline-none focus:border-neutral-400 transition-colors"
+              />
+            </div>
+
+            {/* Body */}
+            <div className="flex flex-1 flex-col space-y-1.5">
+              <label className="text-[13px] font-medium text-neutral-700">Email Body</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                <button onClick={() => insertPlaceholder('{{name}}')} className="rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">+ Name</button>
+                <button onClick={() => insertPlaceholder('{{evaluation}}')} className="rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">+ Evaluation</button>
+                <button onClick={() => insertPlaceholder('{{company}}')} className="rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">+ Company</button>
+                <button onClick={() => insertPlaceholder('{{link}}')} className="rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">+ Link</button>
+              </div>
+              <textarea
+                ref={bodyRef}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                className="w-full flex-1 resize-none rounded-lg border border-neutral-200 bg-white p-3.5 text-[13px] leading-relaxed text-neutral-900 outline-none focus:border-neutral-400 transition-colors"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-6 flex items-center justify-between md:hidden">
+            <button onClick={() => setShowPreview(!showPreview)} className="text-[13px] font-medium text-amber-500">
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </button>
+          </div>
+        </div>
+
+        {/* Preview Side */}
+        <div className={`w-full flex-col bg-neutral-50 p-8 md:flex md:w-1/2 ${showPreview ? 'flex' : 'hidden md:flex'}`}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-[14px] font-medium text-neutral-500 uppercase tracking-wider">Live Preview</h3>
+          </div>
+          
+          <div className="mt-8 flex-1 rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col">
+            <div className="border-b border-neutral-100 bg-neutral-50/50 px-6 py-4">
+              <div className="mb-2 flex items-center text-[13px]">
+                <span className="w-16 font-medium text-neutral-500">To:</span>
+                <span className="text-neutral-700">
+                  {recipients[0] || (emailsInput && emailRegex.test(emailsInput.trim()) ? emailsInput.trim() : "candidate@example.com")}
+                  {totalCount > 1 ? ` (+${totalCount - 1} more)` : ""}
+                </span>
+              </div>
+              <div className="flex items-center text-[13px]">
+                <span className="w-16 font-medium text-neutral-500">Subject:</span>
+                <span className="font-semibold text-neutral-900">{parseTemplateText(subject)}</span>
+              </div>
+            </div>
+            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+              <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-700">
+                {parseTemplateText(body).split(/({{link}})/).map((part, i) => {
+                  if (part === "{{link}}") {
+                    return (
+                      <div key={i} className="my-4">
+                        <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                          Start Evaluation
+                        </a>
+                      </div>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                })}
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="flex items-center justify-end gap-3 p-5 bg-white">
+        <button onClick={onClose} className="rounded-lg px-6 py-2.5 text-[13px] font-medium text-neutral-600 hover:bg-neutral-100 transition-colors">
+          Cancel
+        </button>
+        <button 
+          onClick={onSubmit} 
+          disabled={sending || !isValid} 
+          className="inline-flex items-center justify-center rounded-lg bg-[#F5A623] px-8 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {sending ? "Sending..." : `Send Invites ${totalCount > 0 ? `(${totalCount})` : ''}`}
+        </button>
+      </div>
     </div>
   );
 }
@@ -410,13 +597,30 @@ function OverviewTab({
   onGoto: (t: "candidates" | "overview" | "insights" | "reports" | "settings") => void;
   notify: (m: string) => void;
 }) {
+  const [records, setRecords] = useState<any[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    import("@/lib/recruiter").then((m) => {
+      m.fetchCandidateRecords(ev.id).then((res) => {
+        if (mounted) setRecords(res);
+      });
+    });
+    return () => { mounted = false; };
+  }, [ev.id]);
+
   const stats = useMemo(() => {
-    const invited = candidates.length;
+    // 1. Funnel from both records and candidates
+    const invited = records.length > 0 ? records.length : candidates.length; 
     const submitted = candidates.filter((c) => c.status === "Submitted").length;
     const completed = candidates.filter((c) => c.status === "Completed").length;
     const inProgress = candidates.filter((c) => c.status === "In Progress").length;
-    const notStarted = candidates.filter((c) => c.status === "Not Started").length;
+    const notStarted = records.length > 0 
+      ? records.filter((r) => r.status === "Not Submitted").length 
+      : candidates.filter((c) => c.status === "Not Started").length;
     const expired = candidates.filter((c) => c.status === "Expired").length;
+
+    // 2. Hiring Status from candidates (from submissions)
     const pending = candidates.filter((c) => c.hiringStatus === "Pending Review").length;
     const shortlisted = candidates.filter((c) => c.hiringStatus === "Shortlisted").length;
     const interview = candidates.filter((c) => c.hiringStatus === "Interview Scheduled").length;
@@ -852,7 +1056,6 @@ function CandidatesTab({
             Advanced Filters
           </ToolbarBtn>
           <SortMenu value={sort} onChange={setSort} />
-          <ColumnsMenu cols={cols} setCols={setCols} />
           <ExportMenu
             candidates={filtered}
             selected={candidates.filter((c) => selected.has(c.id))}
@@ -1147,7 +1350,7 @@ function ExportMenu({
       ? `${selected.length} selected`
       : `${candidates.length.toLocaleString()} in view`;
 
-  const doCsv = (kind: "csv" | "xlsx") => {
+  const doCsv = async (kind: "csv" | "xlsx") => {
     const rows = [
       [
         "Candidate",
@@ -1175,103 +1378,32 @@ function ExportMenu({
         new Date(c.submittedAt).toISOString(),
       ]),
     );
-    const csv = rows
-      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob([csv], {
-      type: kind === "xlsx" ? "application/vnd.ms-excel" : "text/csv",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `candidates.${kind === "xlsx" ? "xls" : "csv"}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    
+    if (kind === "xlsx") {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, "Candidates");
+      XLSX.writeFile(wb, "candidates.xlsx");
+    } else {
+      const csv = rows
+        .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "candidates.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
     notify(`Exported ${scope.length} candidates (${kind.toUpperCase()})`);
   };
 
   return (
-    <div className="relative">
-      <ToolbarBtn onClick={() => setOpen((v) => !v)} icon={<Download className="h-3.5 w-3.5" />}>
-        Export
-      </ToolbarBtn>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-40 mt-1 w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
-            <div className="border-b border-neutral-100 px-3 py-2 text-[11px] uppercase tracking-widest text-neutral-500">
-              Export · {label}
-            </div>
-            <div className="py-1">
-              <ExportItem
-                onClick={() => {
-                  doCsv("csv");
-                  setOpen(false);
-                }}
-                icon={<FileText className="h-3.5 w-3.5" />}
-              >
-                CSV
-              </ExportItem>
-              <ExportItem
-                onClick={() => {
-                  doCsv("xlsx");
-                  setOpen(false);
-                }}
-                icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
-              >
-                Excel
-              </ExportItem>
-              <ExportItem
-                onClick={() => {
-                  notify(`Combined PDF prepared (${scope.length})`);
-                  setOpen(false);
-                }}
-                icon={<FileText className="h-3.5 w-3.5" />}
-              >
-                Combined PDF
-              </ExportItem>
-              <div className="my-1 h-px bg-neutral-100" />
-              <ExportItem
-                onClick={() => {
-                  notify("Resume bundle prepared");
-                  setOpen(false);
-                }}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Resume Bundle
-              </ExportItem>
-              <ExportItem
-                onClick={() => {
-                  notify("Engineering report prepared");
-                  setOpen(false);
-                }}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Engineering Report
-              </ExportItem>
-              <ExportItem
-                onClick={() => {
-                  notify("Assessment report prepared");
-                  setOpen(false);
-                }}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Assessment Report
-              </ExportItem>
-              <ExportItem
-                onClick={() => {
-                  notify("Vitarka report prepared");
-                  setOpen(false);
-                }}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Vitarka Report
-              </ExportItem>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    <ToolbarBtn onClick={() => doCsv("xlsx")} icon={<Download className="h-3.5 w-3.5" />}>
+      Export
+    </ToolbarBtn>
   );
 }
 function ExportItem({
@@ -2779,44 +2911,7 @@ function AttentionSection({
   );
 }
 
-function AttentionTab({
-  evId,
-  candidates,
-  onGoto,
-}: {
-  evId: string;
-  candidates: Candidate[];
-  onGoto: (t: "overview" | "candidates" | "intelligence" | "attention" | "settings") => void;
-}) {
-  const nav = useNavigate();
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [noted, setNoted] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    setViewed(loadViewed(evId));
-    setNoted(
-      loadNotedSet(
-        evId,
-        candidates.map((c) => c.id),
-      ),
-    );
-  }, [evId, candidates]);
-  const openDetails = (c: Candidate) =>
-    nav({
-      to: "/recruiter/evaluations/$id/candidates/$candidateId",
-      params: { id: evId, candidateId: c.id },
-    });
-  return (
-    <div>
-      <AttentionSection
-        candidates={candidates}
-        viewed={viewed}
-        noted={noted}
-        onApply={() => onGoto("candidates")}
-        onOpen={openDetails}
-      />
-    </div>
-  );
-}
+
 // ============================ ANALYTICS ============================
 
 function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, candidates: Candidate[] }) {
