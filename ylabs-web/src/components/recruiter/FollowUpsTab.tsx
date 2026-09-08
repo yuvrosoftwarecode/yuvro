@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import * as XLSX from "xlsx";
 import {
   Save, Users, User, ListChecks, Upload, ClipboardPaste, Mail,
   MoreHorizontal, PhoneCall, Send, Pencil, Trash2, Eye, PowerOff,
@@ -148,25 +147,29 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
   // Load initial state from localStorage (instant, survives refresh)
   const [data, setData] = useState<Persisted>(() => {
-    try {
-      const saved = localStorage.getItem(KEY(ev.id));
-      if (saved) {
-        const parsed = JSON.parse(saved) as Persisted;
-        // Restore but always clear candidates (those live in Records)
-        return {
-          bulk: { ...BULK_DEFAULT, ...parsed.bulk, emailTemplate: parsed.bulk.emailTemplate || BULK_DEFAULT.emailTemplate, candidates: [] },
-          individual: { ...IND_DEFAULT, ...parsed.individual, emailTemplate: parsed.individual.emailTemplate || IND_DEFAULT.emailTemplate },
-        };
-      }
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(KEY(ev.id));
+        if (saved) {
+          const parsed = JSON.parse(saved) as Persisted;
+          // Restore but always clear candidates (those live in Records)
+          return {
+            bulk: { ...BULK_DEFAULT, ...parsed.bulk, emailTemplate: parsed.bulk.emailTemplate || BULK_DEFAULT.emailTemplate, candidates: [] },
+            individual: { ...IND_DEFAULT, ...parsed.individual, emailTemplate: parsed.individual.emailTemplate || IND_DEFAULT.emailTemplate },
+          };
+        }
+      } catch {}
+    }
     return DEFAULTS;
   });
 
   // Save to localStorage whenever data changes
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY(ev.id), JSON.stringify(data));
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(KEY(ev.id), JSON.stringify(data));
+      } catch {}
+    }
   }, [data, ev.id]);
 
   // Fetch records from backend API. Only override form data if localStorage is empty.
@@ -196,7 +199,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
           setRecords(recs);
 
           // Only seed form data from backend if we don't have local drafts
-          const hasLocal = !!localStorage.getItem(KEY(ev.id));
+          const hasLocal = typeof window !== "undefined" && !!localStorage.getItem(KEY(ev.id));
           if (config && !hasLocal) {
             const bulk: BulkSetup = {
               ...BULK_DEFAULT,
@@ -447,6 +450,7 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
     try {
       let rows: Candidate[] = [];
       if (f.name.endsWith(".xlsx") || f.name.endsWith(".xls")) {
+        const XLSX = await import("xlsx");
         const buf = await f.arrayBuffer();
         const wb = XLSX.read(buf, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
@@ -523,8 +527,8 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
             <tbody>
               {bulk.candidates.map((c) => (
                 <tr key={c.id} className="border-t border-white/5">
-                  <td className="px-3 py-2"><input value={c.name} onChange={(e) => updRow(c.id, { name: e.target.value })} className={cellInp} placeholder="Jane Doe" /></td>
-                  <td className="px-3 py-2"><input value={c.email} onChange={(e) => updRow(c.id, { email: e.target.value })} className={cellInp} placeholder="jane@company.com" /></td>
+                  <td className="px-3 py-2"><input value={c.name} onChange={(e) => updRow(c.id, { name: e.target.value })} className={cellInp} placeholder="Enter candidate name" /></td>
+                  <td className="px-3 py-2"><input value={c.email} onChange={(e) => updRow(c.id, { email: e.target.value })} className={cellInp} placeholder="Enter candidate email" /></td>
                   <td className="px-3 py-2"><input value={c.phone} onChange={(e) => updRow(c.id, { phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} className={cellInp} placeholder="9000000000" maxLength={10} /></td>
                   <td className="px-3 py-2 text-right">
                     <button onClick={() => delRow(c.id)} className="rounded-md p-1.5 text-neutral-400 hover:bg-white/5 hover:text-red-300"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -581,15 +585,41 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
       </Section>
 
       <Section title="Email Body Template" description="Customize the email template sent to candidates.">
-        <textarea
-          rows={5}
-          value={bulk.emailTemplate}
-          onChange={(e) => set("emailTemplate", e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
-          placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
-        />
-        <div className="mt-2 text-[11px] text-neutral-500">
-          Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col">
+            <textarea
+              rows={8}
+              value={bulk.emailTemplate}
+              onChange={(e) => set("emailTemplate", e.target.value)}
+              className="w-full flex-1 rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
+              placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
+            />
+            <div className="mt-2 text-[11px] text-neutral-500">
+              Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 flex flex-col">
+            <div className="mb-3 text-[11px] font-medium uppercase tracking-widest text-neutral-500">Live Preview</div>
+            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-300 overflow-y-auto">
+              {(() => {
+                const parsed = bulk.emailTemplate
+                  .replace(/{{name}}/g, "Candidate Name")
+                  .replace(/{{evaluation}}/g, "Software Engineer Evaluation")
+                  .replace(/{{company}}/g, "Yuvro")
+                  .replace(/{{days}}/g, "2");
+                return parsed.split(/({{link}})/).map((part, i) => {
+                  if (part === "{{link}}") {
+                    return (
+                      <div key={i} className="my-3">
+                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                      </div>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                });
+              })()}
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -642,8 +672,8 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
 
       <Section title="Candidate Details" description="Contact information used for reminder emails and AI phone calls.">
         <div className="grid gap-4 md:grid-cols-3">
-          <Field label="Candidate Name"><input value={ind.name} onChange={(e) => set("name", e.target.value)} className={inp} placeholder="Jane Doe" /></Field>
-          <Field label="Email Address"><input value={ind.email} onChange={(e) => set("email", e.target.value)} className={inp} placeholder="jane@company.com" /></Field>
+          <Field label="Candidate Name"><input value={ind.name} onChange={(e) => set("name", e.target.value)} className={inp} placeholder="Enter candidate name" /></Field>
+          <Field label="Email Address"><input value={ind.email} onChange={(e) => set("email", e.target.value)} className={inp} placeholder="Enter candidate email" /></Field>
           <Field label="Phone Number"><input value={ind.phone} onChange={(e) => set("phone", e.target.value.replace(/\D/g, '').slice(0, 10))} className={inp} placeholder="9000000000" maxLength={10} /></Field>
         </div>
       </Section>
@@ -677,15 +707,41 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
       </Section>
 
       <Section title="Email Body Template" description="Customize the email template sent to candidates.">
-        <textarea
-          rows={5}
-          value={ind.emailTemplate}
-          onChange={(e) => set("emailTemplate", e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
-          placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
-        />
-        <div className="mt-2 text-[11px] text-neutral-500">
-          Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col">
+            <textarea
+              rows={8}
+              value={ind.emailTemplate}
+              onChange={(e) => set("emailTemplate", e.target.value)}
+              className="w-full flex-1 rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
+              placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
+            />
+            <div className="mt-2 text-[11px] text-neutral-500">
+              Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 flex flex-col">
+            <div className="mb-3 text-[11px] font-medium uppercase tracking-widest text-neutral-500">Live Preview</div>
+            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-300 overflow-y-auto">
+              {(() => {
+                const parsed = ind.emailTemplate
+                  .replace(/{{name}}/g, ind.name || "Candidate Name")
+                  .replace(/{{evaluation}}/g, "Software Engineer Evaluation")
+                  .replace(/{{company}}/g, "Yuvro")
+                  .replace(/{{days}}/g, "2");
+                return parsed.split(/({{link}})/).map((part, i) => {
+                  if (part === "{{link}}") {
+                    return (
+                      <div key={i} className="my-3">
+                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                      </div>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                });
+              })()}
+            </div>
+          </div>
         </div>
       </Section>
 

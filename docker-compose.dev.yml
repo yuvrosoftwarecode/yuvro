@@ -120,6 +120,9 @@ services:
         - VITE_YCODE_BACKEND_API_BASE_URL=${YLABS_VITE_YCODE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YLABS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${YLABS_VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
+        - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
+        - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ylabs-web/.env.dev

@@ -766,6 +766,66 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
+  if (tag === "c") {
+    return {
+      name: "c",
+      rootLabel: "project",
+      primary: "main.c",
+      runtime: "C (gcc)",
+      fileList: ["main.c", "README.md"],
+      files: {
+        "main.c": `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+  if (tag === "cpp" || tag === "c++") {
+    return {
+      name: "cpp",
+      rootLabel: "project",
+      primary: "main.cpp",
+      runtime: "C++ (g++)",
+      fileList: ["main.cpp", "README.md"],
+      files: {
+        "main.cpp": `#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+  if (tag === "java") {
+    return {
+      name: "java",
+      rootLabel: "java-101",
+      primary: "Main.java",
+      runtime: "Java 17",
+      fileList: ["Main.java", "README.md"],
+      files: {
+        "Main.java": `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}\n`,
+        "README.md": `# Project\n`,
+      },
+    };
+  }
+
+  if (slug === "python" || slug === "programming" || slug === "datastructures" || isAlgo)
+    return PY_KITS[tag] ?? PY_KITS["Py Fundamentals"];
+  if (slug.includes("mysql")) return MYSQL_KIT_DEFAULT;
+  if (slug.includes("postgresql") || slug.includes("postgres")) return POSTGRES_KIT_DEFAULT;
+  if (slug.includes("mongo") || tag?.toLowerCase() === "mongosh" || tag?.toLowerCase() === "mongo")
+    return MONGO_KIT_DEFAULT;
+  if (slug === "sql" || slug === "sqlite" || tag?.toLowerCase() === "sql") return SQL_KIT_DEFAULT;
+  if (slug === "ui") return UI_KIT_DEFAULT;
+  if (
+    slug === "linux" ||
+    tag === "bash" ||
+    tag === "Linux Basics" ||
+    tag === "Linux Files" ||
+    tag === "Linux Perms" ||
+    tag === "Linux Processes" ||
+    tag === "Linux Network" ||
+    tag === "Linux Shell" ||
+    tag === "Linux Services"
+  )
+    return LINUX_KIT_DEFAULT;
   return {
     name: "java",
     rootLabel: "java-101",
@@ -896,15 +956,21 @@ export function TicketIDE({
   ticket,
   previewOverride,
   isEvaluationMode,
+  isRecruiterPreview,
   evaluationId,
   onCodeChange,
+  headerActions,
+  initialFiles,
 }: {
   slug: string;
   ticket: any;
   previewOverride: StudentPreviewOverride | null;
   isEvaluationMode?: boolean;
+  isRecruiterPreview?: boolean;
   evaluationId?: string;
   onCodeChange?: (files: Record<string, string>) => void;
+  headerActions?: React.ReactNode;
+  initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
   const reviewMatch = useMatch({
@@ -912,29 +978,29 @@ export function TicketIDE({
     shouldThrow: false,
   });
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
-    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || ticket.ticket_type === "algo" || (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
+    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
+    ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
+    (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
   );
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
-  const isDjango = kit.name === "django";
+  const isDjango = kit.name === "django" || ticket.backend_frameworks?.includes("DJANGO") || ticket.tag?.toLowerCase().includes("django");
   const isJava = kit.name === "java";
-  const isSql = kit.name === "sql";
-  const isMysql = kit.name === "mysql";
-  const isPostgres = kit.name === "postgresql";
+  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor";
+  const isSql = isDbTicket && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite");
+  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql");
+  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres"));
   const isAnySql = isSql || isMysql || isPostgres;
   const isExternalDb = isMysql || isPostgres;
   const dbType = isMysql ? "mysql" : "postgresql";
-  const isMongo = kit.name === "mongo";
+  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo"));
   const isUi = kit.name === "ui";
-  const isPython = kit.name === "python";
-  const isDbEditor =
-    ticket.editor_type === "sql_editor" ||
-    ticket.editor_type === "db_editor" ||
-    isAnySql ||
-    isMongo;
+  const isPython = kit.name === "python" || isDjango;
+  const isDbEditor = isDbTicket && (isAnySql || isMongo);
   const isBash = kit.name === "bash";
   const isGit = kit.name === "git";
 
-  const isReal = !tickets.some((t) => t.id === ticket.id);
+  const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
 
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {
@@ -951,10 +1017,22 @@ export function TicketIDE({
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
-  const [progLang, setProgLang] = useState<ProgLang>("python");
+  const [progLang, setProgLang] = useState<ProgLang>(() => {
+    // If initialFiles exists, try to guess the language from the file extension
+    if (initialFiles) {
+      const keys = Object.keys(initialFiles).filter(k => k.startsWith('main.'));
+      if (keys.length > 0) {
+        const ext = keys[0].split('.').pop() || '';
+        const extToLang: Record<string, ProgLang> = { py: 'python', c: 'c', cpp: 'cpp', js: 'js', java: 'java' };
+        if (extToLang[ext]) return extToLang[ext];
+      }
+    }
+    return "python";
+  });
   const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
+    if (initialFiles) return initialFiles;
     if (isReal && slug !== "knowledge") return {};
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
@@ -964,14 +1042,27 @@ export function TicketIDE({
       s[kit.primary] = previewOverride.starterCode;
     }
     return s;
-  }, [kit, isReal, previewOverride, ticket.title, ticket.description]);
+  }, [kit, isReal, previewOverride, ticket.title, ticket.description, initialFiles]);
   const primaryFile = kit.primary;
-
+  
   const [files, setFiles] = useState<Record<string, string>>(starters);
-  const [activeFile, setActiveFile] = useState<FileName>(initialFileList[0]);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
+
   const fileList = useMemo(() => Object.keys(files), [files]);
-  const [openTabs, setOpenTabs] = useState<string[]>(isReal && slug !== "knowledge" ? [] : [...initialFileList]);
+  
+  const [activeFile, setActiveFile] = useState<FileName>(() => {
+    if (initialFiles) {
+      const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
+      if (keys.length > 0) return keys[0];
+    }
+    return initialFileList[0];
+  });
+  
+  const [openTabs, setOpenTabs] = useState<string[]>(() => {
+    if (isReal && slug !== "knowledge") return [];
+    if (initialFiles) return Object.keys(initialFiles);
+    return [...initialFileList];
+  });
 
   function openFile(path: string) {
     setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
@@ -991,7 +1082,11 @@ export function TicketIDE({
 
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
-    if (!isReal || isLoading || !userId) return;
+    if (isLoading) return;
+    if (!isReal || !userId || slug === "knowledge") {
+      setWsLoaded(true);
+      return;
+    }
     if (!forceUpdate) setWsLoaded(false);
     try {
       let currentTitle = "";
@@ -1098,7 +1193,7 @@ export function TicketIDE({
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
@@ -1166,11 +1261,10 @@ export function TicketIDE({
     if (previewOverride) return;
     const isDummy = !isReal;
     const RECENT_LAB_KEY = "ylabs-recent-lab";
-    const labEndpoint = isEvaluationMode
-          ? `/skill_evaluation/lab-questions/${labId}/` 
-          : `/lab/labs/${labId}/`;
-    
-    if (slug !== "knowledge") {
+    if (labId !== "knowledge" && slug !== "knowledge") {
+      const labEndpoint = isEvaluationMode
+            ? `/skill_evaluation/lab-questions/${labId}/` 
+            : `/lab/labs/${labId}/`;
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
         api.get<any>(labEndpoint)
           .then((realLab) => {
@@ -1370,6 +1464,7 @@ export function TicketIDE({
   const [testResults, setTestResults] = useState<any>(null);
   const [executionMetrics, setExecutionMetrics] = useState<any>(null);
   const [executionOutput, setExecutionOutput] = useState<string>("");
+  const [taskExecutionData, setTaskExecutionData] = useState<any>(null);
 
   useEffect(() => {
     codeExecutorService.getSupportedLanguagesAndTemplates()
@@ -1448,16 +1543,14 @@ export function TicketIDE({
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
-    if (isPython || isDjango || isAnySql || isMongo || isUi || isBash || activeFile.endsWith(".py") || activeFile.endsWith(".sql")) {
-      return "ok";
-    }
+    if (isMultiLang && !isJava) return "ok";
     const m = files["Main.java"];
     if (!m) return "ok";
     if (!/class\s+\w+/.test(m) || !/public\s+static\s+void\s+main/.test(m)) return "err";
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m))
       return "warn";
     return "ok";
-  }, [files, isPython, isDjango, isAnySql, isMongo, isUi, isBash, activeFile]);
+  }, [files, isMultiLang, isJava, isPython, isDjango, isAnySql, isMongo, isUi, isBash, activeFile]);
 
   const [dbSchemas, setDbSchemas] = useState<DbSchema[]>([]);
   const [dbSchemasLoading, setDbSchemasLoading] = useState<boolean>(false);
@@ -1576,7 +1669,6 @@ export function TicketIDE({
       ).catch(console.error);
     }
     setRunning(true);
-    setBottomTab("output");
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
@@ -1595,8 +1687,19 @@ export function TicketIDE({
         setOutput(outText);
         setExecutionOutput(outText);
 
-        if (res.data && typeof res.data === "object") {
-          const tasksData = res.data.tasks || {};
+        let parsedData = (res.data && typeof res.data === "object") ? res.data : null;
+        if (!parsedData && res.stdout) {
+          try {
+            const parsed = JSON.parse(res.stdout);
+            if (parsed && typeof parsed === "object") {
+              parsedData = parsed;
+            }
+          } catch {}
+        }
+
+        if (parsedData && typeof parsedData === "object") {
+          setTaskExecutionData(parsedData);
+          const tasksData = parsedData.tasks || {};
           const taskKeys = Object.keys(tasksData);
           
           const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
@@ -1626,17 +1729,19 @@ export function TicketIDE({
             setTestsRan(true);
           }
 
-          const passedScore = res.data.total_score ?? res.total_score ?? 0;
-          const maxScore = res.data.max_possible_score ?? res.max_possible_score ?? 100;
+          const passedScore = parsedData.total_score ?? res.total_score ?? 0;
+          const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? 100;
           setTicketScore({ passed: passedScore, total: maxScore });
           showToast(`Score: ${passedScore} / ${maxScore}`);
         } else {
           showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
         }
+        setBottomTab("preview");
       } catch (err: any) {
         setOutput(err.message || "Error executing tests");
         setExecutionOutput(err.message || "Error executing tests");
         showToast("Test execution failed");
+        setBottomTab("preview");
       } finally {
         setRunning(false);
       }
@@ -1690,6 +1795,7 @@ export function TicketIDE({
         showToast('Code execution failed');
       } finally {
         setRunning(false);
+        setBottomTab("preview");
       }
       return;
     }
@@ -1814,16 +1920,17 @@ export function TicketIDE({
           }
           
           setOutput(outText);
+          setBottomTab("preview");
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
+          setBottomTab("preview");
         })
         .finally(() => setRunning(false));
       return;
     }
     if (isUi) {
       setRunning(true);
-      setBottomTab("output");
       setOutput("Running UI validation...");
 
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -1850,6 +1957,7 @@ export function TicketIDE({
           }
           
           setOutput(JSON.stringify(resultJson, null, 2));
+          setBottomTab("preview");
           
           if (isReal && submissionId) {
              const uiScore = res.ui_score ?? 0;
@@ -1863,7 +1971,7 @@ export function TicketIDE({
         }).catch((err: any) => {
           console.error(err);
           setOutput(`Error running validation: ${err.message}`);
-          setBottomTab("output");
+          setBottomTab("preview");
           setRunning(false);
         });
       });
@@ -1872,7 +1980,6 @@ export function TicketIDE({
     if (isGit) {
       // Git Lab: evaluate every task from ticket.tasks using scoring_rules
       setRunning(true);
-      setBottomTab("output");
       setOutput("⏳ Evaluating Git tasks against your terminal history...");
 
       const tasks: any[] = ticket.tasks ?? [];
@@ -1912,6 +2019,7 @@ export function TicketIDE({
       }
 
       setTicketScore({ passed: passedCount, total: tasks.length });
+      setBottomTab("preview");
       setOutput(
         JSON.stringify(
           {
@@ -2370,7 +2478,7 @@ export function TicketIDE({
     : 8000;
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-full flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
@@ -2438,13 +2546,15 @@ export function TicketIDE({
             <Globe className="h-3 w-3" />
             Preview
           </button>
-          <button
-            onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
-          >
-            <Sparkles className="h-3 w-3" />
-            AI Mentor
-          </button>
+          {!isEvaluationMode && (
+            <button
+              onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
+              className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
+            >
+              <Sparkles className="h-3 w-3" />
+              AI Mentor
+            </button>
+          )}
           {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
             <select
               value={selectedLanguage}
@@ -2463,17 +2573,22 @@ export function TicketIDE({
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
-          <button onClick={() => setIsCommitDialogOpen(true)}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
-            <GitBranch className="h-3 w-3" />Commit
-          </button>
-          <button onClick={handleSubmit}
-            disabled={submitting}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            <Send className="h-3 w-3" />
-            {submitting ? "Submitting..." : "Submit"}
-          </button>
+          {!isEvaluationMode && (
+            <button onClick={() => setIsCommitDialogOpen(true)}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
+              <GitBranch className="h-3 w-3" />Commit
+            </button>
+          )}
+          {(!isEvaluationMode || !headerActions) && (
+            <button onClick={handleSubmit}
+              disabled={submitting}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            >
+              <Send className="h-3 w-3" />
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
+          )}
+          {headerActions}
         </div>
       </div>
 
@@ -2504,10 +2619,12 @@ export function TicketIDE({
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
             {[
               { k: "problem", I: BookOpen, label: "Problem" },
-              { k: "hints", I: Lightbulb, label: "Hints" },
-              // { k: "discuss", I: MessageSquare, label: "Discuss" },
-              { k: "solution", I: Key, label: "Solution" },
-            ].map(({ k, I, label }) => (
+                ...(!isEvaluationMode || isRecruiterPreview ? [
+                  { k: "hints", I: Lightbulb, label: "Hints" },
+                  // { k: "discuss", I: MessageSquare, label: "Discuss" },
+                  { k: "solution", I: Key, label: "Solution" },
+                ] : []),
+              ].map(({ k, I, label }) => (
               <button
                 key={k}
                 title={label}
@@ -2533,9 +2650,11 @@ export function TicketIDE({
             <div className="flex items-center border-b text-xs">
               {[
                 { k: "problem", label: "Problem" },
-                { k: "hints", label: "Hints" },
-                // { k: "discuss", label: "Discuss" },
-                { k: "solution", label: "Solution" },
+                ...(!isEvaluationMode || isRecruiterPreview ? [
+                  { k: "hints", label: "Hints" },
+                  // { k: "discuss", label: "Discuss" },
+                  { k: "solution", label: "Solution" },
+                ] : []),
               ].map((t) => (
                 <button
                   key={t.k}
@@ -2570,6 +2689,7 @@ export function TicketIDE({
               {tab === "solution" && (
                 <SolutionPanel
                   ticket={ticket}
+                  isPreview={isRecruiterPreview}
                   onLoadIntoEditor={(code, language) => {
                     const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
                     const ext = langMap[language.toLowerCase()] || "txt";
@@ -2584,6 +2704,7 @@ export function TicketIDE({
                   ticket={ticket}
                   elapsed={elapsed}
                   initialRevealedHints={initialRevealedHints}
+                  isPreview={isRecruiterPreview}
                   onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
                 />
               )}
@@ -2964,11 +3085,11 @@ export function TicketIDE({
               <div className="border-t bg-editor-panel">
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
+                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
+                    ...(isAlgo ? [{ k: "testcases", label: "Test Cases", icon: FlaskConical }] : []),
+                    { k: "preview", label: "Results", icon: Globe },
                     { k: "output", label: "Console", icon: TerminalIcon },
                     { k: "errors", label: "Errors", icon: AlertTriangle },
-                    { k: "testcases", label: "Test Cases", icon: FlaskConical },
-                    { k: "preview", label: isAnySql || isMongo ? "Results" : "Preview", icon: Globe },
-                    { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button
                       key={t.k}
@@ -2985,22 +3106,45 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className="h-52 overflow-auto scrollbar-thin p-3 text-xs">
-                  {bottomTab === "output" && <ExecutionOutputView output={output} executionMetrics={executionMetrics} testResults={testResults} executionOutput={executionOutput} />}
+                <div className="h-60 max-h-[45vh] min-h-[14rem] overflow-auto scrollbar-thin p-3 text-xs">
+                  {bottomTab === "output" && (
+                    <ExecutionOutputView
+                      output={output}
+                      executionMetrics={executionMetrics}
+                      testResults={null}
+                      executionOutput={executionOutput}
+                    />
+                  )}
                   {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
                   {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
                   {bottomTab === "preview" && (
-                    isDjango ? <WebPreview port={previewPort} /> :
-                      isSql ? (
-                        <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isMongo ? (
-                        <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />
-                      ) : isExternalDb ? (
-                        <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />
-                      ) : isUi ? <UiPreview files={files} /> :
-                                (computedStartupCommand) ? <WebPreview port={previewPort} /> :
-                                isPython ? <PythonOutputView code={files[activeFile] ?? ""} /> :
-                                  <PreviewView />
+                    <FormattedResultsView
+                      ticket={ticket}
+                      taskExecutionData={taskExecutionData}
+                      testResults={testResults}
+                      executionMetrics={executionMetrics}
+                      tests={tests}
+                      testsRan={testsRan}
+                      ticketScore={ticketScore}
+                      evalResult={evalResult}
+                      output={output}
+                      executionOutput={executionOutput}
+                      onRun={handleRun}
+                      running={running}
+                      isSql={isSql}
+                      isMongo={isMongo}
+                      isExternalDb={isExternalDb}
+                      executedQuery={executedQuery}
+                      runId={runId}
+                      refreshSchema={refreshSchema}
+                      dbType={dbType}
+                      isUi={isUi}
+                      files={files}
+                      isDjango={isDjango}
+                      previewPort={previewPort}
+                      computedStartupCommand={computedStartupCommand}
+                      isPython={isPython}
+                    />
                   )}
                   <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
                       <TerminalView
@@ -3305,6 +3449,447 @@ function CompileBadge({ state }: { state: "ok" | "warn" | "err" }) {
       <I className="h-3 w-3" />
       {txt}
     </span>
+  );
+}
+
+function extractTasksReport(
+  ticket: any,
+  taskExecutionData: any,
+  rawOutput: string,
+  evalResult: Record<string, { passed: boolean; reason: string }>,
+  ticketScore: { passed: number; total: number } | null
+) {
+  let parsedJson: any = taskExecutionData;
+
+  if (!parsedJson || !parsedJson.tasks) {
+    if (rawOutput && typeof rawOutput === "string") {
+      try {
+        parsedJson = JSON.parse(rawOutput.trim());
+      } catch {
+        const jsonMatch = rawOutput.match(/\{[\s\S]*"tasks"[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            parsedJson = JSON.parse(jsonMatch[0]);
+          } catch {}
+        }
+      }
+    }
+  }
+
+  const tasksJson = (parsedJson && typeof parsedJson === "object" && parsedJson.tasks) ? parsedJson.tasks : {};
+  const taskKeys = Object.keys(tasksJson);
+  const ticketTasks: any[] = Array.isArray(ticket?.tasks) ? ticket.tasks : [];
+
+  const items: Array<{
+    key: string;
+    index: number;
+    title: string;
+    description?: string;
+    passed: boolean | null;
+    score: number | null;
+    message?: string;
+  }> = [];
+
+  const count = Math.max(taskKeys.length, ticketTasks.length);
+
+  for (let i = 0; i < count; i++) {
+    const tMeta = ticketTasks[i];
+    const key = taskKeys[i] || `task${i + 1}`;
+    const tObj = tasksJson[key] || tasksJson[`task${i + 1}`] || (tMeta?.id ? tasksJson[tMeta.id] : undefined) || (tMeta?.task_slug ? tasksJson[tMeta.task_slug] : undefined);
+
+    const title = tMeta?.title || tObj?.title || `Task ${i + 1}`;
+    const description = tMeta?.description;
+
+    let passed: boolean | null = null;
+    let score: number | null = null;
+    let message: string | undefined = undefined;
+
+    if (tObj) {
+      passed = tObj.result === "passed" || tObj.status === "passed" || (typeof tObj.score === "number" && tObj.score > 0);
+      score = typeof tObj.score === "number" ? tObj.score : (passed ? 20 : 0);
+      message = tObj.message || tObj.reason || (passed ? "Task requirements satisfied" : "Task failed verification");
+    } else {
+      const slug = tMeta?.task_slug || `task-${i}`;
+      if (evalResult && evalResult[slug]) {
+        passed = evalResult[slug].passed;
+        message = evalResult[slug].reason;
+        score = passed ? 20 : 0;
+      }
+    }
+
+    items.push({
+      key,
+      index: i + 1,
+      title,
+      description,
+      passed,
+      score,
+      message,
+    });
+  }
+
+  const evaluatedItems = items.filter((it) => it.passed !== null);
+  const hasRan = evaluatedItems.length > 0;
+  const passedCount = items.filter((it) => it.passed === true).length;
+  const totalScore = ticketScore ? ticketScore.passed : (parsedJson?.total_score ?? items.reduce((acc, it) => acc + (it.score || 0), 0));
+  const maxScore = ticketScore ? ticketScore.total : (parsedJson?.max_possible_score ?? (items.length * 20 || 100));
+
+  return {
+    hasRan,
+    items,
+    passedCount,
+    totalCount: items.length,
+    totalScore,
+    maxScore,
+  };
+}
+
+function FormattedResultsView({
+  ticket,
+  taskExecutionData,
+  testResults,
+  executionMetrics,
+  tests,
+  testsRan,
+  ticketScore,
+  evalResult,
+  output,
+  executionOutput,
+  onRun,
+  running,
+  isSql,
+  isMongo,
+  isExternalDb,
+  executedQuery,
+  runId,
+  refreshSchema,
+  dbType,
+  isUi,
+  files,
+  isDjango,
+  previewPort,
+  computedStartupCommand,
+  isPython,
+}: {
+  ticket: any;
+  taskExecutionData: any;
+  testResults: any;
+  executionMetrics: any;
+  tests: TestResult[];
+  testsRan: boolean;
+  ticketScore: { passed: number; total: number } | null;
+  evalResult: Record<string, { passed: boolean; reason: string }>;
+  output: string;
+  executionOutput: string;
+  onRun: () => void;
+  running: boolean;
+  isSql: boolean;
+  isMongo: boolean;
+  isExternalDb: boolean;
+  executedQuery: string;
+  runId: number;
+  refreshSchema: () => void;
+  dbType?: string;
+  isUi: boolean;
+  files: Record<string, string>;
+  isDjango: boolean;
+  previewPort: number;
+  computedStartupCommand?: string;
+  isPython: boolean;
+}) {
+  // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
+  const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
+
+  if (taskExecutionData || ticket?.test_command || (!isSql && !isMongo && !isExternalDb && !isUi && report.items.length > 0)) {
+    if (report.items.length > 0) {
+      const isAllPassed = report.hasRan && report.passedCount === report.totalCount && report.totalCount > 0;
+      const scorePct = report.maxScore > 0 ? Math.round((report.totalScore / report.maxScore) * 100) : 0;
+
+      const bannerBorder = isAllPassed
+        ? "bg-success/5 border-success/30"
+        : "bg-card border-border";
+
+      let iconBg = "bg-muted/30 text-muted-foreground border-border";
+      let statusText = "Not Run Yet";
+      let statusCls = "bg-muted text-muted-foreground border border-border";
+      let headerText = "Test Evaluation Pending";
+
+      if (report.hasRan) {
+        if (isAllPassed) {
+          iconBg = "bg-success/10 text-success border-success/30";
+          statusText = "Passed";
+          statusCls = "bg-success/15 text-success border border-success/30";
+          headerText = "All Tasks Passed Successfully";
+        } else if (report.totalScore > 0) {
+          iconBg = "bg-amber-500/10 text-amber-500 border-amber-500/30";
+          statusText = "In Progress";
+          statusCls = "bg-amber-500/15 text-amber-500 border-amber-500/30";
+          headerText = `${report.passedCount} of ${report.totalCount} Tasks Passed`;
+        } else {
+          iconBg = "bg-destructive/10 text-destructive border-destructive/30";
+          statusText = "Failed";
+          statusCls = "bg-destructive/15 text-destructive border border-destructive/30";
+          headerText = `${report.passedCount} of ${report.totalCount} Tasks Passed`;
+        }
+      }
+
+      return (
+        <div className="space-y-4 max-w-4xl pb-4">
+          {/* Score & Summary Banner */}
+          <div className={`rounded-lg border p-4 transition-all ${bannerBorder}`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full border ${iconBg}`}>
+                  {isAllPassed ? <CheckCircle2 className="h-5 w-5" /> : report.hasRan ? <XCircle className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-foreground">
+                      {headerText}
+                    </span>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${statusCls}`}>
+                      {statusText}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {!report.hasRan
+                      ? "Click Run to execute automated evaluation against all tasks"
+                      : "Automated test evaluation results"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Score</div>
+                  <div className="font-mono text-base font-bold text-foreground">
+                    <span className={isAllPassed ? "text-success" : report.totalScore > 0 ? "text-amber-500" : "text-foreground"}>{report.totalScore}</span>
+                    <span className="text-muted-foreground text-xs font-normal"> / {report.maxScore}</span>
+                  </div>
+                </div>
+                {!report.hasRan && (
+                  <button
+                    onClick={onRun}
+                    disabled={running}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 shadow-sm"
+                  >
+                    <Play className="h-3.5 w-3.5" />
+                    {running ? "Running..." : "Run"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            {report.hasRan && (
+              <div className="mt-3 w-full bg-muted/40 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 rounded-full ${isAllPassed ? "bg-success" : report.totalScore > 0 ? "bg-amber-500" : "bg-destructive/60"}`}
+                  style={{ width: `${Math.max(scorePct, isAllPassed ? 100 : 2)}%` }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Tasks List */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-0.5">
+              Tasks ({report.items.length})
+            </h4>
+            {report.items.map((it) => {
+              const isEvaluated = it.passed !== null;
+              const isPassed = it.passed === true;
+
+              const cardBorder = !isEvaluated
+                ? "border-border bg-card/60"
+                : isPassed
+                ? "border-success/30 bg-success/5"
+                : "border-destructive/30 bg-destructive/5";
+
+              const badgeCls = !isEvaluated
+                ? "bg-muted text-muted-foreground border border-border"
+                : isPassed
+                ? "bg-success/20 text-success border border-success/30"
+                : "bg-destructive/20 text-destructive border border-destructive/30";
+
+              const badgeText = !isEvaluated ? "PENDING" : isPassed ? "PASSED" : "FAILED";
+
+              const scoreBadgeCls = isPassed
+                ? "bg-success/10 text-success border-success/30"
+                : "bg-muted/60 text-muted-foreground border-border";
+
+              const msgBoxCls = isPassed
+                ? "bg-success/10 text-success border-success/20"
+                : "bg-background/90 text-destructive border-destructive/25 shadow-sm";
+
+              return (
+                <div
+                  key={it.key}
+                  className={`rounded-lg border p-3.5 transition-all ${cardBorder}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      {!isEvaluated ? (
+                        <div className="h-4 w-4 rounded-full border border-muted-foreground/40 flex items-center justify-center text-[10px] text-muted-foreground shrink-0 mt-0.5 font-mono">
+                          {it.index}
+                        </div>
+                      ) : isPassed ? (
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-xs text-foreground">{it.title}</span>
+                          <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${badgeCls}`}>
+                            {badgeText}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {it.score !== null && (
+                      <span className={`shrink-0 font-mono text-[11px] font-semibold px-2 py-0.5 rounded border ${scoreBadgeCls}`}>
+                        {it.score} pts
+                      </span>
+                    )}
+                  </div>
+
+                  {it.message && (
+                    <div className={`mt-2.5 rounded-md p-2.5 text-[11px] font-mono leading-relaxed border ${msgBoxCls}`}>
+                      {it.message}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // 2. Database / SQL results (only for pure DB editor without task report)
+  if (isSql) {
+    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+  }
+  if (isMongo) {
+    return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+  }
+  if (isExternalDb) {
+    return <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />;
+  }
+
+  // 3. UI preview
+  if (isUi) {
+    return <UiPreview files={files} />;
+  }
+
+  // 4. Algo test cases (if testResults from code executor exists)
+  if (testResults && testResults.results && testResults.results.length > 0) {
+    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
+    const totalCount = testResults.total ?? testResults.results.length;
+    const isAllPassed = passedCount === totalCount && totalCount > 0;
+
+    return (
+      <div className="space-y-4 max-w-4xl pb-4">
+        {/* Metrics Header */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
+              {passedCount} / {totalCount} Test Cases Passed
+            </span>
+          </div>
+          {executionMetrics && (
+            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
+              {executionMetrics.execution_time !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
+                </div>
+              )}
+              {executionMetrics.memory_usage !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Test Cases List */}
+        <div className="space-y-2">
+          {testResults.results.map((tr: any, idx: number) => (
+            <div
+              key={idx}
+              className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
+                <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
+                  Test Case #{tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1} {tr.passed ? "Passed" : "Failed"}
+                </span>
+                {tr.execution_time !== undefined && (
+                  <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
+                )}
+              </div>
+
+              {!tr.passed && (
+                <div className="space-y-1.5 mt-2 text-[11px]">
+                  {tr.input !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Input:</span>
+                      <span className="text-foreground truncate">{tr.input}</span>
+                    </div>
+                  )}
+                  {tr.expected_output !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Expected:</span>
+                      <span className="text-success truncate">{tr.expected_output}</span>
+                    </div>
+                  )}
+                  {tr.actual_output !== undefined && (
+                    <div className="grid grid-cols-[80px_1fr] gap-2">
+                      <span className="text-muted-foreground font-semibold">Output:</span>
+                      <span className="text-destructive truncate">{tr.actual_output || "(no output)"}</span>
+                    </div>
+                  )}
+                  {tr.error && (
+                    <div className="mt-2 text-destructive font-semibold text-[11px]">
+                      Error: {tr.error}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 5. Empty State fallback
+  return (
+    <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2.5 text-center p-4">
+      <div className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground mb-1">
+        <FlaskConical className="h-5 w-5" />
+      </div>
+      <div>
+        <h3 className="text-xs font-semibold text-foreground">No Results Yet</h3>
+        <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs">
+          Click <span className="font-semibold text-foreground">Run</span> to execute your solution and evaluate against the requirements.
+        </p>
+      </div>
+      <button
+        onClick={onRun}
+        disabled={running}
+        className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+      >
+        <Play className="h-3 w-3" />
+        {running ? "Running tests..." : "Run Tests"}
+      </button>
+    </div>
   );
 }
 
@@ -4332,22 +4917,30 @@ function HintsPanel({
   elapsed,
   initialRevealedHints = [],
   onUnlock,
+  isPreview = false,
 }: {
   ticket: any;
   elapsed: number;
   initialRevealedHints?: number[];
   onUnlock: (n: number, cost: string) => void;
+  isPreview?: boolean;
 }) {
-  const [revealedHints, setRevealedHints] = useState<number[]>(initialRevealedHints);
+  const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
+  // In preview mode all hints are revealed immediately, no API needed
+  const [revealedHints, setRevealedHints] = useState<number[]>(
+    isPreview ? hints.map((_: any, i: number) => i) : initialRevealedHints
+  );
   const [showWarningDialog, setShowWarningDialog] = useState(false);
   const [targetHintIndex, setTargetHintIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setRevealedHints(initialRevealedHints);
-  }, [initialRevealedHints]);
-
-  const hints = Array.isArray(ticket?.hints) ? ticket.hints : [];
+    if (isPreview) {
+      setRevealedHints(hints.map((_: any, i: number) => i));
+    } else {
+      setRevealedHints(initialRevealedHints);
+    }
+  }, [initialRevealedHints, isPreview]);
 
   if (hints.length === 0) {
     return (
@@ -4355,13 +4948,17 @@ function HintsPanel({
         <Lightbulb className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
         <h4 className="text-sm font-medium text-foreground mb-1">No Hints Available</h4>
         <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
-          There are no hints provided for this problem. Try your best to solve it on your own!
+          No hints have been added to this question yet.
         </p>
       </div>
     );
   }
 
   const handleReveal = async (index: number) => {
+    if (isPreview) {
+      setRevealedHints(prev => [...prev, index]);
+      return;
+    }
     if (!revealedHints.includes(index)) {
       setLoading(true);
       try {
@@ -4373,7 +4970,6 @@ function HintsPanel({
         if (res?.revealed_hints) {
           setRevealedHints(res.revealed_hints);
         } else {
-          // fallback
           setRevealedHints([...revealedHints, index]);
         }
         onUnlock(index + 1, "50% Penalty");
@@ -4386,32 +4982,44 @@ function HintsPanel({
   };
 
   const attemptReveal = (index: number) => {
+    if (isPreview) {
+      handleReveal(index);
+      return;
+    }
     setTargetHintIndex(index);
     setShowWarningDialog(true);
   };
 
   return (
     <div className="space-y-3">
-      <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
-        <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
-      </div>
+      {isPreview ? (
+        <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
+          <Lightbulb className="inline h-3 w-3 mr-1" /> Recruiter preview — hints are shown without penalty.
+        </div>
+      ) : (
+        <div className="rounded-md border border-border bg-muted/30 p-2 text-xs text-muted-foreground">
+          <Lightbulb className="inline h-3 w-3 mr-1" /> Use hints if you get stuck. Note: Revealing any hints will result in a 50% score penalty for this ticket.
+        </div>
+      )}
 
-      <ScorePenaltyWarningDialog
-        open={showWarningDialog}
-        onOpenChange={setShowWarningDialog}
-        title="Hint Penalty Warning"
-        description={
-          <>
-            Are you sure you want to reveal this hint?<br /><br />
-            Revealing hints will result in a <strong>50% score penalty</strong> for this problem. This penalty applies once, no matter how many hints you reveal.
-          </>
-        }
-        onAcknowledge={() => {
-          if (targetHintIndex !== null) {
-            handleReveal(targetHintIndex);
+      {!isPreview && (
+        <ScorePenaltyWarningDialog
+          open={showWarningDialog}
+          onOpenChange={setShowWarningDialog}
+          title="Hint Penalty Warning"
+          description={
+            <>
+              Are you sure you want to reveal this hint?<br /><br />
+              Revealing hints will result in a <strong>50% score penalty</strong> for this problem. This penalty applies once, no matter how many hints you reveal.
+            </>
           }
-        }}
-      />
+          onAcknowledge={() => {
+            if (targetHintIndex !== null) {
+              handleReveal(targetHintIndex);
+            }
+          }}
+        />
+      )}
       
       {hints.map((hint: string, index: number) => {
         const isRevealed = revealedHints.includes(index);
@@ -5594,12 +6202,23 @@ function UiDiffView({ result }: { result: any }) {
 }
 
 
-export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void }) {
-  const [revealedSolution, setRevealedSolution] = useState(false);
-  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>([]);
+export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void, isPreview?: boolean }) {
+  // In preview mode, use ticket.solutions directly without API reveal
+  const previewSols: any[] = isPreview
+    ? (Array.isArray(ticket?.solutions) ? ticket.solutions.map((s: any) => ({
+        approach: s.approach || 'optimal',
+        language: s.language || 'python',
+        code: s.code || '',
+        title: s.title || 'Solution',
+        complexity_analysis: s.complexity_analysis || '',
+      })) : [])
+    : [];
+
+  const [revealedSolution, setRevealedSolution] = useState(isPreview);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
   const [loading, setLoading] = useState(false);
-  const [selectedApproach, setSelectedApproach] = useState<string>('optimal');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || 'optimal');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || '');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   const handleRevealSolution = async () => {
@@ -5622,6 +6241,19 @@ export function SolutionPanel({ ticket, onLoadIntoEditor }: { ticket: any, onLoa
       setLoading(false);
     }
   };
+
+  // Preview mode with no solutions on the ticket
+  if (isPreview && previewSols.length === 0) {
+    return (
+      <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
+        <Key className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <h4 className="text-sm font-medium text-foreground mb-1">No Solutions Added</h4>
+        <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
+          No solutions have been added to this question yet.
+        </p>
+      </div>
+    );
+  }
 
   if (!revealedSolution) {
     return (

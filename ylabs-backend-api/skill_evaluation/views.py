@@ -63,6 +63,35 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.prefetch_related('sections').all()
     serializer_class = EvaluationSerializer
     permission_classes = [AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        if not user:
+            email = request.query_params.get('email')
+            if email:
+                User = get_user_model()
+                user = User.objects.filter(email=email).first()
+
+        if user:
+            submission = UserEvaluationSubmission.objects.filter(evaluation=instance, user=user).first()
+            if not submission and instance.created_by_id != user.id:
+                submission = UserEvaluationSubmission.objects.create(
+                    evaluation=instance,
+                    user=user,
+                    duration=0,
+                    discussion_mode=DiscussionMode.AUTOMATIC
+                )
+            if submission:
+                data['submission_id'] = submission.id
+                data['started_at'] = submission.created_at.isoformat()
+                data['status'] = submission.hiring_status
+                data['completed_at'] = submission.completed_at.isoformat() if submission.completed_at else None
+
+        return Response(data)
     
     def perform_create(self, serializer):
         User = get_user_model()

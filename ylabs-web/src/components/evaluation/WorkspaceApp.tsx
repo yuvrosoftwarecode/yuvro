@@ -34,6 +34,8 @@ interface RealLab {
   title: string;
   sub: string;
   tag: string;
+  type?: string;
+  ticket_type?: string;
   minutes: number;
   problem: string;
   tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
@@ -41,6 +43,7 @@ interface RealLab {
   code: string;
   terminal: string[];
   startup_command?: string;
+  test_command?: string;
 }
 
 
@@ -61,6 +64,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const nav = useNavigate({ from: undefined as any });
   const search: any = useRouterState({ select: (s) => s.location.search });
   const evaluationId = previewData ? '' : (search.e || '');
+  const isRecruiterPreview = !!previewData;
   const isPreviewMode = search.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
@@ -99,14 +103,24 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
           if (sec.type === "LAB") {
             (sec.questions || []).forEach((q: any) => {
+              const isDbOnly = q.type === "DATABASE" || q.ticket_type === "database";
+              const detectedTag = (
+                (isDbOnly && q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                (q.backend_frameworks && q.backend_frameworks.length > 0 ? q.backend_frameworks[0] : null) ||
+                (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
+                (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
+                "bash"
+              ).toLowerCase();
+
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
                 title: q.title || "Untitled Lab",
-                tag: (
-                  (q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
-                  (q.programming_languages && q.programming_languages.length > 0 ? q.programming_languages[0] : null) ||
-                  "bash"
-                ).toLowerCase(),
+                tag: detectedTag,
+                type: q.type,
+                ticket_type: q.ticket_type || q.type,
+                backend_frameworks: q.backend_frameworks || [],
+                programming_languages: q.programming_languages || [],
+                databases: q.databases || [],
                 minutes: q.duration_minutes || 30,
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
@@ -207,10 +221,52 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       }
       
       if (dQs.length > 0) setDiscussionQuestions(dQs);
-      
+
       setLabsData(mappedLabs);
+
+      const totalMins = res.duration_minutes || res.duration || res.settings?.duration || durationMinutes || 60;
+      const totalSecs = totalMins * 60;
+      totalDurationSecondsRef.current = totalSecs;
+      try { sessionStorage.setItem(sessionDurKey, String(totalSecs)); } catch {}
+
+      let startedAt = res.started_at;
+      if (!startedAt) {
+        try {
+          startedAt = sessionStorage.getItem(sessionKey);
+        } catch {}
+      }
+      if (!startedAt) {
+        startedAt = new Date().toISOString();
+      }
+      try {
+        sessionStorage.setItem(sessionKey, startedAt);
+      } catch {}
+
+      startedAtRef.current = startedAt;
+      const elapsed = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+      let remainingSeconds = Math.max(0, totalSecs - elapsed);
+      setRemaining(remainingSeconds);
   };
-  const [remaining, setRemaining] = useState(TOTAL_SECONDS);
+
+  const sessionKey = `eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`;
+  const sessionDurKey = `eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`;
+
+  const [remaining, setRemaining] = useState<number>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const savedStart = sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`);
+        const savedDur = sessionStorage.getItem(`eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`);
+        const dur = savedDur ? parseInt(savedDur, 10) : TOTAL_SECONDS;
+        if (savedStart) {
+          const elapsed = Math.floor((Date.now() - new Date(savedStart).getTime()) / 1000);
+          return Math.max(0, dur - elapsed);
+        }
+      }
+    } catch {}
+    return TOTAL_SECONDS;
+  });
+  const startedAtRef = useRef<string | null>(typeof window !== "undefined" ? sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`) : null);
+  const totalDurationSecondsRef = useRef<number>(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
   const [submittedLabs, setSubmittedLabs] = useState<Set<LabId>>(new Set());
@@ -294,6 +350,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     const t = setInterval(() => {
       setRemaining(r => {
+        if (startedAtRef.current) {
+          const elapsed = Math.floor((Date.now() - new Date(startedAtRef.current).getTime()) / 1000);
+          const rem = Math.max(0, totalDurationSecondsRef.current - elapsed);
+          if (rem <= 0) {
+            clearInterval(t);
+            return 0;
+          }
+          return rem;
+        }
+
         if (r <= 1) { clearInterval(t); return 0; }
         return r - 1;
       });
@@ -404,6 +470,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const locked = discussionTriggered.current;
 
   const submitEvaluation = async () => {
+    try {
+      sessionStorage.removeItem(sessionKey);
+      sessionStorage.removeItem(sessionDurKey);
+    } catch {}
     try {
       await evaluationService.finishEvaluation?.(evaluationId);
     } catch (e) {
@@ -591,7 +661,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         section={section}
         appSections={appSections}
         onExit={() => setModal({ kind: "exit" })}
-        onJumpToDiscussion={() => setRemaining(DISCUSSION_LOCK_SECONDS + 5)}
       />
 
       <div className="flex min-h-0 flex-1">
@@ -613,7 +682,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         />
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className={`min-w-0 flex-1 ${activeSection?.type === "LAB" && openLab ? "flex flex-col h-full overflow-hidden min-h-0" : "overflow-y-auto"}`}>
           {appSections.map(sec => {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
@@ -624,6 +693,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   title: lab.title,
                   description: lab.problem,
                   tag: lab.tag,
+                  type: lab.type,
+                  ticket_type: lab.ticket_type || lab.type,
+                  backend_frameworks: (lab as any).backend_frameworks || [],
+                  programming_languages: (lab as any).programming_languages || [],
+                  databases: (lab as any).databases || [],
                   tasks: lab.tasks.map(t => ({ 
                     id: t.id, 
                     title: t.title, 
@@ -712,6 +786,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                       setCodingResults(prev => ({ ...prev, [qId]: [{ name: "Example test", pass: false }] }));
                     }
                   }}
+                  isRecruiterPreview={isRecruiterPreview}
                 />
               );
             } else if (sec.type === "VITARKA_AI_INTERVIEW") {
@@ -819,7 +894,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 // Top bar
 // ────────────────────────────────────────────────────────────────────────────
 
-function TopBar({ remaining, online, autosave, section, appSections, onExit, onJumpToDiscussion }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void; onJumpToDiscussion: () => void }) {
+function TopBar({ remaining, online, autosave, section, appSections, onExit }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void }) {
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
@@ -852,10 +927,6 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit, onJ
         <span className="hidden md:inline">
           {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
         </span>
-        <span className="hidden text-neutral-300 dark:text-neutral-700 md:inline">·</span>
-        <button onClick={onJumpToDiscussion} title="Demo: jump to 15:00 remaining" className="hidden rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 md:inline">
-          demo · jump to 15:00
-        </button>
         <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
         <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
         <ThemeToggle />
@@ -937,10 +1008,10 @@ function Sidebar({
         const subject = (q as any).course_title || (q as any).course_name || "Other Subjects";
         const topic = (q as any).topic_title || (q as any).topic_name || "Other Topics";
         
-        let format = q.format || (Array.isArray(q.options) && q.options.length > 0 ? "MCQ" : "Description");
-        if (format === "MCQ") format = "MCQ";
-        else if (format === "Multiple Select") format = "Multiple MCQ";
-        else if (format === "Coding") format = "Coding";
+        let format = q.format || q.type || (Array.isArray(q.options) && q.options.length > 0 ? "MCQ" : "Description");
+        if (format === "MCQ" || format === "mcq_single") format = "MCQ";
+        else if (format === "Multiple Select" || format === "mcq_multiple") format = "Multiple MCQ";
+        else if (format === "Coding" || format === "coding") format = "Coding";
         else format = "Other";
 
         if (!h[subject]) h[subject] = {};
@@ -1390,7 +1461,7 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection, nextSecti
 function KnowledgeRunner({
   subject, submitted, index, setIndex, answers, marked,
   setAnswer, clearAnswer, onMark, onBack, onSubmit, onFinishSection, nextSectionTitle,
-  codingCode, setCodingCode, codingResults, runCode, evaluationId
+  codingCode, setCodingCode, codingResults, runCode, evaluationId, isRecruiterPreview
 }: {
   subject: any; submitted: boolean; index: number; setIndex: (i: number) => void;
   answers: Record<string, any>; marked: Set<string>;
@@ -1398,19 +1469,30 @@ function KnowledgeRunner({
   onBack: () => void; onSubmit: () => void; onFinishSection?: () => void; nextSectionTitle?: string;
   codingCode: Record<string, string>; setCodingCode: (qId: string, val: string) => void;
   codingResults: Record<string, { name: string; pass: boolean }[] | null>; runCode: (qId: string) => void; evaluationId?: string;
+  isRecruiterPreview?: boolean;
 }) {
   const q = subject.questions[index];
   const disabled = submitted;
   if (!q) return null;
 
-  if (q.format === "Coding") {
+  if (q.format === "Coding" || q.type === "coding") {
     const mappedTicket = {
       id: q.id,
       title: q.q,
       description: q.description || q.q,
       tag: q.programming_languages?.[0]?.toLowerCase() || "javascript",
-      tasks: [],
-      difficulty: "Intermediate",
+      ticket_type: "algo",
+      tasks: (q.test_cases_basic || []).map((tc: any, i: number) => ({
+        id: `tc-${i}`,
+        title: `Test Case ${i + 1}`,
+        description: "",
+        input: tc.input,
+        expected_output: tc.expected_output,
+        is_hidden: tc.is_hidden || false
+      })),
+      hints: q.hints || [],
+      solutions: q.solutions || [],
+      difficulty: q.difficulty || "Intermediate",
       xp: 10,
       estMin: 15,
       sprintOrder: index + 1,
@@ -1420,28 +1502,55 @@ function KnowledgeRunner({
     };
 
     return (
-      <div className="flex h-full flex-col bg-[#fafaf7] overflow-hidden">
-        <div className="flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-3 text-[12px] shrink-0">
-          <div className="text-neutral-500">Assessment · <span className="text-neutral-900">{subject.title}</span></div>
-          <div className="flex items-center gap-3">
-             <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
-             {index < subject.questions.length - 1 ? (
-               <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
-             ) : submitted ? (
-               <button onClick={onFinishSection} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
-                 {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
-               </button>
-             ) : (
-               <button onClick={onSubmit} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
-                 Submit {subject.title}
-               </button>
-             )}
-          </div>
-        </div>
-
+      <div className="flex h-full flex-col bg-[#0B0D11] overflow-hidden">
         <div className="min-h-0 flex-1">
-          <TicketIDE key={mappedTicket.id} slug="knowledge" ticket={mappedTicket} previewOverride={null} isEvaluationMode={true}
-                    evaluationId={evaluationId} onCodeChange={(files) => setAnswer(q.id, Object.values(files).join('\n\n'))} />
+          <TicketIDE
+            key={mappedTicket.id}
+            slug="knowledge"
+            ticket={mappedTicket}
+            previewOverride={answers[q.id] ? { starterCode: answers[q.id] } : null}
+            initialFiles={codingCode[q.id] ? JSON.parse(codingCode[q.id]) : undefined}
+            isEvaluationMode={true}
+            isRecruiterPreview={isRecruiterPreview}
+            evaluationId={evaluationId}
+            onCodeChange={(files) => {
+              setCodingCode(q.id, JSON.stringify(files));
+              setAnswer(q.id, Object.values(files).join('\n\n'));
+            }}
+            headerActions={
+              <div className="flex items-center gap-1.5 ml-2">
+                <button
+                  onClick={() => setIndex(Math.max(0, index - 1))}
+                  disabled={index === 0}
+                  className="rounded-md border border-border px-3 py-1 text-xs font-medium hover:bg-accent disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                {index < subject.questions.length - 1 ? (
+                  <button
+                    onClick={() => setIndex(index + 1)}
+                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                  >
+                    Next
+                  </button>
+                ) : submitted ? (
+                  <button
+                    onClick={onFinishSection}
+                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                  >
+                    {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={onSubmit}
+                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                  >
+                    Submit {subject.title}
+                  </button>
+                )}
+              </div>
+            }
+          />
         </div>
       </div>
     );
@@ -1449,16 +1558,16 @@ function KnowledgeRunner({
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 flex flex-col min-h-0 h-full">
-      <div className="flex items-center justify-between text-[12px] text-neutral-500 shrink-0">
-        <button onClick={onBack} className="hover:text-neutral-900">← All subjects</button>
+      <div className="flex items-center justify-between text-[12px] text-neutral-400 shrink-0">
+        <button onClick={onBack} className="hover:text-white">← All subjects</button>
         <span>{subject.title} · Question {index + 1} of {subject.questions.length}</span>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-8 flex-1 min-h-0 flex flex-col">
-        <div className="font-serif text-[22px] leading-snug tracking-tight text-neutral-900 shrink-0">{q.q}</div>
-        {q.description && <div className="mt-3 text-[14px] leading-relaxed text-neutral-700 shrink-0 whitespace-pre-wrap">{q.description}</div>}
+      <div className="mt-8 rounded-2xl border border-white/10 bg-[#13151A] p-8 flex-1 min-h-0 flex flex-col shadow-xl">
+        <div className="font-serif text-[22px] leading-snug tracking-tight text-white shrink-0">{q.q}</div>
+        {q.description && <div className="mt-3 text-[14px] leading-relaxed text-neutral-400 shrink-0 whitespace-pre-wrap">{q.description}</div>}
         
-        <div className="mt-6 flex-1 overflow-y-auto">
+        <div className="mt-6 flex-1 overflow-y-auto pr-2">
           {q.format === "MCQ" || q.format === "Multiple Select" ? (
             <div className="space-y-2">
               {q.options.map((opt: string, i: number) => {
@@ -1466,7 +1575,7 @@ function KnowledgeRunner({
                 const ansArray = Array.isArray(answers[q.id]) ? answers[q.id] : (answers[q.id] !== undefined ? [answers[q.id]] : []);
                 const active = isMulti ? ansArray.includes(i) : answers[q.id] === i;
                 return (
-                  <label key={i} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}>
+                  <label key={i} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-amber-500/50 bg-amber-500/10 text-white" : "border-white/10 text-neutral-300 hover:border-white/20 hover:bg-white/5"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}>
                     <input 
                       type={isMulti ? "checkbox" : "radio"}
                       disabled={disabled}
@@ -1479,9 +1588,9 @@ function KnowledgeRunner({
                           setAnswer(q.id, i);
                         }
                       }}
-                      className={`mt-0.5 h-4 w-4 ${isMulti ? "rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900" : ""}`}
+                      className="mt-0.5"
                     />
-                    <span className="text-neutral-800">{opt}</span>
+                    <div className="flex-1 leading-relaxed">{opt}</div>
                   </label>
                 );
               })}
@@ -1490,31 +1599,31 @@ function KnowledgeRunner({
             <textarea
               value={answers[q.id] || ""}
               onChange={(e) => setAnswer(q.id, e.target.value)}
-              disabled={submitted}
+              disabled={disabled}
               rows={8}
               placeholder="Type your answer here..."
-              className="w-full resize-none rounded-lg border border-neutral-200 bg-white p-4 text-[14px] leading-relaxed text-neutral-900 outline-none focus:border-neutral-900 disabled:opacity-70"
+              className="w-full resize-none rounded-lg border border-white/10 bg-black/20 p-4 text-[14px] leading-relaxed text-white outline-none focus:border-white/30 disabled:opacity-70"
             />
           )}
         </div>
         
-        <div className="mt-6 flex items-center justify-between text-[12px] shrink-0 pt-4 border-t border-neutral-100">
-          <div className="flex items-center gap-3 text-neutral-500">
-            <button onClick={() => onMark(q.id)} disabled={disabled} className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-50">
+        <div className="mt-6 flex items-center justify-between text-[12px] shrink-0 pt-4 border-t border-white/5">
+          <div className="flex items-center gap-3 text-neutral-400">
+            <button onClick={() => onMark(q.id)} disabled={disabled} className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 hover:bg-white/10 hover:text-white disabled:opacity-50">
               {marked.has(q.id) ? "Unmark" : "Mark for review"}
             </button>
-            <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="hover:text-neutral-900 disabled:opacity-50">Clear answer</button>
+            <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="hover:text-white disabled:opacity-50">Clear answer</button>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 px-3 py-1.5 hover:border-neutral-900 disabled:opacity-40">Previous</button>
+            <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-neutral-300 hover:bg-white/10 hover:text-white disabled:opacity-40">Previous</button>
             {index < subject.questions.length - 1 ? (
-              <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">Next</button>
+              <button onClick={() => setIndex(index + 1)} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">Next</button>
             ) : submitted ? (
-              <button onClick={onFinishSection} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+              <button onClick={onFinishSection} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">
                 {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
               </button>
             ) : (
-              <button onClick={onSubmit} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white hover:bg-neutral-800">
+              <button onClick={onSubmit} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">
                 Submit {subject.title}
               </button>
             )}

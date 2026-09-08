@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { z } from "zod";
-import * as XLSX from "xlsx";
 import {
   ChevronLeft,
   ArrowLeft,
@@ -140,7 +139,7 @@ function Workspace() {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${location.origin}/evaluation?e=${ev.id}`);
+      await navigator.clipboard.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`);
       notify("Public link copied");
     } catch {
       notify("Copy failed");
@@ -281,91 +280,7 @@ function Workspace() {
               <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
                 Copy Link
               </HeaderBtn>
-              <HeaderBtn
-                onClick={() => download("reports")}
-                icon={<Download className="h-3.5 w-3.5" />}
-              >
-                Download
-              </HeaderBtn>
-              <div className="relative">
-                <HeaderBtn
-                  onClick={() => setMoreOpen((v) => !v)}
-                  icon={<MoreHorizontal className="h-3.5 w-3.5" />}
-                >
-                  More
-                </HeaderBtn>
-                {moreOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                    <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
-                      <MenuItem
-                        onClick={() => {
-                          download("csv");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileText className="h-3.5 w-3.5" />}
-                      >
-                        Export CSV
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          download("xlsx");
-                          setMoreOpen(false);
-                        }}
-                        icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
-                      >
-                        Export Excel
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          emailAll();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Mail className="h-3.5 w-3.5" />}
-                      >
-                        Email Candidates
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDuplicate();
-                          setMoreOpen(false);
-                        }}
-                        icon={<CopyIcon className="h-3.5 w-3.5" />}
-                      >
-                        Duplicate Evaluation
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          nav({ to: "/recruiter/evaluations/$id", params: { id: ev.id } });
-                        }}
-                        icon={<Pencil className="h-3.5 w-3.5" />}
-                      >
-                        Edit Evaluation
-                      </MenuItem>
-                      <div className="h-px bg-white/5" />
-                      <MenuItem
-                        onClick={() => {
-                          onArchive();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Archive className="h-3.5 w-3.5" />}
-                      >
-                        Archive
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          onDelete();
-                          setMoreOpen(false);
-                        }}
-                        icon={<Trash2 className="h-3.5 w-3.5" />}
-                        danger
-                      >
-                        Delete
-                      </MenuItem>
-                    </div>
-                  </>
-                )}
-              </div>
+
             </div>
           </div>
         </div>
@@ -500,7 +415,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
 
   const parseTemplateText = (text: string) => {
     return text
-      .replace(/{{name}}/g, "Jane Doe")
+      .replace(/{{name}}/g, "Candidate Name")
       .replace(/{{evaluation}}/g, evTitle || "Evaluation")
       .replace(/{{company}}/g, "Yuvro");
   };
@@ -514,7 +429,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           if (part === "{{link}}") {
             return (
               <div key={i} className="my-4">
-                <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
                   Start Evaluation
                 </a>
               </div>
@@ -565,7 +480,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
                   onChange={(e) => setEmailsInput(e.target.value)}
                   onKeyDown={handleEmailInput}
                   onBlur={() => addRecipients(emailsInput)}
-                  placeholder={recipients.length === 0 ? "jane@example.com, john@example.com..." : ""}
+                  placeholder={recipients.length === 0 ? "candidate1@example.com, candidate2@example.com..." : ""}
                   className="min-w-[200px] flex-1 bg-transparent px-1 text-[13px] text-neutral-900 outline-none placeholder:text-neutral-400"
                 />
               </div>
@@ -622,7 +537,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
               <div className="mb-2 flex items-center text-[13px]">
                 <span className="w-16 font-medium text-neutral-500">To:</span>
                 <span className="text-neutral-700">
-                  {recipients[0] || (emailsInput && emailRegex.test(emailsInput.trim()) ? emailsInput.trim() : "jane@example.com")}
+                  {recipients[0] || (emailsInput && emailRegex.test(emailsInput.trim()) ? emailsInput.trim() : "candidate@example.com")}
                   {totalCount > 1 ? ` (+${totalCount - 1} more)` : ""}
                 </span>
               </div>
@@ -637,7 +552,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-4">
-                        <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                        <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
                           Start Evaluation
                         </a>
                       </div>
@@ -1193,9 +1108,9 @@ function CandidatesTab({
               if (selected.size < 2 || selected.size > 4)
                 return notify("Select 2 to 4 candidates to compare");
               nav({
-                to: "/recruiter/evaluations/$id/compare",
+                to: "/recruiter/evaluations/$id/compare" as any,
                 params: { id: evId },
-                search: { ids: Array.from(selected).join(",") },
+                search: { ids: Array.from(selected).join(",") } as any,
               });
             }}
             accent
@@ -1435,7 +1350,7 @@ function ExportMenu({
       ? `${selected.length} selected`
       : `${candidates.length.toLocaleString()} in view`;
 
-  const doCsv = (kind: "csv" | "xlsx") => {
+  const doCsv = async (kind: "csv" | "xlsx") => {
     const rows = [
       [
         "Candidate",
@@ -1465,6 +1380,7 @@ function ExportMenu({
     );
     
     if (kind === "xlsx") {
+      const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(wb, ws, "Candidates");

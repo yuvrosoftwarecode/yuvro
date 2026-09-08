@@ -401,6 +401,7 @@ export async function createEvaluation(): Promise<Evaluation> {
 }
 
 export function saveDraftLocally(e: Evaluation) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(`draft_eval_${e.id}`, JSON.stringify(e));
   } catch (err) {
@@ -409,6 +410,7 @@ export function saveDraftLocally(e: Evaluation) {
 }
 
 export function getDraftLocally(id: string): Evaluation | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(`draft_eval_${id}`);
     if (raw) return JSON.parse(raw) as Evaluation;
@@ -416,9 +418,8 @@ export function getDraftLocally(id: string): Evaluation | null {
   return null;
 }
 
-
-
 export function clearDraftLocally(id: string) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(`draft_eval_${id}`);
   } catch {}
@@ -522,6 +523,19 @@ export async function fetchQuestions(
   } catch (err) {
     console.error("fetchQuestions error", err);
     return [];
+  }
+}
+
+export async function checkDuplicateQuestion(content: string, courseId: string) {
+  try {
+    const res = await ycodeApiAuthUtil.post<any>("/course/questions/check_duplicate/", {
+      content,
+      course: courseId,
+    });
+    return res;
+  } catch (err) {
+    console.error("Duplicate check error:", err);
+    return { is_duplicate: false };
   }
 }
 

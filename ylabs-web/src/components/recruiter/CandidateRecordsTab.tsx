@@ -77,7 +77,7 @@ export function CandidateRecordsTab({
     load();
     
     const interval = setInterval(() => {
-      if (document.visibilityState === "visible") {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
         load();
       }
     }, 5000);
@@ -109,14 +109,18 @@ export function CandidateRecordsTab({
   const [detail, setDetail] = useState<CandidateRecord | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(COLS_KEY(ev.id));
-      if (raw) setCols(JSON.parse(raw));
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(COLS_KEY(ev.id));
+        if (raw) setCols(JSON.parse(raw));
+      } catch {}
+    }
   }, [ev.id]);
   const setColumns = (next: ColKey[]) => {
     setCols(next);
-    try { localStorage.setItem(COLS_KEY(ev.id), JSON.stringify(next)); } catch {}
+    if (typeof window !== "undefined") {
+      try { localStorage.setItem(COLS_KEY(ev.id), JSON.stringify(next)); } catch {}
+    }
   };
 
   useEffect(() => { setPage(1); }, [search, status, result, source, followUp, sentFrom, sentTo, subFrom, subTo, perPage]);
@@ -183,9 +187,11 @@ export function CandidateRecordsTab({
   };
 
   const setFollowUpFor = (r: CandidateRecord) => {
-    try {
-      localStorage.setItem(PREFILL_KEY(ev.id), JSON.stringify({ name: r.name, email: r.email, phone: r.phone }));
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(PREFILL_KEY(ev.id), JSON.stringify({ name: r.name, email: r.email, phone: r.phone }));
+      } catch {}
+    }
     notify(`Opening Individual Setup for ${r.name}`);
     onGotoFollowUps();
   };
@@ -386,7 +392,7 @@ export function CandidateRecordsTab({
                               <RowItem
                                 icon={<Link2 className="h-3.5 w-3.5" />}
                                 onClick={() => {
-                                  navigator.clipboard?.writeText(`${location.origin}/evaluation?e=${ev.id}&c=${r.candidateId}`);
+                                  navigator.clipboard?.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}&c=${r.candidateId}`);
                                   notify("Assessment link copied");
                                   setMenuFor(null);
                                 }}

@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/hooks/use-theme";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { PricingContent } from "./pricing";
+import { DeployInfo } from "@/components/common/DeployInfo";
 
 export const Route = createFileRoute("/recruiter")({
   head: () => ({
@@ -89,12 +90,12 @@ function RecruiterLayout() {
   }
 
   return (
-    <div className="recruiter-theme min-h-screen bg-[#0a0a0b] text-neutral-100">
+    <div className="recruiter-theme h-screen bg-[#0a0a0b] text-neutral-100 overflow-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10 opacity-40 recruiter-glow">
         <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-emerald-500/10 blur-[160px]" />
         <div className="absolute -bottom-40 -right-20 h-[520px] w-[520px] rounded-full bg-violet-500/10 blur-[160px]" />
       </div>
-      <div className="flex min-h-screen">
+      <div className="flex h-screen">
         <aside className="fixed inset-y-0 left-0 z-20 flex w-[240px] flex-col border-r border-white/5 bg-black/40 backdrop-blur-xl">
           <Link to="/recruiter/dashboard" className="flex items-center gap-2.5 px-6 py-5">
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
@@ -140,12 +141,12 @@ function RecruiterLayout() {
                 </Link>
               </div>
             )}
-            <div className="mb-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            {/* <div className="mb-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
               <div className="flex items-center gap-2 text-[11px] text-neutral-400">Vitarka AI</div>
               <div className="mt-1 text-[11px] text-neutral-500">
                 Auto-generates candidate discussions from lab & assessment context.
               </div>
-            </div>
+            </div> */}
             <div className="flex items-center gap-2 rounded-lg px-2 py-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 text-[11px] font-semibold text-black">
                 {(user?.name ?? "R")[0]}
@@ -177,9 +178,10 @@ function RecruiterLayout() {
                 <LogOut className="h-3.5 w-3.5" />
               </button>
             </div>
+            <DeployInfo className="text-neutral-500/60" />
           </div>
         </aside>
-        <main className="ml-[240px] flex-1">
+        <main className="ml-[240px] flex-1 h-screen overflow-y-auto hide-scrollbar">
           <Outlet />
         </main>
       </div>

@@ -47,7 +47,6 @@ import {
 } from "lucide-react";
 import { getCandidates } from "@/lib/recruiterCandidates";
 import { buildEvaluationSummary } from "@/lib/evaluationSummary";
-import { downloadCandidateReportPdf } from "@/lib/candidateReportPdf";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 import { LabCodeExplorer } from "@/components/recruiter/LabCodeExplorer";
 import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer";
@@ -388,29 +387,35 @@ function CandidateWorkspace() {
   const hasAssessment = ev?.sections?.some((s: any) => s.kind === "assessment" || s.kind === "knowledge");
   const hasVitarka = ev?.sections?.some((s: any) => s.kind === "discussion" || s.kind === "vitarka");
 
-  const downloadReport = () => {
-    downloadCandidateReportPdf({
-      name: candidate.name,
-      email: candidate.email,
-      phone: candidate.phone,
-      college: candidate.college,
-      company: candidate.company,
-      experience: candidate.experience,
-      eci: candidate.eci,
-      recommendation: candidate.recommendation,
-      confidence: detail.confidence,
-      labsScore: candidate.labsScore,
-      assessmentScore: candidate.assessmentScore,
-      vitarkaScore: candidate.vitarkaScore,
-      strengths: detail.strengths,
-      weaknesses: detail.weaknesses,
-      aiSummary: detail.aiSummary,
-      nextStep: detail.nextStep,
-      evaluationTitle: ev.title,
-      summary: buildEvaluationSummary(candidate, hasLabs, hasAssessment, hasVitarka),
-    });
-    act("download", "Downloaded candidate report (PDF)");
-    notify("Report downloaded as PDF");
+  const downloadReport = async () => {
+    try {
+      const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
+      downloadCandidateReportPdf({
+        name: candidate.name,
+        email: candidate.email,
+        phone: candidate.phone,
+        college: candidate.college,
+        company: candidate.company,
+        experience: candidate.experience,
+        eci: candidate.eci,
+        recommendation: candidate.recommendation,
+        confidence: detail.confidence,
+        labsScore: candidate.labsScore,
+        assessmentScore: candidate.assessmentScore,
+        vitarkaScore: candidate.vitarkaScore,
+        strengths: detail.strengths,
+        weaknesses: detail.weaknesses,
+        aiSummary: detail.aiSummary,
+        nextStep: detail.nextStep,
+        evaluationTitle: ev?.title || "Evaluation Report",
+        summary: buildEvaluationSummary(candidate, hasLabs, hasAssessment, hasVitarka),
+      });
+      act("download", "Downloaded candidate report (PDF)");
+      notify("Report downloaded as PDF");
+    } catch (err) {
+      console.error("Failed to generate PDF report:", err);
+      notify("Failed to download PDF report");
+    }
   };
   const downloadResume = () => {
     const blob = new Blob([resumeText(candidate, detail)], { type: "text/plain" });
@@ -509,7 +514,7 @@ function CandidateWorkspace() {
                       notify("Failed to generate report link");
                       return;
                     }
-                    const url = `${window.location.origin}/shared/report/${result.token}`;
+                    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/shared/report/${result.token}`;
                     await copy(url, "Report Link");
                   }}
                 >
