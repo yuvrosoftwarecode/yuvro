@@ -23,6 +23,9 @@ import codeExecutorService from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
+import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
@@ -2478,7 +2481,7 @@ export function TicketIDE({
     : 8000;
 
   return (
-    <div className="h-full flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
@@ -3172,7 +3175,7 @@ export function TicketIDE({
             )}
             {sidePanel && (
               <aside
-                className="flex flex-col bg-editor-panel min-w-0"
+                className="flex flex-col bg-editor-panel min-w-0 min-h-0 overflow-hidden"
                 style={{
                   flex:
                     sideWidth != null
@@ -3214,10 +3217,13 @@ export function TicketIDE({
                     ✕
                   </button>
                 </div>
-                <div className="flex-1 overflow-auto scrollbar-thin p-3 text-xs min-w-0">
+                <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} />
-                    : <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />}
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} /></div>
+                    : <SideMentor
+                        chatTitle={`${ticket.title || "Ticket"} - AI Mentor`}
+                        contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
+                      />}
                 </div>
               </aside>
             )}
@@ -4228,72 +4234,6 @@ function DjangoTodoApp() {
       <p className="mt-3 text-[10px] uppercase tracking-wider text-gray-400">
         POST /todos/ · CSRF protected
       </p>
-    </div>
-  );
-}
-
-function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
-  const [msgs, setMsgs] = useState<{ role: "ai" | "me"; text: string }[]>([
-    {
-      role: "ai",
-      text: "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const send = () => {
-    if (!input.trim()) return;
-    const q = input.trim();
-    setMsgs((m) => [
-      ...m,
-      { role: "me", text: q },
-      {
-        role: "ai",
-        text: `Think about what type each value should be. Try declaring an \`int\` and a \`double\`, then cast between them. What happens when you narrow \`3.99\` to \`int\`?`,
-      },
-    ]);
-    onAsk(q);
-    setInput("");
-  };
-  return (
-    <div className="flex h-full flex-col gap-2">
-      <div className="flex-1 space-y-2 overflow-auto pr-1">
-        {msgs.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "me" ? "justify-end" : ""}`}>
-            <div
-              className={`max-w-[85%] rounded-md px-2.5 py-1.5 text-[12px] ${m.role === "me" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"}`}
-            >
-              {m.text}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {["Explain this error", "Give a hint", "Review my code", "Why is my test failing?"].map(
-          (s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setInput(s);
-              }}
-              className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent"
-            >
-              {s}
-            </button>
-          ),
-        )}
-      </div>
-      <div className="flex gap-1">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Ask AI mentor…"
-          className="flex-1 rounded border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary"
-        />
-        <button onClick={send} className="rounded bg-primary px-3 text-xs text-primary-foreground">
-          Ask
-        </button>
-      </div>
     </div>
   );
 }
@@ -6368,6 +6308,101 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function SideMentor({ contextGetter, chatTitle }: { contextGetter: () => string; chatTitle?: string }) {
+  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream } = useAIChat({
+    getContext: contextGetter,
+    chatTitle,
+  });
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, activeStream]);
+
+  const send = () => {
+    if (!input.trim() || isLoading) return;
+    sendMessage(input.trim());
+    setInput("");
+  };
+
+  return (
+    <div className="flex flex-1 min-h-0 flex-col gap-2 p-3 bg-editor-panel text-foreground w-full overflow-hidden">
+      <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
+        {messages.length === 0 && !activeStream && (
+          <div className="flex">
+            <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
+              Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?
+            </div>
+          </div>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.message_type === "user" ? "justify-end" : ""}`}>
+            <div
+              className={`max-w-[90%] rounded-md px-3 py-2 text-[13px] ${m.message_type === "user" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"} overflow-hidden`}
+            >
+              {m.message_type === "user" ? (
+                <div className="whitespace-pre-wrap">{m.content}</div>
+              ) : (
+                <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {m.content}
+                  </ReactMarkdown>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {isLoading && (!messages.length || messages[messages.length - 1].message_type !== "assistant") && (
+          <div className="flex">
+            <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground animate-pulse">
+              Thinking...
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+      
+      {suggestedPrompts.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-1">
+          {suggestedPrompts.map((s) => (
+            <button
+              key={s}
+              onClick={() => {
+                if (!isLoading) {
+                  sendMessage(s);
+                }
+              }}
+              disabled={isLoading}
+              className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+      
+      <div className="flex gap-2 pt-1 shrink-0">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          disabled={isLoading}
+          placeholder="Ask AI mentor..."
+          className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"
+        />
+        <button 
+          onClick={send} 
+          disabled={isLoading || !input.trim()} 
+          className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
+        >
+          Ask
+        </button>
+      </div>
     </div>
   );
 }
