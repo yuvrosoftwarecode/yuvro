@@ -20,7 +20,6 @@ services:
       - YLABS_BACKEND_URL=http://ylabs-backend:8000  
     volumes:
       - ./workspaces:/workspaces
-      - ./yuvro-code-executer:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
       interval: 30s

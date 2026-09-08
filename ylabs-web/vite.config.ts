@@ -46,6 +46,10 @@ export default defineConfig({
         polyfill: false,
       },
       rollupOptions: {
+        external: [
+          'react-native-fs',
+          'react-native',
+        ],
         output: {},
       },
       chunkSizeWarningLimit: 1000,
@@ -55,15 +59,6 @@ export default defineConfig({
       strictPort: true,
       host: "0.0.0.0",
       allowedHosts: ["dev.yuvrolabs.com", "localhost"],
-      hmr: {
-        protocol: "ws",
-        host: "localhost",
-        clientPort: 3002,
-        overlay: true,
-      },
-      watch: {
-        usePolling: true,
-      },
     },
   },
 });

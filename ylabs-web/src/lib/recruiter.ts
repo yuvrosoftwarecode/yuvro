@@ -209,7 +209,7 @@ function mapBackendToFrontend(be: any): Evaluation {
       if (s.type === "LAB") {
         return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [], proctoring };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
-        let meta: any = { duration: 15, mode: "Custom" };
+        let meta: any = { duration: 15, mode: "Automatic" };
         try {
           meta = JSON.parse(s.description || "{}");
         } catch {}
@@ -218,7 +218,7 @@ function mapBackendToFrontend(be: any): Evaluation {
           kind: "discussion",
           title: s.title,
           duration: meta.duration || 15,
-          mode: "Custom",
+          mode: meta.mode || "Automatic",
           questions: s.questions || [],
           mockInterviewId: meta.mockInterviewId,
           proctoring
@@ -259,7 +259,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
         qs = s.questions || [];
         desc = JSON.stringify({
           duration: s.duration,
-          mode: "Custom",
+          mode: s.mode || "Automatic",
           mockInterviewId: s.mockInterviewId,
         });
       }
@@ -313,6 +313,7 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
         publish_status: "active",
         max_duration: section.duration,
         predefined_tree: section.questions,
+        interview_mode: section.mode ? section.mode.toLowerCase() : "automatic",
       };
       try {
         if (section.mockInterviewId) {
@@ -400,6 +401,7 @@ export async function createEvaluation(): Promise<Evaluation> {
 }
 
 export function saveDraftLocally(e: Evaluation) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(`draft_eval_${e.id}`, JSON.stringify(e));
   } catch (err) {
@@ -408,6 +410,7 @@ export function saveDraftLocally(e: Evaluation) {
 }
 
 export function getDraftLocally(id: string): Evaluation | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(`draft_eval_${id}`);
     if (raw) return JSON.parse(raw) as Evaluation;
@@ -415,9 +418,8 @@ export function getDraftLocally(id: string): Evaluation | null {
   return null;
 }
 
-
-
 export function clearDraftLocally(id: string) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(`draft_eval_${id}`);
   } catch {}

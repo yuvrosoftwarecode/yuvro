@@ -67,3 +67,20 @@ resource "aws_instance" "app_node" {
     ignore_changes = [ami]
   }
 }
+
+# Elastic IP — static public address, persists across instance stop/start/replace.
+# DNS A records must point to this IP.
+resource "aws_eip" "app_node" {
+  count  = var.instance_count
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.environment}-app-node-eip-${count.index + 1}"
+  }
+}
+
+resource "aws_eip_association" "app_node" {
+  count         = var.instance_count
+  instance_id   = aws_instance.app_node[count.index].id
+  allocation_id = aws_eip.app_node[count.index].id
+}

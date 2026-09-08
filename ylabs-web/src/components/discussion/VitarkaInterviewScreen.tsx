@@ -9,9 +9,11 @@ interface Message {
 export function VitarkaInterviewScreen({
   mockInterviewId,
   onEnd,
+  candidateContext,
 }: {
   mockInterviewId: string;
   onEnd: () => void;
+  candidateContext?: string;
 }) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -121,6 +123,7 @@ export function VitarkaInterviewScreen({
         {
           sequential: true,
           force: true,
+          candidate_context: candidateContext,
         },
       );
       setSessionInfo({

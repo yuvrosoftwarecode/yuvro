@@ -9,8 +9,13 @@ output "private_ips" {
 }
 
 output "public_ips" {
-  description = "Public IP addresses"
-  value       = aws_instance.app_node[*].public_ip
+  description = "Static Elastic IP addresses (stable across stop/start)"
+  value       = aws_eip.app_node[*].public_ip
+}
+
+output "eip_allocation_ids" {
+  description = "Elastic IP allocation IDs"
+  value       = aws_eip.app_node[*].id
 }
 
 output "iam_role_arn" {

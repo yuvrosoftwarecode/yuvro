@@ -39,7 +39,7 @@ _set_kv() {
     fi
 }
 
-ssh_ec2()  { ssh  -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$@"; }
+ssh_ec2()  { ssh  -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 -o ServerAliveCountMax=30 "$@"; }
 scp_ec2()  { scp  -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$@"; }
 
 # ── pre-flight ─────────────────────────────────────────────────────────────────
@@ -360,6 +360,34 @@ echo "   branch=\$VITE_DEPLOY_BRANCH  sha=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
 # ── EBS expand ───────────────────────────────────────────────────────────────
 sudo growpart /dev/nvme0n1 1 2>/dev/null || true
 sudo resize2fs /dev/root 2>/dev/null || sudo resize2fs /dev/nvme0n1p1 2>/dev/null || true
+
+# ── auto-expand EBS if free space < 15 GB ────────────────────────────────────
+echo "── disk check ──────────────────────────────────────"
+FREE_GB=\$(df -BG / | awk 'NR==2{gsub("G","",\$4); print \$4}')
+TOTAL_GB=\$(df -BG / | awk 'NR==2{gsub("G","",\$2); print \$2}')
+echo "   disk: \${FREE_GB}GB free of \${TOTAL_GB}GB"
+if [ "\${FREE_GB}" -lt 15 ]; then
+    echo "   ⚠ Low disk — expanding EBS volume by 20GB..."
+    INSTANCE_ID=\$(curl -sf http://169.254.169.254/latest/meta-data/instance-id)
+    VOLUME_ID=\$(aws ec2 describe-instances --instance-ids "\$INSTANCE_ID" \
+        --region "$AWS_REGION" \
+        --query 'Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId' \
+        --output text 2>/dev/null)
+    if [ -n "\$VOLUME_ID" ] && [ "\$VOLUME_ID" != "None" ]; then
+        NEW_SIZE=\$(( TOTAL_GB + 20 ))
+        aws ec2 modify-volume --volume-id "\$VOLUME_ID" --size "\$NEW_SIZE" \
+            --region "$AWS_REGION" 2>/dev/null \
+            && echo "   ✓ EBS volume resize requested: \${TOTAL_GB}GB → \${NEW_SIZE}GB" \
+            || echo "   ⚠ EBS resize failed (may already be in progress)"
+        # Wait for modification to complete then expand filesystem
+        sleep 10
+        sudo growpart /dev/nvme0n1 1 2>/dev/null || true
+        sudo resize2fs /dev/root 2>/dev/null || sudo resize2fs /dev/nvme0n1p1 2>/dev/null || true
+        echo "   ✓ filesystem expanded: \$(df -h / | awk 'NR==2{print \$4\" free\"}')"
+    else
+        echo "   ⚠ Could not determine volume ID — skipping resize"
+    fi
+fi
 
 # ── build (layer cache enabled via BuildKit) ─────────────────────────────────
 echo "── docker build [$app] ─────────────────────────────"

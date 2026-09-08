@@ -113,7 +113,7 @@ services:
     build:
       context: ./ylabs-web
       dockerfile: Dockerfile
-      target: development
+      target: serve
       args:
         - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-dev.yuvrolabs.com/api}
         - VITE_YHUB_BACKEND_API_BASE_URL=${YLABS_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
@@ -130,8 +130,8 @@ services:
         required: false
     ports:
       - "3002:3000"
-    stdin_open: true
-    tty: true
+    stdin_open: false
+    tty: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 15s
@@ -144,6 +144,8 @@ services:
       context: ./yhub-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./yhub-backend-api/.env.dev
       - path: ./yhub-backend-api/.env.dev-secrets

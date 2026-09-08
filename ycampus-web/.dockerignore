@@ -1,6 +1,32 @@
-node_modules
-dist
-.git
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Dev tooling
+.vite/
+.eslintcache
+*.tsbuildinfo
+
+# Source control
+.git/
+.gitignore
+
+# Environment files
 .env
+.env.*
+!.env.example
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS artefacts
 .DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/

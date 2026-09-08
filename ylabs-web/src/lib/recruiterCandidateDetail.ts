@@ -1108,14 +1108,17 @@ export async function loadActivity(evId: string, email: string): Promise<Activit
 }
 
 export async function pushActivity(evId: string, email: string, kind: string, text: string) {
+  if (typeof window === "undefined") return;
   // Deduplicate rapid view events
   if (kind === "view") {
     const dedupKey = `view-dedup-${evId}-${email}`;
-    const lastView = sessionStorage.getItem(dedupKey);
-    if (lastView && Date.now() - parseInt(lastView) < 60 * 60 * 1000) {
-      return; // Skip if viewed in the last hour
-    }
-    sessionStorage.setItem(dedupKey, Date.now().toString());
+    try {
+      const lastView = sessionStorage.getItem(dedupKey);
+      if (lastView && Date.now() - parseInt(lastView) < 60 * 60 * 1000) {
+        return; // Skip if viewed in the last hour
+      }
+      sessionStorage.setItem(dedupKey, Date.now().toString());
+    } catch {}
   }
 
   if (evId.startsWith("7700") || evId.startsWith("demo")) {

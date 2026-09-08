@@ -1,47 +1,45 @@
-# Multi-stage build for Django backend
-FROM python:3.11-slim as base
+# syntax=docker/dockerfile:1.7
+# Multi-stage build for YCampus Django backend
+# BuildKit is required: DOCKER_BUILDKIT=1 (set in deploy scripts / compose)
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# ── base: system deps + Python packages ──────────────────────────────────────
+FROM python:3.11-slim AS base
 
-# Set work directory
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 WORKDIR /app
 
-# Install system dependencies including language runtimes for code execution
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+# Runtime system libraries (nodejs/jdk removed — code execution is in executor service)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
         postgresql-client \
-        build-essential \
         libpq-dev \
-        gcc \
-        g++ \
-        nodejs \
-        npm \
-        default-jre-headless \
-        default-jdk-headless \
         curl \
-        wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Install Python dependencies (gcc only needed at build time)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq 2>/dev/null; \
+    pip install --no-cache-dir -r requirements.txt; \
+    apt-get purge -y --auto-remove gcc build-essential 2>/dev/null || true; \
+    rm -rf /var/lib/apt/lists/*
 
-# Development stage
-FROM base as development
-# Cache-bust: forces COPY . . to always run with latest code
+# ── development ───────────────────────────────────────────────────────────────
+FROM base AS development
 ARG CACHEBUST=1
 COPY . .
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
-# Production stage
-FROM base as production
-# Cache-bust: forces COPY . . to always run with latest code
+# ── production ────────────────────────────────────────────────────────────────
+FROM base AS production
 ARG CACHEBUST=1
 COPY . .
-# Collect static files at build time so WhiteNoise can serve them
 RUN mkdir -p /app/staticfiles \
     && SECRET_KEY=build-placeholder \
        DATABASE_URL=sqlite:///tmp/build.db \
@@ -55,5 +53,4 @@ RUN mkdir -p /app/staticfiles \
        AWS_SECRET_ACCESS_KEY=build-placeholder \
        python manage.py collectstatic --noinput
 EXPOSE 8000
-# Use gunicorn with the correct Django project module (yc-backend-api folder)
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "yc-backend-api.wsgi:application"]
