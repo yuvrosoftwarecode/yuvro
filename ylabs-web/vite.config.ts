@@ -10,10 +10,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   tanstackStart: {},
-  // Use bun preset — app runs on EC2/Docker with bun, not Cloudflare Workers.
-  nitro: {
-    preset: "bun",
-  },
+  // Disable Nitro/SSR — app is pure client-side React, no server functions.
+  // This makes it a plain Vite SPA build (like ycode-web/ycampus-web),
+  // served by nginx from the dist/ folder. Eliminates the heavy Nitro bundle step.
+  nitro: false,
   vite: {
     resolve: {
       alias: {

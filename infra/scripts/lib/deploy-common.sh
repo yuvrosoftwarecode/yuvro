@@ -254,15 +254,33 @@ wire_secrets() {
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
 
+# ── copy secrets to EC2 (default: all) ────────────────────────────────────────
+# App deploy scripts can override APP_SECRET_FILES before calling
+# ensure_infra_and_deploy to scope copies to only their service's files.
+# Default (empty) = copy everything.
+APP_SECRET_FILES=()
+
 copy_secrets_to_ec2() {
     local ip=$1
     print_step "Copying secrets to EC2..."
-    for sf in \
-        ycode-backend-api/.env.dev-secrets  ycampus-backend-api/.env.dev-secrets \
-        yhub-backend-api/.env.dev-secrets   ylabs-backend-api/.env.dev-secrets \
-        ycode-web/.env.dev-secrets          ycampus-web/.env.dev-secrets \
-        ylabs-web/.env.dev-secrets          yuvro-code-executer/.env.dev-secrets
-    do
+
+    local files=("${APP_SECRET_FILES[@]}")
+
+    # Fall back to all secrets when no app-specific list is set
+    if [ ${#files[@]} -eq 0 ]; then
+        files=(
+            "ycode-backend-api/.env.dev-secrets"
+            "ycampus-backend-api/.env.dev-secrets"
+            "yhub-backend-api/.env.dev-secrets"
+            "ylabs-backend-api/.env.dev-secrets"
+            "ycode-web/.env.dev-secrets"
+            "ycampus-web/.env.dev-secrets"
+            "ylabs-web/.env.dev-secrets"
+            "yuvro-code-executer/.env.dev-secrets"
+        )
+    fi
+
+    for sf in "${files[@]}"; do
         local local_path="$PROJECT_ROOT/$sf"
         if [ -f "$local_path" ]; then
             ssh_ec2 "ubuntu@$ip" "mkdir -p /home/ubuntu/yuvro/$(dirname "$sf")"
@@ -437,6 +455,9 @@ DEPLOY_EOF
 }
 
 # ── nginx + certbot ────────────────────────────────────────────────────────────
+# App scripts can set APP_CERT_DOMAINS before calling ensure_infra_and_deploy
+# to scope certbot to only their domains. Default (empty) = all domains.
+APP_CERT_DOMAINS=()
 
 setup_nginx() {
     local ip=$1
@@ -454,38 +475,42 @@ NINST
 
     scp_ec2 "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" "ubuntu@$ip:/tmp/yuvro-nginx-https.conf"
 
-    ssh_ec2 "ubuntu@$ip" bash << 'CERTBOT'
-DOMAINS=( "code-dev.yuvro.ai" "campus-dev.yuvro.ai" "backend-code-dev.yuvro.ai"
-          "backend-campus-dev.yuvro.ai" "code-executer-dev.yuvro.ai"
-          "backend-hub-dev.yuvro.ai" "backend-dev.yuvrolabs.com" "dev.yuvrolabs.com" )
+    # Build domain list: use app-specific list if set, otherwise all domains
+    local cert_domains
+    if [ ${#APP_CERT_DOMAINS[@]} -gt 0 ]; then
+        cert_domains="${APP_CERT_DOMAINS[*]}"
+    else
+        cert_domains="code-dev.yuvro.ai campus-dev.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai code-executer-dev.yuvro.ai backend-hub-dev.yuvro.ai backend-dev.yuvrolabs.com dev.yuvrolabs.com"
+    fi
+
+    ssh_ec2 "ubuntu@$ip" bash << CERTBOT
+DOMAINS=( $cert_domains )
 CERT_EMAIL="rohith@yuvro.ai"
 
 ALL=true
-for d in "${DOMAINS[@]}"; do [ -d "/etc/letsencrypt/live/$d" ] || { ALL=false; break; }; done
+for d in "\${DOMAINS[@]}"; do [ -d "/etc/letsencrypt/live/\$d" ] || { ALL=false; break; }; done
 
-if [ "$ALL" = "true" ]; then
+if [ "\$ALL" = "true" ]; then
     echo "✓ All certs exist — skipping certbot"
 else
     sudo python3 -c "
-ds=['code-dev.yuvro.ai','campus-dev.yuvro.ai','backend-code-dev.yuvro.ai',
-    'backend-campus-dev.yuvro.ai','code-executer-dev.yuvro.ai',
-    'backend-hub-dev.yuvro.ai','backend-dev.yuvrolabs.com','dev.yuvrolabs.com']
-c=''.join(f'''server{{listen 80;server_name {d};location /.well-known/acme-challenge/{{root /var/www/certbot;}}location /{{return 301 https://\$host\$request_uri;}}}}\n''' for d in ds)
+ds='\$( IFS=, ; echo "\${DOMAINS[*]}")'.split(',')
+c=''.join(f'''server{{listen 80;server_name {d};location /.well-known/acme-challenge/{{root /var/www/certbot;}}location /{{return 301 https://\\\$host\\\$request_uri;}}}}\n''' for d in ds)
 open('/etc/nginx/sites-available/yuvro-dev','w').write(c)
 "
     sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
-    for d in "${DOMAINS[@]}"; do
-        [ -d "/etc/letsencrypt/live/$d" ] && echo "✓ exists: $d" && continue
+    for d in "\${DOMAINS[@]}"; do
+        [ -d "/etc/letsencrypt/live/\$d" ] && echo "✓ exists: \$d" && continue
         sudo certbot certonly --webroot --webroot-path /var/www/certbot \
-            --non-interactive --agree-tos --email "$CERT_EMAIL" -d "$d" 2>&1 \
-            && echo "✓ cert: $d" || echo "⚠ certbot failed: $d"
+            --non-interactive --agree-tos --email "\$CERT_EMAIL" -d "\$d" 2>&1 \
+            && echo "✓ cert: \$d" || echo "⚠ certbot failed: \$d"
     done
 fi
 
 sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
 sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx error"
 CRON="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
-( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON" ) | sudo crontab -
+( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "\$CRON" ) | sudo crontab -
 CERTBOT
 
     print_success "Nginx + SSL ready"
