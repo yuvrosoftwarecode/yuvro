@@ -183,7 +183,7 @@ function CandidateWorkspace() {
         <Link
           to="/recruiter/evaluations/$id/workspace"
           params={{ id }}
-          search={{ tab: "candidates" }}
+          search={{ tab: "candidates", view: "edit" } as any}
           className="text-emerald-400 hover:underline"
         >
           Back to list
@@ -289,7 +289,7 @@ function CandidateWorkspace() {
           <Link
             to="/recruiter/evaluations/$id/workspace"
             params={{ id }}
-            search={{ tab: "candidates" }}
+            search={{ tab: "candidates", view: "edit" } as any}
             className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-white"
           >
             <ChevronLeft className="h-3.5 w-3.5" /> {ev.title} · Candidates
