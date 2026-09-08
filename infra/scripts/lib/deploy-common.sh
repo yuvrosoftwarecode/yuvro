@@ -341,6 +341,7 @@ done
 
 # ── build args ───────────────────────────────────────────────────────────────
 export YCODE_VITE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
+export YCODE_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
 export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"

@@ -28,6 +28,7 @@ services:
       target: serve
       args:
         - VITE_BACKEND_API_BASE_URL=${YCODE_VITE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
+        - VITE_YHUB_BACKEND_API_BASE_URL=${YCODE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCODE_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
         - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
