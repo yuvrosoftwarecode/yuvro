@@ -24,6 +24,8 @@ services:
     build:
       context: ./yhub-backend-api
       dockerfile: Dockerfile
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8003:8000"  # Django API (host: 8003)
       - "9004:9001"  # Prometheus metrics
@@ -33,8 +35,6 @@ services:
         required: false
       - path: ./yhub-backend-api/.env.local-secrets
         required: false
-    volumes:
-      - ./yhub-backend-api:/app
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"

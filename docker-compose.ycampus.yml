@@ -23,6 +23,9 @@ services:
     build:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
+      target: development
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8001:8000"  # Django API (host: 8001)
       - "9001:9001"  # Prometheus metrics
