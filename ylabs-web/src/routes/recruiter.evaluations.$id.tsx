@@ -215,7 +215,7 @@ function EvaluationWorkspace() {
               <button
                 onClick={() => setView("publish")}
                 disabled={ev.sections.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-3 py-1.5 text-[12px] font-medium text-black disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-40"
               >
                 <Rocket className="h-3.5 w-3.5" /> Publish
               </button>
@@ -1062,7 +1062,7 @@ function SummarySidebar({
         <button
           onClick={onPublish}
           disabled={ev.sections.length === 0}
-          className="w-full rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 py-2 text-[12px] font-medium text-black disabled:opacity-40"
+          className="w-full rounded-lg bg-neutral-900 py-2 text-[12px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-40"
         >
           Publish Evaluation
         </button>
@@ -1247,7 +1247,7 @@ function LabDrawer({
                   onAdd(previewLab);
                   setPreviewLab(null);
                 }}
-                className="rounded-md bg-emerald-400 px-5 py-2.5 text-[13px] font-medium text-black disabled:opacity-50"
+                className="rounded-md bg-neutral-900 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50"
               >
                 {existing.includes(previewLab.id) ? "Added" : "Add Lab"}
               </button>
@@ -1324,7 +1324,7 @@ function LabDrawer({
                   <button
                     disabled={added}
                     onClick={() => onAdd(l)}
-                    className="inline-flex items-center gap-1 rounded-md bg-emerald-400 px-2 py-1 text-[11px] font-medium text-black disabled:bg-neutral-100 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2 py-1 text-[11px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500"
                   >
                     {added ? (
                       <>
@@ -1396,7 +1396,7 @@ function QuestionDrawerItem({
           <button
             disabled={added}
             onClick={() => onAdd(it)}
-            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 hover:bg-emerald-600 px-2 py-1 text-[11px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 dark:disabled:border-transparent transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2 py-1 text-[11px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border disabled:border-neutral-200 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 dark:disabled:border-transparent"
           >
             {added ? (
               <>
@@ -1652,7 +1652,7 @@ function QuestionDrawer({
                   handleAdd(previewQ);
                   setPreviewQ(null);
                 }}
-                className="rounded-md bg-emerald-500 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-emerald-600 disabled:bg-neutral-200 disabled:text-neutral-500 transition-colors"
+                className="rounded-md bg-neutral-900 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:bg-neutral-200 disabled:text-neutral-500"
               >
                 {existing.includes(previewQ.id) ? "Added" : "Add Question"}
               </button>
@@ -1771,7 +1771,7 @@ function FilterRow({
             onClick={() => setValue(o)}
             className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
               value === o
-                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400"
                 : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
             }`}
           >
@@ -1804,7 +1804,7 @@ function FilterRowObj({
             onClick={() => setValue(o.value)}
             className={`rounded-md border px-2 py-0.5 text-[11px] transition-colors ${
               value === o.value
-                ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400"
                 : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-transparent"
             }`}
           >

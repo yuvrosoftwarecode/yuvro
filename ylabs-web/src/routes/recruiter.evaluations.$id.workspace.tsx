@@ -211,7 +211,7 @@ function Workspace() {
   return (
     <div className="min-h-screen">
       {/* Top header */}
-      <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-white backdrop-blur">
         <div className="w-full px-8 pt-6 pb-4">
           <Link
             to="/recruiter/evaluations"
@@ -1035,11 +1035,11 @@ function CandidatesTab({
               <button
                 key={p.id}
                 onClick={() => setPipeline(p.id)}
-                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12.5px] transition ${active ? "bg-neutral-900 !text-white" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"}`}
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12.5px] transition ${active ? "bg-neutral-900 !text-white dark:bg-white dark:!text-neutral-900 font-medium" : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white"}`}
               >
-                <span className={active ? "font-medium" : ""}>{p.label}</span>
+                <span>{p.label}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${active ? "bg-white/20 !text-white" : "bg-neutral-100 text-neutral-600"}`}
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${active ? "bg-white/20 !text-white dark:bg-black/10 dark:!text-neutral-900" : "bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-400"}`}
                 >
                   {count.toLocaleString()}
                 </span>
@@ -1493,7 +1493,7 @@ function CandidateTable({
             <tr
               key={c.id}
               onClick={() => onOpen(c)}
-              className={`cursor-pointer border-b border-neutral-100 text-neutral-900 transition hover:bg-neutral-50 ${selected.has(c.id) ? "bg-neutral-50" : ""}`}
+              className={`cursor-pointer border-b border-neutral-100 dark:border-white/5 text-neutral-900 dark:text-neutral-100 transition hover:bg-neutral-50 dark:hover:bg-white/5 ${selected.has(c.id) ? "bg-neutral-50 dark:bg-white/[0.04]" : ""}`}
             >
               <Td onClick={(e) => e.stopPropagation()}>
                 <input

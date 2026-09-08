@@ -1464,21 +1464,21 @@ function KnowledgeRunner({
                 {index < subject.questions.length - 1 ? (
                   <button
                     onClick={() => setIndex(index + 1)}
-                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                    className="rounded-md bg-neutral-900 px-3 py-1 text-xs font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors"
                   >
                     Next
                   </button>
                 ) : submitted ? (
                   <button
                     onClick={onFinishSection}
-                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                    className="rounded-md bg-neutral-900 px-3 py-1 text-xs font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors"
                   >
                     {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
                   </button>
                 ) : (
                   <button
                     onClick={onSubmit}
-                    className="rounded-md bg-amber-500/90 px-3 py-1 text-xs font-medium text-black hover:bg-amber-500"
+                    className="rounded-md bg-neutral-900 px-3 py-1 text-xs font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors"
                   >
                     Submit {subject.title}
                   </button>
@@ -1493,14 +1493,14 @@ function KnowledgeRunner({
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 flex flex-col min-h-0 h-full">
-      <div className="flex items-center justify-between text-[12px] text-neutral-400 shrink-0">
-        <button onClick={onBack} className="hover:text-white">← All subjects</button>
+      <div className="flex items-center justify-between text-[12px] text-neutral-500 dark:text-neutral-400 shrink-0">
+        <button onClick={onBack} className="hover:text-neutral-900 dark:hover:text-white transition-colors">← All subjects</button>
         <span>{subject.title} · Question {index + 1} of {subject.questions.length}</span>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-white/10 bg-[#13151A] p-8 flex-1 min-h-0 flex flex-col shadow-xl">
-        <div className="font-serif text-[22px] leading-snug tracking-tight text-white shrink-0">{q.q}</div>
-        {q.description && <div className="mt-3 text-[14px] leading-relaxed text-neutral-400 shrink-0 whitespace-pre-wrap">{q.description}</div>}
+      <div className="mt-8 rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#13151A] p-8 flex-1 min-h-0 flex flex-col shadow-sm dark:shadow-xl">
+        <div className="font-serif text-[22px] leading-snug tracking-tight text-neutral-900 dark:text-white shrink-0">{q.q}</div>
+        {q.description && <div className="mt-3 text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 shrink-0 whitespace-pre-wrap">{q.description}</div>}
         
         <div className="mt-6 flex-1 overflow-y-auto pr-2">
           {q.format === "MCQ" || q.format === "Multiple Select" ? (
@@ -1510,7 +1510,7 @@ function KnowledgeRunner({
                 const ansArray = Array.isArray(answers[q.id]) ? answers[q.id] : (answers[q.id] !== undefined ? [answers[q.id]] : []);
                 const active = isMulti ? ansArray.includes(i) : answers[q.id] === i;
                 return (
-                  <label key={i} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-amber-500/50 bg-amber-500/10 text-white" : "border-white/10 text-neutral-300 hover:border-white/20 hover:bg-white/5"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}>
+                  <label key={i} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 text-[13px] transition ${active ? "border-amber-500/50 bg-amber-50 text-neutral-900 dark:bg-amber-500/10 dark:text-white" : "border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-white/20 hover:bg-neutral-50 dark:hover:bg-white/5"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}>
                     <input 
                       type={isMulti ? "checkbox" : "radio"}
                       disabled={disabled}
@@ -1537,28 +1537,28 @@ function KnowledgeRunner({
               disabled={disabled}
               rows={8}
               placeholder="Type your answer here..."
-              className="w-full resize-none rounded-lg border border-white/10 bg-black/20 p-4 text-[14px] leading-relaxed text-white outline-none focus:border-white/30 disabled:opacity-70"
+              className="w-full resize-none rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/20 p-4 text-[14px] leading-relaxed text-neutral-900 dark:text-white outline-none focus:border-neutral-400 dark:focus:border-white/30 disabled:opacity-70 transition-colors"
             />
           )}
         </div>
         
-        <div className="mt-6 flex items-center justify-between text-[12px] shrink-0 pt-4 border-t border-white/5">
-          <div className="flex items-center gap-3 text-neutral-400">
-            <button onClick={() => onMark(q.id)} disabled={disabled} className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 hover:bg-white/10 hover:text-white disabled:opacity-50">
+        <div className="mt-6 flex items-center justify-between text-[12px] shrink-0 pt-4 border-t border-neutral-200 dark:border-white/5">
+          <div className="flex items-center gap-3 text-neutral-500 dark:text-neutral-400">
+            <button onClick={() => onMark(q.id)} disabled={disabled} className="rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-1.5 hover:bg-neutral-200 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 transition-colors">
               {marked.has(q.id) ? "Unmark" : "Mark for review"}
             </button>
-            <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="hover:text-white disabled:opacity-50">Clear answer</button>
+            <button onClick={() => clearAnswer(q.id)} disabled={disabled} className="hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 transition-colors">Clear answer</button>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-neutral-300 hover:bg-white/10 hover:text-white disabled:opacity-40">Previous</button>
+            <button onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-1.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white disabled:opacity-40 transition-colors">Previous</button>
             {index < subject.questions.length - 1 ? (
-              <button onClick={() => setIndex(index + 1)} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">Next</button>
+              <button onClick={() => setIndex(index + 1)} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white font-medium hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors">Next</button>
             ) : submitted ? (
-              <button onClick={onFinishSection} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">
+              <button onClick={onFinishSection} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white font-medium hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors">
                 {nextSectionTitle ? `Continue to ${nextSectionTitle}` : "Submit Evaluation"}
               </button>
             ) : (
-              <button onClick={onSubmit} className="rounded-md bg-amber-500/90 px-3 py-1.5 text-black font-medium hover:bg-amber-500">
+              <button onClick={onSubmit} className="rounded-md bg-neutral-900 px-3 py-1.5 text-white font-medium hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors">
                 Submit {subject.title}
               </button>
             )}
@@ -1566,7 +1566,7 @@ function KnowledgeRunner({
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4 shrink-0">
+      <div className="mt-6 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#13151A] p-4 shrink-0 shadow-sm dark:shadow-none">
         <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-neutral-500">Question navigator</div>
         <div className="flex flex-wrap gap-2">
           {subject.questions.map((_: any, i: number) => {
@@ -1574,7 +1574,7 @@ function KnowledgeRunner({
             const isCurrent = i === index;
             const isMarked = marked.has(subject.questions[i].id);
             return (
-              <button key={i} onClick={() => setIndex(i)} className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white" : answered ? "border-emerald-500/40 bg-emerald-50 text-emerald-700" : isMarked ? "border-amber-400 bg-amber-50 text-amber-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
+              <button key={i} onClick={() => setIndex(i)} className={`h-9 w-9 rounded-md border text-[12px] font-mono transition ${isCurrent ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900" : answered ? "border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : isMarked ? "border-amber-400 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400" : "border-neutral-200 dark:border-white/10 text-neutral-500 dark:text-neutral-400 hover:border-neutral-400 dark:hover:border-white/30"}`}>
                 {i + 1}
               </button>
             );
