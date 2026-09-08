@@ -360,7 +360,7 @@ function CandidateWorkspace() {
                       notify("Failed to generate report link");
                       return;
                     }
-                    const url = `${window.location.origin}/shared/report/${result.token}`;
+                    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/shared/report/${result.token}`;
                     await copy(url, "Report Link");
                   }}
                 >

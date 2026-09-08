@@ -147,25 +147,29 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
   // Load initial state from localStorage (instant, survives refresh)
   const [data, setData] = useState<Persisted>(() => {
-    try {
-      const saved = localStorage.getItem(KEY(ev.id));
-      if (saved) {
-        const parsed = JSON.parse(saved) as Persisted;
-        // Restore but always clear candidates (those live in Records)
-        return {
-          bulk: { ...BULK_DEFAULT, ...parsed.bulk, emailTemplate: parsed.bulk.emailTemplate || BULK_DEFAULT.emailTemplate, candidates: [] },
-          individual: { ...IND_DEFAULT, ...parsed.individual, emailTemplate: parsed.individual.emailTemplate || IND_DEFAULT.emailTemplate },
-        };
-      }
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(KEY(ev.id));
+        if (saved) {
+          const parsed = JSON.parse(saved) as Persisted;
+          // Restore but always clear candidates (those live in Records)
+          return {
+            bulk: { ...BULK_DEFAULT, ...parsed.bulk, emailTemplate: parsed.bulk.emailTemplate || BULK_DEFAULT.emailTemplate, candidates: [] },
+            individual: { ...IND_DEFAULT, ...parsed.individual, emailTemplate: parsed.individual.emailTemplate || IND_DEFAULT.emailTemplate },
+          };
+        }
+      } catch {}
+    }
     return DEFAULTS;
   });
 
   // Save to localStorage whenever data changes
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY(ev.id), JSON.stringify(data));
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(KEY(ev.id), JSON.stringify(data));
+      } catch {}
+    }
   }, [data, ev.id]);
 
   // Fetch records from backend API. Only override form data if localStorage is empty.
@@ -195,7 +199,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
           setRecords(recs);
 
           // Only seed form data from backend if we don't have local drafts
-          const hasLocal = !!localStorage.getItem(KEY(ev.id));
+          const hasLocal = typeof window !== "undefined" && !!localStorage.getItem(KEY(ev.id));
           if (config && !hasLocal) {
             const bulk: BulkSetup = {
               ...BULK_DEFAULT,

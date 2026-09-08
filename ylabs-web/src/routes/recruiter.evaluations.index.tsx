@@ -44,7 +44,7 @@ function EvaluationsList() {
 
   const onCreate = async () => {
     const e = await createEvaluation();
-    nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
+    nav({ to: "/recruiter/evaluations/$id", params: { id: e.id }, search: { view: "edit" } });
   };
   const onDuplicate = async (id: string) => {
     const newEval = await duplicateEvaluation(id);
@@ -105,7 +105,7 @@ function EvaluationsList() {
                 <Link
                   to="/recruiter/evaluations/$id/workspace"
                   params={{ id: e.id }}
-                  search={{ tab: "overview" }}
+                  search={{ tab: "overview", view: "edit" } as any}
                   className="block p-5"
                 >
                   <div className="flex items-start justify-between">
@@ -152,7 +152,7 @@ function EvaluationsList() {
                     <IconBtn
                       title="Copy Public Link"
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/evaluation?e=${e.id}`);
+                        navigator.clipboard?.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${e.id}`);
                         setToast("Public link copied to clipboard!");
                       }}
                     >

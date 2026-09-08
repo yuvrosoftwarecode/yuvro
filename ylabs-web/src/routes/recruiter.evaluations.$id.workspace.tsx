@@ -139,7 +139,7 @@ function Workspace() {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${location.origin}/evaluation?e=${ev.id}`);
+      await navigator.clipboard.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`);
       notify("Public link copied");
     } catch {
       notify("Copy failed");
@@ -429,7 +429,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           if (part === "{{link}}") {
             return (
               <div key={i} className="my-4">
-                <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
                   Start Evaluation
                 </a>
               </div>
@@ -552,7 +552,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-4">
-                        <a href={`${window.location.origin}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                        <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
                           Start Evaluation
                         </a>
                       </div>
@@ -1108,9 +1108,9 @@ function CandidatesTab({
               if (selected.size < 2 || selected.size > 4)
                 return notify("Select 2 to 4 candidates to compare");
               nav({
-                to: "/recruiter/evaluations/$id/compare",
+                to: "/recruiter/evaluations/$id/compare" as any,
                 params: { id: evId },
-                search: { ids: Array.from(selected).join(",") },
+                search: { ids: Array.from(selected).join(",") } as any,
               });
             }}
             accent
