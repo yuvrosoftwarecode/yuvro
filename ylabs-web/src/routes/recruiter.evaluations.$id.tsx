@@ -123,7 +123,7 @@ function EvaluationWorkspace() {
     const saved = await saveEvaluation(syncedEv);
     if (saved) {
       if (ev.id === "draft") {
-        nav({ to: "/recruiter/evaluations/$id", params: { id: saved.id }, replace: true });
+        nav({ to: "/recruiter/evaluations/$id", params: { id: saved.id }, search: { view: "edit" } as any, replace: true });
       } else {
         setEv(saved);
         setSaveSuccess(true);
@@ -1145,6 +1145,18 @@ function AddSectionModal({
   );
 }
 
+const SUBSECTION_NAMES = [
+  "DSA",
+  "System Design",
+  "Frontend",
+  "Backend",
+  "Fullstack",
+  "Database",
+  "DevOps",
+  "Security",
+  "Other",
+];
+
 function SubsectionModal({
   onClose,
   onPick,
@@ -1578,11 +1590,11 @@ function QuestionDrawer({
 
   const filtered = useMemo(
     () =>
-      questions.filter((it) => {
+      questions.filter((it: any) => {
         const qmatch = !q || (it.text || it.content || it.title || "").toLowerCase().includes(q.toLowerCase());
         const lmatch =
           lang === "All" ||
-          (it.programming_languages || []).map((x) => x.toUpperCase()).includes(lang.toUpperCase());
+          (it.programming_languages || []).map((x: string) => x.toUpperCase()).includes(lang.toUpperCase());
         const dmatch = diff === "All" || (it.difficulty || "").toUpperCase() === diff.toUpperCase();
         const fmatch =
           format === "All" ||

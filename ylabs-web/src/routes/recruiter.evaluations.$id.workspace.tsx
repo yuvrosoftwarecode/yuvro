@@ -80,6 +80,11 @@ const searchSchema = z.object({
     .enum(["overview", "candidates", "followups", "records", "intelligence", "settings"])
     .default("overview")
     .catch("overview"),
+  view: z
+    .enum(["edit", "preview", "publish", "publish-done"])
+    .optional()
+    .default("edit")
+    .catch("edit"),
 });
 
 const TAB_LABELS: Record<
@@ -133,7 +138,7 @@ function Workspace() {
   const candidates = getCandidates(ev.id, submissions);
   const totals = evaluationTotals(ev);
   const goto = (t: typeof tab) =>
-    nav({ to: "/recruiter/evaluations/$id/workspace", params: { id }, search: { tab: t } });
+    nav({ to: "/recruiter/evaluations/$id/workspace", params: { id }, search: { tab: t, view: "edit" } as any });
 
   const notify = (m: string) => setToast(m);
 
@@ -192,7 +197,7 @@ function Workspace() {
     const c = await duplicateEvaluation(ev.id);
     if (c) {
       notify("Evaluation duplicated");
-      nav({ to: "/recruiter/evaluations/$id/workspace", params: { id: c.id } });
+      nav({ to: "/recruiter/evaluations/$id/workspace", params: { id: c.id }, search: { tab: "overview", view: "edit" } as any });
     }
   };
   const onArchive = async () => {
@@ -298,11 +303,7 @@ function Workspace() {
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
-        {tab === "attention" && <AttentionTab evId={ev.id} candidates={candidates} onGoto={goto} />}
         {tab === "settings" && <SettingsTab ev={ev} notify={notify} onSave={(updatedEv) => setEv(updatedEv)} />}
-        {tab === "insights" && <SimplePane title="Insights" desc="Aggregate skill heatmaps, question difficulty analysis, and cohort comparisons will be published here." />}
-        {tab === "reports" && <SimplePane title="Reports" desc="Downloadable per-candidate reports, batch summaries and ATS-ready exports live in this tab." />}
-        {tab === "analytics" && <AnalyticsTab evId={ev.id} candidates={candidates} />}
       </main>
 
       {toast && (
@@ -594,14 +595,14 @@ function OverviewTab({
 }: {
   ev: Evaluation;
   candidates: Candidate[];
-  onGoto: (t: "candidates" | "overview" | "insights" | "reports" | "settings") => void;
+  onGoto: (t: "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings") => void;
   notify: (m: string) => void;
 }) {
   const [records, setRecords] = useState<any[]>([]);
 
   useEffect(() => {
     let mounted = true;
-    import("@/lib/recruiter").then((m) => {
+    import("@/lib/candidateRecords").then((m) => {
       m.fetchCandidateRecords(ev.id).then((res) => {
         if (mounted) setRecords(res);
       });
@@ -977,6 +978,7 @@ function CandidatesTab({
     nav({
       to: "/recruiter/evaluations/$id/candidates/$candidateId",
       params: { id: evId, candidateId: c.id },
+      search: { view: "edit" } as any,
     });
   const bulk = async (label: string) => {
     for (const c of selected) {
@@ -1108,10 +1110,10 @@ function CandidatesTab({
               if (selected.size < 2 || selected.size > 4)
                 return notify("Select 2 to 4 candidates to compare");
               nav({
-                to: "/recruiter/evaluations/$id/compare" as any,
+                to: "/recruiter/evaluations/$id/compare",
                 params: { id: evId },
-                search: { ids: Array.from(selected).join(",") } as any,
-              });
+                search: { ids: Array.from(selected).join(",") },
+              } as any);
             }}
             accent
           >
