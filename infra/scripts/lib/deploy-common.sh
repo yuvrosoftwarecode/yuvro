@@ -426,12 +426,29 @@ echo "── docker up [$app] ────────────────�
 T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
-# Stop the specific services first to release ports before recreating
+# Stop specific services first to release ports
 if [ -n "$services" ]; then
     docker compose $compose_args stop $services 2>/dev/null || true
     docker compose $compose_args rm -f $services 2>/dev/null || true
 fi
-docker compose $compose_args up -d --force-recreate $services
+# Attempt to start. If port binding fails (ghost iptables from crashed containers),
+# restart docker daemon to flush stale entries, then restart ALL services.
+if ! docker compose $compose_args up -d --force-recreate $services 2>/tmp/docker_up_err; then
+    if grep -q "port is already allocated" /tmp/docker_up_err; then
+        echo "   ⚠ Port conflict detected — restarting docker daemon to flush ghost bindings..."
+        sudo systemctl restart docker
+        sleep 4
+        docker network create executor    2>/dev/null || true
+        docker network create yuvro_ylabs 2>/dev/null || true
+        # Restart the full stack so previously-running services come back up
+        ALL_COMPOSE="-f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.dev.yml"
+        docker compose \$ALL_COMPOSE up -d --no-build 2>&1 | tail -5 || true
+        echo "   ✓ Full stack restarted after docker daemon reset"
+    else
+        cat /tmp/docker_up_err
+        exit 1
+    fi
+fi
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
