@@ -6,12 +6,6 @@ export const Route = createFileRoute("/recruiter/")({
   },
 });
 
-function RecruiterDashboard() {
-  const [evals, setEvals] = useState<Evaluation[]>([]);
-  const nav = useNavigate();
-  useEffect(() => {
-    listEvaluations().then(setEvals);
-  }, []);
 
   const total = evals.length;
   const active = evals.filter((e) => e.status === "published").length;

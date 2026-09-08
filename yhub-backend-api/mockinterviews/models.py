@@ -50,6 +50,13 @@ class MockInterview(BaseModel):
     max_duration = models.IntegerField(
         default=30, help_text="Maximum duration in minutes"
     )
+    
+    interview_mode = models.CharField(
+        max_length=20,
+        choices=[("automatic", "Automatic"), ("custom", "Custom"), ("hybrid", "Hybrid")],
+        default="automatic",
+        help_text="The dynamic interview mode"
+    )
 
     required_skills = models.JSONField(
         default=list, blank=True, help_text="List of required skills"
@@ -188,6 +195,11 @@ class MockInterviewSubmission(BaseUserSubmission):
         default=dict,
         blank=True,
         help_text="In-progress state data for AI-powered mock interview",
+    )
+    session_state = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Detailed session state snapshot from Dynamic Interview Engine",
     )
     chat_session = models.ForeignKey(
         'ai_assistant.ChatSession',
