@@ -426,6 +426,11 @@ echo "── docker up [$app] ────────────────�
 T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
+# Stop the specific services first to release ports before recreating
+if [ -n "$services" ]; then
+    docker compose $compose_args stop $services 2>/dev/null || true
+    docker compose $compose_args rm -f $services 2>/dev/null || true
+fi
 docker compose $compose_args up -d --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
