@@ -138,3 +138,125 @@ class CodeExecutorService {
 
 export const codeExecutorService = new CodeExecutorService();
 export default codeExecutorService;
+
+// ── External DB query / schema via code executor ─────────────────────────────
+// These replace the mongoProxy / mysqlProxy / postgresProxy createServerFn
+// calls, routing all external DB connections through the code executor service
+// instead of bundling native DB drivers (pg, mysql2, mongodb) into the frontend.
+
+export interface DbQueryResult {
+  columns: string[];
+  rows: Record<string, unknown>[];
+  note: string;
+  ms: number;
+  error?: string;
+}
+
+export interface DbSchemaTable {
+  table: string;
+  columns: { name: string; type: string }[];
+}
+
+// Dummy IDs used when executing ad-hoc queries outside a lab context.
+const ADHOC_USER_ID = "adhoc";
+const ADHOC_LAB_ID = "adhoc";
+const ADHOC_SPRINT_ID = "adhoc";
+
+/**
+ * Execute a SQL/Mongo query against an external connection via the code executor.
+ * Replaces executeRemoteMysqlQuery / executeRemotePostgresQuery / executeRemoteMongoQuery.
+ */
+export async function executeExternalDbQuery(
+  engine: "mysql" | "postgresql" | "mongodb",
+  connectionUrl: string,
+  query: string,
+): Promise<DbQueryResult> {
+  if (!query?.trim()) {
+    return { columns: [], rows: [], note: "No query provided.", ms: 0 };
+  }
+  if (!connectionUrl?.trim()) {
+    return { columns: [], rows: [], note: "", ms: 0, error: `${engine} connection URL is required.` };
+  }
+
+  const start = Date.now();
+  try {
+    const raw: any = await restApiUtilCodeExecuter.post("/workspace/database_run", {
+      user_id: ADHOC_USER_ID,
+      lab_id: ADHOC_LAB_ID,
+      sprint_id: ADHOC_SPRINT_ID,
+      database_engine: engine,
+      connection_url: connectionUrl.trim(),
+      query: query.trim(),
+      db_file: "",
+    });
+
+    const ms = Date.now() - start;
+
+    if (raw?.stderr && !raw?.stdout) {
+      return { columns: [], rows: [], note: "", ms, error: raw.stderr };
+    }
+
+    // The executor returns stdout as a JSON string for DB queries
+    let parsed: any = null;
+    try {
+      parsed = typeof raw?.data === "object" ? raw.data : JSON.parse(raw?.stdout || "null");
+    } catch {
+      return { columns: [], rows: [], note: raw?.stdout || "", ms };
+    }
+
+    if (!parsed) {
+      return { columns: [], rows: [], note: raw?.stdout || "Query executed.", ms };
+    }
+
+    const columns: string[] = parsed.columns ?? (parsed.rows?.[0] ? Object.keys(parsed.rows[0]) : []);
+    const rows: Record<string, unknown>[] = parsed.rows ?? (Array.isArray(parsed) ? parsed : []);
+    return { columns, rows, note: `${rows.length} row(s) — ${ms}ms`, ms };
+  } catch (e: any) {
+    return { columns: [], rows: [], note: "", ms: Date.now() - start, error: e?.message || "Query failed" };
+  }
+}
+
+/**
+ * Fetch table/collection schema for an external DB via the code executor.
+ * Replaces fetchRemoteMysqlSchema / fetchRemotePostgresSchema / fetchRemoteMongoSchema.
+ */
+export async function fetchExternalDbSchema(
+  engine: "mysql" | "postgresql" | "mongodb",
+  connectionUrl: string,
+): Promise<DbSchemaTable[]> {
+  if (!connectionUrl?.trim()) return [];
+
+  const schemaQuery =
+    engine === "mysql"
+      ? "SELECT TABLE_NAME as `table`, COLUMN_NAME as `column`, DATA_TYPE as `type` FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME, ORDINAL_POSITION"
+      : engine === "postgresql"
+        ? "SELECT table_name as table, column_name as column, data_type as type FROM information_schema.columns WHERE table_schema = 'public' ORDER BY table_name, ordinal_position"
+        : "show collections"; // MongoDB
+
+  try {
+    const result = await executeExternalDbQuery(engine, connectionUrl, schemaQuery);
+    if (result.error || !result.rows.length) return [];
+
+    if (engine === "mongodb") {
+      // rows are collection names
+      return result.rows.map((r: any) => ({
+        table: String(r.name ?? r),
+        columns: [],
+      }));
+    }
+
+    // Group columns by table
+    const map = new Map<string, { name: string; type: string }[]>();
+    for (const row of result.rows) {
+      const tbl = String(row.table ?? row.TABLE_NAME ?? row.table_name ?? "");
+      const col = String(row.column ?? row.COLUMN_NAME ?? row.column_name ?? "");
+      const typ = String(row.type ?? row.DATA_TYPE ?? row.data_type ?? "");
+      if (!tbl) continue;
+      if (!map.has(tbl)) map.set(tbl, []);
+      map.get(tbl)!.push({ name: col, type: typ });
+    }
+    return Array.from(map.entries()).map(([table, columns]) => ({ table, columns }));
+  } catch {
+    return [];
+  }
+}

@@ -39,9 +39,6 @@ export default defineConfig({
       ],
     },
     ssr: {
-      // These packages use native Node.js modules and cannot be bundled
-      // into the Cloudflare/Nitro SSR bundle — keep them as externals.
-      external: ['pg', 'mysql2', 'mongodb', 'pg-native'],
       noExternal: [],
     },
     build: {
@@ -52,13 +49,6 @@ export default defineConfig({
         external: [
           'react-native-fs',
           'react-native',
-          // Native Node.js driver packages used only in server functions —
-          // must not be inlined into the Cloudflare Worker bundle.
-          'pg',
-          'pg-native',
-          'mysql2',
-          'mysql2/promise',
-          'mongodb',
         ],
         output: {},
       },
