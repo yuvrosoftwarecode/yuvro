@@ -28,9 +28,7 @@ import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
-import { executeRemoteMongoQuery, fetchRemoteMongoSchema } from "@/lib/mongoProxy";
-import { executeRemoteMysqlQuery, fetchRemoteMysqlSchema } from "@/lib/mysqlProxy";
-import { executeRemotePostgresQuery, fetchRemotePostgresSchema } from "@/lib/postgresProxy";
+import { executeExternalDbQuery, fetchExternalDbSchema } from "@/services/codeExecutorService";
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
@@ -1570,7 +1568,7 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchRemoteMysqlSchema({ data: { uri: mysqlUri } });
+        const schemas: any = await fetchExternalDbSchema("mysql", mysqlUri);
         setDbSchemas(schemas || []);
       } catch (err) {
         setDbSchemas([]);
@@ -1587,7 +1585,7 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchRemotePostgresSchema({ data: { uri: postgresUri } });
+        const schemas: any = await fetchExternalDbSchema("postgresql", postgresUri);
         setDbSchemas(schemas || []);
       } catch (err) {
         setDbSchemas([]);
@@ -1604,7 +1602,7 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchRemoteMongoSchema({ data: { uri: mongoUri } });
+        const schemas: any = await fetchExternalDbSchema("mongodb", mongoUri);
         setDbSchemas(schemas || []);
       } catch (err) {
         setDbSchemas([]);
@@ -5590,8 +5588,8 @@ function ExternalSqlResultsView({
       setError(null);
       setRes(null);
       try {
-        const proxyCall = dbType === "mysql" ? executeRemoteMysqlQuery : executeRemotePostgresQuery;
-        const result: any = await proxyCall({ data: { uri, query } });
+        const engine = dbType === "mysql" ? "mysql" : "postgresql";
+        const result: any = await executeExternalDbQuery(engine, uri, query);
         if (active) {
           if (result && result.error) {
             setError(result.error);
@@ -5928,7 +5926,7 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       setRes(null);
       try {
         if (mongoUri) {
-          const remoteRes: any = await executeRemoteMongoQuery({ data: { uri: mongoUri, query } });
+          const remoteRes: any = await executeExternalDbQuery("mongodb", mongoUri, query);
           if (active) {
             if (remoteRes && remoteRes.error) {
               setError(remoteRes.error);
