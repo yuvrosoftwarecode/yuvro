@@ -788,20 +788,33 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 
                 # Evaluate session via Dynamic Engine
                 if mock_submission.session_state:
-                    from mockinterviews.dynamic_engine.models import InterviewSession as DynSession
+                    from mockinterviews.dynamic_engine.models import InterviewSession as DynSession, InterviewStatus as DynStatus
                     from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+                    from mockinterviews.dynamic_engine.reporting import InterviewReportService
+                    from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM
                     from mockinterviews.dynamic_engine.config import get_settings
                     try:
+                        settings = get_settings()
                         dyn_session = DynSession.model_validate(mock_submission.session_state)
-                        evaluator = InterviewEvaluator(rubric_version=get_settings().rubric_version)
-                        evaluation = evaluator.evaluate(dyn_session)
-                        mock_submission.marks = evaluation.overall_score * 10
+                        dyn_session.status = DynStatus.COMPLETED
+                        reporter = InterviewReportService(
+                            evaluator=InterviewEvaluator(rubric_version=settings.rubric_version),
+                            llm_client=OpenAIInterviewLLM.from_settings(settings),
+                        )
+                        bundle = reporter.create_report_bundle(dyn_session)
+                        dyn_session_dict = dyn_session.model_dump(mode='json')
+                        bundle_dict = bundle.model_dump(mode='json')
+                        vitarka_dict = bundle.vitarka_report.model_dump(mode='json')
+                        dyn_session_dict['report_bundle'] = bundle_dict
+                        dyn_session_dict['report'] = vitarka_dict
+                        mock_submission.session_state = dyn_session_dict
+                        mock_submission.marks = bundle.overall_report.overall_score * 10
                     except Exception as e:
                         import logging
                         logger = logging.getLogger(__name__)
                         logger.error(f"Error evaluating interview: {e}")
                         
-                mock_submission.save(update_fields=['status', 'completed_at', 'marks'])
+                mock_submission.save(update_fields=['status', 'completed_at', 'marks', 'session_state'])
 
 
         try:

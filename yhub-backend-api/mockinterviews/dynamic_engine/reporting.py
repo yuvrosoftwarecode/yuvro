@@ -122,6 +122,11 @@ class InterviewReportService:
             return "Needs review"
         return "Do not proceed"
 
+    def _display_name(self, session: InterviewSession) -> str:
+        if session.candidate.metadata and session.candidate.metadata.get("name"):
+            return session.candidate.metadata["name"]
+        return "The candidate"
+
     def _executive_summary(
         self,
         session: InterviewSession,
@@ -130,8 +135,9 @@ class InterviewReportService:
         role = session.candidate.target_role or "the target role"
         strengths = ", ".join(evaluation.strengths) if evaluation.strengths else "no dominant strengths yet"
         risks = ", ".join(evaluation.risks) if evaluation.risks else "no major evidence gaps"
+        name = self._display_name(session)
         return (
-            f"Candidate {session.candidate.candidate_id} completed a {session.mode.value} "
+            f"{name} completed a {session.mode.value} "
             f"engineering interview for {role}. The evidence-backed overall score is "
             f"{evaluation.overall_score}/10. Main strengths: {strengths}. Main risks or "
             f"evidence gaps: {risks}."
@@ -427,8 +433,9 @@ class InterviewReportService:
                 *vitarka_report.risks,
             ]
         )[:6]
+        name = self._display_name(session)
         executive_summary = (
-            f"Overall evaluation for {session.candidate.candidate_id} combines engineering labs, "
+            f"Overall evaluation for {name} combines engineering labs, "
             f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
             f"{overall_score}/10. Recommendation: {recommendation}."
         )

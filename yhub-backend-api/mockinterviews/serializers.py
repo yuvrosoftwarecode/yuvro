@@ -112,6 +112,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source="user.email", read_only=True)
     report_summary = serializers.SerializerMethodField()
     report = serializers.SerializerMethodField()
+    report_bundle = serializers.SerializerMethodField()
     transcript = serializers.SerializerMethodField()
     actual_duration_display = serializers.SerializerMethodField()
     interview_session_id = serializers.SerializerMethodField()
@@ -138,6 +139,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "marks",
             "report_summary",
             "report",
+            "report_bundle",
             "transcript",
             "actual_duration_display",
             "interview_session_id",
@@ -161,6 +163,21 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
         return obj.old_chat_session_id
 
     def get_report_summary(self, obj):
+        if obj.session_state and isinstance(obj.session_state, dict):
+            if "report_bundle" in obj.session_state:
+                overall = obj.session_state["report_bundle"].get("overall_report", {})
+                return {
+                    "overall_score": overall.get("overall_score"),
+                    "recommendation": overall.get("recommendation"),
+                    "feedback_summary": overall.get("executive_summary")
+                }
+            if "report" in obj.session_state:
+                rep = obj.session_state["report"]
+                return {
+                    "overall_score": rep.get("overall_score"),
+                    "recommendation": rep.get("recommendation"),
+                    "feedback_summary": rep.get("executive_summary")
+                }
         if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
              interview_session = obj.chat_session.interview_session
              if hasattr(interview_session, 'report'):
@@ -171,6 +188,11 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
         return None
 
     def get_report(self, obj):
+        if obj.session_state and isinstance(obj.session_state, dict):
+            if "report" in obj.session_state:
+                return obj.session_state["report"]
+            if "report_bundle" in obj.session_state:
+                return obj.session_state["report_bundle"].get("vitarka_report")
         if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
              interview_session = obj.chat_session.interview_session
              if hasattr(interview_session, 'report'):
@@ -185,6 +207,12 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
                      "meta_stats": report.meta_stats,
                      "created_at": report.created_at.isoformat() if hasattr(report.created_at, 'isoformat') else str(report.created_at)
                  }
+        return None
+
+    def get_report_bundle(self, obj):
+        if obj.session_state and isinstance(obj.session_state, dict):
+            if "report_bundle" in obj.session_state:
+                return obj.session_state["report_bundle"]
         return None
 
     def get_transcript(self, obj):

@@ -45,6 +45,7 @@ export default defineConfig({
         polyfill: false,
       },
       rollupOptions: {
+        external: ['react-native-fs', 'react-native'],
         output: {},
       },
       chunkSizeWarningLimit: 1000,

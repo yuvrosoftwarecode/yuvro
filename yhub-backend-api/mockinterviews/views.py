@@ -584,10 +584,23 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         if user_id:
             qs = qs.filter(user_id=user_id)
             
-        if not (self.request.user.is_staff or (hasattr(self.request.user, 'role') and self.request.user.role in ['admin', 'instructor'])):
-            qs = qs.filter(user=self.request.user)
+        email = self.request.query_params.get('email')
+        if email:
+            qs = qs.filter(user__email__iexact=email)
             
-        return qs
+        user = self.request.user
+        is_privileged = (
+            user.is_staff
+            or user.is_superuser
+            or (hasattr(user, 'is_admin') and user.is_admin())
+            or (hasattr(user, 'is_instructor') and user.is_instructor())
+            or (hasattr(user, 'is_recruiter') and user.is_recruiter())
+            or (hasattr(user, 'role') and user.role in ['admin', 'instructor', 'recruiter'])
+        )
+        if not is_privileged:
+            qs = qs.filter(user=user)
+            
+        return qs.order_by('-created_at')
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -1171,7 +1184,10 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     "recommendation": report_bundle.overall_report.recommendation,
                     "markdown": report_bundle.overall_report.markdown,
                 })
-                submission.session_state = dyn_session.model_dump(mode='json')
+                dyn_session_dict = dyn_session.model_dump(mode='json')
+                dyn_session_dict['report_bundle'] = response_data
+                dyn_session_dict['report'] = report_bundle.vitarka_report.model_dump(mode='json')
+                submission.session_state = dyn_session_dict
                 submission.marks = report_bundle.overall_report.overall_score * 10
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.save(update_fields=['session_state', 'marks', 'status'])

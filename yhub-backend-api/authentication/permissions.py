@@ -225,16 +225,15 @@ class IsOwnerOrInstructorOrAdmin(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # Admin users have full access
+        # Admin users, instructors, and recruiters have full access
         if (
-            request.user.is_admin()
+            (hasattr(request.user, "is_admin") and request.user.is_admin())
+            or (hasattr(request.user, "is_instructor") and request.user.is_instructor())
+            or (hasattr(request.user, "is_recruiter") and request.user.is_recruiter())
             or request.user.is_staff
             or request.user.is_superuser
+            or (hasattr(request.user, "role") and request.user.role in ["admin", "instructor", "recruiter"])
         ):
-            return True
-
-        # Instructors have access to content management
-        if request.user.is_instructor():
             return True
 
         # Check ownership
