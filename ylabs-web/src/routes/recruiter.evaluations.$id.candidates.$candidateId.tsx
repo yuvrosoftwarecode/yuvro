@@ -42,6 +42,8 @@ import {
   ScrollText,
   FileDown,
   Maximize2,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { getCandidates } from "@/lib/recruiterCandidates";
 import { buildEvaluationSummary } from "@/lib/evaluationSummary";
@@ -53,6 +55,7 @@ import {
   getEvaluationSubmissions,
   generateSharedReportLink 
 } from "@/lib/recruiter";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import {
   getCandidateDetail,
   loadNotes,
@@ -143,6 +146,98 @@ function CandidateWorkspace() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
+  const [vitarkaSubmission, setVitarkaSubmission] = useState<any>(null);
+  const [generatingReport, setGeneratingReport] = useState(false);
+
+  useEffect(() => {
+    if (!ev || !candidate) return;
+    const discSec = ev.sections?.find(
+      (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+    );
+    let mockInterviewId = discSec?.mockInterviewId;
+    if (!mockInterviewId && discSec?.description) {
+      try {
+        mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
+      } catch {}
+    }
+    const userId = candidate.realUserId || candidate.rawSubmission?.user?.id;
+    const email = candidate.email;
+
+    const params = new URLSearchParams();
+    if (mockInterviewId) params.append("mock_interview", mockInterviewId);
+    if (email) params.append("email", email);
+    if (userId) params.append("user", userId);
+
+    if (params.toString()) {
+      yhubApiAuthUtil
+        .get<any[]>(`/interview/submissions/?${params.toString()}`)
+        .then((res) => {
+          if (res && res.length > 0) {
+            setVitarkaSubmission(res[0]);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [ev, candidate]);
+
+  const handleGenerateReport = async () => {
+    let sub = vitarkaSubmission;
+    if (!sub?.id) {
+      const discSec = ev?.sections?.find(
+        (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+      );
+      let mockInterviewId = discSec?.mockInterviewId;
+      if (!mockInterviewId && discSec?.description) {
+        try {
+          mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
+        } catch {}
+      }
+      const userId = candidate?.realUserId || candidate?.rawSubmission?.user?.id;
+      const email = candidate?.email;
+
+      const params = new URLSearchParams();
+      if (mockInterviewId) params.append("mock_interview", mockInterviewId);
+      if (email) params.append("email", email);
+      if (userId) params.append("user", userId);
+
+      try {
+        const res = await yhubApiAuthUtil.get<any[]>(`/interview/submissions/?${params.toString()}`);
+        if (res && res.length > 0) {
+          sub = res[0];
+          setVitarkaSubmission(res[0]);
+        }
+      } catch (err) {
+        console.error("Failed to query submission", err);
+      }
+    }
+
+    if (!sub?.id) {
+      notify("No Vitarka interview session found for this candidate.");
+      return;
+    }
+
+    setGeneratingReport(true);
+    try {
+      const res = await yhubApiAuthUtil.post<any>(
+        `/interview/submissions/${sub.id}/generate_report/`,
+        {}
+      );
+      setVitarkaSubmission((prev: any) => ({
+        ...(prev || {}),
+        ...res,
+        report_bundle: res.report_bundle || res,
+        report: res.vitarka_report || res.report || res,
+        marks: ((res.overall_report?.overall_score || res.overall_score || 0) * 10),
+        status: "completed",
+      }));
+      notify("Evaluation report generated successfully");
+    } catch (err: any) {
+      console.error("Failed to generate report", err);
+      notify(err?.response?.data?.error || err?.message || "Failed to generate report");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
 
   useEffect(() => {
     markViewed(id, candidateId);
@@ -191,7 +286,66 @@ function CandidateWorkspace() {
       </div>
     );
   }
-  const detail = getCandidateDetail(candidate);
+
+  const liveBundle = vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle;
+  const liveVitarkaReport = liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report;
+  const liveOverallReport = liveBundle?.overall_report;
+  const liveLabsReport = liveBundle?.engineering_labs_report;
+  const liveKnowledgeReport = liveBundle?.knowledge_assessment_report;
+  const sectionScoresMap: Record<string, number> = {};
+  if (liveOverallReport?.section_scores && Array.isArray(liveOverallReport.section_scores)) {
+    liveOverallReport.section_scores.forEach((s: any) => {
+      if (s.score != null) {
+        sectionScoresMap[s.section] = Math.round(s.score * 10);
+      }
+    });
+  }
+
+  const liveLabsScore = sectionScoresMap["engineering_labs"] ?? (
+    liveLabsReport?.overall_score != null
+      ? Math.round(liveLabsReport.overall_score * 10)
+      : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
+          ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * 100)
+          : candidate.labsScore)
+  );
+
+  const liveAssessmentScore = sectionScoresMap["knowledge_assessment"] ?? (
+    liveKnowledgeReport?.score_percent != null
+      ? Math.round(liveKnowledgeReport.score_percent)
+      : (liveKnowledgeReport?.question_count && liveKnowledgeReport.question_count > 0
+          ? Math.round((liveKnowledgeReport.correct_count / liveKnowledgeReport.question_count) * 100)
+          : candidate.assessmentScore)
+  );
+
+  const liveVitarkaScore = sectionScoresMap["vitarka"] ?? (
+    vitarkaSubmission?.marks != null
+      ? vitarkaSubmission.marks
+      : (liveVitarkaReport?.overall_score != null ? Math.round(liveVitarkaReport.overall_score * 10) : candidate.vitarkaScore)
+  );
+
+  const computedEci = Math.round(liveLabsScore * 0.45 + liveAssessmentScore * 0.3 + liveVitarkaScore * 0.25);
+  const liveOverallScore = liveOverallReport?.overall_score != null
+    ? Math.round(liveOverallReport.overall_score * 10)
+    : computedEci;
+
+  const displayCandidate = {
+    ...candidate,
+    labsScore: liveLabsScore,
+    assessmentScore: liveAssessmentScore,
+    vitarkaScore: liveVitarkaScore,
+    eci: liveOverallScore,
+    recommendation: liveOverallReport?.recommendation || (liveVitarkaReport?.recommendation
+      ? (liveVitarkaReport.recommendation.toLowerCase().includes("strong")
+          ? "Strong Hire"
+          : liveVitarkaReport.recommendation.toLowerCase().includes("proceed")
+            ? "Hire"
+            : liveVitarkaReport.recommendation.toLowerCase().includes("review")
+              ? "Maybe"
+              : "Reject")
+      : candidate.recommendation),
+  };
+
+  const detail = getCandidateDetail(displayCandidate);
   const notify = (m: string) => setToast(m);
   const act = async (kind: string, text: string) => {
     if (!candidate?.email) return;
@@ -388,8 +542,11 @@ function CandidateWorkspace() {
         <div className="min-w-0">
           {tab === "overview" && (
             <OverviewPane
-              candidate={candidate}
+              candidate={displayCandidate}
               detail={detail}
+              vitarkaReport={liveVitarkaReport}
+              overallReport={liveOverallReport}
+              reportBundle={liveBundle}
               onGotoLabs={() => setTab("labs")}
               onGotoVit={() => setTab("vitarka")}
               hasLabs={hasLabs}
@@ -397,11 +554,18 @@ function CandidateWorkspace() {
               hasVitarka={hasVitarka}
             />
           )}
-          {tab === "labs" && <LabsPane ev={ev} candidate={candidate} onOpen={setOpenLab} />}
-          {tab === "assessment" && <AssessmentPane ev={ev} candidate={candidate} />}
+          {tab === "labs" && <LabsPane ev={ev} candidate={displayCandidate} labsReport={liveLabsReport} onOpen={setOpenLab} />}
+          {tab === "assessment" && <AssessmentPane ev={ev} candidate={displayCandidate} knowledgeReport={liveKnowledgeReport} />}
           {tab === "vitarka" && (
             <VitarkaPane
+              candidate={displayCandidate}
               detail={detail}
+              report={liveVitarkaReport}
+              reportBundle={liveBundle}
+              submission={vitarkaSubmission}
+              submissionStatus={vitarkaSubmission?.status}
+              onGenerateReport={handleGenerateReport}
+              generatingReport={generatingReport}
               onDownload={() => {
                 act("download", "Downloaded Vitarka transcript");
                 notify("Transcript downloaded");
@@ -441,7 +605,7 @@ function CandidateWorkspace() {
         </div>
 
         <StickySidebar
-          candidate={candidate}
+          candidate={displayCandidate}
           detail={detail}
           decision={decision}
           onDecision={doDecision}
@@ -469,6 +633,9 @@ function CandidateWorkspace() {
 export function OverviewPane({
   candidate,
   detail,
+  vitarkaReport,
+  overallReport,
+  reportBundle,
   onGotoLabs,
   onGotoVit,
   hasLabs,
@@ -477,6 +644,9 @@ export function OverviewPane({
 }: {
   candidate: ReturnType<typeof getCandidates>[number];
   detail: ReturnType<typeof getCandidateDetail>;
+  vitarkaReport?: any;
+  overallReport?: any;
+  reportBundle?: any;
   onGotoLabs: () => void;
   onGotoVit: () => void;
   hasLabs: boolean;
@@ -534,7 +704,15 @@ export function OverviewPane({
       </div>
 
       {/* Evaluation summary */}
-      <EvaluationSummary candidate={candidate} hasLabs={hasLabs} hasAssessment={hasAssessment} hasVitarka={hasVitarka} />
+      <EvaluationSummary
+        candidate={candidate}
+        vitarkaReport={vitarkaReport}
+        overallReport={overallReport}
+        reportBundle={reportBundle}
+        hasLabs={hasLabs}
+        hasAssessment={hasAssessment}
+        hasVitarka={hasVitarka}
+      />
 
       <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
         <div className="text-[11px] uppercase tracking-widest text-neutral-500">
@@ -553,6 +731,11 @@ export function OverviewPane({
       </div>
     </div>
   );
+}
+
+function stripUuids(text: string, replacement: string = "the candidate"): string {
+  if (!text || typeof text !== "string") return text;
+  return text.replace(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, replacement);
 }
 
 function SummaryBlock({
@@ -577,37 +760,71 @@ function SummaryBlock({
           <span className="text-neutral-500">/100</span>
         </div>
       </div>
-      <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{summary}</p>
+      <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{stripUuids(summary)}</p>
       <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
       <ul className="mt-1.5 space-y-1">
         {strengths.map((s) => (
           <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
-            {s}
+            {stripUuids(s)}
           </li>
         ))}
       </ul>
       <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Area to explore</div>
       <div className="mt-1.5 flex gap-2 text-[12px] text-neutral-300">
         <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-        {explore}
+        {stripUuids(explore)}
       </div>
     </div>
   );
 }
 
-function EvaluationSummary({ candidate, hasLabs, hasAssessment, hasVitarka }: { candidate: { name: string; labsScore: number; assessmentScore: number; vitarkaScore: number; eci: number }, hasLabs: boolean, hasAssessment: boolean, hasVitarka: boolean }) {
+function EvaluationSummary({
+  candidate,
+  vitarkaReport,
+  overallReport,
+  reportBundle,
+  hasLabs,
+  hasAssessment,
+  hasVitarka,
+}: {
+  candidate: { name: string; labsScore: number; assessmentScore: number; vitarkaScore: number; eci: number; recommendation?: string };
+  vitarkaReport?: any;
+  overallReport?: any;
+  reportBundle?: any;
+  hasLabs: boolean;
+  hasAssessment: boolean;
+  hasVitarka: boolean;
+}) {
   const data = buildEvaluationSummary(candidate, hasLabs, hasAssessment, hasVitarka);
-  const { overall, verdict } = data;
+  const overall = candidate.eci;
+  const verdict = candidate.recommendation || (overall >= 75 ? "Shortlisted" : overall >= 60 ? "Hold" : "Rejected");
   const verdictTone =
-    verdict === "Shortlisted"
+    verdict.toLowerCase().includes("strong") || verdict.toLowerCase().includes("shortlist") || verdict.toLowerCase().includes("hire")
       ? "border-emerald-400/25 bg-emerald-400/[0.06] text-emerald-300"
-      : verdict === "Hold"
+      : verdict.toLowerCase().includes("hold") || verdict.toLowerCase().includes("review") || verdict.toLowerCase().includes("maybe")
         ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
         : "border-red-400/25 bg-red-400/[0.06] text-red-300";
 
+  const labsReport = reportBundle?.engineering_labs_report;
+  const knowledgeReport = reportBundle?.knowledge_assessment_report;
+
   const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
   const gridClass = activeCount === 3 ? "md:grid-cols-3" : activeCount === 2 ? "md:grid-cols-2" : "md:grid-cols-1";
+
+  // Use dynamic content if available
+  const rawOverallText = overallReport?.executive_summary || vitarkaReport?.executive_summary || data.overallText;
+  const overallText = stripUuids(rawOverallText, candidate.name || "the candidate");
+  const overallStrengths = (overallReport?.strengths && overallReport.strengths.length > 0)
+    ? overallReport.strengths.map((s: string) => stripUuids(s, candidate.name))
+    : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
+      ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
+      : data.overallStrengths;
+  const overallExplore = (overallReport?.risks && overallReport.risks.length > 0)
+    ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
+    : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
+      ? vitarkaReport.risks.map((s: string) => stripUuids(s, candidate.name))
+      : data.overallExplore;
 
   return (
     <div className="space-y-4">
@@ -615,16 +832,33 @@ function EvaluationSummary({ candidate, hasLabs, hasAssessment, hasVitarka }: { 
 
       {activeCount > 0 && (
         <div className={`grid grid-cols-1 gap-4 ${gridClass}`}>
-          {data.blocks.map((b) => (
+          {hasLabs && (
             <SummaryBlock
-              key={b.title}
-              title={b.title}
-              score={b.score}
-              summary={b.summary}
-              strengths={b.strengths}
-              explore={b.explore}
+              title="Engineering Labs"
+              score={candidate.labsScore}
+              summary={labsReport?.markdown ? "Candidate implementation and test execution analyzed across submitted lab scenarios." : data.blocks[0]?.summary || "Engineering labs evaluation."}
+              strengths={labsReport?.strengths && labsReport.strengths.length > 0 ? labsReport.strengths : data.blocks[0]?.strengths || []}
+              explore={labsReport?.risks?.[0] || data.blocks[0]?.explore || "Error handling and edge cases"}
             />
-          ))}
+          )}
+          {hasAssessment && (
+            <SummaryBlock
+              title="Assessment"
+              score={candidate.assessmentScore}
+              summary={knowledgeReport ? `Candidate answered ${knowledgeReport.correct_count || 0}/${knowledgeReport.question_count || 0} questions correctly.` : data.blocks[hasLabs ? 1 : 0]?.summary || "Knowledge assessment evaluation."}
+              strengths={knowledgeReport?.strengths && knowledgeReport.strengths.length > 0 ? knowledgeReport.strengths : data.blocks[hasLabs ? 1 : 0]?.strengths || []}
+              explore={knowledgeReport?.risks?.[0] || data.blocks[hasLabs ? 1 : 0]?.explore || "System design"}
+            />
+          )}
+          {hasVitarka && (
+            <SummaryBlock
+              title="Vitarka AI"
+              score={candidate.vitarkaScore}
+              summary={vitarkaReport?.executive_summary || data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation."}
+              strengths={vitarkaReport?.strengths && vitarkaReport.strengths.length > 0 ? vitarkaReport.strengths : data.blocks[data.blocks.length - 1]?.strengths || []}
+              explore={vitarkaReport?.risks?.[0] || data.blocks[data.blocks.length - 1]?.explore || "Detailed technical probing"}
+            />
+          )}
         </div>
       )}
 
@@ -641,12 +875,12 @@ function EvaluationSummary({ candidate, hasLabs, hasAssessment, hasVitarka }: { 
             </span>
           </div>
         </div>
-        <p className="mt-3 text-[13px] leading-relaxed text-neutral-200">{data.overallText}</p>
+        <p className="mt-3 text-[13px] leading-relaxed text-neutral-200">{overallText}</p>
         <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
             <ul className="mt-1.5 space-y-1">
-              {data.overallStrengths.map((s) => (
+              {overallStrengths.map((s: string) => (
                 <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
                   <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
                   {s}
@@ -657,7 +891,7 @@ function EvaluationSummary({ candidate, hasLabs, hasAssessment, hasVitarka }: { 
           <div>
             <div className="text-[10px] uppercase tracking-widest text-neutral-500">Areas to explore</div>
             <ul className="mt-1.5 space-y-1">
-              {data.overallExplore.map((s) => (
+              {overallExplore.map((s: string) => (
                 <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
                   <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
                   {s}
@@ -712,10 +946,12 @@ function CodingAnswerViewer({ q, userId, evaluationId }: { q: any, userId: strin
 export function LabsPane({
   ev,
   candidate,
+  labsReport,
   onOpen,
 }: {
   ev: any;
   candidate: any;
+  labsReport?: any;
   onOpen: (data: { section: any, labSub: any, candidate: any }) => void;
 }) {
 
@@ -723,8 +959,37 @@ export function LabsPane({
   const allLabs = labSections.flatMap((s: any) => s.labs || []);
 
   return (
-    <div className="space-y-3">
-      <SectionHeading>Engineering Labs</SectionHeading>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <SectionHeading>Engineering Labs</SectionHeading>
+        {labsReport?.overall_score != null && (
+          <span className="text-[12px] font-medium text-emerald-400">
+            Section Score: {Math.round(labsReport.overall_score * 10)}/100
+          </span>
+        )}
+      </div>
+
+      {labsReport && (
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
+            <div className="flex items-center gap-4 text-neutral-300">
+              <span>Tests Passed: <strong className="text-white">{labsReport.tests_passed || 0}/{labsReport.tests_total || 0}</strong></span>
+              {labsReport.total_time_seconds != null && (
+                <span>Time: <strong className="text-white">{Math.round(labsReport.total_time_seconds / 60)}m</strong></span>
+              )}
+            </div>
+            {labsReport.strengths && labsReport.strengths.length > 0 && (
+              <span className="text-emerald-400 text-[11px]">✓ {labsReport.strengths[0]}</span>
+            )}
+          </div>
+          {labsReport.risks && labsReport.risks.length > 0 && (
+            <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
+              Note: {labsReport.risks.join(" · ")}
+            </div>
+          )}
+        </div>
+      )}
+
       {allLabs.map((lab: any, i: number) => {
         const labSub = candidate.rawSubmission?.lab_submissions?.find(
           (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
@@ -777,13 +1042,42 @@ export function LabsPane({
   );
 }
 
-export function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
+export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; candidate: any; knowledgeReport?: any }) {
   const assessmentSections = ev.sections.filter((s: any) => s.kind === "knowledge" || s.kind === "assessment");
   const [open, setOpen] = useState<string | null>(assessmentSections[0]?.name ?? null);
 
   return (
-    <div className="space-y-3">
-      <SectionHeading>Knowledge Assessment</SectionHeading>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <SectionHeading>Knowledge Assessment</SectionHeading>
+        {knowledgeReport?.score_percent != null && (
+          <span className="text-[12px] font-medium text-emerald-400">
+            Section Score: {Math.round(knowledgeReport.score_percent)}% ({knowledgeReport.correct_count || 0}/{knowledgeReport.question_count || 0} correct)
+          </span>
+        )}
+      </div>
+
+      {knowledgeReport && (
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
+            <div className="flex items-center gap-4 text-neutral-300">
+              <span>Correct Questions: <strong className="text-white">{knowledgeReport.correct_count || 0}/{knowledgeReport.question_count || 0}</strong></span>
+              {knowledgeReport.total_score != null && (
+                <span>Marks: <strong className="text-white">{knowledgeReport.total_score}/{knowledgeReport.max_score || 0}</strong></span>
+              )}
+            </div>
+            {knowledgeReport.strengths && knowledgeReport.strengths.length > 0 && (
+              <span className="text-emerald-400 text-[11px]">✓ {knowledgeReport.strengths[0]}</span>
+            )}
+          </div>
+          {knowledgeReport.risks && knowledgeReport.risks.length > 0 && (
+            <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
+              Note: {knowledgeReport.risks.join(" · ")}
+            </div>
+          )}
+        </div>
+      )}
+
       {assessmentSections.map((sub: any) => {
         const isOpen = open === sub.name || open === sub.title;
         const subId = sub.id || sub.section_id;
@@ -971,14 +1265,388 @@ export function AssessmentPane({ ev, candidate }: { ev: any; candidate: any }) {
 }
 
 export function VitarkaPane({
+  candidate,
   detail,
+  report,
+  reportBundle,
+  submission,
+  submissionStatus,
+  onGenerateReport,
+  generatingReport,
   onDownload,
 }: {
+  candidate?: ReturnType<typeof getCandidates>[number];
   detail: ReturnType<typeof getCandidateDetail>;
+  report?: any;
+  reportBundle?: any;
+  submission?: any;
+  submissionStatus?: string;
+  onGenerateReport?: () => void;
+  generatingReport?: boolean;
   onDownload: () => void;
 }) {
   const [showTranscript, setShowTranscript] = useState(false);
-  const [showRecording, setShowRecording] = useState(false);
+  const [showMarkdown, setShowMarkdown] = useState(false);
+
+  // Extract any raw dynamic interview turns from submission state
+  const rawTurns: any[] = submission?.session_state?.turns || submission?.turns || [];
+  const normalizedSessionTurns = rawTurns.map((t: any, idx: number) => {
+    const isAi = t.speaker === "assistant" || t.role === "assistant" || t.speaker === "AI" || t.role === "system";
+    return {
+      speaker: isAi ? "AI" : "Candidate",
+      text: t.text || t.content || t.message || "",
+      time: t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : `${t.seconds_from_start || (idx * 30)}s`,
+    };
+  });
+
+  const downloadTranscript = () => {
+    let text = `# Vitarka Interview Transcript\n`;
+    text += `Candidate: ${candidate?.name || "Candidate"}\n`;
+    text += `Date: ${new Date().toLocaleDateString()}\n\n---\n\n`;
+
+    if (report?.transcript && Array.isArray(report.transcript) && report.transcript.length > 0) {
+      report.transcript.forEach((t: any, idx: number) => {
+        if (t.question) {
+          text += `### Question ${idx + 1} (${t.question_kind || "Discussion"})\n`;
+          text += `**AI:** ${t.question}\n\n`;
+          text += `**Candidate:** ${t.answer || "No response recorded."}\n\n---\n\n`;
+        } else {
+          text += `**${t.speaker || t.role || "Speaker"}:** ${t.text || t.content || ""}\n\n`;
+        }
+      });
+    } else if (normalizedSessionTurns.length > 0) {
+      normalizedSessionTurns.forEach((t) => {
+        text += `**${t.speaker}** (${t.time}):\n${t.text}\n\n`;
+      });
+    } else if (detail.vitarka.transcript && detail.vitarka.transcript.length > 0) {
+      detail.vitarka.transcript.forEach((t) => {
+        text += `**${t.speaker}** (${t.time}):\n${t.text}\n\n`;
+      });
+    }
+
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `vitarka-transcript-${candidate?.name ? candidate.name.toLowerCase().replace(/\s+/g, "-") : "candidate"}.md`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // If dynamic Vitarka report is available from backend
+  if (report) {
+    const overallScore100 = report.overall_score != null ? Math.round(report.overall_score * 10) : detail.vitarka.overall;
+    const recommendation = report.recommendation || (overallScore100 >= 80 ? "Strong proceed" : overallScore100 >= 60 ? "Proceed" : overallScore100 >= 40 ? "Needs review" : "Do not proceed");
+    const recColor = recommendation.toLowerCase().includes("strong")
+      ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+      : recommendation.toLowerCase().includes("proceed")
+        ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+        : recommendation.toLowerCase().includes("review")
+          ? "bg-amber-400/10 text-amber-400 border-amber-400/20"
+          : "bg-red-400/10 text-red-400 border-red-400/20";
+
+    const downloadMarkdownReport = () => {
+      const mdContent = report.markdown || `# Vitarka Interview Report\n\nScore: ${overallScore100}/100\nRecommendation: ${recommendation}\n\n${report.executive_summary || ""}`;
+      const blob = new Blob([mdContent], { type: "text/markdown;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `vitarka-report-${candidate?.name ? candidate.name.toLowerCase().replace(/\s+/g, "-") : "candidate"}.md`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Header Overview Card */}
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
+                {report.mode && (
+                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-400">
+                    {report.mode} Mode
+                  </span>
+                )}
+                {report.rubric_version && (
+                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400">
+                    Rubric {report.rubric_version}
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-[12px] text-neutral-400">Hiring Signal:</span>
+                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${recColor}`}>
+                  {recommendation}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {onGenerateReport && (
+                <button
+                  onClick={onGenerateReport}
+                  disabled={generatingReport}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  title="Re-run evaluation prompt and narrative generation"
+                >
+                  {generatingReport ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  {generatingReport ? "Regenerating..." : "Regenerate Analysis"}
+                </button>
+              )}
+              <div className="text-right">
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500">Overall Score</div>
+                <div className={`text-[32px] font-medium leading-none ${eciColor(overallScore100)}`}>
+                  {overallScore100}
+                  <span className="text-[13px] text-neutral-500">/100</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Competency Matrix */}
+          {report.competency_summaries && report.competency_summaries.length > 0 && (
+            <div className="mt-6 border-t border-white/5 pt-5">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500">Competency Matrix</div>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {report.competency_summaries.map((c: any, i: number) => {
+                  const score100 = (c.score || 0) * 10;
+                  const label = (c.competency || "").replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase());
+                  return (
+                    <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-3.5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-[12px] font-medium text-white">{label}</div>
+                          <div className="flex items-baseline gap-1">
+                            <span className={`text-[16px] font-semibold ${eciColor(score100)}`}>{c.score}</span>
+                            <span className="text-[10px] text-neutral-500">/10</span>
+                          </div>
+                        </div>
+                        <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-400">{c.guidance}</p>
+                      </div>
+                      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                        <div
+                          className={`h-full transition-all duration-500 ${score100 >= 70 ? "bg-emerald-400" : score100 >= 50 ? "bg-amber-400" : "bg-red-400"}`}
+                          style={{ width: `${Math.min(100, Math.max(5, score100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Executive Summary & AI Narrative */}
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Executive Narrative
+          </div>
+          {report.executive_summary && (
+            <p className="mt-3 text-[14px] leading-relaxed text-neutral-200">
+              {stripUuids(report.executive_summary, candidate?.name || "the candidate")}
+            </p>
+          )}
+
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 border-t border-white/5 pt-5">
+            <div>
+              <div className="text-[11px] uppercase tracking-widest text-emerald-400">Key Strengths</div>
+              <ul className="mt-2.5 space-y-2">
+                {(report.strengths || []).map((s: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-2 text-[13px] text-neutral-300">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                    <span>{stripUuids(s, candidate?.name)}</span>
+                  </li>
+                ))}
+                {(!report.strengths || report.strengths.length === 0) && (
+                  <li className="text-[12px] text-neutral-500">No dominant strengths recorded.</li>
+                )}
+              </ul>
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-widest text-amber-400">Risks & Gaps</div>
+              <ul className="mt-2.5 space-y-2">
+                {(report.risks || []).map((r: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-2 text-[13px] text-neutral-300">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
+                    <span>{stripUuids(r, candidate?.name)}</span>
+                  </li>
+                ))}
+                {(!report.risks || report.risks.length === 0) && (
+                  <li className="text-[12px] text-neutral-500">No major evidence risks recorded.</li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-2 pt-2 border-t border-white/5">
+            <SecondaryAction
+              icon={<ScrollText className="h-3.5 w-3.5" />}
+              onClick={() => setShowTranscript((v) => !v)}
+            >
+              {showTranscript ? "Hide" : "View"} Transcript
+            </SecondaryAction>
+            {report.markdown && (
+              <SecondaryAction
+                icon={<FileText className="h-3.5 w-3.5" />}
+                onClick={() => setShowMarkdown((v) => !v)}
+              >
+                {showMarkdown ? "Hide" : "View"} Markdown Report
+              </SecondaryAction>
+            )}
+            <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadTranscript}>
+              Download Transcript (.md)
+            </SecondaryAction>
+            <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadMarkdownReport}>
+              Download Full Report (.md)
+            </SecondaryAction>
+          </div>
+        </div>
+
+        {/* Evidence Highlights */}
+        {report.evidence_highlights && report.evidence_highlights.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Observed Telemetry & Evidence Highlights</div>
+            <div className="mt-4 space-y-2.5">
+              {report.evidence_highlights.map((evItem: any, i: number) => {
+                const isUuid = evItem.reference_id && /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}/.test(evItem.reference_id);
+                const refDisplay = isUuid ? (evItem.source === 'turn' ? `Turn ${i + 1}` : `Evidence ${i + 1}`) : evItem.reference_id;
+                return (
+                  <div key={i} className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.01] p-3 text-[12px]">
+                    <span className="mt-0.5 rounded border border-neutral-700 bg-neutral-800 px-1.5 py-0.5 text-[10px] font-mono text-neutral-300">
+                      {evItem.source}:{refDisplay}
+                    </span>
+                    <div className="flex-1 text-neutral-300 leading-relaxed">
+                      {stripUuids(evItem.note, candidate?.name || "the candidate")}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Full Markdown Report Viewer */}
+        {showMarkdown && report.markdown && (
+          <div className="rounded-2xl border border-white/5 bg-black/40 p-6">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-400">Formatted Markdown Report</div>
+              <button onClick={downloadMarkdownReport} className="text-[11px] text-emerald-400 hover:underline">
+                Download file
+              </button>
+            </div>
+            <pre className="mt-4 overflow-x-auto whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-neutral-300">
+              {report.markdown}
+            </pre>
+          </div>
+        )}
+
+        {/* Dynamic Transcript View */}
+        {showTranscript && (
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500">Interview Transcript</div>
+              <button onClick={downloadTranscript} className="text-[11px] text-emerald-400 hover:underline">
+                Download (.md)
+              </button>
+            </div>
+            <div className="mt-4 space-y-4">
+              {report.transcript && Array.isArray(report.transcript) && report.transcript.length > 0 ? (
+                report.transcript.map((item: any, i: number) => (
+                  <div key={i} className="space-y-2 rounded-xl border border-white/5 bg-white/[0.01] p-4">
+                    {item.question ? (
+                      <>
+                        <div className="flex items-start gap-3">
+                          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-400/15 text-[10px] font-medium text-emerald-300">
+                            AI
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-neutral-500">Question {i + 1}</span>
+                              {item.question_kind && (
+                                <span className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-neutral-400">
+                                  {item.question_kind}
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-0.5 text-[13px] text-neutral-200">{item.question}</div>
+                          </div>
+                        </div>
+                        <div className="ml-9 flex items-start gap-3 border-t border-white/5 pt-2">
+                          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-400/15 text-[10px] font-medium text-amber-300">
+                            You
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-[10px] uppercase tracking-wider text-neutral-500">Candidate Response</div>
+                            <div className="mt-0.5 text-[13px] text-neutral-300 italic">
+                              {item.answer || "No voice response recorded."}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-0.5 grid h-6 w-6 place-items-center rounded-full text-[10px] font-medium ${(item.speaker === "AI" || item.role === "assistant") ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}>
+                          {(item.speaker === "AI" || item.role === "assistant") ? "AI" : "You"}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-[11px] text-neutral-500">
+                            {(item.speaker === "AI" || item.role === "assistant") ? "AI Interviewer" : "Candidate"}
+                          </div>
+                          <div className="mt-0.5 text-[13px] text-neutral-200">{item.text || item.content}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : normalizedSessionTurns.length > 0 ? (
+                normalizedSessionTurns.map((l, i) => (
+                  <div key={i} className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.01] p-3">
+                    <div
+                      className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
+                    >
+                      {l.speaker === "AI" ? "AI" : "You"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[11px] text-neutral-500">
+                        {l.speaker} · {l.time}
+                      </div>
+                      <div className="mt-0.5 text-[13px] text-neutral-200">{l.text}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                detail.vitarka.transcript.map((l, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div
+                      className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
+                    >
+                      {l.speaker === "AI" ? "AI" : "You"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[11px] text-neutral-500">
+                        {l.speaker} · {l.time}
+                      </div>
+                      <div className="mt-0.5 text-[13px] text-neutral-200">{l.text}</div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Pending State or No Report Yet
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
@@ -986,14 +1654,38 @@ export function VitarkaPane({
           <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
           <div className="text-right">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Overall</div>
-            <div
-              className={`text-[32px] font-medium leading-none ${eciColor(detail.vitarka.overall)}`}
-            >
+            <div className={`text-[32px] font-medium leading-none ${eciColor(detail.vitarka.overall)}`}>
               {detail.vitarka.overall}
               <span className="text-[13px] text-neutral-500">/100</span>
             </div>
           </div>
         </div>
+
+        {onGenerateReport && (
+          <div className="mt-4 rounded-xl border border-amber-400/20 bg-amber-400/[0.04] p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-[13px] font-medium text-amber-300">
+                {submissionStatus === "completed" ? "Interview is completed" : "Dynamic session active"}
+              </div>
+              <p className="text-[11px] text-neutral-400">
+                Generate the AI report to synthesize candidate answers and observations into structured competencies.
+              </p>
+            </div>
+            <button
+              onClick={onGenerateReport}
+              disabled={generatingReport}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-2 text-[12px] font-medium text-black transition hover:bg-emerald-400 disabled:opacity-50"
+            >
+              {generatingReport ? (
+                <Loader2 className="h-4 w-4 animate-spin text-black" />
+              ) : (
+                <Sparkles className="h-4 w-4 text-black" />
+              )}
+              {generatingReport ? "Generating Report..." : "Generate AI Evaluation Report"}
+            </button>
+          </div>
+        )}
+
         <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {detail.vitarka.signals.map((s) => (
             <div key={s.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
@@ -1033,52 +1725,54 @@ export function VitarkaPane({
           >
             {showTranscript ? "Hide" : "View"} Transcript
           </SecondaryAction>
-          <SecondaryAction
-            icon={<Video className="h-3.5 w-3.5" />}
-            onClick={() => setShowRecording((v) => !v)}
-          >
-            {showRecording ? "Hide" : "View"} Recording
-          </SecondaryAction>
-          <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={onDownload}>
+          <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadTranscript}>
             Download Transcript
-          </SecondaryAction>
-          <SecondaryAction icon={<Download className="h-3.5 w-3.5" />} onClick={onDownload}>
-            Download Summary
           </SecondaryAction>
         </div>
       </div>
 
-      {showRecording && (
-        <div className="rounded-2xl border border-white/5 bg-black/60 p-8 text-center">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-white/10 text-neutral-400">
-            <Play className="h-5 w-5" />
-          </div>
-          <div className="mt-3 text-[13px] text-white">Discussion recording · 14:32</div>
-          <div className="mt-1 text-[11px] text-neutral-500">
-            Video playback is disabled in demo mode.
-          </div>
-        </div>
-      )}
-
       {showTranscript && (
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-          <div className="text-[11px] uppercase tracking-widest text-neutral-500">Transcript</div>
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Transcript</div>
+            <button onClick={downloadTranscript} className="text-[11px] text-emerald-400 hover:underline">
+              Download (.md)
+            </button>
+          </div>
           <div className="mt-4 space-y-4">
-            {detail.vitarka.transcript.map((l, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div
-                  className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
-                >
-                  {l.speaker === "AI" ? "AI" : "You"}
-                </div>
-                <div className="flex-1">
-                  <div className="text-[11px] text-neutral-500">
-                    {l.speaker} · {l.time}
+            {normalizedSessionTurns.length > 0 ? (
+              normalizedSessionTurns.map((l, i) => (
+                <div key={i} className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.01] p-3">
+                  <div
+                    className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
+                  >
+                    {l.speaker === "AI" ? "AI" : "You"}
                   </div>
-                  <div className="mt-0.5 text-[13px] text-neutral-200">{l.text}</div>
+                  <div className="flex-1">
+                    <div className="text-[11px] text-neutral-500">
+                      {l.speaker} · {l.time}
+                    </div>
+                    <div className="mt-0.5 text-[13px] text-neutral-200">{l.text}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              detail.vitarka.transcript.map((l, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div
+                    className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
+                  >
+                    {l.speaker === "AI" ? "AI" : "You"}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[11px] text-neutral-500">
+                      {l.speaker} · {l.time}
+                    </div>
+                    <div className="mt-0.5 text-[13px] text-neutral-200">{l.text}</div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
