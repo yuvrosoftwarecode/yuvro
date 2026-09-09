@@ -39,31 +39,24 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
 COPY . .
 RUN bun run build
 # Normalize output: copy .output/public or dist/client to /app/dist-output
+# For TanStack builds, we need the dist/client folder which has the SPA assets
 RUN mkdir -p /app/dist-output && \
     echo "=== DEBUG: Checking build outputs ===" && \
     ls -la /app/dist/ && echo "" && \
     if [ -d /app/.output/public ]; then \
         echo "Using .output/public (Nitro SSR)" && \
-        ls -la /app/.output/public/ && \
         cp -r /app/.output/public/* /app/dist-output/; \
     elif [ -d /app/dist/client ]; then \
         echo "Using dist/client (TanStack/Vite SPA)" && \
-        ls -la /app/dist/client/ && \
-        if [ -f /app/dist/client/index.html ]; then \
-            cp -r /app/dist/client/* /app/dist-output/; \
-        else \
-            echo "No index.html in client, copying all dist contents" && \
-            cp -r /app/dist/* /app/dist-output/; \
-        fi; \
+        cp -r /app/dist/client/* /app/dist-output/; \
     elif [ -d /app/dist ]; then \
-        echo "Using dist (Vite SPA)" && \
-        ls -la /app/dist/ && \
+        echo "Using dist (Plain Vite SPA)" && \
         cp -r /app/dist/* /app/dist-output/; \
     else \
         echo "ERROR: No build output found" && \
-        ls -la /app/ && exit 1; \
+        exit 1; \
     fi && \
-    echo "=== Final output ===" && ls -la /app/dist-output/
+    echo "=== Final output ===" && find /app/dist-output -type f -name "*.html" 2>/dev/null && ls -la /app/dist-output/ | head -20
 
 # ── serve: minimal nginx serving normalized static files ──────────────────────────────
 FROM nginx:alpine AS serve
