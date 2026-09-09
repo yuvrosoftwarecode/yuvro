@@ -46,7 +46,9 @@ RUN mkdir -p /app/dist-output && \
         cp -r /app/.output/public/* /app/dist-output/; \
     elif [ -d /app/dist/client ]; then \
         echo "Using dist/client (TanStack/Vite SPA)" && \
-        cp -r /app/dist/client/* /app/dist-output/; \
+        echo "Files in dist/client:" && ls -la /app/dist/client/ && \
+        cp -r /app/dist/client/* /app/dist-output/ && \
+        echo "Files copied to dist-output:" && ls -la /app/dist-output/; \
     elif [ -d /app/dist ]; then \
         echo "Using dist (Plain Vite SPA)" && \
         cp -r /app/dist/* /app/dist-output/; \
