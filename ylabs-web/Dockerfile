@@ -49,16 +49,10 @@ RUN mkdir -p /app/dist-output && \
     else \
         echo "ERROR: No build output found in .output/public or dist" && \
         ls -la /app/ && exit 1; \
-    fi && \
-    # Also copy nginx.conf if it exists
-    if [ -f /app/nginx.conf ]; then \
-        cp /app/nginx.conf /app/dist-output-nginx.conf; \
     fi
 
 # ── serve: minimal nginx serving normalized static files ──────────────────────────────
 FROM nginx:alpine AS serve
 COPY --from=build /app/dist-output /usr/share/nginx/html
-# Copy nginx.conf if available, otherwise use default
-COPY --from=build /app/dist-output-nginx.conf /etc/nginx/nginx.conf 2>/dev/null || true
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
