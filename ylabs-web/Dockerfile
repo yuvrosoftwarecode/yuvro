@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 CMD ["bunx", "vite", "dev", "--host", "0.0.0.0", "--port", "3000"]
 
-# ── build: compile static bundle ─────────────────────────────────────────────
+# ── build: compile static bundle with Nitro SSR ─────────────────────────────
 FROM base AS build
 ARG VITE_BACKEND_API_BASE_URL
 ARG VITE_YHUB_BACKEND_API_BASE_URL
@@ -39,9 +39,9 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
 COPY . .
 RUN bun run build
 
-# ── serve: minimal nginx serving pre-built static files ──────────────────────
+# ── serve: minimal nginx serving Nitro's pre-built static files ──────────────
 FROM nginx:alpine AS serve
-COPY --from=build /app/dist/client /usr/share/nginx/html
+COPY --from=build /app/.output/public /usr/share/nginx/html
 COPY --from=build /app/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
