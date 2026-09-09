@@ -17,6 +17,7 @@ export default defineConfig({
       alias: {
         'react-native': './src/lib/emptyStub.ts',
         'react-native-fs': './src/lib/emptyStub.ts',
+        'react-native-fetch-blob': './src/lib/emptyStub.ts',
       },
     },
     optimizeDeps: {
@@ -49,6 +50,7 @@ export default defineConfig({
         external: [
           'react-native-fs',
           'react-native',
+          'react-native-fetch-blob',
         ],
         output: {},
       },
