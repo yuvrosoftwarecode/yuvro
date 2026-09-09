@@ -57,19 +57,16 @@ services:
     build:
       context: ./ylabs-web
       dockerfile: Dockerfile
-      target: development
+      target: serve
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - path: ./ylabs-web/.env.local
         required: false
       - path: ./ylabs-web/.env.local-secrets
         required: false
-    volumes:
-      - ./ylabs-web:/app
-      - /app/node_modules
     ports:
       - "3002:3000"
-    stdin_open: true
-    tty: true
     depends_on:
       ylabs-backend:
         condition: service_started
