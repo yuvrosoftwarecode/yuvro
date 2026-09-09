@@ -38,21 +38,26 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
-# Normalize output: copy .output/public or dist to /app/dist-output
+# Normalize output: copy .output/public or dist/client to /app/dist-output
 RUN mkdir -p /app/dist-output && \
     if [ -d /app/.output/public ]; then \
         echo "Using .output/public (Nitro SSR)" && \
         cp -r /app/.output/public/* /app/dist-output/; \
+    elif [ -d /app/dist/client ]; then \
+        echo "Using dist/client (TanStack/Vite SPA)" && \
+        cp -r /app/dist/client/* /app/dist-output/; \
     elif [ -d /app/dist ]; then \
         echo "Using dist (Vite SPA)" && \
         cp -r /app/dist/* /app/dist-output/; \
     else \
-        echo "ERROR: No build output found in .output/public or dist" && \
+        echo "ERROR: No build output found in .output/public, dist/client, or dist" && \
         ls -la /app/ && exit 1; \
     fi
 
 # ── serve: minimal nginx serving normalized static files ──────────────────────────────
 FROM nginx:alpine AS serve
+# Remove default nginx files first
+RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/dist-output /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
