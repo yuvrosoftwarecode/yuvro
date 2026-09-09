@@ -38,14 +38,10 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
-RUN ls -la /app/ | grep -E "(dist|output)"
 
-# ── serve: Nitro server for SSR ──────────────────────────────────────────────
-FROM oven/bun:1-alpine AS serve
-WORKDIR /app
-COPY --from=build /app/.output /app/.output
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/package.json /app/package.json
-COPY --from=build /app/bun.lock /app/bun.lock
+# ── serve: minimal nginx serving pre-built static files ──────────────────────
+FROM nginx:alpine AS serve
+COPY --from=build /app/dist/client /usr/share/nginx/html
+COPY --from=build /app/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
-CMD ["bun", ".output/server/index.mjs", "--port", "80"]
+CMD ["nginx", "-g", "daemon off;"]

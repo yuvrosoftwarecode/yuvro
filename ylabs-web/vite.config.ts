@@ -6,8 +6,8 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Enable SSR for TanStack Start
-// The app uses Nitro for server-side rendering, served via Bun runtime.
+// Use plain Vite SPA build (dist/client/) served by nginx
+// This is a stable configuration matching ycode-web/ycampus-web
 export default defineConfig({
   vite: {
     resolve: {
