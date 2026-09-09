@@ -11,19 +11,16 @@ import {
   type LabType,
   type LabDifficulty,
 } from "@/lib/adminLabs";
-import { loadSprintsWithSeed, saveSprints, type LabSprint } from "@/lib/labSprints";
-import { SprintBuilder } from "@/components/admin/SprintBuilder";
 import { LabIcon } from "@/components/LabIcon";
 
 export const Route = createFileRoute("/admin/labs/$id/edit")({ component: EditLab });
 
-const STEPS = ["Basic info", "Sprints"];
+const STEPS = ["Basic info"];
 
 function EditLab() {
   const { id } = Route.useParams();
   const nav = useNavigate();
   const [lab, setLab] = useState<AdminLab | null>(null);
-  const [sprints, setSprints] = useState<LabSprint[]>([]);
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -46,12 +43,6 @@ function EditLab() {
           : (found.prerequisites ?? []).join(", "),
       );
       setSkillsText((found.skills ?? []).join(", "));
-
-      const loadedSprints = await loadSprintsWithSeed(
-        found.id,
-        (found as any).slug || found.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      );
-      if (active) setSprints(loadedSprints);
     };
     fetchLab();
     return () => {
@@ -109,7 +100,6 @@ function EditLab() {
             : parseFloat(String(lab.payment_amount ?? 0)) || 0,
       });
 
-      await saveSprints(lab.id, sprints);
       setTimeout(() => nav({ to: "/admin/labs" }), 500);
     } catch (e: any) {
       setError(e.message || "Failed to save lab");
@@ -140,11 +130,10 @@ function EditLab() {
               className={`flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs ${i === step ? "border-primary bg-primary/10 text-primary" : i < step ? "border-success/40 text-success" : "border-border text-muted-foreground"}`}
             >
               <span className="grid h-5 w-5 place-items-center rounded-full border text-[10px]">
-                {i < step ? <Check className="h-3 w-3" /> : i + 1}
+                {i + 1}
               </span>
               {s}
             </button>
-            {i < STEPS.length - 1 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
           </div>
         ))}
       </div>
@@ -272,43 +261,21 @@ function EditLab() {
               </div>
             </Panel>
           )}
-          {step === 1 && (
-            <Panel title="Sprints & tasks">
-              <SprintBuilder
-                sprints={sprints}
-                setSprints={setSprints}
-                labName={lab.title}
-                labSlug={lab.slug}
-                labTier={lab.payment_tier}
-              />
-            </Panel>
-          )}
 
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <button
-              disabled={step === 0}
-              onClick={() => setStep((s) => s - 1)}
-              className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent disabled:opacity-40"
+          <div className="flex items-center justify-end gap-2 flex-wrap">
+            <Link
+              to="/admin/labs"
+              className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent"
             >
               ← Back
+            </Link>
+            <button
+              onClick={save}
+              disabled={saved}
+              className="text-xs px-4 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-60"
+            >
+              {saved ? "Saved — redirecting…" : "Save changes"}
             </button>
-            <div className="flex items-center gap-2">
-              {step < STEPS.length - 1 && (
-                <button
-                  onClick={() => setStep((s) => s + 1)}
-                  className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent"
-                >
-                  Next →
-                </button>
-              )}
-              <button
-                onClick={save}
-                disabled={saved}
-                className="text-xs px-4 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-60"
-              >
-                {saved ? "Saved — redirecting…" : "Save changes"}
-              </button>
-            </div>
           </div>
         </div>
       </div>

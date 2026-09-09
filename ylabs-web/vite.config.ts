@@ -55,6 +55,14 @@ export default defineConfig({
         output: {},
       },
       chunkSizeWarningLimit: 1000,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+        },
+      },
+      reportCompressedSize: false,
+      sourcemap: false,
     },
     server: {
       port: 3000,
