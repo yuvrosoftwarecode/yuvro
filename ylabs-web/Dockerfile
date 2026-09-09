@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Static SPA build for YLabs React frontend - plain Vite (no SSR)
+# TanStack Start SSR build for YLabs React frontend
 # BuildKit is required: DOCKER_BUILDKIT=1
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 CMD ["bunx", "vite", "dev", "--host", "0.0.0.0", "--port", "3000"]
 
-# ── build: compile static SPA bundle ──────────────────────────────────────────
+# ── build: compile TanStack Start SSR bundle ──────────────────────────────────
 FROM base AS build
 ARG VITE_BACKEND_API_BASE_URL
 ARG VITE_YHUB_BACKEND_API_BASE_URL
@@ -38,51 +38,29 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
-# Verify build output exists
-RUN if [ ! -f /app/dist/index.html ]; then \
-      echo "ERROR: Build failed - index.html not found" && \
+# Verify build output
+RUN if [ ! -d /app/dist/server ] || [ ! -f /app/dist/server/server.js ]; then \
+      echo "ERROR: Build failed - no dist/server/server.js" && \
       ls -la /app/dist/ && exit 1; \
     fi && \
-    echo "✓ SPA build successful" && \
-    find /app/dist -maxdepth 1 -type f | head -10
+    if [ ! -d /app/dist/client ]; then \
+      echo "ERROR: Build failed - no dist/client" && \
+      exit 1; \
+    fi && \
+    echo "✓ SSR build successful"
 
-# ── serve: nginx serving SPA static files ──────────────────────────────────────
-FROM nginx:alpine AS serve
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
+# ── serve: Node.js server with TanStack Start ──────────────────────────────────
+FROM node:20-alpine AS serve
+WORKDIR /app
+ENV NODE_ENV=production
 
-# Copy SPA dist to nginx webroot
-COPY --from=build /app/dist /usr/share/nginx/html
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
-# Configure nginx for SPA: all non-file requests → index.html for client-side routing
-RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
-server {
-  listen 80;
-  server_name _;
-  client_max_body_size 50M;
+# Copy built application
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/dist /app/dist
 
-  # Disable gzip for better control over caching
-  gzip off;
-
-  # Cache busting: assets with hash in filename = long cache
-  location ~* /assets/.*\.[a-f0-9]{8,}\.(js|css|woff2|png|jpg|svg)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-  }
-
-  # Static files = moderate cache
-  location ~* \.(png|jpg|jpeg|gif|ico|svg)$ {
-    expires 7d;
-    add_header Cache-Control "public";
-  }
-
-  # SPA routing: send all requests to index.html for client-side routing
-  location / {
-    try_files $uri /index.html;
-    add_header Cache-Control "no-cache, no-store, must-revalidate";
-  }
-}
-EOF
-
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server/server.js"]
