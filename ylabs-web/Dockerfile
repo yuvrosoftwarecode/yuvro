@@ -38,6 +38,7 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
+RUN ls -la /app/ | grep -E "(dist|output)"
 
 # ── serve: Nitro server for SSR ──────────────────────────────────────────────
 FROM oven/bun:1-alpine AS serve
