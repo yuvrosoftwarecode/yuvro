@@ -91,7 +91,7 @@ services:
       - path: ./ylabs-web/.env.local-secrets
         required: false
     ports:
-      - "3004:3000"
+      - "3004:80"
     volumes:
       - ./ylabs-web:/app
       - /app/node_modules

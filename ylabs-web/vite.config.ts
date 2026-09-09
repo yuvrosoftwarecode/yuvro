@@ -6,11 +6,9 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Force client-only build — disable Nitro/SSR completely.
-// This makes it a plain Vite SPA build (like ycode-web/ycampus-web),
-// served by nginx from the dist/client folder.
+// Enable SSR for TanStack Start
+// The app uses Nitro for server-side rendering, served via Bun runtime.
 export default defineConfig({
-  // Enable SSR for TanStack Start
   vite: {
     resolve: {
       alias: {
