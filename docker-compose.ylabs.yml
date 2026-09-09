@@ -32,9 +32,9 @@ services:
       - "8002:8000"  # Django API (host: 8002)
       - "9003:9001"  # Prometheus metrics
     env_file:
-      - path: ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.dev
         required: false
-      - path: ./ylabs-backend-api/.env.local-secrets
+      - path: ./ylabs-backend-api/.env.dev-secrets
         required: false
     volumes:
       - ./ylabs-backend-api:/app
@@ -61,9 +61,9 @@ services:
       args:
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - path: ./ylabs-web/.env.local
+      - path: ./ylabs-web/.env.dev
         required: false
-      - path: ./ylabs-web/.env.local-secrets
+      - path: ./ylabs-web/.env.dev-secrets
         required: false
     ports:
       - "3002:3000"
