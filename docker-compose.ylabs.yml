@@ -1,24 +1,26 @@
 services:
-  ylabs-db:
-    image: postgres:15
-    env_file:
-      - path: ./ylabs-backend-api/.env.local
-        required: false
-      - path: ./ylabs-backend-api/.env.local-secrets
-        required: false
-    volumes:
-      - ylabs_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"  # YLabs PostgreSQL
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    restart: on-failure
-    networks:
-      - ylabs
+  # ylabs-db: Disabled - using RDS for database
+  # Uncomment below if using local PostgreSQL instead of RDS
+  # ylabs-db:
+  #   image: postgres:15
+  #   env_file:
+  #     - path: ./ylabs-backend-api/.env.dev
+  #       required: false
+  #     - path: ./ylabs-backend-api/.env.dev-secrets
+  #       required: false
+  #   volumes:
+  #     - ylabs_postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5434:5432"  # YLabs PostgreSQL
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 20s
+  #   restart: on-failure
+  #   networks:
+  #     - ylabs
 
   ylabs-backend:
     build:
@@ -30,16 +32,16 @@ services:
       - "8002:8000"  # Django API (host: 8002)
       - "9003:9001"  # Prometheus metrics
     env_file:
-      - path: ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.dev
         required: false
-      - path: ./ylabs-backend-api/.env.local-secrets
+      - path: ./ylabs-backend-api/.env.dev-secrets
         required: false
     volumes:
       - ./ylabs-backend-api:/app
       - ./workspaces:/workspaces
     command: >
       sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
       interval: 10s
@@ -55,19 +57,16 @@ services:
     build:
       context: ./ylabs-web
       dockerfile: Dockerfile
-      target: development
+      target: serve
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - path: ./ylabs-web/.env.local
+      - path: ./ylabs-web/.env.dev
         required: false
-      - path: ./ylabs-web/.env.local-secrets
+      - path: ./ylabs-web/.env.dev-secrets
         required: false
-    volumes:
-      - ./ylabs-web:/app
-      - /app/node_modules
     ports:
       - "3002:3000"
-    stdin_open: true
-    tty: true
     depends_on:
       ylabs-backend:
         condition: service_started
@@ -81,8 +80,8 @@ services:
     networks:
       - ylabs
 
-volumes:
-  ylabs_postgres_data:
+volumes: {}
+  # ylabs_postgres_data: (removed - using RDS)
 
 networks:
   ylabs:
