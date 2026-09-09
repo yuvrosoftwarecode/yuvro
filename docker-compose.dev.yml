@@ -130,7 +130,7 @@ services:
       - path: ./ylabs-web/.env.dev-secrets
         required: false
     ports:
-      - "3004:80"
+      - "3004:3000"
     stdin_open: false
     tty: false
     healthcheck:
