@@ -6,19 +6,17 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-// @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
+// Force client-only build — disable Nitro/SSR completely.
+// This makes it a plain Vite SPA build (like ycode-web/ycampus-web),
+// served by nginx from the dist/client folder.
 export default defineConfig({
-  tanstackStart: {},
-  // Disable Nitro/SSR — app is pure client-side React, no server functions.
-  // This makes it a plain Vite SPA build (like ycode-web/ycampus-web),
-  // served by nginx from the dist/ folder. Eliminates the heavy Nitro bundle step.
-  nitro: false,
+  // Enable SSR for TanStack Start
   vite: {
     resolve: {
       alias: {
         'react-native': './src/lib/emptyStub.ts',
         'react-native-fs': './src/lib/emptyStub.ts',
+        'react-native-fetch-blob': './src/lib/emptyStub.ts',
       },
     },
     optimizeDeps: {
@@ -40,9 +38,6 @@ export default defineConfig({
         '@codemirror/language',
       ],
     },
-    ssr: {
-      noExternal: [],
-    },
     build: {
       modulePreload: {
         polyfill: false,
@@ -51,6 +46,7 @@ export default defineConfig({
         external: [
           'react-native-fs',
           'react-native',
+          'react-native-fetch-blob',
         ],
         output: {},
       },

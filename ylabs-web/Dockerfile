@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build for YLabs React frontend (TanStack Router SPA + Vite)
-# No SSR/Nitro — pure client-side app served by nginx, same as ycode-web/ycampus-web.
+# Multi-stage build for YLabs React frontend with SSR (TanStack Start + Nitro)
 # BuildKit is required: DOCKER_BUILDKIT=1
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
@@ -40,9 +39,12 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
 COPY . .
 RUN bun run build
 
-# ── serve: minimal nginx serving pre-built static files ──────────────────────
-FROM nginx:alpine AS serve
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# ── serve: Nitro server for SSR ──────────────────────────────────────────────
+FROM oven/bun:1-alpine AS serve
+WORKDIR /app
+COPY --from=build /app/.output /app/.output
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/bun.lock /app/bun.lock
+EXPOSE 3000
+CMD ["bun", ".output/server/index.mjs"]
