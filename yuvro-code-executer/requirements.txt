@@ -39,6 +39,7 @@ pytest-django
 django-cors-headers
 drf-spectacular
 djangorestframework-simplejwt
+requests
 
 # Database Evaluator Drivers
 psycopg2-binary

@@ -1,0 +1,64 @@
+{
+  "lab_questions": [
+    {
+      "title": "Django Bulk Operations and 3rd-Party Mocking",
+      "type": "BACKEND",
+      "description": "Optimize Django database insertion performance using bulk operations and implement proper test isolation for external 3rd-party API calls using mocking/monkeypatching.\n\nTo authorize:\nusername = admin\npassword = adminpassword123",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 100,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "SD/-Bulk-upload",
+      "startup_command": "python manage.py migrate && python manage.py setup_superuser && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Optimize Bulk Insertion to a Single Query (bulk_create)",
+          "description": "The application provides an endpoint/management command to insert multiple books at once. Currently, the implementation loops through each item and performs individual row-by-row `Book.objects.create()` inserts, resulting in N database queries.\n\nUnder database efficiency standards, batch insertions must be performed in a single database transaction query using Django's `bulk_create`.\n\n**Goal:** Refactor the insertion logic in `library/views.py` (and `library/management/commands/bulk_insert_books.py`) to use `Book.objects.bulk_create()` so that all records are inserted in at most **1 database query**.",
+          "difficulty": "MEDIUM",
+          "marks": 50,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 50,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Mock External 3rd-Party API Calls in Unit Tests",
+          "description": "The application integrates with an external 3rd-party Book Catalog API to fetch book details by ISBN (`library/services.py`). In unit tests, making live HTTP requests to external endpoints is brittle, slow, and fails due to network isolation or dummy URLs.\n\nCurrently, running `python manage.py test` fails with connection errors because `library/tests.py` makes real unmocked requests.\n\n**Goal:** Fix `library/tests.py` by using `unittest.mock.patch` (or monkey patching) to mock the external HTTP call and return the expected static mock payload without making live network requests.",
+          "difficulty": "MEDIUM",
+          "marks": 50,
+          "duration_minutes": 30,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 50,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
