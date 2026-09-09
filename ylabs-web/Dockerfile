@@ -41,7 +41,7 @@ RUN bun run build
 # Normalize output: copy .output/public or dist/client to /app/dist-output
 RUN mkdir -p /app/dist-output && \
     echo "=== DEBUG: Checking build outputs ===" && \
-    ls -la /app/ && echo "" && \
+    ls -la /app/dist/ && echo "" && \
     if [ -d /app/.output/public ]; then \
         echo "Using .output/public (Nitro SSR)" && \
         ls -la /app/.output/public/ && \
@@ -49,13 +49,18 @@ RUN mkdir -p /app/dist-output && \
     elif [ -d /app/dist/client ]; then \
         echo "Using dist/client (TanStack/Vite SPA)" && \
         ls -la /app/dist/client/ && \
-        cp -r /app/dist/client/* /app/dist-output/; \
+        if [ -f /app/dist/client/index.html ]; then \
+            cp -r /app/dist/client/* /app/dist-output/; \
+        else \
+            echo "No index.html in client, copying all dist contents" && \
+            cp -r /app/dist/* /app/dist-output/; \
+        fi; \
     elif [ -d /app/dist ]; then \
         echo "Using dist (Vite SPA)" && \
         ls -la /app/dist/ && \
         cp -r /app/dist/* /app/dist-output/; \
     else \
-        echo "ERROR: No build output found in .output/public, dist/client, or dist" && \
+        echo "ERROR: No build output found" && \
         ls -la /app/ && exit 1; \
     fi && \
     echo "=== Final output ===" && ls -la /app/dist-output/
