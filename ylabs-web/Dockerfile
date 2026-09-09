@@ -38,6 +38,7 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
+RUN ls -la /app/ 2>&1 | grep -E "(dist|output)"
 
 # ── serve: minimal nginx serving Nitro's pre-built static files ──────────────
 FROM nginx:alpine AS serve
