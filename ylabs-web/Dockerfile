@@ -33,7 +33,7 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_BRANCH=$VITE_DEPLOY_BRANCH \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 # Only copy source files needed for build
-COPY tsconfig.json vite.config.ts wrangler.jsonc bunfig.toml ./
+COPY tsconfig.json vite.config.ts bunfig.toml ./
 COPY src ./src
 COPY public ./public
 # Build with optimizations: parallel build, skip typechecking (done in CI)
