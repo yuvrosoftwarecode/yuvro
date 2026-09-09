@@ -41,8 +41,6 @@ RUN bun run build
 # Normalize output: copy .output/public or dist/client to /app/dist-output
 # For TanStack builds, we need the dist/client folder which has the SPA assets
 RUN mkdir -p /app/dist-output && \
-    echo "=== DEBUG: Checking build outputs ===" && \
-    ls -la /app/dist/ && echo "" && \
     if [ -d /app/.output/public ]; then \
         echo "Using .output/public (Nitro SSR)" && \
         cp -r /app/.output/public/* /app/dist-output/; \
@@ -55,8 +53,7 @@ RUN mkdir -p /app/dist-output && \
     else \
         echo "ERROR: No build output found" && \
         exit 1; \
-    fi && \
-    echo "=== Final output ===" && find /app/dist-output -type f -name "*.html" 2>/dev/null && ls -la /app/dist-output/ | head -20
+    fi
 
 # ── serve: minimal nginx serving normalized static files ──────────────────────────────
 FROM nginx:alpine AS serve
