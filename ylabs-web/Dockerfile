@@ -57,9 +57,10 @@ ENV NODE_ENV=production
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Copy built application
+# Copy built application and dependencies
 COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/dist /app/dist
+COPY --from=build /app/node_modules /app/node_modules
 
 EXPOSE 3000
 ENTRYPOINT ["dumb-init", "--"]
