@@ -11,7 +11,7 @@ COPY bunfig.toml package.json bun.lock* ./
 # Bun cache mount: avoids re-downloading packages on every build
 # Use persistent cache across builds for faster installation
 RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
-    bun install --production
+    bun install --frozen-lockfile --production
 
 # ── build ─────────────────────────────────────────────────────────────────────
 FROM base AS build
