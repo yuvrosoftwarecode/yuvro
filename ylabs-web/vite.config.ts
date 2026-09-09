@@ -70,4 +70,9 @@ export default defineConfig({
       allowedHosts: ["dev.yuvrolabs.com", "localhost"],
     },
   },
+  nitro: {
+    output: {
+      dir: '.output',
+    },
+  },
 });
