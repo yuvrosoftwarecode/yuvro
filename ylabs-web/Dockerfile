@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build for YLabs React frontend with SSR (TanStack Start + Nitro)
+# Static SPA build for YLabs React frontend - plain Vite (no SSR)
 # BuildKit is required: DOCKER_BUILDKIT=1
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 CMD ["bunx", "vite", "dev", "--host", "0.0.0.0", "--port", "3000"]
 
-# ── build: compile static bundle with Nitro SSR ─────────────────────────────
+# ── build: compile static SPA bundle ──────────────────────────────────────────
 FROM base AS build
 ARG VITE_BACKEND_API_BASE_URL
 ARG VITE_YHUB_BACKEND_API_BASE_URL
@@ -38,29 +38,51 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
 RUN bun run build
-# Normalize output: copy .output/public or dist/client to /app/dist-output
-# For TanStack builds, we need the dist/client folder which has the SPA assets
-RUN mkdir -p /app/dist-output && \
-    if [ -d /app/.output/public ]; then \
-        echo "Using .output/public (Nitro SSR)" && \
-        cp -r /app/.output/public/* /app/dist-output/; \
-    elif [ -d /app/dist/client ]; then \
-        echo "Using dist/client (TanStack/Vite SPA)" && \
-        echo "Files in dist/client:" && ls -la /app/dist/client/ && \
-        cp -r /app/dist/client/* /app/dist-output/ && \
-        echo "Files copied to dist-output:" && ls -la /app/dist-output/; \
-    elif [ -d /app/dist ]; then \
-        echo "Using dist (Plain Vite SPA)" && \
-        cp -r /app/dist/* /app/dist-output/; \
-    else \
-        echo "ERROR: No build output found" && \
-        exit 1; \
-    fi
+# Verify build output exists
+RUN if [ ! -f /app/dist/index.html ]; then \
+      echo "ERROR: Build failed - index.html not found" && \
+      ls -la /app/dist/ && exit 1; \
+    fi && \
+    echo "✓ SPA build successful" && \
+    find /app/dist -maxdepth 1 -type f | head -10
 
-# ── serve: minimal nginx serving normalized static files ──────────────────────────────
+# ── serve: nginx serving SPA static files ──────────────────────────────────────
 FROM nginx:alpine AS serve
-# Remove default nginx files first
+# Remove default nginx content
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=build /app/dist-output /usr/share/nginx/html
+
+# Copy SPA dist to nginx webroot
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Configure nginx for SPA: all non-file requests → index.html for client-side routing
+RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
+server {
+  listen 80;
+  server_name _;
+  client_max_body_size 50M;
+
+  # Disable gzip for better control over caching
+  gzip off;
+
+  # Cache busting: assets with hash in filename = long cache
+  location ~* /assets/.*\.[a-f0-9]{8,}\.(js|css|woff2|png|jpg|svg)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+  }
+
+  # Static files = moderate cache
+  location ~* \.(png|jpg|jpeg|gif|ico|svg)$ {
+    expires 7d;
+    add_header Cache-Control "public";
+  }
+
+  # SPA routing: send all requests to index.html for client-side routing
+  location / {
+    try_files $uri /index.html;
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+  }
+}
+EOF
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
