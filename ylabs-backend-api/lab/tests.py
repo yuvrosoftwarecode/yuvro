@@ -95,35 +95,46 @@ class LabModelsTest(TestCase):
             created_by=self.admin_user,
         )
         
-        # Exact match (normalized)
-        submission1 = UserLabSprintTicketSubmission.objects.create(
-            user=self.student_user,
-            lab_sprint_ticket=ticket,
-            solution="select * from users;  ",
-            solution_output="id,name\n1,Alice"
-        )
-        evaluate_and_score_submission(submission1)
-        self.assertEqual(submission1.yuvro_points, 50)
-        self.assertEqual(submission1.ticket_status, "done")
-        
-        # Only query matches
-        submission2 = UserLabSprintTicketSubmission.objects.create(
-            user=self.student_user,
-            lab_sprint_ticket=ticket,
-            solution="select * from users;",
-            solution_output="error"
-        )
-        evaluate_and_score_submission(submission2)
-        self.assertEqual(submission2.yuvro_points, 25)
-        self.assertEqual(submission2.ticket_status, "in_review")
-        
-        # Completely wrong
-        submission3 = UserLabSprintTicketSubmission.objects.create(
-            user=self.student_user,
-            lab_sprint_ticket=ticket,
-            solution="SELECT 1;",
-            solution_output="error"
-        )
-        evaluate_and_score_submission(submission3)
-        self.assertEqual(submission3.yuvro_points, 0)
-        # Status remains what it was (or backlog if not changed by score)
+        from unittest.mock import patch
+
+        def mock_post(url, json=None, timeout=None):
+            class MockResponse:
+                status_code = 200
+                def json(self):
+                    uq = json.get("user_query", "").strip().lower()
+                    uo = json.get("user_output", "").strip()
+                    if uq == "select * from users;" and "id,name" in uo:
+                        return {"final_score_pct": 1.0}
+                    elif uq == "select * from users;":
+                        return {"final_score_pct": 0.5}
+                    return {"final_score_pct": 0.0}
+            return MockResponse()
+
+        with patch("requests.post", side_effect=mock_post):
+            # Exact match (normalized)
+            submission1 = UserLabSprintTicketSubmission.objects.create(
+                user=self.student_user,
+                lab_sprint_ticket=ticket,
+                solution="select * from users;  ",
+                solution_output="id,name\n1,Alice"
+            )
+            evaluate_and_score_submission(submission1)
+            self.assertEqual(submission1.yuvro_points, 50)
+            self.assertEqual(submission1.ticket_status, "done")
+            
+            # Only query matches
+            submission1.solution = "select * from users;"
+            submission1.solution_output = "error"
+            submission1.save()
+            evaluate_and_score_submission(submission1)
+            self.assertEqual(submission1.yuvro_points, 25)
+            self.assertEqual(submission1.ticket_status, "in_review")
+            
+            # Completely wrong
+            submission1.solution = "SELECT 1;"
+            submission1.solution_output = "error"
+            submission1.save()
+            evaluate_and_score_submission(submission1)
+            self.assertEqual(submission1.yuvro_points, 0)
+            # Status remains what it was (or backlog if not changed by score)
+

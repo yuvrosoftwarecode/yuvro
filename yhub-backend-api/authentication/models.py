@@ -2,6 +2,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from datetime import timedelta
 
 YCODE_ROLE_CHOICES = [
     ("student", "Student"),
@@ -26,6 +28,7 @@ class User(AbstractUser):
     
     profile_image = models.URLField(blank=True, null=True)
     cover_image = models.URLField(blank=True, null=True)
+    resume_file = models.URLField(blank=True, null=True)
     
     roles = models.JSONField(default=dict, blank=True)
 
@@ -82,3 +85,25 @@ class GithubConnection(models.Model):
 
     def __str__(self):
         return f"{self.user.email} -> {self.github_username}"
+
+class RegistrationOTP(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField()
+    resource_id = models.CharField(max_length=255)
+    resource_type = models.CharField(max_length=100, default='contest')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['email', 'resource_id', 'resource_type']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=5)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return timezone.now() <= self.expires_at

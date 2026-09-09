@@ -2,14 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Plus,
-  MoreHorizontal,
   Eye,
   Copy,
   Pencil,
-  Archive,
   Trash2,
   Clock,
   Users,
+  Link2,
 } from "lucide-react";
 import {
   listEvaluations,
@@ -30,37 +29,35 @@ export const Route = createFileRoute("/recruiter/evaluations/")({
 
 function EvaluationsList() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
-  const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const nav = useNavigate();
   const refresh = () => listEvaluations().then(setEvals);
   useEffect(() => {
     refresh();
   }, []);
 
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   const onCreate = async () => {
     const e = await createEvaluation();
-    nav({ to: "/recruiter/evaluations/$id", params: { id: e.id } });
+    nav({ to: "/recruiter/evaluations/$id", params: { id: e.id }, search: { view: "edit" } });
   };
   const onDuplicate = async (id: string) => {
-    await duplicateEvaluation(id);
+    const newEval = await duplicateEvaluation(id);
+    if (newEval) {
+      setEvals((prev) => [newEval, ...prev]);
+    }
     refresh();
-    setMenuFor(null);
   };
   const onDelete = async (id: string) => {
     if (confirm("Delete this evaluation?")) {
       await deleteEvaluation(id);
       refresh();
     }
-    setMenuFor(null);
-  };
-  const onArchive = async (id: string) => {
-    const evals = await listEvaluations();
-    const e = evals.find((x) => x.id === id);
-    if (!e) return;
-    e.status = "draft";
-    await saveEvaluation(e);
-    refresh();
-    setMenuFor(null);
   };
 
   return (
@@ -108,7 +105,7 @@ function EvaluationsList() {
                 <Link
                   to="/recruiter/evaluations/$id/workspace"
                   params={{ id: e.id }}
-                  search={{ tab: "overview" }}
+                  search={{ tab: "overview", view: "edit" } as any}
                   className="block p-5"
                 >
                   <div className="flex items-start justify-between">
@@ -145,22 +142,27 @@ function EvaluationsList() {
                 <div className="flex items-center justify-between border-t border-white/5 bg-black/20 px-3 py-2">
                   <div className="flex items-center gap-1">
                     <IconBtn
-                      title="Open workspace"
-                      onClick={() =>
-                        nav({
-                          to: "/recruiter/evaluations/$id/workspace",
-                          params: { id: e.id },
-                          search: { tab: "overview" },
-                        })
-                      }
+                      title="Preview"
+                      onClick={() => {
+                        window.open(`/evaluation/workspace?e=${e.id}&preview=true`, '_blank');
+                      }}
                     >
                       <Eye className="h-3.5 w-3.5" />
+                    </IconBtn>
+                    <IconBtn
+                      title="Copy Public Link"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${e.id}`);
+                        setToast("Public link copied to clipboard!");
+                      }}
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
                     </IconBtn>
                     <IconBtn title="Duplicate" onClick={() => onDuplicate(e.id)}>
                       <Copy className="h-3.5 w-3.5" />
                     </IconBtn>
                     <IconBtn
-                      title="Edit builder"
+                      title="Edit"
                       onClick={() =>
                         nav({
                           to: "/recruiter/evaluations/$id",
@@ -172,34 +174,21 @@ function EvaluationsList() {
                       <Pencil className="h-3.5 w-3.5" />
                     </IconBtn>
                   </div>
-                  <div className="relative">
-                    <IconBtn
-                      title="More"
-                      onClick={() => setMenuFor(menuFor === e.id ? null : e.id)}
-                    >
-                      <MoreHorizontal className="h-3.5 w-3.5" />
+                  <div className="flex items-center">
+                    <IconBtn title="Delete" onClick={() => onDelete(e.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
                     </IconBtn>
-                    {menuFor === e.id && (
-                      <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-xl">
-                        <button
-                          onClick={() => onArchive(e.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-neutral-300 hover:bg-white/5"
-                        >
-                          <Archive className="h-3.5 w-3.5" /> Archive
-                        </button>
-                        <button
-                          onClick={() => onDelete(e.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-red-400 hover:bg-red-500/10"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
+          {toast}
         </div>
       )}
     </div>

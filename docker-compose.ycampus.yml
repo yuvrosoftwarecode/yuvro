@@ -23,6 +23,9 @@ services:
     build:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
+      target: development
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8001:8000"  # Django API (host: 8001)
       - "9001:9001"  # Prometheus metrics
@@ -30,9 +33,6 @@ services:
       - ./ycampus-backend-api/.env.local
       - path: ./ycampus-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ycampus-db:
-        condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"

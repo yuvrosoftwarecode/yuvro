@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import RecruiterActivityLog
 from .models import LabQuestionBankTask
+from django.contrib.auth import get_user_model
 from core.storage import build_public_url
 from .models import (
     Evaluation,
@@ -43,18 +44,29 @@ def provision_evaluation_labs(evaluation):
                 try:
                     lab = LabQuestionBank.objects.get(id=q_id)
                     if lab.git_repo_starter_url:
-                        provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url)
+                        provision_evaluation_lab_starter_repo(
+                            evaluation.id, 
+                            lab.id, 
+                            lab.git_repo_starter_url, 
+                            branch=lab.git_repo_starter_branch
+                        )
                 except LabQuestionBank.DoesNotExist:
                     logger.warning(f"LabQuestionBank with id {q_id} not found.")
                 except Exception as e:
                     logger.error(f"Error provisioning lab for evaluation {evaluation.id}: {e}")
 
 
-class SubmissionUserSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    email = serializers.EmailField()
-    first_name = serializers.CharField(max_length=150)
-    last_name = serializers.CharField(max_length=150)
+class SubmissionUserSerializer(serializers.ModelSerializer):
+    resume_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url']
+
+    def get_resume_url(self, obj):
+        if hasattr(obj, 'profile') and obj.profile.resume_file:
+            return obj.profile.resume_file
+        return None
 
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
     user = SubmissionUserSerializer(read_only=True)
@@ -113,7 +125,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
             'maximum_attempts', 'expiry_datetime', 'is_published', 
-            'sections', 'created_at', 'updated_at'
+            'settings', 'sections', 'created_at', 'updated_at'
         ]
 
     def create(self, validated_data):

@@ -173,6 +173,7 @@ export interface Evaluation {
     attempts: "1" | "2" | "unlimited";
     link?: string;
   };
+  settings?: Record<string, any>;
 }
 
 // Ensure unique ID generation
@@ -180,7 +181,9 @@ export function newUid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const API_BASE = "http://localhost:8002/api/skill_evaluation";
+const API_BASE = (
+  import.meta.env.VITE_BACKEND_API_BASE_URL || "http://localhost:8002/api"
+).replace(/\/$/, "") + "/skill_evaluation";
 
 function mapBackendToFrontend(be: any): Evaluation {
   return {
@@ -191,6 +194,7 @@ function mapBackendToFrontend(be: any): Evaluation {
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
+    settings: be.settings || {},
     invite: be.candidate_invited_emails?.length
       ? {
           type: "email",
@@ -205,7 +209,7 @@ function mapBackendToFrontend(be: any): Evaluation {
       if (s.type === "LAB") {
         return { id: s.id || newUid(), kind: "labs", title: s.title, labs: s.questions || [], proctoring };
       } else if (s.type === "VITARKA_AI_INTERVIEW") {
-        let meta: any = { duration: 15, mode: "Custom" };
+        let meta: any = { duration: 15, mode: "Automatic" };
         try {
           meta = JSON.parse(s.description || "{}");
         } catch {}
@@ -214,7 +218,7 @@ function mapBackendToFrontend(be: any): Evaluation {
           kind: "discussion",
           title: s.title,
           duration: meta.duration || 15,
-          mode: "Custom",
+          mode: meta.mode || "Automatic",
           questions: s.questions || [],
           mockInterviewId: meta.mockInterviewId,
           proctoring
@@ -237,6 +241,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
     title: fe.title,
     domain: fe.domain || "OTHER",
     is_published: fe.status === "published",
+    settings: fe.settings || {},
     candidate_invited_emails:
       fe.invite?.type === "email" && fe.invite?.emails ? fe.invite.emails : [],
     sections: fe.sections.map((s: any, idx: number) => {
@@ -254,7 +259,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
         qs = s.questions || [];
         desc = JSON.stringify({
           duration: s.duration,
-          mode: "Custom",
+          mode: s.mode || "Automatic",
           mockInterviewId: s.mockInterviewId,
         });
       }
@@ -308,6 +313,7 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
         publish_status: "active",
         max_duration: section.duration,
         predefined_tree: section.questions,
+        interview_mode: section.mode ? section.mode.toLowerCase() : "automatic",
       };
       try {
         if (section.mockInterviewId) {
@@ -395,6 +401,7 @@ export async function createEvaluation(): Promise<Evaluation> {
 }
 
 export function saveDraftLocally(e: Evaluation) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(`draft_eval_${e.id}`, JSON.stringify(e));
   } catch (err) {
@@ -403,6 +410,7 @@ export function saveDraftLocally(e: Evaluation) {
 }
 
 export function getDraftLocally(id: string): Evaluation | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(`draft_eval_${id}`);
     if (raw) return JSON.parse(raw) as Evaluation;
@@ -410,9 +418,8 @@ export function getDraftLocally(id: string): Evaluation | null {
   return null;
 }
 
-
-
 export function clearDraftLocally(id: string) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(`draft_eval_${id}`);
   } catch {}
@@ -519,6 +526,19 @@ export async function fetchQuestions(
   }
 }
 
+export async function checkDuplicateQuestion(content: string, courseId: string) {
+  try {
+    const res = await ycodeApiAuthUtil.post<any>("/course/questions/check_duplicate/", {
+      content,
+      course: courseId,
+    });
+    return res;
+  } catch (err) {
+    console.error("Duplicate check error:", err);
+    return { is_duplicate: false };
+  }
+}
+
 export async function fetchQuestionDetails(id: string): Promise<QuestionItem | null> {
   try {
     const q = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);
@@ -608,6 +628,65 @@ export async function saveFollowUps(evaluationId: string, data: any): Promise<an
     return await res.json();
   } catch (err) {
     console.error("saveFollowUps error:", err);
+    return null;
+  }
+}
+
+export async function inviteCandidates(evaluationId: string, emails: string[], subject: string = "", body: string = ""): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/invite/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emails, subject, body })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("inviteCandidates error:", errText);
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.error("inviteCandidates error:", err);
+    return null;
+  }
+}
+
+
+export async function generateSharedReportLink(evaluationId: string, candidateEmail: string): Promise<{ token: string, expires_at: string } | null> {
+  try {
+    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/generate_share_link/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidate_email: candidateEmail })
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function getSharedReportByToken(token: string): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/shared-report/${token}/`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      evaluation: mapBackendToFrontend(data.evaluation),
+      submission: data.submission,
+      timelineEvents: (data.timeline_events || []).map((r: any) => {
+        let tone = "neutral";
+        if (r.status === "SUCCESS") tone = "success";
+        else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
+        return {
+          id: r.id || String(Math.random()),
+          label: r.title || "Event",
+          time: new Date(r.occurred_at).toLocaleString(),
+          tone,
+        };
+      })
+    };
+  } catch {
     return null;
   }
 }

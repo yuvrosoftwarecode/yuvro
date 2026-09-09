@@ -24,6 +24,8 @@ services:
     build:
       context: ./ylabs-backend-api
       dockerfile: Dockerfile
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8002:8000"  # Django API (host: 8002)
       - "9003:9001"  # Prometheus metrics
@@ -32,9 +34,6 @@ services:
         required: false
       - path: ./ylabs-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ylabs-db:
-        condition: service_healthy
     volumes:
       - ./ylabs-backend-api:/app
       - ./workspaces:/workspaces

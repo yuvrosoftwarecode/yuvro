@@ -36,3 +36,12 @@ django
 djangorestframework
 drf-yasg
 pytest-django
+django-cors-headers
+drf-spectacular
+djangorestframework-simplejwt
+
+# Database Evaluator Drivers
+psycopg2-binary
+pymysql
+pymongo
+dnspython

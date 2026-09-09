@@ -22,6 +22,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { me } from "@/lib/dummy";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
+import { DeployInfo } from "@/components/common/DeployInfo";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Individual Hub", icon: LayoutDashboard },
@@ -284,6 +285,9 @@ function ProfileMenu({
           >
             <LogOut className="h-3.5 w-3.5" /> Logout
           </button>
+          <div className="border-t border-border/40 mt-1 pt-0.5">
+            <DeployInfo />
+          </div>
         </div>
       )}
     </div>

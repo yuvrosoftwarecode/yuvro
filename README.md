@@ -610,6 +610,14 @@ For issues and questions:
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Docker Documentation](https://docs.docker.com/)
 
+# via Make
+DEPLOY_BRANCH=ylabs_deploy make deploy-ylabs
+DEPLOY_BRANCH=main make deploy-yhub
+DEPLOY_BRANCH=main make deploy-all
+
+# direct
+bash infra/scripts/deploy-ylabs.sh ylabs_deploy
+bash infra/scripts/deploy-all.sh main
 
 
 ---

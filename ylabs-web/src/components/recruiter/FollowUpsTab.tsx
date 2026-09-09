@@ -30,6 +30,7 @@ interface BulkSetup {
   aiTiming: string;
   language: Lang;
   voice: Voice;
+  emailTemplate: string;
 }
 
 interface IndividualSetup {
@@ -39,6 +40,7 @@ interface IndividualSetup {
   reminder2: string; reminder2CustomDate?: string;
   aiCall: boolean; aiTiming: string;
   language: Lang; voice: Voice;
+  emailTemplate: string;
 }
 
 interface Persisted { bulk: BulkSetup; individual: IndividualSetup; }
@@ -59,6 +61,7 @@ const BULK_DEFAULT: BulkSetup = {
   aiCall: false,
   aiTiming: "4 Hours Before Deadline",
   language: "English", voice: "Aria (Female)",
+  emailTemplate: "Hi {{name}},\n\nJust a quick reminder that you have been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nPlease complete it as soon as possible so we can move forward with your application.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team",
 };
 
 const IND_DEFAULT: IndividualSetup = {
@@ -69,6 +72,7 @@ const IND_DEFAULT: IndividualSetup = {
   aiCall: false,
   aiTiming: "4 Hours Before Deadline",
   language: "English", voice: "Aria (Female)",
+  emailTemplate: "Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team",
 };
 
 const DEFAULTS: Persisted = { bulk: BULK_DEFAULT, individual: IND_DEFAULT };
@@ -143,25 +147,29 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
   // Load initial state from localStorage (instant, survives refresh)
   const [data, setData] = useState<Persisted>(() => {
-    try {
-      const saved = localStorage.getItem(KEY(ev.id));
-      if (saved) {
-        const parsed = JSON.parse(saved) as Persisted;
-        // Restore but always clear candidates (those live in Records)
-        return {
-          bulk: { ...BULK_DEFAULT, ...parsed.bulk, candidates: [] },
-          individual: { ...IND_DEFAULT, ...parsed.individual },
-        };
-      }
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(KEY(ev.id));
+        if (saved) {
+          const parsed = JSON.parse(saved) as Persisted;
+          // Restore but always clear candidates (those live in Records)
+          return {
+            bulk: { ...BULK_DEFAULT, ...parsed.bulk, emailTemplate: parsed.bulk.emailTemplate || BULK_DEFAULT.emailTemplate, candidates: [] },
+            individual: { ...IND_DEFAULT, ...parsed.individual, emailTemplate: parsed.individual.emailTemplate || IND_DEFAULT.emailTemplate },
+          };
+        }
+      } catch {}
+    }
     return DEFAULTS;
   });
 
   // Save to localStorage whenever data changes
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY(ev.id), JSON.stringify(data));
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(KEY(ev.id), JSON.stringify(data));
+      } catch {}
+    }
   }, [data, ev.id]);
 
   // Fetch records from backend API. Only override form data if localStorage is empty.
@@ -191,7 +199,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
           setRecords(recs);
 
           // Only seed form data from backend if we don't have local drafts
-          const hasLocal = !!localStorage.getItem(KEY(ev.id));
+          const hasLocal = typeof window !== "undefined" && !!localStorage.getItem(KEY(ev.id));
           if (config && !hasLocal) {
             const bulk: BulkSetup = {
               ...BULK_DEFAULT,
@@ -207,6 +215,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
               aiTiming: config.ai_timing || "4 Hours Before Deadline",
               language: config.language || "English",
               voice: config.voice || "Aria (Female)",
+              emailTemplate: config.email_template || BULK_DEFAULT.emailTemplate,
               candidates: []
             };
             
@@ -220,6 +229,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
                 reminder1CustomDate: config.reminder1_custom_time || undefined,
                 reminder2: config.reminder2 || "6 Hours Before Deadline",
                 reminder2CustomDate: config.reminder2_custom_time || undefined,
+                emailTemplate: config.email_template || IND_DEFAULT.emailTemplate,
               }
             });
           }
@@ -252,6 +262,26 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
   };
 
   const handleSaveBulk = async (b: BulkSetup) => {
+    if (!b.candidates.length) {
+      notify("Please add at least one candidate.");
+      return;
+    }
+    if (!b.deadline) {
+      notify("Evaluation deadline is required.");
+      return;
+    }
+    if (!b.emailTemplate.trim()) {
+      notify("Email template cannot be empty.");
+      return;
+    }
+    if (b.aiCall) {
+      const missingPhones = b.candidates.filter(c => !c.phone.trim());
+      if (missingPhones.length > 0) {
+        notify("Phone numbers are required for all candidates when AI calls are enabled.");
+        return;
+      }
+    }
+
     if (b.smart) {
       const err = validateCustomDates(b.startDate, b.deadline, b.reminder1, b.reminder1CustomDate, b.reminder2, b.reminder2CustomDate);
       if (err) { notify(err); return; }
@@ -272,7 +302,8 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
           aiCall: b.aiCall,
           aiTiming: b.aiTiming,
           language: b.language,
-          voice: b.voice
+          voice: b.voice,
+          emailTemplate: b.emailTemplate
         },
         candidates: b.candidates
       };
@@ -289,6 +320,23 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
   };
 
   const handleSaveIndividual = async (ind: IndividualSetup) => {
+    if (!ind.name.trim() || !ind.email.trim()) {
+      notify("Candidate Name and Email are required.");
+      return;
+    }
+    if (!ind.deadline) {
+      notify("Evaluation deadline is required.");
+      return;
+    }
+    if (!ind.emailTemplate.trim()) {
+      notify("Email template cannot be empty.");
+      return;
+    }
+    if (ind.aiCall && !ind.phone.trim()) {
+      notify("Phone number is required when AI call is enabled.");
+      return;
+    }
+
     const err = validateCustomDates(ind.startDate, ind.deadline, ind.reminder1, ind.reminder1CustomDate, ind.reminder2, ind.reminder2CustomDate);
     if (err) { notify(err); return; }
     
@@ -308,7 +356,8 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
           aiCall: ind.aiCall,
           aiTiming: ind.aiTiming,
           language: ind.language,
-          voice: ind.voice
+          voice: ind.voice,
+          emailTemplate: ind.emailTemplate
         },
         candidates: [{ name: ind.name, email: ind.email, phone: ind.phone }]
       };
@@ -340,22 +389,8 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
     });
   };
 
-  const handleIndChange = (ind: IndividualSetup) => {
-    setData((prev) => {
-      // Sync shared fields to bulk
-      const syncedBulk = { ...prev.bulk };
-      for (const k of SHARED_KEYS) {
-        if (k in ind && k in syncedBulk) {
-          (syncedBulk as any)[k] = (ind as any)[k];
-        }
-      }
-      return { bulk: syncedBulk, individual: ind };
-    });
-  };
-
-  const nav: { id: Page; label: string; icon: React.ReactNode; desc: string }[] = [
+  const nav = [
     { id: "bulk", label: "Bulk Setup", icon: <Users className="h-4 w-4" />, desc: "Multiple candidates" },
-    { id: "individual", label: "Individual Setup", icon: <User className="h-4 w-4" />, desc: "One candidate" },
     { id: "records", label: "Records", icon: <ListChecks className="h-4 w-4" />, desc: "Tracking & activity" },
   ];
 
@@ -389,7 +424,6 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
       <div>
         {page === "bulk" && <BulkPage bulk={data.bulk} onChange={handleBulkChange} onSave={handleSaveBulk} isSaving={isSaving} notify={notify} />}
-        {page === "individual" && <IndividualPage ind={data.individual} onChange={handleIndChange} onSave={handleSaveIndividual} isSaving={isSaving} notify={notify} />}
         {page === "records" && <RecordsPage records={records} setRecords={setRecords} notify={notify} />}
       </div>
     </div>
@@ -413,10 +447,39 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
 
   const onFile = async (f: File | null) => {
     if (!f) return;
-    const text = await f.text();
-    const rows = parseCsv(text);
-    set("candidates", [...bulk.candidates, ...rows]);
-    notify(`Imported ${rows.length} candidates`);
+    try {
+      let rows: Candidate[] = [];
+      if (f.name.endsWith(".xlsx") || f.name.endsWith(".xls")) {
+        const XLSX = await import("xlsx");
+        const buf = await f.arrayBuffer();
+        const wb = XLSX.read(buf, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json<any>(ws, { header: 1 });
+        
+        // Skip header row if it contains "email" or "name"
+        let startIdx = 0;
+        if (data.length > 0 && Array.isArray(data[0])) {
+           const headerStr = data[0].join(" ").toLowerCase();
+           if (headerStr.includes("email") || headerStr.includes("name")) {
+               startIdx = 1;
+           }
+        }
+        
+        rows = data.slice(startIdx).filter((row: any) => Array.isArray(row) && row.length > 0).map((row: any, i: number) => {
+          const name = String(row[0] || "").trim();
+          const email = String(row[1] || "").trim();
+          const phone = String(row[2] || "").trim();
+          return { id: `c-${Date.now()}-${i}`, name, email, phone };
+        }).filter((c) => c.email || c.name);
+      } else {
+        const text = await f.text();
+        rows = parseCsv(text);
+      }
+      set("candidates", [...bulk.candidates, ...rows]);
+      notify(`Imported ${rows.length} candidates`);
+    } catch (err) {
+      notify("Failed to parse file");
+    }
   };
 
   const paste = async () => {
@@ -440,9 +503,9 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
       />
 
       <Section title="Candidate Upload" description="Import candidates from a CSV, paste from Excel, or add them manually. Review the parsed rows before activating follow-ups.">
-        <input ref={fileRef} type="file" accept=".csv,.tsv,.txt" className="hidden" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
+        <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" className="hidden" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => fileRef.current?.click()} className={btnOutline}><Upload className="h-3.5 w-3.5" /> Upload CSV</button>
+          <button onClick={() => fileRef.current?.click()} className={btnOutline}><Upload className="h-3.5 w-3.5" /> Upload File</button>
           <button onClick={paste} className={btnOutline}><ClipboardPaste className="h-3.5 w-3.5" /> Paste from Excel</button>
           <button onClick={addRow} className={btnOutline}><Plus className="h-3.5 w-3.5" /> Add Row</button>
           <div className="ml-auto flex items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3 py-1.5 text-[12px] text-neutral-300">
@@ -464,9 +527,9 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
             <tbody>
               {bulk.candidates.map((c) => (
                 <tr key={c.id} className="border-t border-white/5">
-                  <td className="px-3 py-2"><input value={c.name} onChange={(e) => updRow(c.id, { name: e.target.value })} className={cellInp} placeholder="Jane Doe" /></td>
-                  <td className="px-3 py-2"><input value={c.email} onChange={(e) => updRow(c.id, { email: e.target.value })} className={cellInp} placeholder="jane@company.com" /></td>
-                  <td className="px-3 py-2"><input value={c.phone} onChange={(e) => updRow(c.id, { phone: e.target.value })} className={cellInp} placeholder="+91 90000 00000" /></td>
+                  <td className="px-3 py-2"><input value={c.name} onChange={(e) => updRow(c.id, { name: e.target.value })} className={cellInp} placeholder="Enter candidate name" /></td>
+                  <td className="px-3 py-2"><input value={c.email} onChange={(e) => updRow(c.id, { email: e.target.value })} className={cellInp} placeholder="Enter candidate email" /></td>
+                  <td className="px-3 py-2"><input value={c.phone} onChange={(e) => updRow(c.id, { phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} className={cellInp} placeholder="9000000000" maxLength={10} /></td>
                   <td className="px-3 py-2 text-right">
                     <button onClick={() => delRow(c.id)} className="rounded-md p-1.5 text-neutral-400 hover:bg-white/5 hover:text-red-300"><Trash2 className="h-3.5 w-3.5" /></button>
                   </td>
@@ -521,6 +584,45 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
         </div>
       </Section>
 
+      <Section title="Email Body Template" description="Customize the email template sent to candidates.">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col">
+            <textarea
+              rows={8}
+              value={bulk.emailTemplate}
+              onChange={(e) => set("emailTemplate", e.target.value)}
+              className="w-full flex-1 rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
+              placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
+            />
+            <div className="mt-2 text-[11px] text-neutral-500">
+              Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 flex flex-col">
+            <div className="mb-3 text-[11px] font-medium uppercase tracking-widest text-neutral-500">Live Preview</div>
+            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-300 overflow-y-auto">
+              {(() => {
+                const parsed = bulk.emailTemplate
+                  .replace(/{{name}}/g, "Candidate Name")
+                  .replace(/{{evaluation}}/g, "Software Engineer Evaluation")
+                  .replace(/{{company}}/g, "Yuvro")
+                  .replace(/{{days}}/g, "2");
+                return parsed.split(/({{link}})/).map((part, i) => {
+                  if (part === "{{link}}") {
+                    return (
+                      <div key={i} className="my-3">
+                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                      </div>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      </Section>
+
       <Section title="AI Phone Call" description="Reach out with an AI voice call to candidates who still haven't submitted.">
         <label className="flex items-start gap-3 rounded-lg border border-white/10 bg-black/20 p-4">
           <input type="checkbox" checked={bulk.aiCall} onChange={(e) => set("aiCall", e.target.checked)} className="mt-0.5 h-4 w-4 accent-amber-400" />
@@ -570,9 +672,9 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
 
       <Section title="Candidate Details" description="Contact information used for reminder emails and AI phone calls.">
         <div className="grid gap-4 md:grid-cols-3">
-          <Field label="Candidate Name"><input value={ind.name} onChange={(e) => set("name", e.target.value)} className={inp} placeholder="Jane Doe" /></Field>
-          <Field label="Email Address"><input value={ind.email} onChange={(e) => set("email", e.target.value)} className={inp} placeholder="jane@company.com" /></Field>
-          <Field label="Phone Number"><input value={ind.phone} onChange={(e) => set("phone", e.target.value)} className={inp} placeholder="+91 90000 00000" /></Field>
+          <Field label="Candidate Name"><input value={ind.name} onChange={(e) => set("name", e.target.value)} className={inp} placeholder="Enter candidate name" /></Field>
+          <Field label="Email Address"><input value={ind.email} onChange={(e) => set("email", e.target.value)} className={inp} placeholder="Enter candidate email" /></Field>
+          <Field label="Phone Number"><input value={ind.phone} onChange={(e) => set("phone", e.target.value.replace(/\D/g, '').slice(0, 10))} className={inp} placeholder="9000000000" maxLength={10} /></Field>
         </div>
       </Section>
 
@@ -601,6 +703,45 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
               <input type="datetime-local" value={ind.reminder2CustomDate || ""} onChange={(e) => set("reminder2CustomDate", e.target.value)} className={`${inp} mt-2`} />
             )}
           </Field>
+        </div>
+      </Section>
+
+      <Section title="Email Body Template" description="Customize the email template sent to candidates.">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col">
+            <textarea
+              rows={8}
+              value={ind.emailTemplate}
+              onChange={(e) => set("emailTemplate", e.target.value)}
+              className="w-full flex-1 rounded-lg border border-white/10 bg-black/20 p-3 font-mono text-[12px] text-white outline-none focus:border-white/25"
+              placeholder={`Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nStart here: {{link}}\n\nGood luck,\nThe hiring team`}
+            />
+            <div className="mt-2 text-[11px] text-neutral-500">
+              Placeholders: <code className="text-neutral-300">{`{{name}} {{evaluation}} {{company}} {{link}} {{days}}`}</code>
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 flex flex-col">
+            <div className="mb-3 text-[11px] font-medium uppercase tracking-widest text-neutral-500">Live Preview</div>
+            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-300 overflow-y-auto">
+              {(() => {
+                const parsed = ind.emailTemplate
+                  .replace(/{{name}}/g, ind.name || "Candidate Name")
+                  .replace(/{{evaluation}}/g, "Software Engineer Evaluation")
+                  .replace(/{{company}}/g, "Yuvro")
+                  .replace(/{{days}}/g, "2");
+                return parsed.split(/({{link}})/).map((part, i) => {
+                  if (part === "{{link}}") {
+                    return (
+                      <div key={i} className="my-3">
+                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                      </div>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                });
+              })()}
+            </div>
+          </div>
         </div>
       </Section>
 

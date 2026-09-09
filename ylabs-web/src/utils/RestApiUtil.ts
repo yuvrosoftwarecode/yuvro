@@ -47,11 +47,11 @@ class RestApiUtil {
     }
 
     const config: RequestInit = {
+      ...fetchOptions,
       headers: {
         ...defaultHeaders,
         ...fetchOptions.headers,
       },
-      ...fetchOptions,
     };
 
     try {

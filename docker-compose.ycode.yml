@@ -23,6 +23,9 @@ services:
     build:
       context: ./ycode-backend-api
       dockerfile: Dockerfile
+      target: development
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     ports:
       - "8000:8000"  # Django API (host: 8000)
       - "9000:9001"  # Prometheus metrics
@@ -30,9 +33,6 @@ services:
       - ./ycode-backend-api/.env.local
       - path: ./ycode-backend-api/.env.local-secrets
         required: false
-    depends_on:
-      ycode-db:
-        condition: service_healthy
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&

@@ -76,6 +76,52 @@ output "ycampus_db_username" {
   sensitive   = true
 }
 
+# RDS YHub Outputs
+output "yhub_db_endpoint" {
+  description = "YHub RDS database endpoint"
+  value       = module.rds_yhub.db_endpoint
+  sensitive   = true
+}
+
+output "yhub_db_port" {
+  description = "YHub RDS database port"
+  value       = module.rds_yhub.db_port
+}
+
+output "yhub_db_name" {
+  description = "YHub database name"
+  value       = module.rds_yhub.db_name
+}
+
+output "yhub_db_username" {
+  description = "YHub database master username"
+  value       = module.rds_yhub.db_username
+  sensitive   = true
+}
+
+# RDS YLabs Outputs
+output "ylabs_db_endpoint" {
+  description = "YLabs RDS database endpoint"
+  value       = module.rds_ylabs.db_endpoint
+  sensitive   = true
+}
+
+output "ylabs_db_port" {
+  description = "YLabs RDS database port"
+  value       = module.rds_ylabs.db_port
+}
+
+output "ylabs_db_name" {
+  description = "YLabs database name"
+  value       = module.rds_ylabs.db_name
+}
+
+output "ylabs_db_username" {
+  description = "YLabs database master username"
+  value       = module.rds_ylabs.db_username
+  sensitive   = true
+}
+
 # S3 Outputs
 output "app_data_bucket_name" {
   description = "S3 base bucket (per-env; app data lives under <env>/<app>-uploads/, logs under <env>/logs/)"

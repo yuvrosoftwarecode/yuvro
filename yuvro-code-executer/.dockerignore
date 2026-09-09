@@ -1,0 +1,46 @@
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Node (executor bundles node projects too)
+node_modules/
+npm-debug.log*
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Workspaces (bind-mounted at runtime)
+workspaces/
+
+# Source control
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+
+# UI diff outputs / test artefacts
+ui-diff/output/

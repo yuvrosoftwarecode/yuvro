@@ -9,6 +9,7 @@ export type VitarkaLabel = "Excellent" | "Good" | "Average" | "Poor";
 
 export interface Candidate {
   id: string;
+  realUserId?: string;
   name: string;
   email: string;
   phone: string;
@@ -28,6 +29,7 @@ export interface Candidate {
   submittedAt: number; // ms
   completionMinutes: number;
   avatarHue: number;
+  resumeUrl?: string;
   rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
@@ -345,6 +347,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
 
       out.push({
         id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
+        realUserId: user.id,
         name,
         email,
         phone: `+91 ${Math.floor(r() * 9000000000) + 1000000000}`,
@@ -374,6 +377,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
           events: timelineEvents,
           sections: sectionsMap,
         },
+        resumeUrl: user.resume_url,
         rawSubmission: sub
       });
   }

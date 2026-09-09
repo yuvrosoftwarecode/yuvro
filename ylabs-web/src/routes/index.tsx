@@ -201,6 +201,7 @@ function LandingNav() {
           <a href="#labs" className="hover:text-[#0A0A0A] transition">Labs</a>
           <a href="#process" className="hover:text-[#0A0A0A] transition">How it works</a>
           <a href="#report" className="hover:text-[#0A0A0A] transition">Report</a>
+          <Link to="/pricing" className="hover:text-[#0A0A0A] transition">Pricing</Link>
           <Link to="/recruiter-login" className="hover:text-[#0A0A0A] transition">Recruiter Login</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">

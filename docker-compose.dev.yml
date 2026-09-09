@@ -1,18 +1,11 @@
-# Dev environment override - uses RDS instead of local DB containers
-# Frontends and backends use the 'serve' build target (pre-built static assets, gunicorn)
-# so the dev environment behaves like production for performance.
-# Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
+services:
 
-services: 
-
-  # Use .env.dev files for all services
   yuvro-code-executor:
     env_file:
       - ./yuvro-code-executer/.env.dev
       - path: ./yuvro-code-executer/.env.dev-secrets
         required: false
 
-  # Backend: use production target (gunicorn, not runserver)
   ycode-backend:
     build:
       context: ./ycode-backend-api
@@ -28,7 +21,6 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use 'serve' target (pre-built static files served by nginx)
   ycode-frontend:
     build:
       context: ./ycode-web
@@ -46,7 +38,6 @@ services:
       - ./ycode-web/.env.dev
       - path: ./ycode-web/.env.dev-secrets
         required: false
-    # nginx serves on port 80 inside container; host port 3000 maps to it
     ports:
       - "3000:80"
     stdin_open: false
@@ -59,7 +50,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # Backend: use production target (gunicorn, not runserver)
   ycampus-backend:
     build:
       context: ./ycampus-backend-api
@@ -75,7 +65,6 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use 'serve' target (pre-built static files served by nginx)
   ycampus-frontend:
     build:
       context: ./ycampus-web
@@ -93,7 +82,6 @@ services:
       - ./ycampus-web/.env.dev
       - path: ./ycampus-web/.env.dev-secrets
         required: false
-    # nginx serves on port 80 inside container; host port 3001 maps to it
     ports:
       - "3001:80"
     stdin_open: false
@@ -106,7 +94,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # Backend: use production target (gunicorn)
   ylabs-backend:
     build:
       context: ./ylabs-backend-api
@@ -122,15 +109,20 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
 
-  # Frontend: dev server (TanStack Start — SSR, no static build)
   ylabs-frontend:
     build:
       context: ./ylabs-web
       dockerfile: Dockerfile
-      target: development
+      target: serve
       args:
-        - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-labs-dev.yuvro.ai/api}
+        - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-dev.yuvrolabs.com/api}
+        - VITE_YHUB_BACKEND_API_BASE_URL=${YLABS_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
+        - VITE_YCODE_BACKEND_API_BASE_URL=${YLABS_VITE_YCODE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
+        - VITE_CODE_EXECUTOR_BASE_URL=${YLABS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${YLABS_VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
+        - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
+        - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ylabs-web/.env.dev
@@ -138,8 +130,8 @@ services:
         required: false
     ports:
       - "3002:3000"
-    stdin_open: true
-    tty: true
+    stdin_open: false
+    tty: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 15s
@@ -147,12 +139,13 @@ services:
       retries: 5
       start_period: 60s
 
-  # Backend: use production target (gunicorn)
   yhub-backend:
     build:
       context: ./yhub-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./yhub-backend-api/.env.dev
       - path: ./yhub-backend-api/.env.dev-secrets
@@ -161,7 +154,6 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yhub-backend-api.wsgi:application"
 
-# Override executor network - create it locally (not external)
 networks:
   executor:
     driver: bridge

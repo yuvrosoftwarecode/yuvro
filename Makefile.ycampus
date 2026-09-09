@@ -108,13 +108,17 @@ db-createsuperuser:
 	docker compose $(COMPOSE_FILES) exec ycampus-backend python manage.py createsuperuser
 
 db-reset:
-	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.ycampus.yml rm -s -f -v ycampus-db
-	docker compose -f docker-compose.ycampus.yml up -d ycampus-db
+	@echo "🔄 Resetting YCampus database (removing container + volume)..."
+	docker compose $(COMPOSE_FILES) stop ycampus-backend ycampus-db 2>/dev/null || true
+	docker compose $(COMPOSE_FILES) rm -s -f ycampus-db 2>/dev/null || true
+	docker volume rm yuvro_ycampus_postgres_data 2>/dev/null || true
+	@echo "🚀 Starting fresh database..."
+	docker compose $(COMPOSE_FILES) up -d ycampus-db
 	@echo "⏳ Waiting for database to become healthy..."
-	@sleep 5
-	docker compose -f docker-compose.ycampus.yml restart ycampus-backend
-	@echo "✅ Database reset complete!"
+	@sleep 8
+	docker compose $(COMPOSE_FILES) start ycampus-backend 2>/dev/null || \
+		docker compose $(COMPOSE_FILES) up -d ycampus-backend
+	@echo "✅ YCampus database reset complete!"
 
 # ============================================================================
 # Backend

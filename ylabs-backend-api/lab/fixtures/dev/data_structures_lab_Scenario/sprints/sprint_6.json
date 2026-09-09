@@ -759,7 +759,7 @@
                     {
                         "title": "Recursive with HashMap - Python",
                         "language": "python",
-                        "code": "import sys, json\nfrom collections import deque\ninput_str = sys.stdin.read().strip()\nif not input_str: exit()\nlines = input_str.splitlines()\npreorder = json.loads(lines[0]); inorder = json.loads(lines[1])\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\nidx_map = {v: i for i, v in enumerate(inorder)}; pre_idx = 0\ndef build(lo, hi):\n    global pre_idx\n    if lo > hi or pre_idx >= len(preorder): return None\n    val = preorder[pre_idx]\n    mid = idx_map[val]\n    if mid < lo or mid > hi: return None\n    pre_idx += 1\n    node = TreeNode(val)\n    node.left = build(lo, mid-1); node.right = build(mid+1, hi)\n    return node\ndef serialize(root):\n    if not root: return []\n    result=[]; q=deque([root])\n    while q:\n        n=q.popleft()\n        if n: result.append(n.val); q.append(n.left); q.append(n.right)\n        else: result.append(None)\n    while result and result[-1] is None: result.pop()\n    return result\nroot = build(0, len(inorder)-1)\nprint(json.dumps(serialize(root)))",
+                        "code": "import sys\nimport json\nfrom collections import deque\n\nclass TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\ndef build_tree(preorder, inorder):\n    index_map = {value: i for i, value in enumerate(inorder)}\n    preorder_index = 0\n\n    def build(left, right):\n        nonlocal preorder_index\n        if left > right:\n            return None\n        root_value = preorder[preorder_index]\n        preorder_index += 1\n        root = TreeNode(root_value)\n        middle = index_map[root_value]\n        root.left = build(left, middle - 1)\n        root.right = build(middle + 1, right)\n        return root\n\n    return build(0, len(inorder) - 1)\n\ndef serialize(root):\n    if root is None:\n        return []\n    result = []\n    queue = deque([root])\n    while queue:\n        node = queue.popleft()\n        if node is None:\n            result.append(None)\n        else:\n            result.append(node.val)\n            queue.append(node.left)\n            queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\ndef main():\n    input_data = sys.stdin.read().strip()\n    if not input_data:\n        return\n\n    lines = input_data.splitlines()\n    if len(lines) >= 2:\n        preorder = json.loads(lines[0].strip())\n        inorder = json.loads(lines[1].strip())\n    else:\n        line = input_data.strip()\n        split = line.find(\"]\") + 1\n        preorder = json.loads(line[:split].strip())\n        inorder = json.loads(line[split:].strip())\n\n    root = build_tree(preorder, inorder)\n    print(json.dumps(serialize(root)))\n\nif __name__ == \"__main__\":\n    main()\n",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": true,
                         "approach": "optimal"
@@ -767,7 +767,23 @@
                     {
                         "title": "Recursive - Java",
                         "language": "java",
-                        "code": "import java.util.*;\npublic class Solution {\n    static int preIdx = 0;\n    static Map<Integer, Integer> map = new HashMap<>();\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        String preLine = sc.nextLine().trim();\n        if (!sc.hasNextLine()) return;\n        String inLine = sc.nextLine().trim();\n        int[] pre = parse(preLine), in = parse(inLine);\n        map.clear(); preIdx = 0;\n        for (int i=0; i<in.length; i++) map.put(in[i], i);\n        Node root = build(pre, 0, in.length-1);\n        System.out.println(serialize(root));\n    }\n    static int[] parse(String s) {\n        if (s.equals(\"[]\")) return new int[0];\n        String content = s.substring(1, s.length()-1).trim();\n        if (content.isEmpty()) return new int[0];\n        String[] p = content.split(\",\");\n        int[] res = new int[p.length];\n        for (int i=0; i<p.length; i++) res[i] = Integer.parseInt(p[i].trim());\n        return res;\n    }\n    static class Node { int val; Node left, right; Node(int v){val=v;} }\n    static Node build(int[] pre, int lo, int hi) {\n        if (lo > hi || preIdx >= pre.length) return null;\n        int val = pre[preIdx];\n        int mid = map.get(val);\n        if (mid < lo || mid > hi) return null;\n        preIdx++;\n        Node node = new Node(val);\n        node.left = build(pre, lo, mid-1); node.right = build(pre, mid+1, hi);\n        return node;\n    }\n    static String serialize(Node root) {\n        if (root == null) return \"[]\";\n        List<Integer> res = new ArrayList<>();\n        Queue<Node> q = new LinkedList<>(); q.offer(root);\n        while (!q.isEmpty()) {\n            Node n = q.poll();\n            if (n != null) { res.add(n.val); q.offer(n.left); q.offer(n.right); } else res.add(null);\n        }\n        while (!res.isEmpty() && res.get(res.size()-1) == null) res.remove(res.size()-1);\n        return res.toString().replace(\" \", \"\");\n    }\n}",
+                        "code": "import java.util.*;\n\nclass Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left;\n        TreeNode right;\n        TreeNode(int val) { this.val = val; }\n    }\n\n    static int preorderIndex;\n    static Map<Integer, Integer> inorderMap;\n\n    static TreeNode buildTree(int[] preorder, int left, int right) {\n        if (left > right) return null;\n        int value = preorder[preorderIndex++];\n        TreeNode root = new TreeNode(value);\n        int middle = inorderMap.get(value);\n        root.left = buildTree(preorder, left, middle - 1);\n        root.right = buildTree(preorder, middle + 1, right);\n        return root;\n    }\n\n    static int[] parseArray(String input) {\n        input = input.trim();\n        if (input.equals(\"[]\")) return new int[0];\n        String content = input.substring(1, input.length() - 1).trim();\n        if (content.isEmpty()) return new int[0];\n        String[] parts = content.split(\",\");\n        int[] result = new int[parts.length];\n        for (int i = 0; i < parts.length; i++)\n            result[i] = Integer.parseInt(parts[i].trim());\n        return result;\n    }\n\n    static String serialize(TreeNode root) {\n        if (root == null) return \"[]\";\n        List<String> result = new ArrayList<>();\n        Queue<TreeNode> queue = new LinkedList<>();\n        queue.offer(root);\n\n        while (!queue.isEmpty()) {\n            TreeNode node = queue.poll();\n            if (node == null) {\n                result.add(\"null\");\n            } else {\n                result.add(String.valueOf(node.val));\n                queue.offer(node.left);\n                queue.offer(node.right);\n            }\n        }\n\n        while (!result.isEmpty() && result.get(result.size() - 1).equals(\"null\"))\n            result.remove(result.size() - 1);\n\n        StringBuilder output = new StringBuilder(\"[\");\n        for (int i = 0; i < result.size(); i++) {\n            if (i > 0) output.append(\", \");\n            output.append(result.get(i));\n        }\n        output.append(\"]\");\n        return output.toString();\n    }\n\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        if (!scanner.hasNextLine()) return;\n\n        String first = scanner.nextLine().trim();\n        String second;\n\n        if (scanner.hasNextLine()) {\n            second = scanner.nextLine().trim();\n        } else {\n            int split = first.indexOf(\"]\") + 1;\n            second = first.substring(split).trim();\n            first = first.substring(0, split).trim();\n        }\n\n        int[] preorder = parseArray(first);\n        int[] inorder = parseArray(second);\n\n        inorderMap = new HashMap<>();\n        preorderIndex = 0;\n\n        for (int i = 0; i < inorder.length; i++)\n            inorderMap.put(inorder[i], i);\n\n        TreeNode root = buildTree(preorder, 0, inorder.length - 1);\n        System.out.println(serialize(root));\n    }\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive with Inorder Search - C",
+                        "language": "c",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode* left;\n    struct TreeNode* right;\n} TreeNode;\n\nint preorder[10000], inorder[10000];\nint preorderSize = 0, inorderSize = 0, preorderIndex = 0;\n\nTreeNode* createNode(int value) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = value;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nvoid parseArray(const char* input, int* array, int* size) {\n    *size = 0;\n    const char* p = input;\n    while (*p) {\n        if (*p == '-' || (*p >= '0' && *p <= '9')) {\n            char* end;\n            long value = strtol(p, &end, 10);\n            array[(*size)++] = (int)value;\n            p = end;\n        } else {\n            p++;\n        }\n    }\n}\n\nint findInorderIndex(int value, int left, int right) {\n    for (int i = left; i <= right; i++)\n        if (inorder[i] == value) return i;\n    return -1;\n}\n\nTreeNode* buildTree(int left, int right) {\n    if (left > right) return NULL;\n\n    int value = preorder[preorderIndex++];\n    int middle = findInorderIndex(value, left, right);\n\n    TreeNode* root = createNode(value);\n    root->left = buildTree(left, middle - 1);\n    root->right = buildTree(middle + 1, right);\n    return root;\n}\n\nvoid serialize(TreeNode* root) {\n    if (root == NULL) {\n        printf(\"[]\");\n        return;\n    }\n\n    TreeNode* queue[20000];\n    int front = 0, rear = 0;\n    char output[20000][32];\n    int isNull[20000], count = 0;\n\n    queue[rear++] = root;\n\n    while (front < rear) {\n        TreeNode* node = queue[front++];\n\n        if (node == NULL) {\n            isNull[count] = 1;\n            output[count][0] = '\\0';\n            count++;\n        } else {\n            isNull[count] = 0;\n            sprintf(output[count], \"%d\", node->val);\n            count++;\n            queue[rear++] = node->left;\n            queue[rear++] = node->right;\n        }\n    }\n\n    while (count > 0 && isNull[count - 1]) count--;\n\n    printf(\"[\");\n    for (int i = 0; i < count; i++) {\n        if (i > 0) printf(\", \");\n        if (isNull[i]) printf(\"null\");\n        else printf(\"%s\", output[i]);\n    }\n    printf(\"]\");\n}\n\nint main() {\n    char first[10000], second[10000];\n\n    if (fgets(first, sizeof(first), stdin) == NULL) return 0;\n\n    if (fgets(second, sizeof(second), stdin) == NULL) {\n        char* split = strchr(first, ']');\n        if (split == NULL) return 0;\n        *split = '\\0';\n        strcpy(second, split + 1);\n        strcat(first, \"]\");\n    }\n\n    parseArray(first, preorder, &preorderSize);\n    parseArray(second, inorder, &inorderSize);\n\n    preorderIndex = 0;\n    TreeNode* root = buildTree(0, inorderSize - 1);\n    serialize(root);\n    printf(\"\\n\");\n\n    return 0;\n}\n",
+                        "complexity_analysis": "Time: O(N^2). Space: O(N).",
+                        "is_primary": false,
+                        "approach": "standard"
+                    },
+                    {
+                        "title": "Recursive with HashMap - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <queue>\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode* left;\n    TreeNode* right;\n    TreeNode(int value) : val(value), left(nullptr), right(nullptr) {}\n};\n\nvector<int> parseArray(const string& input) {\n    vector<int> result;\n    for (size_t i = 0; i < input.size();) {\n        if (input[i] == '-' || (input[i] >= '0' && input[i] <= '9')) {\n            int sign = 1;\n            if (input[i] == '-') { sign = -1; i++; }\n            int value = 0;\n            while (i < input.size() && input[i] >= '0' && input[i] <= '9') {\n                value = value * 10 + (input[i] - '0');\n                i++;\n            }\n            result.push_back(sign * value);\n        } else {\n            i++;\n        }\n    }\n    return result;\n}\n\nclass Solution {\npublic:\n    unordered_map<int, int> inorderIndex;\n    int preorderIndex = 0;\n\n    TreeNode* buildTree(const vector<int>& preorder, int left, int right) {\n        if (left > right) return nullptr;\n\n        int value = preorder[preorderIndex++];\n        TreeNode* root = new TreeNode(value);\n        int middle = inorderIndex[value];\n\n        root->left = buildTree(preorder, left, middle - 1);\n        root->right = buildTree(preorder, middle + 1, right);\n        return root;\n    }\n\n    string serialize(TreeNode* root) {\n        if (root == nullptr) return \"[]\";\n\n        vector<string> result;\n        queue<TreeNode*> q;\n        q.push(root);\n\n        while (!q.empty()) {\n            TreeNode* node = q.front();\n            q.pop();\n\n            if (node == nullptr) {\n                result.push_back(\"null\");\n            } else {\n                result.push_back(to_string(node->val));\n                q.push(node->left);\n                q.push(node->right);\n            }\n        }\n\n        while (!result.empty() && result.back() == \"null\")\n            result.pop_back();\n\n        string output = \"[\";\n        for (size_t i = 0; i < result.size(); i++) {\n            if (i > 0) output += \", \";\n            output += result[i];\n        }\n        output += \"]\";\n        return output;\n    }\n\n    void solve(const vector<int>& preorder, const vector<int>& inorder) {\n        inorderIndex.clear();\n        preorderIndex = 0;\n\n        for (int i = 0; i < (int)inorder.size(); i++)\n            inorderIndex[inorder[i]] = i;\n\n        TreeNode* root = buildTree(\n            preorder, 0, (int)inorder.size() - 1\n        );\n\n        cout << serialize(root) << '\\n';\n    }\n};\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string first, second;\n    if (!getline(cin, first)) return 0;\n\n    if (!getline(cin, second)) {\n        size_t split = first.find(']') + 1;\n        second = first.substr(split);\n        first = first.substr(0, split);\n    }\n\n    vector<int> preorder = parseArray(first);\n    vector<int> inorder = parseArray(second);\n\n    Solution solution;\n    solution.solve(preorder, inorder);\n    return 0;\n}\n",
                         "complexity_analysis": "Time: O(N). Space: O(N).",
                         "is_primary": false,
                         "approach": "optimal"
@@ -1295,89 +1311,6 @@
             }
         },
         {
-            "title": "Ticket 16 — Plagiarism Detection",
-            "ticket_slug": "ticket-sprint6-generated-16",
-            "description": "An automated grader checks if one student's code dependency tree is entirely copied and pasted inside another student's project tree.\n\n### Problem Statement\nAn automated grader checks if one student's code dependency tree is entirely copied and pasted inside another student's project tree.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 16,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-16-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-16-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-16-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-16-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-16-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-16-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-16-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-16-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
             "title": "Ticket 17 — Aerospace Component Symmetry",
             "ticket_slug": "ticket-sprint6-generated-17",
             "description": "A drone modeling software must verify that the left and right aerodynamic wings are perfectly mirrored in structure.\n\n### Problem Statement\nA drone modeling software must verify that the left and right aerodynamic wings are perfectly mirrored in structure.\n\nImplement the solution based on standard tree operations.",
@@ -1391,8 +1324,8 @@
                     "task_slug": "task-sprint6-generated-17-1",
                     "description": "Validate your code against test case 1.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,2,3,4,4,3]",
+                    "expected_output": "true",
                     "order_index": 1
                 },
                 {
@@ -1400,8 +1333,8 @@
                     "task_slug": "task-sprint6-generated-17-2",
                     "description": "Validate your code against test case 2.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,2,null,3,null,3]",
+                    "expected_output": "false",
                     "order_index": 2
                 },
                 {
@@ -1409,8 +1342,8 @@
                     "task_slug": "task-sprint6-generated-17-3",
                     "description": "Validate your code against test case 3.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1]",
+                    "expected_output": "true",
                     "order_index": 3
                 },
                 {
@@ -1418,47 +1351,52 @@
                     "task_slug": "task-sprint6-generated-17-4",
                     "description": "Validate your code against test case 4.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[]",
+                    "expected_output": "true",
                     "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-17-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-17-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-17-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-17-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
                 }
-            ]
+            ],
+            "hints": [
+                "A binary tree is symmetric if its left and right subtrees are mirror images of each other.",
+                "Two trees are mirrors when their root values are equal, the left subtree of one matches the right subtree of the other, and vice versa.",
+                "Use recursion or a queue to compare nodes in mirrored positions."
+            ],
+            "solution": {
+                "solutions": [
+                    {
+                        "title": "Recursive Mirror Check - Python",
+                        "language": "python",
+                        "code": "import sys\nimport json\nfrom collections import deque\n\n\nclass TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\n\ndef build_tree(values):\n    if not values or values[0] is None:\n        return None\n\n    root = TreeNode(values[0])\n    queue = deque([root])\n    index = 1\n\n    while queue and index < len(values):\n        node = queue.popleft()\n\n        if index < len(values):\n            if values[index] is not None:\n                node.left = TreeNode(values[index])\n                queue.append(node.left)\n            index += 1\n\n        if index < len(values):\n            if values[index] is not None:\n                node.right = TreeNode(values[index])\n                queue.append(node.right)\n            index += 1\n\n    return root\n\n\ndef is_mirror(left, right):\n    if left is None and right is None:\n        return True\n\n    if left is None or right is None:\n        return False\n\n    if left.val != right.val:\n        return False\n\n    return (\n        is_mirror(left.left, right.right)\n        and is_mirror(left.right, right.left)\n    )\n\n\ndef is_symmetric(root):\n    if root is None:\n        return True\n\n    return is_mirror(root.left, root.right)\n\n\ndef main():\n    input_data = sys.stdin.read().strip()\n\n    if not input_data:\n        print(\"true\")\n        return\n\n    values = json.loads(input_data)\n    root = build_tree(values)\n\n    print(\"true\" if is_symmetric(root) else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": true,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Mirror Check - Java",
+                        "language": "java",
+                        "code": "import java.util.*;\n\nclass Solution {\n\n    static class TreeNode {\n        int val;\n        TreeNode left;\n        TreeNode right;\n\n        TreeNode(int val) {\n            this.val = val;\n        }\n    }\n\n    static TreeNode buildTree(Integer[] values) {\n        if (values.length == 0 || values[0] == null) {\n            return null;\n        }\n\n        TreeNode root = new TreeNode(values[0]);\n        Queue<TreeNode> queue = new LinkedList<>();\n        queue.offer(root);\n\n        int index = 1;\n\n        while (!queue.isEmpty() && index < values.length) {\n            TreeNode node = queue.poll();\n\n            if (index < values.length) {\n                if (values[index] != null) {\n                    node.left = new TreeNode(values[index]);\n                    queue.offer(node.left);\n                }\n                index++;\n            }\n\n            if (index < values.length) {\n                if (values[index] != null) {\n                    node.right = new TreeNode(values[index]);\n                    queue.offer(node.right);\n                }\n                index++;\n            }\n        }\n\n        return root;\n    }\n\n    static boolean isMirror(TreeNode left, TreeNode right) {\n        if (left == null && right == null) {\n            return true;\n        }\n\n        if (left == null || right == null) {\n            return false;\n        }\n\n        if (left.val != right.val) {\n            return false;\n        }\n\n        return isMirror(left.left, right.right)\n                && isMirror(left.right, right.left);\n    }\n\n    static boolean isSymmetric(TreeNode root) {\n        if (root == null) {\n            return true;\n        }\n\n        return isMirror(root.left, root.right);\n    }\n\n    static Integer[] parseArray(String input) {\n        input = input.trim();\n\n        if (input.equals(\"[]\")) {\n            return new Integer[0];\n        }\n\n        String content = input.substring(1, input.length() - 1).trim();\n\n        if (content.isEmpty()) {\n            return new Integer[0];\n        }\n\n        String[] parts = content.split(\",\");\n        Integer[] result = new Integer[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            String value = parts[i].trim();\n\n            if (value.equals(\"null\")) {\n                result[i] = null;\n            } else {\n                result[i] = Integer.parseInt(value);\n            }\n        }\n\n        return result;\n    }\n\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n\n        if (!scanner.hasNextLine()) {\n            return;\n        }\n\n        String input = scanner.nextLine().trim();\n\n        Integer[] values = parseArray(input);\n        TreeNode root = buildTree(values);\n\n        System.out.println(isSymmetric(root) ? \"true\" : \"false\");\n    }\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Mirror Check - C",
+                        "language": "c",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode* left;\n    struct TreeNode* right;\n} TreeNode;\n\n\nTreeNode* createNode(int value) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n\n    node->val = value;\n    node->left = NULL;\n    node->right = NULL;\n\n    return node;\n}\n\n\nvoid parseArray(\n        const char* input,\n        int values[],\n        int* isNull,\n        int* size) {\n\n    *size = 0;\n\n    const char* p = input;\n\n    while (*p) {\n        if (*p == '-' ||\n            (*p >= '0' && *p <= '9')) {\n\n            char* end;\n            long value = strtol(p, &end, 10);\n\n            values[*size] = (int)value;\n            isNull[*size] = 0;\n            (*size)++;\n\n            p = end;\n        } else if (*p == 'n') {\n            isNull[*size] = 1;\n            values[*size] = 0;\n            (*size)++;\n\n            while (*p && *p != ',') {\n                p++;\n            }\n        } else {\n            p++;\n        }\n    }\n}\n\n\nTreeNode* buildTree(\n        int values[],\n        int isNull[],\n        int size) {\n\n    if (size == 0 || isNull[0]) {\n        return NULL;\n    }\n\n    TreeNode* root = createNode(values[0]);\n\n    TreeNode* queue[10000];\n    int front = 0;\n    int rear = 0;\n    int index = 1;\n\n    queue[rear++] = root;\n\n    while (front < rear && index < size) {\n        TreeNode* node = queue[front++];\n\n        if (index < size && !isNull[index]) {\n            node->left = createNode(values[index]);\n            queue[rear++] = node->left;\n        }\n        index++;\n\n        if (index < size && !isNull[index]) {\n            node->right = createNode(values[index]);\n            queue[rear++] = node->right;\n        }\n        index++;\n    }\n\n    return root;\n}\n\n\nint isMirror(\n        TreeNode* left,\n        TreeNode* right) {\n\n    if (left == NULL && right == NULL) {\n        return 1;\n    }\n\n    if (left == NULL || right == NULL) {\n        return 0;\n    }\n\n    if (left->val != right->val) {\n        return 0;\n    }\n\n    return isMirror(left->left, right->right)\n        && isMirror(left->right, right->left);\n}\n\n\nint isSymmetric(TreeNode* root) {\n    if (root == NULL) {\n        return 1;\n    }\n\n    return isMirror(root->left, root->right);\n}\n\n\nint main() {\n    char input[10000];\n\n    if (fgets(input, sizeof(input), stdin) == NULL) {\n        return 0;\n    }\n\n    int values[10000];\n    int isNull[10000];\n    int size = 0;\n\n    parseArray(\n        input,\n        values,\n        isNull,\n        &size\n    );\n\n    TreeNode* root =\n        buildTree(\n            values,\n            isNull,\n            size\n        );\n\n    printf(\n        isSymmetric(root)\n            ? \"true\\n\"\n            : \"false\\n\"\n    );\n\n    return 0;\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Mirror Check - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <queue>\n\nusing namespace std;\n\n\nstruct TreeNode {\n    int val;\n    TreeNode* left;\n    TreeNode* right;\n\n    TreeNode(int value)\n        : val(value),\n          left(nullptr),\n          right(nullptr) {}\n};\n\n\nvector<string> parseArray(const string& input) {\n    vector<string> result;\n\n    string current;\n\n    for (char c : input) {\n        if (c == ',' || c == '[' || c == ']') {\n            if (!current.empty()) {\n                result.push_back(current);\n                current.clear();\n            }\n        } else if (c != ' ') {\n            current += c;\n        }\n    }\n\n    if (!current.empty()) {\n        result.push_back(current);\n    }\n\n    return result;\n}\n\n\nTreeNode* buildTree(\n        const vector<string>& values) {\n\n    if (values.empty() ||\n        values[0] == \"null\") {\n        return nullptr;\n    }\n\n    TreeNode* root =\n        new TreeNode(stoi(values[0]));\n\n    queue<TreeNode*> q;\n    q.push(root);\n\n    int index = 1;\n\n    while (!q.empty() &&\n           index < (int)values.size()) {\n\n        TreeNode* node = q.front();\n        q.pop();\n\n        if (index < (int)values.size()) {\n            if (values[index] != \"null\") {\n                node->left =\n                    new TreeNode(\n                        stoi(values[index])\n                    );\n\n                q.push(node->left);\n            }\n            index++;\n        }\n\n        if (index < (int)values.size()) {\n            if (values[index] != \"null\") {\n                node->right =\n                    new TreeNode(\n                        stoi(values[index])\n                    );\n\n                q.push(node->right);\n            }\n            index++;\n        }\n    }\n\n    return root;\n}\n\n\nclass Solution {\n\npublic:\n\n    bool isMirror(\n            TreeNode* left,\n            TreeNode* right) {\n\n        if (left == nullptr &&\n            right == nullptr) {\n            return true;\n        }\n\n        if (left == nullptr ||\n            right == nullptr) {\n            return false;\n        }\n\n        if (left->val != right->val) {\n            return false;\n        }\n\n        return isMirror(\n                   left->left,\n                   right->right\n               )\n               &&\n               isMirror(\n                   left->right,\n                   right->left\n               );\n    }\n\n\n    bool isSymmetric(TreeNode* root) {\n        if (root == nullptr) {\n            return true;\n        }\n\n        return isMirror(\n            root->left,\n            root->right\n        );\n    }\n\n\n    bool solve(\n            const vector<string>& values) {\n\n        TreeNode* root =\n            buildTree(values);\n\n        return isSymmetric(root);\n    }\n};\n\n\nint main() {\n\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string input;\n\n    if (!getline(cin, input)) {\n        return 0;\n    }\n\n    vector<string> values =\n        parseArray(input);\n\n    Solution solution;\n\n    cout <<\n        (solution.solve(values)\n            ? \"true\"\n            : \"false\")\n        << '\\n';\n\n    return 0;\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    }
+                ]
+            }
         },
         {
             "title": "Ticket 18 — Budget Allocation Paths",
@@ -1474,8 +1412,8 @@
                     "task_slug": "task-sprint6-generated-18-1",
                     "description": "Validate your code against test case 1.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[5,4,8,11,null,13,4,7,2,null,null,null,1]\n22",
+                    "expected_output": "true",
                     "order_index": 1
                 },
                 {
@@ -1483,8 +1421,8 @@
                     "task_slug": "task-sprint6-generated-18-2",
                     "description": "Validate your code against test case 2.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,3]\n5",
+                    "expected_output": "false",
                     "order_index": 2
                 },
                 {
@@ -1492,8 +1430,8 @@
                     "task_slug": "task-sprint6-generated-18-3",
                     "description": "Validate your code against test case 3.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2]\n1",
+                    "expected_output": "false",
                     "order_index": 3
                 },
                 {
@@ -1501,8 +1439,8 @@
                     "task_slug": "task-sprint6-generated-18-4",
                     "description": "Validate your code against test case 4.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2]\n3",
+                    "expected_output": "true",
                     "order_index": 4
                 },
                 {
@@ -1510,8 +1448,8 @@
                     "task_slug": "task-sprint6-generated-18-5",
                     "description": "Validate your code against test case 5.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,-2,-3,1,3,-2,null,-1]\n-1",
+                    "expected_output": "true",
                     "order_index": 5
                 },
                 {
@@ -1519,8 +1457,8 @@
                     "task_slug": "task-sprint6-generated-18-6",
                     "description": "Validate your code against test case 6.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1]\n1",
+                    "expected_output": "true",
                     "order_index": 6
                 },
                 {
@@ -1528,8 +1466,8 @@
                     "task_slug": "task-sprint6-generated-18-7",
                     "description": "Validate your code against test case 7.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1]\n2",
+                    "expected_output": "false",
                     "order_index": 7
                 },
                 {
@@ -1537,11 +1475,52 @@
                     "task_slug": "task-sprint6-generated-18-8",
                     "description": "Validate your code against test case 8.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[]\n0",
+                    "expected_output": "false",
                     "order_index": 8
                 }
-            ]
+            ],
+            "hints": [
+                "A valid path must start at the root and end at a leaf node.",
+                "Subtract each node's value from the target while traversing down the tree.",
+                "At a leaf, the path matches when the remaining target equals the leaf's value."
+            ],
+            "solution": {
+                "solutions": [
+                    {
+                        "title": "Recursive Path Sum - Python",
+                        "language": "python",
+                        "code": "import sys\nimport json\nfrom collections import deque\n\n\nclass TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\n\ndef build_tree(values):\n    if not values or values[0] is None:\n        return None\n\n    root = TreeNode(values[0])\n    queue = deque([root])\n    index = 1\n\n    while queue and index < len(values):\n        node = queue.popleft()\n\n        if index < len(values):\n            if values[index] is not None:\n                node.left = TreeNode(values[index])\n                queue.append(node.left)\n            index += 1\n\n        if index < len(values):\n            if values[index] is not None:\n                node.right = TreeNode(values[index])\n                queue.append(node.right)\n            index += 1\n\n    return root\n\n\ndef has_path_sum(root, target):\n    if root is None:\n        return False\n\n    if root.left is None and root.right is None:\n        return root.val == target\n\n    remaining = target - root.val\n\n    return (\n        has_path_sum(root.left, remaining)\n        or has_path_sum(root.right, remaining)\n    )\n\n\ndef main():\n    input_data = sys.stdin.read().strip()\n\n    if not input_data:\n        return\n\n    lines = input_data.splitlines()\n\n    values = json.loads(lines[0].strip())\n    target = int(lines[1].strip())\n\n    root = build_tree(values)\n\n    print(\"true\" if has_path_sum(root, target) else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": true,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Path Sum - Java",
+                        "language": "java",
+                        "code": "import java.util.*;\n\nclass Solution {\n\n    static class TreeNode {\n        int val;\n        TreeNode left;\n        TreeNode right;\n\n        TreeNode(int val) {\n            this.val = val;\n        }\n    }\n\n    static TreeNode buildTree(Integer[] values) {\n        if (values.length == 0 || values[0] == null) {\n            return null;\n        }\n\n        TreeNode root = new TreeNode(values[0]);\n        Queue<TreeNode> queue = new LinkedList<>();\n        queue.offer(root);\n\n        int index = 1;\n\n        while (!queue.isEmpty() && index < values.length) {\n            TreeNode node = queue.poll();\n\n            if (index < values.length) {\n                if (values[index] != null) {\n                    node.left = new TreeNode(values[index]);\n                    queue.offer(node.left);\n                }\n                index++;\n            }\n\n            if (index < values.length) {\n                if (values[index] != null) {\n                    node.right = new TreeNode(values[index]);\n                    queue.offer(node.right);\n                }\n                index++;\n            }\n        }\n\n        return root;\n    }\n\n    static boolean hasPathSum(\n            TreeNode root,\n            long target) {\n\n        if (root == null) {\n            return false;\n        }\n\n        if (root.left == null &&\n            root.right == null) {\n            return root.val == target;\n        }\n\n        long remaining = target - root.val;\n\n        return hasPathSum(root.left, remaining)\n                || hasPathSum(root.right, remaining);\n    }\n\n    static Integer[] parseArray(String input) {\n        input = input.trim();\n\n        if (input.equals(\"[]\")) {\n            return new Integer[0];\n        }\n\n        String content =\n                input.substring(1, input.length() - 1).trim();\n\n        if (content.isEmpty()) {\n            return new Integer[0];\n        }\n\n        String[] parts = content.split(\",\");\n        Integer[] result = new Integer[parts.length];\n\n        for (int i = 0; i < parts.length; i++) {\n            String value = parts[i].trim();\n\n            if (value.equals(\"null\")) {\n                result[i] = null;\n            } else {\n                result[i] = Integer.parseInt(value);\n            }\n        }\n\n        return result;\n    }\n\n    public static void main(String[] args) {\n\n        Scanner scanner = new Scanner(System.in);\n\n        if (!scanner.hasNextLine()) {\n            return;\n        }\n\n        String treeLine =\n                scanner.nextLine().trim();\n\n        if (!scanner.hasNextLine()) {\n            return;\n        }\n\n        long target =\n                Long.parseLong(\n                    scanner.nextLine().trim()\n                );\n\n        Integer[] values =\n                parseArray(treeLine);\n\n        TreeNode root =\n                buildTree(values);\n\n        System.out.println(\n                hasPathSum(root, target)\n                    ? \"true\"\n                    : \"false\"\n        );\n    }\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Path Sum - C",
+                        "language": "c",
+                        "code": "#include <stdio.h>\n#include <stdlib.h>\n\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode* left;\n    struct TreeNode* right;\n} TreeNode;\n\n\nTreeNode* createNode(int value) {\n    TreeNode* node =\n        (TreeNode*)malloc(sizeof(TreeNode));\n\n    node->val = value;\n    node->left = NULL;\n    node->right = NULL;\n\n    return node;\n}\n\n\nvoid parseArray(\n        const char* input,\n        int values[],\n        int isNull[],\n        int* size) {\n\n    *size = 0;\n\n    const char* p = input;\n\n    while (*p) {\n\n        if (*p == '-' ||\n            (*p >= '0' && *p <= '9')) {\n\n            char* end;\n\n            long value =\n                strtol(p, &end, 10);\n\n            values[*size] = (int)value;\n            isNull[*size] = 0;\n            (*size)++;\n\n            p = end;\n\n        } else if (*p == 'n') {\n\n            isNull[*size] = 1;\n            values[*size] = 0;\n            (*size)++;\n\n            while (*p && *p != ',') {\n                p++;\n            }\n\n        } else {\n            p++;\n        }\n    }\n}\n\n\nTreeNode* buildTree(\n        int values[],\n        int isNull[],\n        int size) {\n\n    if (size == 0 || isNull[0]) {\n        return NULL;\n    }\n\n    TreeNode* root =\n        createNode(values[0]);\n\n    TreeNode* queue[10000];\n\n    int front = 0;\n    int rear = 0;\n    int index = 1;\n\n    queue[rear++] = root;\n\n    while (\n        front < rear &&\n        index < size\n    ) {\n\n        TreeNode* node =\n            queue[front++];\n\n        if (index < size) {\n\n            if (!isNull[index]) {\n                node->left =\n                    createNode(values[index]);\n\n                queue[rear++] =\n                    node->left;\n            }\n\n            index++;\n        }\n\n        if (index < size) {\n\n            if (!isNull[index]) {\n                node->right =\n                    createNode(values[index]);\n\n                queue[rear++] =\n                    node->right;\n            }\n\n            index++;\n        }\n    }\n\n    return root;\n}\n\n\nint hasPathSum(\n        TreeNode* root,\n        long long target) {\n\n    if (root == NULL) {\n        return 0;\n    }\n\n    if (root->left == NULL &&\n        root->right == NULL) {\n\n        return root->val == target;\n    }\n\n    long long remaining =\n        target - root->val;\n\n    return hasPathSum(\n               root->left,\n               remaining\n           )\n           ||\n           hasPathSum(\n               root->right,\n               remaining\n           );\n}\n\n\nint main() {\n\n    char treeLine[10000];\n\n    if (fgets(\n            treeLine,\n            sizeof(treeLine),\n            stdin\n        ) == NULL) {\n\n        return 0;\n    }\n\n    long long target;\n\n    if (scanf(\"%lld\", &target) != 1) {\n        return 0;\n    }\n\n    int values[10000];\n    int isNull[10000];\n    int size = 0;\n\n    parseArray(\n        treeLine,\n        values,\n        isNull,\n        &size\n    );\n\n    TreeNode* root =\n        buildTree(\n            values,\n            isNull,\n            size\n        );\n\n    printf(\n        hasPathSum(root, target)\n            ? \"true\\n\"\n            : \"false\\n\"\n    );\n\n    return 0;\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    },
+                    {
+                        "title": "Recursive Path Sum - C++",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <queue>\n\nusing namespace std;\n\n\nstruct TreeNode {\n    int val;\n    TreeNode* left;\n    TreeNode* right;\n\n    TreeNode(int value)\n        : val(value),\n          left(nullptr),\n          right(nullptr) {}\n};\n\n\nvector<string> parseArray(\n        const string& input) {\n\n    vector<string> result;\n    string current;\n\n    for (char c : input) {\n\n        if (c == ',' ||\n            c == '[' ||\n            c == ']') {\n\n            if (!current.empty()) {\n                result.push_back(current);\n                current.clear();\n            }\n\n        } else if (c != ' ') {\n            current += c;\n        }\n    }\n\n    if (!current.empty()) {\n        result.push_back(current);\n    }\n\n    return result;\n}\n\n\nTreeNode* buildTree(\n        const vector<string>& values) {\n\n    if (values.empty() ||\n        values[0] == \"null\") {\n\n        return nullptr;\n    }\n\n    TreeNode* root =\n        new TreeNode(stoi(values[0]));\n\n    queue<TreeNode*> q;\n    q.push(root);\n\n    int index = 1;\n\n    while (\n        !q.empty() &&\n        index < (int)values.size()\n    ) {\n\n        TreeNode* node =\n            q.front();\n\n        q.pop();\n\n        if (index < (int)values.size()) {\n\n            if (values[index] != \"null\") {\n\n                node->left =\n                    new TreeNode(\n                        stoi(values[index])\n                    );\n\n                q.push(node->left);\n            }\n\n            index++;\n        }\n\n        if (index < (int)values.size()) {\n\n            if (values[index] != \"null\") {\n\n                node->right =\n                    new TreeNode(\n                        stoi(values[index])\n                    );\n\n                q.push(node->right);\n            }\n\n            index++;\n        }\n    }\n\n    return root;\n}\n\n\nclass Solution {\n\npublic:\n\n    bool hasPathSum(\n            TreeNode* root,\n            long long target) {\n\n        if (root == nullptr) {\n            return false;\n        }\n\n        if (root->left == nullptr &&\n            root->right == nullptr) {\n\n            return root->val == target;\n        }\n\n        long long remaining =\n            target - root->val;\n\n        return hasPathSum(\n                   root->left,\n                   remaining\n               )\n               ||\n               hasPathSum(\n                   root->right,\n                   remaining\n               );\n    }\n\n\n    bool solve(\n            const vector<string>& values,\n            long long target) {\n\n        TreeNode* root =\n            buildTree(values);\n\n        return hasPathSum(\n            root,\n            target\n        );\n    }\n};\n\n\nint main() {\n\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    string treeLine;\n\n    if (!getline(cin, treeLine)) {\n        return 0;\n    }\n\n    string targetLine;\n\n    if (!getline(cin, targetLine)) {\n        return 0;\n    }\n\n    long long target =\n        stoll(targetLine);\n\n    vector<string> values =\n        parseArray(treeLine);\n\n    Solution solution;\n\n    cout <<\n        (solution.solve(values, target)\n            ? \"true\"\n            : \"false\")\n        << '\\n';\n\n    return 0;\n}\n",
+                        "complexity_analysis": "Time: O(N). Space: O(H).",
+                        "is_primary": false,
+                        "approach": "optimal"
+                    }
+                ]
+            }
         },
         {
             "title": "Ticket 19 — Census of Sensor Network",
@@ -1558,7 +1537,7 @@
                     "description": "Validate your code against test case 1.",
                     "points": 10,
                     "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "expected_output": "3",
                     "order_index": 1
                 },
                 {
@@ -1566,563 +1545,103 @@
                     "task_slug": "task-sprint6-generated-19-2",
                     "description": "Validate your code against test case 2.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1]",
+                    "expected_output": "1",
                     "order_index": 2
                 },
                 {
-                    "title": "Test Case 3",
+                    "title": "Test Case 3 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-3",
                     "description": "Validate your code against test case 3.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[]",
+                    "expected_output": "0",
                     "order_index": 3
                 },
                 {
-                    "title": "Test Case 4",
+                    "title": "Test Case 4 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-4",
                     "description": "Validate your code against test case 4.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2]",
+                    "expected_output": "2",
                     "order_index": 4
                 },
                 {
-                    "title": "Test Case 5",
+                    "title": "Test Case 5 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-5",
                     "description": "Validate your code against test case 5.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,3,4]",
+                    "expected_output": "4",
                     "order_index": 5
                 },
                 {
-                    "title": "Test Case 6",
+                    "title": "Test Case 6 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-6",
                     "description": "Validate your code against test case 6.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,3,4,5]",
+                    "expected_output": "5",
                     "order_index": 6
                 },
                 {
-                    "title": "Test Case 7",
+                    "title": "Test Case 7 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-7",
                     "description": "Validate your code against test case 7.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,3,4,5,6]",
+                    "expected_output": "6",
                     "order_index": 7
                 },
                 {
-                    "title": "Test Case 8",
+                    "title": "Test Case 8 (Hidden/Advanced)",
                     "task_slug": "task-sprint6-generated-19-8",
                     "description": "Validate your code against test case 8.",
                     "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
+                    "input": "[1,2,3,4,5,6,7]",
+                    "expected_output": "7",
                     "order_index": 8
                 }
-            ]
-        },
-        {
-            "title": "Ticket 20 — City Skyline Analysis",
-            "ticket_slug": "ticket-sprint6-generated-20",
-            "description": "A drone flies on the right side of a branching tree-like building complex. Record only the nodes (rooms) visible from the right side.\n\n### Problem Statement\nA drone flies on the right side of a branching tree-like building complex. Record only the nodes (rooms) visible from the right side.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 20,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-20-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-20-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-20-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-20-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-20-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-20-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-20-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-20-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 21 — Inventory Rank Lookup",
-            "ticket_slug": "ticket-sprint6-generated-21",
-            "description": "A warehouse database is sorted as a BST. An auditor needs to find the 'k'-th cheapest product in the inventory.\n\n### Problem Statement\nA warehouse database is sorted as a BST. An auditor needs to find the 'k'-th cheapest product in the inventory.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 21,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-21-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-21-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-21-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-21-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-21-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-21-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-21-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-21-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 22 — State Snapshots for Games",
-            "ticket_slug": "ticket-sprint6-generated-22",
-            "description": "A video game saves player choices as a binary search tree. Serialize this tree into a save file, and deserialize it on game load.\n\n### Problem Statement\nA video game saves player choices as a binary search tree. Serialize this tree into a save file, and deserialize it on game load.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 22,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-22-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-22-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-22-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-22-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-22-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-22-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-22-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-22-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 23 — Document Export to PDF",
-            "ticket_slug": "ticket-sprint6-generated-23",
-            "description": "A hierarchical document tree (chapters, sections, subsections) needs to be flattened into a linear linked list of pages for PDF export.\n\n### Problem Statement\nA hierarchical document tree (chapters, sections, subsections) needs to be flattened into a linear linked list of pages for PDF export.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 23,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-23-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-23-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-23-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-23-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-23-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-23-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-23-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-23-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 24 — Trim Network Edge Nodes",
-            "ticket_slug": "ticket-sprint6-generated-24",
-            "description": "To conserve power, a data center must identify and temporarily shut down all the outermost edge nodes (leaves) of its server network.\n\n### Problem Statement\nTo conserve power, a data center must identify and temporarily shut down all the outermost edge nodes (leaves) of its server network.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 24,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-24-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-24-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-24-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-24-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-24-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-24-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-24-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-24-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
-        },
-        {
-            "title": "Ticket 25 — Maximum Fiber Optic Cable Length",
-            "ticket_slug": "ticket-sprint6-generated-25",
-            "description": "An ISP is laying cables. Find the diameter of the network tree to determine the longest possible continuous fiber optic connection between any two endpoints.\n\n### Problem Statement\nAn ISP is laying cables. Find the diameter of the network tree to determine the longest possible continuous fiber optic connection between any two endpoints.\n\nImplement the solution based on standard tree operations.",
-            "xp_reward": 100,
-            "ticket_type": "algo",
-            "difficulty": "EASY",
-            "order_index": 25,
-            "tasks": [
-                {
-                    "title": "Test Case 1",
-                    "task_slug": "task-sprint6-generated-25-1",
-                    "description": "Validate your code against test case 1.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 1
-                },
-                {
-                    "title": "Test Case 2",
-                    "task_slug": "task-sprint6-generated-25-2",
-                    "description": "Validate your code against test case 2.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 2
-                },
-                {
-                    "title": "Test Case 3",
-                    "task_slug": "task-sprint6-generated-25-3",
-                    "description": "Validate your code against test case 3.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 3
-                },
-                {
-                    "title": "Test Case 4",
-                    "task_slug": "task-sprint6-generated-25-4",
-                    "description": "Validate your code against test case 4.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 4
-                },
-                {
-                    "title": "Test Case 5",
-                    "task_slug": "task-sprint6-generated-25-5",
-                    "description": "Validate your code against test case 5.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 5
-                },
-                {
-                    "title": "Test Case 6",
-                    "task_slug": "task-sprint6-generated-25-6",
-                    "description": "Validate your code against test case 6.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 6
-                },
-                {
-                    "title": "Test Case 7",
-                    "task_slug": "task-sprint6-generated-25-7",
-                    "description": "Validate your code against test case 7.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 7
-                },
-                {
-                    "title": "Test Case 8",
-                    "task_slug": "task-sprint6-generated-25-8",
-                    "description": "Validate your code against test case 8.",
-                    "points": 10,
-                    "input": "[1,2,3]",
-                    "expected_output": "[]",
-                    "order_index": 8
-                }
-            ]
+            ],
+            "hints": [
+                "The input represents a binary tree in level-order form.",
+                "The task is to count the number of nodes in the tree.",
+                "An empty tree contains zero nodes.",
+                "You can traverse the tree using recursion or an iterative queue."
+            ],
+            "solution": {
+                "solutions": [
+                    {
+                        "title": "Count Nodes - Python",
+                        "language": "python",
+                        "code": "import sys\nimport re\n\n\ndef count_nodes(values):\n    return len(values)\n\n\nline = sys.stdin.read().strip()\n\nvalues = re.findall(r'-?\\d+', line)\n\nprint(count_nodes(values))",
+                        "complexity_analysis": "Time: O(N). Space: O(N) for the parsed input.",
+                        "is_primary": true
+                    },
+                    {
+                        "title": "Count Nodes - Java",
+                        "language": "java",
+                        "code": "import java.util.*;\n\npublic class Solution {\n\n    static int countNodes(String input) {\n        if (input == null || input.trim().equals(\"[]\")) {\n            return 0;\n        }\n\n        String content = input.trim();\n\n        int open = content.indexOf('[');\n        int close = content.lastIndexOf(']');\n\n        if (open == -1 || close == -1 || close <= open) {\n            return 0;\n        }\n\n        String values = content.substring(open + 1, close).trim();\n\n        if (values.isEmpty()) {\n            return 0;\n        }\n\n        return values.split(\",\").length;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        StringBuilder input = new StringBuilder();\n\n        while (sc.hasNextLine()) {\n            input.append(sc.nextLine());\n        }\n\n        System.out.print(countNodes(input.toString()));\n    }\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(N) for the parsed input.",
+                        "is_primary": false
+                    },
+                    {
+                        "title": "Count Nodes - C",
+                        "language": "c",
+                        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char input[10000];\n\n    if (fgets(input, sizeof(input), stdin) == NULL) {\n        printf(\"0\");\n        return 0;\n    }\n\n    char *open = strchr(input, '[');\n    char *close = strrchr(input, ']');\n\n    if (open == NULL || close == NULL || close <= open + 1) {\n        printf(\"0\");\n        return 0;\n    }\n\n    int count = 1;\n\n    for (char *p = open + 1; p < close; p++) {\n        if (*p == ',') {\n            count++;\n        }\n    }\n\n    printf(\"%d\", count);\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "is_primary": false
+                    },
+                    {
+                        "title": "Count Nodes - CPP",
+                        "language": "cpp",
+                        "code": "#include <iostream>\n#include <string>\n#include <sstream>\nusing namespace std;\n\nint main() {\n    string line;\n    getline(cin, line);\n\n    size_t open = line.find('[');\n    size_t close = line.rfind(']');\n\n    if (open == string::npos || close == string::npos || close <= open + 1) {\n        cout << 0;\n        return 0;\n    }\n\n    string content = line.substr(open + 1, close - open - 1);\n\n    if (content.empty()) {\n        cout << 0;\n        return 0;\n    }\n\n    int count = 1;\n\n    for (char c : content) {\n        if (c == ',') {\n            count++;\n        }\n    }\n\n    cout << count;\n\n    return 0;\n}",
+                        "complexity_analysis": "Time: O(N). Space: O(1).",
+                        "is_primary": false
+                    }
+                ]
+            }
         }
     ]
 }

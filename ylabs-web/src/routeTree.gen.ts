@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -30,6 +31,7 @@ import { Route as StudentCertificatesRouteImport } from './routes/student.certif
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
+import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
 import { Route as EvaluationSystemCheckRouteImport } from './routes/evaluation.system-check'
@@ -58,6 +60,7 @@ import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as StudentCollaborationSquadsRouteImport } from './routes/student.collaboration.squads'
 import { Route as StudentCollaborationConnectionsRouteImport } from './routes/student.collaboration.connections'
 import { Route as StudentCollaborationBrowseRouteImport } from './routes/student.collaboration.browse'
+import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
 import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
@@ -88,6 +91,11 @@ const RecruiterLoginRoute = RecruiterLoginRouteImport.update({
 const RecruiterRoute = RecruiterRouteImport.update({
   id: '/recruiter',
   path: '/recruiter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -178,6 +186,11 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
 const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => RecruiterRoute,
+} as any)
+const RecruiterBillingRoute = RecruiterBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => RecruiterRoute,
 } as any)
 const GithubCallbackRoute = GithubCallbackRouteImport.update({
@@ -325,6 +338,11 @@ const StudentCollaborationBrowseRoute =
     path: '/browse',
     getParentRoute: () => StudentCollaborationRoute,
   } as any)
+const SharedReportTokenRoute = SharedReportTokenRouteImport.update({
+  id: '/shared/report/$token',
+  path: '/shared/report/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordUidb64TokenRoute =
   ResetPasswordUidb64TokenRouteImport.update({
     id: '/reset-password/$uidb64/$token',
@@ -424,6 +442,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
@@ -448,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -464,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -489,6 +510,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/ai-mentor': typeof AdminAiMentorRoute
@@ -511,6 +533,7 @@ export interface FileRoutesByTo {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -526,6 +549,7 @@ export interface FileRoutesByTo {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -554,6 +578,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
@@ -578,6 +603,7 @@ export interface FileRoutesById {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -594,6 +620,7 @@ export interface FileRoutesById {
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
+  '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
   '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
   '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
@@ -623,6 +650,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
     | '/student'
@@ -647,6 +675,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -663,6 +692,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -688,6 +718,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/forgot-password'
+    | '/pricing'
     | '/recruiter-login'
     | '/student'
     | '/admin/ai-mentor'
@@ -710,6 +741,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -725,6 +757,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -752,6 +785,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
     | '/student'
@@ -776,6 +810,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -792,6 +827,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
+    | '/shared/report/$token'
     | '/student/collaboration/browse'
     | '/student/collaboration/connections'
     | '/student/collaboration/squads'
@@ -820,11 +856,13 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  PricingRoute: typeof PricingRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   StudentRoute: typeof StudentRouteWithChildren
   GithubCallbackRoute: typeof GithubCallbackRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
+  SharedReportTokenRoute: typeof SharedReportTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -848,6 +886,13 @@ declare module '@tanstack/react-router' {
       path: '/recruiter'
       fullPath: '/recruiter'
       preLoaderRoute: typeof RecruiterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -974,6 +1019,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/recruiter/dashboard'
       preLoaderRoute: typeof RecruiterDashboardRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
+    '/recruiter/billing': {
+      id: '/recruiter/billing'
+      path: '/billing'
+      fullPath: '/recruiter/billing'
+      preLoaderRoute: typeof RecruiterBillingRouteImport
       parentRoute: typeof RecruiterRoute
     }
     '/github/callback': {
@@ -1171,6 +1223,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/collaboration/browse'
       preLoaderRoute: typeof StudentCollaborationBrowseRouteImport
       parentRoute: typeof StudentCollaborationRoute
+    }
+    '/shared/report/$token': {
+      id: '/shared/report/$token'
+      path: '/shared/report/$token'
+      fullPath: '/shared/report/$token'
+      preLoaderRoute: typeof SharedReportTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/reset-password/$uidb64/$token': {
       id: '/reset-password/$uidb64/$token'
@@ -1408,6 +1467,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
   )
 
 interface RecruiterRouteChildren {
+  RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -1416,6 +1476,7 @@ interface RecruiterRouteChildren {
 }
 
 const RecruiterRouteChildren: RecruiterRouteChildren = {
+  RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
@@ -1531,11 +1592,13 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  PricingRoute: PricingRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
   StudentRoute: StudentRouteWithChildren,
   GithubCallbackRoute: GithubCallbackRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
+  SharedReportTokenRoute: SharedReportTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

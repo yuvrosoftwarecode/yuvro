@@ -72,10 +72,14 @@ app.add_middleware(
         "https://backend-campus-dev.yuvro.ai",
         "https://code-executer-dev.yuvro.ai",
         "https://labs-dev.yuvro.ai",
+        "https://dev.yuvrolabs.com",
+        "https://backend-dev.yuvrolabs.com",
+        "https://backend-hub-dev.yuvro.ai",
         "http://code-dev.yuvro.ai",
         "http://campus-dev.yuvro.ai",
         "http://backend-code-dev.yuvro.ai",
         "http://backend-campus-dev.yuvro.ai",
+        "http://dev.yuvrolabs.com",
         # Staging / production
         "https://yuvro.ai",
         "https://www.yuvro.ai",
@@ -160,6 +164,7 @@ class DatabaseRunRequest(BaseModel):
     evaluation_id: Optional[str] = None
 
     expected_result: Optional[str] = None
+    connection_url: Optional[str] = None
 
 class PlagiarismCheckRequest(BaseModel):
     target_code: str
@@ -1715,7 +1720,11 @@ workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 def _workspace_dir(user_id: str, lab_id: str, sprint_id: str, evaluation_id: Optional[str] = None) -> Path:
     """Return the per-student workspace directory."""
     if evaluation_id:
+        if lab_id == "knowledge":
+            return WORKSPACES_ROOT / "evaluation" / evaluation_id / "users" / user_id / "labs" / lab_id / sprint_id
         return WORKSPACES_ROOT / "evaluation" / evaluation_id / "users" / user_id / "labs" / lab_id
+    if lab_id == "knowledge":
+        return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id / sprint_id
     return WORKSPACES_ROOT / "labs" / lab_id / "users" / user_id
 
 def _safe_path(workspace: Path, relative: str) -> Path:
@@ -1927,15 +1936,17 @@ def evaluate_task(body: EvaluateRequest):
     """
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     history_file = ws / ".bash_history"
+    rules = body.scoring_rules or {}
+    has_history_checks = bool(rules.get("checks")) or (not rules and bool(body.required_command))
     
-    if not history_file.exists():
+    if has_history_checks and not history_file.exists():
         return {"passed": False, "reason": "No command history found. Run commands in the in-browser terminal first."}
         
     try:
-        content = history_file.read_text(errors="replace")
-        lines = [line.strip() for line in content.splitlines() if line.strip()]
-        
-        rules = body.scoring_rules
+        lines = []
+        if history_file.exists():
+            content = history_file.read_text(errors="replace")
+            lines = [line.strip() for line in content.splitlines() if line.strip()]
         
         # -- If no scoring_rules provided fall back to simple substring check --
         if not rules:
@@ -1967,25 +1978,47 @@ def evaluate_task(body: EvaluateRequest):
                     
         # -- File-based checks ------------------------------------------
         for fc in rules.get("file_checks", []):
-            label        = fc.get("label", "file check")
-            rel_path     = fc.get("file", "")
+            label = fc.get("label", "file check")
+            rel_path = fc.get("file", "")
             check_exists = fc.get("exists", False)
             check_contains = fc.get("contains", None)
+            check_not_contains = fc.get("does_not_contain", None)
+            check_pattern = fc.get("pattern", None)
             
             target = ws / rel_path
             
-            if check_exists or check_contains is not None:
+            if check_exists or check_contains is not None or check_not_contains is not None or check_pattern is not None:
                 if not target.exists():
                     failed_labels.append(f"{label} (file not found: {rel_path})")
                     continue
                 
-                if check_contains is not None:
-                    try:
-                        file_content = target.read_text(errors="replace")
-                        if check_contains not in file_content:
-                            failed_labels.append(f"{label} (content not matched)")
-                    except Exception as e:
-                        failed_labels.append(f"{label} (read error: {e})")
+                try:
+                    file_content = target.read_text(errors="replace")
+                    
+                    # Check contains
+                    if check_contains is not None:
+                        if isinstance(check_contains, list):
+                            for needle in check_contains:
+                                if needle not in file_content:
+                                    failed_labels.append(f"{label} (missing '{needle}')")
+                        elif check_contains not in file_content:
+                            failed_labels.append(f"{label} (missing '{check_contains}')")
+                            
+                    # Check does_not_contain
+                    if check_not_contains is not None:
+                        if isinstance(check_not_contains, list):
+                            for needle in check_not_contains:
+                                if needle in file_content:
+                                    failed_labels.append(f"{label} (should not contain '{needle}')")
+                        elif check_not_contains in file_content:
+                            failed_labels.append(f"{label} (should not contain '{check_not_contains}')")
+                            
+                    # Check regex pattern
+                    if check_pattern is not None:
+                        if not _re.search(check_pattern, file_content):
+                            failed_labels.append(f"{label} (pattern match failed)")
+                except Exception as e:
+                    failed_labels.append(f"{label} (read error: {e})")
                         
         if failed_labels:
             hint = rules.get("fail_hint", "Missing requirements.")
@@ -2000,7 +2033,7 @@ def evaluate_task(body: EvaluateRequest):
         }
             
     except Exception as e:
-        return {"passed": False, "reason": f"Error reading history: {e}"}
+        return {"passed": False, "reason": f"Error during task evaluation: {e}"}
 
 class RunCommandRequest(BaseModel):
     user_id: str
@@ -2036,6 +2069,109 @@ async def run_command_endpoint(body: RunCommandRequest):
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "exit_code": -1}
 
+class RunTestCommandRequest(BaseModel):
+    user_id: str
+    lab_id: str
+    sprint_id: Optional[str] = None
+    command: str
+    evaluation_id: Optional[str] = None
+
+@workspace_router.post("/run_test_command")
+async def run_test_command_endpoint(body: RunTestCommandRequest):
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "0", body.evaluation_id)
+    ws.mkdir(parents=True, exist_ok=True)
+
+    starter_scoring_rules = None
+    if body.evaluation_id:
+        lab_starter_dir = WORKSPACES_ROOT / "evaluation" / body.evaluation_id / "labs" / body.lab_id
+    else:
+        lab_starter_dir = WORKSPACES_ROOT / "labs" / body.lab_id
+
+    if lab_starter_dir.exists():
+        if (lab_starter_dir / "yuvro_scoring_rules").exists():
+            starter_scoring_rules = lab_starter_dir / "yuvro_scoring_rules"
+        else:
+            for item in lab_starter_dir.iterdir():
+                if item.is_dir() and (item / "yuvro_scoring_rules").exists():
+                    starter_scoring_rules = item / "yuvro_scoring_rules"
+                    break
+
+    target_scoring_rules = ws / "yuvro_scoring_rules"
+    mounted_rules = False
+
+    try:
+        if starter_scoring_rules and not target_scoring_rules.exists():
+            shutil.copytree(starter_scoring_rules, target_scoring_rules)
+            mounted_rules = True
+
+        proc = await asyncio.create_subprocess_shell(
+            body.command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws)
+        )
+        stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=30.0)
+        stdout = stdout_bytes.decode(errors="replace")
+        stderr = stderr_bytes.decode(errors="replace")
+        exit_code = proc.returncode
+
+        parsed_data = None
+        try:
+            parsed_data = json.loads(stdout.strip())
+        except Exception:
+            json_match = _re.search(r'(\{[\s\S]*"tasks"[\s\S]*\})', stdout)
+            if json_match:
+                try:
+                    parsed_data = json.loads(json_match.group(1))
+                except Exception:
+                    pass
+
+        total_score = 0
+        max_possible_score = 100
+        percentage = 0
+        if isinstance(parsed_data, dict):
+            total_score = parsed_data.get("total_score", 0)
+            max_possible_score = parsed_data.get("max_possible_score", 100) or 100
+            if max_possible_score > 0:
+                percentage = int(round((total_score / max_possible_score) * 100))
+
+        return {
+            "stdout": stdout,
+            "stderr": stderr,
+            "exit_code": exit_code,
+            "data": parsed_data,
+            "total_score": total_score,
+            "max_possible_score": max_possible_score,
+            "percentage": percentage
+        }
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+        except Exception:
+            pass
+        return {
+            "stdout": "",
+            "stderr": "Test command execution timed out (30s limit exceeded)",
+            "exit_code": -1,
+            "data": None,
+            "total_score": 0,
+            "max_possible_score": 100,
+            "percentage": 0
+        }
+    except Exception as e:
+        return {
+            "stdout": "",
+            "stderr": str(e),
+            "exit_code": -1,
+            "data": None,
+            "total_score": 0,
+            "max_possible_score": 100,
+            "percentage": 0
+        }
+    finally:
+        if mounted_rules and target_scoring_rules.exists():
+            shutil.rmtree(target_scoring_rules, ignore_errors=True)
+
 @workspace_router.post("/database_run")
 async def database_run_endpoint(body: DatabaseRunRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, getattr(body, "evaluation_id", None))
@@ -2066,6 +2202,7 @@ class DatabaseSubmitRequest(BaseModel):
     database_engine: str = "sqlite"
     db_file: str = "lab.db"
     evaluation_id: Optional[str] = None
+    connection_url: Optional[str] = None
     tasks: List[DatabaseSubmitTask]
 
 @workspace_router.post("/database_submit")
@@ -2086,6 +2223,7 @@ async def database_submit_endpoint(body: DatabaseSubmitRequest):
                 database_engine=body.database_engine,
                 db_file=body.db_file,
                 evaluation_id=body.evaluation_id,
+                connection_url=body.connection_url,
                 task_file=task.task_file,
                 task_id=task.task_id,
                 expected_query=task.expected_query,
@@ -2131,6 +2269,7 @@ class DatabaseEvaluateRequest(BaseModel):
     lab_id: Optional[str] = None
     sprint_id: Optional[str] = None
     db_file: Optional[str] = None
+    connection_url: Optional[str] = None
     user_query: str
     expected_query: str
     user_output: str
@@ -2776,6 +2915,46 @@ sqlite3() {
                 pass
 
     await websocket.close()
+
+
+# ─── Browser Preview Proxy ────────────────────────────────────────────────────
+# Forwards the browser's preview request to a process running on the host
+# (e.g. Django runserver bound to 0.0.0.0:8010 inside the workspace terminal).
+# On dev/prod the workspace bash session runs inside this container, but the
+# process binds on the HOST network namespace (port-mapped via docker-compose),
+# so we reach it via host.docker.internal (requires extra_hosts in compose).
+import urllib.request as _urllib_req
+import urllib.error as _urllib_err
+import socket as _socket
+
+def _preview_host() -> str:
+    """Return the best host to reach workspace processes from inside this container."""
+    # Try host.docker.internal first (set via extra_hosts: host-gateway)
+    try:
+        return _socket.gethostbyname("host.docker.internal")
+    except _socket.gaierror:
+        return "localhost"
+
+@workspace_router.get("/preview")
+@workspace_router.get("/preview/{subpath:path}")
+async def workspace_preview_proxy(
+    port: int = Query(8000),
+    subpath: str = "",
+):
+    target_path = "/" + subpath if subpath else "/"
+    host = _preview_host()
+    target_url = f"http://{host}:{port}{target_path}"
+    try:
+        with _urllib_req.urlopen(_urllib_req.Request(target_url), timeout=10) as resp:
+            content = resp.read()
+            ctype = resp.headers.get("Content-Type", "text/html")
+            from fastapi.responses import Response
+            return Response(content=content, media_type=ctype)
+    except _urllib_err.URLError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Preview unavailable — no process listening on port {port}"
+        )
 
 
 app.include_router(workspace_router)

@@ -346,6 +346,7 @@ class Question(models.Model):
         ("skill_test", "Skill Test"),
         ("contest", "Contest"),
         ("mock_interview", "Mock Interview"),
+        ("ylabs_evaluation", "YLabs Evaluation"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -385,7 +386,7 @@ class Question(models.Model):
     )
     categories = models.JSONField(
         default=list,
-        help_text="List of categories this question belongs to (learn, practice, skill_test, contest)",
+        help_text="List of categories this question belongs to (learn, practice, skill_test, contest, ylabs_evaluation)",
     )
 
     # MCQ specific fields

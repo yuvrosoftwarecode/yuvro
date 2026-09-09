@@ -1,6 +1,9 @@
 import { restApiUtil, yhubApiUtil } from "../utils/RestApiUtil";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 
+export let tempResumeFile: File | null = null;
+export function setTempResumeFile(file: File | null) { tempResumeFile = file; }
+
 export const evaluationService = {
   async sendRegistrationOtp(
     evaluationId: string,
@@ -26,10 +29,10 @@ export const evaluationService = {
     });
   },
 
-  async registerPublicEvaluation(evaluationId: string, accessToken?: string): Promise<any> {
+  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string): Promise<any> {
     return restApiUtil.post(
       `/skill_evaluation/evaluations/${evaluationId}/public_register/`,
-      {},
+      { resume_url: resumeUrl },
       {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       },
@@ -43,9 +46,17 @@ export const evaluationService = {
   },
 
   async getWorkspaceData(evaluationId: string): Promise<any> {
+    let emailParam = "";
+    try {
+      if (typeof window !== "undefined") {
+        const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
+        if (cand?.email) emailParam = `?email=${encodeURIComponent(cand.email)}`;
+      }
+    } catch {}
+
     const [evalData, allLabs] = await Promise.all([
-      restApiUtil.get(`/skill_evaluation/evaluations/${evaluationId}/`),
-      restApiUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
+      restApiAuthUtil.get(`/skill_evaluation/evaluations/${evaluationId}/${emailParam}`),
+      restApiAuthUtil.get(`/skill_evaluation/lab-questions/`).catch(() => []),
     ]);
 
     if ((evalData as any).sections) {

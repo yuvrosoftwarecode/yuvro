@@ -643,6 +643,33 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         return qs
 
+    @action(detail=False, methods=['post'])
+    def check_duplicate(self, request):
+        import re
+        content = request.data.get('content', '')
+        course_id = request.data.get('course')
+        
+        if not content or not course_id:
+            return Response({"error": "Content and course are required"}, status=400)
+            
+        normalized_input = re.sub(r'\s+', ' ', content.strip().lower())
+        if not normalized_input:
+            return Response({"is_duplicate": False})
+            
+        questions = Question.objects.filter(course_id=course_id).only('id', 'title', 'content')
+        for q in questions:
+            if not q.content:
+                continue
+            norm_q = re.sub(r'\s+', ' ', q.content.strip().lower())
+            if norm_q == normalized_input:
+                return Response({
+                    "is_duplicate": True,
+                    "duplicate_id": str(q.id),
+                    "duplicate_title": q.title
+                })
+                
+        return Response({"is_duplicate": False})
+
     def create(self, request, *args, **kwargs):
         user = request.user
 
@@ -667,7 +694,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not course:
             return Response({"error": "Invalid course/topic/subtopic"}, status=400)
 
-        if user.role == "admin" or (
+        if user.role in ["admin", "recruiter"] or (
             user.role == "instructor" and instructor_assigned(user, course)
         ):
             return super().create(request, *args, **kwargs)
@@ -699,7 +726,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         if user.role == "admin" or (
             user.role == "instructor" and instructor_assigned(user, course)
-        ):
+        ) or (user.role == "recruiter" and getattr(question, 'created_by_id', None) == user.id):
             return super().update(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -722,7 +749,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         if user.role == "admin" or (
             user.role == "instructor" and instructor_assigned(user, course)
-        ):
+        ) or (user.role == "recruiter" and getattr(question, 'created_by_id', None) == user.id):
             return super().destroy(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
