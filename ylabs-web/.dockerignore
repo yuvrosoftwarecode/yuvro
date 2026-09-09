@@ -31,9 +31,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Lovable config (should not be in build context)
-.lovable/
-
 # Docker files (not needed in build context)
 Dockerfile
 .dockerignore
