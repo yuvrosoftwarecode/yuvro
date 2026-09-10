@@ -39,7 +39,7 @@ export default defineConfig({
       ],
     },
     ssr: {
-      noExternal: [],
+      noExternal: ['react-markdown', 'remark-gfm', 'react-syntax-highlighter'],
     },
     build: {
       modulePreload: {
