@@ -18,11 +18,13 @@ interface ChatMessagesProps {
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
   activeStream?: { id: string; content: string } | null;
+  activeFile?: string;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, activeStream }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, activeStream, activeFile }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+  const [appliedCodeId, setAppliedCodeId] = useState<string | null>(null);
 
   const staticTypingSentences = [
     "Alright, give me a second to think...",
@@ -84,6 +86,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
     navigator.clipboard.writeText(code);
     setCopiedCodeId(id);
     setTimeout(() => setCopiedCodeId(null), 2000);
+  };
+
+  const handleApplyCode = (code: string, id: string) => {
+    if (onInsertCode) {
+      onInsertCode(code);
+      setAppliedCodeId(id);
+      setTimeout(() => setAppliedCodeId(null), 2000);
+    }
   };
 
   const filteredMessages = messages.filter((message) => {
@@ -165,18 +175,32 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                               <div className="flex items-center gap-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => handleCopyCode(codeString, codeId)}
-                                  className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white transition-all"
+                                  className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white transition-all flex items-center gap-1"
                                   title="Copy code"
                                 >
                                   {copiedCodeId === codeId ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                                 </button>
                                 {onInsertCode && (
                                   <button
-                                    onClick={() => onInsertCode(codeString)}
-                                    className="p-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-sm"
-                                    title="Insert code into editor"
+                                    onClick={() => handleApplyCode(codeString, codeId)}
+                                    className={`px-2 py-1 rounded-md text-white transition-all shadow-sm flex items-center gap-1 text-[11px] font-medium ${
+                                      appliedCodeId === codeId
+                                        ? 'bg-emerald-600'
+                                        : 'bg-indigo-600 hover:bg-indigo-500'
+                                    }`}
+                                    title={activeFile ? `Apply to ${activeFile}` : 'Apply code to editor'}
                                   >
-                                    <Terminal size={12} />
+                                    {appliedCodeId === codeId ? (
+                                      <>
+                                        <Check size={12} />
+                                        <span>Applied ✓</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Terminal size={12} />
+                                        <span>{activeFile ? `Apply to ${activeFile}` : 'Apply'}</span>
+                                      </>
+                                    )}
                                   </button>
                                 )}
                               </div>
