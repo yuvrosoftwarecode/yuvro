@@ -2553,7 +2553,7 @@ export function TicketIDE({
               AI Mentor
             </button>
           )}
-          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
+          {/* {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -2567,7 +2567,7 @@ export function TicketIDE({
                 </option>
               ))}
             </select>
-          )}
+          )} */}
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
