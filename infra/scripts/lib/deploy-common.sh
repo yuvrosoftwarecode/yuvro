@@ -159,7 +159,7 @@ compose_files_for() {
     case "$app" in
         ycode)   echo "$base -f docker-compose.ycode.yml   -f docker-compose.dev.yml" ;;
         ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
-        ylabs)   echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
+        ylabs)   echo "$base -f docker-compose.ylabs.yml   -f docker-compose.dev.yml" ;;
         yhub)    echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
         all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
@@ -449,23 +449,6 @@ echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
 
-# ── nginx ────────────────────────────────────────────────────────────────────
-nginx_config="$(app_nginx_config_for "$app")"
-if [ -n "$nginx_config" ]; then
-    # Copy app-specific nginx config to EC2
-    for nc in $nginx_config; do
-        scp_ec2 "$PROJECT_ROOT/$nc" "ubuntu@$ip:/tmp/$(basename $nc)"
-    done
-    # Merge configs and install
-    ssh_ec2 "ubuntu@$ip" "
-        cat /tmp/*.ec2.conf > /etc/nginx/sites-available/yuvro-dev
-        sudo nginx -t && sudo systemctl reload nginx
-    "
-    echo "   ✓ nginx reloaded"
-else
-    echo "   ⚠ No nginx config for $app"
-fi
-
 # ── fixtures ─────────────────────────────────────────────────────────────────
 echo "── fixtures — waiting 20s ──────────────────────────"
 sleep 20
@@ -483,11 +466,11 @@ DEPLOY_EOF
     print_success "[$app] deployed  [total elapsed: $(elapsed)]"
 }
 
-# ── nginx + certbot ────────────────────────────────────────────────────────────
+# ── nginx + certbot (base setup - no app-specific logic) ────────────────────────────
 
-setup_nginx() {
+setup_nginx_base() {
     local ip=$1
-    print_header "Setting up Nginx + SSL"
+    print_header "Setting up Nginx + SSL (base)"
 
     ssh_ec2 "ubuntu@$ip" bash << 'NINST'
 set -e
@@ -495,51 +478,18 @@ command -v nginx  &>/dev/null || sudo apt-get install -y nginx certbot python3-c
 command -v make   &>/dev/null || sudo apt-get install -y make -q
 sudo mkdir -p /var/www/certbot
 sudo rm -f /etc/nginx/sites-enabled/default
-sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev 2>/dev/null || true
 echo "✓ nginx + certbot ready"
 NINST
 
-    scp_ec2 "$PROJECT_ROOT/ycode-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ycode.ec2.conf"
-    scp_ec2 "$PROJECT_ROOT/ycampus-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ycampus.ec2.conf"
-    scp_ec2 "$PROJECT_ROOT/ylabs-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ylabs.ec2.conf"
-    scp_ec2 "$PROJECT_ROOT/yhub-backend-api/nginx.ec2.conf" "ubuntu@$ip:/tmp/yhub.ec2.conf"
-    scp_ec2 "$PROJECT_ROOT/yuvro-code-executer/nginx.ec2.conf" "ubuntu@$ip:/tmp/code-executor.ec2.conf"
+    print_success "Nginx + SSL base ready"
+}
 
-    ssh_ec2 "ubuntu@$ip" bash << 'CERTBOT'
-DOMAINS=( "code-dev.yuvro.ai" "campus-dev.yuvro.ai" "backend-code-dev.yuvro.ai"
-          "backend-campus-dev.yuvro.ai" "code-executer-dev.yuvro.ai"
-          "backend-hub-dev.yuvro.ai" "backend-dev.yuvrolabs.com" "dev.yuvrolabs.com" )
-CERT_EMAIL="rohith@yuvro.ai"
-
-ALL=true
-for d in "${DOMAINS[@]}"; do [ -d "/etc/letsencrypt/live/$d" ] || { ALL=false; break; }; done
-
-if [ "$ALL" = "true" ]; then
-    echo "✓ All certs exist — skipping certbot"
-else
-    sudo python3 -c "
-ds=['code-dev.yuvro.ai','campus-dev.yuvro.ai','backend-code-dev.yuvro.ai',
-    'backend-campus-dev.yuvro.ai','code-executer-dev.yuvro.ai',
-    'backend-hub-dev.yuvro.ai','backend-dev.yuvrolabs.com','dev.yuvrolabs.com']
-c=''.join(f'''server{{listen 80;server_name {d};location /.well-known/acme-challenge/{{root /var/www/certbot;}}location /{{return 301 https://\$host\$request_uri;}}}}\n''' for d in ds)
-open('/etc/nginx/sites-available/yuvro-dev','w').write(c)
-"
-    sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
-    for d in "${DOMAINS[@]}"; do
-        [ -d "/etc/letsencrypt/live/$d" ] && echo "✓ exists: $d" && continue
-        sudo certbot certonly --webroot --webroot-path /var/www/certbot \
-            --non-interactive --agree-tos --email "$CERT_EMAIL" -d "$d" 2>&1 \
-            && echo "✓ cert: $d" || echo "⚠ certbot failed: $d"
-    done
-fi
-
-sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
-sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx error"
-CRON="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
-( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON" ) | sudo crontab -
-CERTBOT
-
-    print_success "Nginx + SSL ready"
+# App-specific nginx setup functions (to be defined in each deploy script)
+setup_nginx() {
+    local ip=$1 app="${2:-all}"
+    # Default implementation - can be overridden by app-specific scripts
+    print_info "Using default nginx setup for $app"
+    setup_nginx_base "$ip"
 }
 
 # ── summary ────────────────────────────────────────────────────────────────────
@@ -610,6 +560,6 @@ ensure_infra_and_deploy() {
     wait_for_ssh    "$ip"
     wait_for_docker "$ip"
     run_deploy      "$ip" "$REPO_URL" "$app" "$branch"
-    setup_nginx     "$ip"
+    setup_nginx     "$ip" "$app"
     show_summary    "$ip" "$app"
 }
