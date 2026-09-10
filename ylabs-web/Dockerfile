@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build for YLabs React frontend (Vite + TanStack Start SSR)
+# Multi-stage build for YLabs React frontend (TanStack Start SSR)
 # BuildKit is required: DOCKER_BUILDKIT=1
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
@@ -11,14 +11,14 @@ COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline
 
-# ── development: Vite dev server with HMR ────────────────────────────────────
+# ── development: Vite dev server with HMR (for local dev) ───────────────────────
 FROM base AS development
 ARG CACHEBUST=1
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
 
-# ── build ─────────────────────────────────────────────────────────────────────
+# ── build: compile SSR bundle (for dev/QA on EC2) ───────────────────────────────
 FROM base AS build
 ARG VITE_BACKEND_API_BASE_URL
 ARG VITE_YHUB_BACKEND_API_BASE_URL
@@ -40,7 +40,7 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
 COPY . .
 RUN npm run build
 
-# ── serve: Node.js SSR server ─────────────────────────────────────────────────
+# ── serve: Node.js SSR server (for dev/QA on EC2) ─────────────────────────────────
 FROM node:20-alpine AS serve
 WORKDIR /app
 RUN apk add --no-cache curl
