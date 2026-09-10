@@ -71,6 +71,7 @@ services:
     depends_on:
       ylabs-backend:
         condition: service_started
+    command: npm run dev -- --host 0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 15s
