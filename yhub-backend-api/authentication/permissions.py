@@ -59,6 +59,45 @@ class IsRecruiterUser(BasePermission):
         )
 
 
+class IsRecruiterAccountManagerUser(BasePermission):
+    """
+    Permission class that allows access only to recruiter account manager users.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_recruiter_account_manager()
+        )
+
+
+class IsRecruiterFreelancerUser(BasePermission):
+    """
+    Permission class that allows access only to recruiter freelancer users.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_recruiter_freelancer()
+        )
+
+
+class IsMarketplaceUser(BasePermission):
+    """
+    Permission class that allows access to any user with a marketplace role.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and bool(request.user.roles.get("marketplace"))
+        )
+
+
 class ReadOnlyPermission(BasePermission):
     """
     Permission class that allows only read operations.
