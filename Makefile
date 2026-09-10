@@ -7,11 +7,11 @@
 #   DEPLOY_TYPE=k8s make install        - Use Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
-.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub
-.PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub
-.PHONY: install-ycode install-ycampus install-ylabs install-yhub run-ycode run-ycampus run-ylabs run-yhub
-.PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub clean-ycode clean-ycampus clean-ylabs clean-yhub
-.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
+.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-code-executor
+.PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-code-executor
+.PHONY: install-ycode install-ycampus install-ylabs install-yhub install-code-executor run-ycode run-ycampus run-ylabs run-yhub
+.PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-code-executor clean-ycode clean-ycampus clean-ylabs clean-yhub clean-code-executor
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub logs-code-executor load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
 .PHONY: db-reset db-reset-ycode db-reset-ycampus db-reset-ylabs db-reset-yhub
@@ -211,6 +211,7 @@ help:
 	@echo "  make install-ycampus    Build and start YCampus services only"
 	@echo "  make install-ylabs      Build and start YLabs services only"
 	@echo "  make install-yhub       Build and start YHub services only"
+	@echo "  make install-code-executor Build and start Code Executor only"
 	@echo "  make run-ycode          Start YCode services (no build)"
 	@echo "  make run-ycampus        Start YCampus services (no build)"
 	@echo "  make stop-ycode         Stop YCode services"
@@ -240,6 +241,7 @@ help:
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
 	@echo "  make deploy-ylabs                   Deploy YLabs only"
 	@echo "  make deploy-yhub                    Deploy YHub only"
+	@echo "  make deploy-code-executor           Deploy Code Executor only"
 	@echo ""
 	@echo "Image Build Commands (cache-friendly, BuildKit):"
 	@echo "  make deployImages                   Build all images (from cache)"
@@ -722,6 +724,17 @@ install-ylabs: _validate-deploy
 		echo "❌ Kubernetes deployment for YLabs is not configured"; \
 	fi
 
+install-code-executor: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🔨 Building Code Executor [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.code-executor.yml \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
+		echo "🚀 Starting Code Executor..."; \
+		docker compose -f docker-compose.code-executor.yml up; \
+	else \
+		echo "❌ Kubernetes deployment for Code Executor is not configured"; \
+	fi
+
 run-yhub: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -761,6 +774,88 @@ logs-yhub: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "📝 Viewing YHub logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
+	fi
+
+# YLabs
+run-ylabs: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting YLabs services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create executor 2>/dev/null || true; \
+		docker network create yuvro_ylabs 2>/dev/null || true; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
+			echo "❌ One or more YLabs services failed to become healthy. Showing logs:"; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ YLabs services are up and healthy!"; \
+		echo ""; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YLabs Frontend:  http://localhost:3002"; \
+		echo "   YLabs Backend:   http://localhost:8002"; \
+	else \
+		echo "❌ Kubernetes run for YLabs is not configured"; \
+	fi
+
+stop-ylabs: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🛑 Stopping YLabs services..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
+	fi
+
+clean-ylabs: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🧹 Cleaning YLabs containers and volumes..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
+	fi
+
+logs-ylabs: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📝 Viewing YLabs logs (Ctrl+C to exit)..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
+	fi
+
+# Code Executor
+run-code-executor: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting Code Executor [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose -f docker-compose.code-executor.yml up -d --wait || { \
+			echo "❌ Code Executor failed to become healthy. Showing logs:"; \
+			docker compose -f docker-compose.code-executor.yml ps; \
+			docker compose -f docker-compose.code-executor.yml logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ Code Executor is up and healthy!"; \
+		echo ""; \
+		docker compose -f docker-compose.code-executor.yml ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   Code Executor:  http://localhost:8009"; \
+	else \
+		echo "❌ Kubernetes run for Code Executor is not configured"; \
+	fi
+
+stop-code-executor: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🛑 Stopping Code Executor..."; \
+		docker compose -f docker-compose.code-executor.yml down; \
+	fi
+
+clean-code-executor: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🧹 Cleaning Code Executor containers and volumes..."; \
+		docker compose -f docker-compose.code-executor.yml down -v --remove-orphans; \
+	fi
+
+logs-code-executor: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📝 Viewing Code Executor logs (Ctrl+C to exit)..."; \
+		docker compose -f docker-compose.code-executor.yml logs -f; \
 	fi
 
 load-fixtures-ycode:
@@ -867,6 +962,10 @@ deploy-ylabs:
 deploy-yhub:
 	@echo "🚀 Deploying YHub to dev [branch=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH)
+
+deploy-code-executor:
+	@echo "🚀 Deploying Code Executor to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH)
 
 # ============================================================================
 # Code Executor Commands
@@ -1086,3 +1185,11 @@ deployImages-yhub: _validate-deploy
 		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
 		yhub-backend
 	@echo "✅ YHub images built!"
+
+deployImages-code-executor: _validate-deploy
+	@echo "🐳 Building Code Executor image (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose -f docker-compose.code-executor.yml \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		yuvro-code-executor
+	@echo "✅ Code Executor image built!"
