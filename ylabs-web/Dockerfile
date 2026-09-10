@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Multi-stage build for YLabs React frontend
 # BuildKit is required: DOCKER_BUILDKIT=1
+# Optimized for faster builds with aggressive caching and minimal production image
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
 FROM node:20-alpine AS base

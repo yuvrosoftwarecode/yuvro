@@ -86,7 +86,7 @@ function RecruiterDashboard() {
         {metrics.map((m) => (
           <div
             key={m.label}
-            className="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5"
+            className="relative overflow-hidden rounded-2xl border border-white/5 bg-white p-5"
           >
             <div
               className="absolute right-0 top-0 h-24 w-24 rounded-full bg-gradient-to-br opacity-10 blur-2xl"
@@ -105,7 +105,7 @@ function RecruiterDashboard() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-2xl border border-white/5 bg-white/[0.02]">
+      <div className="mt-10 rounded-2xl border border-white/5 bg-white">
         <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
           <div>
             <div className="text-[13px] font-medium">Recent Evaluations</div>

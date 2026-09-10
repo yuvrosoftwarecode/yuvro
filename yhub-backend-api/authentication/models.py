@@ -19,6 +19,11 @@ YLABS_ROLE_CHOICES = [
     ("recruiter", "Recruiter"),
 ]
 
+MARKETPLACE_ROLE_CHOICES = [
+    ("recruiter_account_manager", "Recruiter Account Manager"),
+    ("recruiter_freelancer", "Recruiter Freelancer"),
+]
+
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -45,7 +50,16 @@ class User(AbstractUser):
         return any(role == "instructor" for role in self.roles.values())
 
     def is_recruiter(self):
-        return any(role == "recruiter" for role in self.roles.values())
+        return any(
+            role in ["recruiter", "recruiter_account_manager", "recruiter_freelancer"]
+            for role in self.roles.values()
+        )
+
+    def is_recruiter_account_manager(self):
+        return any(role == "recruiter_account_manager" for role in self.roles.values())
+
+    def is_recruiter_freelancer(self):
+        return any(role == "recruiter_freelancer" for role in self.roles.values())
 
     def is_student(self):
         return any(role == "student" for role in self.roles.values())
@@ -67,6 +81,11 @@ class User(AbstractUser):
         ylabs_valid_keys = [r[0] for r in YLABS_ROLE_CHOICES]
         if ylabs_role and ylabs_role not in ylabs_valid_keys:
             raise ValidationError({"roles": f"Invalid ylabs role. Allowed: {', '.join(ylabs_valid_keys)}"})
+
+        marketplace_role = self.roles.get("marketplace")
+        marketplace_valid_keys = [r[0] for r in MARKETPLACE_ROLE_CHOICES]
+        if marketplace_role and marketplace_role not in marketplace_valid_keys:
+            raise ValidationError({"roles": f"Invalid marketplace role. Allowed: {', '.join(marketplace_valid_keys)}"})
 
     def save(self, *args, **kwargs):
         self.clean()

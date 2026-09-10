@@ -25,16 +25,16 @@ import { useEffect, useRef, useState } from "react";
 import { DeployInfo } from "@/components/common/DeployInfo";
 
 const primaryLinks = [
-  { to: "/student/dashboard", label: "Individual Hub", icon: LayoutDashboard },
-  { to: "/student/hackathons", label: "Hackathons", icon: Rocket },
+  { to: "/student/dashboard", label: "Simulation Hub", icon: LayoutDashboard },
+  // { to: "/student/hackathons", label: "Hackathons", icon: Rocket },
 ];
 
 const otherLinks = [
-  { to: "/student/collaboration", label: "Collaboration Hub", icon: Users },
-  { to: "/student/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/student/leaderboard", label: "Leaderboard", icon: Trophy },
-  { to: "/student/forum", label: "Forum", icon: MessagesSquare },
-  { to: "/student/certificates", label: "Certificates", icon: Award },
+  // { to: "/student/collaboration", label: "Collaboration Hub", icon: Users },
+  // { to: "/student/analytics", label: "Analytics", icon: BarChart3 },
+  // { to: "/student/leaderboard", label: "Leaderboard", icon: Trophy },
+  // { to: "/student/forum", label: "Forum", icon: MessagesSquare },
+  // { to: "/student/certificates", label: "Certificates", icon: Award },
 ];
 
 export function TopNav({
@@ -113,11 +113,11 @@ export function TopNav({
               onClick={() => setOpenOther((v) => !v)}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors ${otherActive || openOther ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}
             >
-              <MoreHorizontal className="h-3.5 w-3.5" />
+              {/* <MoreHorizontal className="h-3.5 w-3.5" />
               Other
               <ChevronDown
                 className={`h-3 w-3 transition-transform ${openOther ? "rotate-180" : ""}`}
-              />
+              /> */}
             </button>
             {openOther && (
               <div className="absolute left-0 top-full mt-1 w-52 rounded-md border border-border bg-popover shadow-lg p-1 z-50">
