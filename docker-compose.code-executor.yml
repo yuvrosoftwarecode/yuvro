@@ -1,0 +1,39 @@
+services:
+  yuvro-code-executor:
+    build:
+      context: ./yuvro-code-executer
+      dockerfile: Dockerfile
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
+    ports:
+      - "8009:8009"  # Main API
+      - "9002:9002"  # Prometheus metrics
+      - "8010:8010"  # Preview service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - ./yuvro-code-executer/.env.local
+      - path: ./yuvro-code-executer/.env.local-secrets
+        required: false
+    environment:
+      - WORKSPACES_ROOT=/workspaces
+      - YLABS_BACKEND_URL=http://ylabs-backend:8000
+    volumes:
+      - ./workspaces:/workspaces
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: on-failure
+    networks:
+      - executor
+      - ylabs
+
+networks:
+  executor:
+    external: true
+  ylabs:
+    external: true
+    name: yuvro_ylabs

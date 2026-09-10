@@ -159,9 +159,10 @@ compose_files_for() {
     case "$app" in
         ycode)   echo "$base -f docker-compose.ycode.yml   -f docker-compose.dev.yml" ;;
         ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
-        ylabs)   echo "$base -f docker-compose.ylabs.yml   -f docker-compose.dev.yml" ;;
+        ylabs)   echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
         yhub)    echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
-        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
+        code-executor) echo "-f docker-compose.code-executor.yml" ;;
+        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
@@ -171,6 +172,7 @@ services_for() {
         ycampus) echo "ycampus-backend ycampus-frontend" ;;
         ylabs)   echo "ylabs-backend ylabs-frontend" ;;
         yhub)    echo "yhub-backend" ;;
+        code-executor) echo "yuvro-code-executor" ;;
         all|*)   echo "" ;;
     esac
 }
@@ -181,6 +183,7 @@ fixture_containers_for() {
         ycampus) echo "yuvro-ycampus-backend-1" ;;
         ylabs)   echo "yuvro-ylabs-backend-1" ;;
         yhub)    echo "yuvro-yhub-backend-1" ;;
+        code-executor) echo "" ;;
         all|*)   echo "yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1" ;;
     esac
 }
@@ -254,15 +257,49 @@ wire_secrets() {
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
 
+# Secrets, nginx config, and domains for each app
+app_secrets_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets" ;;
+        ycampus) echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
+        ylabs)   echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
+        yhub)    echo "yhub-backend-api/.env.dev-secrets" ;;
+        code-executor) echo "yuvro-code-executer/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
+    esac
+}
+
+app_domains_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "code-dev.yuvro.ai backend-code-dev.yuvro.ai" ;;
+        ycampus) echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
+        ylabs)   echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
+        yhub)    echo "backend-hub-dev.yuvro.ai" ;;
+        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
+    esac
+}
+
+app_nginx_config_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "ycode-web/nginx.ec2.conf" ;;
+        ycampus) echo "ycampus-web/nginx.ec2.conf" ;;
+        ylabs)   echo "ylabs-web/nginx.ec2.conf" ;;
+        yhub)    echo "yhub-backend-api/nginx.ec2.conf" ;;
+        code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+    esac
+}
+
 copy_secrets_to_ec2() {
     local ip=$1
+    local app="${2:-all}"
     print_step "Copying secrets to EC2..."
-    for sf in \
-        ycode-backend-api/.env.dev-secrets  ycampus-backend-api/.env.dev-secrets \
-        yhub-backend-api/.env.dev-secrets   ylabs-backend-api/.env.dev-secrets \
-        ycode-web/.env.dev-secrets          ycampus-web/.env.dev-secrets \
-        ylabs-web/.env.dev-secrets          yuvro-code-executer/.env.dev-secrets
-    do
+    local secrets
+    secrets="$(app_secrets_for "$app")"
+    for sf in $secrets; do
         local local_path="$PROJECT_ROOT/$sf"
         if [ -f "$local_path" ]; then
             ssh_ec2 "ubuntu@$ip" "mkdir -p /home/ubuntu/yuvro/$(dirname "$sf")"
@@ -291,8 +328,8 @@ run_deploy() {
     scp_ec2 "$HOME/.ssh/ycode-ec2-github" "ubuntu@$ip:/home/ubuntu/.ssh/github_deploy_key"
 
     # Wire + copy secrets
-    wire_secrets
-    copy_secrets_to_ec2 "$ip"
+    wire_secrets "$app"
+    copy_secrets_to_ec2 "$ip" "$app"
 
     # Read Vite Google IDs
     local vite_google="" ycampus_google="" ylabs_google=""
