@@ -2184,6 +2184,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2191,6 +2192,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2209,6 +2211,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2216,6 +2219,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2227,51 +2231,31 @@ export function TicketIDE({
     }
 
     if (isReal && ticket.tasks && ticket.tasks.length > 0) {
-      setTab("problem");
-      setLeftCollapsed(false);
       setSubmitting(true);
-      let passedCount = 0;
-      const promises = ticket.tasks.map(async (task: any, idx: number) => {
-        const taskSlug = task.task_slug || `task-${idx}`;
-        const scoringRules: Record<string, any> = task.scoring_rules ?? {};
-        const reqCmd = "git";
-        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
-        try {
-          const { evaluateTask } = await import("@/services/workspaceService");
-          const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
-          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
-          if (result.passed) passedCount++;
-        } catch (err: any) {
-          setEvalResult((prev) => ({
-            ...prev,
-            [taskSlug]: { passed: false, reason: err.message },
-          }));
-        } finally {
-          setEvaluating((prev) => ({ ...prev, [taskSlug]: false }));
-        }
-      });
-      await Promise.all(promises);
-      setTicketScore({ passed: passedCount, total: ticket.tasks.length });
-      setSubmitting(false);
+      const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
+      const computedScore = report.totalScore;
       
-      if (isReal && slug !== "knowledge") {
+      if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-            }).catch(console.error);
+              score: computedScore
+            }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-            }).catch(console.error);
+              score: computedScore
+            }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
+        setSubmitting(false);
         if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
@@ -2312,6 +2296,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
@@ -2319,6 +2304,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
