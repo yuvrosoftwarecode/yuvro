@@ -450,7 +450,6 @@ echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 docker compose $compose_args ps
 
 # ── nginx ────────────────────────────────────────────────────────────────────
-local nginx_config
 nginx_config="$(app_nginx_config_for "$app")"
 if [ -n "$nginx_config" ]; then
     # Copy app-specific nginx config to EC2
