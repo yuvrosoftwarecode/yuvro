@@ -444,16 +444,28 @@ echo "── docker up [$app] ────────────────�
 T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
-docker compose $compose_args up -d --force-recreate $services
+docker compose $compose_args up -d --remove-orphans --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
 
 # ── nginx ────────────────────────────────────────────────────────────────────
-sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
-sudo nginx -t && sudo systemctl reload nginx \
-    && echo "   ✓ nginx reloaded" \
-    || echo "   ⚠ nginx config error"
+local nginx_config
+nginx_config="$(app_nginx_config_for "$app")"
+if [ -n "$nginx_config" ]; then
+    # Copy app-specific nginx config to EC2
+    for nc in $nginx_config; do
+        scp_ec2 "$PROJECT_ROOT/$nc" "ubuntu@$ip:/tmp/$(basename $nc)"
+    done
+    # Merge configs and install
+    ssh_ec2 "ubuntu@$ip" "
+        cat /tmp/*.ec2.conf > /etc/nginx/sites-available/yuvro-dev
+        sudo nginx -t && sudo systemctl reload nginx
+    "
+    echo "   ✓ nginx reloaded"
+else
+    echo "   ⚠ No nginx config for $app"
+fi
 
 # ── fixtures ─────────────────────────────────────────────────────────────────
 echo "── fixtures — waiting 20s ──────────────────────────"
@@ -488,7 +500,11 @@ sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-
 echo "✓ nginx + certbot ready"
 NINST
 
-    scp_ec2 "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" "ubuntu@$ip:/tmp/yuvro-nginx-https.conf"
+    scp_ec2 "$PROJECT_ROOT/ycode-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ycode.ec2.conf"
+    scp_ec2 "$PROJECT_ROOT/ycampus-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ycampus.ec2.conf"
+    scp_ec2 "$PROJECT_ROOT/ylabs-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ylabs.ec2.conf"
+    scp_ec2 "$PROJECT_ROOT/yhub-backend-api/nginx.ec2.conf" "ubuntu@$ip:/tmp/yhub.ec2.conf"
+    scp_ec2 "$PROJECT_ROOT/yuvro-code-executer/nginx.ec2.conf" "ubuntu@$ip:/tmp/code-executor.ec2.conf"
 
     ssh_ec2 "ubuntu@$ip" bash << 'CERTBOT'
 DOMAINS=( "code-dev.yuvro.ai" "campus-dev.yuvro.ai" "backend-code-dev.yuvro.ai"
