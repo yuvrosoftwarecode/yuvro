@@ -64,13 +64,14 @@ services:
     volumes:
       - ./ylabs-web:/app
       - /app/node_modules
-    ports:
-      - "3002:3000"
+    # Use --port 3002:3000 when running locally to expose on port 3002
+    # Production port 3002 is defined in docker-compose.dev.yml
     stdin_open: true
     tty: true
     depends_on:
       ylabs-backend:
         condition: service_started
+    command: npm run dev -- --host 0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 15s
