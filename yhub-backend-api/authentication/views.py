@@ -61,7 +61,7 @@ def login_view(request):
     if product:
         refresh["products"] = [product]
     else:
-        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
     
     return Response(
         {
@@ -130,7 +130,7 @@ def google_login_view(request):
     if product:
         refresh["products"] = [product]
     else:
-        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
 
     return Response(
         {
@@ -165,7 +165,7 @@ class UserRegistrationView(generics.CreateAPIView):
                 user.save(update_fields=["roles"])
             refresh["products"] = [product]
         else:
-            refresh["products"] = ["ycode", "ylabs", "ycampus"]
+            refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
 
         return Response(
             {
@@ -282,7 +282,7 @@ def public_verify_otp(request):
             
         token_serializer = CustomTokenObtainPairSerializer()
         refresh = token_serializer.get_token(user)
-        refresh["products"] = ["ycode", "ylabs", "ycampus"]
+        refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
         
         return Response({
             "status": "success", 
